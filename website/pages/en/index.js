@@ -7,6 +7,10 @@
 
 const React = require("react");
 
-const Index = () => null;
+const Index = () => (
+  <div>
+    <a href="/docs/doc1">Go to docs...</a>
+  </div>
+);
 
 module.exports = Index;
