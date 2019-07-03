@@ -1,0 +1,35 @@
+version: 2
+
+jobs:
+  deploy-docs:
+    docker:
+      - image: circleci/python:3.7.3-stretch
+    working_directory: /tmp/docs-deployment
+    steps:
+      - checkout
+      - run:
+          name: Build docs page
+          command: |
+            curl -sL https://deb.nodesource.com/setup_11.x | sudo bash -
+            sudo apt-get install -y nodejs
+            cd webside
+            npm install
+            npm run build
+      - run:
+          name: Deploy to S3
+          command: |
+            virtualenv ~/sdk
+            source ~/sdk/bin/activate
+            pip install awscli --upgrade
+            aws s3 sync website/build/saleor-docs $AWS_S3_BUCKET --acl public-read
+
+workflows:
+  version: 2
+  docs-deployment:
+    jobs:
+      - deploy-docs:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
