@@ -69,6 +69,8 @@ const siteConfig = {
 
   usePrism: ["graphql"],
 
+  markdownPlugins: [require("./markdown/pillbutton")],
+
   docsSideNavCollapsible: true,
 
   // Add custom scripts here that would be placed in <script> tags.

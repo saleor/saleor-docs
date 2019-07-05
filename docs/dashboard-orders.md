@@ -100,7 +100,7 @@ This is a function for store administrators to add orders, usually in cases wher
 
 ### How to Create an Order
 
-- Click [[Add Order]] on the main orders page and the draft orders section 
+- Click [[Add Order]] on the main orders page and the draft orders section
 - Select products from the drop-down menu or by typing the product name 
 - Choose the customer name. Other customer information fields will then auto-complete.
 - Choose the shipping from the drop-down list of available couriers
@@ -110,4 +110,4 @@ Once you set up the order and finalize it using the button in the footer, it bec
 
 ### Draft Orders
 
-This is a list of orders created by administrators that have not yet been released to the system. 
+This is a list of orders created by administrators that have not yet been released to the system.

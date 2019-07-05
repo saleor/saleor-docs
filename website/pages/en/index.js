@@ -9,7 +9,7 @@ const React = require("react");
 
 const Index = () => (
   <div>
-    <a href="/docs/doc1">Go to docs...</a>
+    <a href="/docs/">Go to docs...</a>
   </div>
 );
 
