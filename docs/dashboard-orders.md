@@ -98,6 +98,7 @@ Every time you complete an action such as confirming and fulfilling an order, a 
 
 This is a function for store administrators to add orders, usually in cases where customer orders need to be resent but have already been fulfilled in the system. For example, if the customer was send damaged goods or is being sent a complimentary product due to customer service issues. It can also be used to create dummy and test orders and deal with stock issues.
 
+
 ### How to Create an Order
 
 - Click [[Add Order]] on the main orders page and the draft orders section
