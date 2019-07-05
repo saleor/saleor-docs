@@ -64,7 +64,7 @@ const siteConfig = {
 
   highlight: {
     // Highlight.js theme to use for syntax highlighting in code blocks.
-    theme: "routeros"
+    theme: "atelier-sulphurpool-light"
   },
 
   usePrism: ["graphql"],
