@@ -10,7 +10,7 @@ The Configure section of the dashboard allows you manage your site settings, sta
 
 ## Product and Sales Configuration
 
-### Product types
+### Product Types
 
 Define the type of products you sell and organize them into groups. The Product Types list shows the type of product, a description of whether it is a physical or digital product, and which tax applies to its sale.
 
@@ -54,7 +54,7 @@ Confirm the cancellation in both cases by clicking Delete in the pop-up window.
 
 ## Shipping Methods
 
-### Defining shipping zones
+### Defining Shipping Zones
 
 Manage how you ship out orders. The Shipping Methods section contains two main fields: Shipping By Zone and Configuration.
 
@@ -78,10 +78,14 @@ Click [[Add Shipping Zone]] in the top right corner of the Shipping by Zone fiel
 
 Click [[Assign]] to confirm your selection.
 
-Remove countries from a shipping zone using the trash can icon next to the country name.
+### Removing Shipping Zones And Countries
+
+You can remove individual shipping zones by entering the zone from the list and clicking [[Remove]] in the footer. To remove multiple zones, click the checkboxes and the main list and then confirm using the trash can that appears above the list.
+
+Remove countries from a shipping zone using the trash can icon next to the country name when you enter a specific zone from the main list.
 
 
-## Adding Shipping Options
+## Adding Shipping Rates
 
 Find rates offered by couriers for the delivery of your goods and add them to your shipping zones. When your customers get to the checkout section of the store, they will be presented with these shipment options and prices.
 
@@ -116,9 +120,7 @@ If you offer free shipping, click on the slider until it is green. If shipping i
 ![Specifying value range](assets/dashboard-config/9.png)
 
 
-### Removing Shipping Zones and Services
-
-You can remove individual shipping zones by entering the zone from the list and clicking [[Remove]] in the footer. To remove multiple zones, click the checkboxes and the main list and then confirm using the trash can that appears above the list.
+### Removing Couriers
 
 Remove couriers from specific shipping zones by entering the zone and clicking the trash can next to the courier you want to remove. 
 
@@ -142,35 +144,33 @@ Saleor uses a program that automatically retrieves tax information for each coun
 ![Taxes in a country](assets/dashboard-config/11.png)
 
 
-## Staff Configuration
-
-### Staff Members
+## Staff Members
 
 Manage your employees and their permissions. The Staff Members section gives you an alphabetized list of all people who have administrative access to your dashboard.
 
 ![Staff members list](assets/dashboard-config/12.png)
 
 
-#### Adding Staff Members
+### Adding Staff Members
 
 Click on [[Add Staff Member]] above the list of users. Fill in the first and last name of the new staff member and the email address to which any notifications will be sent.
 
 ![Staff members details](assets/dashboard-config/13.png)
 
 
-#### Setting Permissions
+### Setting Permissions
 
 In the example above, the Permissions section has the box checked which reads [[User has full access to the store]]. If you want to limit access, uncheck the box and a list of different possible administrative activities will appear. Use the checkboxes to assign specific abilities to the user.
 
 ![Staff member permissions](assets/dashboard-config/14.png)
 
 
-#### Account Status
+### Account Status
 
 New users are automatically active in the system. To deactivate a user’s access without deleting the account, uncheck the [[User is Active]] box in the Account Status field.
 
 
-#### Editing and Deleting Users
+### Editing and Deleting Users
 
 To edit a user account, access it from the staff members list, make any relevant changes, and then press [[Save]] in the footer.
 

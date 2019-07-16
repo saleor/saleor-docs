@@ -12,7 +12,7 @@ Your catalog contains your entire online inventory. You can view products indivi
 
 ## Products
 
-The first thing you see is an alphabetical list of all your products. Each product overview includes a picture, the product name and type, information about if it is visible (published) on your site, and the price. 
+The alphabetical product list includes a picture for each product, the product name and type, information about if it is visible (published) on your site, and the price. 
 
 ![Products list](assets/dashboard-catalog/1.jpg)
 
@@ -32,13 +32,11 @@ Click on the [[Add Product]] button above the main list to enter the product set
 
 Add the name of your product and a description. Use text formatting to make your product descriptions clear and engaging. The 8 basic functions are: bold type, italic type, sub-header, second sub-header, quote, bullet point list, numbered list, new text line, add a hyperlink
 
-> **Creating a good product name**
+> **Creating effective product names**
 > Make sure that each product has a unique name so site users can find them easily and your administrators can easily manage your store. If you have 5 t-shirts, don’t just call them all ‘t-shirt’. Use more engaging and searchable names like black men’s t-shirt, sparkly unicorn girls’ t-shirt, red ladies t-shirt, sports t-shirt, etc. 
 
 > **Writing a good description**
 > Your product descriptions can cool and fun, or based on facts. They represent the tone of your store. Be creative if you like, but be clear and make sure that you have all the information that a buyer needs.
->
-> Formatting:
 >
 >  ![Formatting product description](assets/dashboard-catalog/4.png)
 
@@ -84,7 +82,7 @@ If you want to push your product for sale, click on the slider until it shows as
 Once you have input your minimum required product information, save it using the button in the footer, or press cancel to exit the process and lose as new product information.
 
 
-#### 7. Add an image
+#### 7. Add Images
 
 Much the same as on social media or other platforms, there are two ways to add an image: 
 
