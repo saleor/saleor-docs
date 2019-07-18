@@ -39,17 +39,17 @@ Different goods are taxed differently across the world. If you leave the Taxes s
 
 #### Adding Attributes and Variants
 
-Once you have created your Product Type and added tax and shipping information, click [[Save]] create the new classification. An additional field will appear, for adding Attributes and Variants to the product type. Add attributes and variants, then press [[Save]] to assign them to all products in the new Product Type. 
+Once you have created your Product Type and added tax and shipping information, click [[Save]] to create the new classification. An additional field will appear for adding Attributes and Variants to the Product Type. Press [[Save]] when you have created your new attribute or variant. 
 
 
 #### Removing a Product Type
 
 There are two ways to remove a Product Type:
 
-- Select it from the main list, then choose the red Remove option in the footer
+- Select it from the main list, then choose [[Remove]] in the footer
 - Check the box on the main list and then click the trash can that appears above
 
-Confirm the cancellation in both cases by clicking Delete in the pop-up window.
+Confirm the cancellation in both cases by clicking [[Delete]] in the pop-up window.
 
 
 ## Shipping Methods
@@ -74,7 +74,7 @@ Click [[Add Shipping Zone]] in the top right corner of the Shipping by Zone fiel
 
 1. In the Search Countries section at the top, you can specific countries by name and assign them to the shipping zone
 2. Scroll through the Countries A to Z section and assign countries using the checkboxes
-3. The Quick Pick section is an option that allows you to assign all countries to a shipping zone that are not already assigned to any existing zone. This is a useful option for defining a final ‘Rest Of The World’ shipping zone to guarantee global coverage. 
+3. The Quick Pick section is an option that allows you to assign all countries to a shipping zone that are not already assigned to any existing zone. This is a useful option for defining a final ‘Rest Of The World’ shipping zone to guarantee global coverage 
 
 Click [[Assign]] to confirm your selection.
 
@@ -135,7 +135,7 @@ In the main Taxes screen, you need to check or uncheck three boxes in the Config
 - Show gross prices to customers in storefront
 - Charge tax on shipping rates
 
-Once you assign these three fields and click [[Fetch Taxes]], the entire Saleor storefront will re-calibrate to take your preferences into account.
+Once you choose these according to how your store works and click [[Fetch Taxes]], the entire Saleor storefront will re-calibrate to take your preferences into account.
 
 ![Taxes configuration](assets/dashboard-config/10.png)
 
@@ -160,7 +160,7 @@ Click on [[Add Staff Member]] above the list of users. Fill in the first and las
 
 ### Setting Permissions
 
-In the example above, the Permissions section has the box checked which reads [[User has full access to the store]]. If you want to limit access, uncheck the box and a list of different possible administrative activities will appear. Use the checkboxes to assign specific abilities to the user.
+In the example above, the Permissions section has the box checked which reads [[User has full access to the store]]. If you want to limit access, uncheck the box and a list of different possible administrative activities will appear. Use the checkboxes to assign specific permissions to the user.
 
 ![Staff member permissions](assets/dashboard-config/14.png)
 
@@ -185,7 +185,7 @@ View and update your site settings to control how your site information appears 
 
 ![General information configuration](assets/dashboard-config/15.png)
 
-The [[Name of your store]] will appear in web browser tabs and at the beginning of browser results.
+The text you input to the [[Name of your store]] field will appear in web browser tabs and at the beginning of browser results.
 
 ![Store name displayed by browser](assets/dashboard-config/16.png)
 
@@ -210,14 +210,15 @@ You can allow dashboard users to enter your store through Google and Facebook an
 
 In the footer of your main storefront, you can display informational pages with content about your store, your team, terms and conditions, privacy information, and other useful details. These simple text pages enhance the image of your business and sometimes contain essential legal information you need to communicate to customers.
 
-To add pages, click on the [[Pages]] field in the Configure section of the dashboard. Go to [[Add Page]] on the top right.
+To add pages, click on the [[Pages]] field in the Configure section of the dashboard. 
+Click [[Add Page]] at the top right.
 
 ![New page creation](assets/dashboard-config/18.png)
 
 
 ### General Information
 
-Fill in the title of the page, as it will appear in the footer of your store. Keep it short, preferably a single word or two. 
+Fill in the title of the page, as it will appear in the footer of your store. Keep it short, preferably just a word or two. 
 
 Add the content that the page will contain. This may be a simple description of your store or a full terms and conditions section. Use the word processor formatting tools to adjust font sizes, add hyperlinks, and style the page as you want it to appear.
 
@@ -231,12 +232,12 @@ Click [[Edit Website SEO]] to add a description that will appear in web searches
 
 ### URL
 
-If you leave the URL section empty, the title of the page will be added to your normal site URL after a slash. You can the site address after the slash by typing it into the URL section.
+If you leave the URL section empty, the title of the page will be added to your normal site URL after a slash. You can change the site address after the slash by typing it into the URL section.
 
 
 ### Visibility
 
-You can choose if your page is published or not. If the slider is green, it is live on your website. If the slider is grey, you can leave the page hidden or set a date in future at which it will be published.
+You can choose if your page is published or not. If the slider is green, it is live on your website. If the slider is grey, you can leave the page hidden or set a future date when it will be published.
 
 
 ### Deleting Pages
@@ -253,15 +254,15 @@ The navigation section allows you to configure what information is visible on th
 
 ### Creating Your Navigation Structure
 
-Creating the navigation structure is done by dragging and dropping. Simply create a new menu item and then drag it into its destined place. You can move items inside one another to create a tree structure and drag items up and down to create a hierarchy.
+Creating the navigation structure is done by dragging and dropping. Simply create a new menu item and then drag it to the desired place. You can move items inside one another to create a tree structure and drag items up and down to create a hierarchy.
 
 When you have more than one layer, the property to the far left will appear as the main item  and the indented items become sub-elements, as in the following example.
 
-In the dashboard:
+What you'll see in the dashboard:
 
 ![Navigation configuration](assets/dashboard-config/21.png)
 
-On your store:
+How it will appear on your storefront:
 
 ![Navigation displayed in the site's footer](assets/dashboard-config/22.png)
 
