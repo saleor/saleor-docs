@@ -32,10 +32,10 @@ Click on the [[Add Product]] button above the main list to enter the product set
 
 Add the name of your product and a description. Use text formatting to make your product descriptions clear and engaging. The 8 basic functions are: bold type, italic type, sub-header, second sub-header, quote, bullet point list, numbered list, new text line, and add hyperlink.
 
-> **Creating effective product names**
+> **Creating effective product names:**
 > Make sure that each product has a unique name so site users can find them easily and your administrators can easily manage your store. If you have 5 t-shirts, don’t just call them all ‘t-shirt’. Use more engaging and searchable names like black men’s t-shirt, sparkly unicorn girls’ t-shirt, red ladies t-shirt, sports t-shirt, etc. 
 
-> **Writing a good description**
+> **Writing a good description:**
 > Your product descriptions can be cool and fun, or just based on the facts. They represent the tone of your store. Be creative if you like, but be clear and make sure that you have all the information that a buyer needs.
 >
 >  ![Formatting product description](assets/dashboard-catalog/4.png)
