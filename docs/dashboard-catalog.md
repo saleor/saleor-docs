@@ -179,7 +179,9 @@ In this example, we have paints and cushions in the Accessories category, which 
 
 To remove a category, simply click the [[Delete Category]] button in the footer 
 
-> **CAUTION:** Products are mandatorily assigned to categories. Deleting a category will also remove all products it contains. Only remove a category if you are sure that you also want to permanently delete all its products from your catalog.
+> **CAUTION** 
+>
+> Products are mandatorily assigned to categories. Deleting a category will also remove all products it contains. Only remove a category if you are sure that you also want to permanently delete all its products from your catalog.
 
 
 ## Collections
