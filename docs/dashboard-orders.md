@@ -8,23 +8,23 @@ The Orders section shows you all orders placed through the Saleor system by cust
 
 ## Order Management
 
-The main orders list shows all orders in the system, regardless of status.
+The main list shows all orders in the system, regardless of status.
 
 ![Orders list](assets/dashboard-orders/1.png)
 
-To filter orders, use the drop-down menu and view orders by date or fulfillment status. Sorting by status brings up a second menu from which you can choose Fulfilled, Partially Fulfilled or Unfilled Orders.
+To filter orders, use the drop-down menu and view orders by date or fulfillment status. Sorting by status brings up a second menu from which you can choose Fulfilled, Partially Fulfilled, or Unfilled Orders.
 
 ![Orders list filters](assets/dashboard-orders/2.jpg)
 
 
-Click on any order from the list to get the full order details. The order screen contains fields for fulfillment status, payment, customer details, and order history.
+Click on any order from the list to get the full details. The order screen contains fields for fulfillment status, payment, customer details, and order history.
 
 ![Order details](assets/dashboard-orders/3.jpg)
 
 
 ### How to Fulfill an Order
 
-Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single Unfulfilled or Fulfilled field. Others, as in the example here, will have both fields if parts of the order have been sent but other products are yet to be dispatched. 
+Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single Unfulfilled or Fulfilled field. Others, as in the example here, will have both fields if parts of the order have been sent to the customer but other products are yet to be dispatched. 
 
 ![Order fulfillment options](assets/dashboard-orders/4.jpg)
 
@@ -42,7 +42,7 @@ If you have a tracking number for the package, add it in the line below the prod
 
 ### How to Cancel a Shipment
 
-- Click the three dots in the top right corner of a fulfilled order
+- Click the three dots in the top right corner of a Fulfilled order
 - Select [[Cancel Shipment]] when the pop-up appears, then confirm. Items will be restocked into the Saleor system
 
 ![Canceling shipment](assets/dashboard-orders/6.jpg)
@@ -58,7 +58,7 @@ Every time you complete an action such as confirming and fulfilling an order, a 
 
 ## Payments
 
-There are three different payment fields:
+Orders can have three different payment fields:
 
 
 ### Unpaid Orders
@@ -72,7 +72,7 @@ A traditional credit card or bank payment that is awaiting authorization from th
 
 Payments can be fully or partially refunded if there is an issue with the goods or customer service.
 
-- Click on [[Refund]] in the bottom right corner of the box 
+- Select [[Refund]] in the bottom right corner of the box 
 - Click [[Confirm]] to refund the full amount 
 - For partial refunds, input the amount manually or using the stepper, then confirm
 
@@ -90,7 +90,7 @@ You can capture the full or partial amount (for example, taking only partial pay
 
 ## Creating an Order
 
-This is a function for store administrators to add orders, usually in cases where customer orders need to be re-sent but have already been fulfilled in the system. For example, if the customer was send damaged goods or is being sent a complimentary product due to customer service issues. It can also be used to create dummy and test orders and deal with stock issues.
+This is a function for store administrators to add orders, usually in cases where customer orders need to be re-sent but have already been fulfilled in the system. For example, if the customer was send damaged goods or is being sent a complimentary product due to customer service issues. It can also be used to create dummy and test orders, as well as to deal with stock issues.
 
 
 ### How to Create an Order
@@ -99,7 +99,7 @@ This is a function for store administrators to add orders, usually in cases wher
 - Choose the [[Add Products]] option in the main field on the order creation page
 - Select products from the drop-down menu or by typing the product name in the search field. Assign using the check boxes
 - Choose the customer name. Other customer information fields will then auto-complete. Manually make any changes or input information for a new customer
-- Choose the best shipping from the drop-down list of available couriers
+- Choose the best shipping offer from the drop-down list of available couriers
 
 Once you set up the order and finalize it using the button in the footer, it becomes a normal order and replacement goods can be sent to the customer.
 
