@@ -211,7 +211,7 @@ Once you have created a collection, you can easily add more products by choosing
 
 - Collections can be easily published and unpublished by clicking on the slider in the Availability section when viewing a specific collection 
 - Featuring a collection will make it appear on the front page of your website
-- You can only feature one collection at a time. Turning the [[Feature on Homepage]] option on for one collection will automatically turn it off for all others
+- You can only feature one collection at a time. Turning the [[Feature&nbsp;on&nbsp;Homepage]] option on for one collection will automatically turn it off for all others
 
 ![Collection visibility controls](assets/dashboard-catalog/18.jpg)
 
