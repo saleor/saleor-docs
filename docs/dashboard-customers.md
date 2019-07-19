@@ -16,7 +16,7 @@ Click on an individual customer to get an overview of the general information, a
 
 Make changes to the customer name and e-mail by simply typing into the relevant field in the General Information section. The [[Save]] button in the footer will change color once changes have been made that need to be saved.
 
-In the General Information, there is a checkmark next to the text [[User account active]]. Accounts will be active as soon as they are created but you can check the box to suspend a customer account, for example, if you suspect malicious activity. If you have implemented a backend protocol that requires users to confirm account activation from an e-mail, which is not a default feature, this may also be useful if a user has issues with replying to the e-mail and asks for a manual activation.
+In the General Information, there is a checkmark next to the text [[User&nbsp;account&nbsp;active]]. Accounts will be active as soon as they are created but you can check the box to suspend a customer account, for example, if you suspect malicious activity. If you have implemented a backend protocol that requires users to confirm account activation from an e-mail, which is not a default feature, this may also be useful if a user has issues with replying to the e-mail and asks for a manual activation.
 
 
 ## Removing a Customer
@@ -38,7 +38,7 @@ The Customer History section gives a brief overview of customer activity. You ca
 
 Click [[Manage]] in the Address field to edit or delete a customer address. You can set an address as the default shipping or billing address by clicking on the three dots in the right corner of the header of a specific address. 
 
-Use the [[Add Address]] button in the top right corner of the Address Book page if a customer asks the administrator to manually add an address. When a customer has more than one address listed, it is important to assign the correct billing and shipping addresses, as described above.
+Use the [[Add&nbsp;Address]] button in the top right corner of the Address Book page if a customer asks the administrator to manually add an address. When a customer has more than one address listed, it is important to assign the correct billing and shipping addresses, as described above.
 
 > **Localized addresses**
 >

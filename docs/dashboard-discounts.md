@@ -68,14 +68,14 @@ Vouchers allow you to give all your customers or selected shoppers a great deal 
 
 #### 1. Enter the Add Voucher Screen
 
-Click [[Add Voucher]] above the main list on the vouchers page to get started.
+Click [[Add&nbsp;Voucher]] above the main list on the vouchers page to get started.
 
 #### 2. Add General Information
 
 There are two options to give your voucher a name:
 
 - Type a name like ‘BlackFridayVoucher’ into the Discount Code box
-- Click [[Generate Code]] to create a randomized voucher code 
+- Click [[Generate&nbsp;Code]] to create a randomized voucher code 
 
 #### 3. Choose Discount Type
 
@@ -109,7 +109,7 @@ Choose if each customer (defined by e-mail address) can use the voucher only onc
 
 #### 9. Choose the Dates
 
-Leave the start date blank in [[Active Dates]] if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
+Leave the start date blank in [[Active&nbsp;Dates]] if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
 
 
 ### Editing and Revoming Vouchers

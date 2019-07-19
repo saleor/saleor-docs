@@ -43,7 +43,7 @@ If you have a tracking number for the package, add it in the line below the prod
 ### How to Cancel a Shipment
 
 - Click the three dots in the top right corner of a Fulfilled order
-- Select [[Cancel Shipment]] when the pop-up appears, then confirm. Items will be restocked into the Saleor system
+- Select [[Cancel&nbsp;Shipment]] when the pop-up appears, then confirm. Items will be restocked into the Saleor system
 
 ![Canceling shipment](assets/dashboard-orders/6.jpg)
 
@@ -95,8 +95,8 @@ This is a function for store administrators to add orders, usually in cases wher
 
 ### How to Create an Order
 
-- Click [[Add Order]] on the main orders page or the draft orders section
-- Choose the [[Add Products]] option in the main field on the order creation page
+- Click [[Add&nbsp;Order]] on the main orders page or the draft orders section
+- Choose the [[Add&nbsp;Products]] option in the main field on the order creation page
 - Select products from the drop-down menu or by typing the product name in the search field. Assign using the check boxes
 - Choose the customer name. Other customer information fields will then auto-complete. Manually make any changes or input information for a new customer
 - Choose the best shipping offer from the drop-down list of available couriers

@@ -17,7 +17,7 @@ Define the type of products you sell and organize them into groups. The Product 
 
 #### Adding a Product Type
 
-Click on the [[Add Product Type]] icon on the right above the main product types list. The initial page has fields for Information, Shipping, and Taxes. An Attributes section also appears once the Product Type is saved.
+Click on the [[Add&nbsp;Product&nbsp;Type]] icon on the right above the main product types list. The initial page has fields for Information, Shipping, and Taxes. An Attributes section also appears once the Product Type is saved.
 
 ![Adding product type](assets/dashboard-config/2.png)
 
@@ -29,7 +29,7 @@ Choose your Product Type Name. In this example, a bike comes under ‘sporting g
 
 #### Shipping
 
-If you have physical products to send to customers, you need to check the [[Is this product shippable?]] checkbox. An additional section will then appear to note the weight of the products, which is essential for calculating shipping costs.
+If you have physical products to send to customers, you need to check the [[Is&nbsp;this&nbsp;product&nbsp;shippable?]] checkbox. An additional section will then appear to note the weight of the products, which is essential for calculating shipping costs.
 
 
 #### Taxes
@@ -70,7 +70,7 @@ You can choose metric or imperial weight units as the default in which your stor
 
 Shipping Zones define the cost of shipping in different areas of the world. Collecting countries together in zones allows you to assign the best shipping and delivery options for customers.
 
-Click [[Add Shipping Zone]] in the top right corner of the Shipping by Zone field. Add the name of the shipping zone then click [[Assign Countries]] and use one of the three options in the pop up that appears:
+Click [[Add&nbsp;Shipping&nbsp;Zone]] in the top right corner of the Shipping by Zone field. Add the name of the shipping zone then click [[Assign&nbsp;Countries]] and use one of the three options in the pop up that appears:
 
 1. In the Search Countries section at the top, you can specific countries by name and assign them to the shipping zone
 2. Scroll through the Countries A to Z section and assign countries using the checkboxes
@@ -99,7 +99,7 @@ There are two types of shipping:
 
 ### Adding a Courier
 
-1. Click [[Add Rate]] in the appropriate field. 
+1. Click [[Add&nbsp;Rate]] in the appropriate field. 
 2. Fill the name of the courier in the Rate Name field.
 
 ![Adding courier](assets/dashboard-config/5.png)
@@ -135,7 +135,7 @@ In the main Taxes screen, you need to check or uncheck three boxes in the Config
 - Show gross prices to customers in storefront
 - Charge tax on shipping rates
 
-Once you choose these according to how your store works and click [[Fetch Taxes]], the entire Saleor storefront will re-calibrate to take your preferences into account.
+Once you choose these according to how your store works and click [[Fetch&nbsp;Taxes]], the entire Saleor storefront will re-calibrate to take your preferences into account.
 
 ![Taxes configuration](assets/dashboard-config/10.png)
 
@@ -153,21 +153,21 @@ Manage your employees and their permissions. The Staff Members section gives you
 
 ### Adding Staff Members
 
-Click on [[Add Staff Member]] above the list of users. Fill in the first and last name of the new staff member and the email address to which any notifications will be sent.
+Click on [[Add&nbsp;Staff&nbsp;Member]] above the list of users. Fill in the first and last name of the new staff member and the email address to which any notifications will be sent.
 
 ![Staff members details](assets/dashboard-config/13.png)
 
 
 ### Setting Permissions
 
-In the example above, the Permissions section has the box checked which reads [[User has full access to the store]]. If you want to limit access, uncheck the box and a list of different possible administrative activities will appear. Use the checkboxes to assign specific permissions to the user.
+In the example above, the Permissions section has the box checked which reads [[User&nbsp;has&nbsp;full&nbsp;access&nbsp;to&nbsp;the&nbsp;store]]. If you want to limit access, uncheck the box and a list of different possible administrative activities will appear. Use the checkboxes to assign specific permissions to the user.
 
 ![Staff member permissions](assets/dashboard-config/14.png)
 
 
 ### Account Status
 
-New users are automatically active in the system. To deactivate a user’s access without deleting the account, uncheck the [[User is Active]] box in the Account Status field.
+New users are automatically active in the system. To deactivate a user’s access without deleting the account, uncheck the [[User&nbsp;is&nbsp;Active]] box in the Account Status field.
 
 
 ### Editing and Deleting Users
@@ -185,23 +185,23 @@ View and update your site settings to control how your site information appears 
 
 ![General information configuration](assets/dashboard-config/15.png)
 
-The text you input to the [[Name of your store]] field will appear in web browser tabs and at the beginning of browser results.
+The text you input to the [[Name&nbsp;of&nbsp;your&nbsp;store]] field will appear in web browser tabs and at the beginning of browser results.
 
 ![Store name displayed by browser](assets/dashboard-config/16.png)
 
-The [[URL of your online store]] should match that which you will send to customers and web browsers.
+The [[URL&nbsp;of&nbsp;your&nbsp;online&nbsp;store]] should match that which you will send to customers and web browsers.
 
-The [[Store Description]] is SEO information that will appear in browser results listing your site, so make sure it has clear, useful copy about your store and its products.
+The [[Store&nbsp;Description]] is SEO information that will appear in browser results listing your site, so make sure it has clear, useful copy about your store and its products.
 
 
 ### Authentication Keys
 
 You can allow dashboard users to enter your store through Google and Facebook and add additional security keys to ensure site security. 
 
-1. Click [[Add key]] at the top right of the Authentication Keys section 
+1. Click [[Add&nbsp;key]] at the top right of the Authentication Keys section 
 2. Choose Facebook or Google from the dropdown menu 
 3. Enter a key and password, which users will enter when accessing the dashboard through the chosen platform 
-4. Press [[Add Authentication]] to confirm
+4. Press [[Add&nbsp;Authentication]] to confirm
 
 ![Authorization keys](assets/dashboard-config/17.png)
 
@@ -211,7 +211,7 @@ You can allow dashboard users to enter your store through Google and Facebook an
 In the footer of your main storefront, you can display informational pages with content about your store, your team, terms and conditions, privacy information, and other useful details. These simple text pages enhance the image of your business and sometimes contain essential legal information you need to communicate to customers.
 
 To add pages, click on the [[Pages]] field in the Configure section of the dashboard. 
-Click [[Add Page]] at the top right.
+Click [[Add&nbsp;Page]] at the top right.
 
 ![New page creation](assets/dashboard-config/18.png)
 
@@ -227,7 +227,7 @@ Add the content that the page will contain. This may be a simple description of 
 
 ### Search Engine Preview
 
-Click [[Edit Website SEO]] to add a description that will appear in web searches.
+Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description that will appear in web searches.
 
 
 ### URL

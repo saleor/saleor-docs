@@ -45,7 +45,7 @@ Add the name of your product and a description. Use text formatting to make your
 
 #### 2. Define Pricing
 
-Type the price of your product manually or using the stepper by the currency indicator. If your product is tax-exempt, leave the [[Charge taxes for this item]] checkbox empty. If you need to charge taxes, click on the box and a green check mark will appear.
+Type the price of your product manually or using the stepper by the currency indicator. If your product is tax-exempt, leave the [[Charge&nbsp;taxes&nbsp;for&nbsp;this&nbsp;item]] checkbox empty. If you need to charge taxes, click on the box and a green check mark will appear.
 
 > **Displaying localized prices**
 >
@@ -58,7 +58,7 @@ Type the price of your product manually or using the stepper by the currency ind
 
 #### 3. Add Optional Search Engine Preview Content
 
-Click [[Edit Website SEO]] to add a description. If you do not add unique SEO content, details will be taken from the General Information field.
+Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description. If you do not add unique SEO content, details will be taken from the General Information field.
 
 > **Help search engines find your products**
 >
@@ -93,7 +93,7 @@ Once you have input your minimum required product information, press [[save]] in
 Much the same as on social media or other platforms, there are two ways to add an image: 
 
 - Drag and drop a file from a folder on your computer 
-- Click on [[Upload Image]] in the top right corner and select an image 
+- Click on [[Upload&nbsp;Image]] in the top right corner and select an image 
 	
 You can add an unlimited number of images per product. The main image will be the one that is first in line. You can drag and drop images to change the order. Hover over a specific image and click the trash can to delete an unwanted image.
 
@@ -113,7 +113,7 @@ Click on an existing product from the main list and you will see the same interf
 
 > **Save it for later**
 > 
-> Don’t remove a product if you just want to temporarily take it away from your inventory. In that case, just uncheck the [[Published in Storefront]] option in the Visibility section, as described above.
+> Don’t remove a product if you just want to temporarily take it away from your inventory. In that case, just uncheck the [[Published&nbsp;in&nbsp;Storefront]] option in the Visibility section, as described above.
 
 ### Product Variants and Attributes
 
@@ -124,7 +124,7 @@ When you enter a product from the main list, you have all the same sections as w
 
 #### Checking Inventory
 
-In this example, we can see five types of t-shirt. Four have enough stock to cover future orders. The XL size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there is only one item in stock (“inventory”) and it has been ordered by a customer (“Allocated”).
+In this example, we can see five types of t-shirt. Four have enough stock to cover future orders. The XL size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there is only one item in stock (“Inventory”) and it has been ordered by a customer (“Allocated”).
 
 ![Editing product inventory](assets/dashboard-catalog/11.jpg)
 
@@ -144,11 +144,11 @@ You can repeat this process for all sizes or types of the same product by clicki
 
 #### Editing Attributes
 
-When entering a product from the main list, click the [[Edit Attributes]] text in the top corner of the Variants field to add or change product attributes and variants. For example, a top or t-shirt will have a product attribute such as the material it is made from, and a variant attribute of the sizes or colors in which it is available.
+When entering a product from the main list, click the [[Edit&nbsp;Attributes]] text in the top corner of the Variants field to add or change product attributes and variants. For example, a top or t-shirt will have a product attribute such as the material it is made from, and a variant attribute of the sizes or colors in which it is available.
 
 ![Editing product attributes](assets/dashboard-catalog/13.png)
 
-In the Product Attributes section, click on [[Add Attribute]]. A pop-up will appear in which you can enter new attributes. Click [[Save]] to confirm and exit.
+In the Product Attributes section, click on [[Add&nbsp;Attribute]]. A pop-up will appear in which you can enter new attributes. Click [[Save]] to confirm and exit.
 
 ![Adding attribute](assets/dashboard-catalog/14.png)
 
@@ -162,7 +162,7 @@ Products on the Saleor platform can be sorted by category if you sell a range of
 
 ### Adding a Category
 
-Click on the [[Add Category]] icon to enter a new set of products. Enter the category name, description, and SEO-optimized information the same way as you would with an individual product. When finished, click [[Save Category]] in the bottom right corner and then add a widescreen banner photo that will appear at the top of the screen when customers view the category.
+Click on the [[Add&nbsp;Category]] icon to enter a new set of products. Enter the category name, description, and SEO-optimized information the same way as you would with an individual product. When finished, click [[Save&nbsp;Category]] in the bottom right corner and then add a widescreen banner photo that will appear at the top of the screen when customers view the category.
 
 ![Adding category](assets/dashboard-catalog/15.jpg)
 
@@ -174,7 +174,7 @@ Once you have your categories, you can edit them at any time by clicking on a ca
 
 ### Adding Sub-categories
 
-Sub-categories break large groups down into smaller subsets that make it easier to manage stores and help customers find the right products. To add a sub-category, click [[Add Subcategory]] text in the top right corner of the sub-categories box.
+Sub-categories break large groups down into smaller subsets that make it easier to manage stores and help customers find the right products. To add a sub-category, click [[Add&nbsp;Subcategory]] text in the top right corner of the sub-categories box.
 
 In this example, we have paints and cushions in the Accessories category, which can be marked as separate sub-categories. Add a description and SEO information just the same as with a main category.
 
@@ -183,7 +183,7 @@ In this example, we have paints and cushions in the Accessories category, which 
 
 ### Deleting Categories
 
-To remove a category, simply click the [[Delete Category]] button in the footer 
+To remove a category, simply click the [[Delete&nbsp;Category]] button in the footer 
 
 > **Caution** 
 >
@@ -202,7 +202,7 @@ You can add and edit collections in the same way as categories, with a cover pho
 
 ### Adding Products to Existing Collections
 
-Once you have created a collection, you can easily add more products by choosing the [[Assign Products]] option from the collection overview and choosing products from the list. To find other products, type the name, attribute or product type into the search bar and the list will automatically refresh.
+Once you have created a collection, you can easily add more products by choosing the [[Assign&nbsp;Products]] option from the collection overview and choosing products from the list. To find other products, type the name, attribute or product type into the search bar and the list will automatically refresh.
 
 ![Assign product to collection](assets/dashboard-catalog/17.jpg)
 
