@@ -111,7 +111,7 @@ You can also add descriptions of specific product features to your images. Hover
 
 Click on an existing product from the main list and you will see the same interface as for adding products. Click [[Remove]] at the bottom of the screen to delete a product. To edit product details, just click any field and start making changes. The [[Save]] option in the footer will change color as soon as you have made amendments that need to be saved before exiting the page.
 
-> Save it for later
+> **Save it for later**
 > 
 > Don’t remove a product if you just want to temporarily take it away from your inventory. In that case, just uncheck the [[Published in Storefront]] option in the Visibility section, as described above.
 
@@ -185,7 +185,7 @@ In this example, we have paints and cushions in the Accessories category, which 
 
 To remove a category, simply click the [[Delete Category]] button in the footer 
 
-> **CAUTION** 
+> **Caution** 
 >
 > Products are mandatorily assigned to categories. Deleting a category will also remove all products it contains. Only remove a category if you are sure that you also want to permanently delete all its products from your catalog.
 
