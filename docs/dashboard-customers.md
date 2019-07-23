@@ -24,7 +24,7 @@ In the General Information, there is a checkmark next to the text [[User&nbsp;ac
 - Select the individual customer overview from the main list
 - Click [[Remove]] in the footer then confirm deletion
 
-> GDPR Compliance 
+> **GDPR Compliance** 
 >
 > In compliance with GDPR laws in Europe, clicking [[Remove]] will delete the customer profile but information will be retained in active and prior orders for fulfillment purposes. However, Saleor and its creators do not bear responsibility for your compliance with legal protocols, so check the law in your local area and make sure that you comply with all data processing legislation.
 
