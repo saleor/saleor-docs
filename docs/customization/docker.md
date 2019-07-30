@@ -7,7 +7,7 @@ Using Docker to build software allows you to run and test code without having to
 
 > **Warning**
 >
-> The following setup is only meant for local development. See [Docker](docker-deployment.md) for production use of Docker.
+> The following setup is only meant for local development. See [Docker](deployment/docker.md) for production use of Docker.
 
 
 ## Local Prerequisites
