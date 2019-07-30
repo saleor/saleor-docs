@@ -1,5 +1,5 @@
 ---
-id: customizing-templates
+id: templates
 title: Customizing Templates
 ---
 

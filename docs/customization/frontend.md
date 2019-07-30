@@ -1,5 +1,5 @@
 ---
-id: customizing-frontend
+id: frontend
 title: Customizing CSS and JavaScript
 ---
 

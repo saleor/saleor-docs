@@ -1,5 +1,5 @@
 ---
-id: customizing-emails
+id: emails
 title: Customizing Emails
 ---
 
