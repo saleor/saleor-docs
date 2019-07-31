@@ -174,7 +174,8 @@ You have great selection of online games items. Each item is unique, important d
 #### Product type
 
 | Name | Product attributes | Variants? | Variant attributes | Shipping? |
-| Game item | Game | Max attack | No | — | No |
+| --- | --- | --- | --- | --- |
+| Game item | Game | Max attack | No |  No |
 
 
 #### Products

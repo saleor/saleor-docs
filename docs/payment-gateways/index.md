@@ -1,7 +1,7 @@
 ---
 id: index
-sidebar_label: Introduction
 title: Supported Payment Gateways
+sidebar_label: Introduction
 ---
 
 You will find below the list of payment gateways supported by Saleor and their configuration guide.
