@@ -69,7 +69,11 @@ const siteConfig = {
 
   usePrism: ["graphql"],
 
-  markdownPlugins: [require("./markdown/pillbutton")],
+  markdownPlugins: [
+    require("./markdown/cardgrid"),
+    require("./markdown/homegrid"),
+    require("./markdown/pillbutton")
+  ],
 
   docsSideNavCollapsible: true,
 
