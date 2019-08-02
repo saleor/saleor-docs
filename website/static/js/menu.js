@@ -12,7 +12,7 @@ window.addEventListener(
       object[1].querySelector("h4").addEventListener(
         "click",
         function(e) {
-          object[1].classList.toggle("active");
+          e.target.parentElement.classList.toggle("active");
         },
         false
       );
