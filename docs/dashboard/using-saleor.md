@@ -36,8 +36,8 @@ The dashboard is split into sections where you can complete different tasks. The
 The dashboard has the following sections:
 
 - [Home](dashboard/home.md): A handy overview of recent activity and performance
-- [Catalog](dashboard/catalog/index.md): Your products, viewed individually or grouped by collection or category
+- [Catalog](dashboard/catalog/intro.md): Your products, viewed individually or grouped by collection or category
 - [Orders](dashboard/orders.md): A full view of current and past orders
 - [Customers](dashboard/customers.md): Your customer database, with specific details for each buyer
 - [Discounts](dashboard/discounts/sales.md): How to give your customers great sales offers or discount vouchers
-- [Configure](dashboard/configuration/index.md): Manage all the administration elements of your dashboard and processes like tax automation and shipping
+- [Configure](dashboard/configuration/intro.md): Manage all the administration elements of your dashboard and processes like tax automation and shipping

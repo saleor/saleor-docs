@@ -1,5 +1,5 @@
 ---
-id: index
+id: intro
 title: Customizing Saloer
 sidebar_label: Introduction
 ---

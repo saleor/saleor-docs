@@ -1,5 +1,5 @@
 ---
-id: index
+id: intro
 title: Contributing Guides
 sidebar_label: Introduction
 ---

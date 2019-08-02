@@ -1,5 +1,5 @@
 ---
-id: index
+id: intro
 title: Getting started
 sidebar_label: Introduction
 ---

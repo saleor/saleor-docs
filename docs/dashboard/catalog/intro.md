@@ -1,5 +1,5 @@
 ---
-id: index
+id: intro
 title: Catalog
 sidebar_label: Introduction
 ---

@@ -1,5 +1,5 @@
 ---
-id: index
+id: intro
 title: Configuration
 sidebar_label: Introduction
 ---
