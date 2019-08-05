@@ -72,7 +72,7 @@ Shipping Zones define the cost of shipping in different areas of the world. Coll
 
 Click [[Add&nbsp;Shipping&nbsp;Zone]] in the top right corner of the Shipping by Zone field. Add the name of the shipping zone then click [[Assign&nbsp;Countries]] and use one of the three options in the pop up that appears:
 
-1. In the Search Countries section at the top, you can specific countries by name and assign them to the shipping zone
+1. In the Search Countries section at the top, you can add specific countries by name and assign them to the shipping zone
 2. Scroll through the Countries A to Z section and assign countries using the checkboxes
 3. The Quick Pick section is an option that allows you to assign all countries to a shipping zone that are not already assigned to any existing zone. This is a useful option for defining a final ‘Rest Of The World’ shipping zone to guarantee global coverage 
 
