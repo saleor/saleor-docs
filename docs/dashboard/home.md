@@ -1,5 +1,5 @@
 ---
-id: dashboard-home
+id: home
 title: Home
 ---
 

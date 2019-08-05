@@ -69,12 +69,16 @@ const siteConfig = {
 
   usePrism: ["graphql"],
 
-  markdownPlugins: [require("./markdown/pillbutton")],
+  markdownPlugins: [
+    require("./markdown/cardgrid"),
+    require("./markdown/homegrid"),
+    require("./markdown/pillbutton")
+  ],
 
   docsSideNavCollapsible: true,
 
   // Add custom scripts here that would be placed in <script> tags.
-  scripts: ["https://buttons.github.io/buttons.js"],
+  scripts: ["https://buttons.github.io/buttons.js", "/js/menu.js"],
 
   // On page navigation for the current documentation page.
   onPageNav: "separate",

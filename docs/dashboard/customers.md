@@ -1,5 +1,5 @@
 ---
-id: dashboard-customers
+id: customers
 title: Customers
 ---
 

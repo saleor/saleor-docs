@@ -1,5 +1,5 @@
 ---
-id: dashboard-orders
+id: orders
 title: Orders
 ---
 

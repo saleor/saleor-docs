@@ -1,5 +1,5 @@
 ---
-id: dashboard-translations
+id: translations
 title: Translations
 ---
 

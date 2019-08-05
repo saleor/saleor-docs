@@ -1,5 +1,5 @@
 ---
-id: dashboard-discounts
+id: discounts
 title: Discounts
 ---
 
@@ -59,7 +59,6 @@ Click [[Save]] on the footer bar to save the sale.
 ## Vouchers
 
 Vouchers allow you to give all your customers or selected shoppers a great deal on a specific product or order. Users get a voucher code via email, or on social media or your website, which they can they activate at the checkout when making a purchase.
-
 
 ![Voucher page](assets/dashboard-discounts/Vouchers.jpg)
 

@@ -17,7 +17,6 @@ function pillbutton(state, checkMode) {
     if (state.src.substr(pos, 2) == "[[") {
       const start = pos;
       const len = state.src.substr(start, state.posMax - start).indexOf("]]");
-      const stop = start + len;
 
       if (len < 1) continue;
 
