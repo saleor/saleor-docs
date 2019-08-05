@@ -39,5 +39,6 @@ The dashboard has the following sections:
 - [Catalog](dashboard/catalog/intro.md): Your products, viewed individually or grouped by collection or category
 - [Orders](dashboard/orders.md): A full view of current and past orders
 - [Customers](dashboard/customers.md): Your customer database, with specific details for each buyer
-- [Discounts](dashboard/discounts/sales.md): How to give your customers great sales offers or discount vouchers
+- [Discounts](dashboard/discounts/sales.md): Give your customers great sales offers or discount vouchers
+- [Translations](dashboards/translations.md): Translate dynamic content in your Saleor store
 - [Configure](dashboard/configuration/intro.md): Manage all the administration elements of your dashboard and processes like tax automation and shipping
