@@ -38,7 +38,7 @@ In this example, we have paints and cushions in the Accessories category, which 
 
 ### Deleting Categories
 
-To remove a category, simply click the [[Delete&nbsp;Category]] button in the footer 
+To remove a category, simply click the [[Delete&nbsp;Category]] button in the footer. 
 
 > **Caution** 
 >
