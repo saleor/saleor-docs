@@ -3,7 +3,7 @@ id: catalog
 title: Catalog
 ---
 
-Your catalog contains your entire online inventory. You can view products individually or by category, and can assign products to seasonal collections. Click [[Catalog]] on the left sidebar menu for a drop-down list of options:
+The catalog section contains your entire online inventory. You can view products individually or by category, and can assign products to seasonal collections. Click [[Catalog]] on the left sidebar menu for a drop-down list of sub-sections:
 
 - Products: Add, remove, and edit products, descriptions, and images
 - Categories: Gather products by type to make it easier for admins and customers to browse the store

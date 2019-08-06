@@ -32,7 +32,7 @@ Different goods are taxed differently across the world. If you leave the Taxes s
 
 ### Adding Attributes and Variants
 
-Once you have created your Product Type and added tax and shipping information, click [[Save]] to create the new classification. An additional field will appear for adding Attributes and Variants to the Product Type. Press [[Save]] when you have created your new attribute or variant. 
+Once you have created your Product Type and added tax and shipping information, click [[Save]] to create the new classification. An additional field will appear for adding Attributes and Variants to the Product Type. Create the new attribute or variant and then click [[Save]]. 
 
 
 ### Removing a Product Type

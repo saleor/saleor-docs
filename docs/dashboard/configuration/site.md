@@ -25,7 +25,7 @@ You can allow dashboard users to enter your store through Google and Facebook an
 1. Click [[Add&nbsp;key]] at the top right of the Authentication Keys section 
 2. Choose Facebook or Google from the dropdown menu 
 3. Enter a key and password, which users will enter when accessing the dashboard through the chosen platform 
-4. Press [[Add&nbsp;Authentication]] to confirm
+4. Click [[Add&nbsp;Authentication]] to confirm
 
 ![Authorization keys](assets/dashboard-config/17.png)
 

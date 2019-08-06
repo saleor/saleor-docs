@@ -3,7 +3,7 @@ id: products
 title: Products
 ---
 
-The alphabetical product list includes a picture for each product, the product name and type, information about if it is visible (published) on your site, and the price. 
+This page contains an alphabetical list with a picture for each product, the product name and type, information about if it is visible (published) on your site, and the price. 
 
 ![Products list](assets/dashboard-catalog/1.jpg)
 
@@ -14,7 +14,7 @@ You can view all products or filter by Visibility, Stock, or Price. You can also
 
 ## How to Create a New Product
 
-Click on the [[Add Product]] button above the main list to enter the product setup page.
+Click [[Add Product]] above the main list to enter the product setup page.
 
 ![Adding product](assets/dashboard-catalog/3.png)
 
@@ -75,14 +75,14 @@ Once you have set up all your product details, you can choose if it appears for 
 
 ![Changing product visibility](assets/dashboard-catalog/6.png)
 
-If you want to push your product for sale, click on the slider until it shows as [[Visible]].
+If you want to push your product for sale, click on the switch until it shows as [[Visible]].
 
 ![Making product visible on site](assets/dashboard-catalog/7.png)
 
 
 ### 6. Save Your New Product
 
-Once you have input your minimum required product information, press [[save]] in the footer to add it to your catalog, or press [[cancel]] to exit the process and lose any new product information.
+Once you have input your minimum required product information, click [[save]] in the footer to add it to your catalog, or click [[cancel]] to exit the process and lose any new product information.
 
 
 ### 7. Add Images
@@ -112,11 +112,11 @@ Click on an existing product from the main list and you will see the same interf
 >
 > **Save it for later**
 > 
-> Don’t remove a product if you just want to temporarily take it away from your inventory. In that case, just uncheck the [[Published&nbsp;in&nbsp;Storefront]] option in the Visibility section, as described above.
+> Don’t remove a product if you just want to temporarily take it away from your inventory. In that case, just uncheck the [[Published&nbsp;in&nbsp;Storefront]] option in the Visibility card, as described above.
 
 ## Product Variants and Attributes
 
-When you enter a product from the main list, you have all the same sections as when you create a product, with one additional field for Variants through which you can change product variants and attributes, check inventory, and control stock levels.
+When you enter a product from the main list, you have all the same cards as when you create a product, with one additional card for Variants through which you can change product variants and attributes, check inventory, and control stock levels.
 
 ![Reviewing product variants](assets/dashboard-catalog/10.png)
 
@@ -134,11 +134,11 @@ Click on a specific product from the variants list to edit the size, images, pri
 
 ![Editing product variants](assets/dashboard-catalog/12.png)
 
-You can edit the cost and sale price of an item in the Pricing field.
+You can edit the cost and sale price of an item in the Pricing card.
 
-If you receive new stock, enter the amount in the Inventory section to keep up to date and avoid false out-of-stock messages. Save any changes before exiting.
+If you receive new stock, enter the amount in the Inventory field to keep up to date and avoid false out-of-stock messages. Save any changes before exiting.
 
-You can repeat this process for all sizes or types of the same product by clicking the Variants section on the left side. Each variant has a specific SKU code (Stock Keep Unit) and will all information is unique to specific variants.
+You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) and will all information is unique to specific variants.
 
 
 ### Editing Attributes
@@ -147,7 +147,7 @@ When entering a product from the main list, click the [[Edit&nbsp;Attributes]] t
 
 ![Editing product attributes](assets/dashboard-catalog/13.png)
 
-In the Product Attributes section, click on [[Add&nbsp;Attribute]]. A pop-up will appear in which you can enter new attributes. Click [[Save]] to confirm and exit.
+In the Product Attributes card, click on [[Add&nbsp;Attribute]]. A pop-up will appear in which you can enter new attributes. Click [[Save]] to confirm and exit.
 
 ![Adding attribute](assets/dashboard-catalog/14.png)
 

@@ -29,7 +29,7 @@ New users are automatically active in the system. To deactivate a user’s acces
 
 ## Editing and Deleting Users
 
-To edit a user account, access it from the staff members list, make any relevant changes, and then press [[Save]] in the footer.
+To edit a user account, access it from the staff members list, make any relevant changes, and then click [[Save]] in the footer.
 
 To delete a user, click [[Remove]] on the left side of the footer bar and then confirm removal.
 

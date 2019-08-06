@@ -12,28 +12,33 @@ The main list shows all orders in the system, regardless of status.
 
 ![Orders list](assets/dashboard-orders/1.png)
 
-To filter orders, use the drop-down menu and view orders by date or fulfillment status. Sorting by status brings up a second menu from which you can choose Fulfilled, Partially Fulfilled, or Unfilled Orders.
+### How to use filters 
+
+To automatically filter orders, use the drop-down menu and view orders by date or fulfillment status. Sorting by status brings up a second menu from which you can choose Fulfilled, Partially Fulfilled, or Unfilled Orders. Click [[Add filter]] to apply the filter. 
+
+You can also manually search specific information, such as key words or names, using the Search Orders field. The filter is dynamically applied as you type. 
+
 
 ![Orders list filters](assets/dashboard-orders/2.jpg)
 
 
-Click on any order from the list to get the full details. The order screen contains fields for fulfillment status, payment, customer details, and order history.
+Click on any order from the list to get the full details. The order page contains cards for fulfillment status, payment, customer details, and order history.
 
 ![Order details](assets/dashboard-orders/3.jpg)
 
 
 ### How to Fulfill an Order
 
-Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single Unfulfilled or Fulfilled field. Others, as in the example here, will have both fields if parts of the order have been sent to the customer but other products are yet to be dispatched. 
+Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single Unfulfilled or Fulfilled card. Others, as in the example here, will have both cards if parts of the order have been sent to the customer but other products are yet to be dispatched. 
 
 ![Order fulfillment options](assets/dashboard-orders/4.jpg)
 
 
-To fulfill an order, click [[Fulfill]] in the Unfulfilled field and use the stepper to confirm which products are being send. In the example below, the t-shirt and hoodie are being sent in full, only two from four pairs of plimsolls are being sent, and the juice is not being sent.
+To fulfill an order, click [[Fulfill]] in the Unfulfilled card and use the stepper to confirm which products are being send. In the example below, the t-shirt and hoodie are being sent in full, only two from four pairs of plimsolls are being sent, and the juice is not being sent.
 
-Once [[Confirm]] is pressed, the t-shirt and hoodie will move to the Fulfilled field, as will two pairs of shoes. The other shoes and the juice will remain Unfulfilled.
+Once you click [[Confirm]], the t-shirt and hoodie will move to the Fulfilled cardd, as will two pairs of shoes. The other shoes and the juice will remain Unfulfilled.
 
-If you have a tracking number for the package, add it in the line below the products.
+If you have a tracking number for the package, add it in the field below the products.
 
 > **NOTE**
 >
@@ -46,7 +51,7 @@ If you have a tracking number for the package, add it in the line below the prod
 
 ### How to Cancel a Shipment
 
-- Click the three dots in the top right corner of a Fulfilled order
+- Click the three dots in the top right corner of a Fulfilled order card
 - Select [[Cancel&nbsp;Shipment]] when the pop-up appears, then confirm. Items will be restocked into the Saleor system
 
 ![Canceling shipment](assets/dashboard-orders/6.jpg)
@@ -54,7 +59,7 @@ If you have a tracking number for the package, add it in the line below the prod
 
 ### Customer Details
 
-The customer information in the field to the right of the screen on a specific order is automatically generated when the customer completes a transaction. The billing and shipping addresses can be edited if necessary. There is also an option to directly contact the customer via email by clicking on the web address shown in the contact information section.
+The customer information in the card to the right of the screen on a specific order is automatically generated when the customer completes a transaction. The billing and shipping addresses can be edited if necessary. There is also an option to directly contact the customer via email by clicking on the web address shown in the contact information card.
 
 ### Order History
 
@@ -62,7 +67,7 @@ Every time you complete an action such as confirming and fulfilling an order, a 
 
 ## Payments
 
-Orders can have three different payment fields:
+Orders can have three different payment types:
 
 
 ### Unpaid Orders
@@ -76,7 +81,7 @@ A traditional credit card or bank payment that is awaiting authorization from th
 
 Payments can be fully or partially refunded if there is an issue with the goods or customer service.
 
-- Select [[Refund]] in the bottom right corner of the box 
+- Select [[Refund]] in the bottom right corner of the card
 - Click [[Confirm]] to refund the full amount 
 - For partial refunds, input the amount manually or using the stepper, then confirm
 
@@ -99,8 +104,8 @@ This is a function for store administrators to add orders, usually in cases wher
 
 ### How to Create an Order
 
-- Click [[Add&nbsp;Order]] on the main orders page or the draft orders section
-- Choose the [[Add&nbsp;Products]] option in the main field on the order creation page
+- Click [[Create&nbsp;Order]] on the main orders page or the draft orders section
+- Click [[Add&nbsp;Products]] in the Order Details card
 - Select products from the drop-down menu or by typing the product name in the search field. Assign using the check boxes
 - Choose the customer name. Other customer information fields will then auto-complete. Manually make any changes or input information for a new customer
 - Choose the best shipping offer from the drop-down list of available couriers
