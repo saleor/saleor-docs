@@ -22,6 +22,9 @@ The [[Store&nbsp;Description]] is SEO information that will appear in browser re
 
 You can allow dashboard users to enter your store through Google and Facebook and add additional security keys to ensure site security. 
 
+### Adding Authentication Keys
+
+
 1. Click [[Add&nbsp;key]] at the top right of the Authentication Keys card 
 2. Select Facebook or Google in the Authentication Type field of the pop-up window 
 3. Create a key and password, which users will enter when accessing the dashboard through the chosen platform 
