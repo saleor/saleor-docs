@@ -5,7 +5,7 @@ title: Taxes
 
 Saleor uses an API to help automate taxes. There are very few actions that you need to take, apart from assigning the correct tax band to any Product Type that you create. 
 
-In the main Taxes screen, you need to check or uncheck three boxes in the Configuration field to decide how taxes apply and are displayed in your store:
+On the main Taxes page, you need to check or uncheck three switches in the Configuration card to decide how taxes apply and are displayed in your store:
 
 - All products prices are entered with tax included
 - Show gross prices to customers in storefront
