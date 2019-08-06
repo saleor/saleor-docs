@@ -16,8 +16,8 @@ For example, to add braintree to the enabled gateways, you can do the following:
 
 ```python
 CHECKOUT_PAYMENT_GATEWAYS = {
-    DUMMY: pgettext_lazy('Payment method name', 'Dummy gateway'),
-    BRAINTREE: pgettext_lazy('Payment method name', 'Brain tree')
+    'DUMMY': pgettext_lazy('Payment method name', 'Dummy gateway'),
+    'BRAINTREE': pgettext_lazy('Payment method name', 'Braintree')
 }
 ```
 
