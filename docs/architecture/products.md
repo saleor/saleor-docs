@@ -17,6 +17,15 @@ Type of cover is the only attribute which creates separate variants in our store
 
 ## Class Diagram
 
+<!--
+To regenerate this class digram:
+  - brew install graphviz
+  - pip3 install --install-option="--include-path=/usr/local/include/" --install-option="--library-path=/usr/local/lib/" pygraphviz
+  - pip install django-extensions
+  - Append 'django_extensions' to `INSTALL_APPS` in your settings
+  - ./manage.py graph_models product -X '*Translation*,*Model' --pygraphviz -g -o product_class_tree.png
+-->
+
 [![Product class diagram](assets/architecture-products/1.png)](assets/architecture-products/1.png)
 
 
@@ -114,7 +123,6 @@ _Attributes_ can help you better describe your products. Also, the can be used t
 
 The attribute values display in the storefront in the order that they are listed in the list in attribute details view. You can reorder them by handling an icon on the left to the values and dragging them to another position.
 
-There are 2 types of _attributes_ - choice type and text type. If you don’t provide choice values, then attribute is text type.
 
 ### Examples
 
