@@ -12,7 +12,7 @@ The navigation section allows you to configure what information is visible on th
 
 Creating the navigation structure is done by dragging and dropping. Simply create a new menu item and then drag it to the desired place. You can move items inside one another to create a tree structure and drag items up and down to create a hierarchy.
 
-When you have more than one layer, the property to the far left will appear as the main item  and the indented items become sub-elements, as in the following example.
+When you have more than one layer, the property to the far left will appear as the main item and the indented items become sub-elements, as in the following example.
 
 What you'll see in the dashboard:
 

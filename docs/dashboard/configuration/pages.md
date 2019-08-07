@@ -27,7 +27,7 @@ Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description that will appear in we
 
 ## URL
 
-If you leave the URL section empty, the title of the page will be added to your normal site URL after a slash. You can change the site address after the slash by typing it into the URL section.
+If you leave the URL card empty, the title of the page will be added to your normal site URL after a slash. You can change the site address after the slash by typing it into the URL field.
 
 
 ## Visibility
@@ -37,5 +37,5 @@ You can choose if your page is published or not. If the slider is green, it is l
 
 ## Deleting Pages
 
-To delete a page, click on the checkbox next to the page name on the list, then click the trash can. Alternatively, you can enter the page and then click [[Remove]] in the footer.
+To delete a page, click on the checkbox next to the page name on the list, then click the trash can icon. Alternatively, you can enter the page and then click [[Remove]] in the footer.
 
