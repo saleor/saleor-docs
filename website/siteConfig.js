@@ -87,7 +87,10 @@ const siteConfig = {
 
   // Open Graph and Twitter card images.
   ogImage: "img/undraw_online.svg",
-  twitterImage: "img/undraw_tweetstorm.svg"
+  twitterImage: "img/undraw_tweetstorm.svg",
+
+  // Google Analytics tracking ID to track page views.
+  gaTrackingId: "UA-10159761-25"
 
   // Show documentation's last contributor's name.
   // enableUpdateBy: true,
