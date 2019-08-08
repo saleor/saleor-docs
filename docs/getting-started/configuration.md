@@ -31,7 +31,7 @@ The supported payment providers are:
 
 ### `PAYMENT_GATEWAYS`
 
-For information on how to configure payment gateways (API keys, miscellaneous information, …), see [the list of supported payment gateway and their associated environment variables](https://docs.getsaleor.com/en/latest/payment-gateways.html#payment-gateways).
+For information on how to configure payment gateways (API keys, miscellaneous information, …), see [the list of supported payment gateway and their associated environment variables](payment-gateways/intro.md).
 
 
 ## Environment variables
@@ -58,7 +58,7 @@ Example: `redis://redis.example.com:6379/0`
 
 ### `DATABASE_URL`
 
-Defaults to a local PostgreSQL instance. See [Using Docker for Development](https://docs.getsaleor.com/en/latest/customization/docker.html#docker-dev) for how to get a local database running inside a Docker container.
+Defaults to a local PostgreSQL instance. See [Using Docker for Development](customization/docker.md) for how to get a local database running inside a Docker container.
 
 Most Heroku databases will export this setting automatically.
 
@@ -96,7 +96,7 @@ Controls [Django’s secret key](https://docs.djangoproject.com/en/2.1/ref/setti
 
 ### `SENTRY_DSN`
 
-Sentry’s [Data Source Name](https://docs.sentry.io/quickstart/#about-the-dsn). Disabled by default, allows to enable integration with Sentry (see [Error tracking with Sentry](https://docs.getsaleor.com/en/latest/integrations/sentry.html#sentry-integration) for details).
+Sentry’s [Data Source Name](https://docs.sentry.io/quickstart/#about-the-dsn). Disabled by default, allows to enable integration with Sentry (see [Error tracking with Sentry](integrations/sentry.md) for details).
 
 
 ### `MAX_CART_LINE_QUANTITY`
@@ -111,7 +111,7 @@ Controls production assets’ mount path. Defaults to `/static/`.
 
 ### `DEFAULT_CURRENCY`
 
-Controls all prices entered and stored in the store as this single default currency (for more information, see [Handling Money Amounts](https://docs.getsaleor.com/en/latest/architecture/money.html#money-architecture)).
+Controls all prices entered and stored in the store as this single default currency (for more information, see [Handling Money Amounts](architecture/money.md)).
 
 
 ### `DEFAULT_COUNTRY`
