@@ -96,7 +96,7 @@ Controls [Django’s secret key](https://docs.djangoproject.com/en/2.1/ref/setti
 
 ### `SENTRY_DSN`
 
-Sentry’s [Data Source Name](https://docs.sentry.io/quickstart/#about-the-dsn). Disabled by default, allows to enable integration with Sentry (see [Error tracking with Sentry](integrations/sentry.md) for details).
+Sentry’s [Data Source Name](https://docs.sentry.io/error-reporting/configuration/?platform=python#dsn). Disabled by default, allows to enable integration with Sentry (see [Error tracking with Sentry](integrations/sentry.md) for details).
 
 
 ### `MAX_CART_LINE_QUANTITY`

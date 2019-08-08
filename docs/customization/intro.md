@@ -16,14 +16,15 @@ sidebar_label: Introduction
 
 [card-grid]
 [**Working with Python Code**](customization/backend.md)
+[**Creating extensions**](customization/extensions.md)
+[/card-grid]
+
+[card-grid]
 [**Internationalization**](customization/i18n.md)
-[/card-grid]
-
-[card-grid]
 [**Running Tests**](customization/running-tests.md)
-[**Continuous Integration**](customization/continuous-integration.md)
 [/card-grid]
 
 [card-grid]
+[**Continuous Integration**](customization/continuous-integration.md)
 [**Running with PyPy 3.5**](customization/pypy.md)
 [/card-grid]
