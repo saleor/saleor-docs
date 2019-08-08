@@ -8,8 +8,22 @@
 const React = require("react");
 
 const Index = () => (
-  <div>
-    <a href="/docs/">Go to docs...</a>
+  <div className="docMainWrapper wrapper">
+    <div className="container docsNavContainer" id="docsNav" />
+    <div className="container mainContainer">
+      <div className="wrapper">
+        <div className="post">
+          <header className="postHeader">
+            <h1 className="postHeaderTitle">
+              Welcome to the Saleor documentation!
+            </h1>
+          </header>
+          <article>
+            <a href="/docs/">Go to documentation contents.</a>
+          </article>
+        </div>
+      </div>
+    </div>
   </div>
 );
 
