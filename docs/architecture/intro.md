@@ -1,5 +1,5 @@
 ---
-id: index
+id: intro
 title: Architecture
 sidebar_label: Introduction
 ---
