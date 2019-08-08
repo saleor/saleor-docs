@@ -15,16 +15,18 @@ const Index = () => (
         <div className="post">
           <header className="postHeader">
             <h1 className="postHeaderTitle">
-              Welcome to the Saleor documentation!
+              Requested page could not be found.
             </h1>
           </header>
           <article>
-            <a href="/docs/">Go to documentation contents.</a>
+            <a href="/docs/">Return to documentation.</a>
           </article>
         </div>
       </div>
     </div>
   </div>
 );
+
+Index.title = "Page not found";
 
 module.exports = Index;
