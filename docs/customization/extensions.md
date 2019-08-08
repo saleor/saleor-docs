@@ -8,15 +8,15 @@ Saleor has implemented extensions architecture. It includes hooks for most basic
 
 ## Plugin
 
-Saleor has some plugins implemented by default. These plugins are located in `saleor.core.extensions.plugins`. The ExtensionManager needs to receive a list of enabled plugins. It can be done by including the Python plugin path in the `settings.PLUGINS` list.
+Saleor has some plugins implemented by default. These plugins are located in `saleor.extensions.plugins`. The ExtensionManager needs to receive a list of enabled plugins. It can be done by including the Python plugin path in the `settings.PLUGINS` list.
 
 
 ### Writing Your Own Plugin
 
-A custom plugin has to inherit from the `BasePlugin` class. It should overwrite base methods. The plugin needs to be added to the `settings.PLUGINS` Your own plugin can be written as a class which has callable instances, like this:
+A custom plugin has to inherit from the BasePlugin class. It should overwrite base methods. The plugin needs to be added to the `settings.PLUGINS` Your own plugin can be written as a class which has callable instances, like this:
 
 ```python
-custom/plugin.py
+# custom/plugin.py
 
 from django.conf import settings
 from urllib.parse import urljoin
@@ -51,18 +51,89 @@ To activate the plugin, add it to the `PLUGINS` list in your Django settings:
 ```python
 # settings.py
 
-PLUGINS = ["saleor.core.extensions.plugins.custom.CustomPlugin", ]
+PLUGINS = ["saleor.extensions.plugins.custom.CustomPlugin", ]
 ```
+
+
+### Configuring Plugins
+Saleor allows you to change a configuration of the given plugin over API. Plugin owner needs to overwrite a method to create a structure of default configuration `_get_default_configuration` and `CONFIG_STRUCTURE` . It requires an expected structure as in the following example:
+
+```python
+# custom/plugin.py
+
+from django.utils.translation import pgettext_lazy
+
+from saleor.extensions import ConfigurationTypeField
+
+CONFIG_STRUCTURE = {
+    "Username or account": {
+        "type": ConfigurationTypeField.STRING,
+        "help_text": pgettext_lazy(
+            "Plugin help text", "Provide user or account details"
+        ),
+        "label": pgettext_lazy("Plugin label", "Username or account"),
+    },
+    "Password or license": {
+        "type": ConfigurationTypeField.STRING,
+        "help_text": pgettext_lazy(
+            "Plugin help text", "Provide password or license details"
+        ),
+        "label": pgettext_lazy("Plugin label", "Password or license"),
+    }
+}
+
+@classmethod
+def _get_default_configuration(cls):
+    defaults = {
+        "name": cls.PLUGIN_NAME,
+        "description": "",
+        "active": False,
+        "configuration": [
+            {
+                "name": "Username or account",
+                "value": "",
+            },
+            {
+                "name": "Password or license",
+                "value": "",
+            },
+        ]
+    }
+    return defaults
+```
+
+`ExtensionManager` will use this data to create default configuration in DB which will be served by API.
+
+By using GraphQL queries -  `pluginConfigurations` and `pluginConfiguration` user will be able to list all enabled plugins. Mutation `pluginConfigurationUpdate` will allow the user to active/disable and update configuration fields like `API keys` for a  given plugin. API serves response with the given fields:
+
+
+| Name | Description |
+| --- | --- |
+| `id` | Id of the plugin |
+| `name` | Name of the plugin |
+| `active` | Indicate if the plugin is activated or not |
+| `description` | Description of the plugin |
+| `configuration` | It stores all configuration fields as a list that can be changed by a user |
+
+Configuration fields:
+
+| Name | Description |
+| --- | --- |
+| `name` | Name of the field |
+| `value` | Current value of the field |
+| `type` | Type of the field. Saleor supports - `String` and `Boolean` |
+| `helpText` | Description of the field |
+| `label` | Label for the field |
 
 
 ## `ExtensionsManager`
 
-`ExtensionsManager` is located in the `saleor.core.extensions.base_plugin`. It is a class responsible for handling all declared plugins and serving a response from them. It serves a default response in case of a non-declared plugin. There is a possibility to overwrite an `ExtensionsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.EXTENSIONS_MANAGER`. Each Django request object has its own manager included as the `extensions` field. It is attached in the Saleor middleware.
+`ExtensionsManager` is located in the `saleor.extensions.base_plugin`. It is a class responsible for handling all declared plugins and serving a response from them. It serves a default response in case of a non-declared plugin. There is a possibility to overwrite an `ExtensionsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.EXTENSIONS_MANAGER`. Each Django request object has its own manager included as the `extensions` field. It is attached in the Saleor middleware.
 
 
 ## BasePlugin
 
-`BasePlugin` is located in the `saleor.core.extensions.base_plugin`. It is an abstract class for storing all methods available for any plugin. All methods take the `previous_value` parameter. This contains a value calculated by the previous plugin in the queue. If the plugin is first in line, it will use the default value calculated by the manager.
+`BasePlugin` is located in the `saleor.extensions.base_plugin`. It is an abstract class for storing all methods available for any plugin. All methods take the `previous_value` parameter. This contains a value calculated by the previous plugin in the queue. If the plugin is first in line, it will use the default value calculated by the manager.
 
 
 ## Celery Tasks
