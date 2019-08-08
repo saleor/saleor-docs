@@ -22,7 +22,7 @@ $ heroku config:set SECRET_KEY='<your secret key here>'
 
 > **Note**
 >
-> Heroku’s storage is volatile. This means that all instances of your application will have separate disks and will lose all changes made to the local disk each time the application is restarted. The best approach is to use cloud storage such as Amazon S3. See [Storing Files on Amazon S3](https://docs.getsaleor.com/en/latest/deployment/s3.html#amazon-s3) for configuration details.
+> Heroku’s storage is volatile. This means that all instances of your application will have separate disks and will lose all changes made to the local disk each time the application is restarted. The best approach is to use cloud storage such as Amazon S3. See [Storing Files on Amazon S3](deployment/s3.md) for configuration details.
 
 
 ## Deployment
