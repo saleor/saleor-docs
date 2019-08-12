@@ -5,7 +5,7 @@ title: Installation for Linux
 
 > **Note**
 > 
-> If you prefer using containers or have problems with configuring PostgreSQL, Redis and Elasticsearch, try [Using Docker for Development](https://docs.getsaleor.com/en/latest/customization/docker.html#docker-dev) instructions.
+> If you prefer using containers or have problems with configuring PostgreSQL, Redis and Elasticsearch, try [Using Docker for Development](customization/docker.md) instructions.
 
 
 ## Prerequisites
