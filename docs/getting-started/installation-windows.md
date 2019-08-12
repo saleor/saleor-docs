@@ -11,7 +11,7 @@ This guide assumes a 64-bit installation of Windows.
 Before you are ready to run Saleor you will need additional software installed on your computer.
 
 
-#### Python
+### Python
 
 Download the latest 3.7 Windows installer from the [Python download page](https://www.python.org/downloads/) and follow the instructions.
 
