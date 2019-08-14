@@ -3,7 +3,7 @@ id: installation-windows
 title: Installation for Windows
 ---
 
-This guide assumes a 64-bit installation of Windows.
+The following instructions assume a 64-bit installation of Windows.
 
 
 ## Prerequisites
@@ -11,59 +11,67 @@ This guide assumes a 64-bit installation of Windows.
 Before you are ready to run Saleor you will need additional software installed on your computer.
 
 
-### Python
+#### Python
 
-Download the latest 3.7 Windows installer from the [Python download page](https://www.python.org/downloads/) and follow the instructions.
+Download the latest 3.7 Windows installer from [Python download page](https://www.python.org/downloads/) and follow the installation steps.
 
-Make sure that “**Add Python 3.7 to PATH**” is checked.
+Make sure that “**Add Python 3.7 to PATH**” is selected.
 
 
-### Node.js
+#### Node.js
 
-Version 10 or later is required. Download the Windows installer from the [Node.js downloads page](https://nodejs.org/en/download/).
+Saleor requires version 10 or later. Download the Windows installer from [Node.js downloads page](https://nodejs.org/en/download/).
 
 Make sure that “**Add to PATH**” is selected.
 
 
-### PostgreSQL
+#### PostgreSQL
 
 Saleor needs PostgreSQL version 9.4 or above to work. Get the Windows installer from the [project’s download page](https://www.postgresql.org/download/windows/).
 
-Make sure you keep track of the password you set for the administration account during installation.
+> **Tip**
+>
+> Make a note of the password you set for the administration account during installation process.
 
 
-### GTK+
 
-Download the [64-bit Windows installer](https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer).
+#### GTK+
+
+Download and install the [64-bit Windows installer](https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer).
 
 Make sure that “**Set up PATH environment variable to include GTK+*” is selected.
 
 
-### Compilers
+#### Compilers
 
-Please download and install the latest version of the [Build Tools for Visual Studio](https://go.microsoft.com/fwlink/?linkid=840931).
+Download and install the latest version of the [Build Tools for Visual Studio](https://go.microsoft.com/fwlink/?linkid=840931).
 
 
 ## Installation
 
-All commands need to be performed in either PowerShell or a Command Shell.
+Once you have installed or updated the prerequisite software, you are ready for your Saleor installation. Follow the steps below to start and execute the process:
+
+> **Note**
+>
+> All commands need to be performed in either PowerShell or a Command Shell.
 
 
-### 1. Clone the repository (replace the URL with your own fork where needed)
+
+#### 1. Clone the repository (replace the URL with your own fork where needed)
 
 ```console
 git clone https://github.com/mirumee/saleor.git
 ```
 
 
-### 2. Enter the directory
+#### 2. Enter the directory
 
 ```console
 cd saleor/
 ```
 
 
-### 3. Install all dependencies
+#### 3. Install all dependencies
 
 We strongly recommend [creating a virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing any Python packages.
 
@@ -72,10 +80,10 @@ python -m pip install -r requirements.txt
 ```
 
 
-### 4. Set `SECRET_KEY` environment variable
+#### 4. Set `SECRET_KEY` environment variable
 
 
-We try to provide usable default values for all of the settings. We’ve decided not to provide a default for `SECRET_KEY` as we fear someone would inevitably ship a project with the default value left in code.
+We try to provide usable default values for all the settings. We have decided not to provide a default for `SECRET_KEY` as we fear someone would inevitably ship a project with the default value left in code.
 
 ```console
 $env:SECRET_KEY = "<mysecretkey>"
@@ -83,18 +91,18 @@ $env:SECRET_KEY = "<mysecretkey>"
 
 > **Warning**
 > 
-> Secret key should be a unique string only your team knows. Running code with a known `SECRET_KEY` defeats many of Django’s security protections, and can lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
+> Secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections, and can lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
 
 
 
-### 5. Create a PostgreSQL user
+#### 5. Create a PostgreSQL user
 
-Use the **pgAdmin** tool that came with your PostgreSQL installation to create a database user for your store.
+Use the **pgAdmin** tool that came with your PostgreSQL installation, to create a database user for your store.
 
-Unless configured otherwise the store will use `saleor` as both username and password. Remember to give your user the `SUPERUSER` privilege so it can create databases and database extensions.
+Unless configured otherwise, the store will use `saleor` as both username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
 
 
-### 6. Create a PostgreSQL database
+#### 6. Create a PostgreSQL database
 
 See [PostgreSQL’s createdb command](https://www.postgresql.org/docs/current/static/app-createdb.html) for details.
 
@@ -103,7 +111,7 @@ See [PostgreSQL’s createdb command](https://www.postgresql.org/docs/current/st
 > Database name is extracted from the `DATABASE_URL` environment variable. If absent it defaults to `saleor`.
 
 
-### 7. Prepare the database
+#### 7. Prepare the database
 
 ```console
 python manage.py migrate
@@ -111,10 +119,10 @@ python manage.py migrate
 
 > **Warning**
 >
-> This command will need to be able to create a database and some database extensions. If you get an error related to these make sure you’ve properly assigned your user `SUPERUSER` privileges.
+> This command creates database extensions. If instead you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
 
 
-### 8. Install front-end dependencies
+#### 8. Install front-end dependencies
 
 ```console
 npm install
@@ -122,24 +130,24 @@ npm install
 
 > **Note**
 > 
-> If this step fails go back and make sure you’re using new enough version of Node.js.
+> If this step fails, make sure you are using recent version of Node.js.
 
 
-### 9. Prepare front-end assets
+#### 9. Prepare front-end assets
 
 ```console
 npm run build-assets
 ```
 
 
-### 10. Compile e-mails
+#### 10. Compile e-mails
 
 ```console
 npm run build-emails
 ```
 
 
-### 11. Start the development server:
+#### 11. Start the development server:
 
 ```console
 python manage.py runserver

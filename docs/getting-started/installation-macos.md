@@ -64,7 +64,7 @@ $ brew install cairo pango gdk-pixbuf libffi
 
 ## Installation
 
-Follow the steps below to start and execute the installation process:
+Once you have installed or updated the prerequisite software, you are ready for your Saleor installation. Follow the steps below to start and execute the process:
 
 #### 1. Clone the repository (or use your own fork)
 
@@ -99,7 +99,7 @@ $ export SECRET_KEY='<mysecretkey>'
 
 > **Warning**
 >
-> Secret key should be a unique string that only your team knows. Running code with a known `SECRET_KEY` defeats many of Django’s security protections, and can lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
+> Secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections, and can lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
 
 
 #### 5. Create a PostgreSQL user
@@ -115,7 +115,9 @@ Enter `saleor` when prompted for password.
 
 #### 6. Create a PostgreSQL database
 
-Unless configured otherwise, the store will use `saleor` as the database name.
+> **Note**
+>
+> Database name is extracted from the `DATABASE_URL` environment variable. If absent it defaults to `saleor`.
 
 ```console
 $ createdb saleor
@@ -141,7 +143,7 @@ $ npm install
 
 > **Note**
 >
-> If this step fails, make sure you’re using recent version of Node.js.
+> If this step fails, make sure you are using recent version of Node.js.
 
 
 #### 9. Prepare front-end assets
