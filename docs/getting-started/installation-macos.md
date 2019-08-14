@@ -9,17 +9,17 @@ title: Installation for macOS
 Before you are ready to run Saleor you will need additional software installed on your computer.
 
 
-### Node.js
+#### Node.js
 
 Version 10 or later is required. Download the macOS installer from the [Node.js downloads page](https://nodejs.org/en/download/).
 
 
-### PostgreSQL
+#### PostgreSQL
 
 Saleor needs PostgreSQL version 9.4 or above to work. Get the macOS installer from the [PostgreSQL download page](https://www.postgresql.org/download/macosx/).
 
 
-### Command Line Tools for Xcode
+#### Command Line Tools for Xcode
 
 Download and install the latest version of “Command Line Tools (macOS 10.x) for Xcode 9.x” from the [Downloads for Apple Developers page](https://developer.apple.com/download/more/).
 
@@ -28,18 +28,14 @@ Then run:
 ```console
 $ xcode-select --install
 ```
-
-
-### Homebrew
+#### Homebrew
 
 Run the following command:
 
 ```console
 $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
-
-
-### Python 3
+#### Python 3
 
 Use Homebrew to install the latest version of Python 3:
 
@@ -48,7 +44,7 @@ $ brew install python3
 ```
 
 
-### Git
+#### Git
 
 Use Homebrew to install Git:
 
@@ -57,7 +53,7 @@ $ brew install git
 ```
 
 
-### Gtk+
+#### Gtk+
 
 Use Homebrew to install the graphical libraries necessary for PDF creation:
 
@@ -68,31 +64,34 @@ $ brew install cairo pango gdk-pixbuf libffi
 
 ## Installation
 
-### 1. Clone the repository (or use your own fork)
+Follow the steps below to start and execute the installation process:
+
+#### 1. Clone the repository (or use your own fork)
 
 ```console
 $ git clone https://github.com/mirumee/saleor.git
 ```
 
 
-### 2. Enter the directory
+#### 2. Enter the directory
 
 ```console
 $ cd saleor/
 ```
 
-### 3. Install all dependencies
+#### 3. Install all dependencies
 
 ```console
 $ pip install -r requirements.txt
 ```
-
+> **Tip**
+>
 > We strongly recommend creating a virtual environment before installing any Python packages.
 
 
-### 4. Set `SECRET_KEY` environment variable
+#### 4. Set `SECRET_KEY` environment variable
 
-We try to provide usable default values for all of the settings. We’ve decided not to provide a default for `SECRET_KEY` as we fear someone would inevitably ship a project with the default value left in code.
+We try to provide usable default values for all the settings. We have decided not to provide a default for `SECRET_KEY` as we fear someone would inevitably ship a project with the default value left in the code.
 
 ```console
 $ export SECRET_KEY='<mysecretkey>'
@@ -100,12 +99,12 @@ $ export SECRET_KEY='<mysecretkey>'
 
 > **Warning**
 >
-> Secret key should be a unique string only your team knows. Running code with a known `SECRET_KEY` defeats many of Django’s security protections, and can lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
+> Secret key should be a unique string that only your team knows. Running code with a known `SECRET_KEY` defeats many of Django’s security protections, and can lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
 
 
-### 5. Create a PostgreSQL user
+#### 5. Create a PostgreSQL user
 
-Unless configured otherwise the store will use `saleor` as both username and password. Remember to give your user the `SUPERUSER` privilege so it can create databases and database extensions.
+Unless configured otherwise, the store will use `saleor` as both username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
 
 ```console
 $ createuser --superuser --pwprompt saleor
@@ -114,16 +113,16 @@ $ createuser --superuser --pwprompt saleor
 Enter `saleor` when prompted for password.
 
 
-### 6. Create a PostgreSQL database
+#### 6. Create a PostgreSQL database
 
-Unless configured otherwise the store will use `saleor` as the database name.
+Unless configured otherwise, the store will use `saleor` as the database name.
 
 ```console
 $ createdb saleor
 ```
 
 
-### 7. Prepare the database
+#### 7. Prepare the database
 
 ```console
 $ python manage.py migrate
@@ -131,10 +130,10 @@ $ python manage.py migrate
 
 > **Warning**
 >
-> This command will need to be able to create database extensions. If you get an error related to the `CREATE EXTENSION` command please review the notes from the user creation step.
+> This command creates database extensions. If instead you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
 
 
-### 8. Install front-end dependencies
+#### 8. Install front-end dependencies
 
 ```console
 $ npm install
@@ -142,24 +141,24 @@ $ npm install
 
 > **Note**
 >
-> If this step fails go back and make sure you’re using new enough version of Node.js.
+> If this step fails, make sure you’re using recent version of Node.js.
 
 
-### 9. Prepare front-end assets
+#### 9. Prepare front-end assets
 
 ```console
 $ npm run build-assets
 ```
 
 
-### 10. Compile e-mails
+#### 10. Compile e-mails
 
 ```console
 $ npm run build-emails
 ```
 
 
-### 11. Start the development server
+#### 11. Start the development server
 
 ```console
 $ python manage.py runserver
