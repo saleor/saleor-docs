@@ -141,7 +141,7 @@ $ npm install
 
 > **Note**
 >
-> If this step fails go back and make sure you are using recent version of Node.js.
+> If this step fails, make sure you are using recent version of Node.js.
 
 #### 9. Prepare front-end assets
 
