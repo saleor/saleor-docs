@@ -3,14 +3,19 @@ id: creating-superuser
 title: Creating an Administrator Account
 ---
 
-Saleor is a Django application so you can create your master account using the following command:
+Saleor is an application built with Django so you can use the following command to create your master account:
 
 ```console
 $ python manage.py createsuperuser
 ```
 
-Follow prompts to provide your email address and password.
+Follow the subsequent prompts providing your email address and creating a password.
 
-You can then start your local server and visit `http://localhost:8000/dashboard/` to log into the management interface.
+Once you complete the setup, you can start your local server and go to `http://localhost:8000/dashboard/` to log into the management interface.
 
-Please note that creating users in this way gives them “superuser” status which means they have all privileges no matter which permissions they have granted.
+> **Note**
+>
+> This method allows you to create users with a "superuser" status with all system privileges, regardless of specific permission set granted to them. 
+Use this method to create an administrator account only. 
+
+

@@ -1,44 +1,46 @@
 ---
 id: docker
-title: Using Docker for Development
+title: Using Docker
 ---
 
 Using Docker to build software allows you to run and test code without having to worry about external dependencies such as cache servers and databases.
 
 > **Warning**
 >
-> The following setup is only meant for local development. See [Docker](deployment/docker.md) for production use of Docker.
+> The following setup is only meant for local development. See [Docker](deployment/docker.md) for production use.
 
 
-## Local Prerequisites
+## Prerequisites (local)
 
-You will need to install [Docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/) before performing the following steps.
+You will need to install [Docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/) before following instructions below.
 
 > **Note**
 >
-> Our configuration uses [docker-compose.override.yml](https://docs.docker.com/compose/extends/#understanding-multiple-compose-files) that exposes Saleor, PostgreSQL and Redis ports and runs Saleor via `python manage.py runserver` for local development. If you do not wish to use any overrides then you can tell compose to only use docker-compose.yml configuration using `-f`, like so: `docker-compose -f docker-compose.yml up`.
+> Our configuration uses [docker-compose.override.yml](https://docs.docker.com/compose/extends/#understanding-multiple-compose-files) that exposes Saleor, PostgreSQL and Redis ports and runs Saleor via `python manage.py runserver` for local development. 
+
+If you do not wish to use any overrides, you can order compose to only use docker-compose.yml configuration using `-f`, for example: `docker-compose -f docker-compose.yml up`.
 
 
 ## Using local assets
 
-By default we do not mount assets for development in the Docker, reason being is those are built in the Docker at build-time and aren’t present in the cloned repository, so what was built on the Docker would be overshadowed by empty directories from the host.
+By default, we do not mount assets for development in the Docker. This is because the assets are built in the Docker at build-time and are not present in the cloned repository. As a result, what has been built on the Docker, would be subsequently overshadowed by empty directories from the host.
 
-However, we do know that there might be a case that you wish to mount them and see your changes reflected in the container, thus before proceeding you need to modify docker-compose.override.yml.
+However, we are aware that in some instances you may wish to mount the assets and see your changes reflected in the container. To do that modify the docker-compose.override.yml before proceeding.
 
 In order for Docker to use your assets from the host, you need to remove `/app/saleor/static/assets` volume and add `./webpack-bundle.json:/app/webpack-bundle.json` volume.
 
-Additionally if you wish to have the compiled templated emails mounted then you need to also remove `/app/templates/templated_email/compiled` volume from web and celery services.
+Additionally, if you wish to have the compiled templated emails mounted, remove also the `/app/templates/templated_email/compiled` volume from the web and celery services.
 
 
-## Usage
+## How to use Docker
 
-Build the containers using `docker-compose`:
+#### 1. Build the containers using `docker-compose`:
 
 ```console
 $ docker-compose build
 ```
 
-Prepare the database:
+#### 2. Prepare the database:
 
 ```console
 $ docker-compose run --rm web python3 manage.py migrate
@@ -46,12 +48,14 @@ $ docker-compose run --rm web python3 manage.py collectstatic
 $ docker-compose run --rm web python3 manage.py populatedb --createsuperuser
 ```
 
-> The --createsuperuser argument creates an admin account for admin@example.com with the password set to admin.
+>**Note**
+> 
+>The --createsuperuser argument creates an admin account for `admin@example.com` with the password set to `admin`.
 
-Run the containers:
+#### 3. Run the containers:
 
 ```console
 $ docker-compose up
 ```
 
-By default, the application is started in debug mode and is configured to listen on port `8000`.
+By default, the application starts in a debug mode and is configured to listen on port `8000`.
