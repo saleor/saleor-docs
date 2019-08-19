@@ -36,14 +36,14 @@ For information on how to configure payment gateways (for example, API keys, etc
 
 ## Environment variables
 
-#### `ALLOWED_HOSTS`
+### `ALLOWED_HOSTS`
 
 This variable controls [Django’s allowed hosts](https://docs.djangoproject.com/en/2.1/ref/settings/#s-allowed-hosts) setting. It defaults to `localhost`.
 
 Multiple values should be separated with comma.
 
 
-#### `CACHE_URL` or `REDIS_URL`
+### `CACHE_URL` or `REDIS_URL`
 
 The URL of a cache database. It defaults to local process memory.
 
@@ -56,7 +56,7 @@ Use of Redis is recommended. Heroku’s Redis will export this setting automatic
 > If you plan to use more than one WSGI process (or run more than one server/container) you need to use a shared cache server. Otherwise each process will have its own version of each user’s session. This will result in people being logged out and losing their shopping carts.
 
 
-#### `DATABASE_URL`
+### `DATABASE_URL`
 
 This variable defaults to a local PostgreSQL instance. See [Using Docker for Development](customization/docker.md) for how to get a local database running inside a Docker container.
 
@@ -65,61 +65,61 @@ Most Heroku databases will export this settings automatically.
 **Example:** `postgres://user:password@psql.example.com/database`
 
 
-#### `DEBUG`
+### `DEBUG`
 
 Controls [Django’s debug mode](https://docs.djangoproject.com/en/2.1/ref/settings/#s-debug). It defaults to `True`.
 
 
-#### `DEFAULT_FROM_EMAIL`
+### `DEFAULT_FROM_EMAIL`
 
 Indicates a default email address to use for all outgoing mail.
 
 
-#### `EMAIL_URL`
+### `EMAIL_URL`
 
 The URL of the email gateway. Defaults to printing everything to the console.
 
 **Example:** `smtp://user:password@smtp.example.com:465/?ssl=True`
 
 
-#### `INTERNAL_IPS`
+### `INTERNAL_IPS`
 
 It controls [Django’s internal IPs setting](https://docs.djangoproject.com/en/2.1/ref/settings/#s-internal-ips). Defaults to `127.0.0.1`.
 
 Multiple values should be separated with comma.
 
 
-#### `SECRET_KEY`
+### `SECRET_KEY`
 
 It controls [Django’s secret key](https://docs.djangoproject.com/en/2.1/ref/settings/#s-secret-key) setting.
 
 
-#### `SENTRY_DSN`
+### `SENTRY_DSN`
 
 This is Sentry’s [Data Source Name](https://docs.sentry.io/error-reporting/configuration/?platform=python#dsn). and it si disabled by default. It allows you to enable integration with Sentry (see [Error tracking with Sentry](integrations/sentry.md) for details).
 
 
-#### `MAX_CART_LINE_QUANTITY`
+### `MAX_CART_LINE_QUANTITY`
 
 This variable controls maximum number of items in one cart line. It defaults to `50`.
 
 
-#### `STATIC_URL`
+### `STATIC_URL`
 
 Controls production assets’ mount path. Defaults to `/static/`.
 
 
-#### `DEFAULT_CURRENCY`
+### `DEFAULT_CURRENCY`
 
 Indicates a default currency which is a basis for all prices entered and stored in your store (for more information, see [Handling Money Amounts](architecture/money.md)).
 
 
-#### `DEFAULT_COUNTRY`
+### `DEFAULT_COUNTRY`
 
 Indicates the default country of your store. Depending on what setup you require, this variable also controls the default VAT, the default shipping country, etc.
 
 
-#### `CREATE_IMAGES_ON_DEMAND`
+### `CREATE_IMAGES_ON_DEMAND`
 
 Indicates whether or not to create new images on-the-fly. By default it is set to `True`. 
 For production, we recommend you set this to `False` to speed the performance. 
@@ -131,31 +131,31 @@ Make sure all images come with a pre-warm to ensure they’re created and availa
 For more information on how to configure taxes, see the [taxes](dashboard-config#taxes-1) topic in the Saleor Dashboard Guide.
 
 
-#### `VATLAYER_ACCESS_KEY`
+### `VATLAYER_ACCESS_KEY`
 
 Indicates an access key to [vatlayer’s API](https://vatlayer.com/).
 
 
-#### `AVATAX_USERNAME_OR_ACCOUNT`
+### `AVATAX_USERNAME_OR_ACCOUNT`
 
 This variable stores Avalara’s `username` or Avalara’s `account`.
 
 
-#### `AVATAX_PASSWORD_OR_LICENSE`
+### `AVATAX_PASSWORD_OR_LICENSE`
 
 This variable stores Avalara’s `password` or Avalara’s `license`.
 
 
-#### `AVATAX_USE_SANDBOX`
+### `AVATAX_USE_SANDBOX`
 
 `True` when `DEBUG` is set to `True`. This variable determines if Saleor should use Avatax sandbox API.
 
 
-#### `AVATAX_COMPANY_NAME`
+### `AVATAX_COMPANY_NAME`
 
 Defaults to `DEFAULT`. Avalara needs to receive company code. Some more complicated systems can use more than one company code, in that case, this variable should be changed based on data from Avalara’s admin panel.
 
 
-#### `AVATAX_AUTOCOMMIT`
+### `AVATAX_AUTOCOMMIT`
 
 Defaults to `False`. This variable determines, if all transactions sent to Avalara should be committed by default.

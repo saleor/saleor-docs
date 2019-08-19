@@ -34,13 +34,13 @@ Additionally, if you wish to have the compiled templated emails mounted, remove 
 
 ## How to use Docker
 
-#### 1. Build the containers using `docker-compose`:
+### 1. Build the containers using `docker-compose`:
 
 ```console
 $ docker-compose build
 ```
 
-#### 2. Prepare the database:
+### 2. Prepare the database:
 
 ```console
 $ docker-compose run --rm web python3 manage.py migrate
@@ -52,7 +52,7 @@ $ docker-compose run --rm web python3 manage.py populatedb --createsuperuser
 > 
 >The --createsuperuser argument creates an admin account for `admin@example.com` with the password set to `admin`.
 
-#### 3. Run the containers:
+### 3. Run the containers:
 
 ```console
 $ docker-compose up
