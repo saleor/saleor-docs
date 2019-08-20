@@ -3,34 +3,36 @@ id: shippings
 title: Shippings
 ---
 
-Saleor uses the concept of Shipping Zones and Shipping Methods to fulfill the shipping process.
+Saleor uses the concept of _Shipping Zones_ and _Shipping Methods_ to complete the shipping process.
 
 
 ## Shipping Zones
 
-The countries that you ship to are known as the shipping zones. Each `ShippingZone` includes `ShippingMethods` that apply to customers whose shipping address is within the shipping zone.
+The countries that you ship to are known as the shipping zones. 
+Each `ShippingZone` includes `ShippingMethods` that apply to customers whose shipping address is within the shipping zone.
 
-Each `ShippingZone` can contain several countries inside, but the country might belong to a maximum of one `ShippingZone`.
+Each `ShippingZone` can consist of several countries. On the other hand, a country might belong to only one `ShippingZone`.
 
-Some examples of the `ShippingZones` could be European Union, North America, Germany etc.
+An example of the `ShippingZones` could be: _European Union_, _North America_, _Germany_, etc.
 
-There’s also a possibility to create a default Shipping Zone which will be used for countries not covered by other zones.
+It is also possible to create a default Shipping Zone and use it for countries not covered by other zones.
 
 
 ## Shipping Methods
 
-`ShippingMethods` are the methods you’ll use to get customers’ orders to them. You can offer several ones within one `ShippingZone` to ensure the varieties of delivery speed and costs at the checkout.
+The `ShippingMethods` reflect the available ways the orders are delivered to customers. 
+You can setup several different `ShippingMethods` within one `ShippingZone` to ensure enough flexibility and offer your customers a choice of different delivery speed and costs at the checkout.
 
-Each `ShippmentMethod` could be one of the two types:
+There are two types of `ShippmentMethod` available in Saleor:
 
-- `PRICE_BASED` - Those methods can be used only when the order price is within the certain range, eg. from 0 to 50$, 50$ and up etc.
-- `WEIGHT_BASED` - Same as the `PRICE_BASED`, but with the total order’s weight in mind.
+* `PRICE_BASED` - Can be used when the order price falls within a certain range. For example, from $0 to $50 - shipping method A, over $50 - shipping method B, etc.
+* `WEIGHT_BASED` - Similar to the price based example. You can create shipping methods based on the weight rane. 
 
-These methods allow you to cover most of the basic use cases, eg.:
+These two methods cover most of the basic use cases, for example:
 
-- Listing several methods with different prices and shipping time for different countries.
-- Offering a free (or discounted) shipping on orders above certain price threshold.
-- Increasing the shipping price for heavy orders.
+* Listing several methods with different prices and shipping time for different countries.
+* Offering a free (or discounted) shipping on orders above certain price threshold.
+* Increasing the shipping price for heavy orders.
 
 
 ## Weight

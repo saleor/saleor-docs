@@ -3,18 +3,18 @@ id: docker
 title: Docker
 ---
 
-You will need to install Docker first.
+Before you start, you need to install Docker.
 
-Then use Docker to build the image:
+1. Use Docker to build the following image:
 
 ```console
 $ docker build -t mystorefront .
 ```
 
-Then you can run Saleor container with the following settings:
+2. Run Saleor container with the following settings:
 
 ```console
 $ docker run -e SECRET_KEY=<SECRET_KEY> -e DATABASE_URL=<DATABASE_URL> -p 8000:8000 mystorefront
 ```
 
-Please refer to [Configuration](getting-started/configuration.md#environment-variables) for more environment variable settings.
+See the [Configuration](getting-started/configuration.md#environment-variables) for more environment variable settings.

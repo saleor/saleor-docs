@@ -3,13 +3,15 @@ id: gcs
 title: Storing Files on Google Cloud Storage (GCS)
 ---
 
-If you’re using containers for deployment (including Docker and Heroku) you’ll want to avoid storing files in the container’s volatile filesystem. This integration allows you to delegate storing such files to [Google Cloud Storage (GCS) service](https://django-storages.readthedocs.io/en/latest/backends/gcloud.html).
+If you’re using containers for deployment (including Docker and Heroku) should avoid storing files in the container’s volatile filesystem. 
+
+This integration allows you to delegate storing such files to [Google Cloud Storage (GCS) service](https://django-storages.readthedocs.io/en/latest/backends/gcloud.html).
 
 
 ## Base configuration
 
-- `GOOGLE_APPLICATION_CREDENTIALS` - Set an environment variable to path of the json file.
-- `GS_CREDENTIALS` - Optional, the OAuth 2 credentials to use for the connection. If unset, falls back to the default inferred from the environment (i.e. `GOOGLE_APPLICATION_CREDENTIALS`).
+* `GOOGLE_APPLICATION_CREDENTIALS` - Set an environment variable to path of the json file.
+* `GS_CREDENTIALS` - Optional. Use the OAuth 2 credentials for the connection. If unset, falls back to the default inferred from the environment (i.e. `GOOGLE_APPLICATION_CREDENTIALS`).
 
 
 ## Serving media files with a GCS bucket
@@ -20,7 +22,7 @@ If you want to store and serve media files, set the following environment variab
 
 > **Note**
 >
-> The media files are every data uploaded through the dashboard (product images, category images, etc.)
+> The media files are all data uploaded through the dashboard (for example, product images, category images, etc.).
 
 
 ## Serving static files with a GCS bucket
@@ -33,7 +35,7 @@ If you intend to use GCS for your static files as well, set an additional enviro
 
 > **Note**
 >
-> You will need to configure your GCS bucket to allow cross origin requests for some files to be properly served (SVG files, Javascript files, etc.). For that, you have to set below instructions in your GCS Bucket’s permissions tab under the [CORS section](https://cloud.google.com/storage/docs/xml-api/put-bucket-cors).
+> You need to configure your GCS bucket to allow cross origin requests for some files to be properly served (SVG files, Javascript files, etc.). To do that, set the following instructions in your GCS Bucket’s permissions tab under the [CORS section](https://cloud.google.com/storage/docs/xml-api/put-bucket-cors).
 >
 > ```xml
 ><?xml version="1.0" encoding="UTF-8"?>

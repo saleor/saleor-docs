@@ -5,19 +5,21 @@ title: Model Translations
 
 > **Note**
 >
-> At this stage, model translations are only accessible from the Python code. The backend and the storefront are prepared to handle the translated properties, but GraphQL API and UI views will be added in the future releases.
+> Currently, model translations are only accessible from the Python code. 
+> The backend and the storefront are prepared to handle the translated properties.
+> GraphQL API and UI views will be added in the future releases.
 
 
 ## Overview
 
-Model translations are available via `TranslationProxy` defined on the to-be-translated `Model`.
+Model translations are available via `TranslationProxy`, defined on the to-be-translated `Model`.
 
-`TranslationProxy` gets user’s language, and checks if there’s a ModelTranslation created for that language.
+`TranslationProxy` gets user’s language, and checks if there is an existing `ModelTranslation` for that language. 
 
-If there’s no relevant `ModelTranslation` available, it will return the original (therefore not translated) property. Otherwise, it will return the translated property.
+If there is no relevant `ModelTranslation` available, it will return the original (not translated) property. Otherwise, the translated property is returned.
 
 
-## Adding a `ModelTranslation`
+## How to add a `ModelTranslation`
 
 Consider a product:
 
@@ -35,27 +37,22 @@ class Product(models.Model):
     translated = TranslationProxy()
 ```
 
-The product has several properties, but we want to translate just its `name` and `description`.
+The product has several properties, but let's assume you want to translate just its `name` and `description`.
 
-We’ve also set a `translated` property to an instance of `TranslationProxy`.
+1. Set a `translated` property to an instance of `TranslationProxy`.
 
-We will use `ProductTranslation` to store our translated properties, it requires two base fields:
-
-
-### `language_code`
-
-A language code that this translation correlates to.
+2. Use `ProductTranslation` to store yur translated properties. It requires two base fields:
 
 
-### `product`
+* `language_code` - A language code that this translation correlates to.
 
-`ForeignKey` relation to the translated object (in this case we named it product)
+* `product` - `ForeignKey` relation to the translated object (in this case it will be named _product_).
 
-… and any other field you’d like to translate, in our example, we will use `name` and `description`.
+… and any other field you would like to translate. For the purpose of this example, a `name` and `description` were used.
 
 > **Warning**
 > 
-> `TranslationProxy` expects that the `related_name`, on the `ForeignKey` relation is set to `translations`
+> `TranslationProxy` expects that the `related_name`, on the `ForeignKey` relation is set to `translations`.
 
 ```python
 from django.db import models
@@ -77,16 +74,17 @@ class ProductTranslation(models.Model):
 
 > **Note**
 >
-> Don’t forget to set `unique_together` on the `product` and `language_code`, there should be only one translation per product per language.
+> Remember to set `unique_together` on the `product` and `language_code`, there should be only one translation per product and per language.
 
 > **Warning**
 >
-> `ModelTranslation` fields must always take the same arguments as the existing translatable model, eg. inconsistency in `max_length` attribute could lead to UI bugs with translation turned on.
+> `ModelTranslation` fields must always take the same arguments as the existing translatable model.
+> For example, inconsistency in `max_length` attribute could lead to UI bugs when translation settings are switched on.
 
 
 ## Using a `ModelTranslation`
 
-Given the example above, we can access translated properties via the `TranslationProxy`.
+Based on the above example, you can access translated properties via the `TranslationProxy`.
 
 ```python
 translated_name = product.translated.name
@@ -94,4 +92,5 @@ translated_name = product.translated.name
 
 > **Note**
 >
-> Translated property will be returned if there is a `ModelTranslation` with the same `language_code` as a user’s currently active language. Otherwise, the original property will be returned.
+> Translated property is returned if there is an existing `ModelTranslation` with the same `language_code` as the user’s currently active language. 
+> Otherwise, the original property (not translated) is returned.

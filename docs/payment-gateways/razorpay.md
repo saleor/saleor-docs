@@ -6,9 +6,9 @@ title: Razorpay (supports only the paisa currency)
 
 This gateway implements payments using [Razorpay](https://razorpay.com/).
 
-First of all, to create your API credentials, you need to go in your Razorpay account settings, then in [the API Keys section](https://dashboard.razorpay.com/#/app/keys).
+Before you start, you need to create your API credentials. Go to your Razorpay account settings, and to [the API Keys section](https://dashboard.razorpay.com/#/app/keys).
 
-| Environment variable | Description |
+| Environment Variable | Description |
 | --- | --- |
 | `RAZORPAY_PUBLIC_KEY` | Your Razorpay key id |
 | `RAZORPAY_SECRET_KEY` | Your Razorpay secret key id |
@@ -18,4 +18,4 @@ First of all, to create your API credentials, you need to go in your Razorpay ac
 
 > **Warning**
 >
-> Only the paisa (INR) currency is supported by Razorpay as of now.
+> Currently Razorpay only supports the paisa (INR) currency.

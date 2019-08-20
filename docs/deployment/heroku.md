@@ -5,7 +5,7 @@ title: Heroku
 
 ## Configuration
 
-Within the repo, git should already be initialized. All you have to do now is add the heroku remote with your app-name
+Within the repo, git should already be initialized. Now you only need to add the heroku remote with your app-name:
 
 ```console
 $ heroku git:remote -a 'app-name'
@@ -22,7 +22,7 @@ $ heroku config:set SECRET_KEY='<your secret key here>'
 
 > **Note**
 >
-> Heroku’s storage is volatile. This means that all instances of your application will have separate disks and will lose all changes made to the local disk each time the application is restarted. The best approach is to use cloud storage such as Amazon S3. See [Storing Files on Amazon S3](deployment/s3.md) for configuration details.
+> Heroku’s storage is volatile. This means that all instances of your application have separate disks and lose all changes made to the local disk each time the application is restarted. The best approach is to use cloud storage such as Amazon S3. See [Storing Files on Amazon S3](deployment/s3.md) for configuration details.
 
 
 ## Deployment
@@ -39,9 +39,11 @@ $ heroku run python manage.py migrate
 ```
 
 
-## Updating Currency Exchange Rates
+## Updating currency exchange rates
 
-This needs to be run periodically. The best way to achieve this is using Heroku’s Scheduler service. Let’s add it to our application:
+You should run this command periodically. The best way to ensure this is done, is using Heroku’s Scheduler service. 
+
+To add it to our application:
 
 ```console
 $ heroku addons:create scheduler
@@ -56,7 +58,7 @@ $ python manage.py update_exchange_rates --all
 
 ## Enabling Elasticsearch
 
-By default, Saleor uses Postgres as a search backend, but if you want to switch to Elasticsearch, it can be easily achieved using the Bonsai plugin. In order to do that, run the following commands:
+Saleor uses Postgres as a search backend by default. If you want to switch to Elasticsearch, use the Bonsai plugin and run the following commands:
 
 ```console
 $ heroku addons:create bonsai:sandbox-6 --version=5.4
