@@ -3,25 +3,28 @@ id: gdpr
 title: GDPR Compliance
 ---
 
-Saleor handles few aspects of the GDPR regulation by default.
+Ny default, Saleor handles several aspects of the regulations introduced by the GDPR.
 
 
 ## Deleting users
 
-A user account can be deleted from the dashboard, by a staff user. This action takes place immediately.
+A user account can be deleted from the dashboard level by a staff user. This action is processed immediately.
 
-From the storefront, a user can request his account deletion from within his profile settings, in such case, a confirmation email will be sent to the email address associated with the account.
+Users are also able to request their account to be deleted, from the storefront level, on their user profile settings.  In such case, a confirmation email is sent to the email address associated with the account.
 
-Deleting a user will delete his account instance, but will leave all the data used for the checkout process untouched, for the financial record. This behavior is in accordance with the GDPR regulations.
+> **Note**
+> Deleting a user removes their account instance. All data used for the checkout process are left untouched. This is to keep track of financial transaction. 
+> This solution follows the GDPR regulations.
 
 
 ## Cookies
 
-All cookies used by Saleor are strictly necessary to move around the website and use its features, therefore there’s no need to notify the users about them.
+All cookies used by Saleor are strictly necessary to move around the website and use its features, therefore there is no need to notify the users about them.
 
 
 ## Manual actions required
 
 ### Privacy Policy and Terms of Service
 
-Make sure your _Terms of Service_ and _Privacy Policy_ properly communicate to your users who you are and how you are using their data. We recommend you ensure your policies are up to date and are clear to your readers.
+Make sure your _Terms of Service_ and _Privacy Policy_ statements properly communicate to your users who you are and how you are using their data. 
+We recommend that you ensure your policies are kept up to date and are clear to your readers.

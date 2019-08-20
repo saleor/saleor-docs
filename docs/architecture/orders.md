@@ -3,7 +3,7 @@ id: orders
 title: Order Management
 ---
 
-Orders are created after customers complete the checkout process. The Order object itself contains only general information about the customer’s order.
+An order is created once a customer completes the checkout process. The Order object itself contains only general information about the customer’s order.
 
 
 ## Fulfillment
@@ -13,19 +13,19 @@ The fulfillment represents a group of shipped items with corresponding tracking 
 There are two possible fulfillment statuses:
 
 
-### `NEW`
+* `NEW`
 
-The default status of newly created fulfillments.
+This is a default status for all newly created fulfillments.
 
 
-### `CANCELED`
+* `CANCELED`
 
-The fulfillment canceled by a shop operator. This action is irreversible.
+This status is assigned after a fulfillment is canceled by a shop operator. The cancel action is irreversible.
 
 
 ## Order statuses
 
-There are four possible order statuses, based on statuses of its fulfillments:
+There are four possible order statuses, based on the stage of their fulfillment:
 
 
 ### `UNFULFILLED`
