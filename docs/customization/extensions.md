@@ -55,7 +55,7 @@ PLUGINS = ["saleor.extensions.plugins.custom.CustomPlugin", ]
 
 ### Configuring Plugins
 
-Saleor allows you to change a configuration of the given plugin over API. Plugin owner needs to overwrite a method to create a structure of default configuration `_get_default_configuration` and `CONFIG_STRUCTURE` . It requires an expected structure as in the following example:
+Saleor allows you to change a configuration of any given plugin over API. Plugin owner needs to overwrite a method to create a structure of default configuration `_get_default_configuration` and `CONFIG_STRUCTURE` . It requires an expected structure as in the following example:
 
 ```python
 # custom/plugin.py
@@ -109,9 +109,9 @@ By using GraphQL queries -  `pluginConfigurations` and `pluginConfiguration` use
 | --- | --- |
 | `id` | Id of the plugin |
 | `name` | Name of the plugin |
-| `active` | Indicate if the plugin is activated or not |
+| `active` | Indicates if the plugin is activated or not |
 | `description` | Description of the plugin |
-| `configuration` | It stores all configuration fields as a list that can be changed by a user |
+| `configuration` | Stores all configuration fields as a list that can be changed by a user |
 
 Configuration fields:
 
