@@ -22,7 +22,7 @@ Click [[Add Sale]] above the main sales list and fill in the relevant sections.
 ![Creating sale](assets/dashboard-discounts/1.png)
 
 
-#### General Information
+#### General Information 
 
 Add the name of your sale. This can be edited later.
 

@@ -3,17 +3,17 @@ id: extensions
 title: Extensions
 ---
 
-Saleor has implemented extensions architecture. It includes hooks for most basic operations like calculation of prices in the checkout or calling some actions when an order has been created.
-
+Saleor is built based on extensions architecture. It includes hooks for most standard operations, such as calculation of prices in the checkout or calling certain actions when an order has been created.
 
 ## Plugin
 
-Saleor has some plugins implemented by default. These plugins are located in `saleor.extensions.plugins`. The ExtensionManager needs to receive a list of enabled plugins. It can be done by including the Python plugin path in the `settings.PLUGINS` list.
+Saleor arrives with some plugins already implemented by default. These plugins are located in `saleor.extensions.plugins`.
+To provide the `ExtensionManager` with a list of enabled plugins, include the Python plugin path in the `settings.PLUGINS` list.
 
+### Tips on writing your own plugin
 
-### Writing Your Own Plugin
-
-A custom plugin has to inherit from the BasePlugin class. It should overwrite base methods. The plugin needs to be added to the `settings.PLUGINS` Your own plugin can be written as a class which has callable instances, like this:
+Make sure that a custom plugin inherits from the `BasePlugin` class and that it overwrites base methods.
+You can write your plugin as a class which has callable instances, like the one below:
 
 ```python
 # custom/plugin.py
@@ -41,12 +41,11 @@ class CustomPlugin(BasePlugin):
 
 > **Note**
 >
-> There is no need to implement all base methods. `ExtensionManager` will use default values for methods that are not implemented.
+> There is no need to implement all base methods as the `ExtensionManager` will use default values for methods that are not implemented.
 
+### Activating your plugin
 
-### Activating Plugin
-
-To activate the plugin, add it to the `PLUGINS` list in your Django settings:
+To activate the new plugin, add it to the `settings.PLUGINS` list in your Django settings:
 
 ```python
 # settings.py
@@ -54,8 +53,8 @@ To activate the plugin, add it to the `PLUGINS` list in your Django settings:
 PLUGINS = ["saleor.extensions.plugins.custom.CustomPlugin", ]
 ```
 
-
 ### Configuring Plugins
+
 Saleor allows you to change a configuration of the given plugin over API. Plugin owner needs to overwrite a method to create a structure of default configuration `_get_default_configuration` and `CONFIG_STRUCTURE` . It requires an expected structure as in the following example:
 
 ```python
@@ -106,7 +105,6 @@ def _get_default_configuration(cls):
 
 By using GraphQL queries -  `pluginConfigurations` and `pluginConfiguration` user will be able to list all enabled plugins. Mutation `pluginConfigurationUpdate` will allow the user to active/disable and update configuration fields like `API keys` for a  given plugin. API serves response with the given fields:
 
-
 | Name | Description |
 | --- | --- |
 | `id` | Id of the plugin |
@@ -125,21 +123,21 @@ Configuration fields:
 | `helpText` | Description of the field |
 | `label` | Label for the field |
 
+## About Extensions Manager
 
-## `ExtensionsManager`
-
-`ExtensionsManager` is located in the `saleor.extensions.base_plugin`. It is a class responsible for handling all declared plugins and serving a response from them. It serves a default response in case of a non-declared plugin. There is a possibility to overwrite an `ExtensionsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.EXTENSIONS_MANAGER`. Each Django request object has its own manager included as the `extensions` field. It is attached in the Saleor middleware.
-
+The `ExtensionsManager` is located in the `saleor.core.extensions.manager`. It is a class responsible for handling all declared plugins and serving a response from them. In case of a non-declared plugin, it serves a default response.
+It is possible to overwrite an `ExtensionsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.EXTENSIONS_MANAGER`.
+Each Django request object has its own manager included as the `extensions` field. It is attached in the Saleor middleware.
 
 ## BasePlugin
 
-`BasePlugin` is located in the `saleor.extensions.base_plugin`. It is an abstract class for storing all methods available for any plugin. All methods take the `previous_value` parameter. This contains a value calculated by the previous plugin in the queue. If the plugin is first in line, it will use the default value calculated by the manager.
-
+The `BasePlugin` is located in the `saleor.extensions.base_plugin`.
+It serves as an abstract class for storing all methods available for any plugin. All methods use the `previous_value` parameter. It contains a value calculated by the previous plugin in the queue.
+If the plugin is first in line, it will use the default value calculated by the manager.
 
 ## Celery Tasks
 
-Some plugin operations should be done asynchronously. If Saleor has Celery enabled, it will discover all tasks declared in tasks.py in the plugin directories.
-
+Some plugin operations should be done asynchronously. If Saleor has Celery enabled, it will discover all tasks declared in `tasks.py` in the plugin directories.
 
 ### `plugin.py`
 
@@ -152,7 +150,6 @@ def postprocess_order_creation(self, order: "Order", previous_value: Any):
 
     api_post_request_task.delay(transaction_url, data)
 ```
-
 
 ### `tasks.py`
 
