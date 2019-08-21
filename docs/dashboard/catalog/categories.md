@@ -33,8 +33,8 @@ Click [[Add&nbsp;Subcategory]] in the top right corner of the sub-categories car
 
 To remove a category, simply click [[Delete&nbsp;Category]] in the footer.
 
-> **WARNING** 
+> **Warning** 
 >
-> **Be cautious when deleting categories**
+> ##### Be cautious when deleting categories
 >
 > Products are mandatorily assigned to categories. Deleting a category will also remove all products it contains. Only remove a category if you are sure that you also want to permanently delete all its products from your catalog.

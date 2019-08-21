@@ -24,9 +24,9 @@ For all dynamic content, such as categories, products, and descriptions, you can
 
 4. [[Save]] or [[Discard]] your changes.
 
-> **TIP** 
+> **Tip** 
 >
-> **Easily manage multiple languages**
+> ##### Easily manage multiple languages
 >
 > If you have a store in several languages and want to make changes to a single product or element, you can easily edit all languages by entering into one language and making changes, then selecting following languages from the drop down menu on the right, above the General Information card.
 >

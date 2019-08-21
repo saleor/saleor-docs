@@ -40,9 +40,9 @@ Once you click [[Confirm]], the t-shirt and hoodie will move to the Fulfilled ca
 
 If you have a tracking number for the package, add it in the field below the products.
 
-> **NOTE**
+> **Note**
 >
-> **Automatic customer notifications**
+> ##### Automatic customer notifications
 >
 > When fulfillment is confirmed, the customer will automatically receive an email with information about the goods that they will receive, including any additional information such as tracking numbers.
 

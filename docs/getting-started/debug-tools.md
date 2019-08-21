@@ -11,13 +11,15 @@ We have built in support for the following debug tools:
 
 ### Silk
 
-You can control Silk’s presence via environmental variable `ENABLE_SILK`. It controls django-silk and defaults to <em>False<em>.
+You can control Silk’s presence via environmental variable `ENABLE_SILK`. It controls django-silk and defaults to <em>False</em>.
 
-##### Setting environment variable
+
+#### Setting environment variable
 
 ```console
 $ export ENABLE_SILK='True'
 ```
+
 > **Note**
 >
 > To process your changes, you need to restart the server.
