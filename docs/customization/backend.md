@@ -3,7 +3,7 @@ id: backend
 title: Working with Python Code
 ---
 
-## Managing Dependencies
+## Managing dependencies
 
 ### Pipenv
 

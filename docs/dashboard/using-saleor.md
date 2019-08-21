@@ -14,12 +14,12 @@ The Saleor 2.0 dashboard is the administration panel behind your storefront. In 
 
 ## Accessing the Dashboard
 
-### Setting Up Your Account
+### Setting up your Account
 
 The first thing you need to do is set up a master account for your store—sometimes called an Admin Account or a Superuser Account. This is done by your developer when forking the platform and setting up your iteration of Saleor. You just need to supply the developer with the details of your main administrator and the setup password.
 
 
-### Accessing Your Dashboard
+### Accessing your Dashboard
 
 Once you have your store, you can access the administration panel by: 
 

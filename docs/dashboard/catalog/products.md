@@ -23,13 +23,13 @@ Click [[Add Product]] above the main list to enter the product setup page.
 
 Add the name of your product and a description. Use text formatting to make your product descriptions clear and engaging. The 8 basic functions are: bold type, italic type, sub-header, second sub-header, quote, bullet point list, numbered list, new text line, and add hyperlink.
 
-> **TIP** 
+> **Tip** 
 >
-> **Creating effective product names**
+> ##### Creating effective product names
 >
 > Make sure that each product has a unique name so site users can find them easily and your administrators can easily manage your store. If you have 5 t-shirts, don’t just call them all ‘t-shirt’. Use more engaging and searchable names like black men’s t-shirt, sparkly unicorn girls’ t-shirt, red ladies t-shirt, sports t-shirt, etc. 
 >
-> **Writing a good description**
+> ##### Writing a good description
 >
 > Your product descriptions can be cool and fun, or just based on the facts. They represent the tone of your store. Be creative if you like, but be clear and make sure that you have all the information that a buyer needs.
 >
@@ -40,9 +40,9 @@ Add the name of your product and a description. Use text formatting to make your
 
 Type the price of your product manually or using the stepper by the currency indicator. If your product is tax-exempt, leave the [[Charge&nbsp;taxes&nbsp;for&nbsp;this&nbsp;item]] checkbox empty. If you need to charge taxes, click on the box and a green check mark will appear.
 
-> **NOTE** 
+> **Note** 
 >
-> **Displaying localized prices**
+> ##### Displaying localized prices
 >
 > Saleor operates and charges in the store’s default currency but is capable of displaying an estimated amount in the user’s local currency.
 >
@@ -55,9 +55,9 @@ Type the price of your product manually or using the stepper by the currency ind
 
 Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description. If you do not add unique SEO content, details will be taken from the General Information field.
 
-> **TIP** 
+> **Tip** 
 >
-> **Help search engines find your products**
+> ##### Help search engines find your products
 >
 > Increase traffic to your store by adding SEO-friendly descriptions for search engines. Write interesting, short content about each product, using keywords that people will use in web searches. Create a unique description for each product so search engines do not think it is duplicated content.
 
@@ -108,9 +108,9 @@ You can also add descriptions of specific product features to your images. Hover
 
 Click on an existing product from the main list and you will see the same interface as for adding products. Click [[Remove]] at the bottom of the screen to delete a product. To edit product details, just click any field and start making changes. The [[Save]] option in the footer will change color as soon as you have made amendments that need to be saved before exiting the page.
 
-> **TIP** 
+> **Tip** 
 >
-> **Save it for later**
+> ##### Save it for later
 > 
 > Don’t remove a product if you just want to temporarily take it away from your inventory. In that case, just uncheck the [[Published&nbsp;in&nbsp;Storefront]] option in the Visibility card, as described above.
 

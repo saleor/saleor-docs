@@ -30,9 +30,9 @@ Identify and understand the trends in your product sales through a handy overvie
 The activity card gives you a quick summary of all actions taken by your Saleor system; orders which have been placed, fulfilled and canceled, and details of payment processing. 
 
 
-> **TIP**
+> **Tip**
 >
-> ## Dark Mode 
+> ##### Dark Mode 
 >
 > If you prefer to work in dark mode, simply click on the sun/moon switch in the top right of the screen and you can toggle back and forth as you wish. 
 

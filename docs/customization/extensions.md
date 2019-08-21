@@ -129,13 +129,13 @@ The `ExtensionsManager` is located in the `saleor.core.extensions.manager`. It i
 It is possible to overwrite an `ExtensionsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.EXTENSIONS_MANAGER`.
 Each Django request object has its own manager included as the `extensions` field. It is attached in the Saleor middleware.
 
-## BasePlugin
+## Base plugin
 
 The `BasePlugin` is located in the `saleor.extensions.base_plugin`.
 It serves as an abstract class for storing all methods available for any plugin. All methods use the `previous_value` parameter. It contains a value calculated by the previous plugin in the queue.
 If the plugin is first in line, it will use the default value calculated by the manager.
 
-## Celery Tasks
+## Celery tasks
 
 Some plugin operations should be done asynchronously. If Saleor has Celery enabled, it will discover all tasks declared in `tasks.py` in the plugin directories.
 

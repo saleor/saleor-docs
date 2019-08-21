@@ -6,7 +6,7 @@ title: Installation for macOS
 
 ## Prerequisites
 
-Before you are ready to run Saleor you will need additional software installed on your computer.
+Before you are ready to run Saleor, you will need additional software installed on your computer.
 
 
 ### Node.js
@@ -19,7 +19,7 @@ Version 10 or later is required. Download the macOS installer from the [Node.js 
 Saleor needs PostgreSQL version 9.4 or above to work. Get the macOS installer from the [PostgreSQL download page](https://www.postgresql.org/download/macosx/).
 
 
-### Command Line Tools for Xcode
+### Command line tools for Xcode
 
 Download and install the latest version of “Command Line Tools (macOS 10.x) for Xcode 9.x” from the [Downloads for Apple Developers page](https://developer.apple.com/download/more/).
 

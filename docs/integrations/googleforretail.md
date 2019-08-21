@@ -3,18 +3,22 @@ id: googleforretail
 title: Google for Retail
 ---
 
-Saleor has tools for generating product feed which can be used with Google Merchant Center. Final file is compressed CSV and saved in location specified by `saleor.data_feeds.google_merchant.FILE_PATH` variable.
+Saleor is equipped with tools for generating product feed to be used with Google Merchant Center. The resulting file is a compressed CSV and it is saved in location specified by `saleor.data_feeds.google_merchant.FILE_PATH` variable.
 
-To generate feed use command:
+To generate feed use the following command:
 
 ```console
 $ python manage.py update_feeds
 ```
 
-It’s recommended to run this command periodically.
+> **Tip**
+>
+>We recommend that you run this command periodically.
 
-Merchant Center has few country dependent settings, so please validate your feed at Google dashboard. You can also specify there your shipping cost, which is required feed parameter in many countries. More info be found at [Google Support pages](https://support.google.com/merchants).
+Merchant Center has few country-dependent settings. For this reason, make sure to validate your feed at Google dashboard. 
 
-One of required by Google fields is _brand attribute_. Feed generator checks for it in variant attribute named _brand_ or _publisher_ (if not, checks in product).
+This is also a location where you can specify your shipping cost, which is a required feed-parameter in many countries. See [Google Support pages](https://support.google.com/merchants) for more information.
 
-Feed can be downloaded from url: `http://<yourserver>/feeds/google/`
+The _brand attribute_ is a field required by Google. Feed generator checks for it in variant attribute named _brand_ or _publisher_ (if not found, it checks in product).
+
+The feed can be downloaded under the following url: `http://<yourserver>/feeds/google/`

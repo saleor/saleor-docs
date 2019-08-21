@@ -6,7 +6,7 @@ title: Email Configuration and Integration
 Saleor offers a few ways to set-up your email settings over SMTP servers and relays through the below environment variables.
 
 
-## `EMAIL_URL`
+## Email url
 
 You can set the environment variable `EMAIL_URL` to the SMTP URL, which will contain a straightforward value as shown in below examples.
 
@@ -25,12 +25,12 @@ You can set the environment variable `EMAIL_URL` to the SMTP URL, which will con
 > Always make sure you set-up correctly at least your SPF records, and while on it, your DKIM records as well. **Otherwise your production mails will be denied by most mail servers or intercepted by spam filters.**
 
 
-## `DEFAULT_FROM_EMAIL`
+## Default from email
 
 You can customize the sender email address by setting the environment variable `DEFAULT_FROM_EMAIL` to your desired email address. You also can customize the sender name by doing as follow `Example Is Me <your.name@example.com>`.
 
 
-## Sendgrid Integration
+## Sendgrid integration
 
 After you [created your Sendgrid application](https://app.sendgrid.com/guide/integrate/langs/smtp), you need to set the environment variable `EMAIL_URL` as below, but by replacing `YOUR_API_KEY_HERE` with your API key.
 
@@ -45,7 +45,7 @@ Then, set the environment variable `DEFAULT_FROM_EMAIL` [as mentioned before](gu
 > As it is not in the setup process of sendgrid, if your ‘from email’ address is your domain, you need to make sure you at least correctly set your [SPF](https://sendgrid.com/docs/Glossary/spf.html) DNS record and, optionally, set your [DKIM](https://sendgrid.com/docs/Glossary/dkim.html) DNS record as well.
 
 
-## Mailgun Integration
+## Mailgun integration
 
 After you [added your domain in Mailgun and correctly set-up your domain DNS records](https://app.mailgun.com/app/domains/new), you can set the environment variable `EMAIL_URL` as below, but by replacing everything capitalized, with your data.
 
@@ -53,8 +53,7 @@ After you [added your domain in Mailgun and correctly set-up your domain DNS rec
 smtp://YOUR_LOGIN_NAME@YOUR_DOMAIN_NAME:YOUR_DEFAULT_MAILGUN_PASSWORD@smtp.mailgun.org:465/?ssl=True
 ```
 
-
-### Example
+#### Example
 
 Let’s say my domain name is `smtp.example.com` and I want to send emails as `john.doe@smtp.example.com` and my password is `my-mailgun-password`.
 
@@ -67,7 +66,7 @@ smtp://john.doe@smtp.example.com:my-mailgun-password@smtp.mailgun.org:465/?ssl=T
 ```
 
 
-## Mailjet Integration
+## Mailjet integration
 
 After [adding your domain in Mailjet](https://app.mailjet.com/account/sender/domain#create-domain), you have to set the environment variable `EMAIL_URL` as below, but by replacing everything capitalized, with your data, available at this [URL](https://app.mailjet.com/account/setup).
 
@@ -78,7 +77,7 @@ smtp://YOUR_MAILJET_USERNAME:YOUR_MAILJET_PASSWORD@in-v3.mailjet.com:587/?tls=Tr
 Then, set the environment variable `DEFAULT_FROM_EMAIL` [as mentioned before](guides/email-integration.md#default_from_email).
 
 
-## Amazon SES Integration
+## Amazon SES integration
 
 After having [verified your domain(s) in AWS SES](https://eu-west-1.console.aws.amazon.com/ses/home#verified-senders-domain:), and set-up DKIM and SPF records, you need to [create your SMTP credentials](https://eu-west-1.console.aws.amazon.com/ses/home#smtp-settings:).
 
