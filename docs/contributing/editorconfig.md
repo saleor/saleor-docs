@@ -9,4 +9,4 @@ Saleor’s repository contains an [.editorconfig file](https://github.com/mirume
 
 Most editors and IDEs support this file either directly or via plugins. See the [list of supported editors and IDEs](http://editorconfig.org/#download) for detailed instructions.
 
-When you make sure that your programming environment respects the contents of this file, you will automatically get correct indentation, encoding, and line endings.
+If you make sure that your programming environment respects the contents of this file, you will automatically get correct indentation, encoding, and line endings.

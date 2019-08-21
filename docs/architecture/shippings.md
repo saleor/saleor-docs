@@ -6,7 +6,7 @@ title: Shippings
 Saleor uses the concept of _Shipping Zones_ and _Shipping Methods_ to complete the shipping process.
 
 
-## Shipping Zones
+## Shipping zones
 
 The countries that you ship to are known as the shipping zones. 
 Each `ShippingZone` includes `ShippingMethods` that apply to customers whose shipping address is within the shipping zone.
@@ -18,7 +18,7 @@ An example of the `ShippingZones` could be: _European Union_, _North America_, _
 It is also possible to create a default Shipping Zone and use it for countries not covered by other zones.
 
 
-## Shipping Methods
+## Shipping methods
 
 The `ShippingMethods` reflect the available ways the orders are delivered to customers. 
 You can setup several different `ShippingMethods` within one `ShippingZone` to ensure enough flexibility and offer your customers a choice of different delivery speed and costs at the checkout.

@@ -8,7 +8,7 @@ title: ReCaptcha
 You can get your API key set from [Google ReCaptcha](https://www.google.com/recaptcha/admin).
 
 
-## Enable and set-up
+## Enable and set up
 
 To enable ReCaptcha, set the following keys in your environment:
 

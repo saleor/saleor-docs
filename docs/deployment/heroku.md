@@ -32,7 +32,7 @@ $ git push heroku master
 ```
 
 
-## Preparing the Database
+## Preparing the database
 
 ```console
 $ heroku run python manage.py migrate

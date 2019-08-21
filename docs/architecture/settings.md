@@ -7,6 +7,6 @@ _Site settings_ module allows your users to change common shop settings from das
 Settings object is selected by pk from `SITE_SETTINGS_ID` variable.
 
 
-## Context Processor
+## Context processor
 
 Thanks to `saleor.site.context_processors.settings` you can access _Site settings_ in the template with `settings` variable.

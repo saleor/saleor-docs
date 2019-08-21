@@ -19,7 +19,7 @@ _Type of cover_ is the only attribute creating separate _variants_ in your store
 You would then use _product type_ called “Book”, enable variants and use the “Cover type” as your _variant attribute_.
 
 
-## Class Diagram
+## Class diagram
 
 <!--
 To regenerate this class digram:
@@ -46,7 +46,7 @@ If the _product variant_ has no overridden property (for example: price specific
 
 ### `publication_date`
 
-If set. it allows you to hold some of your products unavailable to your customers until the publication date. They are simply not listed in your storefront.
+If set, it allows you to hold some of your products unavailable to your customers until the publication date. They are simply not listed in your storefront.
 
 
 ## Product types
@@ -66,7 +66,7 @@ Or being back to the hard/ soft cover books from the beginning of this chapter: 
 It’s what distinguishes different variants. Example: for the attribute: cover type you will have two variant_attributes: hard cover or soft cover.
 
 
-### `is_shipping`_required
+### `is_shipping_required`
 
 Indicates whether purchases need to be delivered, for example, digital products or services do not need shipping.
 
@@ -89,7 +89,7 @@ You can specify, if the given _product type_ is dedicated to digital items. `is_
 > It is not possible to delete a _product type_ if there are existing products assigned to that type.
 
 
-## Digital Products
+## Digital products
 
 A product may only have a digital form. To indicate that, you need select two database models responsible for storing and serving digital content. Below is a description for `DigitalContent` and `DigitalContentUrl`.
 

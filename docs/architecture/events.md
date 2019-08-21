@@ -10,7 +10,7 @@ Events are auto-generated and are triggered when certain actions are completed, 
 
 ## Events design
 
-Each package representing an entity (order, account, etc.) that generates events define both a model and a `events.py` file containing a set of functions with an `_event` as a suffix.
+Each package representing an entity (order, account, etc.) that generates events defines both a model and a `events.py` file containing a set of functions with an `_event` as a suffix.
 
 Those functions take care of any logic and required fields for creating given events.
 

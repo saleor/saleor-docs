@@ -28,26 +28,26 @@ This status is assigned after a fulfillment is canceled by a shop operator. The 
 There are four possible order statuses, based on the stage of their fulfillment:
 
 
-### `UNFULFILLED`
+* ### Unfulfilled
 
 There are no fulfillments related to an order or each one is canceled. An action by a shop operator is required to continue order processing.
 
 
-### `PARTIALLY FULFILLED`
+* ### Partially fulfilled
 
 There are some fulfillments with `FULFILLED` status related to an order. An action by a shop operator is required to continue order processing.
 
 
-### `FULFILLED`
+* ### Fulfilled
 
 Each order line is fulfilled in existing fulfillments. Order doesn’t require further actions by a shop operator.
 
 
-### `CANCELED`
+* ### Cancelled
 
 Order has been canceled. Every fulfillment (if there is any) has `CANCELED` status. Order doesn’t require further actions by a shop operator.
 
 
-### `DRAFT`
+* ### Draft
 
 Used for orders newly created from dashboard and not yet published.

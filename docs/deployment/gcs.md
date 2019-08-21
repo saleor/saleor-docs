@@ -3,7 +3,7 @@ id: gcs
 title: Storing Files on Google Cloud Storage (GCS)
 ---
 
-If you’re using containers for deployment (including Docker and Heroku) should avoid storing files in the container’s volatile filesystem. 
+If you are using containers for deployment (including Docker and Heroku), you should avoid storing files in the container’s volatile filesystem. 
 
 This integration allows you to delegate storing such files to [Google Cloud Storage (GCS) service](https://django-storages.readthedocs.io/en/latest/backends/gcloud.html).
 

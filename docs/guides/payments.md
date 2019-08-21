@@ -3,9 +3,9 @@ id: payments
 title: Payments
 ---
 
-## Integrating a new Payment Gateway into Saleor
+## Integrating a new payment gateway into Saleor
 
-We are using a universal flow, that each gateway should fulfill, there are several methods that should be implemented.
+Saleor uses a universal flow that each gateway should fulfill. There are several methods that should be implemented.
 
 Your changes should live under the `saleor.payment.gateways.<gateway name>` module.
 
@@ -32,8 +32,9 @@ def get_client_token(config: GatewayConfig) -> str:
 
 > **Note**
 >
-> All the below functions receive `payment_information` as a dataclass: `PaymentData` and `config` as a dataclass: `GatewayConfig`. Those functions should return a response as a dataclass: `GatewayResponse`. The description of the given structures can be found below.
+> All the below functions receive `payment_information` as a dataclass: `PaymentData` and `config` as a dataclass: `GatewayConfig`. Those functions should return a response as a dataclass: `GatewayResponse`. 
 
+Below is a description of given structures.
 
 ### `authorize(payment_information, config)`
 
@@ -219,7 +220,7 @@ def process_payment(
 
 #### `PaymentData`
 
-| name | type | description |
+| Name | Type | Description |
 | --- | --- | --- |
 | `token` | `str` | Token used for transaction, provided by the gateway. |
 | `amount` | `Decimal` | Amount to be authorized/captured/charged/refunded. |
@@ -232,7 +233,7 @@ def process_payment(
 
 #### `AddressData`
 
-| name | type |
+| Name | Type |
 | --- | --- |
 | `first_name` | `str` |
 | `last_name` | `str` |
@@ -249,16 +250,16 @@ def process_payment(
 
 #### `GatewayConfig`
 
-| name | type | description |
+| Name | Type | Description |
 | --- | --- | --- |
-| `auto_capture` | `bool` | Define if gateway should also capture funds from the card. If false, payment should be only authorized |
+| `auto_capture` | `bool` | Define if gateway should also capture funds from the card. If false, payment should be only authorized. |
 | `template_path` | `str` | Path to a template that will be rendered for the checkout. |
 | `connection_params` | `dict` | List of parameters used for connecting to the payment’s gateway. |
 
 
 ### Returns
 
-| name | type | description |
+| Name | Type | Description |
 | --- | --- | --- |
 | `gateway_response` | `GatewayResponse` | GatewayResponse containing details about every transaction, with `is_success` set to `True` if no error occurred. |
 | `client_token` | `str` | Unique client’s token that will be used as his indentifier in the payment process. |
@@ -266,7 +267,7 @@ def process_payment(
 
 #### `GatewayResponse`
 
-| name | type | description |
+| Name | Type | Description |
 | --- | --- | --- |
 | `transaction_id` | `str` | Transaction ID as returned by the gateway. |
 | `kind` | `str` | Transaction kind, one of: auth, capture, charge, refund, void. |
@@ -287,7 +288,7 @@ Gateway-specific errors should be parsed to Saleor’s universal format. More on
 If you are not using SPA Storefront, there are some additional steps you need to perform in order to enable the payment method in your checkout flow.
 
 
-### Add a Form
+### Add a form
 
 Payment on the storefront will be handled via payment form, it should implement all the steps necessary for the payment to succeed. The form must implement `get_payment_token` that returns a token required to process payments. All payment forms should inherit from `django.forms.Form`.
 
@@ -370,7 +371,7 @@ PAYMENT_GATEWAYS = {
 }
 ```
 
-Please take a moment to consider the example settings above.
+Take a moment to consider the example settings above.
 
 - `braintree` - Gateway’s name, which will be used to identify the gateway during the payment process. It’s stored in the Payment model under the gateway value.
 - `module` - The path to the integration module (assuming that your changes live within the `saleor.payment.gateways.braintree.__init__.py` file)
@@ -387,6 +388,6 @@ Please take a moment to consider the example settings above.
 Last but not least, if you want to enable your payment gateway in the checkout process, add it’s name to the `CHECKOUT_PAYMENT_GATEWAYS` setting.
 
 
-## Tips
-
-Whenever possible, use `currency` and `amount` as **returned** by the payment gateway, not the one that was sent to it. It might happen, that gateway (eg. Braintree) is set to different currency than your shop is. In such case, you might want to charge the customer 70 dollars, but due to gateway misconfiguration, he will be charged 70 euros. Such a situation should be handled, and adequate error should be thrown.
+> **Tip**
+>
+>Whenever possible, use `currency` and `amount` as **returned** by the payment gateway, not the one that was sent to it. It might happen, that gateway (eg. Braintree) is set to different currency than your shop is. In such case, you might want to charge the customer 70 dollars, but due to gateway misconfiguration, he will be charged 70 euros. Such a situation should be handled, and adequate error should be thrown.

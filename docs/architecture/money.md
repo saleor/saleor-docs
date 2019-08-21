@@ -15,7 +15,7 @@ All prices are entered and stored in a single default currency controlled by the
 > The currency is not stored in the database. Changing the default currency in a production environment will not recalculate any existing orders. All numbers will remain the same and will be incorrectly displayed under the new currency.
 
 
-## `Money` and `TaxedMoney`
+## Money amount instances
 
 In Saleor’s codebase, money amounts exist either as `Money` or `TaxedMoney` instances.
 
@@ -38,7 +38,7 @@ Prices displayed in orders are gross or net. They depend on the settings of pric
 This way staff users see the same state of an order as the customer.
 
 
-## `TaxedMoneyRange`
+## Taxed amount range
 
 Sometimes a product may be available under different prices. This difference is caused by the product's variants. These variants may require defining custom prices which differ from the price of a base product.
 
