@@ -5,20 +5,18 @@ title: Extensions
 
 Saleor is built based on extensions architecture. It includes hooks for most standard operations, such as calculation of prices in the checkout or calling certain actions when an order has been created.
 
-
 ## Plugin
 
-Saleor arrives with some plugins already implemented by default. These plugins are located in `saleor.core.extensions.plugins`. 
+Saleor arrives with some plugins already implemented by default. These plugins are located in `saleor.extensions.plugins`.
 To provide the `ExtensionManager` with a list of enabled plugins, include the Python plugin path in the `settings.PLUGINS` list.
-
 
 ### Tips on writing your own plugin
 
-Make sure that a custom plugin inherits from the `BasePlugin` class and that it overwrites base methods. 
+Make sure that a custom plugin inherits from the `BasePlugin` class and that it overwrites base methods.
 You can write your plugin as a class which has callable instances, like the one below:
 
 ```python
-custom/plugin.py
+# custom/plugin.py
 
 from django.conf import settings
 from urllib.parse import urljoin
@@ -45,7 +43,6 @@ class CustomPlugin(BasePlugin):
 >
 > There is no need to implement all base methods as the `ExtensionManager` will use default values for methods that are not implemented.
 
-
 ### Activating your plugin
 
 To activate the new plugin, add it to the `settings.PLUGINS` list in your Django settings:
@@ -53,28 +50,94 @@ To activate the new plugin, add it to the `settings.PLUGINS` list in your Django
 ```python
 # settings.py
 
-PLUGINS = ["saleor.core.extensions.plugins.custom.CustomPlugin", ]
+PLUGINS = ["saleor.extensions.plugins.custom.CustomPlugin", ]
 ```
 
+### Configuring Plugins
+
+Saleor allows you to change a configuration of any given plugin over API. Plugin owner needs to overwrite a method to create a structure of default configuration `_get_default_configuration` and `CONFIG_STRUCTURE` . It requires an expected structure as in the following example:
+
+```python
+# custom/plugin.py
+
+from django.utils.translation import pgettext_lazy
+
+from saleor.extensions import ConfigurationTypeField
+
+CONFIG_STRUCTURE = {
+    "Username or account": {
+        "type": ConfigurationTypeField.STRING,
+        "help_text": pgettext_lazy(
+            "Plugin help text", "Provide user or account details"
+        ),
+        "label": pgettext_lazy("Plugin label", "Username or account"),
+    },
+    "Password or license": {
+        "type": ConfigurationTypeField.STRING,
+        "help_text": pgettext_lazy(
+            "Plugin help text", "Provide password or license details"
+        ),
+        "label": pgettext_lazy("Plugin label", "Password or license"),
+    }
+}
+
+@classmethod
+def _get_default_configuration(cls):
+    defaults = {
+        "name": cls.PLUGIN_NAME,
+        "description": "",
+        "active": False,
+        "configuration": [
+            {
+                "name": "Username or account",
+                "value": "",
+            },
+            {
+                "name": "Password or license",
+                "value": "",
+            },
+        ]
+    }
+    return defaults
+```
+
+`ExtensionManager` will use this data to create default configuration in DB which will be served by API.
+
+By using GraphQL queries -  `pluginConfigurations` and `pluginConfiguration` user will be able to list all enabled plugins. Mutation `pluginConfigurationUpdate` will allow the user to active/disable and update configuration fields like `API keys` for a  given plugin. API serves response with the given fields:
+
+| Name | Description |
+| --- | --- |
+| `id` | Id of the plugin |
+| `name` | Name of the plugin |
+| `active` | Indicates if the plugin is activated or not |
+| `description` | Description of the plugin |
+| `configuration` | Stores all configuration fields as a list that can be changed by a user |
+
+Configuration fields:
+
+| Name | Description |
+| --- | --- |
+| `name` | Name of the field |
+| `value` | Current value of the field |
+| `type` | Type of the field. Saleor supports - `String` and `Boolean` |
+| `helpText` | Description of the field |
+| `label` | Label for the field |
 
 ## About Extensions Manager
 
-The `ExtensionsManager` is located in the `saleor.core.extensions.base_plugin`. It is a class responsible for handling all declared plugins and serving a response from them. In case of a non-declared plugin, it serves a default response. 
-It is possible to overwrite an `ExtensionsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.EXTENSIONS_MANAGER`. 
+The `ExtensionsManager` is located in the `saleor.core.extensions.manager`. It is a class responsible for handling all declared plugins and serving a response from them. In case of a non-declared plugin, it serves a default response.
+It is possible to overwrite an `ExtensionsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.EXTENSIONS_MANAGER`.
 Each Django request object has its own manager included as the `extensions` field. It is attached in the Saleor middleware.
-
 
 ## Base plugin
 
-The `BasePlugin` is located in the `saleor.core.extensions.base_plugin`. 
-It serves as an abstract class for storing all methods available for any plugin. All methods use the `previous_value` parameter. It contains a value calculated by the previous plugin in the queue. 
+The `BasePlugin` is located in the `saleor.extensions.base_plugin`.
+It serves as an abstract class for storing all methods available for any plugin. All methods use the `previous_value` parameter. It contains a value calculated by the previous plugin in the queue.
 If the plugin is first in line, it will use the default value calculated by the manager.
-
 
 ## Celery tasks
 
 Some plugin operations should be done asynchronously. If Saleor has Celery enabled, it will discover all tasks declared in `tasks.py` in the plugin directories.
-
 
 ### `plugin.py`
 
@@ -87,7 +150,6 @@ def postprocess_order_creation(self, order: "Order", previous_value: Any):
 
     api_post_request_task.delay(transaction_url, data)
 ```
-
 
 ### `tasks.py`
 
