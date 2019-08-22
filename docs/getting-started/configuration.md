@@ -6,32 +6,7 @@ title: Configuration
 We are fans of the [12factor](https://12factor.net/) approach and portable code so you can configure most of Saleor using only environment variables.
 
 
-## Payments Gateways
 
-### `CHECKOUT_PAYMENT_GATEWAYS`
-
-This command contains a list of enabled payment gateways, with the user friendly payment name. These are the names your customers see when they select the payment method.
-
-For example, to add Braintree as an enabled gateway, use the following configuration:
-
-```python
-CHECKOUT_PAYMENT_GATEWAYS = {
-    "DUMMY": pgettext_lazy("Payment method name", "Dummy gateway"),
-    "BRAINTREE": pgettext_lazy("Payment method name", "Braintree"),
-}
-```
-
-The supported payment providers are:
-
-- `DUMMY` (for testing purposes only!)
-- `BRAINTREE`
-- `RAZORPAY`
-- `STRIPE`
-
-
-### `PAYMENT_GATEWAYS`
-
-For information on how to configure payment gateways (for example, API keys, etc.), see the [list of supported payment gateways](payment-gateways/intro.md) and their associated environment variables.
 
 
 ## Environment variables
@@ -128,7 +103,7 @@ Make sure all images come with a pre-warm to ensure they’re created and availa
 
 ## Tax variables
 
-For more information on how to configure taxes, see the [taxes](dashboard-config#taxes-1) topic in the Saleor Dashboard Guide.
+For more information on how to configure taxes in Saleor, see the  [taxes](guides/taxes.md) topic of the _How to_ section.
 
 
 ### `VATLAYER_ACCESS_KEY`

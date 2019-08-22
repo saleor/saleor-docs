@@ -1,6 +1,6 @@
 ---
 id: taxes
-title: Taxes
+title: How to configure taxes
 ---
 
 Saleor provides the possibility to configure taxes. It supports the following external tax providers: [Avalara](https://www.avalara.com/) and [Vatlayer](https://vatlayer.com/). Currently, only one provider can be enabled at the same time.
@@ -73,3 +73,7 @@ Avalara requires a company address to properly calculate taxes. Your company’s
 ### Tax codes
 
 Avalara has its own system for classifying the product types and expected taxes. On Saleor’s side, the store owner must assign Avalara’s tax code to the given product types or product itself. If you skip this step, Saleor will use the common code for all products (which is not recommended). Assigning a tax code can be done from the dashboard in the product type or the product section. Both of these sections have a field for assigning a tax code for enabled tax gateway.
+
+## Related topics
+
+[Tax variables](getting-started/configuration)

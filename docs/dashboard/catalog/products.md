@@ -16,7 +16,7 @@ You can also set up and save custom filters which will be unique to your browser
 
 ![Filtering products](assets/dashboard-catalog/2.jpg)
 
-## Product - Concept introduction
+## Product - concept introduction
 
 Before filling your shop with products, you need to learn about 3 basic product concepts in Saleor: 
 * Product type 
@@ -53,7 +53,7 @@ Or being back to the hard/ soft cover books: the attribute here is a _Cover Type
 
 It’s what distinguishes different variants. For example: for the attribute _cover type_ you will have two variant attributes: _hard cover_ or _soft cover_.
 
-## Stock Management
+## Stock management
 
 Each product variant has also a stock keeping unit (SKU).
 
@@ -95,10 +95,56 @@ Once a new order is placed, quantity needed to fulfil each order line is immedia
 Once order lines are marked as shipped, each corresponding stock record will have both its _quantity at hand_ and _quantity allocated_ decreased by the number of items shipped.
 
 > **Example** 
+>
 > Two boxes of shoes are shipped to a customer. The stock record is now as follows: 
 > * Quantity is 3
 > * Quantity allocated becomes 2 
 > * Quantity available stays at 1.
+
+## Search Engine Optimization (SEO) 
+
+Saleor enables you to automatically handle certain aspects of how search engines see and index your products.
+
+#### Sitemaps
+
+A special resource reachable under the `/sitemap.xml` URL serves an up to date list of _products_, _categories_ and _collections_ from your site in an easy to parse Sitemaps XML format, understood by all major search engines.
+
+
+#### Meta tags
+
+Meta keywords are not used, as they are ignored by all major search engines because it has been abused in the years since it was introduced.
+
+Meta description will be set to the product’s description field. This does not affect the search engine ranking but it affects the snippet of text shown along with the search result.
+
+
+#### Robots meta tag
+
+The robots meta tag utilize a page-specific approach to controlling how an individual page should be indexed and served to users in search results.
+
+The Dashboard Admin Panel is restricted from crawling and indexation. Content-less pages (for example, cart, sign up, login) are not crawled.
+
+
+##### Structured data
+
+Homepage and product pages contain semantic descriptions in JSON-LD [Structured Data](https://developers.google.com/search/docs/guides/intro-structured-data) format.
+
+It does not directly affect the search engine ranking, but it allows search engines to better understand the data (_this is a product, it’s available, it costs $10_).
+
+It allows search engines like Google to show product photos, prices, availability, ratings, etc., along with their search results.
+
+
+#### Nofollow links
+Search engine crawlers cannot sign in or register as a member on your site. Therefore, there is no reason to invite them to follow _register here_ or _sign in_ links, as there will be little to none valuable content.
+
+This will optimize time spent by the crawler on the website, giving it time to index more content-related pages.
+
+## Social Media Optimization (SMO)
+
+#### Open Graph
+
+For more effective and efficient social media engagement, we added [Open Graph Protocol](http://ogp.me/) to the Homepage and all products/categories.
+
+Open Graph meta tags allow to control what content shows up (for example, description, title, url, photo, etc.) when page is shared on social media, turning your web page into a rich object in a social graph.
 
 ## How to create a new product
 
@@ -124,7 +170,7 @@ Add the name of your product and a description. Use text formatting to make your
 >  ![Formatting product description](assets/dashboard-catalog/4.png)
 
 
-### 2. Define Pricing
+### 2. Define pricing
 
 Type the price of your product manually or using the stepper by the currency indicator. If your product is tax-exempt, leave the [[Charge&nbsp;taxes&nbsp;for&nbsp;this&nbsp;item]] checkbox empty. If you need to charge taxes, click on the box and a green check mark will appear.
 
@@ -219,14 +265,14 @@ When you enter a product record from the main list, you will see the same cards 
 ![Reviewing product variants](assets/dashboard-catalog/10.png)
 
 
-### Checking Inventory
+### Checking inventory
 
 In this example, we can see five types of t-shirt. Four have enough stock to cover future orders. The XL size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there is only one item in stock (“Inventory”) and it has been ordered by a customer (“Allocated”).
 
 ![Editing product inventory](assets/dashboard-catalog/11.jpg)
 
 
-### Managing Variants of a Product
+### Managing variants of a product
 
 Click on a specific product from the variants list to edit the size, images, pricing, and stock. 
 
@@ -239,9 +285,9 @@ When you receive new stock, enter the amount in the Inventory field to keep up t
 You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) and will all information is unique to specific variants.
 
 
-### Editing Attributes
+## Managing attributes
 
-When entering a product from the main list, click the [[Edit&nbsp;Attributes]] text in the top corner of the Variants field to add or change product attributes and variants. For example, a top or t-shirt will have a product attribute such as the material it is made from, and a variant attribute of the sizes or colors in which it is available.
+When entering a product record from the main list, click the [[Edit&nbsp;Attributes]] label in the top corner of the Variants card to add or change product attributes and variants. For example, a top or t-shirt will have a product attribute such as the material it is made from, and a variant attribute of the sizes or colors in which it is available.
 
 ![Editing product attributes](assets/dashboard-catalog/13.png)
 
