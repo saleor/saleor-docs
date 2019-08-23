@@ -1,15 +1,10 @@
 ---
 id: configuration
-title: Configuration
+title: Environment Variables
 ---
 
 We are fans of the [12factor](https://12factor.net/) approach and portable code so you can configure most of Saleor using only environment variables.
-
-
-
-
-
-## Environment variables
+## List of variables
 
 ### `ALLOWED_HOSTS`
 
@@ -92,7 +87,6 @@ Indicates a default currency which is a basis for all prices entered and stored 
 ### `DEFAULT_COUNTRY`
 
 Indicates the default country of your store. Depending on what setup you require, this variable also controls the default VAT, the default shipping country, etc.
-
 
 ### `CREATE_IMAGES_ON_DEMAND`
 
