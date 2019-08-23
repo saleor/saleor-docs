@@ -1,11 +1,10 @@
 ---
 id: backend
-title: Working with Python Code
+title: Managing Dependencies
 ---
 
-## Managing dependencies
 
-### Pipenv
+## Pipenv
 
 To guarantee repeatable installations, all project dependencies are managed using Pipenv. Project’s direct dependencies are listed in `Pipfile`. 
 Running `pipenv lock` would generate `Pipfile.lock` which has all versions pinned.
@@ -14,7 +13,7 @@ Running `pipenv lock` would generate `Pipfile.lock` which has all versions pinne
 >
 >We recommend that you use this workflow and keep `Pipfile` as well as `Pipfile.lock` under version control to make sure all computers and environments run exactly the same code.
 
-### Other tools
+## Other tools
 
 If you are not using Pipenv, we also provide `requirements.txt` and `requirements_dev.txt`. 
 
