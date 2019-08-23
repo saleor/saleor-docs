@@ -10,17 +10,17 @@ The Home page is the welcome screen of your dashboard. It appears when you log i
 
 The page consists of the following cards.
 
-## Sales and Orders Overview
+## Sales and orders overview
 
 Get a quick summary of the number of orders for the current day and the running total value of sales.
 
 
-## Orders, Payments, and Out Of Stocks
+## Orders, payments, and out of stocks
 
 This card gives an overview of the total number of orders yet to be fulfilled and payments awaiting capture. Clicking each link gives you a breakdown of individual orders and payments. You can also see a total number of products that are out of stock and click the link to see a detailed list. 
 
 
-## Top Products
+## Top products
 
 Identify and understand the trends in your product sales through a handy overview of daily top sellers. Click on individual products to manage inventory. 
 

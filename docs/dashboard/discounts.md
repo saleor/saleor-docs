@@ -15,33 +15,24 @@ Sales are an excellent way to encourage customers to use your store. Saleor offe
 - Flexible time periods for sales events, which can be deactivated and reactivated at any time.
 
 
-### Creating a Sale
+### How to create a sale
 
-Click [[Add Sale]] above the main sales list and fill in the relevant sections.
+1. Click [[Add Sale]] above the main sales list and fill in the relevant sections.
 
 ![Creating sale](assets/dashboard-discounts/1.png)
 
 
-#### General Information 
+2. General information - Add the name of your sale. This can be edited later.
+3. Pricing
 
-Add the name of your sale. This can be edited later.
+* **Discount Value:** Use the icon on the right side of the Discount Value field to toggle between percentage discount and price-per-item discount.
 
+* **Time Frame:** Use the pop-up calendar or stepper to choose the start and end dates of the sale. If you do not set a start date, the sale will start immediately; similarly, a sale without an end date will continue indefinitely.
 
-#### Pricing
-
-**Discount Value:** Use the icon on the right side of the Discount Value field to toggle between percentage discount and price-per-item discount.
-
-**Time Frame:** Use the pop-up calendar or stepper to choose the start and end dates of the sale. If you do not set a start date, the sale will start immediately; similarly, a sale without an end date will continue indefinitely.
+4. Summary - Once you have set the basic parameters of your sale and saved them, the summary section on the right side of the page will show an overview of the event.
 
 
-#### Summary
-
-Once you have set the basic parameters of your sale and saved them, the summary section on the right side of the page will show an overview of the event.
-
-
-#### Categories
-
-Select the items in your sale. The categories section allows you to select individual products, assign entire categories, or assign entire pre-created collections.   
+5. Categories - Select the items in your sale. The categories section allows you to select individual products, assign entire categories, or assign entire pre-created collections.   
 
 ![Products in sale](assets/dashboard-discounts/2.png)
 
@@ -52,9 +43,7 @@ To assign any product, category or collection, click on the relevant tab and the
 Once you have chosen the products, categories or collections you want to promote, click [[Assign]].
 
 
-#### Saving a sale
-
-Click [[Save]] on the footer bar to save the sale.
+6. Saving a sale - Click [[Save]] on the footer bar to save the sale.
 
 ## Vouchers
 
@@ -63,54 +52,36 @@ Vouchers allow you to give all your customers or selected shoppers a great deal 
 ![Voucher page](assets/dashboard-discounts/Vouchers.jpg)
 
 
-### How to Add a Voucher Offer
+### How to add a voucher offer
 
-#### 1. Enter the Add Voucher Screen
+1. Enter the Add Voucher page - Click [[Add&nbsp;Voucher]] above the main list on the vouchers page to get started.
 
-Click [[Add&nbsp;Voucher]] above the main list on the vouchers page to get started.
-
-#### 2. Add General Information
-
-There are two options to give your voucher a name:
+2. Add general information - There are two options to give your voucher a name:
 
 - Type a name like ‘BlackFridayVoucher’ into the Discount Code box
 - Click [[Generate&nbsp;Code]] to create a randomized voucher code 
 
-#### 3. Choose Discount Type
-
-Choose if your voucher is:
+3. Choose discount type - Decide if your voucher is:
 
 - Fixed Amount: A specific dollar-amount discount on one or all products
 - Percentage Discount: A percentage discount on all products in an order or only the least expensive one
 - Free Shipping: No shipping charge for all items in an order
 
-#### 4. Input Voucher Value
+4. Input voucher value - Enter the fixed amount or percentage value of the voucher.
 
-Input the fixed amount or percentage value of the voucher.
+5. Choose single or multiple products - Decide where the fixed-value or percentage-value voucher applies to all products in an order or only to the cheapest one.
 
-#### 5. Choose Single or Multiple Products
+6. Apply discount to all products or only full price products - You can decide if your offer applies to products which are already discounted in other sales or if it only covers full price products. Check the slider to choose the right option. 
 
-Decide where the fixed-value or percentage-value voucher applies to all products in an order or only to the cheapest one.
+7. Set minimum requirements - Vouchers are a great upselling opportunity. You can choose a minimum order value or quantity of products that customers must reach before the voucher can be applied, or you can choose [[None]] and apply the voucher to all products.
 
-#### 6. Apply Discount to All Products or Only Full Price Products
-
-You can decide if your offer applies to products which are already discounted in other sales or if it only covers full price products. Check the slider to choose the right option. 
-
-#### 7. Set Minimum Requirements
-
-Vouchers are a great upselling opportunity. You can choose a minimum order value or quantity of products that customers must reach before the voucher can be applied, or you can choose [[None]] and apply the voucher to all products.
-
-#### 8. Set Usage Limit
-
-Choose the total number of vouchers available to all customers. You can create single vouchers for specific customers, a wider offer in limited numbers, or an unlimited number of vouchers for a set period of time.
+8. Set usage limit - Choose the total number of vouchers available to all customers. You can create single vouchers for specific customers, a wider offer in limited numbers, or an unlimited number of vouchers for a set period of time.
 
 Choose if each customer (defined by e-mail address) can use the voucher only once or multiple times.
 
-#### 9. Choose the Dates
-
-Leave the start date blank in [[Active&nbsp;Dates]] if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
+ 9. Choose the dates - Leave the start date blank in [[Active&nbsp;Dates]] if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
 
 
-### Editing and Revoming Vouchers
+### How to edit and Remove vouchers
 
 Click on any voucher from the main list to edit it. To remove vouchers, click the checkbox on the main list and then use the trash can icon, or enter the voucher and click [[remove]] in the footer.

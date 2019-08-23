@@ -26,7 +26,7 @@ You can setup several different `ShippingMethods` within one `ShippingZone` to e
 There are two types of `ShippmentMethod` available in Saleor:
 
 * `PRICE_BASED` - Can be used when the order price falls within a certain range. For example, from $0 to $50 - shipping method A, over $50 - shipping method B, etc.
-* `WEIGHT_BASED` - Similar to the price based example. You can create shipping methods based on the weight rane. 
+* `WEIGHT_BASED` - Similar to the price based example. You can create shipping methods based on the weight range. 
 
 These two methods cover most of the basic use cases, for example:
 

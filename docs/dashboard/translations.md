@@ -8,7 +8,7 @@ The Saleor dashboard is in English as a default language but all elements can be
 For all dynamic content, such as categories, products, and descriptions, you can make changes directly in the Translations section of the dashboard.
 
 
-## How To Translate Content
+## How to translate content
 
 1. Choose the language into which you plan to translate content:
 
