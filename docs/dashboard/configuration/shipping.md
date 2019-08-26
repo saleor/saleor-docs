@@ -66,7 +66,7 @@ These two methods cover most of the basic use cases, for example:
 ![Specifying value range](assets/dashboard-config/7.png)
 
 
-### Free or Paid Shipping
+### Free or paid shipping
 
 If you offer free shipping, click on the switch so it is green. If shipping is charged, input the rate per weight unit in the currency field.
 

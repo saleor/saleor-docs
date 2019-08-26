@@ -1,6 +1,6 @@
 ---
 id: recaptcha
-title: ReCaptcha
+title: Recaptcha
 ---
 
 ## Pre-requisites

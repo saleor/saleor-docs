@@ -1,10 +1,10 @@
 ---
 id: payments
-title: How to integrate new payment gateway
+title: How to Integrate New Payment Gateway
 ---
-## Payments Gateways
+## Payments gateways
 
-### Checkout payment gateways command
+### Checkout payment gateways command 
 
 The command `CHECKOUT_PAYMENT_GATEWAYS` contains a list of enabled payment gateways, with the user friendly payment name. These are the names your customers see when they select the payment method.
 

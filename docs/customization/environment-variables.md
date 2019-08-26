@@ -1,5 +1,5 @@
 ---
-id: configuration
+id: environment-variables
 title: Environment Variables
 ---
 
