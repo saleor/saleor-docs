@@ -6,7 +6,7 @@ title: Collections
 Collections are a great way to increase sales and give customers better experiences. Group products together to take advantage of seasonal events or link products that are regularly bought in pairs or groups. 
 
 
-## How to create and editing collections
+## How to create and edit collections
 
 You can add and edit collections in the same way as categories, with a cover photo and SEO content tailored to your collection. To delete individual products, click on the trash can icon next to the product and confirm removal from the collection.
 
@@ -18,7 +18,7 @@ Once you have created a collection, you can easily add more products by choosing
 ![Assign product to collection](assets/dashboard-catalog/17.jpg)
 
 
-## How to deleting a collection
+## How to delete a collection
 
 There are two ways to remove a collection:
 

@@ -32,7 +32,7 @@ To remove a category, simply click [[Delete&nbsp;Category]] in the footer.
 
 Sub-categories break large groups down into smaller subsets that make it easier to manage stores and help customers find the right products. 
 
-### How to Add a Sub-Category
+### How to add a sub-category
 
 Click [[Add&nbsp;Subcategory]] in the top right corner of the sub-categories card. In this example, we have paints and cushions in the Accessories category, which can be marked as separate sub-categories. Add a description and SEO information just the same as with a main category.
 

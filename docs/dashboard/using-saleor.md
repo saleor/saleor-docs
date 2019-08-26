@@ -3,7 +3,7 @@ id: using-saleor
 title: Using Saleor
 ---
 
-## About the Dashboard
+## About the dashboard
 
 The Saleor 2.0 dashboard is the administration panel behind your storefront. In a nutshell, it is for managing people, products, and processes:
 
@@ -12,14 +12,14 @@ The Saleor 2.0 dashboard is the administration panel behind your storefront. In 
 - Processes: Manage important e-commerce elements like taxes, payments, and shipping
 
 
-## Accessing the Dashboard
+## Accessing the dashboard
 
-### Setting up your Account
+### How to set up your account
 
 The first thing you need to do is set up a master account for your store—sometimes called an Admin Account or a Superuser Account. This is done by your developer when forking the platform and setting up your iteration of Saleor. You just need to supply the developer with the details of your main administrator and the setup password.
 
 
-### Accessing your Dashboard
+### How to access your dashboard
 
 Once you have your store, you can access the administration panel by: 
 
@@ -29,7 +29,7 @@ Once you have your store, you can access the administration panel by:
 You will then be asked to input the email address and password you used to create your superuser account. Each new user can access the dashboard the same way using their unique credentials.
 
 
-## Dashboard Sections
+## Dashboard sections
 
 The dashboard is split into sections where you can complete different tasks. The whole experience is designed by our UX experts to be intuitive and simple. We believe that you will find that your Saleor store is easy to manage, but these instructions are for those moments when you get stuck, and can help you get the most from your store. A little time reading them now will make a huge difference to how effectively you use Saleor.
 

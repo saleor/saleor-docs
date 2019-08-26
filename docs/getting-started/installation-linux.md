@@ -5,10 +5,10 @@ title: Installation for Linux
 
 > **Note**
 > 
-> If you prefer using containers or have problems with configuring PostgreSQL, Redis and Elasticsearch, see our [Using Docker for Development](customization/docker.md) instructions.
+> If you prefer using containers or have problems with configuring PostgreSQL, Redis and Elasticsearch, see our [Using Docker](getting-started/docker.md) instructions.
 
 
-## Prerequisites
+## Prerequisites 
 
 Before you are ready to run Saleor you will need additional software installed on your computer.
 

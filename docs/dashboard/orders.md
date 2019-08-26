@@ -5,7 +5,7 @@ title: Orders
 
 The Orders section shows you all orders placed through the Saleor system by customers, as well as those created manually by administrators. An order is created once a customer completes the checkout process.
 
-## Order Management in Saleor
+## Order management in Saleor
 
 The main page shows a list of all orders in the system, regardless their status.
 
@@ -157,7 +157,7 @@ To fulfill an order, click [[Fulfill]] in the Unfulfilled card and use the stepp
 
 In the example below, the t-shirt and hoodie are being sent in full, only two from four pairs of plimsolls are being sent, and the juice is not being sent.
 
-Once you click [[Confirm]], the t-shirt and hoodie will move to the Fulfilled cardd, as will two pairs of shoes. The other shoes and the juice will remain Unfulfilled.
+Once you click [[Confirm]], the t-shirt and hoodie will move to the Fulfilled card, as will two pairs of shoes. The other shoes and the juice will remain Unfulfilled.
 
 If you have a tracking number for the package, add it in the field below the products.
 
@@ -175,3 +175,5 @@ If you have a tracking number for the package, add it in the field below the pro
 Click the three dots in the top right corner of a Fulfilled order card. Select [[Cancel&nbsp;Shipment]] when the pop-up appears, then confirm. Items will be restocked into the Saleor system.
 
 ![Canceling shipment](assets/dashboard-orders/6.jpg)
+
+For more information on Shipment configuration, see the [Shipping Methods](configuration/shipping.md)

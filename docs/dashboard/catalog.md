@@ -27,7 +27,7 @@ Click on the [[Add&nbsp;Category]] button to enter a new set of products. Enter 
 Once you have your categories, you can edit them at any time by clicking on a category from the list and changing information. When viewing a category, at the bottom of a section, you have information listing all products in the category, which can be individually clicked and edited, just as in the main products section. 
 
 
-###How to add sub-categories
+### How to add sub-categories
 
 Sub-categories break large groups down into smaller subsets that make it easier to manage stores and help customers find the right products. To add a sub-category, click [[Add&nbsp;Subcategory]] text in the top right corner of the sub-categories box.
 

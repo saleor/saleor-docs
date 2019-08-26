@@ -29,6 +29,6 @@ We are also currently working on a tool to help migrate to Saleor from other pla
 Finally, if you are interested in a custom version of Saleor, you can contact us and tell us more about your specific needs: https://mirumee.typeform.com/to/Xwfril
 
 
-## Using This Guide
+## Using this guide
 
 This guide will help you get the most from the Saleor platform as an administrator or store owner. It shows you all the features of the dashboard and the best ways to use the platform. We recommend that you read through this guide to familiarize yourself with all the features while playing with your own Saleor dashboard. You can also use our demo store; it has all the functionalities of a working version but will not allow you to save changes: https://demo.getsaleor.com
