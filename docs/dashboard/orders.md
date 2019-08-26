@@ -13,7 +13,7 @@ The main page shows a list of all orders in the system, regardless their status.
 
 ### Order filters  
 
-To automatically filter orders, use the drop-down menu and view orders by date or fulfillment status. Sorting by status brings up a second menu from which you can choose Fulfilled, Partially Fulfilled, or Unfilled Orders. Click [[Add filter]] to apply the filter. 
+To automatically filter orders, use the drop-down menu and view orders by date or fulfillment status. Sorting by status brings up a second menu from which you can choose _Fulfilled_, _Partially Fulfilled_, or _Unfilled Orders_. Click [[Add filter]] to apply the filter. 
 
 You can also manually search specific information, such as key words or names, using the Search Orders field. The filter is dynamically applied as you type. 
 
@@ -34,7 +34,7 @@ Every time you complete an action such as confirming and fulfilling an order, a 
 ## Order fulfillment concept
 The fulfillment represents a group of shipped items with corresponding tracking number. Fulfillments are created by a shop operator to mark selected products in an order as fulfilled.
 
-Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single Unfulfilled or Fulfilled card. Others, as in the example below, will have both cards if parts of the order have been sent to the customer but other products are yet to be dispatched. 
+Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single _Unfulfilled_ or _Fulfilled_ card. Others, as in the example below, will have both cards if parts of the order have been sent to the customer but other products are yet to be dispatched. 
 
 ![Order fulfillment options](assets/dashboard-orders/4.jpg)
 
@@ -46,18 +46,18 @@ There are two possible fulfillment statuses:
 
 ### Order statuses
 
-There are four possible order statuses (and a **Daft** one), based on the stage of their fulfillment:
+There are four possible order statuses (and a _Daft_ one), based on the stage of their fulfillment:
 
 * **Unfulfilled** - There are no fulfillments related to an order or each one is canceled. An action by a shop operator is required to continue order processing.
 
 
-* **Partially fulfilled** - There are some fulfillments with `FULFILLED` status related to an order. An action by a shop operator is required to continue order processing.
+* **Partially fulfilled** - There are some fulfillments with _Fulfilled_ status related to an order. An action by a shop operator is required to continue order processing.
 
 
 * **Fulfilled** - Each order line is fulfilled in existing fulfillments. Order doesn’t require further actions by a shop operator.
 
 
-* **Cancelled** - Order has been canceled. Every fulfillment (if there is any) has `CANCELED` status. Order doesn’t require further actions by a shop operator.
+* **Cancelled** - Order has been canceled. Every fulfillment (if there is any) has _Cancelled_ status. Order doesn’t require further actions by a shop operator.
 
 
 * **Draft** - Used for orders newly created from dashboard and not yet published.
@@ -127,7 +127,9 @@ This indicates that the order has been paid for in full.
 
 ## Draft orders
 
-This is a list of orders, created by administrators, which have not yet been released to the system. For example, store operators can create orders during discussions with customers, then save them as drafts until approval is gained from management to send replacement goods. Draft orders can be edited in the same way that an order is created. To process an order in the system, click [[Finalize]] in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels. 
+This is a list of orders, created by administrators, which have not yet been released to the system. For example, store operators can create orders during discussions with customers, then save them as drafts until approval is gained from management to send replacement goods. Draft orders can be edited in the same way that an order is created. 
+
+To process an order in the system, click [[Finalize]] in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels. 
 
 ## How to create an order
 
@@ -136,7 +138,7 @@ This is a function for store administrators to add orders, usually in cases wher
 1. Click [[Create&nbsp;Order]] on the main orders page or the draft orders section
 2. Click [[Add&nbsp;Products]] in the Order Details card
 3. Select products from the drop-down menu or by typing the product name in the search field. Assign using the check boxes
-4. Choose the customer name. Other customer information fields will then auto-complete. Manually make any changes or input information for a new customer
+4. Choose the customer name. Other customer information fields will then auto-complete. Make any required changes or input information for a new customer
 5. Choose the best shipping offer from the drop-down list of available couriers
 
 Once you set up the order and finalize it using the button in the footer, it becomes a normal order and replacement goods can be sent to the customer.

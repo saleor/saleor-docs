@@ -3,7 +3,7 @@ id: customers
 title: Customers
 ---
 
-View the details of all users who have provided you with their information when setting up an account or placing an order.
+In this page you can view the details of all users who have provided you with their information when setting up an account or placing an order.
 
 ![Customers list](assets/dashboard-customers/1.png)
 
@@ -14,12 +14,12 @@ Click on an individual customer to get an overview of the general information, a
 
 ## Customer orders and history
 
-The Customer History card gives a brief overview of customer activity. You can view a single order or all orders of a specific customer by clicking in the Recent Orders card. From there you can amend and take actions as described in the Orders section of these documents.
+The Customer History card gives a brief overview of customer activity. You can view a single order or all orders of a specific customer by clicking in the Recent Orders card. From there you can amend and take actions as described in the ![Orders](dashboard/orders) section of these documents.
 
 
 ## Managing customer addresses
 
-Click [[Manage]] in the Address Information card to edit or delete a customer address. You can set an address as the default shipping or billing address by clicking on the three dots in the top right corner of a specific address. 
+Click [[Manage]] in the Address Information card to edit or delete a customer address. Click the three dots in the top right corner of a specific address, to set it as the default shipping or billing address. 
 
 Use the [[Add&nbsp;Address]] button in the top right corner of the Address Book page if a customer asks the administrator to manually add an address. When a customer has more than one address listed, it is important to assign the correct billing and shipping addresses, as described above.
 
@@ -46,20 +46,44 @@ Click [[Save]] to proceed. Your new customer is now set up in the system and you
 
 ## How to edit general information
 
-Make changes to the customer name and e-mail by simply typing into the relevant field in the General Information card. The [[Save]] button in the footer will change color once changes have been made that need to be confirmed.
+Make changes to the customer name and e-mail by simply typing into the relevant field in the General Information card. The [[Save]] button in the footer will activate once changes that need to be confirmed have been made.
 
-In the General Information, there is a checkbox next to the text [[User&nbsp;account&nbsp;active]]. Accounts will be active as soon as they are created but you can check the box to suspend a customer account, for example, if you suspect malicious activity. If you have implemented a backend protocol that requires users to confirm account activation from an e-mail, which is not a default feature, this may also be useful if a user has issues with replying to the e-mail and asks for a manual activation.
+In the General Information card, there is a checkbox next to the text [[User&nbsp;account&nbsp;active]]. Accounts will be active as soon as they are created but you can check the box to suspend a customer account, for example, if you suspect malicious activity. 
+
+If you have implemented a backend protocol that requires users to confirm account activation from an e-mail, which is not a default feature, this may also be useful if a user has issues with replying to the e-mail and asks for a manual activation.
 
 
 ## How to remove a customer
 
-- Select the individual customer overview from the main list
-- Click [[Remove]] in the footer then confirm deletion
+- Select the specific customer record from the main list
+- Click [[Remove]] in the footer then confirm the action
+
+
+Users are also able to request their account to be deleted, from the storefront level, on their user profile settings. In such case, a confirmation email is sent to the email address associated with the account.
 
 > **Note** 
 >
-> ##### GDPR Compliance 
+> #### GDPR Compliance 
 >
-> In compliance with GDPR laws in Europe, clicking [[Remove]] will delete the customer profile but information will be retained in active and prior orders for fulfillment purposes. However, Saleor and its creators do not bear responsibility for your compliance with legal protocols, so check the law in your local area and make sure that you comply with all data processing legislation.
+>Ny default, Saleor handles several aspects of the regulations introduced by the GDPR.
+>
+> ##### Deleting users
+>
+> In compliance with GDPR laws in Europe, clicking [[Remove]] in the Customer cards will delete the customer's profile, in other words, the customer's account instance. All data used for the checkout process are left untouched. This is to keep track of financial transaction. 
+> This solution follows the GDPR regulations.
+> However, Saleor and its creators do not bear responsibility for your compliance with legal protocols. Check the law in your local area and make sure that you comply with all data processing legislation.
+> 
+> ##### Cookies
+>  
+> All cookies used by Saleor are strictly necessary to move around the website and use its features, therefore there is no need to notify the users about them.
+> 
+> ##### Privacy Policy and Terms of Service statements
+>
+> Make sure your _Terms of Service_ and _Privacy Policy_ statements properly communicate to your users who you are and how you are using their data. 
+We recommend that you ensure your policies are kept up to date and are clear to your readers.
+
+ 
+
+
 
 

@@ -3,19 +3,19 @@ id: categories
 title: Categories
 ---
 
-Products on the Saleor platform can be sorted by category if you sell a range of items.
+If you sell a range of products on the Saleor platform, they can be conveniently sorted by category. 
 
 
-## How to add a category
+## How to add product category
 
-Click [[Add&nbsp;Category]] to enter a new set of products. Enter the category name, description, and SEO-optimized information the same way as you would with an individual product. When finished, click [[Save&nbsp;Category]] in the bottom right corner and then add a widescreen banner photo that will appear at the top of the screen when customers view the category.
+Click [[Add&nbsp;Category]] to create a new set of products. Enter the category name, description, and SEO-optimized information the same way as you would with an individual product. When finished, click [[Save&nbsp;Category]] in the bottom right corner and then add a widescreen banner photo that will appear at the top of the screen when customers view the category.
 
 ![Adding category](assets/dashboard-catalog/15.jpg)
 
 
 ## How to edit categories
 
-Once you have your categories, you can edit them at any time by clicking on a category from the list and changing information. When viewing a category, you have a card at the bottom of the page with tabs for viewing and editing products and sub-catgeories.  
+Once you have your categories set up, you can edit them at any time by clicking on a category from the list and changing information. When viewing a category, you have a card at the bottom of the page with tabs for viewing and editing products and sub-catgeories.  
 
 
 ## How to delete categories

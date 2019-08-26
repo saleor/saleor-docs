@@ -10,7 +10,7 @@ Ny default, Saleor handles several aspects of the regulations introduced by the 
 
 A user account can be deleted from the dashboard level by a staff user. This action is processed immediately.
 
-Users are also able to request their account to be deleted, from the storefront level, on their user profile settings.  In such case, a confirmation email is sent to the email address associated with the account.
+Users are also able to request their account to be deleted, from the storefront level, on their user profile settings. In such case, a confirmation email is sent to the email address associated with the account.
 
 > **Note**
 > Deleting a user removes their account instance. All data used for the checkout process are left untouched. This is to keep track of financial transaction. 

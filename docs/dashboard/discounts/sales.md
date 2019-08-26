@@ -47,6 +47,4 @@ To assign any product, category or collection, click on the relevant tab and the
 Once you have chosen the products, categories or collections you want to promote, click [[Assign]].
 
 
-### Saving a sale
-
 Click [[Save]] on the footer bar to save the sale.

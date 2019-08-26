@@ -29,7 +29,7 @@ Think about _product types_ as templates for your products. Multiple products ca
 
 ### Product
 
-The Product concept reflects common details of several product variants. When the shop displays the products in the category view, items on the list are displayed as separate products. 
+The _product_ concept reflects common details of several product variants. When the shop displays the products in the category view, items on the list are displayed as separate products. 
 If the _product variant_ has no overridden property (for example: price specifically set for this variant), the default value is taken from the _product_.
 
 ### Product variants
@@ -40,7 +40,7 @@ To explain the difference, we will use a bookstore example. Let's imagine you ar
 
 The book is available in hard and soft cover, so there would be _2 product variants_.
 
-To simplify this for the example purposes, let's assume that the _Type of cover_ is the only attribute creating separate _variants_ in your store.
+To simplify this for the example purposes, let's assume that the _type of cover_ is the only attribute creating separate _variants_ in your store.
 You would then use _product type_ called “Book”, enable variants and use the “Cover type” as your _variant attribute_.
 
 #### Product attributes
@@ -53,6 +53,8 @@ Or being back to the hard/ soft cover books: the attribute here is a _Cover Type
 
 It’s what distinguishes different variants. For example: for the attribute _cover type_ you will have two variant attributes: _hard cover_ or _soft cover_.
 
+For more information on the product structure in Saleor, see the ![Product Types and Attributes](configuration/products) topic.
+
 ## Stock management
 
 Each product variant has also a stock keeping unit (SKU).
@@ -64,7 +66,7 @@ Each variant holds information about:
 
 > **Example** 
 >
-> There are five boxes of shoes. Three of them have already been sold to customers but were not yet dispatched for shipment. The stock record is as follows:
+> There are five boxes of shoes in your store. Three of them have already been sold to customers but were not yet dispatched for shipment. The stock record is as follows:
 > * Quantity is 5
 > * Quantity allocated is 3
 > * Quantity available is 2
@@ -73,7 +75,7 @@ Each variant also has a _cost price_ (the price that your store had to pay to pu
 
 ### Product availability
 
-A variant is in stock if it has unallocated quantity.
+A variant is in stock, if it has unallocated quantity.
 
 The highest quantity that can be ordered is the available quantity of product variant.
 
@@ -112,7 +114,7 @@ A special resource reachable under the `/sitemap.xml` URL serves an up to date l
 
 #### Meta tags
 
-Meta keywords are not used, as they are ignored by all major search engines because it has been abused in the years since it was introduced.
+Meta keywords are not used, as they are ignored by all major search engines because the concept has been abused in the years since it was introduced.
 
 Meta description will be set to the product’s description field. This does not affect the search engine ranking but it affects the snippet of text shown along with the search result.
 
@@ -140,6 +142,7 @@ This will optimize time spent by the crawler on the website, giving it time to i
 
 ## Social Media Optimization (SMO)
 
+
 #### Open Graph
 
 For more effective and efficient social media engagement, we added [Open Graph Protocol](http://ogp.me/) to the Homepage and all products/categories.
@@ -153,7 +156,7 @@ Click [[Add Product]] above the main list to enter the product setup page.
 ![Adding product](assets/dashboard-catalog/3.png)
 
 
-### 1. Fill out the General Information card
+#### 1. Fill out the General Information card
 
 Add the name of your product and a description. Use text formatting to make your product descriptions clear and engaging. The eight basic functions are: bold type, italic type, sub-header, second sub-header, quote, bullet point list, numbered list, new text line, and add hyperlink.
 
@@ -170,9 +173,11 @@ Add the name of your product and a description. Use text formatting to make your
 >  ![Formatting product description](assets/dashboard-catalog/4.png)
 
 
-### 2. Define pricing
+#### 2. Define pricing
 
 Type the price of your product manually or using the stepper by the currency indicator. If your product is tax-exempt, leave the [[Charge&nbsp;taxes&nbsp;for&nbsp;this&nbsp;item]] checkbox empty. If you need to charge taxes, click on the box and a green check mark will appear.
+
+For more information on taxes, see the ![Taxes](configuration/taxes) topic.
 
 > **Note** 
 >
@@ -185,9 +190,9 @@ Type the price of your product manually or using the stepper by the currency ind
 > - Open Exchange Rates is used to provide up-to-date exchange rates
 
 
-### 3. Add optional search engine preview content
+#### 3. Add optional search engine preview content
 
-Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description. If you do not add unique SEO content, details will be taken from the General Information field.
+Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description. If you do not add unique SEO content, details will be taken from the General Information card.
 
 > **Tip** 
 >
@@ -198,12 +203,12 @@ Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description. If you do not add uni
 ![Editing product SEO](assets/dashboard-catalog/5.png)
 
 
-### 4. Organize your product 
+#### 4. Organize your product 
 
 Categorize your new product using the drop-down menus to assign a relevant Product Type and Category. This is mandatory before you can save the product. You can also optionally assign your product to a Collection.
 
 
-### 5. Make your product visible
+#### 5. Make your product visible
 
 Once you have set up all your product details, you can choose if it appears for sale or remains hidden from view. 
 If set, it allows you to hold some of your products unavailable to your customers until the publication date. They are simply not listed in your storefront.
@@ -215,12 +220,12 @@ If you want to push your product for sale, click on the switch until it shows as
 ![Making product visible on site](assets/dashboard-catalog/7.png)
 
 
-### 6. Save your new product
+#### 6. Save your new product
 
 Once you have input your minimum required product information, click [[save]] in the footer to add it to your catalog and continue with further setup.
 
 
-### 7. Add images
+#### 7. Add images
 
 Much the same as on social media or other platforms, there are two ways to add an image: 
 
@@ -232,7 +237,7 @@ You can add an unlimited number of images per product. The main image will be th
 ![Uploading product images](assets/dashboard-catalog/8.png)
 
 
-### 8. Add image descriptions
+#### 8. Add image descriptions
 
 You can also add descriptions of specific product features to your images. Hover over the image and click on the pencil to edit the information. 
 
@@ -243,31 +248,31 @@ You can also add descriptions of specific product features to your images. Hover
 
 Click on an existing product from the main list. You will be redirected to the same interface as for adding products.
 
-### Delete
+#### Delete
 
- Click [[Remove]] at the bottom of the screen to delete a product. 
+ Click [[Remove]] at the bottom of the page to delete a product. 
 
-### Edit
+#### Edit
 
-To edit product details, click any field and start making changes. The [[Save]] option in the footer will change color as soon as you have made amendments that need to be saved before exiting the page.
+To edit product details, click any field and start making changes. The [[Save]] button in the footer will activate as soon as you have made amendments that need to be saved before exiting the page.
 
 > **Tip** 
 >
 > ##### Save it for later
 > 
-> Don’t remove a product if you just want to temporarily take it away from your inventory. In that case, just uncheck the [[Published&nbsp;in&nbsp;Storefront]] option in the Visibility card, as described above.
+> Do not remove a product if you just want to temporarily take it away from your inventory. In that case, just uncheck the [[Published&nbsp;in&nbsp;Storefront]] option in the Visibility card, as described above.
 
 
 ## How to add product variants and attributes
 
-When you enter a product record from the main list, you will see the same cards as when you create a product, with one additional card for Variants. This is where you can change product variants and attributes, check inventory, and control stock levels.
+When you click a product record from the main list, you will see the same cards as when you create a product, with one additional card for Variants. This is where you can change product variants and attributes, check inventory, and control stock levels.
 
 ![Reviewing product variants](assets/dashboard-catalog/10.png)
 
 
 ### Checking inventory
 
-In this example, we can see five types of t-shirt. Four have enough stock to cover future orders. The XL size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there is only one item in stock (“Inventory”) and it has been ordered by a customer (“Allocated”).
+In this example, you can see five types of t-shirt. Four have enough stock to cover future orders. The XL size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there is only one item in stock (“Inventory”) and it has been ordered by a customer (“Allocated”).
 
 ![Editing product inventory](assets/dashboard-catalog/11.jpg)
 
@@ -282,16 +287,16 @@ You can edit the cost and sale price of an item in the Pricing card.
 
 When you receive new stock, enter the amount in the Inventory field to keep up to date and avoid false out-of-stock messages. Make sure to save your changes before exiting.
 
-You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) and will all information is unique to specific variants.
+You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) which is unique to specific variants.
 
 
 ## How to manage attributes
 
-When entering a product record from the main list, click the [[Edit&nbsp;Attributes]] label in the top corner of the Variants card to add or change product attributes and variants. For example, a top or t-shirt will have a product attribute such as the material it is made from, and a variant attribute of the sizes or colors in which it is available.
+When selecting a product record from the main list, click the [[Edit&nbsp;Attributes]] label in the top corner of the Variants card to add or change product attributes and variants. For example, a top or t-shirt will have a product attribute such as the material it is made from, and a variant attribute of the sizes or colors in which it is available.
 
 ![Editing product attributes](assets/dashboard-catalog/13.png)
 
-In the Product Attributes card, click on [[Add&nbsp;Attribute]]. A pop-up will appear in which you can enter new attributes. Click [[Save]] to confirm and exit.
+In the Product Attributes card, click on [[Add&nbsp;Attribute]]. A pop-up will appear where you can enter new attributes. Click [[Save]] to confirm and exit.
 
 ![Adding attribute](assets/dashboard-catalog/14.png)
 

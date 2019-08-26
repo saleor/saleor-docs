@@ -8,7 +8,7 @@ The Home page is the welcome screen of your dashboard. It appears when you log i
 ![Dashboard home](assets/dashboard-home/1.png)
 
 
-The page consists of the following cards.
+The page consists of the following cards:
 
 ## Sales and orders overview
 
