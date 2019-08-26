@@ -1,6 +1,6 @@
 ---
 id: products
-title: Product Types and Attributes
+title: Product Types
 ---
 
 ## Product types
