@@ -285,7 +285,7 @@ When you receive new stock, enter the amount in the Inventory field to keep up t
 You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) and will all information is unique to specific variants.
 
 
-## Managing attributes
+## How to manage attributes
 
 When entering a product record from the main list, click the [[Edit&nbsp;Attributes]] label in the top corner of the Variants card to add or change product attributes and variants. For example, a top or t-shirt will have a product attribute such as the material it is made from, and a variant attribute of the sizes or colors in which it is available.
 

@@ -11,7 +11,7 @@ Click [[Add&nbsp;Page]] at the top right.
 ![New page creation](assets/dashboard-config/18.png)
 
 
-## General Information
+## General information
 
 Fill in the title of the page, as it will appear in the footer of your store. Keep it short, preferably just a word or two. 
 
@@ -20,7 +20,7 @@ Add the content that the page will contain. This may be a simple description of 
 ![New page displayed by the site](assets/dashboard-config/19.png)
 
 
-## Search Engine Preview
+## Search engine preview
 
 Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description that will appear in web searches.
 
@@ -35,7 +35,7 @@ If you leave the URL card empty, the title of the page will be added to your nor
 You can choose if your page is published or not. If the slider is green, it is live on your website. If the slider is grey, you can leave the page hidden or set a future date when it will be published.
 
 
-## Deleting Pages
+## Deleting pages
 
 To delete a page, click on the checkbox next to the page name on the list, then click the trash can icon. Alternatively, you can enter the page and then click [[Remove]] in the footer.
 

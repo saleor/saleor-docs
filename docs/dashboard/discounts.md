@@ -25,7 +25,7 @@ Sales are an excellent way to encourage customers to use your store. Saleor offe
 2. General information - Add the name of your sale. This can be edited later.
 3. Pricing
 
-* **Discount Value:** Use the icon on the right side of the Discount Value field to toggle between percentage discount and price-per-item discount.
+* **Discount value:** Use the icon on the right side of the Discount Value field to toggle between percentage discount and price-per-item discount.
 
 * **Time Frame:** Use the pop-up calendar or stepper to choose the start and end dates of the sale. If you do not set a start date, the sale will start immediately; similarly, a sale without an end date will continue indefinitely.
 
@@ -82,6 +82,7 @@ Choose if each customer (defined by e-mail address) can use the voucher only onc
  9. Choose the dates - Leave the start date blank in [[Active&nbsp;Dates]] if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
 
 
-### How to edit and Remove vouchers
+### How to edit and remove vouchers
 
-Click on any voucher from the main list to edit it. To remove vouchers, click the checkbox on the main list and then use the trash can icon, or enter the voucher and click [[remove]] in the footer.
+1. Click on any voucher from the main list to edit it. 
+2. Click the checkbox on the main list and then use the trash can icon, or enter the voucher record and click [[remove]] in the footer.

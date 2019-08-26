@@ -8,7 +8,7 @@ The navigation section allows you to configure what information is visible on th
 ![Navigation displayed on the site](assets/dashboard-config/20.png)
 
 
-### Creating Your Navigation Structure
+### How to create your navigation structure
 
 Creating the navigation structure is done by dragging and dropping. Simply create a new menu item and then drag it to the desired place. You can move items inside one another to create a tree structure and drag items up and down to create a hierarchy.
 

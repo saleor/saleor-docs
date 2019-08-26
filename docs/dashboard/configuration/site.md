@@ -3,7 +3,7 @@ id: site
 title: Site Settings
 ---
 
-## General Information
+## General information
 
 View and update your site settings to control how your site information appears online.
 
@@ -18,11 +18,11 @@ The [[URL&nbsp;of&nbsp;your&nbsp;online&nbsp;store]] should match that which you
 The [[Store&nbsp;Description]] is SEO information that will appear in browser results listing your site, so make sure it has clear, useful copy about your store and its products.
 
 
-## Authentication Keys
+## Authentication keys
 
 You can allow dashboard users to enter your store through Google and Facebook and add additional security keys to ensure site security. 
 
-### Adding Authentication Keys
+### How to add authentication keys
 
 
 1. Click [[Add&nbsp;key]] at the top right of the Authentication Keys card 

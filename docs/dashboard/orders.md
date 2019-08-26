@@ -125,7 +125,7 @@ A traditional credit card or bank payment that is awaiting authorization from th
 
 This indicates that the order has been paid for in full.
 
-## Draft Orders
+## Draft orders
 
 This is a list of orders, created by administrators, which have not yet been released to the system. For example, store operators can create orders during discussions with customers, then save them as drafts until approval is gained from management to send replacement goods. Draft orders can be edited in the same way that an order is created. To process an order in the system, click [[Finalize]] in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels. 
 
