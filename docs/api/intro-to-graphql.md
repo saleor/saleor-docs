@@ -3,12 +3,19 @@ id: intro-to-graphql
 title: Introduction to GraphQL API
 ---
 
-This topic describes an introduction to GraphQL API. 
 
 > **Note** 
 >
-> The GraphQL API is in the early stages. It is not fully optimized yet against database queries. Some mutations or queries may be missing.
+> The GraphQL API is in the early stages. It is not fully optimized yet against database queries, therefore some mutations or queries may be missing.
 
-Saleor provides a GraphQL API which allows to query and modify the shop’s data in an efficient and flexible manner. You can [preview it here](https://demo.getsaleor.com/graphql/).
+Saleor is based on GraphQL API. GraphQL is a query language which offers much more flexibility for integration. It allows you to request the exact data you need, cutting down the number of calls you must perform to get it. The availability of all data at one endpoint is also the GraphQL's biggest advantage over the REST API (which has an endpoint for each resource object).
 
-Learn more about GraphQL language and its concepts on the [official website](https://graphql.org/).
+Using Saleor GraphQL API allows you to query and modify all the shop’s data in an efficient and flexible manner. Our API provides both type of operations: 
+* Public (related to the customers of your shop) 
+* Private (admin side)
+
+Click [here](https://demo.getsaleor.com/graphql/) to preview the API.
+
+To learn more about GraphQL language and its concepts see the official [GraphQL website](https://graphql.org/).
+
+
