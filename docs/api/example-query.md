@@ -3,9 +3,10 @@ id: example-query
 title: Example Query - Making your First Call
 ---
 
-## Example query
+Requests must be sent using HTTP `POST` method and `application/json` content type.
 
-Querying data in GraphQL is easy with tool GraphiQL. The tool can be used from a web browser.
+
+There are two ways of querying API. You can either use the curl library, which is a low level developer's tool, or use Playground, an interactive editor from GraphQL API.
 
 Here is an example query that fetches three products:
 
