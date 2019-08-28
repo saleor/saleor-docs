@@ -62,11 +62,9 @@ If you are using Playground to browse the API, you can authorize your requests b
 
 ```
 {
-  "Authorization": "JWT token"
+  "Authorization": "JWT your-token"
 }
 ```
-
-where `token` is a valid token generated for your credentials.
 
 ## Using JWT tokens with cURL
 
@@ -74,10 +72,10 @@ To authenticate requests sent with cURL, use `-H` or `--header` parameter to pas
 
 ```console
 curl \
-  -H "Authorization: JWT token" \
+  -H "Authorization: JWT your-token" \
   -H "Content-Type: application/json" \
   -X POST \
-  -d "{\"query\": \"{ me { email } }\"}" \
+  -d '{"query": "{ me { email } }"}' \
   http://localhost:8000/graphql/
 ```
 
