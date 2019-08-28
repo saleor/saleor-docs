@@ -12,7 +12,7 @@ Once you create a token, you need to include it as a header with every GraphQL r
 The authorization header has the following format:
 
 ```
-Authorization: JWT token
+Authorization: JWT your-token
 ```
 
 ## Creating a JWT token
