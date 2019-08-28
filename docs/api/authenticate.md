@@ -17,7 +17,7 @@ Authorization: JWT token
 
 ## Creating a JWT token
 
-To create a new JWT token for a user, use the `tokenCreate` mutation and provide user's credentials as the mutation input (`email` and `password`):
+To create a new JWT token for a user, use the `tokenCreate` mutation and provide the user's credentials as the mutation input (`email` and `password`):
 
 ```graphql
 mutation {
