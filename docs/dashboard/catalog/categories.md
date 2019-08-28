@@ -4,6 +4,11 @@ title: Categories
 ---
 
 If you sell a range of products on the Saleor platform, they can be conveniently sorted by category. 
+Unlike collections, which are optional, so you can either use them or not, the categories are required. Every product should belong to a category.
+
+### Sub-categories
+
+Sub-categories break large groups down into smaller subsets that make it easier to manage stores and help customers find the right products. 
 
 
 ## How to add product category
@@ -28,11 +33,7 @@ To remove a category, simply click [[Delete&nbsp;Category]] in the footer.
 >
 > Products are mandatorily assigned to categories. Deleting a category will also remove all products it contains. Only remove a category if you are sure that you also want to permanently delete all its products from your catalog.
 
-## Sub-categories
-
-Sub-categories break large groups down into smaller subsets that make it easier to manage stores and help customers find the right products. 
-
-### How to add a sub-category
+## How to add a sub-category
 
 Click [[Add&nbsp;Subcategory]] in the top right corner of the sub-categories card. In this example, we have paints and cushions in the Accessories category, which can be marked as separate sub-categories. Add a description and SEO information just the same as with a main category.
 
