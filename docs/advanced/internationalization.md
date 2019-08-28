@@ -1,5 +1,5 @@
 ---
-id: internationaliization
+id: internationalization
 title: Internationalization and Translation
 ---
 

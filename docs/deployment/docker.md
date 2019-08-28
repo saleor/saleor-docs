@@ -17,4 +17,5 @@ $ docker build -t mystorefront .
 $ docker run -e SECRET_KEY=<SECRET_KEY> -e DATABASE_URL=<DATABASE_URL> -p 8000:8000 mystorefront
 ```
 
-See the [Configuration](getting-started/configuration.md#environment-variables) for more environment variable settings.
+See the [Environment Variables](customization/environment-variables.md) for more environment variable settings.
+For more information on Docker, see the [Using Docker](getting-started/docker.md) topic.

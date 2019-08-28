@@ -53,7 +53,7 @@ Or being back to the hard/ soft cover books: the attribute here is a _Cover Type
 
 It’s what distinguishes different variants. For example: for the attribute _cover type_ you will have two variant attributes: _hard cover_ or _soft cover_.
 
-For more information on the product structure in Saleor, see the ![Product Types and Attributes](configuration/products) topic.
+For more information on the product structure in Saleor, see the ![Product Types](dashboard/configuration/products.md) topic.
 
 ## Stock management
 

@@ -1,14 +1,14 @@
 ---
 id: recaptcha
-title: Recaptcha
+title: reCaptcha
 ---
 
 ## Pre-requisites
 
-You can get your API key set from [Google ReCaptcha](https://www.google.com/recaptcha/admin).
+You can get your API key set from [Google reCaptcha](https://www.google.com/recaptcha/admin).
 
 
-## Enable and set up
+## How to enable and set up reCapcha
 
 To enable ReCaptcha, set the following keys in your environment:
 

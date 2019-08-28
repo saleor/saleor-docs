@@ -15,5 +15,5 @@ sidebar_label: Introduction
 [/card-grid]
 
 [card-grid]
-[**Recaptcha**](integrations/recaptcha.md)
+[**reCaptcha**](integrations/recaptcha.md)
 [/card-grid]
