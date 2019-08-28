@@ -3,7 +3,7 @@ id: playground
 title: How to Access the Playground
 ---
 
-GraphQL Playground is external interactive editor for your GraphQL queries. It is based on the GraphiQL and accessible through the web browser. 
+GraphQL Playground is an external interactive editor for your GraphQL queries. It is based on the GraphiQL and accessible through the web browser. 
 
 With the `DEBUG=True` setting enabled, Saleor exposes an interactive GraphQL editor under `/graphql`, which allows accessing the API from your browser. To view and try our API out, visit the [Playground](https://demo.getsaleor.com/graphql/).
 
