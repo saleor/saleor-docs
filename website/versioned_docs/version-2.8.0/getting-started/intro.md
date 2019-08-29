@@ -6,20 +6,20 @@ original_id: intro
 ---
 
 [card-grid]
-[**Installation for macOS**](getting-started/installation-macos.md)
-[**Installation for Windows**](getting-started/installation-windows.md)
+[**Installation for macOS**](/docs/getting-started/installation-macos)
+[**Installation for Windows**](/docs/getting-started/installation-windows)
 [/card-grid]
 
 [card-grid]
-[**Installation for Linux**](getting-started/installation-linux.md)
-[**Configuration**](getting-started/configuration.md)
+[**Installation for Linux**](/docs/getting-started/installation-linux)
+[**Configuration**](/docs/getting-started/configuration)
 [/card-grid]
 
 [card-grid]
-[**Creating an Administrator Account**](getting-started/creating-superuser.md)
-[**Debug tools**](getting-started/debug-tools.md)
+[**Creating an Administrator Account**](/docs/getting-started/creating-superuser)
+[**Debug tools**](/docs/getting-started/debug-tools)
 [/card-grid]
 
 [card-grid]
-[**Example data**](getting-started/example-data.md)
+[**Example data**](/docs/getting-started/example-data)
 [/card-grid]

@@ -8,10 +8,10 @@ original_id: intro
 Please use GitHub issues and pull requests to report problems and discuss new features.
 
 [card-grid]
-[**EditorConfig**](contributing/editorconfig.md)
-[**Coding Style**](contributing/coding-style.md)
+[**EditorConfig**](/docs/contributing/editorconfig)
+[**Coding Style**](/docs/contributing/coding-style)
 [/card-grid]
 
 [card-grid]
-[**Naming Conventions**](contributing/naming.md)
+[**Naming Conventions**](/docs/contributing/naming)
 [/card-grid]

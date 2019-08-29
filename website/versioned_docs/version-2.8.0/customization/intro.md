@@ -6,26 +6,26 @@ original_id: intro
 ---
 
 [card-grid]
-[**Using Docker for Development**](customization/docker.md)
-[**Customizing Templates**](customization/templates.md)
+[**Using Docker for Development**](/docs/customization/docker)
+[**Customizing Templates**](/docs/customization/templates)
 [/card-grid]
 
 [card-grid]
-[**Customizing Emails**](customization/emails.md)
-[**Customizing CSS and JavaScript**](customization/frontend.md)
+[**Customizing Emails**](/docs/customization/emails)
+[**Customizing CSS and JavaScript**](/docs/customization/frontend)
 [/card-grid]
 
 [card-grid]
-[**Working with Python Code**](customization/backend.md)
-[**Creating extensions**](customization/extensions.md)
+[**Working with Python Code**](/docs/customization/backend)
+[**Creating extensions**](/docs/customization/extensions)
 [/card-grid]
 
 [card-grid]
-[**Internationalization**](customization/i18n.md)
-[**Running Tests**](customization/running-tests.md)
+[**Internationalization**](/docs/customization/i18n)
+[**Running Tests**](/docs/customization/running-tests)
 [/card-grid]
 
 [card-grid]
-[**Continuous Integration**](customization/continuous-integration.md)
-[**Running with PyPy 3.5**](customization/pypy.md)
+[**Continuous Integration**](/docs/customization/continuous-integration)
+[**Running with PyPy 3.5**](/docs/customization/pypy)
 [/card-grid]

@@ -18,4 +18,4 @@ Then you can run Saleor container with the following settings:
 $ docker run -e SECRET_KEY=<SECRET_KEY> -e DATABASE_URL=<DATABASE_URL> -p 8000:8000 mystorefront
 ```
 
-Please refer to [Configuration](getting-started/configuration.md#environment-variables) for more environment variable settings.
+Please refer to [Configuration](/docs/getting-started/configuration#environment-variables) for more environment variable settings.

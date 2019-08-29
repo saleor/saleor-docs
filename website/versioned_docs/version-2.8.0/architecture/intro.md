@@ -6,40 +6,40 @@ original_id: intro
 ---
 
 [card-grid]
-[**Handling Money Amounts**](architecture/money.md)
-[**Product Structure**](architecture/products.md)
+[**Handling Money Amounts**](/docs/architecture/money)
+[**Product Structure**](/docs/architecture/products)
 [/card-grid]
 
 [card-grid]
-[**Thumbnails**](architecture/thumbnails.md)
-[**Stock Management**](architecture/stock.md)
+[**Thumbnails**](/docs/architecture/thumbnails)
+[**Stock Management**](/docs/architecture/stock)
 [/card-grid]
 
 [card-grid]
-[**Order Management**](architecture/orders.md)
-[**Events**](architecture/events.md)
+[**Order Management**](/docs/architecture/orders)
+[**Events**](/docs/architecture/events)
 [/card-grid]
 
 [card-grid]
-[**Internationalization**](architecture/i18n.md)
-[**Model Translations**](architecture/translations.md)
+[**Internationalization**](/docs/architecture/i18n)
+[**Model Translations**](/docs/architecture/translations)
 [/card-grid]
 
 [card-grid]
-[**Search**](architecture/search.md)
-[**Payments Architecture**](architecture/payments.md)
+[**Search**](/docs/architecture/search)
+[**Payments Architecture**](/docs/architecture/payments)
 [/card-grid]
 
 [card-grid]
-[**Shippings**](architecture/shippings.md)
-[**Site Settings**](architecture/settings.md)
+[**Shippings**](/docs/architecture/shippings)
+[**Site Settings**](/docs/architecture/settings)
 [/card-grid]
 
 [card-grid]
-[**Pages**](architecture/page.md)
-[**GDPR Compliance**](architecture/gdpr.md)
+[**Pages**](/docs/architecture/page)
+[**GDPR Compliance**](/docs/architecture/gdpr)
 [/card-grid]
 
 [card-grid]
-[**GraphQL API (Beta)**](architecture/graphql.md)
+[**GraphQL API (Beta)**](/docs/architecture/graphql)
 [/card-grid]
