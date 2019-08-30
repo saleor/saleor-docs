@@ -5,7 +5,9 @@ title: Product Types
 
 ## Product types
 
-In this page you can define the type of products you sell and organize them into groups. The Product Types list shows the type of product, an information if it is a physical or digital product, and which tax applies to its sale.
+This page allows you to define the type of products you sell. A product type is a kind of a template upon which the specific products are then created. Multiple products can use the same Product Type. Defining templates (Product Types) makes adding products much easier.
+
+The list displayed on the Product Types page shows the names of existing product types, information if a product type has a physical or digital form, and which tax applies to its sale.
 
 The Create Product Page consist of the following cards:
 
@@ -15,7 +17,7 @@ Here you can enter your Product Type Name. For example, a product: _bike_ comes 
 
 ### Shipping
 
-In this card you can determine if your products is physical and thus can be send to customers. To do that, select the [[Is&nbsp;this&nbsp;product&nbsp;shippable?]] checkbox. An additional field will then appear to note the weight of the products. Indicating the wieght is essential for calculating shipping costs correctly.
+In this card you can determine if your products is physical and thus can be send to customers. To do that, select the [[Is&nbsp;this&nbsp;product&nbsp;shippable?]] checkbox. An additional field will then appear to note the weight of the products. Indicating the weight is essential for calculating shipping costs correctly.
 
 ### Taxes
 
@@ -40,8 +42,6 @@ If your product has different variants, select the [[This&nbsp;product&nbsp;has&
  click [[Save]]. 
 
 > **Note**
->
-> The lists of Attributes and Variant Attributes are interchangeable, and in fact they are one list. Therefore, when you are creating a Product Type, you are using one list when assigning new Product Attributes and Variant Attributes.
 > 
 > However, only the attributes with the Catalog Input type for Store Owner field (in the Attribute setup page) set to _Dropdown_ may be used as Variant Attributes. 
 > 

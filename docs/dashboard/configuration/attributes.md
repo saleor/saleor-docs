@@ -10,6 +10,8 @@ The main Attributes page displays a list of all existing attributes. The list co
 
 You can create variations of products you sell to reflect the wide range of colours, sizes or material the product was made from.
 
+For more information on the product structure in Saleor, see the ![Products](dashboard/catalog/products.md#product-concept-introduction) topic.
+
 > **Example**
 >
 > To illustrate what is the role of an Attribute, consider the following example:
@@ -43,20 +45,18 @@ You can create variations of products you sell to reflect the wide range of colo
 > This way you can create an entire matrix of colours and sizes and make them available to your customers.
 
 
-### How to add attribute
+### How to add an attribute
 
 1. In the main Attribute page, click [[Addnbsp;Attribute]]. 
 2. In the General Information card, provide the following information:
 
-*  Default Label - This is the name of your attribute visible to your customers. For example, size.
+*  Default Label - This is the name of your attribute visible to your customers. For example, size. The default label must be a unique value.
 
 * Attribute Code - This is used to distinguish between, for example, shoe sizes (36, 37, etc.)and t-shirt sizes (XS, S, etc.). Any value you enter in this field will only be used internally, your customers will not see it. 
 
-* Catalog Input type for Store Owner - Here you can decide how the attribute values are going to be displayed. Available options are: Dropdown (if you can only display one option) and Multi Select (if you can select many attribute values). 
+* Catalog Input type for Store Owner - Here you can decide how the attribute values are going to be displayed to the admin in the product management views. Available options are: Dropdown (if you can only display one option) and Multi Select (if you can select many attribute values). 
 
 > **Note**
->
-> The lists of Attributes and Variant Attributes are interchangeable, and in fact they are a one list. Therefore, when you are creating a Product Type, you are using one list when assigning new Product Attributes and Variant Attributes.
 > 
 > However, only the attributes with the Catalog Input type for Store Owner field set to _Dropdown_ may be used as Variant Attributes. 
 > 
@@ -72,7 +72,7 @@ Use the following fields to complete the properties setup of your attribute:
 
 * Position in faceted navigation - Use this field to indicate the order of attributes in the faceted navigation. Type in a number, the lower the number, the higher the position of your attribute.
 
-<!-- screenshot of the faceted layer in the Storefront - do you think it would be useful?-->
+![Faceted Navigation](assets/dashboard-config/23.jpg)
 
 * Visible on Product Page in Storefront - If the toggle is active, your attribute will be visible when viewing the product page. 
 
@@ -80,7 +80,7 @@ Use the following fields to complete the properties setup of your attribute:
 
 5. Click [[Save]] once finished.
 
-### How to edit or delete attribute 
+### How to edit or delete an attribute 
 
 Select the specific attribute from the list of existing attributes.
 
