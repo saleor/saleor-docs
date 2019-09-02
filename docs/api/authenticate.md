@@ -23,12 +23,12 @@ To create a new JWT token for a user, use the `tokenCreate` mutation and provide
 mutation {
   tokenCreate(email: "admin@example.com", password: "admin") {
     token
+    user {
+      email
+    }
     errors {
       field
       message
-    }
-    user {
-      email
     }
   }
 }
@@ -41,10 +41,10 @@ A successful response would look like:
   "data": {
     "tokenCreate": {
       "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiZXhwIjoxNTY2OTEzODc1LCJvcmlnSWF0IjoxNTY2OTEzNTc1fQ.Dw0ccxdxEXsSpM61_Zr_uCyZd-88cNZqM62k_nAjFAE",
-      "errors": [],
       "user": {
         "email": "admin@example.com"
-      }
+      },
+      "errors": []
     }
   }
 }
@@ -81,7 +81,7 @@ curl \
 
 ## Token verification and refreshing
 
-Verification and refreshing the token is straightforward. To verify the token use the following query:
+To verify the token use the following mutation:
 
 ```graphql
 mutation {

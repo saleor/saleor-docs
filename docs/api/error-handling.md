@@ -53,12 +53,12 @@ Below is an example of an error triggered by validation issues:
 ```graphql
 mutation {
   accountRegister(input: { email: "customer@example.com", password: "" }) {
+    user {
+      email
+    }
     errors {
       field
       message
-    }
-    user {
-      email
     }
   }
 }
@@ -68,13 +68,13 @@ mutation {
 {
   "data": {
     "accountRegister": {
+      "user": null,
       "errors": [
         {
           "field": "email",
           "message": "User with this email already exists."
         }
-      ],
-      "user": null
+      ]
     }
   }
 }

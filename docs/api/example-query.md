@@ -3,7 +3,9 @@ id: example-query
 title: Example Query - Making your First Call
 ---
 
-There are two ways of querying API. You can either use the cURL library, which is a low level developer's tool, or use Playground, an interactive editor from GraphQL API.
+There are many ways of communicating with a GraphQL API. You can use a low-level HTTP client like cURL or a dedicated client for the programming language or framework of your choice. The most convenient tool for testing the API and forming queries is Playground - an interactive editor, which supports features such us autocompletion, error highlighting, setting HTTP headers and instant access to API documentation in the sidebar.
+
+Let's take a look at an example query and mutation that you can use in Saleor GraphQL API.
 
 ## Example query
 
@@ -79,12 +81,12 @@ mutation {
     id: "UHJvZHVjdDo3Mg=="
     input: { name: "Apple Juice - Summer Edition" }
   ) {
+    product {
+      name
+    }
     errors {
       field
       message
-    }
-    product {
-      name
     }
   }
 }
@@ -96,10 +98,10 @@ The successful server response for that mutation is:
 {
   "data": {
     "productUpdate": {
-      "errors": [],
       "product": {
         "name": "Apple Juice - Summer Edition"
-      }
+      },
+      "errors": []
     }
   }
 }
