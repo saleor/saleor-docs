@@ -3,7 +3,7 @@ id: error-handling
 title: Error Handling
 ---
 
-There are several error types in GraphQL API and you may come across several different error types, depending on the operations you are trying to perform.
+There are several error types in the GraphQL API and you may come across several different of them, depending on the operations you are trying to perform.
 
 The Saleor GraphQL API handles the following three errors:
 
@@ -22,7 +22,7 @@ Below is an example of an error triggered by wrong syntax. The following query t
 }
 ```
 
-Sending this query to the server would result in the syntax error:
+Sending this query to the server would result in the following syntax error:
 
 ```json
 {
@@ -44,7 +44,7 @@ Sending this query to the server would result in the syntax error:
 
 ## Validation error
 
-This type of error occurs when user passed bad data as the mutation input. For example, while you are trying to create a new user, you are providing their email address and it happens to be already used in another user's account. It is therefore not unique and as a result you will get a validation error.
+This type of error occurs when user passed invalid data as the mutation input. For example, while you are trying to create a new user, you are providing their email address and it happens to be already used in another user's account. It is therefore not unique and as a result you will get a validation error.
 
 Validation errors are part of the schema which means that we need to explicitly include them in the query to get them. For example in all mutations they can be obtained through the `errors` field.
 
@@ -100,7 +100,7 @@ Below is an example of an error triggered by insufficient authorization. The `st
 }
 ```
 
-Executing it without proper permission would result in the error:
+Executing it without proper permission would result in the following error:
 
 ```json
 {
