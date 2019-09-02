@@ -44,9 +44,9 @@ Sending this query to the server would result in the following syntax error:
 
 ## Validation error
 
-This type of error occurs when user passed invalid data as the mutation input. For example, while you are trying to create a new user, you are providing their email address and it happens to be already used in another user's account. It is therefore not unique and as a result you will get a validation error.
+This type of error occurs when the user passed invalid data as the mutation input. For example, while you are trying to create a new user, you are providing their email address and it happens to be already used in another user's account. It is therefore not unique and as a result you will get a validation error.
 
-Validation errors are part of the schema which means that we need to explicitly include them in the query to get them. For example in all mutations they can be obtained through the `errors` field.
+Validation errors are part of the schema, which means that we need to include them in the query to get them explicitly. For example, in all mutations, they can be obtained through the `errors` field.
 
 Below is an example of an error triggered by validation issues:
 
@@ -86,7 +86,7 @@ Validation errors are returned in the `errors` field.
 
 This type of error occurs when you are trying to perform a specific operation but you are not authorized to do so, in other words, you have no sufficient permissions assigned.
 
-Below is an example of an error triggered by insufficient authorization. The `staffUsers` query requires particular admin permissions:
+Below is an example of an error triggered by insufficient authorization. The `staffUsers` query requires appropriate admin permissions:
 
 ```graphql
 {
