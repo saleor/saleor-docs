@@ -39,7 +39,7 @@ After you [created your Sendgrid application](https://app.sendgrid.com/guide/int
 smtp://apikey:YOUR_API_KEY_HERE@smtp.sendgrid.com:465/?ssl=True
 ```
 
-Then, set the environment variable `DEFAULT_FROM_EMAIL` [as mentioned before](guides/email-integration.md#default_from_email).
+Then, set the environment variable `DEFAULT_FROM_EMAIL` [as mentioned before](/docs/guides/email-integration#default_from_email).
 
 > **Note**
 >
@@ -76,7 +76,7 @@ After [adding your domain in Mailjet](https://app.mailjet.com/account/sender/dom
 smtp://YOUR_MAILJET_USERNAME:YOUR_MAILJET_PASSWORD@in-v3.mailjet.com:587/?tls=True
 ```
 
-Then, set the environment variable `DEFAULT_FROM_EMAIL` [as mentioned before](guides/email-integration.md#default_from_email).
+Then, set the environment variable `DEFAULT_FROM_EMAIL` [as mentioned before](/docs/guides/email-integration#default_from_email).
 
 
 ## Amazon SES Integration
@@ -89,4 +89,4 @@ Then, you can use this data to set-up the environment variable `EMAIL_URL` as be
 smtp://YOUR_SMTP_USERNAME:YOUR_SMTP_PASSWORD@email-smtp.YOUR_AWS_SES_REGION.amazonaws.com:587/?tls=True
 ```
 
-Then, set the environment variable `DEFAULT_FROM_EMAIL` [as mentioned before](guides/email-integration.md#default_from_email).
+Then, set the environment variable `DEFAULT_FROM_EMAIL` [as mentioned before](/docs/guides/email-integration#default_from_email).
