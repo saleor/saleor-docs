@@ -55,7 +55,7 @@ PLUGINS = ["saleor.extensions.plugins.custom.CustomPlugin", ]
 
 ### Configuring Plugins
 
-Saleor allows you to change a configuration of any given plugin over API. Plugin owner needs to overwrite a method to create a structure of default configuration `_get_default_configuration` and `CONFIG_STRUCTURE` . It requires an expected structure as in the following example:
+Saleor allows you to change a configuration of any given plugin over API. Plugin owner needs to overwrite a method to create a structure of default configuration `_get_default_configuration` and `CONFIG_STRUCTURE`. Plugin configuration received from API can be validated by overwriting `validate_plugin_configuration` method. It requires an expected structure as in the following example:
 
 ```python
 # custom/plugin.py
@@ -80,6 +80,24 @@ CONFIG_STRUCTURE = {
         "label": pgettext_lazy("Plugin label", "Password or license"),
     }
 }
+
+@classmethod
+def validate_plugin_configuration(cls, plugin_configuration: "PluginConfiguration"):
+    """Validate if provided configuration is correct."""
+    missing_fields = []
+    configuration = plugin_configuration.configuration
+    configuration = {item["name"]: item["value"] for item in configuration}
+    if not configuration["Username or account"]:
+        missing_fields.append("Username or account")
+    if not configuration["Password or license"]:
+        missing_fields.append("Password or license")
+
+    if plugin_configuration.active and missing_fields:
+        error_msg = (
+            "To enable a plugin, you need to provide values for the "
+            "following fields: "
+        )
+        raise ValidationError(error_msg + ", ".join(missing_fields))
 
 @classmethod
 def _get_default_configuration(cls):
