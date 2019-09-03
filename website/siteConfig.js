@@ -26,6 +26,11 @@ const siteConfig = {
   // e.g., for the https://JoelMarcey.github.io site, it would be set like...
   //   organizationName: 'JoelMarcey'
 
+  algolia: {
+    apiKey: "33843c1b27663cc760ddc60811ba51d7",
+    indexName: "saleor"
+  },
+
   // Disable showing the title in the header next to the header icon.
   disableHeaderTitle: true,
 

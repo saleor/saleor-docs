@@ -3,7 +3,7 @@ id: graphql
 title: GraphQL API (Beta)
 ---
 
-> **Note** 
+> **Note**  
 >
 > The GraphQL API is in the early stages. It is not fully optimized yet against database queries. Some mutations or queries may be missing.
 

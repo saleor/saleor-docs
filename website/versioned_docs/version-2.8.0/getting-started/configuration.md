@@ -32,7 +32,7 @@ The supported payment providers are:
 
 ### `PAYMENT_GATEWAYS`
 
-For information on how to configure payment gateways (API keys, miscellaneous information, …), see [the list of supported payment gateway and their associated environment variables](payment-gateways/intro.md).
+For information on how to configure payment gateways (API keys, miscellaneous information, …), see [the list of supported payment gateway and their associated environment variables](/docs/payment-gateways/intro).
 
 
 ## Environment variables
@@ -59,7 +59,7 @@ Example: `redis://redis.example.com:6379/0`
 
 ### `DATABASE_URL`
 
-Defaults to a local PostgreSQL instance. See [Using Docker for Development](customization/docker.md) for how to get a local database running inside a Docker container.
+Defaults to a local PostgreSQL instance. See [Using Docker for Development](/docs/customization/docker) for how to get a local database running inside a Docker container.
 
 Most Heroku databases will export this setting automatically.
 
@@ -97,7 +97,7 @@ Controls [Django’s secret key](https://docs.djangoproject.com/en/2.1/ref/setti
 
 ### `SENTRY_DSN`
 
-Sentry’s [Data Source Name](https://docs.sentry.io/error-reporting/configuration/?platform=python#dsn). Disabled by default, allows to enable integration with Sentry (see [Error tracking with Sentry](integrations/sentry.md) for details).
+Sentry’s [Data Source Name](https://docs.sentry.io/error-reporting/configuration/?platform=python#dsn). Disabled by default, allows to enable integration with Sentry (see [Error tracking with Sentry](/docs/integrations/sentry) for details).
 
 
 ### `MAX_CART_LINE_QUANTITY`
@@ -112,7 +112,7 @@ Controls production assets’ mount path. Defaults to `/static/`.
 
 ### `DEFAULT_CURRENCY`
 
-Controls all prices entered and stored in the store as this single default currency (for more information, see [Handling Money Amounts](architecture/money.md)).
+Controls all prices entered and stored in the store as this single default currency (for more information, see [Handling Money Amounts](/docs/architecture/money)).
 
 
 ### `DEFAULT_COUNTRY`

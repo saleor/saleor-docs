@@ -7,13 +7,13 @@ original_id: intro
 
 You will find below the list of payment gateways supported by Saleor and their configuration guide.
 
-- [Braintree (supports PayPal and Credit Cards)](payment-gateways/braintree.md)
-- [Razorpay (supports only the paisa currency)](payment-gateways/razorpay.md)
-- [Stripe (supports Credit Cards)](payment-gateways/stripe.md)
+- [Braintree (supports PayPal and Credit Cards)](/docs/payment-gateways/braintree)
+- [Razorpay (supports only the paisa currency)](/docs/payment-gateways/razorpay)
+- [Stripe (supports Credit Cards)](/docs/payment-gateways/stripe)
 
-The default configuration only uses the dummy backend (see [how to enable/disable payment gateways](getting-started/configuration.md#payments-gateways)). It’s meant to allow developers to easily simulate different payment results.
+The default configuration only uses the dummy backend (see [how to enable/disable payment gateways](/docs/getting-started/configuration#payments-gateways)). It’s meant to allow developers to easily simulate different payment results.
 
-For an how-to guide on adding new payments into your Saleor project please check [Payments](guides/payments.md).
+For an how-to guide on adding new payments into your Saleor project please check [Payments](/docs/guides/payments).
 
 > **Note**
 >
