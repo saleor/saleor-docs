@@ -5,17 +5,21 @@ title: How to Create Checkout?
 
 Below is a description of a checkout process. We assume that at this stage you have already completed the steps included in the Getting Started section of this chapter and you are familiar with basic setup of Saleor GraphQL API.
 
+The below process flow describes the basic checkout process in Saleor. There are also additional steps that may occur along the way. However, the purpose of this instruction is to deliver a base reference for the user to work with.    
+
 The code snippets included in this section may be run in ![Playground](api/playground.md) or your preferred HTTP client.
 
-Checkout process in Saleor may run through several process flow scenarios, depending on such factors like, for example, if the user is logged in or not at the moment of adding items to the cars. 
+### Empty checkout
 
-Saleor does not create an ‘empty checkout’ when a user is not logged in but adds items to the cart. In these situations the cart is not saved anywhere on the server but on the browser level.
+The checkout process in Saleor may run through several scenarios, depending on such factors like, for example, if the user is logged in or not, at the moment of adding items to the cart. 
 
-The actual checkout process is started after the user clicks check out in their cart. If the user is already logged in - the process in commenced. If not, the user is prompted to log into their account.
+Saleor does not create an ‘empty checkout’ when a not-logged-in user is adding items to the cart. In such instances, the current cart is only saved on the browser level. It is not saved anywhere on the server.
 
-## Step #1 - mutation: `CHECKOUT CREATE`
+The actual checkout process is started after the user clicks _check out_ in their cart. If the user is already logged in - the process is commenced. If not, the user is prompted to log into their account.
 
-To create a checkout object in the database, execute the following mutation: checkout create. 
+## Step #1 Create checkout
+
+To create a checkout object in the database, the `CHECKOUT CREATE` mutation is executed. 
 
 This mutation takes the following input:
 
@@ -25,33 +29,33 @@ This mutation takes the following input:
 
 * User’s billing address
 
-* List of checkout lines (each checkout line represents the variant id, in other words - the product, and the quantity of it)
+* List of checkout lines - Each checkout line represents the _variant id_ (the specific product) and the quantity of it.
 
 There are also other fields in this mutation:
 
 * Checkout id
 
-* Checkout token - this is a unique token for this checkout which allows you to identify this specific checkout object. This is a public token, it will save the user’s checkout session, if for example, they accidentally close the browser.
+* Checkout token - this is a unique token assigned to this checkout. It allows you to identify this specific checkout object. This is also a public token, it will save the user’s checkout session, if for example, they accidentally close the browser.
 
 * Total price of the items in the cart
 
 > **Note**
 >
-> An email is required to create the checkout object. 
+> An email is required to create a `CHECKOUT` object. 
 
-The following example shows how the mutation creates the checkout object and returns the checkout id: 
+The following example shows how the `CHECKOUT CREATE` mutation creates the checkout object and returns the checkout id: 
 
 <!-- Marcin to provide a code snippet from Playground -->
 
 ### `available shipping methods`
 
-The `CHECKOUT CREATE` object returns several fields. The `available shipping methods` is one of these fields (this is an optional step, for items which require shipping only).
+The `CHECKOUT` object contains several fields. 
 
-Each shipping method on the list in this fields has a unique id. 
+The `available shipping methods` is one of these fields (this is an optional step, only for items which require shipping).
 
-If the items in the cart requires shipment, the user will select the shipping method. 
+Each shipping method on the list in this field has a unique id. If the items in the cart require shipment, the user will select the shipping method. 
 
-To allow the user to effectively select a specific shipping method (to create a shipping in this checkout) you need to run the following operation: `checkout shipping method update`.
+To allow a user to effectively select a specific shipping method (to create a shipping in this checkout) you need to run the following operation: `checkout shipping method update`.
 
 This operation has two parameters:
 
@@ -65,14 +69,44 @@ This way, the specific checkout is paired up with the specific shipping method s
 
 ## Step #2 - Creating payment
 
-The checkout object contains the `available payment gateways` field. It returns a list of the payment gateways which are currently configured on your Saleor server.
+The `CHECKOUT` object also contains the `available payment gateways` field. It returns a list of the payment gateways which are currently configured on your Saleor server.
 
 Payment creation process consists of two operations:
 
 * Generating a token for this specific payment using the `payment client token` operation. 
 This operation requires the user to select the preferred payment gateway.
 
-* Executing mutation `CHECKOUT PAYMENT CREATE` using the token generated in the previous step. 
+* Executing mutation `CHECKOUT PAYMENT CREATE` using the token generated in the previous bullet. 
+
+Depending on selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway directs you to an external payment page.
+
+JavaScript responds returning a `promise` object. The payment gateway sends an information if the payment is successful along with a tokenized credit card payment information. 
+
+This tokenized card information is then used to run the `checkout payment create` operation in order to save this payment record in API database.
+
+### `checkout payment create`
+
+The `checkout payment create` mutation requires the following three parameters:
+
+* Tokenized card payment information
+
+* Checkout id
+ 
+* Total amount of this operation
+
+## Step #3 mutation: `CHECKOUT COMPLETE`
+
+This operation requires only the checkout id. Its purpose is to check if this checkout is correct, it verifies if:
+
+* The addresses are correct 
+
+* The products are in fact in stock (while making the purchase, another user could already buy the last available items)
+
+* The payment has been successful
+
+If these parameters are verified correctly, then the checkout is transformed into order. In the same time, the customer receives an email with a confirmation of placing an order.
+
+If the above verification fails, an error is returned indicating which element is erred.
 
 
 
