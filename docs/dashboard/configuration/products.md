@@ -43,7 +43,7 @@ If your product has different variants, select the [[This&nbsp;product&nbsp;has&
 
 > **Note**
 > 
-> However, only the attributes with the Catalog Input type for Store Owner field (in the Attribute setup page) set to _Dropdown_ may be used as Variant Attributes. 
+> Only the attributes with the input type (in the Attribute setup page) set to _Dropdown_ may be used as Variant Attributes. 
 > 
 > In other words, when setting up your Product Type, you select a Variant Attribute which is set up as _Multiselect_, you will receive the following error message: "Variants are disabled in this product type".
 
