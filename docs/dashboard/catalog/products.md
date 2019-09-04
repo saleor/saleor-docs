@@ -177,7 +177,7 @@ Add the name of your product and a description. Use text formatting to make your
 
 Type the price of your product manually or using the stepper by the currency indicator. If your product is tax-exempt, leave the [[Charge&nbsp;taxes&nbsp;for&nbsp;this&nbsp;item]] checkbox empty. If you need to charge taxes, click on the box and a green check mark will appear.
 
-For more information on taxes, see the ![Taxes](configuration/taxes) topic.
+For more information on taxes, see the [Taxes](configuration/taxes) topic.
 
 > **Note** 
 >

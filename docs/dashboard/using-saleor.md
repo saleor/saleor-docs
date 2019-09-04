@@ -11,6 +11,20 @@ The Saleor 2.0 dashboard is the administration panel behind your storefront. In 
 - Products: Add, change, display, and delete digital and physical inventory
 - Processes: Manage important e-commerce elements like taxes, payments, and shipping
 
+## Dashboard sections
+
+The dashboard is split into sections where you can complete different tasks. The whole experience is designed by our UX experts to be intuitive and simple. We believe that you will find that your Saleor store is easy to manage, but these instructions are for those moments when you get stuck, and can help you get the most from your store. A little time reading them now will make a huge difference to how effectively you use Saleor.
+
+The dashboard has the following sections:
+
+- [Home](dashboard/home.md): A handy overview of recent activity and performance
+- [Catalog](dashboard/catalog/intro.md): Your products, viewed individually or grouped by collection or category
+- [Orders](dashboard/orders.md): A full view of current and past orders
+- [Customers](dashboard/customers.md): Your customer database, with specific details for each buyer
+- [Discounts](dashboard/discounts/sales.md): Give your customers great sales offers or discount vouchers
+- [Translations](dashboards/translations.md): Translate dynamic content in your Saleor store
+- [Configuration](dashboard/configuration/intro.md): Manage all the administration elements of your dashboard and processes like tax automation and shipping
+
 
 ## Accessing the dashboard
 
@@ -27,18 +41,3 @@ Once you have your store, you can access the administration panel by:
 - Entering `www.YOURSTORENAME/dashboard` into the web browser
 
 You will then be asked to input the email address and password you used to create your superuser account. Each new user can access the dashboard the same way using their unique credentials.
-
-
-## Dashboard sections
-
-The dashboard is split into sections where you can complete different tasks. The whole experience is designed by our UX experts to be intuitive and simple. We believe that you will find that your Saleor store is easy to manage, but these instructions are for those moments when you get stuck, and can help you get the most from your store. A little time reading them now will make a huge difference to how effectively you use Saleor.
-
-The dashboard has the following sections:
-
-- [Home](dashboard/home.md): A handy overview of recent activity and performance
-- [Catalog](dashboard/catalog/intro.md): Your products, viewed individually or grouped by collection or category
-- [Orders](dashboard/orders.md): A full view of current and past orders
-- [Customers](dashboard/customers.md): Your customer database, with specific details for each buyer
-- [Discounts](dashboard/discounts/sales.md): Give your customers great sales offers or discount vouchers
-- [Translations](dashboards/translations.md): Translate dynamic content in your Saleor store
-- [Configuration](dashboard/configuration/intro.md): Manage all the administration elements of your dashboard and processes like tax automation and shipping

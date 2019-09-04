@@ -83,47 +83,32 @@ When viewing orders with pre-authorized payments, Saleor offers options to eithe
 
 ![Order with captured payment](assets/dashboard-orders/9.jpg)
 
-
-### Payments and transactions
-
-Saleor uses the concept of Payments and Transactions to fulfill the payment process.
-
-#### Payments 
-Payment has five possible charge statuses:
-
-* Not charged - No funds were taken off the customer’s funding source yet.
-* Partially charged - Funds were taken off the customer’s funding source, partly covering the payment amount.
-* Fully charged - Funds were taken off the customer’s funding source, covering the payment amount in full.
-* Partially refunded - Part of charged funds were returned to the customer.
-* Fully refunded - 	All charged funds were returned to the customer.
-
-#### Transactions
-
-Transactions represent attempts to transfer money between your store and your customers, within a chosen payment method.
-There are five possible transaction types:
-* Auth - An amount locked on the customer’s funding source. Money does not change hands until the authorization is captured.
-* Capture - A transfer of the amount previously locked during the authorization stage.
-* Charge - Authorization and capture, processed in a single step.
-* Void - A cancellation of pending authorization or capture.
-* Refund - Full or partial return of captured funds to the customer.
-
 ### Refunds
-Payments can be fully or partially refunded if there is an issue with the goods or customer service.
+
+Payments can be fully or partially refunded, if there is an issue with the goods or customer service.
 
 ## Order types
 
 There are two order types depending on their payment status:
 
-### Unpaid orders
+* Unpaid
 
 A traditional credit card or bank payment that is awaiting authorization from the bank. Unpaid amounts are listed as ‘pre-authorized’. Once funds are released, the order status will automatically change to fully paid.	
 
 ![Unpaid order](assets/dashboard-orders/7.jpg)
 
 
-### Fully paid orders
+* Fully paid
 
 This indicates that the order has been paid for in full.
+
+* Fully refunded 
+
+All charged funds were returned to the customer.
+
+* Partially refunded
+
+When a partial refund was given to a customer, for example, when one product from several ordered items is no longer available.
 
 ## Draft orders
 
@@ -135,10 +120,15 @@ To process an order in the system, click [[Finalize]] in the footer. Once the or
 
 This is a function for store administrators to add orders, usually in cases where customer orders need to be re-sent but have already been fulfilled in the system. For example, if the customer was send damaged goods or is being sent a complimentary product due to customer service issues. It can also be used to create dummy and test orders, as well as to deal with stock issues.
 
+
 1. Click [[Create&nbsp;Order]] on the main orders page or the draft orders section
+
 2. Click [[Add&nbsp;Products]] in the Order Details card
+
 3. Select products from the drop-down menu or by typing the product name in the search field. Assign using the check boxes
-4. Choose the customer name. Other customer information fields will then auto-complete. Make any required changes or input information for a new customer
+
+4. Choose the customer name. Other fields for customer information will then auto-complete. Make any required changes or input information for a new customer
+
 5. Choose the best shipping offer from the drop-down list of available couriers
 
 Once you set up the order and finalize it using the button in the footer, it becomes a normal order and replacement goods can be sent to the customer.
@@ -148,7 +138,9 @@ Once you set up the order and finalize it using the button in the footer, it bec
 ## How to process a refund
 
 1. In the selected order page, click the [[Refund]] label in the bottom right corner of the payment status card
+
 2. Click [[Confirm]] to refund the full amount 
+
 3. For partial refunds, input the amount manually or using the stepper, then confirm
 
 ![Fully paid order](assets/dashboard-orders/8.jpg)
