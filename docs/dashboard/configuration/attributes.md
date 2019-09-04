@@ -10,7 +10,7 @@ The main Attributes page displays a list of all existing attributes. The list co
 
 You can create variations of products you sell to reflect the wide range of colors, sizes or material the product was made from.
 
-For more information on the product structure in Saleor, see the ![Products](dashboard/catalog/products.md#product-concept-introduction) topic.
+For more information on the product structure in Saleor, see the [Products](dashboard/catalog/products.md#product-concept-introduction) topic.
 
 > **Example**
 >
@@ -72,7 +72,7 @@ Use the following fields to complete the properties setup of your attribute:
 
 * Position in faceted navigation - Use this field to indicate the order of attributes in the faceted navigation. Type in a number, the lower the number, the higher the position of your attribute.
 
-![Faceted Navigation](assets/dashboard-config/23.jpg)
+[Faceted Navigation](assets/dashboard-config/23.jpg)
 
 * Visible on Product Page in Storefront - If the toggle is active, your attribute will be visible when viewing the product page. 
 
