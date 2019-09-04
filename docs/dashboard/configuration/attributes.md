@@ -47,7 +47,7 @@ For more information on the product structure in Saleor, see the [Products](dash
 
 ### How to add an attribute
 
-1. In the main Attribute page, click [[Addnbsp;Attribute]]. 
+1. In the main Attribute page, click [[Add&nbsp;Attribute]]. 
 2. In the General Information card, provide the following information:
 
 *  Default Label - This is the name of your attribute visible to your customers. For example, size. 
@@ -76,7 +76,7 @@ Use the following fields to complete the properties setup of your attribute:
 
 * Visible on Product Page in Storefront - If the toggle is active, your attribute will be visible when viewing the product page. 
 
-4. To add specific values to your attribute, click [[Addnbsp;Value]] in the Attribute Values card and type in the value. This is visible to your customers. 
+4. To add specific values to your attribute, click [[Add&nbsp;Value]] in the Attribute Values card and type in the value. This is visible to your customers. 
 
 5. Click [[Save]] once finished.
 
