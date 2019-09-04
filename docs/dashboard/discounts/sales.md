@@ -2,6 +2,7 @@
 id: sales
 title: Sales
 ---
+## Using sales in Saleor
 
 Sales are an excellent way to encourage customers to use your store. Saleor offers you a range of sale options:
 
@@ -10,31 +11,31 @@ Sales are an excellent way to encourage customers to use your store. Saleor offe
 - Flexible time periods for sales events, which can be deactivated and reactivated at any time.
 
 
-## Creating a Sale
+## How to creating a sale
 
-Click [[Add Sale]] above the main sales list and fill in the relevant sections.
+1. Click [[Add Sale]] above the main sales list and fill in the relevant sections.
 
 ![Creating sale](assets/dashboard-discounts/1.png)
 
 
-### General Information
+2. General Information
 
 Add the name of your sale. This can be edited later.
 
 
-### Pricing
+3. Pricing
 
 **Discount Value:** Use the icon on the right side of the Discount Value field to toggle between percentage discount and price-per-item discount.
 
 **Time Frame:** Use the pop-up calendar or stepper to choose the start and end dates of the sale. If you do not set a start date, the sale will start immediately; similarly, a sale without an end date will continue indefinitely.
 
 
-### Summary
+4. Summary
 
 Once you have set the basic parameters of your sale and saved them, the summary section on the right side of the page will show an overview of the event.
 
 
-### Categories
+5. Assign categories, collections or products
 
 Select the items in your sale. The categories section allows you to select individual products, assign entire categories, or assign entire pre-created collections.   
 
@@ -47,4 +48,4 @@ To assign any product, category or collection, click on the relevant tab and the
 Once you have chosen the products, categories or collections you want to promote, click [[Assign]].
 
 
-Click [[Save]] on the footer bar to save the sale.
+6. Click [[Save]] on the footer bar to save the sale.

@@ -3,7 +3,11 @@ id: collections
 title: Collections
 ---
 
+## Concept of a collection in Saleor
+
 Collections are a great way to increase sales and give your customers better experiences. Group products together to take advantage of seasonal events or link products that are regularly bought in pairs or groups. 
+
+Unlike the categories, creating collections is not required.
 
 
 ## How to create and edit collections
