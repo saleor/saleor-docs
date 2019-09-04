@@ -5,19 +5,19 @@ title: How to Create Checkout?
 
 Below is a description of a checkout process. We assume that at this stage you have already completed the steps included in the Getting Started section of this chapter and you are familiar with basic setup of Saleor GraphQL API.
 
-The below process flow describes the basic checkout process in Saleor. There are also additional steps that may occur along the way. However, the purpose of this instruction is to deliver a base reference for the user to work with.    
+The below process describes the key milestones in the checkout process flow in Saleor. There are also additional steps that may occur along the way. However, the purpose of this instruction is to deliver a base reference for the user to work with.    
 
 The code snippets included in this section may be run in ![Playground](api/playground.md) or your preferred HTTP client.
 
 ### Empty checkout
 
-The checkout process in Saleor may run through several scenarios, depending on such factors like, for example, if the user is logged in or not, at the moment of adding items to the cart. 
+The checkout process in Saleor may run through several scenarios depending on such factors like, for example, if the user is logged in or not, at the moment of adding items to the cart. 
 
-Saleor does not create an ‘empty checkout’ when a not-logged-in user is adding items to the cart. In such instances, the current cart is only saved on the browser level. It is not saved anywhere on the server.
+Saleor does not create ‘empty checkouts’ when a not-logged-in user is adding items to the cart. In such instances, the current cart is only saved on the browser level. It is not saved anywhere on the server.
 
-The actual checkout process is started after the user clicks _check out_ in their cart. If the user is already logged in - the process is commenced. If not, the user is prompted to log into their account.
+The actual checkout process is started after the user clicks _Checkout_ in their cart. If the user is already logged in - the process is commenced. If not, the user is prompted to log into their account first.
 
-## Step #1 Create checkout
+## Step #1 - Create checkout
 
 To create a checkout object in the database, the `CHECKOUT CREATE` mutation is executed. 
 
@@ -49,13 +49,11 @@ The following example shows how the `CHECKOUT CREATE` mutation creates the check
 
 ### `available shipping methods`
 
-The `CHECKOUT` object contains several fields. 
-
-The `available shipping methods` is one of these fields (this is an optional step, only for items which require shipping).
+The `CHECKOUT` object contains several fields, one of them is the `available shipping methods`. This is an optional step, only for items which require shipping.
 
 Each shipping method on the list in this field has a unique id. If the items in the cart require shipment, the user will select the shipping method. 
 
-To allow a user to effectively select a specific shipping method (to create a shipping in this checkout) you need to run the following operation: `checkout shipping method update`.
+To allow a user to effectively select a specific shipping method (to create a shipping for this checkout) you need to run the following operation: `checkout shipping method update`.
 
 This operation has two parameters:
 
@@ -67,7 +65,7 @@ This way, the specific checkout is paired up with the specific shipping method s
 
 <!-- Marcin to provide a code snippet from Playground -->
 
-## Step #2 - Creating payment
+## Step #2 - Create payment
 
 The `CHECKOUT` object also contains the `available payment gateways` field. It returns a list of the payment gateways which are currently configured on your Saleor server.
 
@@ -76,7 +74,7 @@ Payment creation process consists of two operations:
 * Generating a token for this specific payment using the `payment client token` operation. 
 This operation requires the user to select the preferred payment gateway.
 
-* Executing mutation `CHECKOUT PAYMENT CREATE` using the token generated in the previous bullet. 
+* Executing mutation `CHECKOUT PAYMENT CREATE` using the above token generated. 
 
 Depending on selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway directs you to an external payment page.
 
@@ -94,17 +92,17 @@ The `checkout payment create` mutation requires the following three parameters:
  
 * Total amount of this operation
 
-## Step #3 mutation: `CHECKOUT COMPLETE`
+## Step #3 Complete checkout
 
-This operation requires only the checkout id. Its purpose is to check if this checkout is correct, it verifies if:
+This operation requires only the checkout id. Its purpose is to ensure this checkout is correct and in order to do that, it verifies if:
 
 * The addresses are correct 
 
-* The products are in fact in stock (while making the purchase, another user could already buy the last available items)
+* The products are in fact in stock (while making the purchase, another user could already buy the last available item)
 
 * The payment has been successful
 
-If these parameters are verified correctly, then the checkout is transformed into order. In the same time, the customer receives an email with a confirmation of placing an order.
+If these parameters are verified correctly, then the checkout is transformed into an order. In the same time, the customer receives an email with a confirmation of placing an order.
 
 If the above verification fails, an error is returned indicating which element is erred.
 
