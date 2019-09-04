@@ -22,7 +22,7 @@ title: Welcome to Saleor Docs
 
 [home-grid]
 [![](assets/icons/before-start.png) **Before You Start** Find out more about Saleor and how to get a version to use for your e-commerce.](dashboard/before-you-start.md)
-[![](assets/icons/using-saleor.png) **Using Saleor** Find out more about Saleor and how to get a version to use for your e-commerce.](dashboard/using-saleor.md)
+[![](assets/icons/using-saleor.png) **Using Saleor** All you need to know about the Dashboard: access, structure and its core features.](dashboard/using-saleor.md)
 [/home-grid]
 [home-grid]
 [![](assets/icons/storefront.png) **Home** Understanding the front page of your Saleor Dashboard.](dashboard/home.md)
