@@ -86,24 +86,16 @@ Payments can be fully or partially refunded, if there is an issue with the goods
 
 There are two order types depending on their payment status:
 
-* Unpaid
-
-A traditional credit card or bank payment that is awaiting authorization from the bank. Unpaid amounts are listed as ‘pre-authorized’. Once funds are released, the order status will automatically change to fully paid.	
+* Unpaid - This status reflects the traditional credit card or bank payment that is awaiting authorization from the bank. Unpaid amounts are listed as ‘pre-authorized’. Once funds are released, the order status will automatically change to fully paid.	
 
 ![Unpaid order](assets/dashboard-orders/7.jpg)
 
 
-* Fully paid
+* Fully paid - This indicates that the order has been paid for in full.
 
-This indicates that the order has been paid for in full.
+* Fully refunded - All charged funds were returned to the customer.
 
-* Fully refunded 
-
-All charged funds were returned to the customer.
-
-* Partially refunded
-
-When a partial refund was given to a customer, for example, when one product from several ordered items is no longer available.
+* Partially refunded - When a partial refund was given to a customer, for example, when one product from several ordered items is no longer available.
 
 ## Draft orders
 

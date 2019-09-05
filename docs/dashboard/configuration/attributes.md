@@ -47,8 +47,13 @@ For more information on the product structure in Saleor, see the [Products](dash
 
 ## How to add an attribute
 
-1. In the main Attribute page, click [[Add&nbsp;Attribute]]. 
-2. In the General Information card, provide the following information:
+**1. Add attribute**
+
+In the main Attribute page, click [[Add&nbsp;Attribute]]. 
+
+**2. General Information card**
+
+In the General Information card, provide the following data:
 
 *  Default Label - This is the name of your attribute visible to your customers. For example, size. 
 
@@ -64,7 +69,9 @@ For more information on the product structure in Saleor, see the [Products](dash
 
 * Value Required - If the toggle is active, this attribute is required on the Product setup page. In other words, when you will be creating a Product using this attribute, you will be required to provide value for this attribute.
 
-3. The Properties card is divided into Storeforont and Dashboard Properties sections. These sections allow you to define how your attribute should behave from the Storefront and Dashboard perspective. 
+**3. Properties card**
+
+The Properties card is divided into Storeforont and Dashboard Properties sections. These sections allow you to define how your attribute should behave from the Storefront and Dashboard perspective. 
 
 Use the following fields to complete the properties setup of your attribute:
 
@@ -76,9 +83,13 @@ Use the following fields to complete the properties setup of your attribute:
 
 * Visible on Product Page in Storefront - If the toggle is active, your attribute will be visible when viewing the product page. 
 
-4. To add specific values to your attribute, click [[Add&nbsp;Value]] in the Attribute Values card and type in the value. This is visible to your customers. 
+**4. Add values** 
 
-5. Click [[Save]] once finished.
+To add specific values to your attribute, click [[Add&nbsp;Value]] in the Attribute Values card and type in the value. This is visible to your customers. 
+
+**5. Save changes**
+
+Click [[Save]] once finished.
 
 ## How to edit or delete an attribute 
 

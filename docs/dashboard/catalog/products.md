@@ -53,7 +53,7 @@ Or being back to the hard/ soft cover books: the attribute here is a _Cover Type
 
 It’s what distinguishes different variants. For example: for the attribute _cover type_ you will have two variant attributes: _hard cover_ or _soft cover_.
 
-For more information on the product structure in Saleor, see the ![Product Types](dashboard/configuration/products.md) topic.
+For more information on the product structure in Saleor, see the [Product Types](dashboard/configuration/products.md) topic.
 
 ## Stock management
 
@@ -156,7 +156,7 @@ Click [[Add Product]] above the main list to enter the product setup page.
 ![Adding product](assets/dashboard-catalog/3.png)
 
 
-#### 1. Fill out the General Information card
+**1. Fill out the General Information card**
 
 Add the name of your product and a description. Use text formatting to make your product descriptions clear and engaging. The eight basic functions are: bold type, italic type, sub-header, second sub-header, quote, bullet point list, numbered list, new text line, and add hyperlink.
 
@@ -173,7 +173,7 @@ Add the name of your product and a description. Use text formatting to make your
 >  ![Formatting product description](assets/dashboard-catalog/4.png)
 
 
-#### 2. Define pricing
+**2. Define pricing**
 
 Type the price of your product manually or using the stepper by the currency indicator. If your product is tax-exempt, leave the [[Charge&nbsp;taxes&nbsp;for&nbsp;this&nbsp;item]] checkbox empty. If you need to charge taxes, click on the box and a green check mark will appear.
 
@@ -190,7 +190,7 @@ For more information on taxes, see the [Taxes](configuration/taxes) topic.
 > - Open Exchange Rates is used to provide up-to-date exchange rates
 
 
-#### 3. Add optional search engine preview content
+**3. Add optional search engine preview content**
 
 Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description. If you do not add unique SEO content, details will be taken from the General Information card.
 
@@ -203,12 +203,12 @@ Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description. If you do not add uni
 ![Editing product SEO](assets/dashboard-catalog/5.png)
 
 
-#### 4. Organize your product 
+**4. Organize your product** 
 
 Categorize your new product using the drop-down menus to assign a relevant Product Type and Category. This is mandatory before you can save the product. You can also optionally assign your product to a Collection.
 
 
-#### 5. Make your product visible
+**5. Make your product visible**
 
 Once you have set up all your product details, you can choose if it appears for sale or remains hidden from view. 
 If set, it allows you to hold some of your products unavailable to your customers until the publication date. They are simply not listed in your storefront.
@@ -220,12 +220,12 @@ If you want to push your product for sale, click on the switch until it shows as
 ![Making product visible on site](assets/dashboard-catalog/7.png)
 
 
-#### 6. Save your new product
+**6. Save your new product**
 
 Once you have input your minimum required product information, click [[save]] in the footer to add it to your catalog and continue with further setup.
 
 
-#### 7. Add images
+**7. Add images**
 
 Much the same as on social media or other platforms, there are two ways to add an image: 
 
@@ -237,7 +237,7 @@ You can add an unlimited number of images per product. The main image will be th
 ![Uploading product images](assets/dashboard-catalog/8.png)
 
 
-#### 8. Add image descriptions
+**8. Add image descriptions**
 
 You can also add descriptions of specific product features to your images. Hover over the image and click on the pencil to edit the information. 
 

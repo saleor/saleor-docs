@@ -16,14 +16,14 @@ Subcategories break large groups down into smaller subsets that make it easier t
 
 Adding a new product category is a two step process: 
 
-#### 1. Click [[Add&nbsp;Category]] to create a new product category. 
+**1. Click [[Add&nbsp;Category]] to create a new product category** 
 
 Enter the category name, description, and SEO-optimized information the same way as you would with an individual product. 
 
 When finished, click [[Save&nbsp;Category]] in the bottom right corner.
 
 
-#### 2. Add a category photo and a subcategory
+**2. Add a category photo and a subcategory**
 
 At this stage your new category is already created. You can go back or click [[Cancel]] if you do not want to continue with additional setup at this point. You can always come back and finish it later.
 
