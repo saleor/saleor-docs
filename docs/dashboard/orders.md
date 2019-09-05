@@ -38,11 +38,6 @@ Fulfillment means whether an order has been sent to the customer or not. Some or
 
 ![Order fulfillment options](assets/dashboard-orders/4.jpg)
 
-There are two possible fulfillment statuses:
-
-* New - This is a default status for all newly created fulfillments.
-
-* Canceled - This status is assigned after a fulfillment is canceled by a shop operator. The cancel action is irreversible.
 
 ### Order statuses
 

@@ -14,7 +14,7 @@ Click on an individual customer to get an overview of the general information, a
 
 ## Customer orders and history
 
-The Customer History card gives a brief overview of customer activity. You can view a single order or all orders of a specific customer by clicking in the Recent Orders card. From there you can amend and take actions as described in the ![Orders](dashboard/orders.md) section of these documents.
+The Customer History card gives a brief overview of customer activity. You can view a single order or all orders of a specific customer by clicking in the Recent Orders card. From there you can amend and take actions as described in the [Orders](dashboard/orders.md) section of these documents.
 
 
 ## Managing customer addresses
