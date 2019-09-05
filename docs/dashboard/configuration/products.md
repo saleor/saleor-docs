@@ -3,7 +3,7 @@ id: products
 title: Product Types
 ---
 
-## Product types
+## About product types
 
 This page allows you to define the type of products you sell. A product type is a kind of a template upon which the specific products are then created. Multiple products can use the same Product Type. Defining templates (Product Types) makes adding products much easier.
 
@@ -38,8 +38,7 @@ Once the new Product Type is saved, a Product Attributes card appears.
 
 Once you have created your Product Type and added tax and shipping information, click [[Save]]. An additional card will appear for adding Attributes and Variants to the Product Type. Click [[Assign&nbsp;Attribute]] and select the attributes from the list. 
 
-If your product has different variants, select the [[This&nbsp;product&nbsp;has&nbsp;variants]] checkbox to open a new Variant Attributes card. Click [[Assign&nbsp;Attribute]] and select the variants of your attribute. 
- click [[Save]]. 
+If your product has different variants, select the [[This&nbsp;product&nbsp;has&nbsp;variants]] checkbox to open a new Variant Attributes card. Click [[Assign&nbsp;Attribute]] and select the variants of your attribute. Click [[Save]]. 
 
 > **Note**
 > 
