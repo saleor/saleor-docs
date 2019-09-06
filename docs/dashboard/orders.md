@@ -58,9 +58,17 @@ There are four possible order statuses (and a _Daft_ one), based on the stage of
 
 * **Draft** - Used for orders newly created from dashboard and not yet published.
 
-## Payment concept
+## Order payment
 
-Orders are managed and processed in relation to their payment status.
+Orders are managed and processed in relation to their payment status. So each order status is closely linked to the processing stage of payment. There are the following payment stages:
+
+* Unpaid - It reflects the traditional credit card or bank payment that is awaiting authorization from the bank. Unpaid amounts are listed as ‘pre-authorized’. Once funds are released, the order status will automatically change to fully paid.
+
+* Fully paid - This indicates that the order has been paid for in full.
+
+* Fully refunded - All charged funds were returned to the customer.
+
+* Partially refunded - When a partial refund was given to a customer, for example, when one product from several ordered items is no longer available.
 
 ### Authorization and capture
 
@@ -87,20 +95,9 @@ Payments can be fully or partially refunded, if there is an issue with the goods
 
 There are two order types depending on their payment status:
 
-* Unpaid - This status reflects the traditional credit card or bank payment that is awaiting authorization from the bank. Unpaid amounts are listed as ‘pre-authorized’. Once funds are released, the order status will automatically change to fully paid.	
+* Regular orders - Orders created by your customers.
 
-![Unpaid order](assets/dashboard-orders/7.jpg)
-
-
-* Fully paid - This indicates that the order has been paid for in full.
-
-* Fully refunded - All charged funds were returned to the customer.
-
-* Partially refunded - When a partial refund was given to a customer, for example, when one product from several ordered items is no longer available.
-
-## Draft orders
-
-This is a list of orders, created by administrators, which have not yet been released to the system. For example, store operators can create orders during discussions with customers, then save them as drafts until approval is gained from management to send replacement goods. Draft orders can be edited in the same way that an order is created. 
+* Draft orders - These are orders created by administrators, which have not yet been released to the system. For example, store operators can create orders during discussions with customers, then save them as drafts until approval is gained from management to send replacement goods. Draft orders can be edited in the same way that an order is created. 
 
 To process an order in the system, click [[Finalize]] in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels. 
 
