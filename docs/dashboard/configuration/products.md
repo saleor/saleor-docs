@@ -3,13 +3,15 @@ id: products
 title: Product Types
 ---
 
-## About product types
+## Introduction
 
 This page allows you to define the type of products you sell. A product type is a kind of a template upon which the specific products are then created. Multiple products can use the same Product Type. Defining templates (Product Types) makes adding products much easier.
 
 The list displayed on the Product Types page shows the names of existing product types, information if a product type has a physical or digital form, and which tax applies to its sale.
 
-The Create Product Page consist of the following cards:
+## Product type setup
+
+Each product type page consist of the following cards:
 
 ### Information
 
