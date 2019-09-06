@@ -3,15 +3,15 @@ id: error-handling
 title: Error Handling
 ---
 
-There are several error types in the GraphQL API and you may come across several different of them, depending on the operations you are trying to perform.
+There are several error types in the GraphQL API and you may come across different ones depending on the operations you are trying to perform.
 
 The Saleor GraphQL API handles the following three errors:
 
 ## Syntax error
 
-This error occurs if, when performing some specified operation, you provide wrong or unrecognized input data. The GraphQL checks the syntax as you write and if you are trying to perform an operation which is unknown, the editor you are using will notify you about that. However, if you proceed with sending the request, you will get a syntax error.
+This error occurs if, when performing some specified operation, you provide wrong or unrecognized input data. The GraphQL checks the syntax as you write and, if you are trying to perform an operation which is unknown, the editor you are using will notify you. However, if you proceed with sending the request, you will get a syntax error.
 
-Below is an example of an error triggered by wrong syntax. The following query tries to fetch the `fullName` field which doesn't exists on the `User` type:
+Below is an example of an error triggered by wrong syntax. The following query tries to fetch the `fullName` field which doesn't exist on the `User` type:
 
 ```graphql
 {
@@ -44,7 +44,7 @@ Sending this query to the server would result in the following syntax error:
 
 ## Validation error
 
-This type of error occurs when the user passed invalid data as the mutation input. For example, while you are trying to create a new user, you are providing their email address and it happens to be already used in another user's account. It is therefore not unique and as a result you will get a validation error.
+This type of error occurs when the user passes invalid data as the mutation input. For example, while creating a new user, you provide an email address that is already being used in another user's account. It is therefore not unique and, as a result, you will get a validation error.
 
 Validation errors are part of the schema, which means that we need to include them in the query to get them explicitly. For example, in all mutations, they can be obtained through the `errors` field.
 
@@ -84,7 +84,7 @@ Validation errors are returned in the `errors` field.
 
 ## Permission error
 
-This type of error occurs when you are trying to perform a specific operation but you are not authorized to do so, in other words, you have no sufficient permissions assigned.
+This type of error occurs when you are trying to perform a specific operation but you are not authorized to do so; in other words, you have no sufficient permissions assigned.
 
 Below is an example of an error triggered by insufficient authorization. The `staffUsers` query requires appropriate admin permissions:
 

@@ -3,7 +3,7 @@ id: authenticate
 title: How to Authenticate with our API
 ---
 
-If you are entering the API for the first time as a not logged in user, you will have access to the objects available only publicly. For example, by default, you can query public data, such as published products or pages.
+If you are entering the API for the first time as a user who is not logged in, you will only have access to the objects available publicly. For example, by default, you can query public data, such as published products or pages.
 
 To fetch protected data, like orders or users, you need to authenticate your access.
 Saleor API uses a [JWT token](https://jwt.io/) authentication mechanism.
@@ -50,7 +50,7 @@ A successful response would look like:
 }
 ```
 
-To use the token and authorize subsequent requests, we need to include it as a HTTP Authorization request header:
+To use the token and authorize subsequent requests, you need to include it as a HTTP Authorization request header:
 
 ```
 Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiZXhwIjoxNTY2OTEzODc1LCJvcmlnSWF0IjoxNTY2OTEzNTc1fQ.Dw0ccxdxEXsSpM61_Zr_uCyZd-88cNZqM62k_nAjFAE
@@ -68,7 +68,7 @@ If you are using Playground to browse the API, you can authorize your requests b
 
 ## Using JWT tokens with cURL
 
-To authenticate requests sent with cURL, use `-H` or `--header` parameter to pass the JWT token:
+To authenticate requests sent with cURL, use the `-H` or `--header` parameter to pass the JWT token:
 
 ```console
 curl \
@@ -81,7 +81,7 @@ curl \
 
 ## Token verification and refreshing
 
-To verify the token use the following mutation:
+To verify the token, use the following mutation:
 
 ```graphql
 mutation {
