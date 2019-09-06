@@ -93,7 +93,7 @@ Payments can be fully or partially refunded, if there is an issue with the goods
 
 ## Order types
 
-There are two order types depending on their payment status:
+There are two order types in Saleor:
 
 * Regular orders - Orders created by your customers.
 
@@ -101,7 +101,9 @@ There are two order types depending on their payment status:
 
 To process an order in the system, click [[Finalize]] in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels. 
 
-## How to create an order
+## How to
+
+### How to create an order
 
 This is a function for store administrators to add orders, usually in cases where customer orders need to be re-sent but have already been fulfilled in the system. For example, if the customer was send damaged goods or is being sent a complimentary product due to customer service issues. It can also be used to create dummy and test orders, as well as to deal with stock issues.
 
@@ -120,7 +122,7 @@ Once you set up the order and finalize it using the button in the footer, it bec
 
 ![Create an order](assets/dashboard-orders/CreateOrdersImage.png)
 
-## How to process a refund
+### How to process a refund
 
 1. In the selected order page, click the [[Refund]] label in the bottom right corner of the payment status card
 
@@ -130,7 +132,7 @@ Once you set up the order and finalize it using the button in the footer, it bec
 
 ![Fully paid order](assets/dashboard-orders/8.jpg)
 
-## How to fulfill an order
+### How to fulfill an order
 
 To fulfill an order, click [[Fulfill]] in the Unfulfilled card and use the stepper to confirm which products are being send. 
 
@@ -149,7 +151,7 @@ If you have a tracking number for the package, add it in the field below the pro
 ![Order fulfillment](assets/dashboard-orders/5.jpg)
 
 
-## How to cancel a shipment
+### How to cancel a shipment
 
 Click the three dots in the top right corner of a Fulfilled order card. Select [[Cancel&nbsp;Shipment]] when the pop-up appears, then confirm. Items will be restocked into the Saleor system.
 
