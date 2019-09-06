@@ -2,7 +2,7 @@
 id: payments
 title: How to Integrate New Payment Gateway
 ---
-## Payments gateways
+## Introduction
 
 ### Checkout payment gateways command 
 
@@ -97,14 +97,14 @@ Your changes should be stored in the `saleor.payment.gateways.<gateway name>` mo
 > After completing those steps you will also need to integrate your payment gateway into your SPA Storefront’s workflow.
 
 
-### `get_client_token(config)`
+### Client token
 
-A client token is a signed data blob that includes configuration and authorization information required by the payment gateway.
+`get_client_token(config)` - A client token is a signed data blob that includes configuration and authorization information required by the payment gateway.
 
 Client tokens should not be reused; a new client token should be generated for each payment request.
 
 
-#### Example
+**Example**
 
 ```python
 def get_client_token(config: GatewayConfig) -> str:
@@ -117,14 +117,13 @@ def get_client_token(config: GatewayConfig) -> str:
 >
 > All the below functions receive `payment_information` as a dataclass: `PaymentData` and `config` as a dataclass: `GatewayConfig`. Those functions should return a response as a dataclass: `GatewayResponse`. 
 
-Below is a description of given structures.
 
-### `authorize(payment_information, config)`
+### Authorize payment
 
-Authorization is a process of reserving the amount of money against the customer’s funding source. The money does not change hands until the authorization is captured.
+`authorize(payment_information, config)` - Authorization is a process of reserving the amount of money against the customer’s funding source. The money does not change hands until the authorization is captured.
 
 
-#### Example
+**Example**
 
 ```python
 def authorize(
@@ -149,11 +148,11 @@ def authorize(
 ```
 
 
-### `refund(payment_information, config)`
+### Refund
 
-A refund is a full or partial return of captured funds to the customer.
+`refund(payment_information, config)` - A refund is a full or partial return of captured funds to the customer.
 
-#### Example
+**Example**
 
 ```python
 def refund(
@@ -178,12 +177,12 @@ def refund(
 ```
 
 
-### `capture(payment_information, config)`
+### Capture payment
 
-A transfer of the money that was reserved during the authorization stage.
+`capture(payment_information, config)` - A transfer of the money that was reserved during the authorization stage.
 
 
-#### Example
+**Example**
 
 ```python
 def capture(
@@ -208,12 +207,11 @@ def capture(
 ```
 
 
-### `void(payment_information, config)`
+### Void
 
-A cancellation of a pending authorization or capture.
+`void(payment_information, config)` - A cancellation of a pending authorization or capture.
 
-
-#### Example
+**Example**
 
 ```python
 def void(
@@ -238,12 +236,12 @@ def void(
 ```
 
 
-### `charge(payment_information, config)`
+### Charge
 
-Authorization and capture in a single step.
+`charge(payment_information, config)` - Authorization and capture in a single step.
 
 
-#### Example
+**Example**
 
 ```python
 def charge(
@@ -271,12 +269,12 @@ def charge(
 ```
 
 
-### `process_payment(payment_information, config)`
+### Process payment
 
-Used for the checkout process, it should perform all the necessary steps to process a payment. It should use already defined functions, like authorize and capture.
+`process_payment(payment_information, config)` - Used for the checkout process, it should perform all the necessary steps to process a payment. It should use already defined functions, like authorize and capture.
 
 
-#### Example
+**Example**
 
 ```python
 def process_payment(
@@ -392,7 +390,7 @@ Payment on the storefront is handled via payment form, it should implement all t
 
 Your changes should live under `saleor.payment.gateways.<gateway name>.forms.py`.
 
-#### Example
+**Example**
 
 ```python
 class BraintreePaymentForm(forms.Form):
@@ -404,16 +402,16 @@ class BraintreePaymentForm(forms.Form):
 ```
 
 
-### Implement `create_form(data, payment_information, connection_params)`
+### Implement 
 
-Should return the form that will be used for the checkout process.
+`create_form(data, payment_information, connection_params)` - Should return the form that will be used for the checkout process.
 
 > **Note**
 >
 > Should be added as a part of the provider’s methods.
 
 
-#### Example
+**Example**
 
 ```python
 def create_form(data, payment_information, connection_params):
@@ -424,9 +422,9 @@ def create_form(data, payment_information, connection_params):
     )
 ```
 
-### Implement `template_path`
+### Implement template path
 
-Should specify a path to a template that will be rendered for the checkout.
+`template_path` - Should specify a path to a template that will be rendered for the checkout.
 
 ```python
 PAYMENT_GATEWAYS = {
@@ -440,7 +438,6 @@ PAYMENT_GATEWAYS = {
     },
 }
 ```
-
 
 ### Add template
 

@@ -2,6 +2,7 @@
 id: customers
 title: Customers
 ---
+## Introduction
 
 In this page you can view the details of all users who have provided you with their information when setting up an account or placing an order.
 
@@ -25,7 +26,7 @@ Use the [[Add&nbsp;Address]] button in the top right corner of the Address Book 
 
 > **Note** 
 >
-> ##### Localized addresses
+> **Localized addresses**
 >
 > When creating addresses in different countries, Saleor uses Google’s address internationalization database to automatically validate addresses (in both local language/alphabet and their Latinized version: “北京” vs. “Beijing”).
 > 

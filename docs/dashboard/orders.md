@@ -2,6 +2,7 @@
 id: orders
 title: Orders
 ---
+## Introduction
 
 The Orders section shows you all orders placed through the Saleor system by customers, as well as those created manually by administrators. An order is created once a customer completes the checkout process.
 
