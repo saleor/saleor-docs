@@ -9,12 +9,6 @@ Saleor is built based on extensions architecture. It includes hooks for most sta
 Saleor arrives with some plugins already implemented by default. These plugins are located in `saleor.extensions.plugins`.
 To provide the `ExtensionManager` with a list of enabled plugins, include the Python plugin path in the `settings.PLUGINS` list.
 
-> **Note**
-> 
-> If you choose to, you can use the Plugins page in the Saleor dashboard's Configuration section, to display the basic configuration allowing the dashboard users to manage the elemental settings of existing plugins. 
->
-> See the [Plugins](dashboard/plugins.md) topic for more information.
-
 ### Tips on writing your own plugin
 
 Make sure that a custom plugin inherits from the `BasePlugin` class and that it overwrites base methods.
@@ -145,6 +139,14 @@ Configuration fields:
 | `type` | Type of the field. Saleor supports - `String` and `Boolean` |
 | `helpText` | Description of the field |
 | `label` | Label for the field |
+
+> **Note**
+> 
+> Once you have completed the above configuration, as a plugin owner, you can decide to display certain configuration options in the Plugins page in the dashboard's Configuration section of Saleor. 
+> 
+> This way you allow the dashboard users to manage the plugin's basic setup. The scope of the setup available via Plugins page is up to you. 
+> 
+> See the [Plugins](dashboard/plugins.md) topic for more information.
 
 ## About Extensions Manager
 
