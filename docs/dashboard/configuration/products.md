@@ -27,20 +27,19 @@ Different goods are taxed differently across the world. If you leave the Tax Rat
 
 This is very important, as it means you are legally charging the correct amount for products. For example, educational materials may be tax exempt, while some hazardous substances have higher tax rates.
 
+## How to
 
-## How to add a product type
+### How to add a product type
 
-Click [[Add&nbsp;Product&nbsp;Type]] above the main product types list. Enter the required data into the Information, Shipping, and Taxes cards. 
+1. Click [[Add&nbsp;Product&nbsp;Type]] and fill out the General Information, Taxes and Shipping cards.
 
-Once the new Product Type is saved, a Product Attributes card appears. 
+2. Click [[Save]]. An additional Product Attributes card will appear. Assign attributes to your product type.
 
 ![Adding product type](assets/dashboard-config/2.png)
 
-### How to add attributes and variants
+3. If the product type you are setting up requires variants, click the [[Product&nbsp;type&nbsp;uses&nbsp;Variant&nbsp;Attributes]] switch. This opens additional card where you can assign or remove variant attributes.
 
-Once you have created your Product Type and added tax and shipping information, click [[Save]]. An additional card will appear for adding Attributes and Variants to the Product Type. Click [[Assign&nbsp;Attribute]] and select the attributes from the list. 
-
-If your product has different variants, select the [[This&nbsp;product&nbsp;has&nbsp;variants]] checkbox to open a new Variant Attributes card. Click [[Assign&nbsp;Attribute]] and select the variants of your attribute. Click [[Save]]. 
+4. Click [[Save]] to keep your changes. Your new product type appears on the main list of existing product types.
 
 > **Note**
 > 
@@ -48,7 +47,7 @@ If your product has different variants, select the [[This&nbsp;product&nbsp;has&
 > 
 > In other words, when setting up your Product Type, you select a Variant Attribute which is set up as _Multiselect_, you will receive the following error message: "Variants are disabled in this product type".
 
-## How to delete a product type
+### How to delete a product type
 
 There are two ways to remove a Product Type:
 
