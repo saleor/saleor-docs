@@ -74,7 +74,7 @@ Users are also able to request their account to be deleted, from the storefront 
 > This solution follows the GDPR regulations.
 > However, Saleor and its creators do not bear responsibility for your compliance with legal protocols. Check the law in your local area and make sure that you comply with all data processing legislation.
 >
-> For more details on data protection implementation in Saleor, see our [GDPR](dasboard/systemwide/gdpr.md) topic.
+> For more details on data protection implementation in Saleor, see our [GDPR](dashboard/systemwide/gdpr.md) topic.
 
 
  
