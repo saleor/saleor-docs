@@ -6,7 +6,17 @@ title: Orders
 
 The Orders section shows you all orders placed through the Saleor system by customers, as well as those created manually by administrators. An order is created once a customer completes the checkout process.
 
-## Order management in Saleor
+## Order types
+
+There are essentially two order types in Saleor:
+
+* Regular orders - Orders created by your customers.
+
+* Draft orders - These are orders created by administrators, which have not yet been released to the system. For example, store operators can create orders during discussions with customers, then save them as drafts until approval is gained from management to send replacement goods. Draft orders can be edited in the same way that an order is created. 
+
+To process an order in the system, click [[Finalize]] in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels. 
+
+## Order list 
 
 The main page shows a list of all orders in the system, regardless their status.
 
@@ -20,27 +30,20 @@ You can also manually search specific information, such as key words or names, u
 
 ![Orders list filters](assets/dashboard-orders/2.jpg)
 
-Click on any order record from the list to get the full details. The order page contains cards for fulfillment status, payment, customer details, and order history.
+## Order details
+
+Click on any order record from the list to get the full details. The order page contains cards indicating order fulfillment status, payment stage, order history, customer details and notes.
 
 ![Order details](assets/dashboard-orders/3.jpg)
 
-### Customer details
-
-The customer information in the card to the right of the screen on a specific order is automatically generated when the customer completes a transaction. The billing and shipping addresses can be edited if necessary. There is also an option to directly contact the customer via email by clicking on the web address shown in the contact information card.
-
-### Order history
-
-Every time you complete an action such as confirming and fulfilling an order, a note appears in the order timeline at the bottom of the page. Administrators can add notes about interactions with clients and other information for other store workers.
-
-## Order fulfillment concept
+### Order fulfillment card
 The fulfillment represents a group of shipped items with corresponding tracking number. Fulfillments are created by a shop operator to mark selected products in an order as fulfilled.
 
 Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single _Unfulfilled_ or _Fulfilled_ card. Others, as in the example below, will have both cards if parts of the order have been sent to the customer but other products are yet to be dispatched. 
 
 ![Order fulfillment options](assets/dashboard-orders/4.jpg)
 
-
-### Order statuses
+#### Fulfillment statuses
 
 There are four possible order statuses (and a _Daft_ one), based on the stage of their fulfillment:
 
@@ -58,7 +61,9 @@ There are four possible order statuses (and a _Daft_ one), based on the stage of
 
 * **Draft** - Used for orders newly created from dashboard and not yet published.
 
-## Order payment
+<!--Screenshot of all these fulfillment statuses on the main Order page -->
+
+### Order payment card
 
 Orders are managed and processed in relation to their payment status. So each order status is closely linked to the processing stage of payment. There are the following payment stages:
 
@@ -70,7 +75,7 @@ Orders are managed and processed in relation to their payment status. So each or
 
 * Partially refunded - When a partial refund was given to a customer, for example, when one product from several ordered items is no longer available.
 
-### Authorization and capture
+#### Authorization and capture
 
 Some of the payment backends support pre-authorizing payments.
 
@@ -87,19 +92,21 @@ When viewing orders with pre-authorized payments, Saleor offers options to eithe
 
 ![Order with captured payment](assets/dashboard-orders/9.jpg)
 
-### Refunds
+#### Refunds
 
 Payments can be fully or partially refunded, if there is an issue with the goods or customer service.
 
-## Order types
+### Order history
 
-There are two order types in Saleor:
+Every time you complete an action such as confirming and fulfilling an order, a note appears in the order timeline at the bottom of the page. Administrators can add notes about interactions with clients and other information for other store workers.
 
-* Regular orders - Orders created by your customers.
+### Customer details
 
-* Draft orders - These are orders created by administrators, which have not yet been released to the system. For example, store operators can create orders during discussions with customers, then save them as drafts until approval is gained from management to send replacement goods. Draft orders can be edited in the same way that an order is created. 
+The customer information in the card to the right of the screen on a specific order is automatically generated when the customer completes a transaction. The billing and shipping addresses can be edited if necessary. There is also an option to directly contact the customer via email by clicking on the web address shown in the contact information card.
 
-To process an order in the system, click [[Finalize]] in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels. 
+### Notes 
+
+This card displays any additional information or remarks your customer made when placing the order.
 
 ## How to
 
