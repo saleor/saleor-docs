@@ -16,7 +16,7 @@ There are essentially two order types in Saleor:
 
 To process an order in the system, click [[Finalize]] in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels. 
 
-## Order list 
+## Order list page
 
 The main page shows a list of all orders in the system, regardless their status.
 
@@ -30,7 +30,7 @@ You can also manually search specific information, such as key words or names, u
 
 ![Orders list filters](assets/dashboard-orders/2.jpg)
 
-## Order details
+## Order details page
 
 Click on any order record from the list to get the full details. The order page contains cards indicating order fulfillment status, payment stage, order history, customer details and notes.
 

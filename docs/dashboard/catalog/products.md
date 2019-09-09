@@ -150,7 +150,9 @@ For more effective and efficient social media engagement, we added [Open Graph P
 
 Open Graph meta tags allow to control what content shows up (for example, description, title, url, photo, etc.) when page is shared on social media, turning your web page into a rich object in a social graph.
 
-## How to create a new product
+## How to
+
+### How to create a new product
 
 Click [[Add Product]] above the main list to enter the product setup page.
 
@@ -245,7 +247,7 @@ You can also add descriptions of specific product features to your images. Hover
 ![Editing product images](assets/dashboard-catalog/9.jpg)
 
 
-## How to delete or edit products
+### How to delete or edit products
 
 Click on an existing product from the main list. You will be redirected to the same interface as for adding products.
 
@@ -264,21 +266,21 @@ To edit product details, click any field and start making changes. The [[Save]] 
 > Do not remove a product if you just want to temporarily take it away from your inventory. In that case, just uncheck the [[Published&nbsp;in&nbsp;Storefront]] option in the Visibility card, as described above.
 
 
-## How to add product variants and attributes
+### How to add product variants and attributes
 
 When you click a product record from the main list, you will see the same cards as when you create a product, with one additional card for Variants. This is where you can change product variants and attributes, check inventory, and control stock levels.
 
 ![Reviewing product variants](assets/dashboard-catalog/10.png)
 
 
-### Checking inventory
+#### Checking inventory
 
 In this example, you can see five types of t-shirt. Four have enough stock to cover future orders. The XL size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there is only one item in stock (“Inventory”) and it has been ordered by a customer (“Allocated”).
 
 ![Editing product inventory](assets/dashboard-catalog/11.jpg)
 
 
-### Managing variants of a product
+#### Managing variants of a product
 
 Click on a specific product from the variants list to edit the size, images, pricing, and stock. 
 
@@ -291,7 +293,7 @@ When you receive new stock, enter the amount in the Inventory field to keep up t
 You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) which is unique to specific variants.
 
 
-## How to manage attributes
+### How to manage attributes
 
 When selecting a product record from the main list, click the [[Edit&nbsp;Attributes]] label in the top corner of the Variants card to add or change product attributes and variants. For example, a top or t-shirt will have a product attribute such as the material it is made from, and a variant attribute of the sizes or colors in which it is available.
 
