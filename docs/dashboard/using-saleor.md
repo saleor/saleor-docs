@@ -25,8 +25,13 @@ The dashboard has the following sections:
 - [Translations](dashboards/translations.md): Translate dynamic content in your Saleor store
 - [Configuration](dashboard/configuration/intro.md): Manage all the administration elements of your dashboard and processes like tax automation and shipping
 
+Most sections of the dashboard consist of two types of views:
 
-## Accessing the dashboard
+* List of records - This view displays a list of existing records in Saleor. Some of these views allow you to filter the records or manage the column settings. Most of the views also allow you to set the number of list items displayed on the page (number of rows).
+
+* Record details - This view is displayed when you select one of the records on the list view. This page provides more details on the selected record.
+
+## How to
 
 ### How to set up your account
 
