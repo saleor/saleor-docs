@@ -11,8 +11,9 @@ Unlike collections, which are optional, so you can either use them or not, the c
 
 Subcategories break large groups down into smaller subsets that make it easier to manage stores and help customers find the right products. 
 
+## How to
 
-## How to add product category
+### How to add product category
 
 Adding a new product category is a two step process: 
 
@@ -36,12 +37,12 @@ Or you can continue and add a widescreen banner photo that will appear at the to
 
 When finished, click [[Save&nbsp;Category]].
 
-## How to edit categories
+### How to edit categories
 
 Once you have your categories set up, you can edit them at any time by clicking on a category from the list and changing information. When viewing a category, you have a card at the bottom of the page with tabs for viewing and editing products and subcatgeories.  
 
 
-## How to delete categories
+### How to delete categories
 
 To remove a category, simply click [[Delete&nbsp;Category]] in the footer.
 
@@ -51,7 +52,7 @@ To remove a category, simply click [[Delete&nbsp;Category]] in the footer.
 >
 > Products are mandatorily assigned to categories. Deleting a category will also remove all products it contains. Only remove a category if you are sure that you also want to permanently delete all its products from your catalog.
 
-## How to add a subcategory
+### How to add a subcategory
 
 Click [[Add&nbsp;Subcategory]] in the top right corner of the subcategories card. In this example, we have paints and cushions in the Accessories category, which can be marked as separate subcategories. Add a description and SEO information just the same as with a main category.
 

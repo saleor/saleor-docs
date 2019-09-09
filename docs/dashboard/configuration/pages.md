@@ -2,7 +2,7 @@
 id: pages
 title: Pages
 ---
-## About pages
+## Introduction
 
 This page allows you to create and display informational content about your store, your team, terms and conditions, privacy information, and other useful details. 
 
@@ -10,8 +10,9 @@ This content is usually placed in the footer of your main storefront page.
 
 These simple text pages enhance the image of your business and sometimes contain essential legal information you need to communicate to customers.
 
+## How to
 
-## How to add a page
+### How to add a page
 
 **1. Adding a page** 
 
@@ -48,7 +49,7 @@ You can choose if your page is published or not. Use the switch in the Visibilit
 > You can set a future date when the page will be published. Use the _Publish on_ field to specify a publishing date.
 
 
-## How to delete a page
+### How to delete a page
 
 To delete a page, in the main list of existing pages, click the checkbox next to the page name you want to remove, then click the trash can icon. 
 

@@ -36,8 +36,9 @@ Use the [[Add&nbsp;Address]] button in the top right corner of the Address Book 
 > - How the fields should be arranged
 > - What field labels to use (“zip code” vs. “postal code”, “state” vs. “district”, etc.)
 
+## How to
 
-## How to add a customer
+### How to add a customer
 
 Click [[Add Customer]] to open a new Add Customer page. Enter the customer’s main details in the Customer Overview card. Use the Primary Address card to supply more contact details (company name, shipping address, and phone number). There is also a Note card if you need to enter additional customer information. 
 
@@ -45,7 +46,7 @@ Click [[Add Customer]] to open a new Add Customer page. Enter the customer’s m
 Click [[Save]] to proceed. Your new customer is now set up in the system and you are redirected to this customer’s overview page.
 
 
-## How to edit general information
+### How to edit general information
 
 Make changes to the customer name and e-mail by simply typing into the relevant field in the General Information card. The [[Save]] button in the footer will activate once changes that need to be confirmed have been made.
 
@@ -54,7 +55,7 @@ In the General Information card, there is a checkbox next to the text [[User&nbs
 If you have implemented a backend protocol that requires users to confirm account activation from an e-mail, which is not a default feature, this may also be useful if a user has issues with replying to the e-mail and asks for a manual activation.
 
 
-## How to remove a customer
+### How to remove a customer
 
 - Select the specific customer record from the main list
 - Click [[Remove]] in the footer then confirm the action

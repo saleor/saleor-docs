@@ -2,7 +2,7 @@
 id: attributes
 title: Attributes
 ---
-## About attributes
+## Introduction
 
 The Attributes page allows you to use the full capacity of the product structure in Saleor. By configuring your products right, product management in Saleor becomes a hassle-free task.
 
@@ -44,8 +44,9 @@ For more information on the product structure in Saleor, see the [Products](dash
 >
 > This way you can create an entire matrix of colors and sizes and make them available to your customers.
 
+## How to
 
-## How to add an attribute
+### How to add an attribute
 
 **1. Add attribute**
 
@@ -91,7 +92,7 @@ To add specific values to your attribute, click [[Add&nbsp;Value]] in the Attrib
 
 Click [[Save]] once finished.
 
-## How to edit or delete an attribute 
+### How to edit or delete an attribute 
 
 Select the specific attribute from the list of existing attributes.
 

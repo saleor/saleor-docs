@@ -14,8 +14,9 @@ On this page you can manage how you ship out orders. The Shipping Methods sectio
 
 You can choose metric or imperial weight units as the default in which your store will display products. In the Configuration card on the right, click on the triangle in the Shipping Weight Unit field to choose between grams (G), kilograms (KG), pounds (LB) and ounces (OZ) as your default weight measurement.
 
+## How to
 
-## How to add a shipping zone and assigning countries
+### How to add a shipping zone and assigning countries
 
 Shipping Zones define the cost of shipping in different areas of the world. Collecting countries together in zones allows you to assign the best shipping and delivery options for customers.
 
@@ -27,14 +28,14 @@ Click [[Add&nbsp;Shipping&nbsp;Zone]] in the top right corner of the Shipping by
 
 Click [[Assign]] to confirm your selection.
 
-## How to remove shipping zones and countries
+### How to remove shipping zones and countries
 
 You can remove individual shipping zones by entering the zone from the list and clicking [[Remove]] in the footer. To remove multiple zones, click the checkboxes on the main list and then confirm using the trash can icon that appears above the list.
 
 Remove countries from a shipping zone using the trash can icon next to the country name when you enter a specific zone from the main list.
 
 
-## How to add shipping rates
+### How to add shipping rates
 
 Find rates offered by couriers for the delivery of your goods and add them to your shipping zones. When your customers get to the checkout section of the store, they will be presented with these shipment options and prices.
 
@@ -52,7 +53,7 @@ These two methods cover most of the basic use cases, for example:
 * Increasing the shipping price for heavy orders.
 
 
-## How to add a courier
+### How to add a courier
 
 1. Click [[Add&nbsp;Rate]] in the Price Based Rates card. 
 2. Fill the name of the courier in the Rate Name field.
@@ -66,7 +67,7 @@ These two methods cover most of the basic use cases, for example:
 ![Specifying value range](assets/dashboard-config/7.png)
 
 
-### Free or paid shipping
+#### Free or paid shipping
 
 If you offer free shipping, click on the switch so it is green. If shipping is charged, input the rate per weight unit in the currency field.
 
@@ -75,6 +76,6 @@ If you offer free shipping, click on the switch so it is green. If shipping is c
 ![Specifying value range](assets/dashboard-config/9.png)
 
 
-## How to remove couriers
+### How to remove couriers
 
 Remove couriers from specific shipping zones by entering the zone and clicking the trash can inon next to the courier you want to remove. 

@@ -8,8 +8,9 @@ Vouchers allow you to give all your customers or selected shoppers a great deal 
 
 ![Voucher page](assets/dashboard-discounts/Vouchers.jpg)
 
+## How to
 
-## How to add a voucher offer
+### How to add a voucher offer
 
 **1. Enter the add voucher screen**
 
@@ -57,7 +58,7 @@ Choose if each customer (defined by e-mail address) can use the voucher only onc
 Leave the start date blank in [[Active&nbsp;Dates]] if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
 
 
-## How to edit or remove vouchers
+### How to edit or remove vouchers
 
 Click on any voucher from the main list to edit it. 
 

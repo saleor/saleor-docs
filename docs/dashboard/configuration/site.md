@@ -17,10 +17,15 @@ The [[URL&nbsp;of&nbsp;your&nbsp;online&nbsp;store]] should match that which you
 
 The [[Store&nbsp;Description]] is SEO information that will appear in browser results listing your site, so make sure it has clear, useful copy about your store and its products.
 
+## Company information
+
+This card allows you to enter basic information about your company (name, address, phone number).
 
 ## Authentication keys
 
 You can allow dashboard users to enter your store through Google and Facebook and add additional security keys to ensure site security. 
+
+## How to
 
 ### How to add authentication keys
 
