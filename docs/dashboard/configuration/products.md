@@ -27,8 +27,9 @@ Different goods are taxed differently across the world. If you leave the Tax Rat
 
 This is very important, as it means you are legally charging the correct amount for products. For example, educational materials may be tax exempt, while some hazardous substances have higher tax rates.
 
+## How to
 
-## How to add a product type
+### How to add a product type
 
 1. Click [[Add&nbsp;Product&nbsp;Type]] and fill out the General Information, Taxes and Shipping cards.
 
@@ -46,7 +47,7 @@ This is very important, as it means you are legally charging the correct amount 
 > 
 > In other words, when setting up your Product Type, you select a Variant Attribute which is set up as _Multiselect_, you will receive the following error message: "Variants are disabled in this product type".
 
-## How to delete a product type
+### How to delete a product type
 
 There are two ways to remove a Product Type:
 
