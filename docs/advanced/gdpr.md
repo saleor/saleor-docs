@@ -3,7 +3,7 @@ id: gdpr
 title: GDPR Compliance
 ---
 
-Ny default, Saleor handles several aspects of the regulations introduced by the GDPR.
+By default, Saleor handles several aspects of the regulations introduced by the GDPR.
 
 
 ## Deleting users
