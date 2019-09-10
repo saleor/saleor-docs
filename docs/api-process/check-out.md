@@ -283,7 +283,7 @@ As a result we're getting the payment object:
   "data": {
     "checkoutPaymentCreate": {
       "payment": {
-        "id": "",
+        "id": "UGF5bWVudDox",
         "chargeStatus": "FULLY_CHARGED"
       },
       "errors": []
