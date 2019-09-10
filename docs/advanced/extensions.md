@@ -2,10 +2,9 @@
 id: extensions
 title: Extensions
 ---
+## Introduction
 
 Saleor is built based on extensions architecture. It includes hooks for most standard operations, such as calculation of prices in the checkout or calling certain actions when an order has been created.
-
-## Plugin
 
 Saleor arrives with some plugins already implemented by default. These plugins are located in `saleor.extensions.plugins`.
 To provide the `ExtensionManager` with a list of enabled plugins, include the Python plugin path in the `settings.PLUGINS` list.
@@ -53,7 +52,7 @@ To activate the new plugin, add it to the `settings.PLUGINS` list in your Django
 PLUGINS = ["saleor.extensions.plugins.custom.CustomPlugin", ]
 ```
 
-### Configuring Plugins
+### Configuring plugins
 
 Saleor allows you to change a configuration of any given plugin over API. Plugin owner needs to overwrite a method to create a structure of default configuration `_get_default_configuration` and `CONFIG_STRUCTURE`. Plugin configuration received from API can be validated by overwriting `validate_plugin_configuration` method. It requires an expected structure as in the following example:
 
@@ -140,6 +139,14 @@ Configuration fields:
 | `type` | Type of the field. Saleor supports - `String` and `Boolean` |
 | `helpText` | Description of the field |
 | `label` | Label for the field |
+
+> **Note**
+> 
+> Once you have completed the above configuration, as a plugin owner, you can decide to display certain configuration options in the Plugins page in the dashboard's Configuration section of Saleor. 
+> 
+> This way you allow the dashboard users to manage the plugin's basic setup. The scope of the setup available via Plugins page is up to you. 
+> 
+> See the [Plugins](dashboard/plugins.md) topic for more information.
 
 ## About Extensions Manager
 
