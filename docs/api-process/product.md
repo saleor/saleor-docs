@@ -11,7 +11,7 @@ To fetch a product list you need to run the `products` query. This query takes t
 
 * `first` / `last` 
 
-This argument must be coupled with the number of products you want to get. The maximum number of products is 200. This input field is required.
+This argument must be coupled with the number of products you want to get. The maximum number of products per request is 100. This input field is required.
 
 <!-- Marcin to get an example snippet first/last-->
 
