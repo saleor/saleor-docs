@@ -3,11 +3,11 @@ id: product
 title: How to Obtain a Product
 ---
 
-You can get either request a single product or a list of products. You may require a list of products in many situations, for example, when you need to simply display a list of products in your storefront, or to provide a third party service with a list of products available in your store. 
+You can either retrieve a single product or a list of products. You may require a list of products in many situations, for example, when you need to simply display a list of products in your storefront, or to provide a third party service with a list of products available in your store. 
 
-## Obtaining a product list
+## Retrieving a product list
 
-To obtain a product list you need to run the `products` query. This query takes the following input:
+To fetch a product list you need to run the `products` query. This query takes the following input:
 
 * `first` / `last` 
 
@@ -24,7 +24,7 @@ This argument must be coupled with the number of products you want to get. The m
 
 * `filter`
 
-You can query a list of products and have them already filtered according to what you need. This input field is optional.
+You can fetch a list of products and have them already filtered according to what you need. This input field is optional.
 
 <!-- Marcin to get an example snippet of filter-->
 
@@ -36,7 +36,7 @@ It allows you to sort the queried list of products by specified field. This inpu
 
 The `products` query returns the following output:
 
-* `id` - This is an id linked to the variant of the product's attribute. When you obtain a list of products, you are actually querying for all product variants, as this is the most basic entity of each product. 
+* `id` - The id is linked to the variant of the product's attribute. When you request a list of products, you are actually querying for all product variants, as this is the most basic entity of each product. 
 
 > **Example**
 >
@@ -44,9 +44,9 @@ The `products` query returns the following output:
 
 * `name` - This is the name of the product, regardless of possible variants it may come in.
 
-* `price` - The pricing is an object composed of various different fields. We will only name the few here, for the need of this topic:
+* `price` - The price is an object composed of various different fields. For the need of this topic, we will only name the few here:
 
-    * `priceRange` - This field always returns the current price, so if a product is in sale currently, this field will display the discounted price. 
+    * `priceRange` - This field always returns the current price, so if a product is in sale currently or a discount has been applied, this field will display the discounted price. 
 
     * `discount` - Indicates the discount amount.
 
@@ -64,6 +64,6 @@ To get a single product, use the same `product` query with only one input field:
 
 The single item query returns the same data as the query for a list of products.
 
-
+<!-- Marcin to get an example snippet of single product query-->
 
 
