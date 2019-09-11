@@ -15,7 +15,7 @@ Click on an individual customer to get an overview of the general information, a
 
 ## Customer orders and history
 
-The Customer History card gives a brief overview of customer activity. You can view a single order or all orders of a specific customer by clicking in the Recent Orders card. From there you can amend and take actions as described in the [Orders](dashboard/orders.md) section of these documents.
+The Customer History card gives a brief overview of customer activity. You can view a single order or all orders of a specific customer by clicking in the Recent Orders card. From there you can amend and take actions as described in the [Orders](dashboard/orders) section of these documents.
 
 
 ## Managing customer addresses
@@ -57,8 +57,8 @@ If you have implemented a backend protocol that requires users to confirm accoun
 
 ### How to remove a customer
 
-- Select the specific customer record from the main list
-- Click [[Remove]] in the footer then confirm the action
+Select the specific customer record from the main list. Click [[Remove]] in the footer then confirm the action
+
 
 
 Users are also able to request their account to be deleted, from the storefront level, on their user profile settings. In such case, a confirmation email is sent to the email address associated with the account.
@@ -67,22 +67,15 @@ Users are also able to request their account to be deleted, from the storefront 
 >
 > #### GDPR Compliance 
 >
->Ny default, Saleor handles several aspects of the regulations introduced by the GDPR.
+> In compliance with GDPR laws in Europe, clicking [[Remove]] in the Customer card will delete the customer's profile, in other words, the customer's account instance. 
 >
-> ##### Deleting users
+> All data used for the checkout process are left untouched. This is to keep track of financial transaction. 
 >
-> In compliance with GDPR laws in Europe, clicking [[Remove]] in the Customer cards will delete the customer's profile, in other words, the customer's account instance. All data used for the checkout process are left untouched. This is to keep track of financial transaction. 
 > This solution follows the GDPR regulations.
 > However, Saleor and its creators do not bear responsibility for your compliance with legal protocols. Check the law in your local area and make sure that you comply with all data processing legislation.
-> 
-> ##### Cookies
->  
-> All cookies used by Saleor are strictly necessary to move around the website and use its features, therefore there is no need to notify the users about them.
-> 
-> ##### Privacy Policy and Terms of Service statements
 >
-> Make sure your _Terms of Service_ and _Privacy Policy_ statements properly communicate to your users who you are and how you are using their data. 
-We recommend that you ensure your policies are kept up to date and are clear to your readers.
+> For more details on data protection implementation in Saleor, see our [GDPR](dashboard/systemwide/gdpr) topic.
+
 
  
 
