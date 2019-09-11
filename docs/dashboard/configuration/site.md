@@ -3,9 +3,13 @@ id: site
 title: Site Settings
 ---
 
+## Introduction
+
+##### This page allows you to enter the basic information about your store. This information will be visible to your customers. 
+
 ## General information
 
-View and update your site settings to control how your site information appears online.
+View and update general information about your store. Here, you can control how your site information appears online.
 
 ![General information configuration](assets/dashboard-config/15.png)
 
