@@ -31,7 +31,7 @@ This mutation requires the following input:
 
 - `billingAddress` - user's billing address
 
-- `lines` - list of checkout lines - each checkout line represents the _variant id_ (the specific product) and the quantity of it.
+- `lines` - list of checkout lines - each checkout line represents the _variant id_ (the specific product) and the quantity of it
 
 As a result, this mutation returns the following fields:
 
