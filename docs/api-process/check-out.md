@@ -11,7 +11,7 @@ The below process describes the key milestones in the checkout process flow in S
 
 The code snippets included in this section may be run in [Playground](api/playground.md) or your preferred HTTP client.
 
-## Step #1 - `checkoutCreate`
+## Creating the Checkout
 
 > **Note**
 >
@@ -43,11 +43,13 @@ As a result, this mutation returns the following fields:
 
   - `totalPrice` - the total price of the checkout lines and shipping costs
 
-  - `availablePaymentGateways` - a list of payment gateways which are currently configured on your Saleor server and can be used to pay for the checkout.
+  - `isShippingRequired` - tells whether shipping is required for this checkout
 
-  - `availableShippingMethods` - a list of available shipping methods for this checkout. If the items in the cart require shipment, setting a shipping method is mandatory.
+  - `availablePaymentGateways` - a list of payment gateways which are currently configured on your Saleor server and can be used to pay for the checkout
 
-- `created` - a boolean field which tells whether a new checkout object was created, or an existing one was used. E.g., if an authenticated user had a unfinished checkout before, it would be reused.
+  - `availableShippingMethods` - a list of available shipping methods for this checkout. If the items in the cart require shipment, setting a shipping method is mandatory
+
+- `created` - a boolean field which tells whether a new checkout object was created, or an existing one was used. E.g., if an authenticated user had a unfinished checkout before, it would be reused
 
 - `errors` - list of errors that could occur during mutation execution
 
@@ -87,6 +89,7 @@ mutation {
           currency
         }
       }
+      isShippingRequired
       availableShippingMethods {
         id
         name
@@ -115,6 +118,7 @@ As a result we're getting a newly created checkout object for which we return it
             "currency": "USD"
           }
         },
+        "isShippingRequired": true,
         "availableShippingMethods": [
           {
             "id": "U2hpcHBpbmdNZXRob2Q6MTM=",
@@ -133,9 +137,9 @@ As a result we're getting a newly created checkout object for which we return it
 }
 ```
 
-## Step #2 (optional) - `checkoutShippingMethodUpdate`
+## Setting the shipping method
 
-This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout.
+This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To determine whether shipping is required, use the `isShippingRequired` field in the `Checkout` object.
 
 Use the `checkoutShippingMethodUpdate` method to effectively pair the specific `CHECKOUT` object with the specified shipping method selected by the user.
 
@@ -197,7 +201,7 @@ As a result we're getting an updated checkout object with a shipping method set:
 }
 ```
 
-## Step #3 - `checkoutPaymentCreate`
+## Creating the payment
 
 Payment creation process consists of two operations:
 
@@ -292,7 +296,7 @@ As a result we're getting the payment object:
 }
 ```
 
-## Step #4 `checkoutComplete`
+## Completing the Checkout
 
 This operation requires only the checkout ID as an input. Its purpose is to ensure this checkout is correct and to do that, it verifies if:
 
