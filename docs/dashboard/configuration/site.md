@@ -5,8 +5,7 @@ title: Site Settings
 
 ## Introduction
 
-##### This page allows you to enter the basic information about your store. Some of the information will be visible to your customers. 
-</br>
+This page allows you to enter the basic information about your store. Some of the information will be visible to your customers. 
 
 ## General information
 

@@ -5,6 +5,7 @@ title: Categories
 ## Introduction
 
 If you sell a range of products on the Saleor platform, they can be conveniently sorted by category. Assigning products to categories helps you to organize your shop and your customers to interact with a clear product structure navigation.
+
 Unlike collections, which are optional, so you can either use them or not, the categories are required. Every product should belong to a category.
 
 ### Subcategories
