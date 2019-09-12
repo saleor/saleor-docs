@@ -54,7 +54,7 @@ Or being back to the hard/ soft cover books: the attribute here is a _Cover Type
 
 It’s what distinguishes different variants. For example: for the attribute _cover type_ you will have two variant attributes: _hard cover_ or _soft cover_.
 
-For more information on the product structure in Saleor, see the [Product Types](dashboard/configuration/products) topic.
+For more information on the product structure in Saleor, see the [Product Types](dashboard/configuration/products.md) topic.
 
 ## Stock management
 
@@ -134,7 +134,7 @@ Add the name of your product and a description. Use text formatting to make your
 
 Type the price of your product manually or using the stepper by the currency indicator. If your product is tax-exempt, leave the [[Charge&nbsp;taxes&nbsp;for&nbsp;this&nbsp;item]] checkbox empty. If you need to charge taxes, click on the box and a green check mark will appear.
 
-For more information on taxes, see the [Taxes](configuration/taxes) topic.
+For more information on taxes, see the [Taxes](configuration/taxes.md) topic.
 
 > **Note** 
 >

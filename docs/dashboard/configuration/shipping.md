@@ -78,4 +78,4 @@ If you offer free shipping, click on the switch so it is green. If shipping is c
 
 ### How to remove couriers
 
-Remove couriers from specific shipping zones by entering the zone and clicking the trash can inon next to the courier you want to remove. 
+Remove couriers from specific shipping zones by entering the zone and clicking the trash can icon next to the courier you want to remove. 
