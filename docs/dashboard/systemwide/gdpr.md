@@ -25,7 +25,7 @@ Users are also able to request their account to be deleted, from the storefront 
 All cookies used by Saleor are strictly necessary to move around the website and use its features, therefore there is no need to notify the users about them.
 
 
-## Privacy Policy and Terms of Service statements
+## Privacy policy and terms of service statements
 
 Make sure your _Terms of Service_ and _Privacy Policy_ statements properly communicate to your users who you are and how you are using their data. 
 
