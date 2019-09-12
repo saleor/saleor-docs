@@ -228,7 +228,7 @@ To get a single product, use the `product` query, which requires only one input 
 
 - `id` - Unique product ID.
 
-Imagine that you want to render a product details page in the storefront. In this case, we would ask for the following fields:
+Imagine that you want to render a product details page in a storefront. In this case, we would ask for the following fields:
 
 - `name` - The name of the product.
 - `description` - The description of the product in a plain text format.
