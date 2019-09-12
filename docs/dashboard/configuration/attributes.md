@@ -72,17 +72,27 @@ In the General Information card, provide the following data:
 
 **3. Properties card**
 
-The Properties card is divided into Storefront and Dashboard Properties sections. These sections allow you to define how your attribute should behave from the Storefront and Dashboard perspective. 
+The Properties card is divided into three properties sections. These sections allow you to define how your attribute should behave from the Storefront and Dashboard perspective. 
 
 Use the following fields to complete the properties setup of your attribute:
+
+##### General Properties section
+
+* Variant attribute - Indicates that this attribute can be also used as a product variant.
+
+##### Storefront Properties section
 
 * Use in faceted navigation - This refers to filtering layers. If the toggle is active, this attribute will be available as a layer in product filtering.
 
 * Position in faceted navigation - Use this field to indicate the order of attributes in the faceted navigation. Type in a number; the lower the number, the higher the position of your attribute.
 
-[Faceted Navigation](assets/dashboard-config/23.jpg)
+![Faceted Navigation](assets/dashboard-config/23.jpg)
 
 * Visible on Product Page in Storefront - If the toggle is active, your attribute will be visible when viewing the product page. 
+
+##### Dashboard Properties section
+
+* Use in Filtering 
 
 **4. Add values** 
 
