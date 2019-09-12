@@ -237,7 +237,7 @@ Imagine that you want to render a product details page in a storefront. In this 
 
 For each variant we're also asking for:
 
-- `id` - Unique variant ID. This ID is used to add items to checkout (see the [How to create checkout](api-process/check-out.md) guide for more details).
+- `id` - Unique variant ID. This ID is used to add items to checkout (see the [How to create checkout](api-process/check-out) guide for more details).
 - `sku` - Stock keeping unit - usually used by your staff to identify products in your inventory.
 - `name` - Name of the variant constructed of its attributes.
 - `quantity` - Current stock quantity of the variant in your inventory.
