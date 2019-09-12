@@ -21,7 +21,7 @@ This argument must be coupled with the number of products you want to get. The m
 >
 > **Pagination**
 >
-> Pagination is required in most of the queries returning lists of items in the Saleor GraphQL API. This mechanism protects the server from requests to return large datasets which would be inefficient and could slow down your application. See the [official GraphQL website](https://graphql.org/learn/pagination/) to read more about pagination.
+> Pagination is required in most of the queries returning lists of items in the Saleor GraphQL API. This mechanism protects the server from requests returning large datasets which would be inefficient and could slow down your application. See the [official GraphQL website](https://graphql.org/learn/pagination/) to read more about pagination.
 
 Let's take a look at an example query to fetch a list of products:
 
