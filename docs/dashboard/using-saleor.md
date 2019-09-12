@@ -35,7 +35,7 @@ Most sections of the dashboard consist of two types of views:
 
 ### How to set up your account
 
-The first thing you need to do is set up a master account for your store—sometimes called an Admin Account or a Superuser Account. This is done by your developer when forking the platform and setting up your iteration of Saleor. You just need to supply the developer with the details of your main administrator and the setup password.
+The first thing you need to do is set up a master account for your store — sometimes called an Admin Account or a Superuser Account. This is done by your developer when forking the platform and setting up your iteration of Saleor. You just need to supply the developer with the details of your main administrator and the setup password.
 
 
 ### How to access your dashboard
@@ -46,3 +46,13 @@ Once you have your store, you can access the administration panel by:
 - Entering `www.YOURSTORENAME/dashboard` into the web browser
 
 You will then be asked to input the email address and password you used to create your superuser account. Each new user can access the dashboard the same way using their unique credentials.
+
+### How to reset your password
+
+In case you forget your password, the dashboard login page allows you to reset it in few simple steps:
+
+* Click the password recovery link on the login page and provide the same email address used when creating your account. 
+
+    A message will be send to that address with a link redirecting you to a password change page. 
+
+* Once you input your new password, you will be directed back to the login page where you can use it to log in. 
