@@ -41,6 +41,20 @@ query {
               }
             }
           }
+          discount {
+            gross {
+              amount
+              currency
+            }
+          }
+          priceRangeUndiscounted {
+            start {
+              gross {
+                amount
+                currency
+              }
+            }
+          }
         }
         thumbnail {
           url
@@ -82,6 +96,20 @@ Here is the response for the above query:
               "priceRange": {
                 "start": {
                   "gross": {
+                    "amount": 2.1,
+                    "currency": "USD"
+                  }
+                }
+              },
+              "discount": {
+                "gross": {
+                  "amount": -1.9,
+                  "currency": "USD"
+                }
+              },
+              "priceRangeUndiscounted": {
+                "start": {
+                  "gross": {
                     "amount": 3,
                     "currency": "USD"
                   }
@@ -89,7 +117,7 @@ Here is the response for the above query:
               }
             },
             "thumbnail": {
-              "url": "https://example.com/apple-juice-thumbnail.png"
+              "url": "http://example.com/apple-juice.png"
             }
           }
         },
@@ -101,14 +129,23 @@ Here is the response for the above query:
               "priceRange": {
                 "start": {
                   "gross": {
-                    "amount": 2.7,
+                    "amount": 3,
+                    "currency": "USD"
+                  }
+                }
+              },
+              "discount": null,
+              "priceRangeUndiscounted": {
+                "start": {
+                  "gross": {
+                    "amount": 3,
                     "currency": "USD"
                   }
                 }
               }
             },
             "thumbnail": {
-              "url": "https://example.com/banana-juice-thumbnail.png"
+              "url": "http://example.com/banana-juice.png"
             }
           }
         }
@@ -167,7 +204,7 @@ The response could be:
 
 ### Sorting
 
-In the `products` you can also sort the results by using the `sortBy` field, which consists of two arguments:
+In the `products` you can also sort the results by using the `sortBy` argument, which consists of two arguments:
 
 - `field` - Allows selecting a field to sort the results by from several predefined choices, such as `PRICE` or `NAME`.
 
@@ -231,7 +268,7 @@ To get a single product, use the `product` query, which requires only one input 
 Imagine that you want to render a product details page in a storefront. In this case, we would ask for the following fields:
 
 - `name` - The name of the product.
-- `description` - The description of the product in a plain text format.
+- `description` - The description of the product.
 - `images` - List of product images.
 - `variants` - List of product variants.
 
@@ -281,7 +318,7 @@ Response:
       "description": "Special offer. Buy a hood and get a free jet black sweater attached. Perfect for when you are up to no good.",
       "images": [
         {
-          "url": "http://localhost:8000/media/products/saleordemoproduct_cl_bogo01_1_DJ9PyTR.png"
+          "url": "http://example.com/black-hoodie.png"
         }
       ],
       "variants": [
