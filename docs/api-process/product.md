@@ -120,7 +120,7 @@ Here is the response for the above query:
 
 ### Filtering
 
-The `products` query gives the ability the filter the results. To do that, use the optional `filter` argument. Some of the filters that are available here are:
+The `products` query gives the ability to filter the results. To do that, use the optional `filter` argument. Some of the filters that are available here are:
 
 - `search` - Search for products by name or description.
 
