@@ -82,9 +82,9 @@ Use the following fields to complete the properties setup of your attribute:
 
 ##### Storefront Properties section
 
-* Use in faceted navigation - This refers to filtering layers. If the toggle is active, this attribute will be available as a layer in product filtering.
+* Use in Faceted Navigation - This refers to filtering layers. If the toggle is active, this attribute will be available as a layer in product filtering.
 
-* Position in faceted navigation - Use this field to indicate the order of attributes in the faceted navigation. Type in a number; the lower the number, the higher the position of your attribute.
+* Position in Faceted Navigation - Use this field to indicate the order of attributes in the faceted navigation. Type in a number; the lower the number, the higher the position of your attribute.
 
 ![Faceted Navigation](assets/dashboard-config/23.jpg)
 
@@ -92,7 +92,9 @@ Use the following fields to complete the properties setup of your attribute:
 
 ##### Dashboard Properties section
 
-* Use in Filtering 
+* Use in Filtering - Indicates if this attribute is also available as a filtering option in the product list page.
+
+* Add to Column Options - Allows to use this attribute as one of the column options on the product list page. See the [Product](dashboard/catalog/products.md#editing-columns) topic for more information on managing the product list view.
 
 **4. Add values** 
 

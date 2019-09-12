@@ -23,11 +23,13 @@ You can also set up and save custom filters which will be unique to your browser
 
 #### Editing columns 
 
-Another convenient way to manage the view of the product list and adjust it to your current need is using the editing columns feature. Next to the fixed (functional) columns, by default, the list displays four main columns: Product Type, Stock and Price. 
+Another convenient way to manage the view of the product list and adjust it to your current need, is using the column editing feature. 
 
-Click the [[Columns]] button to open a grid of attributes where you can change the required attributes. Once saved, the list view will be adjusted to reflect your column selection. 
+<!-- screenshot of the attribute grid -->
 
-You can select up to 16 attributes. The following fixed columns will be displayed regardless of the selection you make:
+Click the [[Columns]] button to open a list of available attributes and select the ones you want to use as the columns. Once saved, the product list will be adjusted to reflect your column selection. 
+
+You can select up to 16 attributes as columns. The following fixed columns will be displayed regardless of the selection you make:
 
 * Checkbox column
 
@@ -37,11 +39,9 @@ You can select up to 16 attributes. The following fixed columns will be displaye
 
 * Actions column
 
-<!-- screenshot of the attribute grid -->
+Use the [[Reset]] button on the grid to return to default settings (the above mentioned fixed columns plus the following: Product Type, Stock, Price).
 
-For more information on how to set the attribute so it appears on the column selection grid in the Product page, see the description of the Properties card section in the [Attributes](dashboard/configuration/attributes.md#How-to-add-an-attribute) topic.
-
-Use the [[Reset]] button on the grid to return to default settings.
+For more information on how to set the attribute so it can be used in the column selection list in the Product page, see the description of the Properties card section in the [Attributes](dashboard/configuration/attributes.md#How-to-add-an-attribute) topic.
 
 ## Product concept
 
