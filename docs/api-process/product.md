@@ -3,67 +3,318 @@ id: product
 title: How to Obtain a Product
 ---
 
-You can either retrieve a single product or a list of products. You may require a list of products in many situations, for example, when you need to simply display a list of products in your storefront, or to provide a third party service with a list of products available in your store. 
+## Introduction
+
+This guide describes how to obtain products from the Saleor GraphQL API.
+
+You can either retrieve a single product or a list of products. You may require a list of products in many situations, for example, when you need to simply display the catalog in your storefront, or to provide a third party service with a list of products available in your store.
 
 ## Retrieving a product list
 
-To fetch a product list you need to run the `products` query. This query takes the following input:
+To fetch a product list, you need to run the `products` query. This query takes the following input:
 
-* `first` / `last` 
+- `first` / `last`
 
 This argument must be coupled with the number of products you want to get. The maximum number of products per request is 100. This input field is required.
-
-<!-- Marcin to get an example snippet first/last-->
 
 > **Note**
 >
 > **Pagination**
 >
-> Pagination is required to ensure your results arrive swiftly and without unnecessary delays. If there would be no pagination, the response could be massive.
+> Pagination is required in most of the queries returning lists of items in the Saleor GraphQL API. This mechanism protects the server from requests to return large datasets which would be inefficient and could slow down your application. See the [official GraphQL website](https://graphql.org/learn/pagination/) to read more about pagination.
 
+Let's take a look at an example query to fetch a list of products:
 
-* `filter`
+```graphql
+query {
+  products(first: 2) {
+    edges {
+      node {
+        id
+        name
+        pricing {
+          priceRange {
+            start {
+              gross {
+                amount
+                currency
+              }
+            }
+          }
+        }
+        thumbnail {
+          url
+        }
+      }
+    }
+  }
+}
+```
 
-You can fetch a list of products and have them already filtered according to what you need. This input field is optional.
+In this example, for each product, we want to return the following fields:
 
-<!-- Marcin to get an example snippet of filter-->
+- `id` - Unique product ID. It can be later used to fetch single products.
 
-* `sortBy`
+- `name` - This is the name of the product, regardless of possible variants it may come in.
 
-It allows you to sort the queried list of products by specified field. This input field is optional. 
+- `pricing` - A price is an object composed of different fields. For the need of this topic, we will only name the few here:
 
-<!-- Marcin to get an example snippet of sortBy-->
+  - `priceRange` - This field always returns the current price, so if a product is in sale currently or a discount has been applied, this field will display the discounted price. Since a product consists of multiple
 
-The `products` query returns the following output:
+  - `discount` - Indicates the discount amount.
 
-* `id` - The id is linked to the variant of the product's attribute. When you request a list of products, you are actually querying for all product variants, as this is the most basic entity of each product. 
+  - `priceRangeUndiscounted` - Indicates the base price, before any discounts or sales were applied.
 
-> **Example**
->
-> Let's say that one of your products is a Brand X juice, so the attribute here will be the flavor and the variants of this attribute will be, for instance: orange, apple and tomato. It is then apparent that these variants may have a different price and subsequently: different `id`'s.
+- `thumbnail` - The product's thumbnail image. The `thumbnail` field has the optional `size` parameter. You can use it to specify the required size of the thumbnails you want to get along with the products you query for.
 
-* `name` - This is the name of the product, regardless of possible variants it may come in.
+Here is the response for the above query:
 
-* `price` - The price is an object composed of various different fields. For the need of this topic, we will only name the few here:
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3Mg==",
+            "name": "Apple Juice",
+            "pricing": {
+              "priceRange": {
+                "start": {
+                  "gross": {
+                    "amount": 3,
+                    "currency": "USD"
+                  }
+                }
+              }
+            },
+            "thumbnail": {
+              "url": "https://example.com/apple-juice-thumbnail.png"
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3NA==",
+            "name": "Banana Juice",
+            "pricing": {
+              "priceRange": {
+                "start": {
+                  "gross": {
+                    "amount": 2.7,
+                    "currency": "USD"
+                  }
+                }
+              }
+            },
+            "thumbnail": {
+              "url": "https://example.com/banana-juice-thumbnail.png"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
-    * `priceRange` - This field always returns the current price, so if a product is in sale currently or a discount has been applied, this field will display the discounted price. 
+### Filtering
 
-    * `discount` - Indicates the discount amount.
+The `products` query gives the ability the filter the results. To do that, use the optional `filter` argument. Some of the filters that are available here are:
 
-    * `priceRangeUndiscounted` - Indicates the base price, before any discounts or sales were applied.
+- `search` - Search for products by name or description.
 
-    * `localCurrency` - Returns the price indicated in the customer's local currency.
+- `isPublished` - Filter only published or unpublished products. Note: only staff users with proper permissions can see the unpublished products.
 
-* `thumbnail` - The `thumbnail` field contains the `size` parameter. You can use it to specify the required size of the thumbnails you want to get along with the products you query for. 
+- `price` - Filter by the product's price.
+
+Here is an example query that looks for products that contain the term "cushion" in their titles or descriptions:
+
+```graphql
+query {
+  products(first: 2, filter: { search: "cushion" }) {
+    edges {
+      node {
+        name
+      }
+    }
+  }
+}
+```
+
+The response could be:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "name": "Colored Parrot Cushion"
+          }
+        },
+        {
+          "node": {
+            "name": "White Parrot Cushion"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+### Sorting
+
+In the `products` you can also sort the results by using the `sortBy` field, which consists of two arguments:
+
+- `field` - Allows selecting a field to sort the results by from several predefined choices, such as `PRICE` or `NAME`.
+
+- `direction` - The direction in which to sort the items: `ASC` (ascending) or `DESC` (descending).
+
+This example shows how to sort the products list by the minimal variant price, lowest to highest:
+
+```graphql
+query {
+  products(first: 2, sortBy: { field: MINIMAL_PRICE, direction: ASC }) {
+    edges {
+      node {
+        name
+        minimalVariantPrice {
+          amount
+          currency
+        }
+      }
+    }
+  }
+}
+```
+
+As a result, we're getting the sorted list:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "name": "Sea Monster Lager",
+            "minimalVariantPrice": {
+              "amount": 3,
+              "currency": "USD"
+            }
+          }
+        },
+        {
+          "node": {
+            "name": "Banana Juice",
+            "minimalVariantPrice": {
+              "amount": 5,
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 ## Obtaining a single product
 
-To get a single product, use the same `product` query with only one input field:
+To get a single product, use the `product` query, which requires only one input field:
 
-* `id`
+- `id` - Unique product ID.
 
-The single item query returns the same data as the query for a list of products.
+Imagine that you want to render a product details page in the storefront. In this case, we would ask for the following fields:
 
-<!-- Marcin to get an example snippet of single product query-->
+- `name` - The name of the product.
+- `description` - The description of the product in a plain text format.
+- `images` - List of product images.
+- `variants` - List of product variants.
 
+For each variant we're also asking for:
 
+- `id` - Unique variant ID. This ID is used to add items to checkout (see the [How to create checkout](api-process/check-out.md) guide for more details).
+- `sku` - Stock keeping unit - usually used by your staff to identify products in your inventory.
+- `name` - Name of the variant constructed of its attributes.
+- `quantity` - Current stock quantity of the variant in your inventory.
+- `pricing` - Represents all information about the current price of the particular variant. Use this field to display the price to your customers.
+
+Here is the example query that fetches a single product:
+
+```graphql
+query {
+  product(id: "UHJvZHVjdDoxMTU=") {
+    name
+    description
+    images {
+      url
+    }
+    variants {
+      id
+      sku
+      name
+      quantity
+      pricing {
+        price {
+          gross {
+            amount
+            currency
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Response:
+
+```
+{
+  "data": {
+    "product": {
+      "name": "Black Hoodie",
+      "description": "Special offer. Buy a hood and get a free jet black sweater attached. Perfect for when you are up to no good.",
+      "images": [
+        {
+          "url": "http://localhost:8000/media/products/saleordemoproduct_cl_bogo01_1_DJ9PyTR.png"
+        }
+      ],
+      "variants": [
+        {
+          "id": "UHJvZHVjdFZhcmlhbnQ6Mjk2",
+          "sku": "black-hoodie-s",
+          "name": "S",
+          "quantity": 20,
+          "pricing": {
+            "price": {
+              "gross": {
+                "amount": 30,
+                "currency": "USD"
+              }
+            }
+          }
+        },
+        {
+          "id": "UHJvZHVjdFZhcmlhbnQ6Mjk3",
+          "sku": "black-hoodie-m",
+          "name": "M",
+          "quantity": 15,
+          "pricing": {
+            "price": {
+              "gross": {
+                "amount": 30,
+                "currency": "USD"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
