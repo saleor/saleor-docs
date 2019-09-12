@@ -1,12 +1,12 @@
 ---
 id: seo-smo
-title: Search Engine Optimization (SEO) and Social Media Optimization (SMO)
+title: SEO and SMO
 ---
 ## Introduction
 
 Saleor enables you to automatically handle certain aspects of how search engines see and index your products.
 
-## SEO
+## Search Engine Optimization (SEO)
 
 ### Sitemaps
 
@@ -41,7 +41,7 @@ Search engine crawlers cannot sign in or register as a member on your site. Ther
 
 This will optimize time spent by the crawler on the website, giving it time to index more content-related pages.
 
-## SMO
+## Social Media Optimization (SMO)
 
 ### Open Graph
 
