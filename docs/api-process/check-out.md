@@ -216,7 +216,7 @@ Depending on selected payment gateway, you will either use the JavaScript form w
 
 The `paymentClientToken` query requires one input field:
 
-- `gateway` - an enum value which represents one of the payment gateways configured on the server, e.g. `BRAINTREE` or `STRIPE`.
+- `gateway` - an enum value which represents one of the payment gateways configured on the server, e.g. `BRAINTREE` or `STRIPE`
 
 Example query:
 

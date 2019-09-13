@@ -67,19 +67,19 @@ query {
 
 In this example, for each product, we want to return the following fields:
 
-- `id` - Unique product ID. It can be later used to fetch single products.
+- `id` - Unique product ID. It can be later used to fetch single products
 
-- `name` - This is the name of the product, regardless of possible variants it may come in.
+- `name` - This is the name of the product, regardless of possible variants it may come in
 
 - `pricing` - A price is an object composed of different fields. For the need of this topic, we will only name the few here:
 
   - `priceRange` - This field always returns the current price, so if a product is in sale currently or a discount has been applied, this field will display the discounted price. Since a product consists of multiple
 
-  - `discount` - Indicates the discount amount.
+  - `discount` - Indicates the discount amount
 
-  - `priceRangeUndiscounted` - Indicates the base price, before any discounts or sales were applied.
+  - `priceRangeUndiscounted` - Indicates the base price, before any discounts or sales were applied
 
-- `thumbnail` - The product's thumbnail image. The `thumbnail` field has the optional `size` parameter. You can use it to specify the required size of the thumbnails you want to get along with the products you query for.
+- `thumbnail` - The product's thumbnail image. The `thumbnail` field has the optional `size` parameter. You can use it to specify the required size of the thumbnails you want to get along with the products you query for
 
 Here is the response for the above query:
 
@@ -159,11 +159,11 @@ Here is the response for the above query:
 
 The `products` query gives the ability to filter the results. To do that, use the optional `filter` argument. Some of the filters that are available here are:
 
-- `search` - Search for products by name or description.
+- `search` - Search for products by name or description
 
-- `isPublished` - Filter only published or unpublished products. Note: only staff users with proper permissions can see the unpublished products.
+- `isPublished` - Filter only published or unpublished products. Note: only staff users with proper permissions can see the unpublished products
 
-- `price` - Filter by the product's price.
+- `price` - Filter by the product's price
 
 Here is an example query that looks for products that contain the term "cushion" in their titles or descriptions:
 
@@ -206,9 +206,9 @@ The response could be:
 
 In the `products` you can also sort the results by using the `sortBy` argument, which consists of two arguments:
 
-- `field` - Allows selecting a field to sort the results by from several predefined choices, such as `PRICE` or `NAME`.
+- `field` - Allows selecting a field to sort the results by from several predefined choices, such as `PRICE` or `NAME`
 
-- `direction` - The direction in which to sort the items: `ASC` (ascending) or `DESC` (descending).
+- `direction` - The direction in which to sort the items: `ASC` (ascending) or `DESC` (descending)
 
 This example shows how to sort the products list by the minimal variant price, lowest to highest:
 
@@ -263,22 +263,22 @@ As a result, we're getting the sorted list:
 
 To get a single product, use the `product` query, which requires only one input field:
 
-- `id` - Unique product ID.
+- `id` - Unique product ID
 
 Imagine that you want to render a product details page in a storefront. In this case, we would ask for the following fields:
 
-- `name` - The name of the product.
-- `description` - The description of the product.
-- `images` - List of product images.
-- `variants` - List of product variants.
+- `name` - The name of the product
+- `description` - The description of the product
+- `images` - List of product images
+- `variants` - List of product variants
 
 For each variant we're also asking for:
 
-- `id` - Unique variant ID. This ID is used to add items to checkout (see the [How to create checkout](api-process/check-out) guide for more details).
-- `sku` - Stock keeping unit - usually used by your staff to identify products in your inventory.
-- `name` - Name of the variant constructed of its attributes.
-- `quantity` - Current stock quantity of the variant in your inventory.
-- `pricing` - Represents all information about the current price of the particular variant. Use this field to display the price to your customers.
+- `id` - Unique variant ID. This ID is used to add items to checkout (see the [How to create checkout](api-process/check-out) guide for more details)
+- `sku` - Stock keeping unit - usually used by your staff to identify products in your inventory
+- `name` - Name of the variant constructed of its attributes
+- `quantity` - Current stock quantity of the variant in your inventory
+- `pricing` - Represents all information about the current price of the particular variant. Use this field to display the price to your customers
 
 Here is the example query that fetches a single product:
 
