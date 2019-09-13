@@ -8,6 +8,10 @@ This page contains an alphabetically sorted list of all your products with a pic
 
 ![Products list](assets/dashboard-catalog/1.jpg)
 
+### Managing the list view
+
+#### Using filters 
+
 By default, the page displays all products. You can also use convenient filters to view products by their:
 * Visibility 
 * Stock
@@ -16,6 +20,28 @@ By default, the page displays all products. You can also use convenient filters 
 You can also set up and save custom filters which will be unique to your browser (so other users will not see it).
 
 ![Filtering products](assets/dashboard-catalog/2.jpg)
+
+#### Editing columns 
+
+Another convenient way to manage the view of the product list and adjust it to your current need, is using the column editing feature. 
+
+<!-- screenshot of the attribute grid -->
+
+Click the [[Columns]] button to open a list of available attributes and select the ones you want to use as the columns. Once saved, the product list will be adjusted to reflect your column selection. 
+
+You can select up to 16 attributes as columns. The following fixed columns will be displayed regardless of the selection you make:
+
+* Checkbox column
+
+* Thumbnail
+
+* Product Name
+
+* Actions column
+
+Use the [[Reset]] button on the grid to return to default settings (the above mentioned fixed columns plus the following: Product Type, Stock, Price).
+
+For more information on how to set the attribute so it can be used in the column selection list in the Product page, see the description of the Properties card section in the [Attributes](dashboard/configuration/attributes.md#How-to-add-an-attribute) topic.
 
 ## Product concept
 
