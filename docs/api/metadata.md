@@ -5,7 +5,7 @@ title: Extending Models Using Metadata
 
 Saleor gives you the possibility to customize your shop without the need of any changes in the code. Once you get your own Saleor instance, you can extend most of Saleor's database models using metadata. 
 
-For example, you can add specific fields to metadata of objects to store extra information on that object. Using metadata you can also customize the way your storefront appears to your customers. 
+For example, you can add specific fields to metadata of objects to store extra information on that object. By using metadata you can also customize the way your storefront appears to your customers. 
 
 The following models contain metafields which data can be modified:
 
