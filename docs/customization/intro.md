@@ -1,6 +1,6 @@
 ---
 id: intro
-title: Customizing Saloer
+title: Customizing Saleor
 sidebar_label: Introduction
 ---
 
