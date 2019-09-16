@@ -11,6 +11,7 @@ sidebar_label: Introduction
 
 [card-grid]
 [**Thumbnails**](customization/thumbnails.md)
+[**Password Validation**](customization/password-validation.md)
 [/card-grid]
 
 
