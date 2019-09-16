@@ -45,16 +45,16 @@ The below examples show a sample query and response containing metadata:
 
 ```
 {
-  products(first:1){
-    edges{
-      node{
+  products(first: 1) {
+    edges {
+      node {
         id
         name
-        meta{
+        meta {
           namespace
-          clients{
+          clients {
             name
-            metadata{
+            metadata {
               key
               value
             }
@@ -112,22 +112,30 @@ You can also add, update or remove metadata.
 
 ```
 mutation {
-  productUpdateMetadata(id:"UHJvZHVjdDo3Mg==", input:{namespace:"my_namespace1", clientName: "custom_name", key:"special_product", value:"true"}){
-    errors{
+  productUpdateMetadata(
+    id: "UHJvZHVjdDo3Mg=="
+    input: {
+      namespace: "my_namespace1"
+      clientName: "custom_name"
+      key: "special_product"
+      value: "true"
+    }
+  ) {
+    errors {
       field
       message
     }
-    product{
-		meta{
-	        namespace
-	        clients{
-	          name
-	          metadata{
-	            key
-	            value
-	          }
-	        }
-      	}
+    product {
+      meta {
+        namespace
+        clients {
+          name
+          metadata {
+            key
+            value
+          }
+        }
+      }
     }
   }
 }
@@ -137,18 +145,25 @@ mutation {
 
 ```
 mutation {
-  productClearMetadata(id: "UHJvZHVjdDo3Mg==", input:{namespace:"my_namespace", clientName: "custom_name", key: "special_product"}){
-    errors{
+  productClearMetadata(
+    id: "UHJvZHVjdDo3Mg=="
+    input: {
+      namespace: "my_namespace"
+      clientName: "custom_name"
+      key: "special_product"
+    }
+  ) {
+    errors {
       field
       message
     }
-    product{
+    product {
       id
-      meta{
+      meta {
         namespace
-        clients{
+        clients {
           name
-          metadata{
+          metadata {
             key
             value
           }
@@ -171,17 +186,25 @@ Models can have two meta fields:
 
 ```
 mutation {
-  productUpdatePrivateMetadata(id:"UHJvZHVjdDo3Mg==", input:{namespace:"my_private_section", clientName: "private", key:"special_product", value:"true"}){
-    errors{
+  productUpdatePrivateMetadata(
+    id: "UHJvZHVjdDo3Mg=="
+    input: {
+      namespace: "my_private_section"
+      clientName: "private"
+      key: "special_product"
+      value: "true"
+    }
+  ) {
+    errors {
       field
       message
     }
-    product{
-      privateMeta{
+    product {
+      privateMeta {
         namespace
-        clients{
+        clients {
           name
-          metadata{
+          metadata {
             key
             value
           }
@@ -196,18 +219,25 @@ mutation {
 
 ```
 mutation {
-  productClearPrivateMetadata(id: "UHJvZHVjdDo3Mg==", input:{namespace:"my_private_section", clientName: "private", key: "special_product"}){
-    errors{
+  productClearPrivateMetadata(
+    id: "UHJvZHVjdDo3Mg=="
+    input: {
+      namespace: "my_private_section"
+      clientName: "private"
+      key: "special_product"
+    }
+  ) {
+    errors {
       field
       message
     }
-    product{
+    product {
       id
-      privateMeta{
+      privateMeta {
         namespace
-        clients{
+        clients {
           name
-          metadata{
+          metadata {
             key
             value
           }
