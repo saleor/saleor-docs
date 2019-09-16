@@ -1,6 +1,6 @@
 ---
 id: version-2.8.0-intro
-title: Customizing Saloer
+title: Customizing Saleor
 sidebar_label: Introduction
 original_id: intro
 ---
