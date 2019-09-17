@@ -1,0 +1,4 @@
+---
+id: pagination
+title: Pagination
+---
