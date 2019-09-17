@@ -9,7 +9,9 @@ Saleor uses cursor based pagination.
 
 There are two types of lists in GraphQL:
 
-* `LIST` - This is a simple list. Use it when you query for a list containing several items.
+* `LIST` - This is a simple list. It is used to query for a list containing several items. 
+
+    An example of a simple list could be a query for product categories or product variants. In both cases, the query would return a list of manageable number of results.
 
 * `CONNECTION` - Represents more complex list. When queried for, it will return an unknown or large number of results.
 
