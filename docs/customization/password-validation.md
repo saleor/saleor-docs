@@ -15,7 +15,7 @@ Saleor utilizes Django password validation which consists of the following valid
 
 * `NumericPasswordValidator` -  It checks if the proposed password isn’t all numbers
 
-By default, Saleor arrives with the MinimumLengthValidator enabled. The minimum length is set to 8 characters.
+By default, Saleor arrives with the `MinimumLengthValidator` enabled. The minimum length is set to 8 characters.
 
 You can manage and customize the password validation integration using the several functions provided in Django (using all or some of the possible validations). You can also write your own password validator. 
 
