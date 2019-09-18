@@ -46,11 +46,11 @@ For more information on the product structure in Saleor, see the [Products](dash
 
 ## How to
 
-### How to add an attribute
+### How to create an attribute
 
-**1. Add attribute**
+**1. Create an attribute**
 
-In the main Attribute page, click [[Add&nbsp;Attribute]]. 
+In the main Attribute page, click [[Create&nbsp;Attribute]]. 
 
 **2. General Information card**
 
@@ -76,17 +76,13 @@ The Properties card is divided into three properties sections. These sections al
 
 Use the following fields to complete the properties setup of your attribute:
 
-##### General Properties section
-
-* Variant attribute - Indicates that this attribute can be also used as a product variant.
-
 ##### Storefront Properties section
 
 * Use in Faceted Navigation - This refers to filtering layers. If the toggle is active, this attribute will be available as a layer in product filtering.
 
 * Position in Faceted Navigation - Use this field to indicate the order of attributes in the faceted navigation. Type in a number; the lower the number, the higher the position of your attribute.
 
-![Faceted Navigation](assets/dashboard-config/23.jpg)
+![Faceted Navigation](assets/dashboard-config/23.JPG)
 
 * Visible on Product Page in Storefront - If the toggle is active, your attribute will be visible when viewing the product page. 
 
@@ -98,7 +94,7 @@ Use the following fields to complete the properties setup of your attribute:
 
 **4. Add values** 
 
-To add specific values to your attribute, click [[Add&nbsp;Value]] in the Attribute Values card and type in the value. This is visible to your customers. 
+To add specific values to your attribute, click [[Assign&nbsp;Value]] in the Attribute Values card and type in the value. This is visible to your customers. 
 
 **5. Save changes**
 
