@@ -136,7 +136,7 @@ Once order lines are marked as shipped, each corresponding stock record will hav
 
 Click [[Create&nbsp;Product]] above the main list to enter the product setup page.
 
-![Adding product](assets/dashboard-catalog/catalog3.JPG)
+![Adding product](assets/dashboard-catalog/catalog3.jpg)
 
 
 **1. Fill out the General Information card**
@@ -153,7 +153,7 @@ Add the name of your product and a description. Use text formatting to make your
 >
 > Your product descriptions can be cool and fun, or just based on the facts. They represent the tone of your store. Be creative if you like, but be clear and make sure that you have all the information that a buyer needs.
 >
->  ![Formatting product description](assets/dashboard-catalog/catalog4.jpg)
+>  ![Formatting product description](assets/dashboard-catalog/catalog4.JPG)
 
 
 **2. Define pricing**
@@ -183,7 +183,7 @@ Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description. If you do not add uni
 >
 > Increase traffic to your store by adding SEO-friendly descriptions for search engines. Write interesting, short content about each product, using keywords that people will use in web searches. Create a unique description for each product so search engines do not think it is duplicated content.
 
-![Editing product SEO](assets/dashboard-catalog/5.png)
+![Editing product SEO](assets/dashboard-catalog/catalog5.JPG)
 
 
 **4. Organize your product** 
@@ -196,11 +196,9 @@ Categorize your new product using the drop-down menus to assign a relevant Produ
 Once you have set up all your product details, you can choose if it appears for sale or remains hidden from view. 
 If set, it allows you to hold some of your products unavailable to your customers until the publication date. They are simply not listed in your storefront.
 
-![Changing product visibility](assets/dashboard-catalog/6.png)
+![Changing product visibility](assets/dashboard-catalog/catalog6.JPG)
 
-If you want to push your product for sale, click on the switch until it shows as [[Visible]].
-
-![Making product visible on site](assets/dashboard-catalog/7.png)
+If you want to push your product for sale, select the [[Visible]] option.
 
 
 **6. Save your new product**
@@ -250,21 +248,21 @@ To edit product details, click any field and start making changes. The [[Save]] 
 
 When you click a product record from the main list, you will see the same cards as when you create a product, with one additional card for Variants. This is where you can change product variants and attributes, check inventory, and control stock levels.
 
-![Reviewing product variants](assets/dashboard-catalog/10.png)
+![Reviewing product variants](assets/dashboard-catalog/catalog10.JPG)
 
 
 #### Checking inventory
 
 In this example, you can see five types of t-shirt. Four have enough stock to cover future orders. The XL size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there is only one item in stock (“Inventory”) and it has been ordered by a customer (“Allocated”).
 
-![Editing product inventory](assets/dashboard-catalog/11.jpg)
+![Editing product inventory](assets/dashboard-catalog/catalog11.JPG)
 
 
 #### Managing variants of a product
 
 Click on a specific product from the variants list to edit the size, images, pricing, and stock. 
 
-![Editing product variants](assets/dashboard-catalog/12.png)
+![Editing product variants](assets/dashboard-catalog/12.PNG)
 
 You can edit the cost and sale price of an item in the Pricing card.
 
@@ -277,11 +275,11 @@ You can repeat this process for all sizes or types of the same product by clicki
 
 When selecting a product record from the main list, click the [[Edit&nbsp;Attributes]] label in the top corner of the Variants card to add or change product attributes and variants. For example, a top or t-shirt will have a product attribute such as the material it is made from, and a variant attribute of the sizes or colors in which it is available.
 
-![Editing product attributes](assets/dashboard-catalog/13.png)
+![Editing product attributes](assets/dashboard-catalog/13.PNG)
 
-In the Product Attributes card, click on [[Add&nbsp;Attribute]]. A pop-up will appear where you can enter new attributes. Click [[Save]] to confirm and exit.
+In the Product Attributes card, click the [[Assign&nbsp;Attribute]] button. A pop-up will appear where you can select new attributes. Click the [[Assign&nbsp;Attribute]] button to confirm and exit.
 
-![Adding attribute](assets/dashboard-catalog/14.png)
+![Adding attribute](assets/dashboard-catalog/catalog14.JPG)
 
 You can edit existing attributes and variants in the same way, and delete them by clicking the trash can.
 
