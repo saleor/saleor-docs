@@ -6,7 +6,7 @@ title: Products
 
 This page contains an alphabetically sorted list of all your products with a picture for each (if set), the product name and type, information on its visibility on your site (if it is published or not), and the product's price. 
 
-![Products list](assets/dashboard-catalog/1.jpg)
+![Products list](assets/dashboard-catalog/catalog1.png)
 
 ### Managing the list view
 
@@ -25,7 +25,7 @@ You can also set up and save custom filters which will be unique to your browser
 
 Another convenient way to manage the view of the product list and adjust it to your current need, is using the column editing feature. 
 
-<!-- screenshot of the attribute grid -->
+![Column grid](assets/dashboard-catalog/catalog11.png)
 
 Click the [[Columns]] button to open a list of available attributes and select the ones you want to use as the columns. Once saved, the product list will be adjusted to reflect your column selection. 
 
@@ -136,7 +136,7 @@ Once order lines are marked as shipped, each corresponding stock record will hav
 
 Click [[Create&nbsp;Product]] above the main list to enter the product setup page.
 
-![Adding product](assets/dashboard-catalog/catalog3.png)
+![Adding product](assets/dashboard-catalog/catalog3.jpg)
 
 
 **1. Fill out the General Information card**
@@ -153,7 +153,7 @@ Add the name of your product and a description. Use text formatting to make your
 >
 > Your product descriptions can be cool and fun, or just based on the facts. They represent the tone of your store. Be creative if you like, but be clear and make sure that you have all the information that a buyer needs.
 >
->  ![Formatting product description](assets/dashboard-catalog/4.png)
+>  ![Formatting product description](assets/dashboard-catalog/catalog4.jpg)
 
 
 **2. Define pricing**
