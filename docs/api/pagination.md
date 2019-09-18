@@ -11,7 +11,7 @@ There are two types of lists in GraphQL:
 
 * `LIST` - This is a simple list. It is used to query for a list containing several items. 
 
-    An example of a simple list could be a query for product categories or product variants. In both cases, the query would return a list of manageable number of results.
+    An good example of a simple list could be a query for product variants which returns a list of manageable number of results.
 
 * `CONNECTION` - Represents more complex list. When queried for, it will return an unknown or large number of results.
 
@@ -31,19 +31,65 @@ To retrieve large number of results and indicate how you want the queried items 
 
 * `first` - Followed by the number of items (nodes) you want the query to return. This argument will return items starting from the beginning of the list.
 
-<!-- example - Marcin -->
+```
+{
+  products(first: 10) {
+    edges {
+      cursor
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+```
 
 * `last` - Followed by the number of items (nodes) you want the query to return. This argument will return items starting from the end of the list.
 
-<!-- example - Marcin -->
+```
+{
+  products(last: 10) {
+    edges {
+      cursor
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+```
 
 * `after` - Followed by the value of the `cursor`. This indicates the direction in which you want to start displaying items, in this case - from the beginning of the list.
 
-<!-- example - Marcin -->
+```
+{
+  products(first: 10, after: "YXJyYXljb25uZWN0aW9uOjA=") {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+```
 
 * `before` - Followed by the value of the `cursor`. This indicates the direction in which you want to start displaying items, in this case - from the end of the list. 
 
-<!-- example - Marcin -->
+```
+{
+  products(first: 10, before: "YXJyYXljb25uZWN0aW9uOjQ==") {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+```
 
 > **Example** 
 > 
@@ -73,7 +119,25 @@ Each connection can return the following fields:
  
     * `endCursor` - Indicates the cursor value of the last item on the page.
 
-<!-- example - Marcin -->
+```
+{
+  products(first: 10) {
+    edges {
+      cursor
+      node {
+        id
+        name
+      }
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+  }
+}
+```
 
 For more information about pagination, see the [official GraphQL website](https://graphql.org/learn/pagination/).
 
