@@ -134,9 +134,9 @@ Once order lines are marked as shipped, each corresponding stock record will hav
 
 ### How to create a new product
 
-Click [[Add&nbsp;Product]] above the main list to enter the product setup page.
+Click [[Create&nbsp;Product]] above the main list to enter the product setup page.
 
-![Adding product](assets/dashboard-catalog/3.png)
+![Adding product](assets/dashboard-catalog/catalog3.png)
 
 
 **1. Fill out the General Information card**
