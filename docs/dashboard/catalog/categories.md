@@ -57,7 +57,7 @@ To remove a category, select the category from the main list and click [[Delete]
 
 Click [[Create&nbsp;Subcategory]] in the top right corner of the Subcategories card. In this example, we have paints and cushions in the Accessories category, which can be marked as separate subcategories. Add a description and SEO information just the same as with a main category.
 
-![Products in category](assets/dashboard-catalog/16.jpg)
+![Products in category](assets/dashboard-catalog/catalog16.png)
 
 
 

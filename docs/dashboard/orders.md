@@ -20,7 +20,7 @@ To process an order in the system, click [[Finalize]] in the footer. Once the or
 
 The main page shows a list of all orders in the system, regardless their status.
 
-![Orders list](assets/dashboard-orders/1.png)
+![Orders list](assets/dashboard-orders/orders1.JPG)
 
 ### Order filters  
 
@@ -28,20 +28,20 @@ To automatically filter orders, use the drop-down menu and view orders by date o
 
 You can also manually search specific information, such as key words or names, using the Search Orders field. The filter is dynamically applied as you type. 
 
-![Orders list filters](assets/dashboard-orders/2.jpg)
+![Orders list filters](assets/dashboard-orders/orders2.JPG)
 
 ## Order details page
 
 Click on any order record from the list to get the full details. The order page contains cards indicating order fulfillment status, payment stage, order history, customer details and notes.
 
-![Order details](assets/dashboard-orders/3.jpg)
+![Order details](assets/dashboard-orders/orders3.png)
 
 ### Order fulfillment card
 The fulfillment represents a group of shipped items with corresponding tracking number. Fulfillments are created by a shop operator to mark selected products in an order as fulfilled.
 
 Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single _Unfulfilled_ or _Fulfilled_ card. Others, as in the example below, will have both cards if parts of the order have been sent to the customer but other products are yet to be dispatched. 
 
-![Order fulfillment options](assets/dashboard-orders/4.jpg)
+![Order fulfillment options](assets/dashboard-orders/orders4.png)
 
 #### Fulfillment statuses
 
@@ -60,8 +60,6 @@ There are four possible order statuses (and a _Daft_ one), based on the stage of
 
 
 * **Draft** - Used for orders newly created from dashboard and not yet published.
-
-<!--Screenshot of all these fulfillment statuses on the main Order page -->
 
 ### Order payment card
 
@@ -90,7 +88,7 @@ This is very useful when an exact price cannot be determined until after the ord
 
 When viewing orders with pre-authorized payments, Saleor offers options to either capture or void the funds. You can capture the full or partial amount (for example, taking only partial payment for an item due to damage, late delivery, or customer service issues) by clicking [[Capture]] in the bottom right corner and then confirming the full amount or changing the price to the new amount agreed with the customer.
 
-![Order with captured payment](assets/dashboard-orders/9.jpg)
+![Order with captured payment](assets/dashboard-orders/orders9.JPG)
 
 #### Refunds
 
@@ -127,7 +125,7 @@ This is a function for store administrators to add orders, usually in cases wher
 
 Once you set up the order and finalize it using the button in the footer, it becomes a normal order and replacement goods can be sent to the customer.
 
-![Create an order](assets/dashboard-orders/CreateOrdersImage.png)
+![Create an order](assets/dashboard-orders/create-new-order.JPG)
 
 ### How to process a refund
 
@@ -137,7 +135,7 @@ Once you set up the order and finalize it using the button in the footer, it bec
 
 3. For partial refunds, input the amount manually or using the stepper, then confirm
 
-![Fully paid order](assets/dashboard-orders/8.jpg)
+![Fully paid order](assets/dashboard-orders/orders8.jpg)
 
 ### How to fulfill an order
 
@@ -155,13 +153,13 @@ If you have a tracking number for the package, add it in the field below the pro
 >
 > When fulfillment is confirmed, the customer will automatically receive an email with information about the goods that they will receive, including any additional information such as tracking numbers.
 
-![Order fulfillment](assets/dashboard-orders/5.jpg)
+![Order fulfillment](assets/dashboard-orders/orders5.png)
 
 
 ### How to cancel a shipment
 
 Click the three dots in the top right corner of a Fulfilled order card. Select [[Cancel&nbsp;Shipment]] when the pop-up appears, then confirm. Items will be restocked into the Saleor system.
 
-![Canceling shipment](assets/dashboard-orders/6.jpg)
+![Canceling shipment](assets/dashboard-orders/orders6.png)
 
 For more information on Shipment configuration, see the [Shipping Methods](configuration/shipping.md)

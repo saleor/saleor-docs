@@ -27,7 +27,7 @@ Another convenient way to manage the view of the product list and adjust it to y
 
 ![Column grid](assets/dashboard-catalog/catalog11.png)
 
-Click the [[Columns]] button to open a list of available attributes and select the ones you want to use as the columns. Once saved, the product list will be adjusted to reflect your column selection. 
+Click the [[Columns]] dropdown to open a list of available attributes and select the ones you want to use as the columns. Once saved, the product list will be adjusted to reflect your column selection. 
 
 You can select up to 16 attributes as columns. The following fixed columns will be displayed regardless of the selection you make:
 
@@ -231,7 +231,7 @@ Click on an existing product from the main list. You will be redirected to the s
 
 #### Delete
 
- Click [[Remove]] at the bottom of the page to delete a product. 
+ Click [[Delete]] at the bottom of the page to permanently remove a product. 
 
 #### Edit
 
@@ -241,7 +241,7 @@ To edit product details, click any field and start making changes. The [[Save]] 
 >
 > ##### Save it for later
 > 
-> Do not remove a product if you just want to temporarily take it away from your inventory. In that case, just uncheck the [[Published&nbsp;in&nbsp;Storefront]] option in the Visibility card, as described above.
+> Do not remove a product if you just want to temporarily take it away from your inventory. In that case, just select the [[Hidden]] option in the Visibility card, as described above.
 
 
 ### How to add product variants and attributes
