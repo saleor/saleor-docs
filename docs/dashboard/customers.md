@@ -6,7 +6,7 @@ title: Customers
 
 In this page you can view the details of all users who have provided you with their information when setting up an account or placing an order.
 
-![Customers list](assets/dashboard-customers/1.png)
+![Customers list](assets/dashboard-customers/customers1.JPG)
 
 Click on an individual customer to get an overview of the general information, address, customer activity, and recent orders.
 
@@ -57,7 +57,7 @@ If you have implemented a backend protocol that requires users to confirm accoun
 
 ### How to remove a customer
 
-Select the specific customer record from the main list. Click [[Remove]] in the footer then confirm the action
+Select the specific customer record from the main list. Click [[Delete]] in the footer then confirm the action.
 
 
 
@@ -67,7 +67,7 @@ Users are also able to request their account to be deleted, from the storefront 
 >
 > #### GDPR Compliance 
 >
-> In compliance with GDPR laws in Europe, clicking [[Remove]] in the Customer card will delete the customer's profile, in other words, the customer's account instance. 
+> In compliance with GDPR laws in Europe, clicking [[Delete]] in the Customer card will delete the customer's profile, in other words, the customer's account instance. 
 >
 > All data used for the checkout process are left untouched. This is to keep track of financial transaction. 
 >
