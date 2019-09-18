@@ -19,7 +19,7 @@ By default, the page displays all products. You can also use convenient filters 
 
 You can also set up and save custom filters which will be unique to your browser (so other users will not see it).
 
-![Filtering products](assets/dashboard-catalog/2.jpg)
+![Filtering products](assets/dashboard-catalog/catalog2.JPG)
 
 #### Editing columns 
 
@@ -153,7 +153,7 @@ Add the name of your product and a description. Use text formatting to make your
 >
 > Your product descriptions can be cool and fun, or just based on the facts. They represent the tone of your store. Be creative if you like, but be clear and make sure that you have all the information that a buyer needs.
 >
->  ![Formatting product description](assets/dashboard-catalog/catalog4.JPG)
+>  ![Formatting product description](assets/dashboard-catalog/catalog4.jpg)
 
 
 **2. Define pricing**

@@ -135,7 +135,7 @@ Once you set up the order and finalize it using the button in the footer, it bec
 
 3. For partial refunds, input the amount manually or using the stepper, then confirm
 
-![Fully paid order](assets/dashboard-orders/orders8.jpg)
+![Fully paid order](assets/dashboard-orders/orders8.JPG)
 
 ### How to fulfill an order
 
@@ -156,10 +156,10 @@ If you have a tracking number for the package, add it in the field below the pro
 ![Order fulfillment](assets/dashboard-orders/orders5.png)
 
 
-### How to cancel a shipment
+### How to cancel an order
 
-Click the three dots in the top right corner of a Fulfilled order card. Select [[Cancel&nbsp;Shipment]] when the pop-up appears, then confirm. Items will be restocked into the Saleor system.
+Click the three dots in the top right corner of a Fulfilled order card. Select [[Cancel&nbsp;order]] when the pop-up appears, then confirm. Items will be restocked into the Saleor system.
 
-![Canceling shipment](assets/dashboard-orders/orders6.png)
+![Canceling shipment](assets/dashboard-orders/orders6.JPG)
 
 For more information on Shipment configuration, see the [Shipping Methods](configuration/shipping.md)
