@@ -136,7 +136,7 @@ Once order lines are marked as shipped, each corresponding stock record will hav
 
 Click [[Create&nbsp;Product]] above the main list to enter the product setup page.
 
-![Adding product](assets/dashboard-catalog/catalog3.jpg)
+![Adding product](assets/dashboard-catalog/catalog3.JPG)
 
 
 **1. Fill out the General Information card**
