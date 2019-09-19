@@ -9,19 +9,29 @@ Saleor provides the possibility to add various extensions to it so you can creat
 
 The plugin page is used to display general information about installed plugins, along with their activation status (active or not active). 
 
-<!--screenshot of the main list page, once its available - use the white layout! -->
+![plugins](assets/dashboard-config/plugins1.JPG)
 
 If you choose to, you can use the plugin window to display the basic configuration to allow dashboard users to manage the elemental settings of existing plugins. 
 
-However, for more detailed information about plugins and our Extension Manager, see the [Extensions](advanced/extensions.md) topic in the chapter for developers.
+For more detailed information about plugins and our Extension Manager, see the [Extensions](advanced/extensions.md) topic in the chapter for developers.
 
-Saleor arrives with two plugins already integrated. They are used to configure taxes in Saleor:
+Saleor arrives with the following plugins already integrated. 
 
-* Vatlayer 
+* Used to configure taxes in Saleor:
 
-* Avalara
+    * Vatlayer 
 
+    * Avalara
 
+* Used to process payments (all supported payment gateways in Saleor come as plugins):
+
+    * Braintree
+
+    * Razorpay
+
+    * Stripe
+
+You need to provide public and private keys to activate each payment gateway.
 
 
 
