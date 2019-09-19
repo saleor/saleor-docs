@@ -136,7 +136,7 @@ Once order lines are marked as shipped, each corresponding stock record will hav
 
 Click [[Create&nbsp;Product]] above the main list to enter the product setup page.
 
-![Adding product](assets/dashboard-catalog/catalog3.jpg)
+![Adding product](assets/dashboard-catalog/catalog3.JPG)
 
 
 **1. Fill out the General Information card**
@@ -255,14 +255,14 @@ When you click a product record from the main list, you will see the same cards 
 
 In this example, you can see five types of t-shirt. Four have enough stock to cover future orders. The XL size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there is only one item in stock (“Inventory”) and it has been ordered by a customer (“Allocated”).
 
-![Editing product inventory](assets/dashboard-catalog/catalog11.JPG)
+![Editing product inventory](assets/dashboard-catalog/catalog11.png)
 
 
 #### Managing variants of a product
 
 Click on a specific product from the variants list to edit the size, images, pricing, and stock. 
 
-![Editing product variants](assets/dashboard-catalog/12.PNG)
+![Editing product variants](assets/dashboard-catalog/catalog12.JPG)
 
 You can edit the cost and sale price of an item in the Pricing card.
 
@@ -275,7 +275,7 @@ You can repeat this process for all sizes or types of the same product by clicki
 
 When selecting a product record from the main list, click the [[Edit&nbsp;Attributes]] label in the top corner of the Variants card to add or change product attributes and variants. For example, a top or t-shirt will have a product attribute such as the material it is made from, and a variant attribute of the sizes or colors in which it is available.
 
-![Editing product attributes](assets/dashboard-catalog/13.PNG)
+![Editing product attributes](assets/dashboard-catalog/catalog13.JPG)
 
 In the Product Attributes card, click the [[Assign&nbsp;Attribute]] button. A pop-up will appear where you can select new attributes. Click the [[Assign&nbsp;Attribute]] button to confirm and exit.
 

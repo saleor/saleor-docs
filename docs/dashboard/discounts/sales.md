@@ -17,7 +17,7 @@ Sales are an excellent way to encourage customers to use your store. Saleor offe
 
 Click [[Create&nbsp;Sale]] above the main sales list and fill in the relevant sections.
 
-![Creating sale](assets/dashboard-discounts/1.png)
+![Creating sale](assets/dashboard-discounts/discount1.JPG)
 
 
 **2. General Information card**
