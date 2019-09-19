@@ -65,9 +65,9 @@ These two methods cover most of the basic use cases, for example:
 
 3. Define if there are minimum and/or maximum weight or price values put in place by couriers. 
 
-If there are no limitations, select the There are no value limits checkbox. 
+    * If there are no limitations, select the There are no value limits checkbox. 
 
-If there are limitations, input them into the fields as the value range. If you leave the minimum value empty, it means that there is no lower threshold. If you leave the maximum value empty, it means there is no maximum weight or price value.
+    * If there are limitations, input them into the fields as the value range. If you leave the minimum value empty, it means that there is no lower threshold. If you leave the maximum value empty, it means there is no maximum weight or price value.
 
 
 

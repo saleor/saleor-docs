@@ -10,6 +10,7 @@ sidebar_label: Introduction
 [/card-grid]
 
 [card-grid]
+[**Handling Money Amounts**](customization/money.md)
 [**Thumbnails**](customization/thumbnails.md)
 [/card-grid]
 

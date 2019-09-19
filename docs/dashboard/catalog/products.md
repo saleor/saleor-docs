@@ -215,7 +215,7 @@ Much the same as on social media or other platforms, there are two ways to add a
 	
 You can add an unlimited number of images per product. The main image will be the one that is first in line. You can drag and drop images to change the order. Hover over a specific image and click the trash can to delete an unwanted image.
 
-![Uploading product images](assets/dashboard-catalog/8.png)
+![Uploading product images](assets/dashboard-catalog/catalog8.JPG)
 
 
 **8. Add image descriptions**

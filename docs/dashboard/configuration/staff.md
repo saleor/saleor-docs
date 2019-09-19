@@ -30,5 +30,5 @@ Click [[Add&nbsp;Staff&nbsp;Member]] above the list of users. Fill in the first 
 
 To edit a user account, access it from the staff members list, make any relevant changes, and then click [[Save]] in the footer.
 
-To delete a user, click [[Remove]] on the left side of the footer and then confirm removal.
+To delete a user, click [[Delete]] on the left side of the footer and then confirm removal.
 

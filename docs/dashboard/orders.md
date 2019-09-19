@@ -162,4 +162,4 @@ Click the three dots in the top right corner of a Fulfilled order card. Select [
 
 ![Canceling shipment](assets/dashboard-orders/orders6.JPG)
 
-For more information on Shipment configuration, see the [Shipping Methods](configuration/shipping.md)
+For more information on Shipment configuration, see the [Shipping Methods](configuration/shipping.md).
