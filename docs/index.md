@@ -3,21 +3,6 @@ id: index
 title: Welcome to Saleor Docs
 ---
 
-## Developer's Guide
-
-[home-grid]
-[![](assets/icons/getting-started.png) **Getting Started** Installing Saleor and creating an Administrator account.](getting-started/intro.md)
-[![](assets/icons/customizing.png) **Customizing Saleor** Customizing Saleor to your chosen technology stack. Working with Python.](customization/intro.md)
-[/home-grid]
-[home-grid]
-[![](assets/icons/payment-gateways.png) **Supported Payment Gateways** How to use Braintree, Razorpay and Stripe with Saleor.](payment-gateways/intro.md)
-[![](assets/icons/architecture.png) **Architecture** Understanding the Saleor system architecture.](architecture/intro.md)
-[/home-grid]
-[home-grid]
-[![](assets/icons/integrations.png) **Integrations** Adding SEO, Google, mailing and other integrations to the platform.](integrations/intro.md)
-[![](assets/icons/contribute.png) **Contribute** Connected to our GitHub and Spectrum communities for more support.](contributing/intro.md)
-[/home-grid]
-
 ## Saleor Dashboard Guide
 
 [home-grid]
@@ -34,5 +19,31 @@ title: Welcome to Saleor Docs
 [/home-grid]
 [home-grid]
 [![](assets/icons/discounts.png) **Discounts** How to create and effectively utilize sales and vouchers in your store.](dashboard/discounts/sales.md)
-[![](assets/icons/configure.png) **Configure** Manage all the administration elements of your dashboard and processes like tax automation and shipping.](dashboard/configuration/intro.md)
+[![](assets/icons/configure.png) **Configuration** Manage all the administration elements of your dashboard and processes like tax automation and shipping.](dashboard/configuration/intro.md)
 [/home-grid]
+[home-grid]
+[![](assets/icons/niema) **Systemwide Features** Issues spanning throughout the Saleor dashboard.](dashboard/discounts/sales.md)
+[/home-grid]
+
+
+## Running your Saleor Server
+
+[home-grid]
+[![](assets/icons/getting-started.png) **Getting Started** Installing Saleor and creating an Administrator account.](getting-started/intro.md)
+[![](assets/icons/customizing.png) **Configuring Saleor** Customizing Saleor to your chosen technology stack. Working with Python.](customization/intro.md)
+[/home-grid]
+
+[home-grid]
+[![](assets/icons/integrations.png) **Integrations** Adding Google Analytics, Open Exchange Rates and other integrations to the platform.](integrations/intro.md)
+[![](assets/icons/architecture.png) **Deployment** Using Docker, Heroku and other tools to deploy your Saleor store and handle errors.](deployment/intro.md)
+[/home-grid]
+
+[home-grid]
+[![](assets/icons/contribute.png) **Contributing Guides** Connected to our GitHub and Spectrum communities for more support.](contributing/intro.md)
+[![](assets/icons/niema) **Advanced** Everything you need to know as a Developer to get  your Saleor set up.](advanced/intro.md)
+[/home-grid]
+
+[home-grid]
+[![](assets/icons/niema) **Guides** Step by step guides on integrating payment gateways and other configurations.](payment-gateways/intro.md)
+[/home-grid]
+
