@@ -153,14 +153,14 @@ Add the name of your product and a description. Use text formatting to make your
 >
 > Your product descriptions can be cool and fun, or just based on the facts. They represent the tone of your store. Be creative if you like, but be clear and make sure that you have all the information that a buyer needs.
 >
->  ![Formatting product description](assets/dashboard-catalog/catalog4.jpg)
+>  ![Formatting product description](assets/dashboard-catalog/catalog4.JPG)
 
 
 **2. Define pricing**
 
 Type the price of your product manually or using the stepper by the currency indicator. If your product is tax-exempt, leave the [[Charge&nbsp;taxes&nbsp;for&nbsp;this&nbsp;item]] checkbox empty. If you need to charge taxes, click on the box and a green check mark will appear.
 
-For more information on taxes, see the [Taxes](configuration/taxes.md) topic.
+For more information on taxes, see the [Taxes](dashboard/configuration/taxes.md) topic.
 
 > **Note** 
 >

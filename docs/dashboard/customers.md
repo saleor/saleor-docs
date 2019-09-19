@@ -10,7 +10,7 @@ In this page you can view the details of all users who have provided you with th
 
 Click on an individual customer to get an overview of the general information, address, customer activity, and recent orders.
 
-![Customer details](assets/dashboard-customers/2.jpg)
+![Customer details](assets/dashboard-customers/customers2.JPG)
 
 
 ## Customer orders and history

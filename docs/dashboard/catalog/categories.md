@@ -24,7 +24,7 @@ Enter the category name, description, and SEO-optimized information the same way
 
 When finished, click [[Save]] in the bottom right corner.
 
-![Adding category](assets/dashboard-catalog/15.jpg)
+![Adding category](assets/dashboard-catalog/catalog15.JPG)
 
 
 **2. Add a category photo and a subcategory**

@@ -36,7 +36,7 @@ Once you have created a collection, you can easily add more products by choosing
 There are two ways to delete a collection:
 
 - Click the checkbox next to the collection name on the main list. Options to _Publish_, _Unpublish_, and _Delete_ will appear above the list
-- Click on the collection name and enter the detailed information, then use the red [[remove]] button in the footer
+- Click on the collection name and enter the detailed information, then use the red [[Delete]] button in the footer
 
 > **Note**
 >
