@@ -5,18 +5,18 @@ title: Model Translations
 
 > **Note**
 >
-> Currently, model translations are only accessible from the Python code. 
+> Model translations are currently only accessible from the Python code. 
 > The backend and the storefront are prepared to handle the translated properties.
-> GraphQL API and UI views will be added in the future releases.
+> GraphQL API and UI views will be added in future releases.
 
 
 ## Overview
 
 Model translations are available via `TranslationProxy`, defined on the to-be-translated `Model`.
 
-`TranslationProxy` gets user’s language, and checks if there is an existing `ModelTranslation` for that language. 
+`TranslationProxy` finds the user’s language and checks if there is an existing `ModelTranslation` for that language. 
 
-If there is no relevant `ModelTranslation` available, it will return the original (not translated) property. Otherwise, the translated property is returned.
+If there is no relevant `ModelTranslation` available, it will return the original (untranslated) property. Otherwise, the translated property is returned.
 
 
 ## How to add a `ModelTranslation`
@@ -37,14 +37,14 @@ class Product(models.Model):
     translated = TranslationProxy()
 ```
 
-The product has several properties, but let's assume you want to translate just its `name` and `description`.
+The product has several properties, but let's assume you want to translate just the `name` and `description`.
 
 1. Set a `translated` property to an instance of `TranslationProxy`.
 
-2. Use `ProductTranslation` to store yur translated properties. It requires two base fields:
+2. Use `ProductTranslation` to store your translated properties. It requires two base fields:
 
 
-* `language_code` - A language code that this translation correlates to.
+* `language_code` - A language code to which this translation correlates.
 
 * `product` - `ForeignKey` relation to the translated object (in this case it will be named _product_).
 
@@ -74,12 +74,12 @@ class ProductTranslation(models.Model):
 
 > **Note**
 >
-> Remember to set `unique_together` on the `product` and `language_code`, there should be only one translation per product and per language.
+> Remember to set `unique_together` on the `product` and `language_code`; there should be only one translation per product and per language.
 
 > **Warning**
 >
 > `ModelTranslation` fields must always take the same arguments as the existing translatable model.
-> For example, inconsistency in `max_length` attribute could lead to UI bugs when translation settings are switched on.
+> For example, inconsistency in the `max_length` attribute could lead to UI bugs when translation settings are switched on.
 
 
 ## Using a `ModelTranslation`
@@ -92,5 +92,5 @@ translated_name = product.translated.name
 
 > **Note**
 >
-> Translated property is returned if there is an existing `ModelTranslation` with the same `language_code` as the user’s currently active language. 
-> Otherwise, the original property (not translated) is returned.
+> The translated property is returned if there is an existing `ModelTranslation` with the same `language_code` as the user’s currently active language. 
+> Otherwise, the original property (untranslated) is returned.

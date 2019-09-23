@@ -9,7 +9,7 @@ The Saleor GraphQL API handles the following three errors:
 
 ## Syntax error
 
-This error occurs if, when performing some specified operation, you provide wrong or unrecognized input data. The GraphQL checks the syntax as you write and, if you are trying to perform an operation which is unknown, the editor you are using will notify you. However, if you proceed with sending the request, you will get a syntax error.
+This error occurs if, while performing some specified operation, you provide wrong or unrecognized input data. The GraphQL checks the syntax as you write and, if you are trying to perform an operation which is unknown, you will be notified by the editor you are using. If you proceed with sending the request, you will get a syntax error.
 
 Below is an example of an error triggered by wrong syntax. The following query tries to fetch the `fullName` field which doesn't exist on the `User` type:
 

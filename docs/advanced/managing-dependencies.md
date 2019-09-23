@@ -6,7 +6,7 @@ title: Managing Dependencies
 
 ## Pipenv 
 
-To guarantee repeatable installations, all project dependencies are managed using Pipenv. Project’s direct dependencies are listed in `Pipfile`. 
+To guarantee repeatable installations, all project dependencies are managed using Pipenv. The project’s direct dependencies are listed in `Pipfile`. 
 Running `pipenv lock` would generate `Pipfile.lock` which has all versions pinned.
 
 >**Tip**

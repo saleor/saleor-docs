@@ -5,7 +5,7 @@ title: Pages
 
 ## Setting up custom pages
 
-You can set up pages such as “_About us_” or “_Important Announcement!_” in the Pages menu in dashboard. 
+You can set up pages such as “_About us_” or “_Important Announcement!_” in the Pages menu in the dashboard. 
 
 > Note 
 > 

@@ -79,7 +79,7 @@ curl \
   http://localhost:8000/graphql/
 ```
 
-## Token verification and refreshing
+## Verifying and refreshing a token
 
 To verify the token, use the following mutation:
 

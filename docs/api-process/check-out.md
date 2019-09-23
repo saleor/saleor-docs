@@ -5,9 +5,9 @@ title: How to Create Checkout
 
 ## Introduction
 
-Below is a description of a checkout process. We assume that at this stage you have already completed the steps included in the [Getting Started](api/intro.md) section of this chapter and you are familiar with the basic setup of Saleor GraphQL API.
+Below is a description of a checkout process. We assume that at this stage you have already completed the steps included in the [Getting Started](api/intro.md) section of this chapter and that you are familiar with the basic setup of the Saleor GraphQL API.
 
-The below process describes the key milestones in the checkout process flow in Saleor. There are also additional steps that may occur along the way, however, the purpose of this instruction is to deliver a base reference for the user to work with.
+The below process describes the key milestones in the checkout process flow in Saleor. There are also additional steps that may occur along the way; however, the purpose of this instruction is to deliver a base reference for the user to work with.
 
 The code snippets included in this section may be run in [Playground](api/playground.md) or your preferred HTTP client.
 
@@ -19,7 +19,7 @@ The code snippets included in this section may be run in [Playground](api/playgr
 >
 > - If you use the `checkoutCreate` mutation including the authentication token, this checkout is assigned to the user who is authenticated by this token. For more information on how to authenticate with our API, see the [Authentication](api/authenticate.md) topic.
 >
-> - If no authentication token is provided, the checkout is created for an anonymous user, and an email address is used to identify such `Checkout` object linking it with the anonymous user. In this case, an email is required to create checkout.
+> - If no authentication token is provided, the checkout is created for an anonymous user, and an email address is used to identify such a `Checkout` object, linking it with the anonymous user. In this case, an email is required to create the checkout.
 
 To create a `Checkout` object, use the `checkoutCreate` mutation.
 
@@ -31,25 +31,25 @@ This mutation requires the following input:
 
 - `billingAddress` - user's billing address
 
-- `lines` - list of checkout lines - each checkout line represents the _variant id_ (the specific product) and the quantity of it
+- `lines` - list of checkout lines. Each checkout line represents a _variant id_ (the specific product) and its quantity 
 
 As a result, this mutation returns the following fields:
 
-- `checkout` - contains complete checkout information, including among others the following fields:
+- `checkout` - contains complete checkout information, including the following fields:
 
-  - `id` - unique checkout ID; used to reference identify checkout in other checkout operations
+  - `id` - a unique checkout ID which is used as a reference identify for the checkout in other checkout operations
 
-  - `token` - similarly to `id` this is a unique identifier, but it is also a public token. It will save the user's checkout session if, for example, they accidentally close the browser
+  - `token` - similarly to `id`, this is a unique identifier, but it is also a public token. It will save the user's checkout session if, for example, they accidentally close the browser
 
   - `totalPrice` - the total price of the checkout lines and shipping costs
 
-  - `isShippingRequired` - tells whether shipping is required for this checkout
+  - `isShippingRequired` - denotes whether shipping is required for this checkout
 
   - `availablePaymentGateways` - a list of payment gateways which are currently configured on your Saleor server and can be used to pay for the checkout
 
   - `availableShippingMethods` - a list of available shipping methods for this checkout. If the items in the cart require shipment, setting a shipping method is mandatory
 
-- `created` - a boolean field which tells whether a new checkout object was created, or an existing one was used. E.g., if an authenticated user had a unfinished checkout before, it would be reused
+- `created` - a boolean field which tells whether a new checkout object was created, or an existing one was used. For example, if an authenticated user had a unfinished checkout before, it would be reused
 
 - `errors` - list of errors that could occur during mutation execution
 
@@ -104,7 +104,7 @@ mutation {
 }
 ```
 
-As a result we're getting a newly created checkout object for which we return its ID, total price, list of available shipping and payment methods:
+We get a newly created checkout object for which we return the ID, total price, and list of available shipping and payment methods:
 
 ```json
 {

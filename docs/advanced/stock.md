@@ -5,9 +5,9 @@ title: Stock Management
 
 Each product variant has a stock keeping unit (SKU).
 
-Each variant holds information about:
-* quantity at hand
-* quantity allocated for already placed orders 
+Each variant contains information about:
+* quantity in stock
+* quantity allocated for already-placed orders 
 * quantity available
 
 > **Example** 
@@ -28,7 +28,7 @@ The highest quantity that can be ordered is the available quantity of product va
 
 ## Allocating stock for new orders
 
-Once a new order is placed, quantity needed to fulfil each order line is immediately marked as allocated.
+Once a new order is placed, the quantity needed to fulfil each order line is immediately marked as allocated.
 
 > **Example** 
 > A customer places an order for another box of shoes. The stock record is as follows:
