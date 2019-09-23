@@ -15,10 +15,11 @@ sidebar_label: Introduction
 [/card-grid]
 
 [card-grid]
-[**Example Query - Making your First Call**](api/example-query.md)
+[**Pagination**](api/pagination.md)
 [**Error Handling**](api/error-handling.md)
 [/card-grid]
 
 [card-grid]
+[**Example Query - Making your First Call**](api/example-query.md)
 [**Extending Models Using Metadata**](api/metadata.md)
 [/card-grid]
