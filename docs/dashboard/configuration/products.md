@@ -13,7 +13,7 @@ The list displayed on the Product Types page shows the names of existing product
 
 Each product type page consist of the following cards:
 
-### Information
+### General Information
 
 Here you can enter your Product Type Name. For example, a product: _bike_ comes under a product type: _sporting goods_.
 
@@ -29,13 +29,13 @@ This is very important, as it means you are legally charging the correct amount 
 
 ## How to
 
-### How to add a product type
+### How to create a product type
 
-1. Click [[Add&nbsp;Product&nbsp;Type]] and fill out the General Information, Taxes and Shipping cards.
+1. Click [[Create&nbsp;Product&nbsp;Type]] and fill out the General Information, Taxes and Shipping cards.
 
 2. Click [[Save]]. An additional Product Attributes card will appear. Assign attributes to your product type.
 
-![Adding product type](assets/dashboard-config/2.png)
+![Adding product type](assets/dashboard-config/config2.JPG)
 
 3. If the product type you are setting up requires variants, click the [[Product&nbsp;type&nbsp;uses&nbsp;Variant&nbsp;Attributes]] switch. This opens additional card where you can assign or remove variant attributes.
 
@@ -51,7 +51,7 @@ This is very important, as it means you are legally charging the correct amount 
 
 There are two ways to remove a Product Type:
 
-- Select it from the main list, then choose [[Remove]] in the footer
+- Select it from the main list, then choose [[Delete]] in the footer
 - Check the box on the main list and then click the trash can that appears above. You can remove single or multiple product types simultaneously from the list.
 
 Confirm the cancellation in both cases by clicking [[Delete]] in the pop-up window.

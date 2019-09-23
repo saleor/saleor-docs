@@ -1,6 +1,6 @@
 ---
 id: debug-tools
-title: Debug tools
+title: Debug Tools
 ---
 
 We have built in support for the following debug tools:

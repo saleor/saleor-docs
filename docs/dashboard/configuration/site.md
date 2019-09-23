@@ -11,11 +11,11 @@ This page allows you to enter the basic information about your store. Some of th
 
 View and update general information about your store. Here, you can control how your site information appears online.
 
-![General information configuration](assets/dashboard-config/15.png)
+![General information configuration](assets/dashboard-config/config15.JPG)
 
 The text you input to the [[Name&nbsp;of&nbsp;your&nbsp;store]] field will appear in the web browser tabs.
 
-![Store name displayed by browser](assets/dashboard-config/16.png)
+![Store name displayed by browser](assets/dashboard-config/config16.JPG)
 
 The [[URL&nbsp;of&nbsp;your&nbsp;online&nbsp;store]] should match that which you will send to customers and web browsers.
 
@@ -39,5 +39,5 @@ You can allow dashboard users to enter your store through Google and Facebook an
 3. Create a key and password, which users will enter when accessing the dashboard through the chosen platform 
 4. Click [[Add&nbsp;Authentication]] to confirm
 
-![Authorization keys](assets/dashboard-config/17.png)
+![Authorization keys](assets/dashboard-config/config17.JPG)
 

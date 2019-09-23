@@ -18,11 +18,13 @@ Subcategories break large groups down into smaller subsets that make it easier t
 
 Adding a new product category is a two step process: 
 
-**1. Click [[Add&nbsp;Category]] to create a new product category** 
+**1. Click [[Create&nbsp;Category]] to set up a new product category** 
 
 Enter the category name, description, and SEO-optimized information the same way as you would with an individual product. 
 
-When finished, click [[Save&nbsp;Category]] in the bottom right corner.
+When finished, click [[Save]] in the bottom right corner.
+
+![Adding category](assets/dashboard-catalog/catalog15.JPG)
 
 
 **2. Add a category photo and a subcategory**
@@ -31,12 +33,10 @@ At this stage your new category is already created. You can go back or click [[C
 
 Or you can continue and add a widescreen banner photo that will appear at the top of the screen when customers view the category.
 
-![Adding category](assets/dashboard-catalog/15.jpg)
+At this stage, you can also add Subcategories and Products to your Category. This can be done in the bottom card which consist of two tabs of Subcategories and Products. 
+Click on each tab to either add a subcategory or assign products.
 
- At this stage, you can also add Subcategories and Products to your Category. This can be done in the bottom card which consist of two tabs of Subcategories and Products. 
- Click on each tab to either add a subcategory or assign products.
-
-When finished, click [[Save&nbsp;Category]].
+When finished, click [[Save]].
 
 ### How to edit categories
 
@@ -45,7 +45,7 @@ Once you have your categories set up, you can edit them at any time by clicking 
 
 ### How to delete categories
 
-To remove a category, simply click [[Delete&nbsp;Category]] in the footer.
+To remove a category, select the category from the main list and click [[Delete]] in the footer of the category page.
 
 > **Warning** 
 >
@@ -55,9 +55,9 @@ To remove a category, simply click [[Delete&nbsp;Category]] in the footer.
 
 ### How to add a subcategory
 
-Click [[Add&nbsp;Subcategory]] in the top right corner of the subcategories card. In this example, we have paints and cushions in the Accessories category, which can be marked as separate subcategories. Add a description and SEO information just the same as with a main category.
+Click [[Create&nbsp;Subcategory]] in the top right corner of the Subcategories card. In this example, we have paints and cushions in the Accessories category, which can be marked as separate subcategories. Add a description and SEO information just the same as with a main category.
 
-![Products in category](assets/dashboard-catalog/16.jpg)
+![Products in category](assets/dashboard-catalog/catalog16.png)
 
 
 
