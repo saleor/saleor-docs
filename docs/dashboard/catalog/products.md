@@ -253,7 +253,7 @@ When you click a product record from the main list, you will see the same cards 
 
 #### Checking inventory
 
-In this example, you can see five types of t-shirt. Four have enough stock to cover future orders. The XL size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there is only one item in stock (“Inventory”) and it has been ordered by a customer (“Allocated”).
+In this example, you can see five types of t-shirt. Four have enough stock to cover future orders. The S size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there are fourteen items in stock (“Inventory”) and they have been ordered by a customer (“Allocated”).
 
 ![Checking inventory](assets/dashboard-catalog/stock.JPG)
 
