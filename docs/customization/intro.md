@@ -9,10 +9,11 @@ sidebar_label: Introduction
 [**Customizing Emails**](customization/emails.md)
 [/card-grid]
 
-[card-grid]
+
 [**Handling Money Amounts**](customization/money.md)
-[**Thumbnails**](customization/thumbnails.md)
 [**Password Validation**](customization/password-validation.md)
+
+
+[card-grid]
+[**Thumbnails**](customization/thumbnails.md)
 [/card-grid]
-
-
