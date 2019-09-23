@@ -248,14 +248,14 @@ To edit product details, click any field and start making changes. The [[Save]] 
 
 When you click a product record from the main list, you will see the same cards as when you create a product, with one additional card for Variants. This is where you can change product variants and attributes, check inventory, and control stock levels.
 
-![Reviewing product variants](assets/dashboard-catalog/catalog66.JPG)
+![Reviewing product variants](assets/dashboard-catalog/stock1.JPG)
 
 
 #### Checking inventory
 
 In this example, you can see five types of t-shirt. Four have enough stock to cover future orders. The XL size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there is only one item in stock (“Inventory”) and it has been ordered by a customer (“Allocated”).
 
-![Checking inventory](assets/dashboard-catalog/catalog55.JPG)
+![Checking inventory](assets/dashboard-catalog/stock.JPG)
 
 #### Managing variants of a product
 
