@@ -3,7 +3,7 @@ id: environment-variables
 title: Environment Variables
 ---
 
-We are fans of the [12factor](https://12factor.net/) approach and portable code so you can configure most of Saleor using only environment variables.
+We are fans of the [12 factor](https://12factor.net/) approach and portable code so you can configure most of Saleor using only environment variables.
 ## List of variables
 
 ### `ALLOWED_HOSTS`
@@ -28,7 +28,7 @@ Use of Redis is recommended. Heroku’s Redis will export this setting automatic
 
 ### `DATABASE_URL`
 
-This variable defaults to a local PostgreSQL instance. See [Using Docker for Development](customization/docker.md) for how to get a local database running inside a Docker container.
+This variable defaults to a local PostgreSQL instance. See [Using Docker for Development](getting-started/docker.md) for how to get a local database running inside a Docker container.
 
 Most Heroku databases will export this settings automatically.
 
@@ -81,7 +81,7 @@ Controls production assets’ mount path. Defaults to `/static/`.
 
 ### `DEFAULT_CURRENCY`
 
-Indicates a default currency which is a basis for all prices entered and stored in your store (for more information, see [Handling Money Amounts](architecture/money.md)).
+Indicates a default currency which is a basis for all prices entered and stored in your store.
 
 
 ### `DEFAULT_COUNTRY`

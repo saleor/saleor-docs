@@ -22,7 +22,7 @@ The dashboard has the following sections:
 - [Orders](dashboard/orders.md): A full view of current and past orders
 - [Customers](dashboard/customers.md): Your customer database, with specific details for each buyer
 - [Discounts](dashboard/discounts/sales.md): Give your customers great sales offers or discount vouchers
-- [Translations](dashboards/translations.md): Translate dynamic content in your Saleor store
+- [Translations](dashboard/translations.md): Translate dynamic content in your Saleor store
 - [Configuration](dashboard/configuration/intro.md): Manage all the administration elements of your dashboard and processes like tax automation and shipping
 
 Most sections of the dashboard consist of two types of views:

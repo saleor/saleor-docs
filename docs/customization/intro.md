@@ -1,6 +1,6 @@
 ---
 id: intro
-title: Customizing Saleor
+title: Configuring Saleor
 sidebar_label: Introduction
 ---
 
@@ -10,7 +10,9 @@ sidebar_label: Introduction
 [/card-grid]
 
 [card-grid]
+[**Handling Money Amounts**](customization/money.md)
 [**Thumbnails**](customization/thumbnails.md)
+[**Password Validation**](customization/password-validation.md)
 [/card-grid]
 
 

@@ -6,16 +6,16 @@ sidebar_label: Introduction
 
 [card-grid]
 [**Introduction to GraphQL API**](api/intro-to-graphql.md)
-[**Pagination**](api/pagination.md)
-[/card-grid]
-
-[card-grid]
 [**The GraphQL Endpoint**](api/endpoint.md)
-[**How to Access the Playground**](api/playground.md)
 [/card-grid]
 
 [card-grid]
+[**How to Access the Playground**](api/playground.md)
 [**How to Authenticate with our API**](api/authenticate.md)
+[/card-grid]
+
+[card-grid]
+[**Pagination**](api/pagination.md)
 [**Error Handling**](api/error-handling.md)
 [/card-grid]
 

@@ -9,7 +9,7 @@ With the `DEBUG=True` setting enabled, Saleor exposes an interactive GraphQL edi
 
 Using Playground is easy and intuitive with its sidebar navigation containing two tabs (_Docs_ and _Schema_), listing all operations available in the Saleor API. The Playground allows you to quickly familiarize yourself with API, perform example operations, and send your first queries.
 
-[Playground](assets/api/1.jpg)
+[Playground](assets/api/1.PNG)
 
 
 For more information, visit the [Playground's GitHub page](https://github.com/prisma/graphql-playground).

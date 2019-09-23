@@ -7,7 +7,7 @@ title: Shipping Methods
 
 On this page you can manage how you ship out orders. The Shipping Methods section contains two main cards: Shipping By Zone and Configuration.
 
-![Shipping zones](assets/dashboard-config/3.png)
+![Shipping zones](assets/dashboard-config/config3.JPG)
 
 
 ## Weight configuration
@@ -39,7 +39,7 @@ Remove countries from a shipping zone using the trash can icon next to the count
 
 Find rates offered by couriers for the delivery of your goods and add them to your shipping zones. When your customers get to the checkout section of the store, they will be presented with these shipment options and prices.
 
-![Shipping options](assets/dashboard-config/4.png)
+![Shipping options](assets/dashboard-config/config4.JPG)
 
 There are two types of shipping:
 
@@ -55,25 +55,27 @@ These two methods cover most of the basic use cases, for example:
 
 ### How to add a courier
 
-1. Click [[Add&nbsp;Rate]] in the Price Based Rates card. 
+1. Click [[Create&nbsp;Rate]] in the Price Based Rates card. 
+
+![Adding courier](assets/dashboard-config/config5.JPG)
+
 2. Fill the name of the courier in the Rate Name field.
 
-![Adding courier](assets/dashboard-config/5.png)
 
-3. Define if there are minimum and/or maximum weight or price values put in place by couriers. If there are no limitations, click the switch so it turns green. If there are limitations, input them into the fields as the value range. If you leave the minimum value empty, it means that there is no lower threshold. If you leave the maximum value empty, it means there is no maximum weight or price value.
 
-![Specifying value range](assets/dashboard-config/6.png)
+3. Define if there are minimum and/or maximum weight or price values put in place by couriers. 
 
-![Specifying value range](assets/dashboard-config/7.png)
+    * If there are no limitations, select the There are no value limits checkbox. 
+
+    * If there are limitations, input them into the fields as the value range. If you leave the minimum value empty, it means that there is no lower threshold. If you leave the maximum value empty, it means there is no maximum weight or price value.
+
 
 
 #### Free or paid shipping
 
-If you offer free shipping, click on the switch so it is green. If shipping is charged, input the rate per weight unit in the currency field.
+If you offer free shipping, select the This is free shipping checkbox. 
 
-![Enabling free shipping](assets/dashboard-config/8.png)
-
-![Specifying value range](assets/dashboard-config/9.png)
+If shipping is charged, input the rate per weight unit in the currency field.
 
 
 ### How to remove couriers
