@@ -31,7 +31,9 @@ Saleor arrives with the following plugins already integrated.
 
     * Stripe
 
-You need to provide public and private keys to activate each payment gateway.
+In all cases of plugin configuration, you need to provide your credentials. Depending on the gate you are configuring, there might be additional setup required.
+
+
 
 
 

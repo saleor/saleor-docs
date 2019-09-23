@@ -20,14 +20,15 @@ The default configuration only uses the dummy backend. It is meant to allow deve
 
 This gateway implements payments using [Braintree](https://www.braintreepayments.com/).
 
-| Environment Variable | Description |
+| Plugin Settings | Description |
 | --- | --- |
-| `BRAINTREE_SANDBOX_MODE` | Whether to use a sandbox environment for testing, `True` (default) or `False`. |
-| `BRAINTREE_AUTO_CAPTURE` | Whether to auto capture transaction, `True` (default) or `False`. |
-| `BRAINTREE_STORE_CARD` | Whether to store customer's payment source in gateway, `True` or `False` (default). |
-| `BRAINTREE_MERCHANT_ID` | Merchant ID assigned by Braintree. |
-| `BRAINTREE_PUBLIC_KEY` | Public key assigned by Braintree. |
-| `BRAINTREE_PRIVATE_KEY` | Private key assigned by Braintree. |
+| `Use sandbox` | Whether to use a sandbox environment for testing, `True` (default) or `False`. |
+| `Automatic payment capture` | Whether to auto capture transaction, `True` (default) or `False`. |
+| `Store customers card` | Whether to store customer's payment source in gateway, `True` or `False` (default). |
+| `Merchant ID` | Merchant ID assigned by Braintree. |
+| `Public API key` | Public key assigned by Braintree. |
+| `Secret API key` | Private key assigned by Braintree. |
+| `Require 3D secure` | Determines if Saleor should enforce 3D secure during payment. |
 
 > **Note**
 >
@@ -43,13 +44,13 @@ This gateway implements payments using [Razorpay](https://razorpay.com/).
 
 Before you start, you need to create your API credentials. Go to your Razorpay account settings, and to [the API Keys section](https://dashboard.razorpay.com/#/app/keys).
 
-| Environment Variable | Description |
+| Plugin Settings | Description |
 | --- | --- |
-| `RAZORPAY_PUBLIC_KEY` | Your Razorpay key id. |
-| `RAZORPAY_SECRET_KEY` | Your Razorpay secret key id. |
-| `RAZORPAY_PREFILL` | Pre-fill the email and customer’s full name if set to `True` (default). |
-| `RAZORPAY_STORE_NAME` | Your store name. |
-| `RAZORPAY_STORE_IMAGE` | An absolute or relative link to your store logo. |
+| `Public API key` | Your Razorpay key id. |
+| `Secret API key` | Your Razorpay secret key id. |
+| `Store customers card` | Determines if Saleor should store cards on payments. |
+| `Automatic payment capture` | Whether to auto capture transaction, `True` (default) or `False`. |
+
 
 > **Warning**
 >
@@ -59,17 +60,12 @@ Before you start, you need to create your API credentials. Go to your Razorpay a
 
 This gateway implements payments using [Stripe](https://stripe.com/).
 
-| Environment Variable | Description |
+| Plugin Settings | Description |
 | --- | --- |
-| `STRIPE_PUBLIC_KEY` | Your Stripe public key (test or live). |
-| `STRIPE_SECRET_KEY` | Your Stripe secret key (test or live). |
-| `STRIPE_STORE_NAME` | Your store name to show in the checkout form. |
-| `STRIPE_STORE_IMAGE` | An absolute or relative link of your store logo to show in the checkout form. |
-| `STRIPE_PREFILL` | Prefill the email address in the checkout form if set to `True` (default). |
-| `STRIPE_REMEMBER_ME` | Add _Remember Me_ for future purchases in the checkout form if set to `True` (default). |
-| `STRIPE_LOCALE` | Specify auto to display checkout form in the user’s preferred language (default). |
-| `STRIPE_ENABLE_BILLING_ADDRESS` | Collect the user’s billing address in the checkout form if set to `True`. The default is `False`. |
-| `STRIPE_ENABLE_SHIPPING_ADDRESS` | Collect the user’s shipping address in the checkout form if set to `True`. The default is `False`. |
+| `Public API key` | Your Stripe key id. |
+| `Secret API key` | Your Stripe secret key id. |
+| `Store customers card` | Determines if Saleor should store cards on payments. |
+| `Automatic payment capture` | Whether to auto capture transaction, `True` (default) or `False`. |
 
 Each payment gateway integrated with Saleor comes as a plugin solution. 
 
