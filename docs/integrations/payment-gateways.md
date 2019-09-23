@@ -2,6 +2,9 @@
 id: payment-gateways
 title: Supported Payment Gateways
 ---
+Each payment gateway integrated with Saleor comes as a plugin solution. 
+
+To activate your payment plugin, go to [Plugins](dashboard/configuration/plugins.md) section in the Configuration tab of your Saleor dashboard.
 
 Saleor supports the following payment gateways:
 
@@ -67,6 +70,3 @@ This gateway implements payments using [Stripe](https://stripe.com/).
 | `Store customers card` | Determines if Saleor should store cards on payments. |
 | `Automatic payment capture` | Whether to auto capture transaction, `True` (default) or `False`. |
 
-Each payment gateway integrated with Saleor comes as a plugin solution. 
-
-To activate Stripe plugin, go to [Plugins](dashboard/configuration/plugins.md) section in the Configuration tab of your Saleor dashboard.
