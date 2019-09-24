@@ -4,93 +4,16 @@ title: How to Integrate New Payment Gateway
 ---
 ## Introduction
 
-### Checkout payment gateways command 
-
-The command `CHECKOUT_PAYMENT_GATEWAYS` contains a list of enabled payment gateways, with the user friendly payment name. These are the names your customers see when they select the payment method.
-
-For example, to add Braintree as an enabled gateway, use the following configuration:
-
-```python
-CHECKOUT_PAYMENT_GATEWAYS = {
-    "DUMMY": pgettext_lazy("Payment method name", "Dummy gateway"),
-    "BRAINTREE": pgettext_lazy("Payment method name", "Braintree"),
-}
-```
-## Supported payment gateways
-
-The supported payment providers are:
-
-- `DUMMY` - for testing purposes only!
-- `BRAINTREE` - supports PayPal and Credit Cards
-- `RAZORPAY` - supports only the paisa currency
-- `STRIPE` - supports Credit Cards
-
-The default configuration only uses the dummy backend. It is meant to allow developers to easily simulate different payment results.
-
-> **Note**
->
-> All payment backends default to using sandbox mode. This is very useful for development. When deploying to a production server, make sure you use the production mode.
-
-### Braintree 
-
-This gateway implements payments using [Braintree](https://www.braintreepayments.com/).
-
-| Environment Variable | Description |
-| --- | --- |
-| `BRAINTREE_SANDBOX_MODE` | Whether to use a sandbox environment for testing, `True` (default) or `False`. |
-| `BRAINTREE_AUTO_CAPTURE` | Whether to auto capture transaction, `True` (default) or `False`. |
-| `BRAINTREE_STORE_CARD` | Whether to store customer's payment source in gateway, `True` or `False` (default). |
-| `BRAINTREE_MERCHANT_ID` | Merchant ID assigned by Braintree. |
-| `BRAINTREE_PUBLIC_KEY` | Public key assigned by Braintree. |
-| `BRAINTREE_PRIVATE_KEY` | Private key assigned by Braintree. |
-
-> **Note**
->
-> This backend does not support fraud detection.
-
-> **Warning**
->
-> Make sure that Braintree’s currency is the same as your shop’s currency, otherwise customers will be charged the wrong amount.
-
-### Razorpay
-
-This gateway implements payments using [Razorpay](https://razorpay.com/).
-
-Before you start, you need to create your API credentials. Go to your Razorpay account settings, and to [the API Keys section](https://dashboard.razorpay.com/#/app/keys).
-
-| Environment Variable | Description |
-| --- | --- |
-| `RAZORPAY_PUBLIC_KEY` | Your Razorpay key id. |
-| `RAZORPAY_SECRET_KEY` | Your Razorpay secret key id. |
-| `RAZORPAY_PREFILL` | Pre-fill the email and customer’s full name if set to `True` (default). |
-| `RAZORPAY_STORE_NAME` | Your store name. |
-| `RAZORPAY_STORE_IMAGE` | An absolute or relative link to your store logo. |
-
-> **Warning**
->
-> Currently Razorpay only supports the paisa (INR) currency.
-
-### Stripe
-
-This gateway implements payments using [Stripe](https://stripe.com/).
-
-| Environment Variable | Description |
-| --- | --- |
-| `STRIPE_PUBLIC_KEY` | Your Stripe public key (test or live). |
-| `STRIPE_SECRET_KEY` | Your Stripe secret key (test or live). |
-| `STRIPE_STORE_NAME` | Your store name to show in the checkout form. |
-| `STRIPE_STORE_IMAGE` | An absolute or relative link of your store logo to show in the checkout form. |
-| `STRIPE_PREFILL` | Prefill the email address in the checkout form if set to `True` (default). |
-| `STRIPE_REMEMBER_ME` | Add _Remember Me_ for future purchases in the checkout form if set to `True` (default). |
-| `STRIPE_LOCALE` | Specify auto to display checkout form in the user’s preferred language (default). |
-| `STRIPE_ENABLE_BILLING_ADDRESS` | Collect the user’s billing address in the checkout form if set to `True`. The default is `False`. |
-| `STRIPE_ENABLE_SHIPPING_ADDRESS` | Collect the user’s shipping address in the checkout form if set to `True`. The default is `False`. |
+For more details on the payment platforms supported in Saleor, see the [Supported Payment Gateways](integrations/payment-gateways.md) topic.
 
 ## How to integrate a new payment gateway into Saleor
 
 Saleor uses a universal flow that each gateway should fulfill. There are several methods that should be implemented.
 
-Your changes should be stored in the `saleor.payment.gateways.<gateway name>` module.
+Your changes should be stored in the `saleor.payment.gateways.<gateway name>` package.
+
+A plugin.py file is required in this location. The file contains an implementation of the plugin to this specific payment gateway.
+For more information on the plugin implementation methods, see plugin.py file for existing Stripe or Braintree implementation 
 
 > **Note**
 >
@@ -99,217 +22,52 @@ Your changes should be stored in the `saleor.payment.gateways.<gateway name>` mo
 
 ### Client token
 
-`get_client_token(config)` - A client token is a signed data blob that includes configuration and authorization information required by the payment gateway.
+`get_client_token` - A client token is a signed data blob that includes configuration and authorization information required by the payment gateway.
 
 Client tokens should not be reused; a new client token should be generated for each payment request.
 
-
-**Example**
-
-```python
-def get_client_token(config: GatewayConfig) -> str:
-    gateway = get_payment_gateway(**config.connection_params)
-    client_token = gateway.client_token.generate()
-    return client_token
-```
-
 > **Note**
 >
-> All the below functions receive `payment_information` as a dataclass: `PaymentData` and `config` as a dataclass: `GatewayConfig`. Those functions should return a response as a dataclass: `GatewayResponse`. 
+> All the payment methods receive `payment_information` as a dataclass: `PaymentData`. 
+>
+> You are in charge of configuring your gateway. Based on the existing implementations, you may use the `GatewayConfig` class to configure your plugin.
+>
+> For more information on how to configure your plugin, see the [Plugins](dashboard/configuration/plugins.md) topic.
 
 
 ### Authorize payment
 
-`authorize(payment_information, config)` - Authorization is a process of reserving the amount of money against the customer’s funding source. The money does not change hands until the authorization is captured.
-
-
-**Example**
-
-```python
-def authorize(
-        payment_information: PaymentData,
-        config: GatewayConfig,
-    ) -> GatewayResponse:
-
-    # Handle connecting to the gateway and sending the auth request here
-    response = gateway.authorize(token=payment_information.token)
-
-    # Return a correct response format so Saleor can process it,
-    # the response must be json serializable
-    return GatewayResponse(
-        is_success=response.is_success,
-        transaction_id=response.transaction.id,
-        kind=TransactionKind.AUTH,
-        amount=response.amount,
-        currency=response.currency,
-        error=get_error(response),
-        raw_response=get_payment_gateway_response(response),
-    )
-```
-
+`authorize(payment_information)` - Authorization is a process of reserving the amount of money against the customer’s funding source. The money does not change hands until the authorization is captured.
 
 ### Refund
 
-`refund(payment_information, config)` - A refund is a full or partial return of captured funds to the customer.
-
-**Example**
-
-```python
-def refund(
-    payment_information: PaymentData,
-    config: GatewayConfig,
-) -> GatewayResponse:
-
-    # Handle connecting to the gateway and sending the refund request here
-    response = gateway.refund(token=payment_information.token)
-
-    # Return a correct response format so Saleor can process it,
-    # the response must be json serializable
-    return GatewayResponse(
-        is_success=response.is_success,
-        transaction_id=response.transaction.id,
-        kind=TransactionKind.REFUND,
-        amount=response.amount,
-        currency=response.currency,
-        error=get_error(response),
-        raw_response=get_payment_gateway_response(response),
-    )
-```
-
+`refund(payment_information)` - A refund is a full or partial return of captured funds to the customer.
 
 ### Capture payment
 
-`capture(payment_information, config)` - A transfer of the money that was reserved during the authorization stage.
-
-
-**Example**
-
-```python
-def capture(
-    payment_information: PaymentData,
-    config: GatewayConfig,
-) -> GatewayResponse:
-
-    # Handle connecting to the gateway and sending the capture request here
-    response = gateway.capture(token=payment_information.token)
-
-    # Return a correct response format so Saleor can process it,
-    # the response must be json serializable
-    return GatewayResponse(
-        is_success=response.is_success,
-        transaction_id=response.transaction.id,
-        kind=TransactionKind.CAPTURE,
-        amount=response.amount,
-        currency=response.currency,
-        error=get_error(response),
-        raw_response=get_payment_gateway_response(response),
-    )
-```
-
+`capture(payment_information)` - A transfer of the money that was reserved during the authorization stage.
 
 ### Void
 
-`void(payment_information, config)` - A cancellation of a pending authorization or capture.
-
-**Example**
-
-```python
-def void(
-    payment_information: PaymentData,
-    config: GatewayConfig,
-) -> GatewayResponse:
-
-    # Handle connecting to the gateway and sending the void request here
-    response = gateway.void(token=payment_information.token)
-
-    # Return a correct response format so Saleor can process it,
-    # the response must be json serializable
-    return GatewayResponse(
-        is_success=response.is_success,
-        transaction_id=response.transaction.id,
-        kind=TransactionKind.VOID,
-        amount=response.amount,
-        currency=response.currency,
-        error=get_error(response),
-        raw_response=get_payment_gateway_response(response),
-    )
-```
-
-
-### Charge
-
-`charge(payment_information, config)` - Authorization and capture in a single step.
-
-
-**Example**
-
-```python
-def charge(
-    payment_information: PaymentData,
-    config: GatewayConfig,
-) -> GatewayResponse:
-
-    # Handle connecting to the gateway and sending the charge request here
-    response = gateway.charge(
-        token=payment_information.token,
-        amount=payment_information.amount,
-    )
-
-    # Return a correct response format so Saleor can process it,
-    # the response must be json serializable
-    return GatewayResponse(
-        is_success=response.is_success,
-        transaction_id=response.transaction.id,
-        kind=TransactionKind.CHARGE,
-        amount=response.amount,
-        currency=response.currency,
-        error=get_error(response),
-        raw_response=get_payment_gateway_response(response),
-    )
-```
-
+`void(payment_information)` - A cancellation of a pending authorization or capture.
 
 ### Process payment
 
-`process_payment(payment_information, config)` - Used for the checkout process, it should perform all the necessary steps to process a payment. It should use already defined functions, like authorize and capture.
-
-
-**Example**
-
-```python
-def process_payment(
-    payment_information: PaymentData,
-    config: GatewayConfig,
-) -> GatewayResponse:
-
-    # Authorize, update the token, then capture
-    authorize_response = authorize(payment_information, config)
-    payment_information.token = authorize_response.transaction_id
-
-    capture_response = capture(payment_information, config)
-
-    return capture_response
-```
-
-### Parameters
-
-| name | type | description |
-| --- | --- | --- |
-| `payment_information` | `PaymentData` | Payment information, containing the token, amount, currency and billing. |
-| `config` | `GatewayConfig` | Configuration of the payment gateway. |
-
+`process_payment(payment_information)` - Used for the checkout process, it should perform all the necessary steps to process a payment. It should use already defined functions, like authorize and capture.
 
 #### `PaymentData`
 
 | Name | Type | Description |
 | --- | --- | --- |
-| `token` | `str` | Token used for transaction, provided by the gateway. |
 | `amount` | `Decimal` | Amount to be authorized/captured/charged/refunded. |
+| `currency` | `str` | The currency used in this transaction. |
 | `billing` | `AddressData` | Billing information. |
 | `shipping` | `AddressData` | Shipping information. |
 | `order_id` | `int` | Order id. |
 | `customer_ip_address` | `str` | IP address of the customer |
 | `customer_email` | `str` | Email address of the customer. |
+| `token` | `str` | Token used for transaction, provided by the gateway. |
+| `reuse_source` | `bool` | Indicates that if a payment method for this user has already been stored in payment service, the system should use this payment method. |
 
 
 #### `AddressData`
@@ -336,6 +94,7 @@ def process_payment(
 | `auto_capture` | `bool` | Define if gateway should also capture funds from the card. If false, payment should be only authorized. |
 | `template_path` | `str` | Path to a template that will be rendered for the checkout. |
 | `connection_params` | `dict` | List of parameters used for connecting to the payment’s gateway. |
+| `store_customer` | `bool` | If set to True, the system will save this payment method for this customer. |
 
 
 ### Returns
@@ -404,23 +163,11 @@ class BraintreePaymentForm(forms.Form):
 
 ### Implement 
 
-`create_form(data, payment_information, connection_params)` - Should return the form that will be used for the checkout process.
+`create_form(data, payment_information)` - Should return the form that will be used for the checkout process.
 
 > **Note**
 >
 > Should be added as a part of the provider’s methods.
-
-
-**Example**
-
-```python
-def create_form(data, payment_information, connection_params):
-    return BraintreePaymentForm(
-        data,
-        payment_information,
-        connection_params,
-    )
-```
 
 ### Implement template path
 
@@ -429,10 +176,7 @@ def create_form(data, payment_information, connection_params):
 ```python
 PAYMENT_GATEWAYS = {
     DUMMY: {
-        "module": "saleor.payment.gateways.dummy",
         "config": {
-            "auto_capture": True,
-            "connection_params": {},
             "template_path": "order/payment/dummy.html",
         },
     },
@@ -443,40 +187,6 @@ PAYMENT_GATEWAYS = {
 
 Add a new template to handle the payment process with your payment form. Your changes should live under `saleor.templates.order.payment.<gateway name>.html`.
 
-
-## How to add new payment gateway to the settings
-
-```python
-PAYMENT_GATEWAYS = {
-    "braintree": {
-        "module": "saleor.payment.gateways.braintree",
-        "config": {
-            "auto_capture": get_bool_from_env("BRAINTREE_AUTO_CAPTURE", True),
-            "store_card": get_bool_from_env("BRAINTREE_STORE_CARD", False),
-            "template_path": "order/payment/braintree.html",
-            "connection_params": {
-                "sandbox_mode": get_bool_from_env("BRAINTREE_SANDBOX_MODE", True),
-                "merchant_id": os.environ.get("BRAINTREE_MERCHANT_ID"),
-                "public_key": os.environ.get("BRAINTREE_PUBLIC_KEY"),
-                "private_key": os.environ.get("BRAINTREE_PRIVATE_KEY"),
-            },
-        },
-    },
-}
-```
-
-Take a moment to consider the example settings above.
-
-- `braintree` - Gateway’s name, which will be used to identify the gateway during the payment process. It’s stored in the Payment model under the gateway value.
-- `module` - The path to the integration module (assuming that your changes live within the `saleor.payment.gateways.braintree.__init__.py` file).
-- `connection_params` - List of parameters used for connecting to the payment’s gateway.
-- `auto_capture`- Define if the gateway should also capture funds from the card. When `auto_capture` is set to `False`, funds will be blocked by the customer’s bank for a 7-days period, a manual capture will be required.
-
-## How to enable new payment gateway
-
-Last but not least, if you want to enable your payment gateway in the checkout process, add its name to the `CHECKOUT_PAYMENT_GATEWAYS` setting.
-
-
 > **Tip**
 >
->Whenever possible, use `currency` and `amount` as **returned** by the payment gateway, not the one that was sent to it. It might happen, that a gateway (eg. Braintree) is set to different currency than your shop is. In such case, you might want to charge the customer 70 dollars, but due to gateway misconfiguration, the charge will be 70 euros. Such situation is handled, and an adequate error is given.
+> Whenever possible, use `currency` and `amount` as **returned** by the payment gateway, not the one that was sent to it. It might happen, that a gateway (eg. Braintree) is set to different currency than your shop is. In such case, you might want to charge the customer 70 dollars, but due to gateway misconfiguration, the charge will be 70 euros. Such situation is handled, and an adequate error is given.
