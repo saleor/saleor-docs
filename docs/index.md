@@ -32,6 +32,9 @@ title: Welcome to Saleor Docs
 [![](assets/icons/niema) **Guides** How to effectively create and complete a checkout and obtain products.](api-process/intro.md)
 [/home-grid]
 
+[home-grid]
+[![](assets/icons/niema) **API Reference** A reference of every data type and operation in Saleor GraphQL API.](api-reference.md)
+[/home-grid]
 
 
 ## Running your Saleor Server
