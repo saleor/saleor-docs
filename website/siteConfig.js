@@ -35,10 +35,20 @@ const siteConfig = {
   disableHeaderTitle: true,
 
   // For no header links in the top nav bar -> headerLinks: [],
-  headerLinks: [],
+  headerLinks: [
+    { search: true },
+    {
+      doc: "getting-started/intro",
+      label: "Developer's Guide"
+    },
+    {
+      doc: "dashboard/before-you-start",
+      label: "Saleor Dashboard Guide"
+    }
+  ],
 
   /* path to images for header/footer */
-  headerIcon: "img/saleor-logo.png",
+  headerIcon: "img/saleor-logo.svg",
   footerIcon: "img/saleor-footer-icon.png",
   favicon: "img/saleor-icon.png",
 
@@ -80,7 +90,7 @@ const siteConfig = {
     require("./markdown/pillbutton")
   ],
 
-  docsSideNavCollapsible: true,
+  docsSideNavCollapsible: false,
 
   // Add custom scripts here that would be placed in <script> tags.
   scripts: ["https://buttons.github.io/buttons.js", "/js/menu.js"],
