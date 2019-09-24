@@ -54,6 +54,10 @@ Before you start, you need to create your API credentials. Go to your Razorpay a
 | `Store customers card` | Determines if Saleor should store cards on payments. |
 | `Automatic payment capture` | Whether to auto capture transaction, `True` (default) or `False`. |
 
+> **Note**
+> 
+> Storing customer card in Razorpay gateway is currently not implemented. 
+
 
 > **Warning**
 >
