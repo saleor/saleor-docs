@@ -18,7 +18,3 @@ sidebar_label: Introduction
 [**Error Tracking with Sentry**](deployment/sentry.md)
 [**Continuous Integration**](deployment/continuous_integration.md)
 [/card-grid]
-
-[card-grid]
-[**AWS Fargate and Aurora**](deployment/aws-fargate-aurora.md)
-[/card-grid]
