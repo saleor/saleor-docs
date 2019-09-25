@@ -3,7 +3,11 @@ window.addEventListener(
   function() {
     const isHome = window.location.pathname === "/docs/";
     const onePageNav = document.querySelectorAll("nav.onPageNav");
-    if (isHome) onePageNav[0].classList.add("none");
+    const docMainWrapper = document.querySelectorAll(".docMainWrapper");
+    if (isHome) {
+      onePageNav[0].classList.add("none");
+      docMainWrapper[0].classList.add("home");
+    }
 
     const navItem = document.querySelectorAll(".navListItem");
     [].map.call(navItem, item => {
