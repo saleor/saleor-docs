@@ -562,7 +562,7 @@ Kind of objects to retrieve.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -571,7 +571,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -580,7 +580,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -589,7 +589,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -634,7 +634,7 @@ List of the shop's shipping zones.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -643,7 +643,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -652,7 +652,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -661,7 +661,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -697,7 +697,7 @@ List of the digital contents.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -706,7 +706,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -715,7 +715,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -724,7 +724,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -791,7 +791,7 @@ Sorting options for attributes.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -800,7 +800,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -809,7 +809,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -818,7 +818,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -883,7 +883,7 @@ Filter categories by the nesting level in the category tree.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -892,7 +892,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -901,7 +901,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -910,7 +910,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -984,7 +984,7 @@ Supported filter parameters:
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -993,7 +993,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1002,7 +1002,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1011,7 +1011,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1112,7 +1112,7 @@ Supported filter parameters:
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1121,7 +1121,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1130,7 +1130,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1139,7 +1139,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1195,7 +1195,7 @@ Supported filter parameters:
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1204,7 +1204,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1213,7 +1213,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1222,7 +1222,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1267,7 +1267,7 @@ Filter product variants by given IDs.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1276,7 +1276,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1285,7 +1285,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1294,7 +1294,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1321,7 +1321,7 @@ Span of time.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1330,7 +1330,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1339,7 +1339,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1348,7 +1348,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1384,7 +1384,7 @@ List of payments
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1393,7 +1393,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1402,7 +1402,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1411,7 +1411,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1494,7 +1494,7 @@ Filtering options for pages.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1503,7 +1503,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1512,7 +1512,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1521,7 +1521,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1540,7 +1540,7 @@ List of activity events to display on
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1549,7 +1549,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1558,7 +1558,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1567,7 +1567,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1641,7 +1641,7 @@ Filter order by status
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1650,7 +1650,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1659,7 +1659,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1668,7 +1668,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1715,7 +1715,7 @@ Filter draft orders from a selected timespan.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1724,7 +1724,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1733,7 +1733,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1742,7 +1742,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1843,7 +1843,7 @@ Filtering options for menus.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1852,7 +1852,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1861,7 +1861,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1870,7 +1870,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1926,7 +1926,7 @@ Filtering options for menu items.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1935,7 +1935,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -1944,7 +1944,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -1953,7 +1953,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -1989,7 +1989,7 @@ List of gift cards
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -1998,7 +1998,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -2007,7 +2007,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -2016,7 +2016,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -2061,7 +2061,7 @@ Filtering options for plugins
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -2070,7 +2070,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -2079,7 +2079,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -2088,7 +2088,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -2142,7 +2142,7 @@ Search sales by name, value or type.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -2151,7 +2151,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -2160,7 +2160,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -2169,7 +2169,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -2223,7 +2223,7 @@ Search vouchers by name or code.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -2232,7 +2232,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -2241,7 +2241,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -2250,7 +2250,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -2295,7 +2295,7 @@ List of checkouts.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -2304,7 +2304,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -2313,7 +2313,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -2322,7 +2322,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -2358,7 +2358,7 @@ List of checkout lines
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -2367,7 +2367,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -2376,7 +2376,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -2385,7 +2385,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -2468,7 +2468,7 @@ Supported filter parameters:
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -2477,7 +2477,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -2486,7 +2486,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -2495,7 +2495,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -2542,7 +2542,7 @@ Supported filter parameters:
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -2551,7 +2551,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -2560,7 +2560,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -2569,7 +2569,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -2596,7 +2596,7 @@ Filtering options for service accounts.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -2605,7 +2605,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -2614,7 +2614,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -2623,7 +2623,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -2650,7 +2650,7 @@ ID of the service account.
 <td valign="top"><a href="#user">User</a></td>
 <td>
 
-Lookup an user by ID.
+Lookup a user by ID.
 
 </td>
 </tr>
@@ -9959,7 +9959,7 @@ List of ancestors of the category.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -9968,7 +9968,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -9977,7 +9977,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -9986,7 +9986,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -10004,7 +10004,7 @@ List of products in the category.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -10013,7 +10013,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -10022,7 +10022,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -10031,7 +10031,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -10058,7 +10058,7 @@ List of children of the category.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -10067,7 +10067,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -10076,7 +10076,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -10085,7 +10085,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -11896,7 +11896,7 @@ List of products in this collection.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -11905,7 +11905,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -11914,7 +11914,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -11923,7 +11923,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -19288,7 +19288,7 @@ List of products of this type.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -19297,7 +19297,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -19306,7 +19306,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -19315,7 +19315,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -19370,7 +19370,7 @@ Product attributes of that product type.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -19379,7 +19379,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -19388,7 +19388,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -19397,7 +19397,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -20742,7 +20742,7 @@ List of categories this sale applies to.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -20751,7 +20751,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -20760,7 +20760,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -20769,7 +20769,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -20787,7 +20787,7 @@ List of collections this sale applies to.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -20796,7 +20796,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -20805,7 +20805,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -20814,7 +20814,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -20832,7 +20832,7 @@ List of products this sale applies to.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -20841,7 +20841,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -20850,7 +20850,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -20859,7 +20859,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -21650,7 +21650,7 @@ Sets the user's password from the token sent by email using the RequestPasswordR
 <td valign="top"><a href="#user">User</a></td>
 <td>
 
-An user instance with new password.
+A user instance with new password.
 
 </td>
 </tr>
@@ -23416,7 +23416,7 @@ List of the user gift cards.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -23425,7 +23425,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -23434,7 +23434,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -23443,7 +23443,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -23461,7 +23461,7 @@ List of user's orders.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -23470,7 +23470,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -23479,7 +23479,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -23488,7 +23488,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -24228,7 +24228,7 @@ List of categories this voucher applies to.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -24237,7 +24237,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -24246,7 +24246,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -24255,7 +24255,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -24273,7 +24273,7 @@ List of collections this voucher applies to.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -24282,7 +24282,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -24291,7 +24291,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -24300,7 +24300,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -24318,7 +24318,7 @@ List of products this voucher applies to.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come before the specified cursor.
+Return the elements in the list that come before the specified cursor.
 
 </td>
 </tr>
@@ -24327,7 +24327,7 @@ Returns the elements in the list that come before the specified cursor.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Returns the elements in the list that come after the specified cursor.
+Return the elements in the list that come after the specified cursor.
 
 </td>
 </tr>
@@ -24336,7 +24336,7 @@ Returns the elements in the list that come after the specified cursor.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the first n elements from the list.
+Return the first n elements from the list.
 
 </td>
 </tr>
@@ -24345,7 +24345,7 @@ Returns the first n elements from the list.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Returns the last n elements from the list.
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -28070,10 +28070,20 @@ Determines if the inventory of this product
 <tbody>
 <tr>
 <td colspan="2" valign="top"><strong>field</strong></td>
-<td valign="top"><a href="#productorderfield">ProductOrderField</a>!</td>
+<td valign="top"><a href="#productorderfield">ProductOrderField</a></td>
 <td>
 
 Sort products by the selected field.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>attributeId</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td>
+
+Sort product by the selected attribute's values.
+Note: this doesn't take translations into account yet.
 
 </td>
 </tr>
