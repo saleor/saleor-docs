@@ -5,12 +5,12 @@ title: Running Tests
 
 Before making any permanent changes in the code, make sure the changes you apply do not break the existing functionality.
 
-Currently, the project contains very little front-end code so the test suite only covers the backend side of it.
+The project currently contains very little front-end code so the test suite only covers the backend.
 
-Before you start running tests, you should install development packages first. 
-Use `python -m pip install -r requirements_dev.txt`, or `pipenv install --dev` if you are the Pipenv user.
+Before you start running tests, you should install development packages. 
+Use `python -m pip install -r requirements_dev.txt`, or `pipenv install --dev` if you are a Pipenv user.
 
-To run backend tests use [pytest](http://docs.pytest.org/en/latest/):
+To run backend tests, use [pytest](http://docs.pytest.org/en/latest/):
 
 ```console
 $ py.test
@@ -22,4 +22,4 @@ You can also test against all supported versions of Django and Python by using [
 $ tox
 ```
 
-This, however, is usually only required when you want to contribute your changes back to Saleor. 
+This is usually only required when you want to contribute your changes back to Saleor. 

@@ -3,9 +3,9 @@ id: metadata
 title: Extending Models Using Metadata
 ---
 
-Saleor gives you the possibility to customize your shop without the need of any changes in the code. Once you get your own Saleor instance, you can extend most of Saleor's database models using metadata. 
+Saleor gives you the possibility to customize your shop without changes in the code. Once you get your own Saleor instance, you can extend most of Saleor's database models using metadata. 
 
-For example, you can add specific fields to metadata of objects to store extra information on that object. By using metadata, you can also customize the way your storefront appears to your customers. 
+For example, you can add specific fields to the metadata of objects to store extra information on that object. By using metadata, you can also customize the way your storefront appears to your customers. 
 
 The following models contain metafields which data can be modified:
 
@@ -31,7 +31,7 @@ Each metafield has four components creating the metadata:
 
 * `namespace` - Name to distinguish the metadata contained in this metafield from other metafields.
 
-* `clients` - It separates the `namespace` into subsections for specific `key` and `value` pairs as there can be multiple of them.
+* `clients` - It separates the `namespace` into subsections for specific `key` and `value` pairs, as there can be multiple examples of them.
 
 * `key` - This is the name of your metafield.
 
@@ -141,7 +141,7 @@ mutation {
 }
 ```
 
-### Sample mutation to remove section from metadata
+### Sample mutation to remove a section from metadata
 
 ```
 mutation {
@@ -176,13 +176,13 @@ mutation {
 
 ## Private and public metafields
 
-Models can have two meta fields:
+Models can have two metafields:
 
-* `meta` - This field is public and visible for the non-authenticated user
+* `meta` - This field is public and visible to non-authenticated users
 
-* `privateMeta` This is protected and visible only for staff user with expected permissions
+* `privateMeta` This is protected and visible only to staff users with appropriate permissions
 
-### Sample mutation to add or update field in private metadata
+### Sample mutation to add or update a field in private metadata
 
 ```
 mutation {
@@ -215,7 +215,7 @@ mutation {
 }
 ```
 
-### Sample mutation to remove section from privateMeta
+### Sample mutation to remove a section from private meta
 
 ```
 mutation {

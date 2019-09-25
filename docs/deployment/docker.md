@@ -11,7 +11,7 @@ Before you start, you need to install Docker.
 $ docker build -t mystorefront .
 ```
 
-2. Run Saleor container with the following settings:
+2. Run a Saleor container with the following settings:
 
 ```console
 $ docker run -e SECRET_KEY=<SECRET_KEY> -e DATABASE_URL=<DATABASE_URL> -p 8000:8000 mystorefront

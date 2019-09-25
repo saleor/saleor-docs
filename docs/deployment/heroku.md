@@ -5,7 +5,7 @@ title: Heroku
 
 ## Configuration
 
-Within the repo, git should already be initialized. Now you only need to add the heroku remote with your app-name:
+Git should already be initialized within the repo. You only need to add the heroku remote with your app-name:
 
 ```console
 $ heroku git:remote -a 'app-name'
@@ -41,7 +41,7 @@ $ heroku run python manage.py migrate
 
 ## Updating currency exchange rates
 
-You should run this command periodically. The best way to ensure this is done, is using Heroku’s Scheduler service. 
+You should run this command periodically. The best way to ensure this is done is by using Heroku’s Scheduler service. 
 
 To add it to our application:
 
@@ -49,7 +49,7 @@ To add it to our application:
 $ heroku addons:create scheduler
 ```
 
-Then log into your Heroku account, find the Heroku Scheduler addon in the active addon list, and have it run the following command on a daily basis:
+Then log into your Heroku account, find the Heroku Scheduler add-on in the active add-on list, and have it run the following command on a daily basis:
 
 ```console
 $ python manage.py update_exchange_rates --all
@@ -58,7 +58,7 @@ $ python manage.py update_exchange_rates --all
 
 ## Enabling Elasticsearch
 
-Saleor uses Postgres as a search backend by default. If you want to switch to Elasticsearch, use the Bonsai plugin and run the following commands:
+Saleor uses Postgres as a default search backend. If you want to switch to Elasticsearch, use the Bonsai plugin and run the following commands:
 
 ```console
 $ heroku addons:create bonsai:sandbox-6 --version=5.4

@@ -4,7 +4,7 @@ title: Extensions
 ---
 ## Introduction
 
-Saleor is built based on extensions architecture. It includes hooks for most standard operations, such as calculation of prices in the checkout or calling certain actions when an order has been created.
+Saleor is built based on extensions architecture. It includes hooks for most standard operations, such as the calculation of prices in the checkout or calling certain actions when an order has been created.
 
 Saleor arrives with some plugins already implemented by default. These plugins are located in `saleor.extensions.plugins`.
 To provide the `ExtensionManager` with a list of enabled plugins, include the Python plugin path in the `settings.PLUGINS` list.
@@ -54,7 +54,7 @@ PLUGINS = ["saleor.extensions.plugins.custom.CustomPlugin", ]
 
 ### Configuring plugins
 
-Saleor allows you to change a configuration of any given plugin over API. Plugin owner needs to overwrite a method to create a structure of default configuration `_get_default_configuration` and `CONFIG_STRUCTURE`. Plugin configuration received from API can be validated by overwriting `validate_plugin_configuration` method. It requires an expected structure as in the following example:
+Saleor allows you to change the configuration of any given plugin over API. The plugin owner needs to overwrite a method to create a structure of default configuration `_get_default_configuration` and `CONFIG_STRUCTURE`. The plugin configuration received from API can be validated by overwriting the `validate_plugin_configuration` method. It requires an expected structure as in the following example:
 
 ```python
 # custom/plugin.py
@@ -118,9 +118,9 @@ def _get_default_configuration(cls):
     return defaults
 ```
 
-`ExtensionManager` will use this data to create default configuration in DB which will be served by API.
+`ExtensionManager` will use this data to create default configuration in DB which will be served by the API.
 
-By using GraphQL queries -  `pluginConfigurations` and `pluginConfiguration` user will be able to list all enabled plugins. Mutation `pluginConfigurationUpdate` will allow the user to active/disable and update configuration fields like `API keys` for a  given plugin. API serves response with the given fields:
+By using GraphQL queries, the `pluginConfigurations` and `pluginConfiguration` user will be able to list all enabled plugins. Mutation `pluginConfigurationUpdate` will allow the user to active, disable and update configuration fields like `API keys` for a  given plugin. The API serves a response with the given fields:
 
 | Name | Description |
 | --- | --- |
@@ -136,7 +136,7 @@ Configuration fields:
 | --- | --- |
 | `name` | Name of the field |
 | `value` | Current value of the field |
-| `type` | Type of the field. Saleor supports - `String` and `Boolean` |
+| `type` | Type of the field. Saleor supports `String` and `Boolean` |
 | `helpText` | Description of the field |
 | `label` | Label for the field |
 
@@ -144,7 +144,7 @@ Configuration fields:
 > 
 > Once you have completed the above configuration, as a plugin owner, you can decide to display certain configuration options in the Plugins page in the dashboard's Configuration section of Saleor. 
 > 
-> This way you allow the dashboard users to manage the plugin's basic setup. The scope of the setup available via Plugins page is up to you. 
+> This allows dashboard users to manage the plugin's basic setup. The scope of the setup available via Plugins page is up to you. 
 > 
 > See the [Plugins](dashboard/plugins.md) topic for more information.
 

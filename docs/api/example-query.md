@@ -3,13 +3,13 @@ id: example-query
 title: Example Query - Making Your First Call
 ---
 
-There are many ways of communicating with a GraphQL API. You can use a low-level HTTP client like cURL or a dedicated client for the programming language or framework of your choice. The most convenient tool for testing the API and forming queries is Playground - an interactive editor which supports features such us autocompletion, error highlighting, setting HTTP headers, and instant access to API documentation in the sidebar.
+There are many ways of communicating with a GraphQL API. You can use a low-level HTTP client like cURL or a dedicated client for the programming language or framework of your choice. The most convenient tool for testing the API and forming queries is Playground. It is an interactive editor which supports features such us autocompletion, error highlighting, setting HTTP headers, and instant access to API documentation in the sidebar.
 
 Let's take a look at an example query and mutation that you can use in the Saleor GraphQL API.
 
 ## Example query
 
-Here is an example query that fetches three products and, for each one, returns ID, name, description, and category name:
+Here is an example query that fetches three products and, for each one, returns the ID, name, description, and category name:
 
 ```
 graphql
@@ -95,7 +95,7 @@ mutation {
 }
 ```
 
-The successful server response for that mutation is:
+The successful server response for the mutation is:
 
 ```
 json

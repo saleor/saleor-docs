@@ -5,17 +5,17 @@ title: Installation for Linux
 
 > **Note**
 > 
-> If you prefer using containers or have problems with configuring PostgreSQL, Redis and Elasticsearch, see our [Using Docker](getting-started/docker.md) instructions.
+> If you prefer using containers or have problems with configuring PostgreSQL, Redis, and Elasticsearch, see our [Using Docker](getting-started/docker.md) instructions.
 
 
 ## Prerequisites 
 
-Before you are ready to run Saleor you will need additional software installed on your computer.
+Before you are ready to run Saleor, you will need additional software installed on your computer.
 
 
 ### Python 3
 
-Saleor requires 3.6  or later Python version. A compatible version comes preinstalled with most current Linux systems. If that is not the case consult your Linux distribution for instructions on how to install Python 3.6 or 3.7.
+Saleor requires Python version 3.6 or later. A compatible version comes pre-installed with most current Linux systems. If not, consult your Linux distributor for instructions on how to install Python 3.6 or 3.7.
 
 
 ### Node.js
@@ -98,18 +98,18 @@ $ export SECRET_KEY='<mysecretkey>'
 
 > **Warning**
 >
-> Secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections, and can lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
+> The secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections; it can also lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
 
 
 ### 5. Create a PostgreSQL user
 
 See PostgreSQL’s [createuser command](https://www.postgresql.org/docs/current/static/app-createuser.html) for details.
 
-Unless configured otherwise, the store will use `saleor` as both username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
+Unless configured otherwise, the store will use `saleor` as both the username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
 
 > **Warning**
 >
-> While creating the database, Django will need to create some PostgreSQL extensions, if they are not already present. This requires a superuser privilege.
+> While creating the database, Django will need to create some PostgreSQL extensions if they are not already present. This requires superuser privileges.
 >
 > For local development you can grant your database user the `SUPERUSER` privilege. For publicly available systems, we recommend using a separate privileged user to perform database migrations.
 
@@ -120,7 +120,7 @@ See [PostgreSQL’s createdb command](https://www.postgresql.org/docs/current/st
 
 > **Note**
 >
-> Database name is extracted from the `DATABASE_URL` environment variable. If absent it defaults to `saleor`.
+> The database name is extracted from the `DATABASE_URL` environment variable. If absent, it defaults to `saleor`.
 
 
 ### 7. Prepare the database
@@ -131,7 +131,7 @@ $ python manage.py migrate
 
 > **Warning**
 >
-> This command creates database extensions. If instead you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
+> This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
 
 
 ### 8. Install front-end dependencies
@@ -142,7 +142,7 @@ $ npm install
 
 > **Note**
 >
-> If this step fails, make sure you are using recent version of Node.js.
+> If this step fails, make sure you are using a recent version of Node.js.
 
 ### 9. Prepare front-end assets
 

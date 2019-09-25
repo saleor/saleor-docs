@@ -13,5 +13,5 @@ Please use GitHub issues and pull requests to report problems and discuss new fe
 
 [card-grid]
 [**Naming Conventions**](contributing/naming.md)
-[**Writing Good Commit Message**](contributing/writing-commit-message.md)
+[**Writing Good Commit Messages**](contributing/writing-commit-message.md)
 [/card-grid]
