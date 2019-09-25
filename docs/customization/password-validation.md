@@ -3,7 +3,7 @@ id: password-validation
 title: Password Validation
 ---
 
-When setting up your new Saleor instance, you must consider the password policy you want to implement in order to properly protect your customers' data. 
+When setting up your new Saleor instance, you must consider the password policy you want to implement in order to properly protect customer data. 
 
 Saleor utilizes Django password validation, which consists of the following validators:
 

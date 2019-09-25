@@ -13,7 +13,7 @@ To speed up the review process and to keep the logs tidy, we recommend the follo
 
 ## Description 
 
-* Add extra explanation if you feel it is will help others to understand the summary content
+* Add extra explanation if you feel it will help others to understand the summary content
 
 * If you want, use bullet points (each bullet beginning with a hyphen or an asterisk)
 
@@ -21,6 +21,6 @@ To speed up the review process and to keep the logs tidy, we recommend the follo
 
 > **Tip**
 >
-> Try to limit your commits to a single, self-contained issue - if possible. It will be easier to review. It will also help others to understand and manage it in the future.
+> To ease review, try to limit your commits to a single, self-contained issue. This will also help others to understand and manage them in the future.
 
 For more information and tips on how to write good commit messages, see the GitHub [guide](https://github.com/erlang/otp/wiki/writing-good-commit-messages).

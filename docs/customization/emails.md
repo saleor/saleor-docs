@@ -12,7 +12,7 @@ Emails are sent with [Django-Templated-Email](https://github.com/vintasoftware/d
 
 Templates for emails are located in `templates/templated_email`. App-specific directories contain `*.email` files which define each specific message type.
 
-The `source` directory contains `*.mjml` files. Those MJML files are compiled to `*.html` and put into `compiled` directory.
+The `source` directory contains `*.mjml` files. Those MJML files are compiled to `*.html` and put into the `compiled` directory.
 
 Emails defined in `*.email` files include their HTML versions by referencing the compiled *.html files.
 

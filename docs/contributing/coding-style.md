@@ -4,7 +4,7 @@ title: Coding Style
 ---
 
 Saleor uses various tools to maintain a common coding style and help with development. 
-To install all the development tools run the following commands:
+To install all the development tools, run the following commands:
 
 ```console
 $ python -m pip install -r requirements_dev.txt``
@@ -30,7 +30,7 @@ For more information on how it works, see the `.pre-commit-config.yaml` configur
 
 Always follow [PEP 8](https://www.python.org/dev/peps/pep-0008/), but keep consistency in mind.
 
-The only difference with PEP 8 is that we use 88 characters line limit instead of 79.
+The only difference with PEP 8 is that we use an 88 character line limit instead of 79.
 
 In addition, Saleor uses the [black formatting tool](https://github.com/python/black) which comes with its own rules. A few of them are presented below.
 
@@ -42,7 +42,7 @@ Double quotes should be used instead of single quotes.
 
 ### Wrapping code
 
-When wrapping code follow the _vertical hanging indent_ format:
+When wrapping code, follow the _vertical hanging indent_ format:
 
 ```python
 some_dict = {

@@ -104,7 +104,7 @@ mutation {
 }
 ```
 
-We get a newly created checkout object for which we return the ID, total price, and list of available shipping and payment methods:
+We get a newly created checkout object for which we return the ID, total price, and  list of available shipping and payment methods:
 
 ```json
 {
@@ -139,7 +139,7 @@ We get a newly created checkout object for which we return the ID, total price, 
 
 ## Setting the shipping method
 
-This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To determine whether shipping is required, use the `isShippingRequired` field in the `Checkout` object.
+This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To signify whether shipping is required, use the `isShippingRequired` field in the `Checkout` object.
 
 Use the `checkoutShippingMethodUpdate` method to effectively pair the specific `CHECKOUT` object with the specified shipping method selected by the user.
 
@@ -177,7 +177,7 @@ mutation {
 }
 ```
 
-As a result we're getting an updated checkout object with a shipping method set:
+As a result, we get an updated checkout object with a shipping method set:
 
 ```json
 {
@@ -203,14 +203,14 @@ As a result we're getting an updated checkout object with a shipping method set:
 
 ## Creating the payment
 
-Payment creation process consists of two operations:
+The payment creation process consists of two operations:
 
 1. Generating a token for the payment using the `paymentClientToken` query.
    This operation requires the user to select the preferred payment gateway.
 
-2. Executing mutation `checkoutPaymentCreate` using the above-generated token.
+2. Executing the mutation `checkoutPaymentCreate` using the above-generated token.
 
-Depending on selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway directs you to an external payment page. The payment gateway sends information if the payment is successful along with a tokenized credit card payment information. This token is then used to run the `checkoutPaymentCreate` mutation.
+Depending on the selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway will direct you to an external payment page. The payment gateway sends information about if the payment is successful, along with tokenized credit card payment information. This token is then used to run the `checkoutPaymentCreate` mutation.
 
 ### `paymentClientToken`
 
@@ -226,7 +226,7 @@ Example query:
 }
 ```
 
-As a result, we're getting the token (the value is trimmed for the sake of example):
+As a result, we get the token (the value is trimmed for the sake of this example):
 
 ```json
 {
@@ -240,13 +240,13 @@ As a result, we're getting the token (the value is trimmed for the sake of examp
 
 The `checkoutPaymentCreate` mutation requires the following input:
 
-- `checkoutId` - checkout ID, similarly as in previous examples
+- `checkoutId` - checkout ID, similar to previous examples
 
-- `gateway` - name of the selected payment gateway, the same as used with `paymentClientToken` operation
+- `gateway` - name of the selected payment gateway, the same as that used with the `paymentClientToken` operation
 
 - `token` - client-side generated payment token
 
-- `amount` - the total amount of this operation
+- `amount` - total amount of this operation
 
 This mutation returns the following fields:
 
@@ -254,7 +254,7 @@ This mutation returns the following fields:
 
 - `payment` - represents the newly created payment object
 
-- `errors` - list of errors that could occur during mutation execution
+- `errors` - list of errors that may occur during mutation execution
 
 In the example below, we're creating a new Braintree payment for our checkout:
 
@@ -280,7 +280,7 @@ mutation {
 }
 ```
 
-As a result we're getting the payment object:
+As a result, we get the payment object:
 
 ```json
 {
@@ -298,15 +298,15 @@ As a result we're getting the payment object:
 
 ## Completing the Checkout
 
-This operation requires only the checkout ID as an input. Its purpose is to ensure this checkout is correct and to do that, it verifies if:
+This operation requires only the checkout ID as an input. Its purpose is to ensure this checkout is correct. To do this, it verifies if:
 
 - The required addresses are correct
 
-- The products are in fact in stock (while making the purchase, another user could already buy the last available item)
+- The products are in stock (while making the purchase, another user could already buy the last available item)
 
 - The payment has been created successfully
 
-If these parameters are verified correctly, then the checkout is transformed into order. In the same time, the customer receives an email with a confirmation of placing an order.
+If these parameters are verified, then the checkout is transformed into an order and the customer receives a confirmation email.
 
 The `checkoutComplete` mutation requires the following input:
 
@@ -315,9 +315,9 @@ The `checkoutComplete` mutation requires the following input:
 It returns the following output:
 
 - `order` - an order created from the checkout object
-- `errors` - list of errors that could occur during mutation execution
+- `errors` - list of errors that may occur during mutation execution
 
-Here is the example of the complete mutation:
+Here is the example of a complete mutation:
 
 ```graphql
 mutation {
