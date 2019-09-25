@@ -31,6 +31,10 @@ class Footer extends React.Component {
             </a>
           </div>
         </div>
+        <link
+          rel="stylesheet"
+          href="https://use.typekit.net/itf4hxr.css"
+        ></link>
       </footer>
     );
   }
