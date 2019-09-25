@@ -15,7 +15,6 @@ Once you complete the setup, you can start your local server and go to `http://l
 
 > **Note**
 >
-> This method allows you to create users with a "superuser" status with all system privileges, regardless of specific permission set granted to them. 
-Use this method to create an administrator account only. 
+> This method allows you to create users with a "superuser" status, meaning they have all system privileges, regardless of the specific permission set granted to them. Use this method to create an administrator account only. 
 
 

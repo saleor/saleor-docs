@@ -8,12 +8,12 @@ The following instructions assume a 64-bit installation of Windows.
 
 ## Prerequisites
 
-Before you are ready to run Saleor you will need additional software installed on your computer.
+Before you are ready to run Saleor, you will need additional software installed on your computer.
 
 
 ### Python
 
-Download the latest 3.7 Windows installer from [Python download page](https://www.python.org/downloads/) and follow the installation steps.
+Download the latest 3.7 Windows installer from the [Python download page](https://www.python.org/downloads/) and follow the installation steps.
 
 Make sure that “**Add Python 3.7 to PATH**” is selected.
 
@@ -31,7 +31,7 @@ Saleor needs PostgreSQL version 9.4 or above to work. Get the Windows installer 
 
 > **Tip**
 >
-> Make a note of the password you set for the administration account during installation process.
+> Make a note of the password you set for the administration account during the installation process.
 
 
 
@@ -49,7 +49,7 @@ Download and install the latest version of the [Build Tools for Visual Studio](h
 
 ## Installation
 
-Once you have installed or updated the prerequisite software, you are ready for your Saleor installation. Follow the steps below to start and execute the process:
+Once you have installed or updated the pre-requisite software, you are ready to install Saleor. Follow the steps below to start and execute the process:
 
 > **Note**
 >
@@ -91,15 +91,15 @@ $env:SECRET_KEY = "<mysecretkey>"
 
 > **Warning**
 > 
-> Secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections, and can lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
+> The secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections. It can also lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
 
 
 
 ### 5. Create a PostgreSQL user
 
-Use the **pgAdmin** tool that came with your PostgreSQL installation, to create a database user for your store.
+Use the **pgAdmin** tool that comes with your PostgreSQL installation to create a database user for your store.
 
-Unless configured otherwise, the store will use `saleor` as both username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
+Unless configured otherwise, the store will use `saleor` as both the username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
 
 
 ### 6. Create a PostgreSQL database
@@ -108,7 +108,7 @@ See [PostgreSQL’s createdb command](https://www.postgresql.org/docs/current/st
 
 > **Note**
 >
-> Database name is extracted from the `DATABASE_URL` environment variable. If absent it defaults to `saleor`.
+> The database name is extracted from the `DATABASE_URL` environment variable. If absent, it defaults to `saleor`.
 
 
 ### 7. Prepare the database
@@ -119,7 +119,7 @@ python manage.py migrate
 
 > **Warning**
 >
-> This command creates database extensions. If instead you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
+> This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
 
 
 ### 8. Install front-end dependencies
@@ -130,7 +130,7 @@ npm install
 
 > **Note**
 > 
-> If this step fails, make sure you are using recent version of Node.js.
+> If this step fails, make sure you are using a recent version of Node.js.
 
 
 ### 9. Prepare front-end assets

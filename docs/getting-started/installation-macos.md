@@ -64,7 +64,7 @@ $ brew install cairo pango gdk-pixbuf libffi
 
 ## Installation
 
-Once you have installed or updated the prerequisite software, you are ready for your Saleor installation. Follow the steps below to start and execute the process:
+Once you have installed or updated the pre-requisite software, you are ready for your Saleor installation. Follow the steps below to start and execute the process:
 
 ### 1. Clone the repository (or use your own fork)
 
@@ -99,12 +99,12 @@ $ export SECRET_KEY='<mysecretkey>'
 
 > **Warning**
 >
-> Secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections, and can lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
+> The secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections. It can also lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
 
 
 ### 5. Create a PostgreSQL user
 
-Unless configured otherwise, the store will use `saleor` as both username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
+Unless configured otherwise, the store will use `saleor` as both the username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
 
 ```console
 $ createuser --superuser --pwprompt saleor
@@ -117,7 +117,7 @@ Enter `saleor` when prompted for password.
 
 > **Note**
 >
-> Database name is extracted from the `DATABASE_URL` environment variable. If absent it defaults to `saleor`.
+> The database name is extracted from the `DATABASE_URL` environment variable. If absent, it defaults to `saleor`.
 
 ```console
 $ createdb saleor
@@ -131,7 +131,7 @@ $ python manage.py migrate
 
 > **Warning**
 >
-> This command creates database extensions. If instead you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
+> This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
 
 
 ### 8. Install front-end dependencies
@@ -142,7 +142,7 @@ $ npm install
 
 > **Note**
 >
-> If this step fails, make sure you are using recent version of Node.js.
+> If this step fails, make sure you are using a recent version of Node.js.
 
 
 ### 9. Prepare front-end assets
