@@ -49,7 +49,11 @@ const siteConfig = {
 
   /* path to images for header/footer */
   headerIcon: "img/saleor-logo.svg",
-  footerIcon: "img/saleor-footer-icon.png",
+  footerIcon: "img/footer-logo.png",
+  twitterIcon: "img/twitter-icon.svg",
+  fbIcon: "img/facebook-icon.svg",
+  soIcon: "img/stackoverflow-icon.svg",
+  githubIcon: "img/github-icon.svg",
   favicon: "img/saleor-icon.png",
 
   /* Colors for website */
