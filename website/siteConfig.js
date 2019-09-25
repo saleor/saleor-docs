@@ -28,7 +28,8 @@ const siteConfig = {
 
   algolia: {
     apiKey: "33843c1b27663cc760ddc60811ba51d7",
-    indexName: "saleor"
+    indexName: "saleor",
+    placeholder: "Search Saleor Documentation"
   },
 
   // Disable showing the title in the header next to the header icon.
