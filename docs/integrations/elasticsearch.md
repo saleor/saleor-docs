@@ -12,7 +12,7 @@ You can configure an integration with the set of environment variables.
 
 When deploying on Heroku - you can use an add-on which provides Elasticsearch as a service. By default, Saleor uses Elasticsearch 6.3.
 
-When deploying somewhere else, you can use one of following services:
+When deploying somewhere else, you can use one of the following services:
 
 * http://www.searchly.com/
 * https://www.elastic.co/cloud
@@ -22,7 +22,7 @@ When deploying somewhere else, you can use one of following services:
 
 `ELASTICSEARCH_URL` or `BONSAI_URL` or `SEARCHBOX_URL`
 
-URL to elasticsearch engine. If it is empty - search is not available.
+URL to the Elasticsearch engine. If it is empty, search is not available.
 
 > **Example** 
 >
@@ -32,10 +32,10 @@ URL to elasticsearch engine. If it is empty - search is not available.
 ## Data indexing
 
 Saleor uses [Django Elasticsearch DSL](https://github.com/sabricot/django-elasticsearch-dsl) as a wrapper for [Elasticsearch DSL](https://github.com/elastic/elasticsearch-dsl-py) to enable automatic indexing and sync. 
-Indexes are defined in [documents](https://github.com/saleor/saleor/search/documents.py) file. 
+Indexes are defined in the [documents](https://github.com/saleor/saleor/search/documents.py) file. 
 Refer to documentation of above projects for help and tips.
 
-Initial search index can be created with the following command:
+The initial search index can be created with the following command:
 
 ```console
 $ python manage.py search_index --rebuild
@@ -43,22 +43,22 @@ $ python manage.py search_index --rebuild
 
 > **Note**
 >
-> By default, all indexed objects (products, users, orders) are reindexed every time they are changed.
+> By default, all indexed objects (products, users, orders) are re-indexed every time they are changed.
 
 
 ## Search integration architecture
 
 Search backends use [Elasticsearch DSL](https://github.com/elastic/elasticsearch-dsl-py) for query definition in saleor/search/backends.
 
-There are two backends defined for elasticsearch integration: 
-* [storefront](https://github.com/mirumee/saleor/blob/master/saleor/search/backends/elasticsearch_storefront.py) - Storefront search uses only storefront index for product only search.
-* [dashboard](https://github.com/mirumee/saleor/blob/master/saleor/search/backends/elasticsearch_dashboard.py) - dashboard backend performs additional searches in users and orders indexes as well.
+There are two backends defined for Elasticsearch integration: 
+* [storefront](https://github.com/mirumee/saleor/blob/master/saleor/search/backends/elasticsearch_storefront.py) - Storefront search uses only the storefront index for a product-only search.
+* [dashboard](https://github.com/mirumee/saleor/blob/master/saleor/search/backends/elasticsearch_dashboard.py) - The dashboard backend performs additional searches in user and order indexes.
 
 
 ## Testing
 
 There are two levels of testing for search functionality. 
-Syntax of Elasticsearch queries is ensured by unit tests for backend, [integration](https://github.com/saleor/saleor/tests/test_search.py) testing is done using [VCR.py](https://github.com/kevin1024/vcrpy) to mock external communication. 
+Syntax of Elasticsearch queries is ensured by unit tests for the backend; [integration](https://github.com/saleor/saleor/tests/test_search.py) testing is done using [VCR.py](https://github.com/kevin1024/vcrpy) to mock external communication. 
 
 > **Note**
 >
