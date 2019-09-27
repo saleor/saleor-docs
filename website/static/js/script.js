@@ -1,7 +1,12 @@
 window.addEventListener(
   "DOMContentLoaded",
   function() {
-    const isHome = window.location.pathname === "/docs/";
+    const path = location.pathname;
+    const isHome =
+      path === "/docs/" ||
+      path === "/docs/index.html" ||
+      path === "/docs/next/" ||
+      path === "/docs/next/index.html";
     const onePageNav = document.querySelectorAll("nav.onPageNav");
     const docMainWrapper = document.querySelectorAll(".docMainWrapper");
     if (isHome) {
@@ -9,10 +14,13 @@ window.addEventListener(
       docMainWrapper[0].classList.add("home");
     }
 
+    const isNext = location.pathname.includes("/next/");
+    const headerMenu = document.querySelectorAll(".nav-site li");
+    if (!isNext) headerMenu[2].classList.add("next");
+
     const navItem = document.querySelectorAll(".navListItem");
     [].map.call(navItem, item => {
       const parentClass = item.parentElement.parentElement.classList.length;
-      console.log(item.parentElement.parentElement.classList.length);
       if (parentClass == 1) item.classList.add("categoryHeader");
     });
   },

@@ -42,9 +42,10 @@ const siteConfig = {
       doc: "getting-started/intro",
       label: "Developer's Guide"
     },
+    { href: "/docs/next/api/intro", label: "GraphQL API" },
     {
       doc: "dashboard/before-you-start",
-      label: "Saleor Dashboard Guide"
+      label: "Running your Saleor Server"
     }
   ],
 

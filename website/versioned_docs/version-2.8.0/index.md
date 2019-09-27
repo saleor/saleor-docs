@@ -5,7 +5,7 @@ original_id: index
 ---
 
 # Welcome to **Saleor Docs**
-###### Tell us what you’re looking for.
+###### You’ll find everything you need to start working with Saleor
 
 
 ## Developer's Guide

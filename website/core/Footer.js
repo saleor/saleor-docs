@@ -111,7 +111,7 @@ class Footer extends React.Component {
         <div className="wrapper">
           <div className="docs-footer-top">
             <div className="newsletter">
-              <span>Get updates from Saleor:</span>
+              {/* <span>Get updates from Saleor:</span>
               <MailchimpSubscribe
                 url={url}
                 render={({ subscribe, status, message }) => (
@@ -121,7 +121,7 @@ class Footer extends React.Component {
                     onValidated={formData => subscribe(formData)}
                   />
                 )}
-              />
+              /> */}
             </div>
             <div className="social-icons">
               <span>Contact us:</span>
@@ -161,7 +161,7 @@ class Footer extends React.Component {
               </a>
             </div>
           </div>
-          <div className="docs-footer-menu">
+          {/* <div className="docs-footer-menu">
             <div className="logo">
               <img
                 src={this.props.config.baseUrl + this.props.config.footerIcon}
@@ -267,7 +267,7 @@ class Footer extends React.Component {
                 </ul>
               </div>
             </div>
-          </div>
+          </div> */}
           <div className="dosc-footer-copyrights">
             <div className="copyrights">
               <span>{`Copyright © 2003 - ${new Date().getFullYear()}`}</span>
