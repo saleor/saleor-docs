@@ -6,126 +6,84 @@
  */
 
 const React = require("react");
-const MailchimpSubscribe = require("react-mailchimp-subscribe");
-
-const NewsletterForm = ({ status, message, onValidated }) => {
-  const [email, setEmail] = React.useState("");
-  const [inputFocus, setInputFocus] = React.useState(false);
-  const [inputError, setInputError] = React.useState(false);
-  const inputRef = React.useRef(null);
-  let timeoutID;
-
-  const submit = e => {
-    e.preventDefault();
-    setInputError(false);
-    if (status !== "success") {
-      email && email.indexOf("@") > -1 && onValidated({ EMAIL: email });
-    }
-    if (email.length === 0) {
-      setInputError(true);
-    }
-  };
-
-  const onClick = () => {
-    setInputFocus(true);
-  };
-
-  const onBlur = () => {
-    timeoutID = setTimeout(() => {
-      if (inputFocus) {
-        setInputFocus(false);
-        inputRef.current.value = "";
-      }
-    }, 0);
-  };
-
-  const onFocus = () => {
-    clearTimeout(timeoutID);
-    if (!inputFocus) {
-      setInputFocus(true);
-    }
-  };
-
-  const onHandleChange = event => {
-    setEmail(event.target.value);
-  };
-
-  return (
-    <form method="POST" id="newsletter" onSubmit={submit}>
-      <div
-        className="newsletter-input-wrapper"
-        onFocus={onFocus}
-        onBlur={onBlur}
-        ref={inputRef}
-        onClick={onClick}
-      >
-        <input
-          className="newsletter-input"
-          type="email"
-          name="EMAIL"
-          value={email}
-          placeholder="Enter email here"
-          onChange={onHandleChange}
-          autoComplete="email"
-        />
-        <small></small>
-        <div className="newsletter-submit">
-          <button type="submit" className="newsletter-submit-button">
-            {status === "sending" && (
-              <div className="newsletter-submit-button-inner">
-                <span>Processing</span>
-              </div>
-            )}
-            {status === "success" && (
-              <div className="newsletter-submit-button-inner">
-                <span>Thanks, check your inbox!</span>
-              </div>
-            )}
-            {status === null && (
-              <div className="newsletter-submit-button-inner">SIGN UP</div>
-            )}
-            {status === "error" && (
-              <div className="newsletter-submit-button-inner">SIGN UP</div>
-            )}
-          </button>
-        </div>
-        {inputError ? (
-          <div className="newsletter-error">Please enter email address</div>
-        ) : (
-          <div
-            className="newsletter-error"
-            dangerouslySetInnerHTML={{ __html: message }}
-          ></div>
-        )}
-      </div>
-    </form>
-  );
-};
 
 class Footer extends React.Component {
   render() {
-    const url =
-      "//cloud.us19.list-manage.com/subscribe/post?u=8bd6297e7e63c06d9c242a92d&amp;id=7fdc003416";
     return (
       <footer className="docs-footer">
         <div className="wrapper">
           <div className="docs-footer-top">
             <div className="newsletter">
-              {/* <span>Get updates from Saleor:</span>
-              <MailchimpSubscribe
-                url={url}
-                render={({ subscribe, status, message }) => (
-                  <NewsletterForm
-                    status={status}
-                    message={message}
-                    onValidated={formData => subscribe(formData)}
-                  />
-                )}
-              /> */}
+              <span>Get updates from Saleor:</span>
+              <div id="mc_embed_signup">
+                <form
+                  action="https://getsaleor.us19.list-manage.com/subscribe/post?u=8bd6297e7e63c06d9c242a92d&amp;id=f8dadd63b8"
+                  method="post"
+                  id="mc-embedded-subscribe-form"
+                  name="mc-embedded-subscribe-form"
+                  className="validate"
+                  target="_blank"
+                  noValidate
+                >
+                  <div id="mc_embed_signup_scroll">
+                    <div className="mc-field-group newsletter-input-wrapper">
+                      <input
+                        type="email"
+                        value=""
+                        name="EMAIL"
+                        className="required email newsletter-input"
+                        id="mce-EMAIL"
+                        placeholder="Email address"
+                      />
+                      <small></small>
+                      <div className="clear">
+                        <input
+                          type="submit"
+                          value="Sign up"
+                          name="Sign up"
+                          id="mc-embedded-subscribe"
+                          className="newsletter-submit-button"
+                        />
+                      </div>
+                    </div>
+                    <div id="mce-responses" className="clear">
+                      <div
+                        className="response"
+                        id="mce-error-response"
+                        style={{ display: "none" }}
+                      ></div>
+                      <div
+                        className="response"
+                        id="mce-success-response"
+                        style={{ display: "none" }}
+                      ></div>
+                    </div>
+                    <div
+                      style={{ position: "absolute", left: "-5000px" }}
+                      aria-hidden="true"
+                    >
+                      <input
+                        type="text"
+                        name="b_8bd6297e7e63c06d9c242a92d_f8dadd63b8"
+                        tabIndex="-1"
+                        value=""
+                      />
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <script
+                type="text/javascript"
+                src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"
+              ></script>
             </div>
             <div className="social-icons">
               <span>Contact us:</span>
-              <a className="twitter-icon" href="/">
+              <a
+                className="twitter-icon"
+                href="https://github.com/mirumee/saleor"
+                target="_blank"
+              >
                 <img
                   src={
                     this.props.config.baseUrl + this.props.config.twitterIcon
@@ -135,7 +93,11 @@ class Footer extends React.Component {
                   width="30"
                 />
               </a>
-              <a className="fb-icon" href="/">
+              <a
+                className="fb-icon"
+                href="https://www.facebook.com/mirumeelabs/"
+                target="_blank"
+              >
                 <img
                   src={this.props.config.baseUrl + this.props.config.fbIcon}
                   alt={this.props.config.title}
@@ -143,7 +105,11 @@ class Footer extends React.Component {
                   width="30"
                 />
               </a>
-              <a className="so-icon" href="/">
+              <a
+                className="so-icon"
+                href="https://spectrum.chat/saleor"
+                target="_blank"
+              >
                 <img
                   src={this.props.config.baseUrl + this.props.config.soIcon}
                   alt={this.props.config.title}
@@ -151,7 +117,11 @@ class Footer extends React.Component {
                   width="30"
                 />
               </a>
-              <a className="github-icon" href="/">
+              <a
+                className="github-icon"
+                href="https://twitter.com/getsaleor"
+                target="_blank"
+              >
                 <img
                   src={this.props.config.baseUrl + this.props.config.githubIcon}
                   alt={this.props.config.title}
@@ -270,7 +240,7 @@ class Footer extends React.Component {
           </div> */}
           <div className="dosc-footer-copyrights">
             <div className="copyrights">
-              <span>{`Copyright © 2003 - ${new Date().getFullYear()}`}</span>
+              <span>{`Copyright © 2009 - ${new Date().getFullYear()}`}</span>
               <span>
                 <a href="https://mirumee.com" target="_blank">
                   Mirumee Software

@@ -40,7 +40,7 @@ const siteConfig = {
     { search: true },
     {
       doc: "getting-started/intro",
-      label: "Developer's Guide"
+      label: "Saleor Dashboard Guide"
     },
     { href: "/docs/next/api/intro", label: "GraphQL API" },
     {
