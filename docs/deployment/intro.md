@@ -16,5 +16,5 @@ sidebar_label: Introduction
 
 [card-grid]
 [**Error Tracking with Sentry**](deployment/sentry.md)
-[**Continuous Integration**](deployment/continuous_integration.md)
+[**Continuous Integration**](deployment/continuous-integration.md)
 [/card-grid]

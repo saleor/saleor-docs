@@ -9,7 +9,6 @@ const React = require("react");
 
 const Index = () => (
   <div className="docMainWrapper wrapper">
-    <div className="container docsNavContainer" id="docsNav" />
     <div className="container mainContainer">
       <div className="wrapper">
         <div className="post">
