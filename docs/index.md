@@ -25,7 +25,7 @@ title:
 [![](assets/icons/configure.svg) **Configuration** Manage all the administration elements of your dashboard and processes like tax automation and shipping.](dashboard/configuration/intro.md)
 [/home-grid]
 [home-grid]
-[![](assets/icons/niema) **Systemwide Features** Features spanning throughout the Saleor dashboard.](dashboard/systemwide/introduction.md)
+[![](assets/icons/system-features.svg) **Systemwide Features** Features spanning throughout the Saleor dashboard.](dashboard/systemwide/introduction.md)
 [/home-grid]
 
 ## GraphQL API

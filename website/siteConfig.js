@@ -35,9 +35,20 @@ const siteConfig = {
   // Disable showing the title in the header next to the header icon.
   disableHeaderTitle: true,
 
+  /* path to images for header/footer */
+  headerIcon: "img/saleor-logo.svg",
+  footerIcon: "img/footer-logo.png",
+  twitterIcon: "img/twitter-icon.svg",
+  fbIcon: "img/facebook-icon.svg",
+  soIcon: "img/stackoverflow-icon.svg",
+  githubIcon: "img/github-icon.svg",
+  favicon: "img/saleor-icon.png",
+
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
+    { href: "", label: "" },
     { search: true },
+    { href: "", label: "" },
     {
       doc: "getting-started/intro",
       label: "Saleor Dashboard Guide"
@@ -48,15 +59,6 @@ const siteConfig = {
       label: "Running your Saleor Server"
     }
   ],
-
-  /* path to images for header/footer */
-  headerIcon: "img/saleor-logo.svg",
-  footerIcon: "img/footer-logo.png",
-  twitterIcon: "img/twitter-icon.svg",
-  fbIcon: "img/facebook-icon.svg",
-  soIcon: "img/stackoverflow-icon.svg",
-  githubIcon: "img/github-icon.svg",
-  favicon: "img/saleor-icon.png",
 
   /* Colors for website */
   colors: {

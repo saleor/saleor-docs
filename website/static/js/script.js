@@ -16,13 +16,26 @@ window.addEventListener(
 
     const isNext = location.pathname.includes("/next/");
     const headerMenu = document.querySelectorAll(".nav-site li");
-    if (!isNext) headerMenu[2].classList.add("next");
+    if (!isNext) headerMenu[4].classList.add("next");
 
     const navItem = document.querySelectorAll(".navListItem");
     [].map.call(navItem, item => {
       const parentClass = item.parentElement.parentElement.classList.length;
       if (parentClass == 1) item.classList.add("categoryHeader");
     });
+
+    const mobileMenuSections = document.querySelectorAll(
+      ".nav-site.nav-site-internal li"
+    )[0];
+    const mobileMenuSpacer = document.querySelectorAll(
+      ".nav-site.nav-site-internal li"
+    )[2];
+    mobileMenuSections.classList.add("menuSection");
+    mobileMenuSpacer.classList.add("menuSpacer");
+
+    mobileMenuSections.onclick = function() {
+      mobileMenuSections.parentElement.classList.toggle("active");
+    };
   },
   false
 );
