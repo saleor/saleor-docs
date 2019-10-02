@@ -8,6 +8,22 @@
 const React = require("react");
 
 class Footer extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { value: "" };
+
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({ value: event.target.value });
+  }
+
+  handleSubmit(event) {
+    alert("Podano następujące imię: " + this.state.value);
+    event.preventDefault();
+  }
+
   render() {
     return (
       <footer className="docs-footer">
@@ -29,11 +45,12 @@ class Footer extends React.Component {
                     <div className="mc-field-group newsletter-input-wrapper">
                       <input
                         type="email"
-                        value=""
+                        value={this.state.value}
                         name="EMAIL"
                         className="required email newsletter-input"
                         id="mce-EMAIL"
                         placeholder="Email address"
+                        onChange={this.handleChange}
                       />
                       <small></small>
                       <div className="clear">
@@ -66,7 +83,8 @@ class Footer extends React.Component {
                         type="text"
                         name="b_8bd6297e7e63c06d9c242a92d_f8dadd63b8"
                         tabIndex="-1"
-                        value=""
+                        value={this.state.value}
+                        onChange={this.handleChange}
                       />
                     </div>
                   </div>
@@ -248,8 +266,18 @@ class Footer extends React.Component {
               </span>
             </div>
             <div className="dosc-footer-links">
-              <a href="/">Terms of use</a>
-              <a href="/">Privacy policy</a>
+              <a
+                href="https://getsaleor.com/privacy-policy-terms-and-conditions"
+                target="_blank"
+              >
+                Terms of use
+              </a>
+              <a
+                href="https://getsaleor.com/privacy-policy-terms-and-conditions/"
+                target="_blank"
+              >
+                Privacy policy
+              </a>
             </div>
           </div>
           <link
