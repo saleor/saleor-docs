@@ -50,12 +50,12 @@ const siteConfig = {
     { search: true },
     { href: "", label: "" },
     {
-      doc: "getting-started/intro",
+      doc: "dashboard/before-you-start",
       label: "Saleor Dashboard Guide"
     },
     { href: "/docs/next/api/intro", label: "GraphQL API" },
     {
-      doc: "dashboard/before-you-start",
+      doc: "getting-started/intro",
       label: "Running your Saleor Server"
     }
   ],
