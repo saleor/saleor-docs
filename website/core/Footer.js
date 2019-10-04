@@ -99,7 +99,7 @@ class Footer extends React.Component {
               <span>Contact us:</span>
               <a
                 className="twitter-icon"
-                href="https://github.com/mirumee/saleor"
+                href="https://twitter.com/getsaleor"
                 target="_blank"
               >
                 <img
@@ -137,7 +137,7 @@ class Footer extends React.Component {
               </a>
               <a
                 className="github-icon"
-                href="https://twitter.com/getsaleor"
+                href="https://github.com/mirumee/saleor"
                 target="_blank"
               >
                 <img
