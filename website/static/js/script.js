@@ -32,9 +32,11 @@ window.addEventListener(
     )[2];
     mobileMenuSections.classList.add("menuSection");
     mobileMenuSpacer.classList.add("menuSpacer");
+    const logo = document.querySelectorAll("header .logo")[0];
 
     mobileMenuSections.onclick = function() {
       mobileMenuSections.parentElement.classList.toggle("active");
+      logo.classList.toggle("active");
     };
   },
   false
