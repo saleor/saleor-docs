@@ -188,6 +188,23 @@ For more information about the navigation bar, click [here](https://docusaurus.i
 
 For more information about custom pages, click [here](https://docusaurus.io/docs/en/custom-pages).
 
+# Updating API reference
+
+API reference is generated using [graphql-markdown](https://github.com/exogen/graphql-markdown) tool. To update it, run the following command:
+
+```sh
+npm run build-api-reference API_URL
+```
+
+where `API_URL` is URL to the GraphQL API that you want to generate the documentation for.
+
+Example: if you're running API locally with the default settings, you need to run:
+
+```sh
+npm run build-api-reference http://localhost:8000/graphql/
+```
+
+
 # Full Documentation
 
 Full documentation can be found on the [website](https://docusaurus.io/).
