@@ -6,8 +6,8 @@ title: Managing Dependencies
 
 ## Poetry 
 
-To guarantee repeatable installations, all project dependencies are managed using Poetry. The project’s direct dependencies are listed in `pyproject.toml`. 
-Running `poetry lock` would generate `poetry.lock` which has all versions pinned.
+To guarantee repeatable installations, all project dependencies are managed using [Poetry](https://poetry.eustace.io/). The project’s direct dependencies are listed in `pyproject.toml`. 
+Running `poetry lock` generates `poetry.lock` which has all versions pinned.
 
 You can install Poetry by using `pip install --pre poetry` or by following the official installation guide [here](https://github.com/sdispater/poetry#installation).
 We recommend a pre-release version of `1.0.0b` that contains many fixes and features that Saleor relies on. Other versions might not work as expected.
