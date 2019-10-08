@@ -10,10 +10,10 @@ To install all the development tools, run the following commands:
 $ python -m pip install -r requirements_dev.txt``
 ```
 
-or if using `pipenv`:
+or if using `poetry`:
 
 ```console
-$ pipenv install --dev
+$ poetry install
 ```
 
 Saleor uses the [pre-commit](https://pre-commit.com/#install) tool to check and automatically fix any formatting issue before creating a git commit.
