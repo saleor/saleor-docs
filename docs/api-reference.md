@@ -55,6 +55,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AuthorizationKey](#authorizationkey)
     * [AuthorizationKeyAdd](#authorizationkeyadd)
     * [AuthorizationKeyDelete](#authorizationkeydelete)
+    * [BulkProductError](#bulkproducterror)
     * [Category](#category)
     * [CategoryBulkDelete](#categorybulkdelete)
     * [CategoryClearMeta](#categoryclearmeta)
@@ -71,8 +72,8 @@ This document describes all queries, mutations, and types available in the Saleo
     * [Checkout](#checkout)
     * [CheckoutAddPromoCode](#checkoutaddpromocode)
     * [CheckoutBillingAddressUpdate](#checkoutbillingaddressupdate)
-    * [CheckoutClearStoredMeta](#checkoutclearstoredmeta)
-    * [CheckoutClearStoredPrivateMeta](#checkoutclearstoredprivatemeta)
+    * [CheckoutClearMeta](#checkoutclearmeta)
+    * [CheckoutClearPrivateMeta](#checkoutclearprivatemeta)
     * [CheckoutComplete](#checkoutcomplete)
     * [CheckoutCountableConnection](#checkoutcountableconnection)
     * [CheckoutCountableEdge](#checkoutcountableedge)
@@ -150,6 +151,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [FulfillmentCreate](#fulfillmentcreate)
     * [FulfillmentLine](#fulfillmentline)
     * [FulfillmentUpdateTracking](#fulfillmentupdatetracking)
+    * [GatewayConfigLine](#gatewayconfigline)
     * [Geolocalization](#geolocalization)
     * [GiftCard](#giftcard)
     * [GiftCardActivate](#giftcardactivate)
@@ -193,6 +195,8 @@ This document describes all queries, mutations, and types available in the Saleo
     * [OrderBulkCancel](#orderbulkcancel)
     * [OrderCancel](#ordercancel)
     * [OrderCapture](#ordercapture)
+    * [OrderClearMeta](#orderclearmeta)
+    * [OrderClearPrivateMeta](#orderclearprivatemeta)
     * [OrderCountableConnection](#ordercountableconnection)
     * [OrderCountableEdge](#ordercountableedge)
     * [OrderError](#ordererror)
@@ -204,6 +208,8 @@ This document describes all queries, mutations, and types available in the Saleo
     * [OrderMarkAsPaid](#ordermarkaspaid)
     * [OrderRefund](#orderrefund)
     * [OrderUpdate](#orderupdate)
+    * [OrderUpdateMeta](#orderupdatemeta)
+    * [OrderUpdatePrivateMeta](#orderupdateprivatemeta)
     * [OrderUpdateShipping](#orderupdateshipping)
     * [OrderVoid](#ordervoid)
     * [Page](#page)
@@ -224,6 +230,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [PaymentCountableConnection](#paymentcountableconnection)
     * [PaymentCountableEdge](#paymentcountableedge)
     * [PaymentError](#paymenterror)
+    * [PaymentGateway](#paymentgateway)
     * [PaymentRefund](#paymentrefund)
     * [PaymentSecureConfirm](#paymentsecureconfirm)
     * [PaymentSource](#paymentsource)
@@ -268,6 +275,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [ProductUpdateMeta](#productupdatemeta)
     * [ProductUpdatePrivateMeta](#productupdateprivatemeta)
     * [ProductVariant](#productvariant)
+    * [ProductVariantBulkCreate](#productvariantbulkcreate)
     * [ProductVariantBulkDelete](#productvariantbulkdelete)
     * [ProductVariantClearMeta](#productvariantclearmeta)
     * [ProductVariantClearPrivateMeta](#productvariantclearprivatemeta)
@@ -296,11 +304,14 @@ This document describes all queries, mutations, and types available in the Saleo
     * [SaleUpdate](#saleupdate)
     * [SelectedAttribute](#selectedattribute)
     * [ServiceAccount](#serviceaccount)
-    * [ServiceAccountClearStoredPrivateMeta](#serviceaccountclearstoredprivatemeta)
+    * [ServiceAccountClearPrivateMeta](#serviceaccountclearprivatemeta)
     * [ServiceAccountCountableConnection](#serviceaccountcountableconnection)
     * [ServiceAccountCountableEdge](#serviceaccountcountableedge)
     * [ServiceAccountCreate](#serviceaccountcreate)
     * [ServiceAccountDelete](#serviceaccountdelete)
+    * [ServiceAccountToken](#serviceaccounttoken)
+    * [ServiceAccountTokenCreate](#serviceaccounttokencreate)
+    * [ServiceAccountTokenDelete](#serviceaccounttokendelete)
     * [ServiceAccountUpdate](#serviceaccountupdate)
     * [ServiceAccountUpdatePrivateMeta](#serviceaccountupdateprivatemeta)
     * [SetPassword](#setpassword)
@@ -341,8 +352,8 @@ This document describes all queries, mutations, and types available in the Saleo
     * [UserAvatarDelete](#useravatardelete)
     * [UserAvatarUpdate](#useravatarupdate)
     * [UserBulkSetActive](#userbulksetactive)
-    * [UserClearStoredMeta](#userclearstoredmeta)
-    * [UserClearStoredPrivateMeta](#userclearstoredprivatemeta)
+    * [UserClearMeta](#userclearmeta)
+    * [UserClearPrivateMeta](#userclearprivatemeta)
     * [UserCountableConnection](#usercountableconnection)
     * [UserCountableEdge](#usercountableedge)
     * [UserUpdateMeta](#userupdatemeta)
@@ -363,6 +374,14 @@ This document describes all queries, mutations, and types available in the Saleo
     * [VoucherTranslate](#vouchertranslate)
     * [VoucherTranslation](#vouchertranslation)
     * [VoucherUpdate](#voucherupdate)
+    * [Webhook](#webhook)
+    * [WebhookCountableConnection](#webhookcountableconnection)
+    * [WebhookCountableEdge](#webhookcountableedge)
+    * [WebhookCreate](#webhookcreate)
+    * [WebhookDelete](#webhookdelete)
+    * [WebhookError](#webhookerror)
+    * [WebhookEvent](#webhookevent)
+    * [WebhookUpdate](#webhookupdate)
     * [Weight](#weight)
   * [Inputs](#inputs)
     * [AccountInput](#accountinput)
@@ -437,6 +456,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [ProductOrder](#productorder)
     * [ProductTypeFilterInput](#producttypefilterinput)
     * [ProductTypeInput](#producttypeinput)
+    * [ProductVariantBulkCreateInput](#productvariantbulkcreateinput)
     * [ProductVariantCreateInput](#productvariantcreateinput)
     * [ProductVariantInput](#productvariantinput)
     * [ReorderInput](#reorderinput)
@@ -445,6 +465,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [SeoInput](#seoinput)
     * [ServiceAccountFilterInput](#serviceaccountfilterinput)
     * [ServiceAccountInput](#serviceaccountinput)
+    * [ServiceAccountTokenInput](#serviceaccounttokeninput)
     * [ShippingPriceInput](#shippingpriceinput)
     * [ShippingZoneInput](#shippingzoneinput)
     * [ShopSettingsInput](#shopsettingsinput)
@@ -458,6 +479,8 @@ This document describes all queries, mutations, and types available in the Saleo
     * [UserCreateInput](#usercreateinput)
     * [VoucherFilterInput](#voucherfilterinput)
     * [VoucherInput](#voucherinput)
+    * [WebhookCreateInput](#webhookcreateinput)
+    * [WebhookUpdateInput](#webhookupdateinput)
   * [Enums](#enums)
     * [AccountErrorCode](#accounterrorcode)
     * [AddressTypeEnum](#addresstypeenum)
@@ -475,7 +498,6 @@ This document describes all queries, mutations, and types available in the Saleo
     * [DiscountValueTypeEnum](#discountvaluetypeenum)
     * [ExtensionsErrorCode](#extensionserrorcode)
     * [FulfillmentStatus](#fulfillmentstatus)
-    * [GatewaysEnum](#gatewaysenum)
     * [GiftCardErrorCode](#giftcarderrorcode)
     * [LanguageCodeEnum](#languagecodeenum)
     * [MenuErrorCode](#menuerrorcode)
@@ -507,6 +529,8 @@ This document describes all queries, mutations, and types available in the Saleo
     * [TranslatableKinds](#translatablekinds)
     * [VoucherDiscountType](#voucherdiscounttype)
     * [VoucherTypeEnum](#vouchertypeenum)
+    * [WebhookErrorCode](#webhookerrorcode)
+    * [WebhookEventTypeEnum](#webhookeventtypeenum)
     * [WeightUnitsEnum](#weightunitsenum)
   * [Scalars](#scalars)
     * [AttributeScalar](#attributescalar)
@@ -539,6 +563,69 @@ This document describes all queries, mutations, and types available in the Saleo
 </tr>
 </thead>
 <tbody>
+<tr>
+<td colspan="2" valign="top"><strong>webhook</strong></td>
+<td valign="top"><a href="#webhook">Webhook</a></td>
+<td>
+
+Look up a webhook by ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the webhook.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>webhooks</strong></td>
+<td valign="top"><a href="#webhookcountableconnection">WebhookCountableConnection</a></td>
+<td>
+
+List of webhooks.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come before the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come after the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the first n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the last n elements from the list.
+
+</td>
+</tr>
 <tr>
 <td colspan="2" valign="top"><strong>translations</strong></td>
 <td valign="top"><a href="#translatableitemconnection">TranslatableItemConnection</a></td>
@@ -753,8 +840,7 @@ Supported filter parameters:
 <td valign="top"><a href="#id">ID</a></td>
 <td>
 
-Return attributes for products
-            belonging to the given category.
+Return attributes for products belonging to the given category. DEPRECATED: Will be removed in Saleor 2.10, use the `filter` field instead.
 
 </td>
 </tr>
@@ -763,8 +849,7 @@ Return attributes for products
 <td valign="top"><a href="#id">ID</a></td>
 <td>
 
-Return attributes for products
-            belonging to the given collection.
+Return attributes for products belonging to the given collection. DEPRECATED: Will be removed in Saleor 2.10, use the `filter` field instead.
 
 </td>
 </tr>
@@ -827,7 +912,7 @@ Return the last n elements from the list.
 <td valign="top"><a href="#attribute">Attribute</a></td>
 <td>
 
-Lookup an attribute by ID.
+Look up an attribute by ID.
 
 </td>
 </tr>
@@ -1416,17 +1501,20 @@ Return the last n elements from the list.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>paymentClientToken</strong></td>
+<td colspan="2" valign="top"><strong>paymentClientToken</strong> ⚠️</td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
 
-Return a new token for the payment gateway.
+DEPRECATED: Will be removed in Saleor 2.10, use payment gateway config instead in availablePaymentGateways.
 
+</blockquote>
 </td>
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">gateway</td>
-<td valign="top"><a href="#gatewaysenum">GatewaysEnum</a></td>
+<td valign="top"><a href="#string">String</a>!</td>
 <td>
 
 A payment gateway.
@@ -1438,7 +1526,7 @@ A payment gateway.
 <td valign="top"><a href="#page">Page</a></td>
 <td>
 
-Lookup a page by ID or slug.
+Look up a page by ID or slug.
 
 </td>
 </tr>
@@ -1530,8 +1618,7 @@ Return the last n elements from the list.
 <td valign="top"><a href="#ordereventcountableconnection">OrderEventCountableConnection</a></td>
 <td>
 
-List of activity events to display on
-        homepage (at the moment it only contains order-events).
+List of activity events to display on homepage (at the moment it only contains order-events).
 
 </td>
 </tr>
@@ -1576,7 +1663,7 @@ Return the last n elements from the list.
 <td valign="top"><a href="#order">Order</a></td>
 <td>
 
-Lookup an order by ID.
+Look up an order by ID.
 
 </td>
 </tr>
@@ -2668,7 +2755,7 @@ ID of the user.
 <td valign="top"><a href="#node">Node</a></td>
 <td>
 
-The ID of the object. 
+The ID of the object
 
 </td>
 </tr>
@@ -2691,6 +2778,69 @@ The ID of the object.
 </tr>
 </thead>
 <tbody>
+<tr>
+<td colspan="2" valign="top"><strong>webhookCreate</strong></td>
+<td valign="top"><a href="#webhookcreate">WebhookCreate</a></td>
+<td>
+
+Creates a new webhook subscription.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#webhookcreateinput">WebhookCreateInput</a>!</td>
+<td>
+
+Fields required to create a webhook.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>webhookDelete</strong></td>
+<td valign="top"><a href="#webhookdelete">WebhookDelete</a></td>
+<td>
+
+Deletes a webhook subscription.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a webhook to delete.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>webhookUpdate</strong></td>
+<td valign="top"><a href="#webhookupdate">WebhookUpdate</a></td>
+<td>
+
+Updates a webhook subscription.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a webhook to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#webhookupdateinput">WebhookUpdateInput</a>!</td>
+<td>
+
+Fields required to update a webhook.
+
+</td>
+</tr>
 <tr>
 <td colspan="2" valign="top"><strong>authorizationKeyAdd</strong></td>
 <td valign="top"><a href="#authorizationkeyadd">AuthorizationKeyAdd</a></td>
@@ -2930,7 +3080,7 @@ Fields required to update a shipping price.
 <td valign="top"><a href="#shippingpricetranslate">ShippingPriceTranslate</a></td>
 <td>
 
-Creates/Updates translations for Shipping Method.
+Creates/Updates translations for shipping method.
 
 </td>
 </tr>
@@ -2939,7 +3089,7 @@ Creates/Updates translations for Shipping Method.
 <td valign="top"><a href="#id">ID</a>!</td>
 <td>
 
-Shipping Method ID.
+Shipping method ID.
 
 </td>
 </tr>
@@ -3178,7 +3328,7 @@ Fields required to update an attribute.
 <td valign="top"><a href="#attributetranslate">AttributeTranslate</a></td>
 <td>
 
-Creates/Updates translations for Attribute.
+Creates/Updates translations for attribute.
 
 </td>
 </tr>
@@ -3210,7 +3360,7 @@ Translation language code.
 <td valign="top"><a href="#attributeupdatemeta">AttributeUpdateMeta</a></td>
 <td>
 
-Update public metadata for Attribute .
+Update public metadata for attribute.
 
 </td>
 </tr>
@@ -3237,7 +3387,7 @@ Fields required to update new or stored metadata item.
 <td valign="top"><a href="#attributeclearmeta">AttributeClearMeta</a></td>
 <td>
 
-Clears public metadata item for Attribute
+Clears public metadata item for attribute.
 
 </td>
 </tr>
@@ -3264,7 +3414,7 @@ Fields required to identify stored metadata item.
 <td valign="top"><a href="#attributeupdateprivatemeta">AttributeUpdatePrivateMeta</a></td>
 <td>
 
-Update public metadata for Attribute.
+Update public metadata for attribute.
 
 </td>
 </tr>
@@ -3291,7 +3441,7 @@ Fields required to update new or stored metadata item.
 <td valign="top"><a href="#attributeclearprivatemeta">AttributeClearPrivateMeta</a></td>
 <td>
 
-Clears public metadata item for Attribute.
+Clears public metadata item for attribute.
 
 </td>
 </tr>
@@ -3408,7 +3558,7 @@ Fields required to update an AttributeValue.
 <td valign="top"><a href="#attributevaluetranslate">AttributeValueTranslate</a></td>
 <td>
 
-Creates/Updates translations for Attribute Value.
+Creates/Updates translations for attribute value.
 
 </td>
 </tr>
@@ -3485,9 +3635,7 @@ Fields required to create a category.
 <td valign="top"><a href="#id">ID</a></td>
 <td>
 
-
-                ID of the parent category. If empty, category will be top level
-                category.
+ID of the parent category. If empty, category will be top level category.
 
 </td>
 </tr>
@@ -3618,7 +3766,7 @@ Fields required to update new or stored metadata item.
 <td valign="top"><a href="#categoryclearmeta">CategoryClearMeta</a></td>
 <td>
 
-Clears public metadata item for category.
+Clears public metadata for category.
 
 </td>
 </tr>
@@ -3645,7 +3793,7 @@ Fields required to identify stored metadata item.
 <td valign="top"><a href="#categoryupdateprivatemeta">CategoryUpdatePrivateMeta</a></td>
 <td>
 
-Update public metadata for category.
+Update private metadata for category.
 
 </td>
 </tr>
@@ -3672,7 +3820,7 @@ Fields required to update new or stored metadata item.
 <td valign="top"><a href="#categoryclearprivatemeta">CategoryClearPrivateMeta</a></td>
 <td>
 
-Clears public metadata item for category.
+Clears private metadata for category.
 
 </td>
 </tr>
@@ -3888,7 +4036,7 @@ Fields required to update a collection.
 <td valign="top"><a href="#collectiontranslate">CollectionTranslate</a></td>
 <td>
 
-Creates/Updates translations for Collection.
+Creates/Updates translations for collection.
 
 </td>
 </tr>
@@ -3920,7 +4068,7 @@ Translation language code.
 <td valign="top"><a href="#collectionupdatemeta">CollectionUpdateMeta</a></td>
 <td>
 
-Update public metadata for Collection.
+Update public metadata for collection.
 
 </td>
 </tr>
@@ -3947,7 +4095,7 @@ Fields required to update new or stored metadata item.
 <td valign="top"><a href="#collectionclearmeta">CollectionClearMeta</a></td>
 <td>
 
-Clears public metadata item for Collection.
+Clears public metadata for collection.
 
 </td>
 </tr>
@@ -3974,7 +4122,7 @@ Fields required to identify stored metadata item.
 <td valign="top"><a href="#collectionupdateprivatemeta">CollectionUpdatePrivateMeta</a></td>
 <td>
 
-Update public metadata for Collection.
+Update private metadata for collection.
 
 </td>
 </tr>
@@ -4001,7 +4149,7 @@ Fields required to update new or stored metadata item.
 <td valign="top"><a href="#collectionclearprivatemeta">CollectionClearPrivateMeta</a></td>
 <td>
 
-Clears public metadata item for Collection.
+Clears private metadata item for collection.
 
 </td>
 </tr>
@@ -4222,7 +4370,7 @@ Fields required to identify stored metadata item.
 <td valign="top"><a href="#productupdateprivatemeta">ProductUpdatePrivateMeta</a></td>
 <td>
 
-Update public metadata for product.
+Update private metadata for product.
 
 </td>
 </tr>
@@ -4249,7 +4397,7 @@ Fields required to update new or stored metadata item.
 <td valign="top"><a href="#productclearprivatemeta">ProductClearPrivateMeta</a></td>
 <td>
 
-Clears public metadata item for product.
+Clears private metadata item for product.
 
 </td>
 </tr>
@@ -4276,10 +4424,7 @@ Fields required to identify stored metadata item.
 <td valign="top"><a href="#productimagecreate">ProductImageCreate</a></td>
 <td>
 
-Create a product image. This mutation must be
-        sent as a `multipart` request. More detailed specs of the upload format
-        can be found here:
-        https://github.com/jaydenseric/graphql-multipart-request-spec
+Create a product image. This mutation must be sent as a `multipart` request. More detailed specs of the upload format can be found here: https://github.com/jaydenseric/graphql-multipart-request-spec
 
 </td>
 </tr>
@@ -4531,7 +4676,7 @@ Fields required to update new or stored metadata item.
 <td valign="top"><a href="#producttypeclearmeta">ProductTypeClearMeta</a></td>
 <td>
 
-Clears public metadata item for product type.
+Clears public metadata for product type.
 
 </td>
 </tr>
@@ -4558,7 +4703,7 @@ Fields required to identify stored metadata item.
 <td valign="top"><a href="#producttypeupdateprivatemeta">ProductTypeUpdatePrivateMeta</a></td>
 <td>
 
-Update public metadata for product type.
+Update private metadata for product type.
 
 </td>
 </tr>
@@ -4585,7 +4730,7 @@ Fields required to update new or stored metadata item.
 <td valign="top"><a href="#producttypeclearprivatemeta">ProductTypeClearPrivateMeta</a></td>
 <td>
 
-Clears public metadata item for product type
+Clears private metadata for product type.
 
 </td>
 </tr>
@@ -4612,10 +4757,7 @@ Fields required to identify stored metadata item.
 <td valign="top"><a href="#digitalcontentcreate">DigitalContentCreate</a></td>
 <td>
 
-Create new digital content. This mutation must
-        be sent as a `multipart` request. More detailed specs of the upload
-        format can be found here:
-        https://github.com/jaydenseric/graphql-multipart-request-spec
+Create new digital content. This mutation must be sent as a `multipart` request. More detailed specs of the upload format can be found here: https://github.com/jaydenseric/graphql-multipart-request-spec
 
 </td>
 </tr>
@@ -4687,7 +4829,7 @@ ID of a product variant with digital content to update.
 <td valign="top"><a href="#digitalcontenturlcreate">DigitalContentUrlCreate</a></td>
 <td>
 
-Generate new url to digital content.
+Generate new URL to digital content.
 
 </td>
 </tr>
@@ -4733,6 +4875,33 @@ Deletes a product variant.
 <td>
 
 ID of a product variant to delete.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productVariantBulkCreate</strong></td>
+<td valign="top"><a href="#productvariantbulkcreate">ProductVariantBulkCreate</a></td>
+<td>
+
+Creates product variants for a given product.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">product</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the product to create the variants for.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">variants</td>
+<td valign="top">[<a href="#productvariantbulkcreateinput">ProductVariantBulkCreateInput</a>]!</td>
+<td>
+
+Input list of product variants to create.
 
 </td>
 </tr>
@@ -4845,7 +5014,7 @@ Fields required to update new or stored metadata item.
 <td valign="top"><a href="#productvariantclearmeta">ProductVariantClearMeta</a></td>
 <td>
 
-Clears public metadata item for product variant.
+Clears public metadata for product variant.
 
 </td>
 </tr>
@@ -4872,7 +5041,7 @@ Fields required to identify stored metadata item.
 <td valign="top"><a href="#productvariantupdateprivatemeta">ProductVariantUpdatePrivateMeta</a></td>
 <td>
 
-Update public metadata for product variant.
+Update private metadata for product variant.
 
 </td>
 </tr>
@@ -4899,7 +5068,7 @@ Fields required to update new or stored metadata item.
 <td valign="top"><a href="#productvariantclearprivatemeta">ProductVariantClearPrivateMeta</a></td>
 <td>
 
-Clears public metadata item for product variant.
+Clears private metadata for product variant.
 
 </td>
 </tr>
@@ -5052,7 +5221,7 @@ Payment ID.
 <td valign="top"><a href="#paymentsecureconfirm">PaymentSecureConfirm</a></td>
 <td>
 
-Confirms payment in a two-step process like 3D secure.
+Confirms payment in a two-step process like 3D secure
 
 </td>
 </tr>
@@ -5476,12 +5645,65 @@ ID of the order to capture.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>orderClearPrivateMeta</strong></td>
+<td valign="top"><a href="#orderclearprivatemeta">OrderClearPrivateMeta</a></td>
+<td>
+
+Clears stored private metadata value.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a customer to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metapath">MetaPath</a>!</td>
+<td>
+
+Fields required to identify stored metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>orderClearMeta</strong></td>
+<td valign="top"><a href="#orderclearmeta">OrderClearMeta</a></td>
+<td>
+
+Clears stored metadata value.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a customer to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metapath">MetaPath</a>!</td>
+<td>
+
+Fields required to identify stored metadata item.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>orderFulfillmentCancel</strong></td>
 <td valign="top"><a href="#fulfillmentcancel">FulfillmentCancel</a></td>
 <td>
 
-Cancels existing fulfillment
-        and optionally restocks items.
+Cancels existing fulfillment and optionally restocks items.
 
 </td>
 </tr>
@@ -5626,6 +5848,60 @@ ID of an order to update.
 <td>
 
 Fields required to update an order.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>orderUpdateMeta</strong></td>
+<td valign="top"><a href="#orderupdatemeta">OrderUpdateMeta</a></td>
+<td>
+
+Updates meta for order.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an object to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metainput">MetaInput</a>!</td>
+<td>
+
+Fields required to update new or stored metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>orderUpdatePrivateMeta</strong></td>
+<td valign="top"><a href="#orderupdateprivatemeta">OrderUpdatePrivateMeta</a></td>
+<td>
+
+Updates private meta for order.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an object to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metainput">MetaInput</a>!</td>
+<td>
+
+Fields required to update new or stored metadata item.
 
 </td>
 </tr>
@@ -5823,9 +6099,7 @@ Creates a new menu item.
 <td valign="top"><a href="#menuitemcreateinput">MenuItemCreateInput</a>!</td>
 <td>
 
-Fields required to update a menu item.
-            Only one of 'url', 'category', 'page', 'collection' is allowed
-            per item
+Fields required to update a menu item. Only one of `url`, `category`, `page`, `collection` is allowed per item.
 
 </td>
 </tr>
@@ -5888,9 +6162,7 @@ ID of a menu item to update.
 <td valign="top"><a href="#menuiteminput">MenuItemInput</a>!</td>
 <td>
 
-Fields required to update a menu item.
-            Only one of 'url', 'category', 'page', 'collection' is allowed
-            per item
+Fields required to update a menu item. Only one of `url`, `category`, `page`, `collection` is allowed per item.
 
 </td>
 </tr>
@@ -6474,7 +6746,7 @@ Gift card code or voucher code.
 <td valign="top"><a href="#checkoutbillingaddressupdate">CheckoutBillingAddressUpdate</a></td>
 <td>
 
-Update billing address in the existing Checkout.
+Update billing address in the existing checkout.
 
 </td>
 </tr>
@@ -6483,7 +6755,7 @@ Update billing address in the existing Checkout.
 <td valign="top"><a href="#addressinput">AddressInput</a>!</td>
 <td>
 
-The billing address of the Checkout.
+The billing address of the checkout.
 
 </td>
 </tr>
@@ -6492,7 +6764,7 @@ The billing address of the Checkout.
 <td valign="top"><a href="#id">ID</a>!</td>
 <td>
 
-ID of the Checkout.
+ID of the checkout.
 
 </td>
 </tr>
@@ -6528,7 +6800,7 @@ Determines whether to store the payment source for future usage.
 <td valign="top"><a href="#checkoutcreate">CheckoutCreate</a></td>
 <td>
 
-Create a new Checkout.
+Create a new checkout.
 
 </td>
 </tr>
@@ -6537,7 +6809,7 @@ Create a new Checkout.
 <td valign="top"><a href="#checkoutcreateinput">CheckoutCreateInput</a>!</td>
 <td>
 
-Fields required to create Checkout.
+Fields required to create checkout.
 
 </td>
 </tr>
@@ -6546,7 +6818,7 @@ Fields required to create Checkout.
 <td valign="top"><a href="#checkoutcustomerattach">CheckoutCustomerAttach</a></td>
 <td>
 
-Sets the customer as the owner of the Checkout.
+Sets the customer as the owner of the checkout.
 
 </td>
 </tr>
@@ -6555,7 +6827,7 @@ Sets the customer as the owner of the Checkout.
 <td valign="top"><a href="#id">ID</a>!</td>
 <td>
 
-ID of the Checkout.
+ID of the checkout.
 
 </td>
 </tr>
@@ -6573,7 +6845,7 @@ The ID of the customer.
 <td valign="top"><a href="#checkoutcustomerdetach">CheckoutCustomerDetach</a></td>
 <td>
 
-Removes the user assigned as the owner of the Checkout.
+Removes the user assigned as the owner of the checkout.
 
 </td>
 </tr>
@@ -6591,7 +6863,7 @@ Checkout ID.
 <td valign="top"><a href="#checkoutemailupdate">CheckoutEmailUpdate</a></td>
 <td>
 
-Updates email address in the existing Checkout object.
+Updates email address in the existing checkout object.
 
 </td>
 </tr>
@@ -6627,7 +6899,7 @@ Deletes a CheckoutLine.
 <td valign="top"><a href="#id">ID</a>!</td>
 <td>
 
-The ID of the Checkout.
+The ID of the checkout.
 
 </td>
 </tr>
@@ -6636,7 +6908,7 @@ The ID of the Checkout.
 <td valign="top"><a href="#id">ID</a></td>
 <td>
 
-ID of the CheckoutLine to delete.
+ID of the checkout line to delete.
 
 </td>
 </tr>
@@ -6645,7 +6917,7 @@ ID of the CheckoutLine to delete.
 <td valign="top"><a href="#checkoutlinesadd">CheckoutLinesAdd</a></td>
 <td>
 
-Adds a checkout line to the existing Checkout.
+Adds a checkout line to the existing checkout.
 
 </td>
 </tr>
@@ -6654,7 +6926,7 @@ Adds a checkout line to the existing Checkout.
 <td valign="top"><a href="#id">ID</a>!</td>
 <td>
 
-The ID of the Checkout.
+The ID of the checkout.
 
 </td>
 </tr>
@@ -6663,7 +6935,7 @@ The ID of the Checkout.
 <td valign="top">[<a href="#checkoutlineinput">CheckoutLineInput</a>]!</td>
 <td>
 
-A list of checkout lines, each containing information about an item in the Checkout.
+A list of checkout lines, each containing information about an item in the checkout.
 
 </td>
 </tr>
@@ -6672,7 +6944,7 @@ A list of checkout lines, each containing information about an item in the Check
 <td valign="top"><a href="#checkoutlinesupdate">CheckoutLinesUpdate</a></td>
 <td>
 
-Updates CheckoutLine in the existing Checkout.
+Updates checkout line in the existing checkout.
 
 </td>
 </tr>
@@ -6681,7 +6953,7 @@ Updates CheckoutLine in the existing Checkout.
 <td valign="top"><a href="#id">ID</a>!</td>
 <td>
 
-The ID of the Checkout.
+The ID of the checkout.
 
 </td>
 </tr>
@@ -6690,7 +6962,7 @@ The ID of the Checkout.
 <td valign="top">[<a href="#checkoutlineinput">CheckoutLineInput</a>]!</td>
 <td>
 
-A list of checkout lines, each containing information about an item in the Checkout.
+A list of checkout lines, each containing information about an item in the checkout.
 
 </td>
 </tr>
@@ -6699,7 +6971,7 @@ A list of checkout lines, each containing information about an item in the Check
 <td valign="top"><a href="#checkoutremovepromocode">CheckoutRemovePromoCode</a></td>
 <td>
 
-Remove a gift card or a voucher from a Checkout.
+Remove a gift card or a voucher from a checkout.
 
 </td>
 </tr>
@@ -6726,7 +6998,7 @@ Gift card code or voucher code.
 <td valign="top"><a href="#checkoutpaymentcreate">CheckoutPaymentCreate</a></td>
 <td>
 
-Create a new payment for given Checkout.
+Create a new payment for given checkout.
 
 </td>
 </tr>
@@ -6753,7 +7025,7 @@ Data required to create a new payment.
 <td valign="top"><a href="#checkoutshippingaddressupdate">CheckoutShippingAddressUpdate</a></td>
 <td>
 
-Update shipping address in the existing Checkout.
+Update shipping address in the existing checkout.
 
 </td>
 </tr>
@@ -6762,7 +7034,7 @@ Update shipping address in the existing Checkout.
 <td valign="top"><a href="#id">ID</a>!</td>
 <td>
 
-ID of the Checkout.
+ID of the checkout.
 
 </td>
 </tr>
@@ -6834,7 +7106,7 @@ Voucher code.
 <td valign="top"><a href="#checkoutupdatemeta">CheckoutUpdateMeta</a></td>
 <td>
 
-Updates metadata for Checkout.
+Updates metadata for checkout.
 
 </td>
 </tr>
@@ -6858,10 +7130,10 @@ Fields required to update new or stored metadata item.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>checkoutClearMetadata</strong></td>
-<td valign="top"><a href="#checkoutclearstoredmeta">CheckoutClearStoredMeta</a></td>
+<td valign="top"><a href="#checkoutclearmeta">CheckoutClearMeta</a></td>
 <td>
 
-Clear stored metadata value.
+Clear metadata for checkout.
 
 </td>
 </tr>
@@ -6888,7 +7160,7 @@ Fields required to identify stored metadata item.
 <td valign="top"><a href="#checkoutupdateprivatemeta">CheckoutUpdatePrivateMeta</a></td>
 <td>
 
-Updates private metadata for Checkout.
+Updates private metadata for checkout.
 
 </td>
 </tr>
@@ -6912,10 +7184,10 @@ Fields required to update new or stored metadata item.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>checkoutClearPrivateMetadata</strong></td>
-<td valign="top"><a href="#checkoutclearstoredprivatemeta">CheckoutClearStoredPrivateMeta</a></td>
+<td valign="top"><a href="#checkoutclearprivatemeta">CheckoutClearPrivateMeta</a></td>
 <td>
 
-Clear stored metadata value.
+Clear private metadata for checkout.
 
 </td>
 </tr>
@@ -6960,7 +7232,7 @@ Email of the user that will be used for password recovery.
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
 
-('URL of a view where users should be redirected to reset the password. URL in RFC 1808 format.',)
+URL of a view where users should be redirected to reset the password. URL in RFC 1808 format.
 
 </td>
 </tr>
@@ -7047,11 +7319,11 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>userClearStoredMetadata</strong></td>
-<td valign="top"><a href="#userclearstoredmeta">UserClearStoredMeta</a></td>
+<td colspan="2" valign="top"><strong>userClearMetadata</strong></td>
+<td valign="top"><a href="#userclearmeta">UserClearMeta</a></td>
 <td>
 
-Clear stored metadata value.
+Clear metadata for user.
 
 </td>
 </tr>
@@ -7087,7 +7359,7 @@ Create a new address for the customer.
 <td valign="top"><a href="#addressinput">AddressInput</a>!</td>
 <td>
 
-Fields required to create address
+Fields required to create address.
 
 </td>
 </tr>
@@ -7222,7 +7494,7 @@ Sends an email with the account removal link for the logged-in user.
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
 
-('URL of a view where users should be redirected to delete their account. URL in RFC 1808 format.',)
+URL of a view where users should be redirected to delete their account. URL in RFC 1808 format.
 
 </td>
 </tr>
@@ -7627,12 +7899,7 @@ List of sale IDs to delete.
 <td valign="top"><a href="#useravatarupdate">UserAvatarUpdate</a></td>
 <td>
 
-
-            Create a user avatar. Only for staff members. This mutation must
-            be sent as a `multipart` request. More detailed specs of the
-            upload format can be found here:
-            https://github.com/jaydenseric/graphql-multipart-request-spec
-            
+Create a user avatar. Only for staff members. This mutation must be sent as a `multipart` request. More detailed specs of the upload format can be found here: https://github.com/jaydenseric/graphql-multipart-request-spec
 
 </td>
 </tr>
@@ -7709,11 +7976,11 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>userClearStoredPrivateMetadata</strong></td>
-<td valign="top"><a href="#userclearstoredprivatemeta">UserClearStoredPrivateMeta</a></td>
+<td colspan="2" valign="top"><strong>userClearPrivateMetadata</strong></td>
+<td valign="top"><a href="#userclearprivatemeta">UserClearPrivateMeta</a></td>
 <td>
 
-Clear stored metadata value.
+Clear private metadata for user.
 
 </td>
 </tr>
@@ -7785,7 +8052,7 @@ Fields required to update an existing service account.
 <td valign="top"><a href="#serviceaccountdelete">ServiceAccountDelete</a></td>
 <td>
 
-Deletes a service account
+Deletes a service account.
 
 </td>
 </tr>
@@ -7826,11 +8093,11 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>serviceAccountClearStoredPrivateMetadata</strong></td>
-<td valign="top"><a href="#serviceaccountclearstoredprivatemeta">ServiceAccountClearStoredPrivateMeta</a></td>
+<td colspan="2" valign="top"><strong>serviceAccountClearPrivateMetadata</strong></td>
+<td valign="top"><a href="#serviceaccountclearprivatemeta">ServiceAccountClearPrivateMeta</a></td>
 <td>
 
-Clear stored metadata value.
+Clear private metadata for a service account.
 
 </td>
 </tr>
@@ -7849,6 +8116,42 @@ ID of a customer to update.
 <td>
 
 Fields required to identify stored metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>serviceAccountTokenCreate</strong></td>
+<td valign="top"><a href="#serviceaccounttokencreate">ServiceAccountTokenCreate</a></td>
+<td>
+
+Creates a new token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#serviceaccounttokeninput">ServiceAccountTokenInput</a>!</td>
+<td>
+
+Fields required to create a new auth token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>serviceAccountTokenDelete</strong></td>
+<td valign="top"><a href="#serviceaccounttokendelete">ServiceAccountTokenDelete</a></td>
+<td>
+
+Deletes an authentication token assigned to service account.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an auth token to delete.
 
 </td>
 </tr>
@@ -8063,9 +8366,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of a field that caused the error. A value of
-        `null` indicates that the error isn't associated with a particular
-        field.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
@@ -8653,9 +8954,7 @@ Assigned navigation menu.
 
 ### Attribute
 
-
-            Custom attribute of a product. Attributes can be
-            assigned to products and variants at the product type level.
+Custom attribute of a product. Attributes can be assigned to products and variants at the product type level.
 
 <table>
 <thead>
@@ -8937,7 +9236,7 @@ Returns how many objects were affected.
 
 ### AttributeClearMeta
 
-Clears public metadata item for Attribute.
+Clears public metadata item for attribute.
 
 <table>
 <thead>
@@ -8973,7 +9272,7 @@ List of errors that occurred executing the mutation.
 
 ### AttributeClearPrivateMeta
 
-Clears public metadata item for Attribute.
+Clears public metadata item for attribute.
 
 <table>
 <thead>
@@ -9192,7 +9491,7 @@ Attribute from which values are reordered.
 
 ### AttributeTranslate
 
-Creates/Updates translations for Attribute.
+Creates/Updates translations for attribute.
 
 <table>
 <thead>
@@ -9252,7 +9551,7 @@ The ID of the object.
 <td valign="top"><a href="#languagedisplay">LanguageDisplay</a>!</td>
 <td>
 
-Translation's language.
+Translation language.
 
 </td>
 </tr>
@@ -9337,7 +9636,7 @@ List of errors that occurred executing the mutation.
 
 ### AttributeUpdateMeta
 
-Update public metadata for Attribute.
+Update public metadata for attribute.
 
 <table>
 <thead>
@@ -9373,7 +9672,7 @@ List of errors that occurred executing the mutation.
 
 ### AttributeUpdatePrivateMeta
 
-Update public metadata for Attribute.
+Update public metadata for attribute.
 
 <table>
 <thead>
@@ -9619,7 +9918,7 @@ The updated attribute.
 
 ### AttributeValueTranslate
 
-Creates/Updates translations for Attribute Value.
+Creates/Updates translations for attribute value.
 
 <table>
 <thead>
@@ -9801,7 +10100,7 @@ Newly added authorization key.
 <td valign="top"><a href="#shop">Shop</a></td>
 <td>
 
-Updated Shop.
+Updated shop.
 
 </td>
 </tr>
@@ -9850,7 +10149,7 @@ Authorization key that was deleted.
 <td valign="top"><a href="#shop">Shop</a></td>
 <td>
 
-Updated Shop.
+Updated shop.
 
 </td>
 </tr>
@@ -9862,11 +10161,60 @@ Updated Shop.
 </tbody>
 </table>
 
+### BulkProductError
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The error message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>code</strong></td>
+<td valign="top"><a href="#producterrorcode">ProductErrorCode</a></td>
+<td>
+
+The error code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>index</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Index of an input list item that caused the error.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### Category
 
-Represents a single category of products.
-        Categories allow to organize products in a tree-hierarchies which can
-        be used for navigation in the storefront.
+Represents a single category of products. Categories allow to organize products in a tree-hierarchies which can be used for navigation in the storefront.
 
 <table>
 <thead>
@@ -10166,7 +10514,7 @@ Returns how many objects were affected.
 
 ### CategoryClearMeta
 
-Clears public metadata item for category.
+Clears public metadata for category.
 
 <table>
 <thead>
@@ -10202,7 +10550,7 @@ List of errors that occurred executing the mutation.
 
 ### CategoryClearPrivateMeta
 
-Clears private metadata item for category.
+Clears private metadata for category.
 
 <table>
 <thead>
@@ -10461,7 +10809,7 @@ The ID of the object.
 <td valign="top"><a href="#languagedisplay">LanguageDisplay</a>!</td>
 <td>
 
-Translation's language.
+Translation language.
 
 </td>
 </tr>
@@ -10542,7 +10890,7 @@ List of errors that occurred executing the mutation.
 
 ### CategoryUpdatePrivateMeta
 
-Update public metadata for category.
+Update private metadata for category.
 
 <table>
 <thead>
@@ -10714,7 +11062,7 @@ Shipping methods that can be used with this order.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>availablePaymentGateways</strong></td>
-<td valign="top">[<a href="#gatewaysenum">GatewaysEnum</a>]!</td>
+<td valign="top">[<a href="#paymentgateway">PaymentGateway</a>]!</td>
 <td>
 
 List of available payment gateways.
@@ -10771,7 +11119,7 @@ The price of the checkout before shipping, with taxes included.
 <td valign="top"><a href="#taxedmoney">TaxedMoney</a></td>
 <td>
 
-The sum of the the checkout line prices, with all the taxes, shipping costs, and discounts included.
+The sum of the the checkout line prices, with all the taxes,shipping costs, and discounts included.
 
 </td>
 </tr>
@@ -10820,7 +11168,7 @@ The checkout with the added gift card or voucher.
 
 ### CheckoutBillingAddressUpdate
 
-Update billing address in the existing Checkout.
+Update billing address in the existing checkout.
 
 <table>
 <thead>
@@ -10858,9 +11206,9 @@ An updated checkout.
 </tbody>
 </table>
 
-### CheckoutClearStoredMeta
+### CheckoutClearMeta
 
-Clear stored metadata value.
+Clear metadata for checkout.
 
 <table>
 <thead>
@@ -10894,9 +11242,9 @@ List of errors that occurred executing the mutation.
 </tbody>
 </table>
 
-### CheckoutClearStoredPrivateMeta
+### CheckoutClearPrivateMeta
 
-Clear stored metadata value.
+Clear private metadata for checkout.
 
 <table>
 <thead>
@@ -11088,7 +11436,7 @@ Whether the checkout was created or the current active one was returned. Refer t
 
 ### CheckoutCustomerAttach
 
-Sets the customer as the owner of the Checkout.
+Sets the customer as the owner of the checkout.
 
 <table>
 <thead>
@@ -11168,7 +11516,7 @@ An updated checkout.
 
 ### CheckoutEmailUpdate
 
-Updates email address in the existing Checkout object.
+Updates email address in the existing checkout object.
 
 <table>
 <thead>
@@ -11223,9 +11571,7 @@ An updated checkout.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of a field that caused the error. A value of
-        `null` indicates that the error isn't associated with a particular
-        field.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
@@ -11417,7 +11763,7 @@ An updated checkout.
 
 ### CheckoutLinesAdd
 
-Adds a checkout line to the existing Checkout.
+Adds a checkout line to the existing checkout.
 
 <table>
 <thead>
@@ -11443,7 +11789,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#checkout">Checkout</a></td>
 <td>
 
-An updated Checkout.
+An updated checkout.
 
 </td>
 </tr>
@@ -11457,7 +11803,7 @@ An updated Checkout.
 
 ### CheckoutLinesUpdate
 
-Updates CheckoutLine in the existing Checkout.
+Updates checkout line in the existing checkout.
 
 <table>
 <thead>
@@ -11483,7 +11829,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#checkout">Checkout</a></td>
 <td>
 
-An updated Checkout.
+An updated checkout.
 
 </td>
 </tr>
@@ -11572,7 +11918,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#checkout">Checkout</a></td>
 <td>
 
-The checkout with the removed gift card or voucher
+The checkout with the removed gift card or voucher.
 
 </td>
 </tr>
@@ -11586,7 +11932,7 @@ The checkout with the removed gift card or voucher
 
 ### CheckoutShippingAddressUpdate
 
-Update shipping address in the existing Checkout.
+Update shipping address in the existing checkout.
 
 <table>
 <thead>
@@ -11612,7 +11958,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#checkout">Checkout</a></td>
 <td>
 
-An updated Checkout.
+An updated checkout.
 
 </td>
 </tr>
@@ -11626,7 +11972,7 @@ An updated Checkout.
 
 ### CheckoutShippingMethodUpdate
 
-Updates the shipping address of the Checkout.
+Updates the shipping address of the checkout.
 
 <table>
 <thead>
@@ -11652,7 +11998,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#checkout">Checkout</a></td>
 <td>
 
-An updated Checkout.
+An updated checkout.
 
 </td>
 </tr>
@@ -11666,7 +12012,7 @@ An updated Checkout.
 
 ### CheckoutUpdateMeta
 
-Updates metadata for Checkout.
+Updates metadata for checkout.
 
 <table>
 <thead>
@@ -11702,7 +12048,7 @@ List of errors that occurred executing the mutation.
 
 ### CheckoutUpdatePrivateMeta
 
-Updates private metadata for Checkout.
+Updates private metadata for checkout.
 
 <table>
 <thead>
@@ -12084,7 +12430,7 @@ Returns how many objects were affected.
 
 ### CollectionClearMeta
 
-Clears public metadata item for Collection.
+Clears public metadata for collection.
 
 <table>
 <thead>
@@ -12120,7 +12466,7 @@ List of errors that occurred executing the mutation.
 
 ### CollectionClearPrivateMeta
 
-Clears public metadata item for Collection.
+Clears private metadata item for collection.
 
 <table>
 <thead>
@@ -12339,7 +12685,7 @@ Collection from which products will be removed.
 
 ### CollectionReorderProducts
 
-Re-order the products of a collection.
+Reorder the products of a collection.
 
 <table>
 <thead>
@@ -12379,7 +12725,7 @@ Collection from which products are reordered.
 
 ### CollectionTranslate
 
-Creates/Updates translations for Collection.
+Creates/Updates translations for collection.
 
 <table>
 <thead>
@@ -12504,7 +12850,7 @@ List of errors that occurred executing the mutation.
 
 ### CollectionUpdateMeta
 
-Update public metadata for Collection.
+Update public metadata for collection.
 
 <table>
 <thead>
@@ -12540,7 +12886,7 @@ List of errors that occurred executing the mutation.
 
 ### CollectionUpdatePrivateMeta
 
-Update public metadata for Collection.
+Update private metadata for collection.
 
 <table>
 <thead>
@@ -12602,7 +12948,7 @@ Name of the field.
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
 
-Current value of the field
+Current value of the field.
 
 </td>
 </tr>
@@ -12620,7 +12966,7 @@ Type of the field.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Help text for the field
+Help text for the field.
 
 </td>
 </tr>
@@ -13195,7 +13541,7 @@ List of errors that occurred executing the mutation.
 <td valign="top">[<a href="#digitalcontenturl">DigitalContentUrl</a>]</td>
 <td>
 
-List of urls for the digital variant
+List of URLs for the digital variant.
 
 </td>
 </tr>
@@ -13302,10 +13648,7 @@ A cursor for use in pagination.
 
 ### DigitalContentCreate
 
-Create new digital content. This mutation must
-        be sent as a `multipart` request. More detailed specs of the upload
-        format can be found here:
-        https://github.com/jaydenseric/graphql-multipart-request-spec
+Create new digital content. This mutation must be sent as a `multipart` request. More detailed specs of the upload format can be found here: https://github.com/jaydenseric/graphql-multipart-request-spec
 
 <table>
 <thead>
@@ -13944,9 +14287,7 @@ Represents an error in the input of a mutation.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of a field that caused the error. A value of
-        `null` indicates that the error isn't associated with a particular
-        field.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
@@ -13979,9 +14320,7 @@ The error message.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of a field that caused the error. A value of
-        `null` indicates that the error isn't associated with a particular
-        field.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
@@ -14072,8 +14411,7 @@ User-friendly fulfillment status.
 
 ### FulfillmentCancel
 
-Cancels existing fulfillment
-        and optionally restocks items.
+Cancels existing fulfillment and optionally restocks items.
 
 <table>
 <thead>
@@ -14254,6 +14592,41 @@ Order for which fulfillment was updated.
 </tbody>
 </table>
 
+### GatewayConfigLine
+
+Payment gateway client configuration key and value pair.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Gateway config key.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>value</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Gateway config value for key.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### Geolocalization
 
 Represents customers's geolocalization data.
@@ -14282,10 +14655,7 @@ Country of the user acquired by his IP address.
 
 ### GiftCard
 
-
-        A gift card is a prepaid electronic payment card accepted in stores.
-        They can be used during checkout by providing a valid gift
-        card codes. 
+A gift card is a prepaid electronic payment card accepted in stores. They can be used during checkout by providing a valid gift card codes.
 
 <table>
 <thead>
@@ -14575,9 +14945,7 @@ A gift card to deactivate.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of a field that caused the error. A value of
-        `null` indicates that the error isn't associated with a particular
-        field.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
@@ -14666,7 +15034,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#shop">Shop</a></td>
 <td>
 
-Updated Shop.
+Updated shop.
 
 </td>
 </tr>
@@ -14748,7 +15116,7 @@ Language.
 
 ### LoggedUserUpdate
 
-DEPRECATED: Will be removed in Saleor 2.10, use AccountUpdate instead. Updates data of the logged in user.
+DEPRECATED: Will be removed in Saleor 2.10, use AccountUpdate instead.Updates data of the logged in user.
 
 <table>
 <thead>
@@ -14804,8 +15172,7 @@ List of errors that occurred executing the mutation.
 
 ### Menu
 
-Represents a single menu - an object that is used
-               to help navigate through the store.
+Represents a single menu - an object that is used to help navigate through the store.
 
 <table>
 <thead>
@@ -15039,9 +15406,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of a field that caused the error. A value of
-        `null` indicates that the error isn't associated with a particular
-        field.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
@@ -15068,8 +15433,7 @@ The error code.
 
 ### MenuItem
 
-Represents a single item of the related menu.
-        Can store categories, collection or pages.
+Represents a single item of the related menu. Can store categories, collection or pages.
 
 <table>
 <thead>
@@ -15457,7 +15821,7 @@ The ID of the object.
 <td valign="top"><a href="#languagedisplay">LanguageDisplay</a>!</td>
 <td>
 
-Translation's language.
+Translation language.
 
 </td>
 </tr>
@@ -15553,7 +15917,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
 
-Metadata clients name.
+Metadata client's name.
 
 </td>
 </tr>
@@ -15876,6 +16240,24 @@ List of user gift cards.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
+<td>
+
+List of privately stored metadata namespaces.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>meta</strong></td>
+<td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
+<td>
+
+List of publicly stored metadata namespaces.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>fulfillments</strong></td>
 <td valign="top">[<a href="#fulfillment">Fulfillment</a>]!</td>
 <td>
@@ -15898,8 +16280,7 @@ List of order lines.
 <td valign="top">[<a href="#orderaction">OrderAction</a>]!</td>
 <td>
 
-List of actions that can be performed in
-        the current state of an order.
+List of actions that can be performed in the current state of an order.
 
 </td>
 </tr>
@@ -16025,8 +16406,7 @@ List of events associated with the order.
 <td valign="top"><a href="#money">Money</a>!</td>
 <td>
 
-The difference between the paid and the order total
-        amount.
+The difference between the paid and the order total amount.
 
 </td>
 </tr>
@@ -16232,6 +16612,68 @@ Captured order.
 </tbody>
 </table>
 
+### OrderClearMeta
+
+Clears stored metadata value.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>order</strong></td>
+<td valign="top"><a href="#order">Order</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### OrderClearPrivateMeta
+
+Clears stored private metadata value.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>order</strong></td>
+<td valign="top"><a href="#order">Order</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### OrderCountableConnection
 
 <table>
@@ -16320,9 +16762,7 @@ A cursor for use in pagination.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of a field that caused the error. A value of
-        `null` indicates that the error isn't associated with a particular
-        field.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
@@ -16425,7 +16865,7 @@ Email of the customer.
 <td valign="top"><a href="#ordereventsemailsenum">OrderEventsEmailsEnum</a></td>
 <td>
 
-Type of an email sent to the customer
+Type of an email sent to the customer.
 
 </td>
 </tr>
@@ -16721,9 +17161,7 @@ Price of the single item in the order line.
 <td valign="top"><a href="#productvariant">ProductVariant</a></td>
 <td>
 
-
-            A purchased product variant. Note: this field may be null if the
-            variant has been removed from stock at all.
+A purchased product variant. Note: this field may be null if the variant has been removed from stock at all.
 
 </td>
 </tr>
@@ -16732,7 +17170,7 @@ Price of the single item in the order line.
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
 
-Product name in the customer's language.
+Product name in the customer's language
 
 </td>
 </tr>
@@ -16741,7 +17179,7 @@ Product name in the customer's language.
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
 
-Variant name in the customer's language.
+Variant name in the customer's language
 
 </td>
 </tr>
@@ -16864,6 +17302,68 @@ List of errors that occurred executing the mutation.
 </tbody>
 </table>
 
+### OrderUpdateMeta
+
+Updates meta for order.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>order</strong></td>
+<td valign="top"><a href="#order">Order</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### OrderUpdatePrivateMeta
+
+Updates private meta for order.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>order</strong></td>
+<td valign="top"><a href="#order">Order</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### OrderUpdateShipping
 
 Updates a shipping method of the order.
@@ -16946,8 +17446,7 @@ A voided order.
 
 ### Page
 
-A static page that can be manually added by a shop
-               operator through the dashboard.
+A static page that can be manually added by a shop operator through the dashboard.
 
 <table>
 <thead>
@@ -17563,8 +18062,7 @@ Internal payment status.
 <td valign="top">[<a href="#orderaction">OrderAction</a>]!</td>
 <td>
 
-List of actions that can be performed in
-        the current state of a payment.
+List of actions that can be performed in the current state of a payment.
 
 </td>
 </tr>
@@ -17762,9 +18260,7 @@ A cursor for use in pagination.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of a field that caused the error. A value of
-        `null` indicates that the error isn't associated with a particular
-        field.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
@@ -17783,6 +18279,41 @@ The error message.
 <td>
 
 The error code.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### PaymentGateway
+
+Available payment gateway backend with configuration necessary to setup client.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Payment gateway name.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>config</strong></td>
+<td valign="top">[<a href="#gatewayconfigline">GatewayConfigLine</a>!]!</td>
+<td>
+
+Payment gateway client configuration.
 
 </td>
 </tr>
@@ -17831,7 +18362,7 @@ Updated payment.
 
 ### PaymentSecureConfirm
 
-Confirms payment in a two-step process like 3D secure.
+Confirms payment in a two-step process like 3D secure
 
 <table>
 <thead>
@@ -18134,8 +18665,7 @@ List of errors that occurred executing the mutation.
 
 ### Product
 
-Represents an individual item for sale in the
-        storefront.
+Represents an individual item for sale in the storefront.
 
 <table>
 <thead>
@@ -18266,13 +18796,12 @@ Size of thumbnail.
 <td valign="top"><a href="#productpricinginfo">ProductPricingInfo</a></td>
 <td>
 
-Informs about product's availability in the
-               storefront, current price and discounts.
+Informs about product's availability in the storefront, current price and discounts.
 
 <p>⚠️ <strong>DEPRECATED</strong></p>
 <blockquote>
 
-DEPRECATED: Will be removed in Saleor 2.10, Has been renamed to 'pricing'.
+DEPRECATED: Will be removed in Saleor 2.10, Has been renamed to `pricing`.
 
 </blockquote>
 </td>
@@ -18282,8 +18811,7 @@ DEPRECATED: Will be removed in Saleor 2.10, Has been renamed to 'pricing'.
 <td valign="top"><a href="#productpricinginfo">ProductPricingInfo</a></td>
 <td>
 
-Lists the storefront product's pricing,
-            the current price and discounts, only meant for displaying.
+Lists the storefront product's pricing, the current price and discounts, only meant for displaying.
 
 </td>
 </tr>
@@ -18315,7 +18843,7 @@ The product's default base price.
 <p>⚠️ <strong>DEPRECATED</strong></p>
 <blockquote>
 
-DEPRECATED: Will be removed in Saleor 2.10, has been replaced by 'basePrice'.
+DEPRECATED: Will be removed in Saleor 2.10, has been replaced by `basePrice`
 
 </blockquote>
 </td>
@@ -18334,7 +18862,7 @@ The price of the cheapest variant (including discounts).
 <td valign="top"><a href="#taxtype">TaxType</a></td>
 <td>
 
-A type of tax. Assigned by enabled tax gateway.
+A type of tax. Assigned by enabled tax gateway
 
 </td>
 </tr>
@@ -18744,9 +19272,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of a field that caused the error. A value of
-        `null` indicates that the error isn't associated with a particular
-        field.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
@@ -18867,10 +19393,7 @@ Returns how many objects were affected.
 
 ### ProductImageCreate
 
-Create a product image. This mutation must be
-        sent as a `multipart` request. More detailed specs of the upload format
-        can be found here:
-        https://github.com/jaydenseric/graphql-multipart-request-spec
+Create a product image. This mutation must be sent as a `multipart` request. More detailed specs of the upload format can be found here: https://github.com/jaydenseric/graphql-multipart-request-spec
 
 <table>
 <thead>
@@ -19209,8 +19732,7 @@ Translation language.
 
 ### ProductType
 
-Represents a type of product. It defines what
-        attributes are available to products of this type.
+Represents a type of product. It defines what attributes are available to products of this type.
 
 <table>
 <thead>
@@ -19333,7 +19855,7 @@ A type of tax rate.
 <td valign="top"><a href="#taxtype">TaxType</a></td>
 <td>
 
-A type of tax. Assigned by enabled tax gateway.
+A type of tax. Assigned by enabled tax gateway
 
 </td>
 </tr>
@@ -19446,7 +19968,7 @@ Returns how many objects were affected.
 
 ### ProductTypeClearMeta
 
-Clears public metadata item for product type.
+Clears public metadata for product type.
 
 <table>
 <thead>
@@ -19482,7 +20004,7 @@ List of errors that occurred executing the mutation.
 
 ### ProductTypeClearPrivateMeta
 
-Clears private metadata item for product type.
+Clears private metadata for product type.
 
 <table>
 <thead>
@@ -19917,8 +20439,7 @@ List of errors that occurred executing the mutation.
 
 ### ProductVariant
 
-Represents a version of a product such as
-        different size or color.
+Represents a version of a product such as different size or color.
 
 <table>
 <thead>
@@ -20006,10 +20527,7 @@ Quantity of a product available for sale.
 <td valign="top"><a href="#money">Money</a></td>
 <td>
 
-
-               Override the base price of a product if necessary.
-               A value of `null` indicates that the default product
-               price is used.
+Override the base price of a product if necessary. A value of `null` indicates that the default product price is used.
 
 </td>
 </tr>
@@ -20033,13 +20551,12 @@ DEPRECATED: Will be removed in Saleor 2.10, has been replaced by 'pricing.priceU
 <td valign="top"><a href="#variantpricinginfo">VariantPricingInfo</a></td>
 <td>
 
-Informs about variant's availability in the
-               storefront, current price and discounted price.
+Informs about variant's availability in the storefront, current price and discounted price.
 
 <p>⚠️ <strong>DEPRECATED</strong></p>
 <blockquote>
 
-DEPRECATED: Will be removed in Saleor 2.10, has been renamed to 'pricing'.
+DEPRECATED: Will be removed in Saleor 2.10, has been renamed to `pricing`.
 
 </blockquote>
 </td>
@@ -20049,8 +20566,7 @@ DEPRECATED: Will be removed in Saleor 2.10, has been renamed to 'pricing'.
 <td valign="top"><a href="#variantpricinginfo">VariantPricingInfo</a></td>
 <td>
 
-Lists the storefront variant's pricing,
-            the current price and discounts, only meant for displaying.
+Lists the storefront variant's pricing, the current price and discounts, only meant for displaying.
 
 </td>
 </tr>
@@ -20104,10 +20620,7 @@ Total quantity ordered.
 <td valign="top"><a href="#taxedmoney">TaxedMoney</a></td>
 <td>
 
-Total revenue generated by a variant in given
-        period of time. Note: this field should be queried using
-        `reportProductSales` query as it uses optimizations suitable
-        for such calculations.
+Total revenue generated by a variant in given period of time. Note: this field should be queried using `reportProductSales` query as it uses optimizations suitable for such calculations.
 
 </td>
 </tr>
@@ -20155,6 +20668,55 @@ Digital content for the product variant.
 </tbody>
 </table>
 
+### ProductVariantBulkCreate
+
+Creates product variants for a given product.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>count</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td>
+
+Returns how many objects were created.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productVariants</strong></td>
+<td valign="top">[<a href="#productvariant">ProductVariant</a>!]!</td>
+<td>
+
+List of the created variants.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>bulkProductErrors</strong></td>
+<td valign="top">[<a href="#bulkproducterror">BulkProductError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### ProductVariantBulkDelete
 
 Deletes product variants.
@@ -20197,7 +20759,7 @@ Returns how many objects were affected.
 
 ### ProductVariantClearMeta
 
-Clears public metadata item for product variant.
+Clears public metadata for product variant.
 
 <table>
 <thead>
@@ -20233,7 +20795,7 @@ List of errors that occurred executing the mutation.
 
 ### ProductVariantClearPrivateMeta
 
-Clears private metadata item for product variant.
+Clears private metadata for product variant.
 
 <table>
 <thead>
@@ -20680,9 +21242,7 @@ List of errors that occurred executing the mutation.
 
 ### Sale
 
-
-        Sales allow creating discounts for categories, collections or
-        products and are visible to all the customers.
+Sales allow creating discounts for categories, collections or products and are visible to all the customers.
 
 <table>
 <thead>
@@ -21296,15 +21856,6 @@ The ID of the object.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>authToken</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Last 4 characters of the token.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>created</strong></td>
 <td valign="top"><a href="#datetime">DateTime</a></td>
 <td>
@@ -21319,6 +21870,15 @@ The date and time when the service account was created.
 <td>
 
 Determine if service account will be set active or not.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>tokens</strong></td>
+<td valign="top">[<a href="#serviceaccounttoken">ServiceAccountToken</a>]</td>
+<td>
+
+Last 4 characters of the tokens.
 
 </td>
 </tr>
@@ -21361,9 +21921,9 @@ Name of the service account.
 </tbody>
 </table>
 
-### ServiceAccountClearStoredPrivateMeta
+### ServiceAccountClearPrivateMeta
 
-Clear stored metadata value.
+Clear private metadata for a service account.
 
 <table>
 <thead>
@@ -21549,6 +22109,131 @@ List of errors that occurred executing the mutation.
 </tbody>
 </table>
 
+### ServiceAccountToken
+
+Represents token data.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of the authenticated token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>authToken</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Last 4 characters of the token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ServiceAccountTokenCreate
+
+Creates a new token.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>authToken</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The newly created authentication token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>serviceAccountToken</strong></td>
+<td valign="top"><a href="#serviceaccounttoken">ServiceAccountToken</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ServiceAccountTokenDelete
+
+Deletes an authentication token assigned to service account.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>serviceAccountToken</strong></td>
+<td valign="top"><a href="#serviceaccounttoken">ServiceAccountToken</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### ServiceAccountUpdate
 
 Updates an existing service account.
@@ -21683,9 +22368,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of a field that caused the error. A value of
-        `null` indicates that the error isn't associated with a particular
-        field.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
@@ -21712,10 +22395,7 @@ The error code.
 
 ### ShippingMethod
 
-
-            Shipping method are the methods you'll use to get
-            customer's orders to them.
-            They are directly exposed to the customers.
+Shipping method are the methods you'll use to get customer's orders to them. They are directly exposed to the customers.
 
 <table>
 <thead>
@@ -21780,7 +22460,7 @@ Type of the shipping method.
 <td valign="top"><a href="#shippingmethodtranslation">ShippingMethodTranslation</a></td>
 <td>
 
-Returns translated Shipping Method fields for the given language code.
+Returns translated shipping method fields for the given language code.
 
 </td>
 </tr>
@@ -21970,7 +22650,7 @@ A shipping zone to which the shipping method belongs.
 
 ### ShippingPriceTranslate
 
-Creates/Updates translations for Shipping Method.
+Creates/Updates translations for shipping method.
 
 <table>
 <thead>
@@ -22046,10 +22726,7 @@ A shipping zone to which the shipping method belongs.
 
 ### ShippingZone
 
-
-            Represents a shipping zone in the shop. Zones are the concept
-            used only for grouping shipping methods in the dashboard,
-            and are never exposed to the customers directly.
+Represents a shipping zone in the shop. Zones are the concept used only for grouping shipping methods in the dashboard, and are never exposed to the customers directly.
 
 <table>
 <thead>
@@ -22331,9 +23008,7 @@ List of errors that occurred executing the mutation.
 
 ### Shop
 
-
-        Represents a shop resource containing general shop data
-        and configuration.
+Represents a shop resource containing general shop data and configuration.
 
 <table>
 <thead>
@@ -22359,9 +23034,7 @@ Customer's geolocalization data.
 <td valign="top">[<a href="#authorizationkey">AuthorizationKey</a>]!</td>
 <td>
 
-List of configured authorization keys. Authorization
-               keys are used to enable third-party OAuth authorization
-               (currently Facebook or Google).
+List of configured authorization keys. Authorization keys are used to enable third-party OAuth authorization (currently Facebook or Google).
 
 </td>
 </tr>
@@ -22621,7 +23294,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#shop">Shop</a></td>
 <td>
 
-Updated Shop.
+Updated shop.
 
 </td>
 </tr>
@@ -22661,7 +23334,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#shop">Shop</a></td>
 <td>
 
-Updated Shop.
+Updated shop.
 
 </td>
 </tr>
@@ -22690,9 +23363,7 @@ Updated Shop.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of a field that caused the error. A value of
-        `null` indicates that the error isn't associated with a particular
-        field.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
@@ -22745,7 +23416,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#shop">Shop</a></td>
 <td>
 
-Updated Shop.
+Updated shop.
 
 </td>
 </tr>
@@ -22785,7 +23456,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#shop">Shop</a></td>
 <td>
 
-Updated Shop.
+Updated shop.
 
 </td>
 </tr>
@@ -22820,7 +23491,7 @@ List of errors that occurred executing the mutation.
 <td valign="top"><a href="#shop">Shop</a></td>
 <td>
 
-Updated Shop.
+Updated shop.
 
 </td>
 </tr>
@@ -23060,9 +23731,7 @@ External tax code used to identify given tax group.
 
 ### TaxedMoney
 
-Represents a monetary value with taxes. In
-        cases where taxes were not applied, net and gross values will be equal.
-        
+Represents a monetary value with taxes. In cases where taxes were not applied, net and gross values will be equal.
 
 <table>
 <thead>
@@ -23578,12 +24247,7 @@ An updated user instance.
 
 ### UserAvatarUpdate
 
-
-            Create a user avatar. Only for staff members. This mutation must
-            be sent as a `multipart` request. More detailed specs of the
-            upload format can be found here:
-            https://github.com/jaydenseric/graphql-multipart-request-spec
-            
+Create a user avatar. Only for staff members. This mutation must be sent as a `multipart` request. More detailed specs of the upload format can be found here: https://github.com/jaydenseric/graphql-multipart-request-spec
 
 <table>
 <thead>
@@ -23661,9 +24325,9 @@ Returns how many objects were affected.
 </tbody>
 </table>
 
-### UserClearStoredMeta
+### UserClearMeta
 
-Clear stored metadata value.
+Clear metadata for user.
 
 <table>
 <thead>
@@ -23697,9 +24361,9 @@ List of errors that occurred executing the mutation.
 </tbody>
 </table>
 
-### UserClearStoredPrivateMeta
+### UserClearPrivateMeta
 
-Clear stored private metadata value.
+Clear private metadata for user.
 
 <table>
 <thead>
@@ -24090,7 +24754,7 @@ The discounted price in the local currency.
 
 ### VerifyToken
 
-Mutation that confirms if token is valid and also return user data.
+Mutation that confirms if token is valid and also returns user data.
 
 <table>
 <thead>
@@ -24117,10 +24781,7 @@ Mutation that confirms if token is valid and also return user data.
 
 ### Voucher
 
-
-        Vouchers allow giving discounts to particular customers on categories,
-        collections or specific products. They can be used during checkout by
-        providing valid voucher codes.
+Vouchers allow giving discounts to particular customers on categories, collections or specific products. They can be used during checkout by providing valid voucher codes.
 
 <table>
 <thead>
@@ -24195,7 +24856,7 @@ Determines a type of voucher.
 <td valign="top"><a href="#discountvaluetypeenum">DiscountValueTypeEnum</a>!</td>
 <td>
 
-Determines a type of discount for voucher - value or percentage.
+Determines a type of discount for voucher - value or percentage
 
 </td>
 </tr>
@@ -24729,6 +25390,313 @@ List of errors that occurred executing the mutation.
 </tbody>
 </table>
 
+### Webhook
+
+Webhook.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>serviceAccount</strong></td>
+<td valign="top"><a href="#serviceaccount">ServiceAccount</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>targetUrl</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isActive</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>secretKey</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>events</strong></td>
+<td valign="top">[<a href="#webhookevent">WebhookEvent</a>]</td>
+<td>
+
+List of webhook events.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WebhookCountableConnection
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>pageInfo</strong></td>
+<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
+<td>
+
+Pagination data for this connection.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>edges</strong></td>
+<td valign="top">[<a href="#webhookcountableedge">WebhookCountableEdge</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>totalCount</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+A total count of items in the collection.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WebhookCountableEdge
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#webhook">Webhook</a>!</td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WebhookCreate
+
+Creates a new webhook subscription.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>webhookErrors</strong></td>
+<td valign="top">[<a href="#webhookerror">WebhookError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>webhook</strong></td>
+<td valign="top"><a href="#webhook">Webhook</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WebhookDelete
+
+Deletes a webhook subscription.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>webhook</strong></td>
+<td valign="top"><a href="#webhook">Webhook</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>webhookErrors</strong></td>
+<td valign="top">[<a href="#webhookerror">WebhookError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WebhookError
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The error message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>code</strong></td>
+<td valign="top"><a href="#webhookerrorcode">WebhookErrorCode</a></td>
+<td>
+
+The error code.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WebhookEvent
+
+Webhook event.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>eventType</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of the event type.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WebhookUpdate
+
+Updates a webhook subscription.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>webhook</strong></td>
+<td valign="top"><a href="#webhook">Webhook</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>webhookErrors</strong></td>
+<td valign="top">[<a href="#webhookerror">WebhookError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### Weight
 
 Represents weight value in a specific weight unit.
@@ -25155,6 +26123,16 @@ Whether the attribute can be displayed in the admin product list.
 <tr>
 <td colspan="2" valign="top"><strong>ids</strong></td>
 <td valign="top">[<a href="#id">ID</a>]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>inCollection</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>inCategory</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -25645,7 +26623,7 @@ The number of items purchased.
 <td valign="top"><a href="#id">ID</a>!</td>
 <td>
 
-ID of the ProductVariant.
+ID of the product variant.
 
 </td>
 </tr>
@@ -26349,8 +27327,7 @@ ID of the voucher associated with the order.
 <td valign="top">[<a href="#orderlinecreateinput">OrderLineCreateInput</a>]</td>
 <td>
 
-Variant line input consisting of variant ID
-        and quantity of products.
+Variant line input consisting of variant ID and quantity of products.
 
 </td>
 </tr>
@@ -26683,7 +27660,7 @@ The customer's email of the gift card buyer.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Value greater than or equal
+Value greater than or equal to.
 
 </td>
 </tr>
@@ -26843,9 +27820,7 @@ Menu to which item belongs.
 <td valign="top"><a href="#id">ID</a></td>
 <td>
 
-
-        ID of the parent menu. If empty, menu will be top level
-        menu.
+ID of the parent menu. If empty, menu will be top level menu.
 
 </td>
 </tr>
@@ -27471,7 +28446,7 @@ Search engine optimization fields.
 <tbody>
 <tr>
 <td colspan="2" valign="top"><strong>gateway</strong></td>
-<td valign="top"><a href="#gatewaysenum">GatewaysEnum</a>!</td>
+<td valign="top"><a href="#string">String</a>!</td>
 <td>
 
 A gateway to use with that payment.
@@ -27501,8 +28476,7 @@ Total amount of the transaction, including all taxes and discounts. If no amount
 <td valign="top"><a href="#addressinput">AddressInput</a></td>
 <td>
 
-Billing address. If empty, the billing address associated with
-            the checkout instance will be used.
+Billing address. If empty, the billing address associated with the checkout instance will be used.
 
 </td>
 </tr>
@@ -27730,8 +28704,7 @@ Weight of the Product.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Stock keeping unit of a product. Note: this
-        field is only used if a product doesn't use variants.
+Stock keeping unit of a product. Note: this field is only used if a product doesn't use variants.
 
 </td>
 </tr>
@@ -27740,9 +28713,7 @@ Stock keeping unit of a product. Note: this
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-The total quantity of a product available for
-        sale. Note: this field is only used if a product doesn't
-        use variants.
+The total quantity of a product available for sale. Note: this field is only used if a product doesn't use variants.
 
 </td>
 </tr>
@@ -27751,10 +28722,7 @@ The total quantity of a product available for
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
 
-Determines if the inventory of this product
-        should be tracked. If false, the quantity won't change when customers
-        buy this item. Note: this field is only used if a product doesn't
-        use variants.
+Determines if the inventory of this product should be tracked. If false, the quantity won't change when customers buy this item. Note: this field is only used if a product doesn't use variants.
 
 </td>
 </tr>
@@ -28026,8 +28994,7 @@ Weight of the Product.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Stock keeping unit of a product. Note: this
-        field is only used if a product doesn't use variants.
+Stock keeping unit of a product. Note: this field is only used if a product doesn't use variants.
 
 </td>
 </tr>
@@ -28036,9 +29003,7 @@ Stock keeping unit of a product. Note: this
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-The total quantity of a product available for
-        sale. Note: this field is only used if a product doesn't
-        use variants.
+The total quantity of a product available for sale. Note: this field is only used if a product doesn't use variants.
 
 </td>
 </tr>
@@ -28047,10 +29012,7 @@ The total quantity of a product available for
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
 
-Determines if the inventory of this product
-        should be tracked. If false, the quantity won't change when customers
-        buy this item. Note: this field is only used if a product doesn't
-        use variants.
+Determines if the inventory of this product should be tracked. If false, the quantity won't change when customers buy this item. Note: this field is only used if a product doesn't use variants.
 
 </td>
 </tr>
@@ -28153,10 +29115,7 @@ Name of the product type.
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
 
-Determines if product of this type has multiple
-        variants. This option mainly simplifies product management
-        in the dashboard. There is always at least one variant created under
-        the hood.
+Determines if product of this type has multiple variants. This option mainly simplifies product management in the dashboard. There is always at least one variant created under the hood.
 
 </td>
 </tr>
@@ -28174,8 +29133,7 @@ List of attributes shared among all product variants.
 <td valign="top">[<a href="#id">ID</a>]</td>
 <td>
 
-List of attributes used to distinguish between
-        different variants of a product.
+List of attributes used to distinguish between different variants of a product.
 
 </td>
 </tr>
@@ -28184,8 +29142,7 @@ List of attributes used to distinguish between
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
 
-Determines if shipping is required for products
-        of this variant.
+Determines if shipping is required for products of this variant.
 
 </td>
 </tr>
@@ -28213,6 +29170,83 @@ Weight of the ProductType items.
 <td>
 
 Tax rate for enabled tax gateway.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ProductVariantBulkCreateInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>attributes</strong></td>
+<td valign="top">[<a href="#attributevalueinput">AttributeValueInput</a>]!</td>
+<td>
+
+List of attributes specific to this variant.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>costPrice</strong></td>
+<td valign="top"><a href="#decimal">Decimal</a></td>
+<td>
+
+Cost price of the variant.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>priceOverride</strong></td>
+<td valign="top"><a href="#decimal">Decimal</a></td>
+<td>
+
+Special price of the particular variant.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>sku</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Stock keeping unit.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>quantity</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+The total quantity of this variant available for sale.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>trackInventory</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Determines if the inventory of this variant should be tracked. If false, the quantity won't change when customers buy this item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>weight</strong></td>
+<td valign="top"><a href="#weightscalar">WeightScalar</a></td>
+<td>
+
+Weight of the Product Variant.
 
 </td>
 </tr>
@@ -28280,9 +29314,7 @@ The total quantity of this variant available for sale.
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
 
-Determines if the inventory of this variant should
-               be tracked. If false, the quantity won't change when customers
-               buy this item.
+Determines if the inventory of this variant should be tracked. If false, the quantity won't change when customers buy this item.
 
 </td>
 </tr>
@@ -28368,9 +29400,7 @@ The total quantity of this variant available for sale.
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
 
-Determines if the inventory of this variant should
-               be tracked. If false, the quantity won't change when customers
-               buy this item.
+Determines if the inventory of this variant should be tracked. If false, the quantity won't change when customers buy this item.
 
 </td>
 </tr>
@@ -28635,6 +29665,38 @@ List of permission code names to assign to this service account.
 </tbody>
 </table>
 
+### ServiceAccountTokenInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of the token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>serviceAccount</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of service account.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### ShippingPriceInput
 
 <table>
@@ -28687,7 +29749,7 @@ Maximum order price to use this shipping method.
 <td valign="top"><a href="#weightscalar">WeightScalar</a></td>
 <td>
 
-Minimum order weight to use this shipping method
+Minimum order weight to use this shipping method.
 
 </td>
 </tr>
@@ -28755,9 +29817,7 @@ List of countries in this shipping zone.
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
 
-
-            Default shipping zone will be used
-            for countries not covered by other zones.
+Default shipping zone will be used for countries not covered by other zones.
 
 </td>
 </tr>
@@ -29003,7 +30063,7 @@ Send an email with a link to set the password.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-('URL of a view where users should be redirected to set the password. URL in RFC 1808 format.',)
+URL of a view where users should be redirected to set the password. URL in RFC 1808 format.
 
 </td>
 </tr>
@@ -29261,7 +30321,7 @@ Send an email with a link to set a password.
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-('URL of a view where users should be redirected to set the password. URL in RFC 1808 format.',)
+URL of a view where users should be redirected to set the password. URL in RFC 1808 format.
 
 </td>
 </tr>
@@ -29455,6 +30515,142 @@ Voucher should be applied once per customer.
 <td>
 
 Limit number of times this voucher can be used in total.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WebhookCreateInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The name of the webhook.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>targetUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The url to receive the payload.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>events</strong></td>
+<td valign="top">[<a href="#webhookeventtypeenum">WebhookEventTypeEnum</a>]</td>
+<td>
+
+The events that webhook wants to subscribe.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>serviceAccount</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td>
+
+ID of the service account to which webhook belongs.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isActive</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Determine if webhook will be set active or not.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>secretKey</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The secret key used to create a hash signature with each payload.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WebhookUpdateInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The new name of the webhook.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>targetUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The url to receive the payload.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>events</strong></td>
+<td valign="top">[<a href="#webhookeventtypeenum">WebhookEventTypeEnum</a>]</td>
+<td>
+
+The events that webhook wants to subscribe.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>serviceAccount</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td>
+
+ID of the service account to which webhook belongs.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isActive</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Determine if webhook will be set active or not.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>secretKey</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Use to create a hash signature with each payload.
 
 </td>
 </tr>
@@ -31055,35 +32251,6 @@ Canceled
 </tbody>
 </table>
 
-### GatewaysEnum
-
-An enumeration.
-
-<table>
-<thead>
-<th align="left">Value</th>
-<th align="left">Description</th>
-</thead>
-<tbody>
-<tr>
-<td valign="top"><strong>DUMMY</strong></td>
-<td></td>
-</tr>
-<tr>
-<td valign="top"><strong>BRAINTREE</strong></td>
-<td></td>
-</tr>
-<tr>
-<td valign="top"><strong>RAZORPAY</strong></td>
-<td></td>
-</tr>
-<tr>
-<td valign="top"><strong>STRIPE</strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
 ### GiftCardErrorCode
 
 An enumeration.
@@ -31689,7 +32856,7 @@ An enumeration.
 <td valign="top"><strong>DRAFT</strong></td>
 <td>
 
-Draft.
+Draft
 
 </td>
 </tr>
@@ -31697,7 +32864,7 @@ Draft.
 <td valign="top"><strong>UNFULFILLED</strong></td>
 <td>
 
-Unfulfilled.
+Unfulfilled
 
 </td>
 </tr>
@@ -31705,7 +32872,7 @@ Unfulfilled.
 <td valign="top"><strong>PARTIALLY_FULFILLED</strong></td>
 <td>
 
-Partially fulfilled.
+Partially fulfilled
 
 </td>
 </tr>
@@ -31713,7 +32880,7 @@ Partially fulfilled.
 <td valign="top"><strong>FULFILLED</strong></td>
 <td>
 
-Fulfilled.
+Fulfilled
 
 </td>
 </tr>
@@ -31721,7 +32888,7 @@ Fulfilled.
 <td valign="top"><strong>CANCELED</strong></td>
 <td>
 
-Canceled.
+Canceled
 
 </td>
 </tr>
@@ -31905,6 +33072,10 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>MANAGE_TRANSLATIONS</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>MANAGE_WEBHOOKS</strong></td>
 <td></td>
 </tr>
 </tbody>
@@ -32473,7 +33644,7 @@ An enumeration.
 <td valign="top"><strong>AUTH</strong></td>
 <td>
 
-Authorization.
+Authorization
 
 </td>
 </tr>
@@ -32481,7 +33652,7 @@ Authorization.
 <td valign="top"><strong>REFUND</strong></td>
 <td>
 
-Refund.
+Refund
 
 </td>
 </tr>
@@ -32489,7 +33660,7 @@ Refund.
 <td valign="top"><strong>CAPTURE</strong></td>
 <td>
 
-Capture.
+Capture
 
 </td>
 </tr>
@@ -32497,7 +33668,7 @@ Capture.
 <td valign="top"><strong>VOID</strong></td>
 <td>
 
-Void.
+Void
 
 </td>
 </tr>
@@ -32505,7 +33676,7 @@ Void.
 <td valign="top"><strong>CONFIRM</strong></td>
 <td>
 
-Confirm.
+Confirm
 
 </td>
 </tr>
@@ -32613,6 +33784,80 @@ Confirm.
 </tbody>
 </table>
 
+### WebhookErrorCode
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>GRAPHQL_ERROR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>NOT_FOUND</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>REQUIRED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>UNIQUE</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WebhookEventTypeEnum
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>ALL_EVENTS</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>ORDER_CREATED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>ORDER_FULLY_PAID</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>ORDER_UPDATED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>ORDER_CANCELLED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>CUSTOMER_CREATED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PRODUCT_CREATED</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### WeightUnitsEnum
 
 An enumeration.
@@ -32705,10 +33950,7 @@ in fields, resolvers and input.
 
 ### Upload
 
-Variables of this type must be set to null in
-        mutations. They will be replaced with a filename from a following
-        multipart part containing a binary file. See:
-        https://github.com/jaydenseric/graphql-multipart-request-spec
+Variables of this type must be set to null in mutations. They will be replaced with a filename from a following multipart part containing a binary file. See: https://github.com/jaydenseric/graphql-multipart-request-spec.
 
 ### WeightScalar
 
@@ -32718,7 +33960,7 @@ Variables of this type must be set to null in
 
 ### Node
 
-An object with an ID.
+An object with an ID
 
 <table>
 <thead>
