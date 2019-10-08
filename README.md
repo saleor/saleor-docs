@@ -201,7 +201,7 @@ where `API_URL` is URL to the GraphQL API that you want to generate the document
 Example: if you're running API locally with the default settings, you need to run:
 
 ```sh
-npm run build-api-reference http://localhost:8000/graphql/
+$ npm run build-api-reference http://localhost:8000/graphql/
 ```
 
 
