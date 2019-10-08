@@ -193,7 +193,7 @@ For more information about custom pages, click [here](https://docusaurus.io/docs
 API reference is generated using [graphql-markdown](https://github.com/exogen/graphql-markdown) tool. To update it, run the following command:
 
 ```sh
-npm run build-api-reference API_URL
+$ npm run build-api-reference API_URL
 ```
 
 where `API_URL` is URL to the GraphQL API that you want to generate the documentation for.
