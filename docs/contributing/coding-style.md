@@ -7,7 +7,7 @@ Saleor uses various tools to maintain a common coding style and help with develo
 To install all the development tools, run the following commands:
 
 ```console
-$ python -m pip install -r requirements_dev.txt``
+$ python -m pip install -r requirements_dev.txt
 ```
 
 or if using `pipenv`:

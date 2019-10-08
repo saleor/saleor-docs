@@ -47,7 +47,7 @@ $ docker-compose run --rm web python3 manage.py collectstatic
 $ docker-compose run --rm web python3 manage.py populatedb --createsuperuser
 ```
 
-> The --createsuperuser argument creates an admin account for admin@example.com with the password set to admin.
+> The `--createsuperuser` argument creates an admin account for admin@example.com with the password set to admin.
 
 Run the containers:
 

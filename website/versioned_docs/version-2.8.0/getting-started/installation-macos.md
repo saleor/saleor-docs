@@ -58,7 +58,7 @@ $ brew install git
 ```
 
 
-### Gtk+
+### GTK+
 
 Use Homebrew to install the graphical libraries necessary for PDF creation:
 
@@ -88,7 +88,7 @@ $ cd saleor/
 $ pip install -r requirements.txt
 ```
 
-> We strongly recommend creating a virtual environment before installing any Python packages.
+> We strongly recommend [creating a virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing any Python packages.
 
 
 ### 4. Set `SECRET_KEY` environment variable

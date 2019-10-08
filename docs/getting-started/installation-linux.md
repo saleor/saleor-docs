@@ -28,7 +28,7 @@ Version 10 or later is required. See the [installation instructions](https://nod
 Saleor needs PostgreSQL version 9.4 or above to work. Use the [PostgreSQL download page](https://www.postgresql.org/download/) to get instructions for your distribution.
 
 
-### Gtk+
+### GTK+
 
 Some features (for example, PDF creation) require that additional system libraries are present.
 
@@ -49,7 +49,7 @@ $ sudo yum install redhat-rpm-config python-devel python-pip python-cffi libffi-
 ```
 
 
-* Archlinux
+* Arch Linux
 
 ```console
 $ sudo pacman -S python-pip cairo pango gdk-pixbuf2 libffi pkg-config

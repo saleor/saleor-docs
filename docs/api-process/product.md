@@ -310,7 +310,7 @@ query {
 
 Response:
 
-```
+```json
 {
   "data": {
     "product": {
