@@ -12,6 +12,6 @@ Your catalog contains your entire online inventory. You can view products indivi
 [**Categories** Gather products by type to make it easier for admins and customers to browse the store](/docs/dashboard/catalog/categories)
 [/card-grid]
 [card-grid]
-[**Collections** Group products from the same or different categories into collections that encourage upselling ](/docs/dashboard/catalog/collections)
+[**Collections** Group products from the same or different categories into collections that encourage upselling](/docs/dashboard/catalog/collections)
 [/card-grid]
 

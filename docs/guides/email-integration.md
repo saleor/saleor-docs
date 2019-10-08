@@ -12,13 +12,13 @@ You can set the environment variable `EMAIL_URL` to the SMTP URL, which will con
 
 | Description | URL |
 | --- | --- |
-| GMail with SSL on | `smtp://my.gmail.username@gmail.com:my-password@smtp.gmail.com:465/?ssl=True` |
+| Gmail with SSL on | `smtp://my.gmail.username@gmail.com:my-password@smtp.gmail.com:465/?ssl=True` |
 | OVH with STARTTLS on | `smtp://username@example.com:my-password@pro1.mail.ovh.net:587/?tls=True` |
 | A SMTP server unencrypted | `smtp://username@example.com:my-password@smtp.example.com:25/` |
 
 > **Note**
 >
-> If you want to use your personal GMail account to send mails, you need to [enable access to unknown applications in your Google Account](https://myaccount.google.com/lesssecureapps).
+> If you want to use your personal Gmail account to send mails, you need to [enable access to unknown applications in your Google Account](https://myaccount.google.com/lesssecureapps).
 
 > **Warning**
 >
@@ -31,9 +31,9 @@ You can set the environment variable `EMAIL_URL` to the SMTP URL, which will con
 You can customize the sender email address by setting the environment variable `DEFAULT_FROM_EMAIL` to your desired email address. You also can customize the sender name by doing as follow `Example Is Me <your.name@example.com>`.
 
 
-## Sendgrid integration
+## SendGrid integration
 
-After you [created your Sendgrid application](https://app.sendgrid.com/guide/integrate/langs/smtp), you need to set the environment variable `EMAIL_URL` as below, replacing `YOUR_API_KEY_HERE` with your API key.
+After you [created your SendGrid application](https://app.sendgrid.com/guide/integrate/langs/smtp), you need to set the environment variable `EMAIL_URL` as below, replacing `YOUR_API_KEY_HERE` with your API key.
 
 ```
 smtp://apikey:YOUR_API_KEY_HERE@smtp.sendgrid.com:465/?ssl=True
@@ -43,7 +43,7 @@ Then set the environment variable `DEFAULT_FROM_EMAIL` [as mentioned before](gui
 
 > **Note**
 >
-> As it is not in the setup process of sendgrid, if your ‘from email’ address is your domain, you need to make sure you at least correctly set your [SPF](https://sendgrid.com/docs/Glossary/spf.html) DNS record and, optionally, set your [DKIM](https://sendgrid.com/docs/Glossary/dkim.html) DNS record as well.
+> As it is not in the setup process of SendGrid, if your ‘from email’ address is your domain, you need to make sure you at least correctly set your [SPF](https://sendgrid.com/docs/Glossary/spf.html) DNS record and, optionally, set your [DKIM](https://sendgrid.com/docs/Glossary/dkim.html) DNS record as well.
 
 
 ## Mailgun integration

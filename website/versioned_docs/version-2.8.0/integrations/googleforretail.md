@@ -18,4 +18,4 @@ Merchant Center has few country dependent settings, so please validate your feed
 
 One of required by Google fields is _brand attribute_. Feed generator checks for it in variant attribute named _brand_ or _publisher_ (if not, checks in product).
 
-Feed can be downloaded from url: `http://<yourserver>/feeds/google/`
+Feed can be downloaded from url: `http://<yourserver>/feeds/google/`.
