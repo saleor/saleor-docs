@@ -8,7 +8,7 @@ Before making any permanent changes in the code, make sure the changes you apply
 The project currently contains very little front-end code so the test suite only covers the backend.
 
 Before you start running tests, you should install development packages. 
-Use `python -m pip install -r requirements_dev.txt`, or `pipenv install --dev` if you are a Pipenv user.
+Use `python -m pip install -r requirements_dev.txt`, or `poetry install` if you are a Poetry user.
 
 To run backend tests, use [pytest](https://docs.pytest.org/en/latest/):
 
