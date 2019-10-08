@@ -101,8 +101,13 @@ const siteConfig = {
   docsSideNavCollapsible: false,
 
   // Add custom scripts here that would be placed in <script> tags.
-  scripts: ["https://buttons.github.io/buttons.js", "/js/script.js"],
-
+  scripts: [
+    "https://buttons.github.io/buttons.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js",
+    "/js/code-block-copy-button.js",
+    "/js/script.js"
+  ],
+  
   // On page navigation for the current documentation page.
   onPageNav: "separate",
   // No .html extensions for paths.
