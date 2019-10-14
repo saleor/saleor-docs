@@ -14,7 +14,7 @@ This error occurs if, while performing some specified operation, you provide wro
 Below is an example of an error triggered by wrong syntax. The following query tries to fetch the `fullName` field which doesn't exist on the `User` type:
 
 ```graphql
-{
+query {
   me {
     email
     fullName
@@ -89,7 +89,7 @@ This type of error occurs when you are trying to perform a specific operation bu
 Below is an example of an error triggered by insufficient authorization. The `staffUsers` query requires appropriate admin permissions:
 
 ```graphql
-{
+query {
   staffUsers(first: 20) {
     edges {
       node {

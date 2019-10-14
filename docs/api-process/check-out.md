@@ -221,7 +221,7 @@ The `paymentClientToken` query requires one input field:
 Example query:
 
 ```graphql
-{
+query {
   paymentClientToken(gateway: BRAINTREE)
 }
 ```

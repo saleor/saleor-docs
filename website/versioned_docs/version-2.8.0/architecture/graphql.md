@@ -28,7 +28,7 @@ Here is an example query that fetches three products:
 
 ```graphql
 query {
-  products(first: 3){
+  products(first: 3) {
     edges {
       node {
         name

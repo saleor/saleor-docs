@@ -43,8 +43,8 @@ The below examples show a sample query and response containing metadata:
 
 ### Sample query with metadata
 
-```
-{
+```graphql
+query {
   products(first: 1) {
     edges {
       node {
@@ -110,7 +110,7 @@ You can also add, update or remove metadata.
 
 ### Sample mutation to add or update metadata
 
-```
+```graphql
 mutation {
   productUpdateMetadata(
     id: "UHJvZHVjdDo3Mg=="
@@ -143,7 +143,7 @@ mutation {
 
 ### Sample mutation to remove a section from metadata
 
-```
+```graphql
 mutation {
   productClearMetadata(
     id: "UHJvZHVjdDo3Mg=="
@@ -184,7 +184,7 @@ Models can have two metafields:
 
 ### Sample mutation to add or update a field in private metadata
 
-```
+```graphql
 mutation {
   productUpdatePrivateMetadata(
     id: "UHJvZHVjdDo3Mg=="
@@ -217,7 +217,7 @@ mutation {
 
 ### Sample mutation to remove a section from private meta
 
-```
+```graphql
 mutation {
   productClearPrivateMetadata(
     id: "UHJvZHVjdDo3Mg=="

@@ -60,7 +60,7 @@ Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFkbWluQGV4
 
 If you are using Playground to browse the API, you can authorize your requests by providing the JWT token in the HTTP HEADERS tab. To do that, paste the following JSON structure to the tab:
 
-```
+```json
 {
   "Authorization": "JWT your-token"
 }
