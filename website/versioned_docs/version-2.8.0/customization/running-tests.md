@@ -10,7 +10,7 @@ The project currently contains very little front-end code so the test suite only
 
 Before running tests, development packages should be installed by `python -m pip install -r requirements_dev.txt`. For Pipenv users, `pipenv install --dev` should do the same.
 
-To run backend tests use [pytest](http://docs.pytest.org/en/latest/):
+To run backend tests use [pytest](https://docs.pytest.org/en/latest/):
 
 ```console
 $ py.test

@@ -18,5 +18,5 @@ sidebar_label: Introduction
 
 [card-grid]
 [**Open Exchange Rates**](integrations/openexchangerates.md)
-[**reCaptcha**](integrations/recaptcha.md)
+[**reCAPTCHA**](integrations/recaptcha.md)
 [/card-grid]

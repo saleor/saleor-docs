@@ -1,17 +1,17 @@
 ---
 id: version-2.8.0-recaptcha
-title: ReCaptcha
+title: reCAPTCHA
 original_id: recaptcha
 ---
 
 ## Pre-requirements
 
-You can get your API key set from [Google ReCaptcha](https://www.google.com/recaptcha/admin).
+You can get your API key set from [Google reCAPTCHA](https://www.google.com/recaptcha/admin).
 
 
 ## Enable and Set-up
 
-To enable ReCaptcha, you need to set those keys in your environment:
+To enable reCAPTCHA, you need to set those keys in your environment:
 
 1. `RECAPTCHA_PUBLIC_KEY` to your public/ site API key;
 2. `RECAPTCHA_PRIVATE_KEY` to your secret/ private API key.

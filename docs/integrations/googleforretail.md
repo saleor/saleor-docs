@@ -21,4 +21,4 @@ This is also a location where you can specify your shipping cost, which is a req
 
 The _brand attribute_ is a field required by Google. The feed generator checks this in a variant attribute named _brand_ or _publisher_ (if not found, it checks in _product_).
 
-The feed can be downloaded under the following url: `http://<yourserver>/feeds/google/`
+The feed can be downloaded under the following url: `http://<yourserver>/feeds/google/`.

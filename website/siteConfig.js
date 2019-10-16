@@ -28,19 +28,37 @@ const siteConfig = {
 
   algolia: {
     apiKey: "33843c1b27663cc760ddc60811ba51d7",
-    indexName: "saleor"
+    indexName: "saleor",
+    placeholder: "Search Saleor Documentation"
   },
 
   // Disable showing the title in the header next to the header icon.
   disableHeaderTitle: true,
 
-  // For no header links in the top nav bar -> headerLinks: [],
-  headerLinks: [],
-
   /* path to images for header/footer */
-  headerIcon: "img/saleor-logo.png",
-  footerIcon: "img/saleor-footer-icon.png",
+  headerIcon: "img/saleor-logo.svg",
+  footerIcon: "img/footer-logo.png",
+  twitterIcon: "img/twitter-icon.svg",
+  fbIcon: "img/facebook-icon.svg",
+  soIcon: "img/stackoverflow-icon.svg",
+  githubIcon: "img/github-icon.svg",
   favicon: "img/saleor-icon.png",
+
+  // For no header links in the top nav bar -> headerLinks: [],
+  headerLinks: [
+    { href: "", label: "" },
+    { search: true },
+    { href: "", label: "" },
+    {
+      doc: "dashboard/before-you-start",
+      label: "Saleor Dashboard Guide"
+    },
+    { href: "/docs/next/api/intro", label: "GraphQL API" },
+    {
+      doc: "getting-started/intro",
+      label: "Running your Saleor Server"
+    }
+  ],
 
   /* Colors for website */
   colors: {
@@ -63,6 +81,8 @@ const siteConfig = {
       "Segoe UI Symbol"
     ]
   },
+  
+  editUrl: "https://github.com/mirumee/saleor-docs/edit/master/docs/",
 
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
   copyright: `Copyright © ${new Date().getFullYear()} Your Name or Your Company Name`,
@@ -80,11 +100,16 @@ const siteConfig = {
     require("./markdown/pillbutton")
   ],
 
-  docsSideNavCollapsible: true,
+  docsSideNavCollapsible: false,
 
   // Add custom scripts here that would be placed in <script> tags.
-  scripts: ["https://buttons.github.io/buttons.js", "/js/menu.js"],
-
+  scripts: [
+    "https://buttons.github.io/buttons.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js",
+    "/js/code-block-copy-button.js",
+    "/js/script.js"
+  ],
+  
   // On page navigation for the current documentation page.
   onPageNav: "separate",
   // No .html extensions for paths.

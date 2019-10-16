@@ -40,7 +40,7 @@ When finished, click [[Save]].
 
 ### How to edit categories
 
-Once you have your categories set up, you can edit them at any time by clicking on a category from the list and changing information. When viewing a category, you have a card at the bottom of the page with tabs for viewing and editing products and subcatgeories.  
+Once you have your categories set up, you can edit them at any time by clicking on a category from the list and changing information. When viewing a category, you have a card at the bottom of the page with tabs for viewing and editing products and subcategories.  
 
 
 ### How to delete categories

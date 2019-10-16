@@ -146,7 +146,7 @@ Configuration fields:
 > 
 > This allows dashboard users to manage the plugin's basic setup. The scope of the setup available via Plugins page is up to you. 
 > 
-> See the [Plugins](dashboard/plugins.md) topic for more information.
+> See the [Plugins](dashboard/configuration/plugins.md) topic for more information.
 
 ## About Extensions Manager
 

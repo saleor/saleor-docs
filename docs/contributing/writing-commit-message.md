@@ -8,15 +8,12 @@ To speed up the review process and to keep the logs tidy, we recommend the follo
 ## Summary line
 
 * It should contain less than 50 characters. It is best to make it short
-
 * Introduce what has changed, using imperatives: fix, add, modify, etc.
 
 ## Description 
 
 * Add extra explanation if you feel it will help others to understand the summary content
-
 * If you want, use bullet points (each bullet beginning with a hyphen or an asterisk)
-
 * Avoid writing in one line. Use line breaks so the reader does not have to scroll horizontally
 
 > **Tip**

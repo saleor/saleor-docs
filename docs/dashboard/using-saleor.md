@@ -27,7 +27,7 @@ The dashboard has the following sections:
 
 Most sections of the dashboard consist of two types of views:
 
-* List of records - This view displays a list of existing records in Saleor. Some of these views allow you to filter the records or manage the column settings. Most of the views also allow you to set the number of list items displayed on the page (number of rows).
+* List of records - This view displays a list of existing records in Saleor. Some of these views allow you to filter the records or manage the column settings. Most of the views also allow you to set the number of list items displayed on the page (number of rows). Most of the list views are equipped with a search bar. You can search by different elements, depending on the page (list)  you are browsing.
 
 * Record details - This view is displayed when you select one of the records on the list view. This page provides more details on the selected record.
 

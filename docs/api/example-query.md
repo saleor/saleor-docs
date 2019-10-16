@@ -11,8 +11,7 @@ Let's take a look at an example query and mutation that you can use in the Saleo
 
 Here is an example query that fetches three products and, for each one, returns the ID, name, description, and category name:
 
-```
-graphql
+```graphql
 query {
   products(first: 3) {
     edges {
@@ -31,8 +30,7 @@ query {
 
 The server returns the following JSON:
 
-```
-json
+```json
 {
   "data": {
     "products": {
@@ -77,8 +75,7 @@ json
 
 Let's look at an example of a mutation. Imagine that you want to update the name of a product. In the Saleor API, this can be done with the `productUpdate` mutation:
 
-```
-graphql
+```graphql
 mutation {
   productUpdate(
     id: "UHJvZHVjdDo3Mg=="
@@ -97,8 +94,7 @@ mutation {
 
 The successful server response for the mutation is:
 
-```
-json
+```json
 {
   "data": {
     "productUpdate": {

@@ -31,8 +31,8 @@ To retrieve a large number of results and indicate how you want the queried item
 
 * `first` - Followed by the number of items (nodes) you want the query to return. This argument will return items starting from the beginning of the list.
 
-```
-{
+```graphql
+query {
   products(first: 10) {
     edges {
       cursor
@@ -47,8 +47,8 @@ To retrieve a large number of results and indicate how you want the queried item
 
 * `last` - Followed by the number of items (nodes) you want the query to return. This argument will return items starting from the end of the list.
 
-```
-{
+```graphql
+query {
   products(last: 10) {
     edges {
       cursor
@@ -63,8 +63,8 @@ To retrieve a large number of results and indicate how you want the queried item
 
 * `after` - Followed by the value of the `cursor`. This indicates the direction in which you want to start displaying items; in this case, it is from the beginning of the list.
 
-```
-{
+```graphql
+query {
   products(first: 10, after: "YXJyYXljb25uZWN0aW9uOjA=") {
     edges {
       node {
@@ -78,8 +78,8 @@ To retrieve a large number of results and indicate how you want the queried item
 
 * `before` - Followed by the value of the `cursor`. This indicates the direction in which you want to start displaying items; in this case, it is from the end of the list. 
 
-```
-{
+```graphql
+query {
   products(first: 10, before: "YXJyYXljb25uZWN0aW9uOjQ==") {
     edges {
       node {
@@ -119,8 +119,8 @@ Each connection can return the following fields:
  
     * `endCursor` - Indicates the cursor value of the last item on the page.
 
-```
-{
+```graphql
+query {
   products(first: 10) {
     edges {
       cursor

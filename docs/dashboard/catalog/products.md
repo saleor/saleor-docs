@@ -43,6 +43,11 @@ Use the [[Reset]] button on the grid to return to default settings (the above me
 
 For more information on how to set the attribute so it can be used in the column selection list in the Product page, see the description of the Properties card section in the [Attributes](dashboard/configuration/attributes.md#How-to-add-an-attribute) topic.
 
+#### Sorting by columns
+
+You can also sort your product list by columns. To do that, click on the column header. Clicking the header again will change the sorting order (ascending/descending).
+
+
 ## Product concept
 
 Before filling your shop with products, you need to learn about 3 basic product concepts in Saleor: 
