@@ -269,8 +269,8 @@ Specify how you want your prices to be applied to each variant.
 **Stock section**
 How you want to manage your stock
 
-Apply single stock to all SKUs - Select this option if you have the same amount of each product.
-Apply unique stock by attribute to each SKU -  Use this option if your stock levels are different for each variant.
+- Apply single stock to all SKUs - Select this option if you have the same amount of each product.
+- Apply unique stock by attribute to each SKU -  Use this option if your stock levels are different for each variant.
 
 click [[Next]] to progress to the Summary tab containing an overview of the variants you’ve just created. You can still edit inventory, price and SKU.
 
