@@ -244,9 +244,33 @@ To edit product details, click any field and start making changes. The [[Save]] 
 > Do not remove a product if you just want to temporarily take it away from your inventory. In that case, just select the [[Hidden]] option in the Visibility card, as described above.
 
 
-### How to add product variants and attributes
+### How to use the variant creator
 
-When you click a product record from the main list, you will see the same cards as when you create a product, with one additional card for Variants. This is where you can change product variants and attributes, check inventory, and control stock levels.
+When creating a new product, your attributes are assigned automatically once you select a Product Type.
+Based on these attributes, you can create variants of your product. 
+
+Click the Create Variants button in the Variants card to open the 3-step variant creator.
+
+In the Select Values tab, make your selection from the previously set up values assigned to each attribute. Once you make your choice, Saleor cross-matches selected values of attributes and creates appropriate product variants. 
+
+Choose the variants of the product that you will stock and click [[Next]] to move to the Price and SKU tab.
+
+**Price Section**
+Specify how you want your prices to be applied to each variant.
+
+- Apply single price to all SKUs - All attribute values of this product to have the same price.
+- Apply unique prices by attribute to each SKU -  SEach attribute has a different value differently which you must manually assign.  
+
+**Stock section**
+How you want to manage your stock
+
+Apply single stock to all SKUs - Select this option if you have the same amount of each product.
+Apply unique stock by attribute to each SKU -  Use this option if your stock levels are different for each variant.
+
+click [[Next]] to progress to the Summary tab containing an overview of the variants you’ve just created. You can still edit inventory, price and SKU.
+
+Once saved, you can edit variants through the same steps as described above and then save changes.
+
 
 ![Reviewing product variants](assets/dashboard-catalog/stock1.JPG)
 
