@@ -1,6 +1,6 @@
 ---
 id: service-accounts
-title: service-account
+title: Service account
 ---
 
 ## introduction

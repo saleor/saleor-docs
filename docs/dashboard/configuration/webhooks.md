@@ -1,6 +1,6 @@
 ---
 id: webhooks
-title: webhooks
+title: Webhooks
 ---
 
 ## Introduction

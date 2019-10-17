@@ -261,12 +261,14 @@ In the Select Values tab, make your selection from the previously set up values 
 Choose the variants of the product that you will stock and click [[Next]] to move to the Price and SKU tab.
 
 **Price Section**
+
 Specify how you want your prices to be applied to each variant.
 
 - Apply single price to all SKUs - All attribute values of this product to have the same price.
 - Apply unique prices by attribute to each SKU -  SEach attribute has a different value differently which you must manually assign.  
 
 **Stock section**
+
 How you want to manage your stock
 
 - Apply single stock to all SKUs - Select this option if you have the same amount of each product.
