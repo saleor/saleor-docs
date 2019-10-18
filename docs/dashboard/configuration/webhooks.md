@@ -11,8 +11,9 @@ Webhooks allow you to set up integrations which subscribe to events. They can th
 
 The main webhooks page has a standard list with options to edit and delete existing webhooks. You can also create a new webhook by clicking the [[Create webhook]] button on the right above the list.
 
-In the Webhook Information card: 
-- Assign the name of your webhook 
+In the Webhook Information card:
+
+- Assign the name of your webhook.
 - Choose the service account to which the webhook will be assigned from the drop-down menu. Make sure that the chosen service account has the expected permissions for these resources.
 - Input the target URL to which payloads will be sent.
 - Optionally, if the service to which you are sending the webhook wants additional validation of the content that is being sent, you need to set a Secret Key. After selecting the name of the key, you need to pass it to the third-party service so that they can use it to validate content sent from Saleor via webhooks.
