@@ -260,7 +260,7 @@ In the Select Values tab, make your selection from the previously set up values 
 
 Choose the variants of the product that you will stock and click [[Next]] to move to the Price and SKU tab.
 
-![Product Variant Creator](assets/dashboard-catalog/Creator1.JPG)
+![Product Variant Creator](assets/dashboard-catalog/Creator1.jpg)
 
 **Price Section**
 
@@ -269,7 +269,7 @@ Specify how you want your prices to be applied to each variant:
 - Apply single price to all SKUs - All attribute values of this product to have the same price.
 - Apply unique prices by attribute to each SKU - Search attribute has a different value differently which you must manually assign.  
 
-![Product Variant Creator](assets/dashboard-catalog/Creator2.JPG)
+![Product Variant Creator](assets/dashboard-catalog/Creator2.jpg)
 
 **Stock section**
 
@@ -280,7 +280,7 @@ How you want to manage your stock:
 
 Click [[Next]] to progress to the Summary tab containing an overview of the variants you’ve just created. You can still edit inventory, price and SKU.
 
-![Product Variant Creator](assets/dashboard-catalog/Creator3.JPG)
+![Product Variant Creator](assets/dashboard-catalog/Creator3.jpg)
 
 Once saved, you can edit variants through the same steps as described above and then save changes.
 
