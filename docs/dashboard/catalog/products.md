@@ -284,7 +284,7 @@ Click [[Next]] to progress to the Summary tab containing an overview of the vari
 
 Once saved, you can edit variants through the same steps as described above and then save changes.
 
-![Reviewing product variants](assets/dashboard-catalog/stock1.JPG)
+
 
 #### Checking inventory
 
