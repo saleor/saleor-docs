@@ -7,6 +7,8 @@ title: Webhooks
 
 Webhooks allow you to set up integrations which subscribe to events. They can then be used to send payloads about activities in Saleor from your platform to other services. Your designated URL will then get the payloads you choose to send from Saleor.
 
+![Webhooks](assets/dashboard-config/webhooks.jpg)
+
 ## Adding a webhook
 
 The main webhooks page has a standard list with options to edit and delete existing webhooks. You can also create a new webhook by clicking the [[Create webhook]] button on the right above the list.
