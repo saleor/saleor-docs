@@ -45,7 +45,7 @@ As a result, this mutation returns the following fields:
 
   - `isShippingRequired` - denotes whether shipping is required for this checkout
 
-  - `availablePaymentGateways` - a list of payment gateways which are currently configured on your Saleor server and can be used to pay for the checkout
+  - `availablePaymentGateways` - a list of payment gateways that are currently configured on your Saleor server and can be used to pay for the checkout. For each gateway, API returns a name and a config object, which for some gateways may return additional information required to process the payment in the frontend
 
   - `availableShippingMethods` - a list of available shipping methods for this checkout. If the items in the cart require shipment, setting a shipping method is mandatory
 
@@ -94,7 +94,13 @@ mutation {
         id
         name
       }
-      availablePaymentGateways
+      availablePaymentGateways {
+        name
+        config {
+          field
+          value
+        }
+      }
     }
     errors {
       field
@@ -129,7 +135,21 @@ We get a newly created checkout object for which we return the ID, total price, 
             "name": "DHL"
           }
         ],
-        "availablePaymentGateways": ["BRAINTREE"]
+        "availablePaymentGateways": [
+          {
+            "name": "Braintree",
+            "config": [
+              {
+                "field": "store_customer_card",
+                "value": "false"
+              },
+              {
+                "field": "client_token",
+                "value": "example_token_value"
+              }
+            ]
+          }
+        ]
       },
       "errors": []
     }
@@ -203,38 +223,8 @@ As a result, we get an updated checkout object with a shipping method set:
 
 ## Creating the payment
 
-The payment creation process consists of two operations:
-
-1. Generating a token for the payment using the `paymentClientToken` query.
-   This operation requires the user to select the preferred payment gateway.
-
-2. Executing the mutation `checkoutPaymentCreate` using the above-generated token.
-
 Depending on the selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway will direct you to an external payment page. The payment gateway sends information about if the payment is successful, along with tokenized credit card payment information. This token is then used to run the `checkoutPaymentCreate` mutation.
 
-### `paymentClientToken`
-
-The `paymentClientToken` query requires one input field:
-
-- `gateway` - an enum value which represents one of the payment gateways configured on the server, e.g. `BRAINTREE` or `STRIPE`
-
-Example query:
-
-```graphql
-query {
-  paymentClientToken(gateway: BRAINTREE)
-}
-```
-
-As a result, we get the token (the value is trimmed for the sake of this example):
-
-```json
-{
-  "data": {
-    "paymentClientToken": "eyJ2ZXJza...m9mZiJ9"
-  }
-}
-```
 
 ### `checkoutPaymentCreate`
 
