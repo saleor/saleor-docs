@@ -22,6 +22,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AccountRequestDeletion](#accountrequestdeletion)
     * [AccountSetDefaultAddress](#accountsetdefaultaddress)
     * [AccountUpdate](#accountupdate)
+    * [AccountUpdateMeta](#accountupdatemeta)
     * [Address](#address)
     * [AddressCreate](#addresscreate)
     * [AddressDelete](#addressdelete)
@@ -148,8 +149,12 @@ This document describes all queries, mutations, and types available in the Saleo
     * [ExtensionsError](#extensionserror)
     * [Fulfillment](#fulfillment)
     * [FulfillmentCancel](#fulfillmentcancel)
+    * [FulfillmentClearMeta](#fulfillmentclearmeta)
+    * [FulfillmentClearPrivateMeta](#fulfillmentclearprivatemeta)
     * [FulfillmentCreate](#fulfillmentcreate)
     * [FulfillmentLine](#fulfillmentline)
+    * [FulfillmentUpdateMeta](#fulfillmentupdatemeta)
+    * [FulfillmentUpdatePrivateMeta](#fulfillmentupdateprivatemeta)
     * [FulfillmentUpdateTracking](#fulfillmentupdatetracking)
     * [GatewayConfigLine](#gatewayconfigline)
     * [Geolocalization](#geolocalization)
@@ -383,6 +388,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [WebhookEvent](#webhookevent)
     * [WebhookUpdate](#webhookupdate)
     * [Weight](#weight)
+    * [_Service](#_service)
   * [Inputs](#inputs)
     * [AccountInput](#accountinput)
     * [AccountRegisterInput](#accountregisterinput)
@@ -480,6 +486,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [VoucherFilterInput](#voucherfilterinput)
     * [VoucherInput](#voucherinput)
     * [WebhookCreateInput](#webhookcreateinput)
+    * [WebhookFilterInput](#webhookfilterinput)
     * [WebhookUpdateInput](#webhookupdateinput)
   * [Enums](#enums)
     * [AccountErrorCode](#accounterrorcode)
@@ -547,6 +554,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [UUID](#uuid)
     * [Upload](#upload)
     * [WeightScalar](#weightscalar)
+    * [_Any](#_any)
   * [Interfaces](#interfaces)
     * [Node](#node)
 
@@ -591,6 +599,15 @@ List of webhooks.
 </td>
 </tr>
 <tr>
+<td colspan="2" align="right" valign="top">filter</td>
+<td valign="top"><a href="#webhookfilterinput">WebhookFilterInput</a></td>
+<td>
+
+Filtering options for webhooks.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" align="right" valign="top">before</td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -623,6 +640,33 @@ Return the first n elements from the list.
 <td>
 
 Return the last n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>webhookEvents</strong></td>
+<td valign="top">[<a href="#webhookevent">WebhookEvent</a>]</td>
+<td>
+
+List of all available webhook events.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>webhookSamplePayload</strong></td>
+<td valign="top"><a href="#jsonstring">JSONString</a></td>
+<td>
+
+Retrieve a sample payload for a given webhook event based on real data. It can be useful for some integrations where sample payload is required.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">eventType</td>
+<td valign="top"><a href="#webhookeventtypeenum">WebhookEventTypeEnum</a>!</td>
+<td>
+
+Name of the requested event type.
 
 </td>
 </tr>
@@ -2764,10 +2808,25 @@ The ID of the object
 <td valign="top"><a href="#id">ID</a>!</td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>_entities</strong></td>
+<td valign="top">[<a href="#_entity">_Entity</a>]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">representations</td>
+<td valign="top">[<a href="#_any">_Any</a>]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>_service</strong></td>
+<td valign="top"><a href="#_service">_Service</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
-## Mutation (Mutations)
+## Mutation
 <table>
 <thead>
 <tr>
@@ -2981,7 +3040,7 @@ Translation language code.
 <td valign="top"><a href="#shopaddressupdate">ShopAddressUpdate</a></td>
 <td>
 
-Update shop address.
+Update the shop's address. If the `null` value is passed, the currently selected address will be deleted.
 
 </td>
 </tr>
@@ -5681,20 +5740,20 @@ Clears stored metadata value.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td>
-
-ID of a customer to update.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#metapath">MetaPath</a>!</td>
 <td>
 
-Fields required to identify stored metadata item.
+Fields required to update new or stored metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">token</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td>
+
+Token of an object to clear.
 
 </td>
 </tr>
@@ -5780,6 +5839,114 @@ Fields required to update an fulfillment.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>orderFulfillmentClearMeta</strong></td>
+<td valign="top"><a href="#fulfillmentclearmeta">FulfillmentClearMeta</a></td>
+<td>
+
+Clears metadata for fulfillment.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a customer to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metapath">MetaPath</a>!</td>
+<td>
+
+Fields required to identify stored metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>orderFulfillmentClearPrivateMeta</strong></td>
+<td valign="top"><a href="#fulfillmentclearprivatemeta">FulfillmentClearPrivateMeta</a></td>
+<td>
+
+Clears private metadata for fulfillment.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a customer to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metapath">MetaPath</a>!</td>
+<td>
+
+Fields required to identify stored metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>orderFulfillmentUpdateMeta</strong></td>
+<td valign="top"><a href="#fulfillmentupdatemeta">FulfillmentUpdateMeta</a></td>
+<td>
+
+Updates metadata for fulfillment.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an object to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metainput">MetaInput</a>!</td>
+<td>
+
+Fields required to update new or stored metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>orderFulfillmentUpdatePrivateMeta</strong></td>
+<td valign="top"><a href="#fulfillmentupdateprivatemeta">FulfillmentUpdatePrivateMeta</a></td>
+<td>
+
+Updates metadata for fulfillment.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an object to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metainput">MetaInput</a>!</td>
+<td>
+
+Fields required to update new or stored metadata item.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>orderMarkAsPaid</strong></td>
 <td valign="top"><a href="#ordermarkaspaid">OrderMarkAsPaid</a></td>
 <td>
@@ -5861,20 +6028,20 @@ Updates meta for order.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td>
-
-ID of an object to update.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#metainput">MetaInput</a>!</td>
 <td>
 
 Fields required to update new or stored metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">token</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td>
+
+Token of an object to update.
 
 </td>
 </tr>
@@ -7292,60 +7459,6 @@ Current user password.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>userUpdateMetadata</strong></td>
-<td valign="top"><a href="#userupdatemeta">UserUpdateMeta</a></td>
-<td>
-
-Updates metadata for user.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td>
-
-ID of an object to update.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#metainput">MetaInput</a>!</td>
-<td>
-
-Fields required to update new or stored metadata item.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>userClearMetadata</strong></td>
-<td valign="top"><a href="#userclearmeta">UserClearMeta</a></td>
-<td>
-
-Clear metadata for user.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td>
-
-ID of a customer to update.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#metapath">MetaPath</a>!</td>
-<td>
-
-Fields required to identify stored metadata item.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>accountAddressCreate</strong></td>
 <td valign="top"><a href="#accountaddresscreate">AccountAddressCreate</a></td>
 <td>
@@ -7513,6 +7626,24 @@ Remove user account.
 <td>
 
 A one-time token required to remove account. Sent by email using AccountRequestDeletion mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountUpdateMeta</strong></td>
+<td valign="top"><a href="#accountupdatemeta">AccountUpdateMeta</a></td>
+<td>
+
+Updates metadata of the logged-in user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metainput">MetaInput</a>!</td>
+<td>
+
+Fields required to update new or stored metadata item.
 
 </td>
 </tr>
@@ -7945,6 +8076,60 @@ List of user IDs to (de)activate).
 <td>
 
 Determine if users will be set active or not.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>userUpdateMetadata</strong></td>
+<td valign="top"><a href="#userupdatemeta">UserUpdateMeta</a></td>
+<td>
+
+Updates metadata for user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an object to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metainput">MetaInput</a>!</td>
+<td>
+
+Fields required to update new or stored metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>userClearMetadata</strong></td>
+<td valign="top"><a href="#userclearmeta">UserClearMeta</a></td>
+<td>
+
+Clear metadata for user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a customer to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metapath">MetaPath</a>!</td>
+<td>
+
+Fields required to identify stored metadata item.
 
 </td>
 </tr>
@@ -8501,6 +8686,42 @@ An updated user instance.
 ### AccountUpdate
 
 Updates the account of the logged-in user.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#user">User</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### AccountUpdateMeta
+
+Updates metadata of the logged-in user.
 
 <table>
 <thead>
@@ -14389,6 +14610,24 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
+<td>
+
+List of privately stored metadata namespaces.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>meta</strong></td>
+<td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
+<td>
+
+List of publicly stored metadata namespaces.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>lines</strong></td>
 <td valign="top">[<a href="#fulfillmentline">FulfillmentLine</a>]</td>
 <td>
@@ -14453,6 +14692,68 @@ Order which fulfillment was cancelled.
 <tr>
 <td colspan="2" valign="top"><strong>orderErrors</strong></td>
 <td valign="top">[<a href="#ordererror">OrderError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### FulfillmentClearMeta
+
+Clears metadata for fulfillment.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fulfillment</strong></td>
+<td valign="top"><a href="#fulfillment">Fulfillment</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### FulfillmentClearPrivateMeta
+
+Clears private metadata for fulfillment.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fulfillment</strong></td>
+<td valign="top"><a href="#fulfillment">Fulfillment</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -14538,6 +14839,68 @@ The ID of the object.
 <tr>
 <td colspan="2" valign="top"><strong>orderLine</strong></td>
 <td valign="top"><a href="#orderline">OrderLine</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### FulfillmentUpdateMeta
+
+Updates metadata for fulfillment.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fulfillment</strong></td>
+<td valign="top"><a href="#fulfillment">Fulfillment</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### FulfillmentUpdatePrivateMeta
+
+Updates metadata for fulfillment.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fulfillment</strong></td>
+<td valign="top"><a href="#fulfillment">Fulfillment</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -20481,11 +20844,6 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>quantity</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>quantityAllocated</strong></td>
 <td valign="top"><a href="#int">Int</a>!</td>
 <td></td>
@@ -20510,6 +20868,15 @@ List of privately stored metadata namespaces.
 <td>
 
 List of publicly stored metadata namespaces.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>quantity</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td>
+
+Quantity of a product in the store's possession, including the allocated stock that is waiting for shipment.
 
 </td>
 </tr>
@@ -23084,6 +23451,24 @@ Shop's default country.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>defaultMailSenderName</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Default shop's email sender's name.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>defaultMailSenderAddress</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Default shop's email sender's address.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>description</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -23263,12 +23648,21 @@ Company address.
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>customerSetPasswordUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+URL of a view where customers can set their password.
+
+</td>
+</tr>
 </tbody>
 </table>
 
 ### ShopAddressUpdate
 
-Update shop address.
+Update the shop's address. If the `null` value is passed, the currently selected address will be deleted.
 
 <table>
 <thead>
@@ -25651,10 +26045,19 @@ Webhook event.
 <tbody>
 <tr>
 <td colspan="2" valign="top"><strong>eventType</strong></td>
+<td valign="top"><a href="#webhookeventtypeenum">WebhookEventTypeEnum</a></td>
+<td>
+
+Internal name of the event type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
-Name of the event type.
+Display name of the event.
 
 </td>
 </tr>
@@ -25728,6 +26131,26 @@ Weight unit.
 Weight value.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### _Service
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>sdl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -25901,7 +26324,7 @@ Postal code.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>country</strong></td>
-<td valign="top"><a href="#string">String</a></td>
+<td valign="top"><a href="#countrycode">CountryCode</a></td>
 <td>
 
 Country.
@@ -26355,15 +26778,6 @@ Name of a value displayed in the interface.
 <td>
 
 ID of the selected attribute.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>slug</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Slug of the selected attribute.
 
 </td>
 </tr>
@@ -29925,6 +30339,33 @@ Default number of days which digital content URL will be valid.
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>defaultMailSenderName</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Default email sender's name.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>defaultMailSenderAddress</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Default email sender's address.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>customerSetPasswordUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+URL of a view where customers can set their password.
+
+</td>
+</tr>
 </tbody>
 </table>
 
@@ -30054,7 +30495,7 @@ List of permission code names to assign to this user.
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
 
-Send an email with a link to set the password.
+DEPRECATED: Will be removed in Saleor 2.10, if mutation has `redirect_url` in input then staff get email with link to set a password. Send an email with a link to set the password.
 
 </td>
 </tr>
@@ -30312,7 +30753,7 @@ A note about the user.
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
 
-Send an email with a link to set a password.
+DEPRECATED: Will be removed in Saleor 2.10, if mutation has `redirect_url` in input then customer get email with link to set a password. Send an email with a link to set a password.
 
 </td>
 </tr>
@@ -30585,6 +31026,30 @@ Determine if webhook will be set active or not.
 The secret key used to create a hash signature with each payload.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### WebhookFilterInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>search</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isActive</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -33828,7 +34293,7 @@ An enumeration.
 </thead>
 <tbody>
 <tr>
-<td valign="top"><strong>ALL_EVENTS</strong></td>
+<td valign="top"><strong>ANY_EVENTS</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -33845,6 +34310,10 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>ORDER_CANCELLED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>ORDER_FULFILLED</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -33953,6 +34422,10 @@ in fields, resolvers and input.
 Variables of this type must be set to null in mutations. They will be replaced with a filename from a following multipart part containing a binary file. See: https://github.com/jaydenseric/graphql-multipart-request-spec.
 
 ### WeightScalar
+
+### _Any
+
+Anything
 
 
 ## Interfaces
