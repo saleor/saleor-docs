@@ -14,9 +14,9 @@ window.addEventListener(
       docMainWrapper[0].classList.add("home");
     }
 
-    const isNext = location.pathname.includes("/next/");
-    const headerMenu = document.querySelectorAll(".nav-site li");
-    if (!isNext) headerMenu[4].classList.add("next");
+    // const isNext = location.pathname.includes("/next/");
+    // const headerMenu = document.querySelectorAll(".nav-site li");
+    // if (!isNext) headerMenu[4].classList.add("next");
 
     const navItem = document.querySelectorAll(".navListItem");
     [].map.call(navItem, item => {
