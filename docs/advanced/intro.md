@@ -5,19 +5,19 @@ sidebar_label: Introduction
 ---
 
 [card-grid]
-[**Running Tests**](advanced/running-tests.md)
-[**Managing Dependencies**](advanced/managing-dependencies.md)
+[**Running Tests**](running-tests.md)
+[**Managing Dependencies**](managing-dependencies.md)
 [/card-grid]
 
 [card-grid]
-[**Extensions**](advanced/extensions.md)
-[**Debug Tools**](advanced/debug-tools.md)
+[**Extensions**](extensions.md)
+[**Debug Tools**](debug-tools.md)
 [/card-grid]
 
 
 [card-grid]
-[**Events**](advanced/events.md)
-[**Internationalization and Translation**](advanced/internationalization.md)
+[**Events**](events.md)
+[**Internationalization and Translation**](internationalization.md)
 [/card-grid]
 
 
