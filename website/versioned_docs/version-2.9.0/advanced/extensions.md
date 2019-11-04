@@ -58,65 +58,68 @@ PLUGINS = ["saleor.extensions.plugins.custom.CustomPlugin", ]
 Saleor allows you to change the configuration of any given plugin over API. The plugin owner needs to overwrite a method to create a structure of default configuration `_get_default_configuration` and `CONFIG_STRUCTURE`. The plugin configuration received from API can be validated by overwriting the `validate_plugin_configuration` method. It requires an expected structure as in the following example:
 
 ```python
-# custom/plugin.py
+# custom_tax/plugin.py
 
 from django.utils.translation import pgettext_lazy
 
 from saleor.extensions import ConfigurationTypeField
+from saleor.extensions.base_plugin import BasePlugin
 
-CONFIG_STRUCTURE = {
-    "Username or account": {
-        "type": ConfigurationTypeField.STRING,
-        "help_text": pgettext_lazy(
-            "Plugin help text", "Provide user or account details"
-        ),
-        "label": pgettext_lazy("Plugin label", "Username or account"),
-    },
-    "Password or license": {
-        "type": ConfigurationTypeField.STRING,
-        "help_text": pgettext_lazy(
-            "Plugin help text", "Provide password or license details"
-        ),
-        "label": pgettext_lazy("Plugin label", "Password or license"),
+class TaxApiPlugin(BasePlugin):
+    PLUGIN_NAME = "Tax API"
+    CONFIG_STRUCTURE = {
+        "Username or account": {
+            "type": ConfigurationTypeField.STRING,
+            "help_text": pgettext_lazy(
+                "Plugin help text", "Provide user or account details"
+            ),
+            "label": pgettext_lazy("Plugin label", "Username or account"),
+        },
+        "Password or license": {
+            "type": ConfigurationTypeField.STRING,
+            "help_text": pgettext_lazy(
+                "Plugin help text", "Provide password or license details"
+            ),
+            "label": pgettext_lazy("Plugin label", "Password or license"),
+        }
     }
-}
 
-@classmethod
-def validate_plugin_configuration(cls, plugin_configuration: "PluginConfiguration"):
-    """Validate if provided configuration is correct."""
-    missing_fields = []
-    configuration = plugin_configuration.configuration
-    configuration = {item["name"]: item["value"] for item in configuration}
-    if not configuration["Username or account"]:
-        missing_fields.append("Username or account")
-    if not configuration["Password or license"]:
-        missing_fields.append("Password or license")
+    @classmethod
+    def validate_plugin_configuration(cls, plugin_configuration: "PluginConfiguration"):
+        """Validate if provided configuration is correct."""
+        missing_fields = []
+        configuration = plugin_configuration.configuration
+        configuration = {item["name"]: item["value"] for item in configuration}
+        if not configuration["Username or account"]:
+            missing_fields.append("Username or account")
+        if not configuration["Password or license"]:
+            missing_fields.append("Password or license")
 
-    if plugin_configuration.active and missing_fields:
-        error_msg = (
-            "To enable a plugin, you need to provide values for the "
-            "following fields: "
-        )
-        raise ValidationError(error_msg + ", ".join(missing_fields))
+        if plugin_configuration.active and missing_fields:
+            error_msg = (
+                "To enable a plugin, you need to provide values for the "
+                "following fields: "
+            )
+            raise ValidationError(error_msg + ", ".join(missing_fields))
 
-@classmethod
-def _get_default_configuration(cls):
-    defaults = {
-        "name": cls.PLUGIN_NAME,
-        "description": "",
-        "active": False,
-        "configuration": [
-            {
-                "name": "Username or account",
-                "value": "",
-            },
-            {
-                "name": "Password or license",
-                "value": "",
-            },
-        ]
-    }
-    return defaults
+    @classmethod
+    def _get_default_configuration(cls):
+        defaults = {
+            "name": cls.PLUGIN_NAME,
+            "description": "",
+            "active": False,
+            "configuration": [
+                {
+                    "name": "Username or account",
+                    "value": "",
+                },
+                {
+                    "name": "Password or license",
+                    "value": "",
+                },
+            ]
+        }
+        return defaults
 ```
 
 `ExtensionManager` will use this data to create default configuration in DB which will be served by the API.
