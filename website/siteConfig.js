@@ -116,8 +116,8 @@ const siteConfig = {
   cleanUrl: true,
 
   // Open Graph and Twitter card images.
-  ogImage: "img/generic-share-card.png",
-  twitterImage: "img/generic-share-card.png",
+  ogImage: "img/og-image.png",
+  twitterImage: "img/og-image.png",
 
   // Google Analytics tracking ID to track page views.
   gaTrackingId: "UA-10159761-25"
