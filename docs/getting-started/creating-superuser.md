@@ -11,7 +11,6 @@ $ python manage.py createsuperuser
 
 Follow the subsequent prompts providing your email address and creating a password.
 
-Once you complete the setup, you can start your local server and go to `http://localhost:8000/dashboard/` to log into the management interface.
 
 > **Note**
 >
