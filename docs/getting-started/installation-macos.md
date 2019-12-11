@@ -58,7 +58,7 @@ $ brew install git
 Use Homebrew to install the graphical libraries necessary for PDF creation:
 
 ```console
-$ brew install cairo pango gdk-pixbuf libffi
+$ brew install cairo pango gdk-pixbuf libffi libmagic
 ```
 
 
