@@ -3,7 +3,7 @@ id: index
 title: 
 ---
 
-# Welcome to **Saleor Docs**
+# Welcome to **[Saleor](https://saleor.io) Docs**
 ###### You’ll find everything you need to start working with Saleor
 
 ## Saleor Dashboard Guide
