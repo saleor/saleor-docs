@@ -267,16 +267,22 @@ class Footer extends React.Component {
             </div>
             <div className="dosc-footer-links">
               <a
-                href="https://getsaleor.com/privacy-policy-terms-and-conditions"
+                href="https://saleor.io/terms-and-conditions/"
                 target="_blank"
               >
                 Terms of use
               </a>
               <a
-                href="https://getsaleor.com/privacy-policy-terms-and-conditions/"
+                href="https://saleor.io/terms-and-conditions/"
                 target="_blank"
               >
                 Privacy policy
+              </a>
+              <a
+                href="https://saleor.io"
+                target="_blank"
+              >
+                Saleor Commerce
               </a>
             </div>
           </div>

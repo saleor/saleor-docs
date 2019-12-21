@@ -9,11 +9,11 @@
 // site configuration options.
 
 const siteConfig = {
-  title: "Saleor Documentation", // Title for your website.
+  title: "Documentation – Saleor Commerce", // Title for your website.
   tagline:
     "A modular, high performance e-commerce storefront built with Python, GraphQL, Django, and ReactJS.",
   disableTitleTagline: false,
-  url: "https://your-docusaurus-test-site.com", // Your website URL
+  url: "https://saleor.io", // Your website URL
   baseUrl: "/", // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
   //   url: 'https://facebook.github.io',
@@ -85,7 +85,7 @@ const siteConfig = {
   editUrl: "https://github.com/mirumee/saleor-docs/edit/master/docs/",
 
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
-  copyright: `Copyright © ${new Date().getFullYear()} Your Name or Your Company Name`,
+  copyright: `Copyright © ${new Date().getFullYear()} Mirumee Software`,
 
   highlight: {
     // Highlight.js theme to use for syntax highlighting in code blocks.

@@ -6,7 +6,7 @@ original_id: using-saleor
 
 ## About the Dashboard
 
-The Saleor 2.0 dashboard is the administration panel behind your storefront. In a nutshell, it is for managing people, products, and processes:
+The [Saleor 2.0](https://saleor.io/blog/saleor-release-graphqlfirst-headless-ecommerce-102/) dashboard is the administration panel behind your storefront. In a nutshell, it is for managing people, products, and processes:
 
 - People: Assign and manage staff within your system
 - Products: Add, change, display, and delete digital and physical inventory

@@ -4,8 +4,8 @@ title: index
 original_id: index
 ---
 
-# Welcome to **Saleor Docs**
-###### You’ll find everything you need to start working with Saleor
+# Welcome to **[Saleor](https://saleor.io) Docs**
+###### You’ll find everything you need to start working with [Saleor](https://saleor.io)
 
 ## Saleor Dashboard Guide
 

@@ -5,7 +5,7 @@ title: Before you start
 
 ## What is Saleor?
 
-Saleor is an e-commerce platform for building online stores. Create great-looking client interfaces which have all the features that provide modern, rich shopping experiences. Make use of an administration dashboard that allows you to easily manage products, people, and functionalities. Saleor has solutions for small, midsize, and enterprise-level retailers and covers both physical and digital inventory.
+[Saleor](https://saleor.io) is an e-commerce platform for building online stores. Create great-looking client interfaces which have all the features that provide modern, rich shopping experiences. Make use of an administration dashboard that allows you to easily manage products, people, and functionalities. Saleor has solutions for small, midsize, and enterprise-level retailers and covers both physical and digital inventory.
 
 One major advantage of Saleor is that it is available as both a typical online store and as a PWA application. PWA means that your customers can download your store to any device and browse it offline or when they have no internet access. They can also make orders and payments just like when shopping online.
 
@@ -16,9 +16,9 @@ Saleor’s open source platform is free to use in its full version. It has clean
 
 Getting an iteration of Saleor is simple. Before you commit to the platform, we recommend that you try out our demo store to get a feel for the user experience.
 
-Try the traditional demo: https://demo.getsaleor.com
+Try the traditional demo: https://demo.saleor.io
 
-Experience the PWA version of the store: https://pwa.getsaleor.com/
+Experience the PWA version of the store: https://pwa.saleor.io
 
 Once you know that Saleor is a great solution for you, the easiest way to get a full open source version is to fork Saleor from our GitHub page 
 
@@ -31,4 +31,4 @@ Finally, if you are interested in a custom version of Saleor, you can contact us
 
 ## Using this guide
 
-This guide will help you get the most from the Saleor platform as an administrator or store owner. It shows you all the features of the dashboard and the best ways to use the platform. We recommend that you read through this guide to familiarize yourself with all the features while playing with your own Saleor dashboard. You can also use our demo store; it has all the functionalities of a working version but will not allow you to save changes: https://demo.getsaleor.com
+This guide will help you get the most from the Saleor platform as an administrator or store owner. It shows you all the features of the dashboard and the best ways to use the platform. We recommend that you read through this guide to familiarize yourself with all the features while playing with your own Saleor dashboard. You can also use our demo store; it has all the functionalities of a working version but will not allow you to save changes: https://demo.saleor.io
