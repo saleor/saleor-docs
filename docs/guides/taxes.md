@@ -74,4 +74,4 @@ Avalara requires a company address to properly calculate taxes. Your company’s
 
 Avalara has its own system for classifying the product types and expected taxes. On Saleor’s side, the store owner must assign Avalara’s tax code to the given product types or to the product itself. If you skip this step, Saleor will use the common code for all products (which is not recommended). Assigning a tax code can be done from the dashboard in the product type or the product section. Both of these sections have a field for assigning a tax code for an enabled tax gateway.
 
-For more information on tax variables, see the [Environment Variables](customization/environment-variables) topic.
+For more information on tax variables, see the [Environment Variables](../../customization/environment-variables) topic.
