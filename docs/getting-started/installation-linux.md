@@ -87,6 +87,11 @@ We strongly recommend [creating a virtual environment](https://docs.python.org/3
 $ pip install -r requirements.txt
 ```
 
+> **Warning**
+>
+> If you are getting errors related to missing hashes, please update your Python and Pip to a more recent version (3.8+ recommended).
+>
+
 
 ### 4. Set `SECRET_KEY` environment variable
 
@@ -132,6 +137,8 @@ $ python manage.py migrate
 > **Warning**
 >
 > This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
+>
+> Also, if you get errors about incomplete Django models, please update your Python installation to a more recent version (3.8+ recommended).
 
 
 ### 8. Install front-end dependencies
@@ -149,6 +156,11 @@ $ npm install
 ```console
 $ npm run build-assets
 ```
+
+> **Warning**
+>
+> Since version 2.9, it may be not working anymore because [Dashboard](https://github.com/mirumee/saleor-dashboard) and [Storefront](https://github.com/mirumee/saleor-storefront) are available through separate repositories : 
+>
 
 
 ### 10. Compile e-mails
