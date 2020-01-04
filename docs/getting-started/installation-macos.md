@@ -145,10 +145,10 @@ $ npm install
 > If this step fails, make sure you are using a recent version of Node.js.
 
 
-### 9. Prepare front-end assets
+### 9. Prepare graphql schema
 
 ```console
-$ npm run build-assets
+$ npm run build-schema
 ```
 
 
