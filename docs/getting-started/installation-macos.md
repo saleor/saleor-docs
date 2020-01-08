@@ -144,22 +144,14 @@ $ npm install
 >
 > If this step fails, make sure you are using a recent version of Node.js.
 
-
-### 9. Prepare front-end assets
-
-```console
-$ npm run build-assets
-```
-
-
-### 10. Compile e-mails
+### 9. Compile e-mails
 
 ```console
 $ npm run build-emails
 ```
 
 
-### 11. Start the development server
+### 10. Start the development server
 
 ```console
 $ python manage.py runserver
