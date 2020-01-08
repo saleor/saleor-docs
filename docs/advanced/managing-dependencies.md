@@ -24,5 +24,6 @@ If you are not using Poetry, we also provide `requirements.txt` and `requirement
 
 >**Note**
 >
->These files should be updated by `poetry export -f requirements.txt -o requirements.txt` and `poetry export -f requirements.txt -o requirements_dev.txt --dev`, if any dependencies are changed in `pyproject.toml`.
-
+>These files should be updated by `poetry export --without-hashes -f requirements.txt -o requirements.txt` 
+and `poetry export --without-hashes -f requirements.txt -o requirements_dev.txt --dev`, 
+if any dependencies are changed in `pyproject.toml`.
