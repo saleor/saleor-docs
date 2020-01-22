@@ -15,7 +15,7 @@ Before you are ready to run Saleor, you will need additional software installed 
 
 ### Python 3
 
-Saleor requires Python version 3.6 or later. A compatible version comes pre-installed with most current Linux systems. If not, consult your Linux distributor for instructions on how to install Python 3.6 or 3.7.
+Saleor requires Python 3.8 or later. Go to the [Python download page](https://www.python.org/downloads/) for the installer and installation guide for your operating system. You can also use [pyenv](https://github.com/pyenv/pyenv) to install and manage Python versions.
 
 
 ### Node.js
