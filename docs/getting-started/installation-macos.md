@@ -9,16 +9,6 @@ title: Installation for macOS
 Before you are ready to run Saleor, you will need additional software installed on your computer.
 
 
-### Node.js
-
-Version 10 or later is required. Download the macOS installer from the [Node.js downloads page](https://nodejs.org/en/download/).
-
-
-### PostgreSQL
-
-Saleor needs PostgreSQL version 9.4 or above to work. Get the macOS installer from the [PostgreSQL download page](https://www.postgresql.org/download/macosx/).
-
-
 ### Command line tools for Xcode
 
 Download and install the latest version of “Command Line Tools (macOS 10.x) for Xcode 9.x” from the [Downloads for Apple Developers page](https://developer.apple.com/download/more/).
@@ -35,13 +25,19 @@ Run the following command:
 ```console
 $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
+
 ### Python 3
 
-Use Homebrew to install the latest version of Python 3:
+Saleor requires Python 3.8 or later. Go to the [Python download page](https://www.python.org/downloads/) for the installer and installation guide for your operating system. You can also use [pyenv](https://github.com/pyenv/pyenv) to install and manage Python versions.
 
-```console
-$ brew install python3
-```
+### Node.js
+
+Version 10 or later is required. Download the macOS installer from the [Node.js downloads page](https://nodejs.org/en/download/).
+
+
+### PostgreSQL
+
+Saleor needs PostgreSQL version 9.4 or above to work. Get the macOS installer from the [PostgreSQL download page](https://www.postgresql.org/download/macosx/).
 
 
 ### Git

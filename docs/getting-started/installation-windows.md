@@ -13,9 +13,9 @@ Before you are ready to run Saleor, you will need additional software installed 
 
 ### Python
 
-Download the latest 3.7 Windows installer from the [Python download page](https://www.python.org/downloads/) and follow the installation steps.
+Saleor requires Python 3.8 or later. Go to the [Python download page](https://www.python.org/downloads/) for the installer and installation guide for your operating system. You can also use [pyenv](https://github.com/pyenv/pyenv) to install and manage Python versions.
 
-Make sure that “**Add Python 3.7 to PATH**” is selected.
+Make sure that “**Add Python 3.8 to PATH**” is selected.
 
 
 ### Node.js
