@@ -23,10 +23,10 @@ Source emails use [MJML](https://mjml.io/) and must be compiled to HTML before u
 
 ### Before you start
 
-To compile the emails you need to have node.js installed.
+To compile the emails you need to have Node.js installed.
 Version 10 or later is required. See the [installation instructions](https://nodejs.org/en/download/package-manager/).
 
-You also need to install frontend dependencies first, run:
+You also need to install frontend dependencies first. To do that run:
 
 ```console
 $ npm install
