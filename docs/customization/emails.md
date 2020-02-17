@@ -21,7 +21,18 @@ Emails defined in `*.email` files include their HTML versions by referencing the
 
 Source emails use [MJML](https://mjml.io/) and must be compiled to HTML before use.
 
-To compile emails, run:
+### Before you start
+
+To compile the emails you need to have node.js installed.
+Version 10 or later is required. See the [installation instructions](https://nodejs.org/en/download/package-manager/).
+
+You also need to install frontend dependencies first, run:
+
+```console
+$ npm install
+```
+
+To compile the emails run:
 
 ```console
 $ npm run build-emails

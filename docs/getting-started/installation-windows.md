@@ -18,13 +18,6 @@ Saleor requires Python 3.8 or later. Go to the [Python download page](https://ww
 Make sure that “**Add Python 3.8 to PATH**” is selected.
 
 
-### Node.js
-
-Saleor requires version 10 or later. Download the Windows installer from [Node.js downloads page](https://nodejs.org/en/download/).
-
-Make sure that “**Add to PATH**” is selected.
-
-
 ### PostgreSQL
 
 Saleor needs PostgreSQL version 9.4 or above to work. Get the Windows installer from the [project’s download page](https://www.postgresql.org/download/windows/).
@@ -90,7 +83,7 @@ $env:SECRET_KEY = "<mysecretkey>"
 ```
 
 > **Warning**
-> 
+>
 > The secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections. It can also lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
 
 
@@ -122,25 +115,7 @@ python manage.py migrate
 > This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
 
 
-### 8. Install front-end dependencies
-
-```console
-npm install
-```
-
-> **Note**
-> 
-> If this step fails, make sure you are using a recent version of Node.js.
-
-
-### 9. Compile e-mails
-
-```console
-npm run build-emails
-```
-
-
-### 10. Start the development server:
+### 8. Start the development server:
 
 ```console
 python manage.py runserver
