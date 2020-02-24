@@ -4,11 +4,11 @@ title: Installation for Linux
 ---
 
 > **Note**
-> 
+>
 > If you prefer using containers or have problems with configuring PostgreSQL, Redis, and Elasticsearch, see our [Using Docker](getting-started/docker.md) instructions.
 
 
-## Prerequisites 
+## Prerequisites
 
 Before you are ready to run Saleor, you will need additional software installed on your computer.
 
@@ -16,11 +16,6 @@ Before you are ready to run Saleor, you will need additional software installed 
 ### Python 3
 
 Saleor requires Python 3.8 or later. Go to the [Python download page](https://www.python.org/downloads/) for the installer and installation guide for your operating system. You can also use [pyenv](https://github.com/pyenv/pyenv) to install and manage Python versions.
-
-
-### Node.js
-
-Version 10 or later is required. See the [installation instructions](https://nodejs.org/en/download/package-manager/).
 
 
 ### PostgreSQL
@@ -134,25 +129,7 @@ $ python manage.py migrate
 > This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
 
 
-### 8. Install front-end dependencies
-
-```console
-$ npm install
-```
-
-> **Note**
->
-> If this step fails, make sure you are using a recent version of Node.js.
-
-
-### 9. Compile e-mails
-
-```console
-$ npm run build-emails
-```
-
-
-### 10. Start the development server
+### 8. Start the development server
 
 ```console
 $ python manage.py runserver
