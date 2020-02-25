@@ -53,7 +53,7 @@ const siteConfig = {
       doc: "dashboard/before-you-start",
       label: "Saleor Dashboard Guide"
     },
-    { href: "/docs/next/api/intro", label: "GraphQL API" },
+    { doc: "api/intro", label: "GraphQL API" },
     {
       doc: "getting-started/intro",
       label: "Running your Saleor Server"
@@ -81,7 +81,7 @@ const siteConfig = {
       "Segoe UI Symbol"
     ]
   },
-  
+
   editUrl: "https://github.com/mirumee/saleor-docs/edit/master/docs/",
 
   // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
@@ -109,7 +109,7 @@ const siteConfig = {
     "/js/code-block-copy-button.js",
     "/js/script.js"
   ],
-  
+
   // On page navigation for the current documentation page.
   onPageNav: "separate",
   // No .html extensions for paths.
