@@ -40,6 +40,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AttributeCreate](#attributecreate)
     * [AttributeDelete](#attributedelete)
     * [AttributeReorderValues](#attributereordervalues)
+    * [AttributeTranslatableContent](#attributetranslatablecontent)
     * [AttributeTranslate](#attributetranslate)
     * [AttributeTranslation](#attributetranslation)
     * [AttributeUnassign](#attributeunassign)
@@ -50,6 +51,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AttributeValueBulkDelete](#attributevaluebulkdelete)
     * [AttributeValueCreate](#attributevaluecreate)
     * [AttributeValueDelete](#attributevaluedelete)
+    * [AttributeValueTranslatableContent](#attributevaluetranslatablecontent)
     * [AttributeValueTranslate](#attributevaluetranslate)
     * [AttributeValueTranslation](#attributevaluetranslation)
     * [AttributeValueUpdate](#attributevalueupdate)
@@ -65,6 +67,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [CategoryCountableEdge](#categorycountableedge)
     * [CategoryCreate](#categorycreate)
     * [CategoryDelete](#categorydelete)
+    * [CategoryTranslatableContent](#categorytranslatablecontent)
     * [CategoryTranslate](#categorytranslate)
     * [CategoryTranslation](#categorytranslation)
     * [CategoryUpdate](#categoryupdate)
@@ -95,7 +98,6 @@ This document describes all queries, mutations, and types available in the Saleo
     * [CheckoutShippingMethodUpdate](#checkoutshippingmethodupdate)
     * [CheckoutUpdateMeta](#checkoutupdatemeta)
     * [CheckoutUpdatePrivateMeta](#checkoutupdateprivatemeta)
-    * [CheckoutUpdateVoucher](#checkoutupdatevoucher)
     * [ChoiceValue](#choicevalue)
     * [Collection](#collection)
     * [CollectionAddProducts](#collectionaddproducts)
@@ -109,24 +111,25 @@ This document describes all queries, mutations, and types available in the Saleo
     * [CollectionDelete](#collectiondelete)
     * [CollectionRemoveProducts](#collectionremoveproducts)
     * [CollectionReorderProducts](#collectionreorderproducts)
+    * [CollectionTranslatableContent](#collectiontranslatablecontent)
     * [CollectionTranslate](#collectiontranslate)
     * [CollectionTranslation](#collectiontranslation)
     * [CollectionUpdate](#collectionupdate)
     * [CollectionUpdateMeta](#collectionupdatemeta)
     * [CollectionUpdatePrivateMeta](#collectionupdateprivatemeta)
     * [ConfigurationItem](#configurationitem)
+    * [ConfirmAccount](#confirmaccount)
+    * [ConfirmEmailChange](#confirmemailchange)
     * [CountryDisplay](#countrydisplay)
     * [CreateToken](#createtoken)
     * [CreditCard](#creditcard)
-    * [CustomerAddressCreate](#customeraddresscreate)
     * [CustomerBulkDelete](#customerbulkdelete)
     * [CustomerCreate](#customercreate)
     * [CustomerDelete](#customerdelete)
     * [CustomerEvent](#customerevent)
-    * [CustomerPasswordReset](#customerpasswordreset)
-    * [CustomerRegister](#customerregister)
-    * [CustomerSetDefaultAddress](#customersetdefaultaddress)
     * [CustomerUpdate](#customerupdate)
+    * [DeleteMetadata](#deletemetadata)
+    * [DeletePrivateMetadata](#deleteprivatemetadata)
     * [DigitalContent](#digitalcontent)
     * [DigitalContentCountableConnection](#digitalcontentcountableconnection)
     * [DigitalContentCountableEdge](#digitalcontentcountableedge)
@@ -166,10 +169,12 @@ This document describes all queries, mutations, and types available in the Saleo
     * [GiftCardDeactivate](#giftcarddeactivate)
     * [GiftCardError](#giftcarderror)
     * [GiftCardUpdate](#giftcardupdate)
+    * [Group](#group)
+    * [GroupCountableConnection](#groupcountableconnection)
+    * [GroupCountableEdge](#groupcountableedge)
     * [HomepageCollectionUpdate](#homepagecollectionupdate)
     * [Image](#image)
     * [LanguageDisplay](#languagedisplay)
-    * [LoggedUserUpdate](#loggeduserupdate)
     * [Margin](#margin)
     * [Menu](#menu)
     * [MenuBulkDelete](#menubulkdelete)
@@ -185,6 +190,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [MenuItemCreate](#menuitemcreate)
     * [MenuItemDelete](#menuitemdelete)
     * [MenuItemMove](#menuitemmove)
+    * [MenuItemTranslatableContent](#menuitemtranslatablecontent)
     * [MenuItemTranslate](#menuitemtranslate)
     * [MenuItemTranslation](#menuitemtranslation)
     * [MenuItemUpdate](#menuitemupdate)
@@ -192,6 +198,8 @@ This document describes all queries, mutations, and types available in the Saleo
     * [MetaClientStore](#metaclientstore)
     * [MetaItem](#metaitem)
     * [MetaStore](#metastore)
+    * [MetadataError](#metadataerror)
+    * [MetadataItem](#metadataitem)
     * [Money](#money)
     * [MoneyRange](#moneyrange)
     * [Navigation](#navigation)
@@ -224,12 +232,13 @@ This document describes all queries, mutations, and types available in the Saleo
     * [PageCountableEdge](#pagecountableedge)
     * [PageCreate](#pagecreate)
     * [PageDelete](#pagedelete)
+    * [PageError](#pageerror)
     * [PageInfo](#pageinfo)
+    * [PageTranslatableContent](#pagetranslatablecontent)
     * [PageTranslate](#pagetranslate)
     * [PageTranslation](#pagetranslation)
     * [PageUpdate](#pageupdate)
     * [PasswordChange](#passwordchange)
-    * [PasswordReset](#passwordreset)
     * [Payment](#payment)
     * [PaymentCapture](#paymentcapture)
     * [PaymentCountableConnection](#paymentcountableconnection)
@@ -241,6 +250,11 @@ This document describes all queries, mutations, and types available in the Saleo
     * [PaymentSource](#paymentsource)
     * [PaymentVoid](#paymentvoid)
     * [PermissionDisplay](#permissiondisplay)
+    * [PermissionGroupAssignUsers](#permissiongroupassignusers)
+    * [PermissionGroupCreate](#permissiongroupcreate)
+    * [PermissionGroupDelete](#permissiongroupdelete)
+    * [PermissionGroupUnassignUsers](#permissiongroupunassignusers)
+    * [PermissionGroupUpdate](#permissiongroupupdate)
     * [Plugin](#plugin)
     * [PluginCountableConnection](#plugincountableconnection)
     * [PluginCountableEdge](#plugincountableedge)
@@ -262,6 +276,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [ProductImageReorder](#productimagereorder)
     * [ProductImageUpdate](#productimageupdate)
     * [ProductPricingInfo](#productpricinginfo)
+    * [ProductTranslatableContent](#producttranslatablecontent)
     * [ProductTranslate](#producttranslate)
     * [ProductTranslation](#producttranslation)
     * [ProductType](#producttype)
@@ -288,6 +303,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [ProductVariantCountableEdge](#productvariantcountableedge)
     * [ProductVariantCreate](#productvariantcreate)
     * [ProductVariantDelete](#productvariantdelete)
+    * [ProductVariantTranslatableContent](#productvarianttranslatablecontent)
     * [ProductVariantTranslate](#productvarianttranslate)
     * [ProductVariantTranslation](#productvarianttranslation)
     * [ProductVariantUpdate](#productvariantupdate)
@@ -295,6 +311,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [ProductVariantUpdatePrivateMeta](#productvariantupdateprivatemeta)
     * [ReducedRate](#reducedrate)
     * [Refresh](#refresh)
+    * [RequestEmailChange](#requestemailchange)
     * [RequestPasswordReset](#requestpasswordreset)
     * [Sale](#sale)
     * [SaleAddCatalogues](#saleaddcatalogues)
@@ -304,6 +321,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [SaleCreate](#salecreate)
     * [SaleDelete](#saledelete)
     * [SaleRemoveCatalogues](#saleremovecatalogues)
+    * [SaleTranslatableContent](#saletranslatablecontent)
     * [SaleTranslate](#saletranslate)
     * [SaleTranslation](#saletranslation)
     * [SaleUpdate](#saleupdate)
@@ -322,6 +340,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [SetPassword](#setpassword)
     * [ShippingError](#shippingerror)
     * [ShippingMethod](#shippingmethod)
+    * [ShippingMethodTranslatableContent](#shippingmethodtranslatablecontent)
     * [ShippingMethodTranslation](#shippingmethodtranslation)
     * [ShippingPriceBulkDelete](#shippingpricebulkdelete)
     * [ShippingPriceCreate](#shippingpricecreate)
@@ -346,13 +365,27 @@ This document describes all queries, mutations, and types available in the Saleo
     * [StaffBulkDelete](#staffbulkdelete)
     * [StaffCreate](#staffcreate)
     * [StaffDelete](#staffdelete)
+    * [StaffNotificationRecipient](#staffnotificationrecipient)
+    * [StaffNotificationRecipientCreate](#staffnotificationrecipientcreate)
+    * [StaffNotificationRecipientDelete](#staffnotificationrecipientdelete)
+    * [StaffNotificationRecipientUpdate](#staffnotificationrecipientupdate)
     * [StaffUpdate](#staffupdate)
+    * [Stock](#stock)
+    * [StockBulkDelete](#stockbulkdelete)
+    * [StockCountableConnection](#stockcountableconnection)
+    * [StockCountableEdge](#stockcountableedge)
+    * [StockCreate](#stockcreate)
+    * [StockDelete](#stockdelete)
+    * [StockError](#stockerror)
+    * [StockUpdate](#stockupdate)
     * [TaxType](#taxtype)
     * [TaxedMoney](#taxedmoney)
     * [TaxedMoneyRange](#taxedmoneyrange)
     * [Transaction](#transaction)
     * [TranslatableItemConnection](#translatableitemconnection)
     * [TranslatableItemEdge](#translatableitemedge)
+    * [UpdateMetadata](#updatemetadata)
+    * [UpdatePrivateMetadata](#updateprivatemetadata)
     * [User](#user)
     * [UserAvatarDelete](#useravatardelete)
     * [UserAvatarUpdate](#useravatarupdate)
@@ -376,9 +409,19 @@ This document describes all queries, mutations, and types available in the Saleo
     * [VoucherCreate](#vouchercreate)
     * [VoucherDelete](#voucherdelete)
     * [VoucherRemoveCatalogues](#voucherremovecatalogues)
+    * [VoucherTranslatableContent](#vouchertranslatablecontent)
     * [VoucherTranslate](#vouchertranslate)
     * [VoucherTranslation](#vouchertranslation)
     * [VoucherUpdate](#voucherupdate)
+    * [Warehouse](#warehouse)
+    * [WarehouseCountableConnection](#warehousecountableconnection)
+    * [WarehouseCountableEdge](#warehousecountableedge)
+    * [WarehouseCreate](#warehousecreate)
+    * [WarehouseDelete](#warehousedelete)
+    * [WarehouseError](#warehouseerror)
+    * [WarehouseShippingZoneAssign](#warehouseshippingzoneassign)
+    * [WarehouseShippingZoneUnassign](#warehouseshippingzoneunassign)
+    * [WarehouseUpdate](#warehouseupdate)
     * [Webhook](#webhook)
     * [WebhookCountableConnection](#webhookcountableconnection)
     * [WebhookCountableEdge](#webhookcountableedge)
@@ -388,6 +431,15 @@ This document describes all queries, mutations, and types available in the Saleo
     * [WebhookEvent](#webhookevent)
     * [WebhookUpdate](#webhookupdate)
     * [Weight](#weight)
+    * [Wishlist](#wishlist)
+    * [WishlistAddProductMutation](#wishlistaddproductmutation)
+    * [WishlistAddProductVariantMutation](#wishlistaddproductvariantmutation)
+    * [WishlistError](#wishlisterror)
+    * [WishlistItem](#wishlistitem)
+    * [WishlistItemCountableConnection](#wishlistitemcountableconnection)
+    * [WishlistItemCountableEdge](#wishlistitemcountableedge)
+    * [WishlistRemoveProductMutation](#wishlistremoveproductmutation)
+    * [WishlistRemoveProductVariantMutation](#wishlistremoveproductvariantmutation)
     * [_Service](#_service)
   * [Inputs](#inputs)
     * [AccountInput](#accountinput)
@@ -405,16 +457,16 @@ This document describes all queries, mutations, and types available in the Saleo
     * [CatalogueInput](#catalogueinput)
     * [CategoryFilterInput](#categoryfilterinput)
     * [CategoryInput](#categoryinput)
+    * [CategorySortingInput](#categorysortinginput)
     * [CheckoutCreateInput](#checkoutcreateinput)
     * [CheckoutLineInput](#checkoutlineinput)
     * [CollectionCreateInput](#collectioncreateinput)
     * [CollectionFilterInput](#collectionfilterinput)
     * [CollectionInput](#collectioninput)
+    * [CollectionSortingInput](#collectionsortinginput)
     * [ConfigurationItemInput](#configurationiteminput)
     * [CustomerFilterInput](#customerfilterinput)
     * [CustomerInput](#customerinput)
-    * [CustomerPasswordResetInput](#customerpasswordresetinput)
-    * [CustomerRegisterInput](#customerregisterinput)
     * [DateRangeInput](#daterangeinput)
     * [DateTimeRangeInput](#datetimerangeinput)
     * [DigitalContentInput](#digitalcontentinput)
@@ -436,8 +488,11 @@ This document describes all queries, mutations, and types available in the Saleo
     * [MenuItemFilterInput](#menuitemfilterinput)
     * [MenuItemInput](#menuiteminput)
     * [MenuItemMoveInput](#menuitemmoveinput)
+    * [MenuItemSortingInput](#menuitemsortinginput)
+    * [MenuSortingInput](#menusortinginput)
     * [MetaInput](#metainput)
     * [MetaPath](#metapath)
+    * [MetadataInput](#metadatainput)
     * [MoveProductInput](#moveproductinput)
     * [NameTranslationInput](#nametranslationinput)
     * [OrderAddNoteInput](#orderaddnoteinput)
@@ -445,13 +500,20 @@ This document describes all queries, mutations, and types available in the Saleo
     * [OrderFilterInput](#orderfilterinput)
     * [OrderLineCreateInput](#orderlinecreateinput)
     * [OrderLineInput](#orderlineinput)
+    * [OrderSortingInput](#ordersortinginput)
     * [OrderUpdateInput](#orderupdateinput)
     * [OrderUpdateShippingInput](#orderupdateshippinginput)
     * [PageFilterInput](#pagefilterinput)
     * [PageInput](#pageinput)
+    * [PageSortingInput](#pagesortinginput)
     * [PageTranslationInput](#pagetranslationinput)
     * [PaymentInput](#paymentinput)
+    * [PermissionGroupCreateInput](#permissiongroupcreateinput)
+    * [PermissionGroupFilterInput](#permissiongroupfilterinput)
+    * [PermissionGroupInput](#permissiongroupinput)
+    * [PermissionGroupSortingInput](#permissiongroupsortinginput)
     * [PluginFilterInput](#pluginfilterinput)
+    * [PluginSortingInput](#pluginsortinginput)
     * [PluginUpdateInput](#pluginupdateinput)
     * [PriceRangeInput](#pricerangeinput)
     * [ProductCreateInput](#productcreateinput)
@@ -462,15 +524,18 @@ This document describes all queries, mutations, and types available in the Saleo
     * [ProductOrder](#productorder)
     * [ProductTypeFilterInput](#producttypefilterinput)
     * [ProductTypeInput](#producttypeinput)
+    * [ProductTypeSortingInput](#producttypesortinginput)
     * [ProductVariantBulkCreateInput](#productvariantbulkcreateinput)
     * [ProductVariantCreateInput](#productvariantcreateinput)
     * [ProductVariantInput](#productvariantinput)
     * [ReorderInput](#reorderinput)
     * [SaleFilterInput](#salefilterinput)
     * [SaleInput](#saleinput)
+    * [SaleSortingInput](#salesortinginput)
     * [SeoInput](#seoinput)
     * [ServiceAccountFilterInput](#serviceaccountfilterinput)
     * [ServiceAccountInput](#serviceaccountinput)
+    * [ServiceAccountSortingInput](#serviceaccountsortinginput)
     * [ServiceAccountTokenInput](#serviceaccounttokeninput)
     * [ShippingPriceInput](#shippingpriceinput)
     * [ShippingZoneInput](#shippingzoneinput)
@@ -479,14 +544,24 @@ This document describes all queries, mutations, and types available in the Saleo
     * [SiteDomainInput](#sitedomaininput)
     * [StaffCreateInput](#staffcreateinput)
     * [StaffInput](#staffinput)
+    * [StaffNotificationRecipientInput](#staffnotificationrecipientinput)
     * [StaffUserInput](#staffuserinput)
+    * [StockFilterInput](#stockfilterinput)
+    * [StockInput](#stockinput)
     * [TranslationInput](#translationinput)
-    * [UserAddressInput](#useraddressinput)
     * [UserCreateInput](#usercreateinput)
+    * [UserSortingInput](#usersortinginput)
     * [VoucherFilterInput](#voucherfilterinput)
     * [VoucherInput](#voucherinput)
+    * [VoucherSortingInput](#vouchersortinginput)
+    * [WarehouseAddressInput](#warehouseaddressinput)
+    * [WarehouseCreateInput](#warehousecreateinput)
+    * [WarehouseFilterInput](#warehousefilterinput)
+    * [WarehouseSortingInput](#warehousesortinginput)
+    * [WarehouseUpdateInput](#warehouseupdateinput)
     * [WebhookCreateInput](#webhookcreateinput)
     * [WebhookFilterInput](#webhookfilterinput)
+    * [WebhookSortingInput](#webhooksortinginput)
     * [WebhookUpdateInput](#webhookupdateinput)
   * [Enums](#enums)
     * [AccountErrorCode](#accounterrorcode)
@@ -496,8 +571,10 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AttributeTypeEnum](#attributetypeenum)
     * [AttributeValueType](#attributevaluetype)
     * [AuthorizationKeyType](#authorizationkeytype)
+    * [CategorySortField](#categorysortfield)
     * [CheckoutErrorCode](#checkouterrorcode)
     * [CollectionPublished](#collectionpublished)
+    * [CollectionSortField](#collectionsortfield)
     * [ConfigurationTypeFieldEnum](#configurationtypefieldenum)
     * [CountryCode](#countrycode)
     * [CustomerEventsEnum](#customereventsenum)
@@ -508,39 +585,56 @@ This document describes all queries, mutations, and types available in the Saleo
     * [GiftCardErrorCode](#giftcarderrorcode)
     * [LanguageCodeEnum](#languagecodeenum)
     * [MenuErrorCode](#menuerrorcode)
+    * [MenuItemsSortField](#menuitemssortfield)
+    * [MenuSortField](#menusortfield)
+    * [MetadataErrorCode](#metadataerrorcode)
     * [NavigationType](#navigationtype)
     * [OrderAction](#orderaction)
     * [OrderDirection](#orderdirection)
     * [OrderErrorCode](#ordererrorcode)
     * [OrderEventsEmailsEnum](#ordereventsemailsenum)
     * [OrderEventsEnum](#ordereventsenum)
+    * [OrderSortField](#ordersortfield)
     * [OrderStatus](#orderstatus)
     * [OrderStatusFilter](#orderstatusfilter)
+    * [PageErrorCode](#pageerrorcode)
+    * [PageSortField](#pagesortfield)
     * [PaymentChargeStatusEnum](#paymentchargestatusenum)
     * [PaymentErrorCode](#paymenterrorcode)
     * [PermissionEnum](#permissionenum)
+    * [PermissionGroupSortField](#permissiongroupsortfield)
+    * [PluginSortField](#pluginsortfield)
     * [ProductErrorCode](#producterrorcode)
     * [ProductOrderField](#productorderfield)
     * [ProductTypeConfigurable](#producttypeconfigurable)
     * [ProductTypeEnum](#producttypeenum)
+    * [ProductTypeSortField](#producttypesortfield)
     * [ReportingPeriod](#reportingperiod)
+    * [SaleSortField](#salesortfield)
     * [SaleType](#saletype)
+    * [ServiceAccountSortField](#serviceaccountsortfield)
     * [ShippingErrorCode](#shippingerrorcode)
     * [ShippingMethodTypeEnum](#shippingmethodtypeenum)
     * [ShopErrorCode](#shoperrorcode)
     * [StaffMemberStatus](#staffmemberstatus)
     * [StockAvailability](#stockavailability)
+    * [StockErorrCode](#stockerorrcode)
     * [TaxRateType](#taxratetype)
     * [TransactionError](#transactionerror)
     * [TransactionKind](#transactionkind)
     * [TranslatableKinds](#translatablekinds)
+    * [UserSortField](#usersortfield)
     * [VoucherDiscountType](#voucherdiscounttype)
+    * [VoucherSortField](#vouchersortfield)
     * [VoucherTypeEnum](#vouchertypeenum)
+    * [WarehouseErrorCode](#warehouseerrorcode)
+    * [WarehouseSortField](#warehousesortfield)
     * [WebhookErrorCode](#webhookerrorcode)
     * [WebhookEventTypeEnum](#webhookeventtypeenum)
+    * [WebhookSortField](#webhooksortfield)
     * [WeightUnitsEnum](#weightunitsenum)
+    * [WishlistErrorCode](#wishlisterrorcode)
   * [Scalars](#scalars)
-    * [AttributeScalar](#attributescalar)
     * [Boolean](#boolean)
     * [Date](#date)
     * [DateTime](#datetime)
@@ -557,6 +651,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [_Any](#_any)
   * [Interfaces](#interfaces)
     * [Node](#node)
+    * [ObjectWithMetadata](#objectwithmetadata)
 
 </details>
 
@@ -595,6 +690,15 @@ ID of the webhook.
 <td>
 
 List of webhooks.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#webhooksortinginput">WebhookSortingInput</a></td>
+<td>
+
+Sort webhooks.
 
 </td>
 </tr>
@@ -671,6 +775,79 @@ Name of the requested event type.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>warehouse</strong></td>
+<td valign="top"><a href="#warehouse">Warehouse</a></td>
+<td>
+
+Look up a warehouse by ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an warehouse
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouses</strong></td>
+<td valign="top"><a href="#warehousecountableconnection">WarehouseCountableConnection</a></td>
+<td>
+
+List of warehouses.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">filter</td>
+<td valign="top"><a href="#warehousefilterinput">WarehouseFilterInput</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#warehousesortinginput">WarehouseSortingInput</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come before the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come after the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the first n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the last n elements from the list.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>translations</strong></td>
 <td valign="top"><a href="#translatableitemconnection">TranslatableItemConnection</a></td>
 <td>
@@ -687,6 +864,97 @@ Returns a list of all translatable items of a given kind.
 Kind of objects to retrieve.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come before the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come after the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the first n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the last n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#translatableitem">TranslatableItem</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the object to retrieve.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">kind</td>
+<td valign="top"><a href="#translatablekinds">TranslatableKinds</a>!</td>
+<td>
+
+Kind of the object to retrieve.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>stock</strong></td>
+<td valign="top"><a href="#stock">Stock</a></td>
+<td>
+
+Look up a stock by ID
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an warehouse
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>stocks</strong></td>
+<td valign="top"><a href="#stockcountableconnection">StockCountableConnection</a></td>
+<td>
+
+List of stocks.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">filter</td>
+<td valign="top"><a href="#stockfilterinput">StockFilterInput</a></td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">before</td>
@@ -869,35 +1137,6 @@ List of the shop's attributes.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`name`, `slug`
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">inCategory</td>
-<td valign="top"><a href="#id">ID</a></td>
-<td>
-
-Return attributes for products belonging to the given category. DEPRECATED: Will be removed in Saleor 2.10, use the `filter` field instead.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">inCollection</td>
-<td valign="top"><a href="#id">ID</a></td>
-<td>
-
-Return attributes for products belonging to the given collection. DEPRECATED: Will be removed in Saleor 2.10, use the `filter` field instead.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" align="right" valign="top">filter</td>
 <td valign="top"><a href="#attributefilterinput">AttributeFilterInput</a></td>
 <td>
@@ -979,22 +1218,20 @@ List of the shop's categories.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`name`, `slug`, `description`, `parent__name`
-
-</td>
-</tr>
-<tr>
 <td colspan="2" align="right" valign="top">filter</td>
 <td valign="top"><a href="#categoryfilterinput">CategoryFilterInput</a></td>
 <td>
 
 Filtering options for categories.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#categorysortinginput">CategorySortingInput</a></td>
+<td>
+
+Sort categories.
 
 </td>
 </tr>
@@ -1098,13 +1335,11 @@ Filtering options for collections.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#collectionsortinginput">CollectionSortingInput</a></td>
 <td>
 
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`name`, `slug`
+Sort collections.
 
 </td>
 </tr>
@@ -1181,33 +1416,6 @@ Filtering options for products.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">attributes</td>
-<td valign="top">[<a href="#attributescalar">AttributeScalar</a>]</td>
-<td>
-
-Filter products by attributes. DEPRECATED: Will be removed in Saleor 2.10, use the `filter` field instead.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">categories</td>
-<td valign="top">[<a href="#id">ID</a>]</td>
-<td>
-
-Filter products by category. DEPRECATED: Will be removed in Saleor 2.10, use the `filter` field instead.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">collections</td>
-<td valign="top">[<a href="#id">ID</a>]</td>
-<td>
-
-Filter products by collections. DEPRECATED: Will be removed in Saleor 2.10, use the `filter` field instead.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" align="right" valign="top">sortBy</td>
 <td valign="top"><a href="#productorder">ProductOrder</a></td>
 <td>
@@ -1221,18 +1429,7 @@ Sort products.
 <td valign="top"><a href="#stockavailability">StockAvailability</a></td>
 <td>
 
-Filter products by stock availability.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`name`, `description`
+Filter products by stock availability.DEPRECATED: Will be removed in Saleor 2.11, use the `filter` field instead.
 
 </td>
 </tr>
@@ -1309,13 +1506,11 @@ Filtering options for product types.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#producttypesortinginput">ProductTypeSortingInput</a></td>
 <td>
 
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`name`
+Sort product types.
 
 </td>
 </tr>
@@ -1545,27 +1740,6 @@ Return the last n elements from the list.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>paymentClientToken</strong> ⚠️</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-DEPRECATED: Will be removed in Saleor 2.10, use payment gateway config instead in availablePaymentGateways.
-
-</blockquote>
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">gateway</td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-A payment gateway.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>page</strong></td>
 <td valign="top"><a href="#page">Page</a></td>
 <td>
@@ -1602,13 +1776,11 @@ List of the shop's pages.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#pagesortinginput">PageSortingInput</a></td>
 <td>
 
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`content`, `slug`, `title`
+Sort pages.
 
 </td>
 </tr>
@@ -1730,6 +1902,15 @@ List of orders.
 </td>
 </tr>
 <tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#ordersortinginput">OrderSortingInput</a></td>
+<td>
+
+Sort orders.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" align="right" valign="top">filter</td>
 <td valign="top"><a href="#orderfilterinput">OrderFilterInput</a></td>
 <td>
@@ -1739,22 +1920,11 @@ Filtering options for orders.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`id`, `discount_name`, `token`, `user_email`, `user__email`
-
-</td>
-</tr>
-<tr>
 <td colspan="2" align="right" valign="top">created</td>
 <td valign="top"><a href="#reportingperiod">ReportingPeriod</a></td>
 <td>
 
-Filter orders from a selected timespan.
+Filter orders from a selected timespan. DEPRECATED: Will be removed in Saleor 2.11, use the `filter` field instead.
 
 </td>
 </tr>
@@ -1763,7 +1933,7 @@ Filter orders from a selected timespan.
 <td valign="top"><a href="#orderstatusfilter">OrderStatusFilter</a></td>
 <td>
 
-Filter order by status.
+Filter order by status. DEPRECATED: Will be removed in Saleor 2.11, use the `filter` field instead.
 
 </td>
 </tr>
@@ -1813,6 +1983,15 @@ List of draft orders.
 </td>
 </tr>
 <tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#ordersortinginput">OrderSortingInput</a></td>
+<td>
+
+Sort draft orders.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" align="right" valign="top">filter</td>
 <td valign="top"><a href="#orderdraftfilterinput">OrderDraftFilterInput</a></td>
 <td>
@@ -1822,22 +2001,11 @@ Filtering options for draft orders.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`id`, `discount_name`, `token`, `user_email`, `user__email`
-
-</td>
-</tr>
-<tr>
 <td colspan="2" align="right" valign="top">created</td>
 <td valign="top"><a href="#reportingperiod">ReportingPeriod</a></td>
 <td>
 
-Filter draft orders from a selected timespan.
+Filter draft orders from a selected timespan. DEPRECATED: Will be removed in Saleor 2.11, use the `filter` field instead.
 
 </td>
 </tr>
@@ -1950,13 +2118,11 @@ List of the storefront's menus.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#menusortinginput">MenuSortingInput</a></td>
 <td>
 
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`name`
+Sort menus.
 
 </td>
 </tr>
@@ -2033,13 +2199,11 @@ List of the storefronts's menu items.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#menuitemsortinginput">MenuItemSortingInput</a></td>
 <td>
 
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`name`
+Sort menus items.
 
 </td>
 </tr>
@@ -2188,6 +2352,15 @@ Filtering options for plugins.
 </td>
 </tr>
 <tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#pluginsortinginput">PluginSortingInput</a></td>
+<td>
+
+Sort plugins.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" align="right" valign="top">before</td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -2256,6 +2429,15 @@ List of the shop's sales.
 <td>
 
 Filtering options for sales.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#salesortinginput">SaleSortingInput</a></td>
+<td>
+
+Sort sales.
 
 </td>
 </tr>
@@ -2337,6 +2519,15 @@ List of the shop's vouchers.
 <td>
 
 Filtering options for vouchers.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#vouchersortinginput">VoucherSortingInput</a></td>
+<td>
+
+Sort voucher.
 
 </td>
 </tr>
@@ -2566,6 +2757,24 @@ Sublocality like a district.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>address</strong></td>
+<td valign="top"><a href="#address">Address</a></td>
+<td>
+
+Look up an address by ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an address.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>customers</strong></td>
 <td valign="top"><a href="#usercountableconnection">UserCountableConnection</a></td>
 <td>
@@ -2584,13 +2793,11 @@ Filtering options for customers.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#usersortinginput">UserSortingInput</a></td>
 <td>
 
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`email`, `first_name`, `last_name`, `default_shipping_address__first_name`, `default_shipping_address__last_name`, `default_shipping_address__city`, `default_shipping_address__country`
+Sort customers.
 
 </td>
 </tr>
@@ -2631,6 +2838,87 @@ Return the last n elements from the list.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>permissionGroups</strong></td>
+<td valign="top"><a href="#groupcountableconnection">GroupCountableConnection</a></td>
+<td>
+
+List of permission groups.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">filter</td>
+<td valign="top"><a href="#permissiongroupfilterinput">PermissionGroupFilterInput</a></td>
+<td>
+
+Filtering options for permission groups.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#permissiongroupsortinginput">PermissionGroupSortingInput</a></td>
+<td>
+
+Sort permission groups.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come before the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come after the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the first n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the last n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissionGroup</strong></td>
+<td valign="top"><a href="#group">Group</a></td>
+<td>
+
+Look up permission group by ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the group.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>me</strong></td>
 <td valign="top"><a href="#user">User</a></td>
 <td>
@@ -2658,13 +2946,11 @@ Filtering options for staff users.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">query</td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#usersortinginput">UserSortingInput</a></td>
 <td>
 
-DEPRECATED: Will be removed in Saleor 2.10, use `filter: {search: {}}` instead.
-Supported filter parameters:
-`email`, `first_name`, `last_name`, `default_shipping_address__first_name`, `default_shipping_address__last_name`, `default_shipping_address__city`, `default_shipping_address__country`
+Sort staff users.
 
 </td>
 </tr>
@@ -2719,6 +3005,15 @@ List of the service accounts.
 <td>
 
 Filtering options for service accounts.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#serviceaccountsortinginput">ServiceAccountSortingInput</a></td>
+<td>
+
+Sort service accounts.
 
 </td>
 </tr>
@@ -2795,20 +3090,6 @@ ID of the user.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>node</strong></td>
-<td valign="top"><a href="#node">Node</a></td>
-<td>
-
-The ID of the object
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>_entities</strong></td>
 <td valign="top">[<a href="#_entity">_Entity</a>]</td>
 <td></td>
@@ -2837,6 +3118,78 @@ The ID of the object
 </tr>
 </thead>
 <tbody>
+<tr>
+<td colspan="2" valign="top"><strong>wishlistAddProduct</strong></td>
+<td valign="top"><a href="#wishlistaddproductmutation">WishlistAddProductMutation</a></td>
+<td>
+
+Add product to the current user's wishlist.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">productId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the product.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlistRemoveProduct</strong></td>
+<td valign="top"><a href="#wishlistremoveproductmutation">WishlistRemoveProductMutation</a></td>
+<td>
+
+Remove product from the current user's wishlist.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">productId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the product.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlistAddVariant</strong></td>
+<td valign="top"><a href="#wishlistaddproductvariantmutation">WishlistAddProductVariantMutation</a></td>
+<td>
+
+Add product variant to the current user's wishlist.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">variantId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the product variant.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlistRemoveVariant</strong></td>
+<td valign="top"><a href="#wishlistremoveproductvariantmutation">WishlistRemoveProductVariantMutation</a></td>
+<td>
+
+Remove product variant from the current user's wishlist.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">variantId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the product variant.
+
+</td>
+</tr>
 <tr>
 <td colspan="2" valign="top"><strong>webhookCreate</strong></td>
 <td valign="top"><a href="#webhookcreate">WebhookCreate</a></td>
@@ -2901,6 +3254,200 @@ Fields required to update a webhook.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>createWarehouse</strong></td>
+<td valign="top"><a href="#warehousecreate">WarehouseCreate</a></td>
+<td>
+
+Creates new warehouse.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#warehousecreateinput">WarehouseCreateInput</a>!</td>
+<td>
+
+Fields required to create warehouse.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateWarehouse</strong></td>
+<td valign="top"><a href="#warehouseupdate">WarehouseUpdate</a></td>
+<td>
+
+Updates given warehouse.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a warehouse to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#warehouseupdateinput">WarehouseUpdateInput</a>!</td>
+<td>
+
+Fields required to update warehouse.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deleteWarehouse</strong></td>
+<td valign="top"><a href="#warehousedelete">WarehouseDelete</a></td>
+<td>
+
+Deletes selected warehouse.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a warehouse to delete.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>assignWarehouseShippingZone</strong></td>
+<td valign="top"><a href="#warehouseshippingzoneassign">WarehouseShippingZoneAssign</a></td>
+<td>
+
+Add shipping zone to given warehouse.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a warehouse to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">shippingZoneIds</td>
+<td valign="top">[<a href="#id">ID</a>!]!</td>
+<td>
+
+List of shipping zone IDs.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>unassignWarehouseShippingZone</strong></td>
+<td valign="top"><a href="#warehouseshippingzoneunassign">WarehouseShippingZoneUnassign</a></td>
+<td>
+
+Remove shipping zone from given warehouse.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a warehouse to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">shippingZoneIds</td>
+<td valign="top">[<a href="#id">ID</a>!]!</td>
+<td>
+
+List of shipping zone IDs.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createStock</strong></td>
+<td valign="top"><a href="#stockcreate">StockCreate</a></td>
+<td>
+
+Creates new stock.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#stockinput">StockInput</a>!</td>
+<td>
+
+Fields required to create stock.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateStock</strong></td>
+<td valign="top"><a href="#stockupdate">StockUpdate</a></td>
+<td>
+
+Update given stock.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of stock to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#stockinput">StockInput</a>!</td>
+<td>
+
+Fields required to update stock.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deleteStock</strong></td>
+<td valign="top"><a href="#stockdelete">StockDelete</a></td>
+<td>
+
+Deletes selected stock.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of stock to delete.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>bulkDeleteStock</strong></td>
+<td valign="top"><a href="#stockbulkdelete">StockBulkDelete</a></td>
+<td>
+
+Deletes stocks in bulk
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">ids</td>
+<td valign="top">[<a href="#id">ID</a>]!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>authorizationKeyAdd</strong></td>
 <td valign="top"><a href="#authorizationkeyadd">AuthorizationKeyAdd</a></td>
 <td>
@@ -2942,6 +3489,69 @@ Deletes an authorization key.
 <td>
 
 Type of a key to delete.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>staffNotificationRecipientCreate</strong></td>
+<td valign="top"><a href="#staffnotificationrecipientcreate">StaffNotificationRecipientCreate</a></td>
+<td>
+
+Creates a new staff notification recipient.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#staffnotificationrecipientinput">StaffNotificationRecipientInput</a>!</td>
+<td>
+
+Fields required to create a staff notification recipient.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>staffNotificationRecipientUpdate</strong></td>
+<td valign="top"><a href="#staffnotificationrecipientupdate">StaffNotificationRecipientUpdate</a></td>
+<td>
+
+Updates a staff notification recipient.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a staff notification recipient to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#staffnotificationrecipientinput">StaffNotificationRecipientInput</a>!</td>
+<td>
+
+Fields required to update a staff notification recipient.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>staffNotificationRecipientDelete</strong></td>
+<td valign="top"><a href="#staffnotificationrecipientdelete">StaffNotificationRecipientDelete</a></td>
+<td>
+
+Delete staff notification recipient.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of a staff notification recipient to delete.
 
 </td>
 </tr>
@@ -3415,12 +4025,18 @@ Translation language code.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>attributeUpdateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>attributeUpdateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#attributeupdatemeta">AttributeUpdateMeta</a></td>
 <td>
 
 Update public metadata for attribute.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `UpdateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -3442,12 +4058,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>attributeClearMetadata</strong></td>
+<td colspan="2" valign="top"><strong>attributeClearMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#attributeclearmeta">AttributeClearMeta</a></td>
 <td>
 
 Clears public metadata item for attribute.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `DeleteMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -3469,12 +4091,18 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>attributeUpdatePrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>attributeUpdatePrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#attributeupdateprivatemeta">AttributeUpdatePrivateMeta</a></td>
 <td>
 
 Update public metadata for attribute.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `UpdatePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -3496,12 +4124,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>attributeClearPrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>attributeClearPrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#attributeclearprivatemeta">AttributeClearPrivateMeta</a></td>
 <td>
 
 Clears public metadata item for attribute.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `DeletePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -3794,12 +4428,18 @@ Translation language code.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>categoryUpdateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>categoryUpdateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#categoryupdatemeta">CategoryUpdateMeta</a></td>
 <td>
 
 Update public metadata for category.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `UpdateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -3821,12 +4461,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>categoryClearMetadata</strong></td>
+<td colspan="2" valign="top"><strong>categoryClearMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#categoryclearmeta">CategoryClearMeta</a></td>
 <td>
 
 Clears public metadata for category.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `DeleteMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -3848,12 +4494,18 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>categoryUpdatePrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>categoryUpdatePrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#categoryupdateprivatemeta">CategoryUpdatePrivateMeta</a></td>
 <td>
 
 Update private metadata for category.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `UpdatePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -3875,12 +4527,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>categoryClearPrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>categoryClearPrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#categoryclearprivatemeta">CategoryClearPrivateMeta</a></td>
 <td>
 
 Clears private metadata for category.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `DeletePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4123,12 +4781,18 @@ Translation language code.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>collectionUpdateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>collectionUpdateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#collectionupdatemeta">CollectionUpdateMeta</a></td>
 <td>
 
 Update public metadata for collection.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `UpdateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4150,12 +4814,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>collectionClearMetadata</strong></td>
+<td colspan="2" valign="top"><strong>collectionClearMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#collectionclearmeta">CollectionClearMeta</a></td>
 <td>
 
 Clears public metadata for collection.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `DeleteMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4177,12 +4847,18 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>collectionUpdatePrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>collectionUpdatePrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#collectionupdateprivatemeta">CollectionUpdatePrivateMeta</a></td>
 <td>
 
 Update private metadata for collection.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `UpdatePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4204,12 +4880,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>collectionClearPrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>collectionClearPrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#collectionclearprivatemeta">CollectionClearPrivateMeta</a></td>
 <td>
 
 Clears private metadata item for collection.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `DeletePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4371,12 +5053,18 @@ Translation language code.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productUpdateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productUpdateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#productupdatemeta">ProductUpdateMeta</a></td>
 <td>
 
 Update public metadata for product.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `UpdateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4398,12 +5086,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productClearMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productClearMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#productclearmeta">ProductClearMeta</a></td>
 <td>
 
 Clears public metadata item for product.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `DeleteMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4425,12 +5119,18 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productUpdatePrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productUpdatePrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#productupdateprivatemeta">ProductUpdatePrivateMeta</a></td>
 <td>
 
 Update private metadata for product.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `UpdatePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4452,12 +5152,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productClearPrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productClearPrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#productclearprivatemeta">ProductClearPrivateMeta</a></td>
 <td>
 
 Clears private metadata item for product.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `DeletePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4704,12 +5410,18 @@ The attribute type to reorder.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productTypeUpdateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productTypeUpdateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#producttypeupdatemeta">ProductTypeUpdateMeta</a></td>
 <td>
 
 Update public metadata for product type.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `UpdateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4731,12 +5443,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productTypeClearMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productTypeClearMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#producttypeclearmeta">ProductTypeClearMeta</a></td>
 <td>
 
 Clears public metadata for product type.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `DeleteMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4758,12 +5476,18 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productTypeUpdatePrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productTypeUpdatePrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#producttypeupdateprivatemeta">ProductTypeUpdatePrivateMeta</a></td>
 <td>
 
 Update private metadata for product type.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `UpdatePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -4785,12 +5509,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productTypeClearPrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productTypeClearPrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#producttypeclearprivatemeta">ProductTypeClearPrivateMeta</a></td>
 <td>
 
 Clears private metadata for product type.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `DeletePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -5042,12 +5772,18 @@ Translation language code.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productVariantUpdateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productVariantUpdateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#productvariantupdatemeta">ProductVariantUpdateMeta</a></td>
 <td>
 
 Update public metadata for product variant.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `UpdateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -5069,12 +5805,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productVariantClearMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productVariantClearMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#productvariantclearmeta">ProductVariantClearMeta</a></td>
 <td>
 
 Clears public metadata for product variant.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `DeleteMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -5096,12 +5838,18 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productVariantUpdatePrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productVariantUpdatePrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#productvariantupdateprivatemeta">ProductVariantUpdatePrivateMeta</a></td>
 <td>
 
 Update private metadata for product variant.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `UpdatePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -5123,12 +5871,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productVariantClearPrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>productVariantClearPrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#productvariantclearprivatemeta">ProductVariantClearPrivateMeta</a></td>
 <td>
 
 Clears private metadata for product variant.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `DeletePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -5704,12 +6458,18 @@ ID of the order to capture.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>orderClearPrivateMeta</strong></td>
+<td colspan="2" valign="top"><strong>orderClearPrivateMeta</strong> ⚠️</td>
 <td valign="top"><a href="#orderclearprivatemeta">OrderClearPrivateMeta</a></td>
 <td>
 
 Clears stored private metadata value.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `DeletePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -5731,12 +6491,18 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>orderClearMeta</strong></td>
+<td colspan="2" valign="top"><strong>orderClearMeta</strong> ⚠️</td>
 <td valign="top"><a href="#orderclearmeta">OrderClearMeta</a></td>
 <td>
 
 Clears stored metadata value.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `DeleteMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -5839,12 +6605,18 @@ Fields required to update an fulfillment.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>orderFulfillmentClearMeta</strong></td>
+<td colspan="2" valign="top"><strong>orderFulfillmentClearMeta</strong> ⚠️</td>
 <td valign="top"><a href="#fulfillmentclearmeta">FulfillmentClearMeta</a></td>
 <td>
 
 Clears metadata for fulfillment.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `DeleteMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -5866,12 +6638,18 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>orderFulfillmentClearPrivateMeta</strong></td>
+<td colspan="2" valign="top"><strong>orderFulfillmentClearPrivateMeta</strong> ⚠️</td>
 <td valign="top"><a href="#fulfillmentclearprivatemeta">FulfillmentClearPrivateMeta</a></td>
 <td>
 
 Clears private metadata for fulfillment.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `DeletePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -5893,12 +6671,18 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>orderFulfillmentUpdateMeta</strong></td>
+<td colspan="2" valign="top"><strong>orderFulfillmentUpdateMeta</strong> ⚠️</td>
 <td valign="top"><a href="#fulfillmentupdatemeta">FulfillmentUpdateMeta</a></td>
 <td>
 
 Updates metadata for fulfillment.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `UpdateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -5920,12 +6704,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>orderFulfillmentUpdatePrivateMeta</strong></td>
+<td colspan="2" valign="top"><strong>orderFulfillmentUpdatePrivateMeta</strong> ⚠️</td>
 <td valign="top"><a href="#fulfillmentupdateprivatemeta">FulfillmentUpdatePrivateMeta</a></td>
 <td>
 
 Updates metadata for fulfillment.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `UpdatePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -6019,12 +6809,18 @@ Fields required to update an order.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>orderUpdateMeta</strong></td>
+<td colspan="2" valign="top"><strong>orderUpdateMeta</strong> ⚠️</td>
 <td valign="top"><a href="#orderupdatemeta">OrderUpdateMeta</a></td>
 <td>
 
 Updates meta for order.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `UpdateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -6046,12 +6842,18 @@ Token of an object to update.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>orderUpdatePrivateMeta</strong></td>
+<td colspan="2" valign="top"><strong>orderUpdatePrivateMeta</strong> ⚠️</td>
 <td valign="top"><a href="#orderupdateprivatemeta">OrderUpdatePrivateMeta</a></td>
 <td>
 
 Updates private meta for order.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `UpdatePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -6141,6 +6943,114 @@ List of orders IDs to cancel.
 <td>
 
 Determine if lines will be restocked or not.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deleteMetadata</strong></td>
+<td valign="top"><a href="#deletemetadata">DeleteMetadata</a></td>
+<td>
+
+Delete metadata of an object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an object to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">key</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Metadata key to delete.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deletePrivateMetadata</strong></td>
+<td valign="top"><a href="#deleteprivatemetadata">DeletePrivateMetadata</a></td>
+<td>
+
+Delete object's private metadata.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an object to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">key</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Metadata key to delete.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateMetadata</strong></td>
+<td valign="top"><a href="#updatemetadata">UpdateMetadata</a></td>
+<td>
+
+Updates metadata of an object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an object to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metadatainput">MetadataInput</a>!</td>
+<td>
+
+Fields required to update the object's metadata.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updatePrivateMetadata</strong></td>
+<td valign="top"><a href="#updateprivatemetadata">UpdatePrivateMetadata</a></td>
+<td>
+
+Updates private metadata of an object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an object to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#metadatainput">MetadataInput</a>!</td>
+<td>
+
+Fields required to update the object's metadata.
 
 </td>
 </tr>
@@ -6940,7 +7850,7 @@ ID of the checkout.
 <td valign="top"><a href="#checkoutcomplete">CheckoutComplete</a></td>
 <td>
 
-Completes the checkout. As a result a new order is created and a payment charge is made. This action requires a successful payment before it can be performed.
+Completes the checkout. As a result a new order is created and a payment charge is made. This action requires a successful payment before it can be performed. In case additional confirmation step as 3D secure is required confirmationNeeded flag will be set to True and no order created until payment is confirmed with second call of this mutation.
 
 </td>
 </tr>
@@ -6950,6 +7860,15 @@ Completes the checkout. As a result a new order is created and a payment charge 
 <td>
 
 Checkout ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">redirectUrl</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+URL of a view where users should be redirected to see the order details. URL in RFC 1808 format.
 
 </td>
 </tr>
@@ -7000,10 +7919,10 @@ ID of the checkout.
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">customerId</td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td valign="top"><a href="#id">ID</a></td>
 <td>
 
-The ID of the customer.
+The ID of the customer. DEPRECATED: This field is deprecated and will be removed in Saleor 2.11. To identify a customer you should authenticate with JWT token.
 
 </td>
 </tr>
@@ -7242,39 +8161,18 @@ Shipping method.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>checkoutUpdateVoucher</strong></td>
-<td valign="top"><a href="#checkoutupdatevoucher">CheckoutUpdateVoucher</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, use CheckoutAddPromoCode or CheckoutRemovePromoCode instead. Adds voucher to the checkout. Query it without voucher_code field to remove voucher from checkout.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">checkoutId</td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td>
-
-Checkout ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">voucherCode</td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-Voucher code.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>checkoutUpdateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>checkoutUpdateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#checkoutupdatemeta">CheckoutUpdateMeta</a></td>
 <td>
 
 Updates metadata for checkout.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `UpdateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -7296,12 +8194,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>checkoutClearMetadata</strong></td>
+<td colspan="2" valign="top"><strong>checkoutClearMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#checkoutclearmeta">CheckoutClearMeta</a></td>
 <td>
 
 Clear metadata for checkout.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `DeleteMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -7323,12 +8227,18 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>checkoutUpdatePrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>checkoutUpdatePrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#checkoutupdateprivatemeta">CheckoutUpdatePrivateMeta</a></td>
 <td>
 
 Updates private metadata for checkout.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `UpdatePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -7350,12 +8260,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>checkoutClearPrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>checkoutClearPrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#checkoutclearprivatemeta">CheckoutClearPrivateMeta</a></td>
 <td>
 
 Clear private metadata for checkout.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `DeletePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -7400,6 +8316,33 @@ Email of the user that will be used for password recovery.
 <td>
 
 URL of a view where users should be redirected to reset the password. URL in RFC 1808 format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>confirmAccount</strong></td>
+<td valign="top"><a href="#confirmaccount">ConfirmAccount</a></td>
+<td>
+
+Confirm user account by token sent by email during registration
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">email</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+E-mail of the user performing account confirmation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">token</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A one-time token required to set the password.
 
 </td>
 </tr>
@@ -7455,6 +8398,60 @@ New user password.
 <td>
 
 Current user password.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>requestEmailChange</strong></td>
+<td valign="top"><a href="#requestemailchange">RequestEmailChange</a></td>
+<td>
+
+Request email change of the logged in user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">newEmail</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+New user email.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">password</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+User password.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">redirectUrl</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+URL of a view where users should be redirected to update the email address. URL in RFC 1808 format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>confirmEmailChange</strong></td>
+<td valign="top"><a href="#confirmemailchange">ConfirmEmailChange</a></td>
+<td>
+
+Confirm the email change of the logged-in user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">token</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A one-time token required to change the email.
 
 </td>
 </tr>
@@ -7630,12 +8627,18 @@ A one-time token required to remove account. Sent by email using AccountRequestD
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>accountUpdateMeta</strong></td>
+<td colspan="2" valign="top"><strong>accountUpdateMeta</strong> ⚠️</td>
 <td valign="top"><a href="#accountupdatemeta">AccountUpdateMeta</a></td>
 <td>
 
 Updates metadata of the logged-in user.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `UpdateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -7644,114 +8647,6 @@ Updates metadata of the logged-in user.
 <td>
 
 Fields required to update new or stored metadata item.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>customerPasswordReset</strong></td>
-<td valign="top"><a href="#customerpasswordreset">CustomerPasswordReset</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, use RequestPasswordReset instead. Resets the customer's password.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#customerpasswordresetinput">CustomerPasswordResetInput</a>!</td>
-<td>
-
-Fields required to reset customer's password.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>customerAddressCreate</strong></td>
-<td valign="top"><a href="#customeraddresscreate">CustomerAddressCreate</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, use AccountAddressCreate instead. Create a new address for the customer.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#addressinput">AddressInput</a>!</td>
-<td>
-
-Fields required to create address.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">type</td>
-<td valign="top"><a href="#addresstypeenum">AddressTypeEnum</a></td>
-<td>
-
-A type of address. If provided, the new address will be automatically assigned as the customer's default address of that type.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>customerSetDefaultAddress</strong></td>
-<td valign="top"><a href="#customersetdefaultaddress">CustomerSetDefaultAddress</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, use AccountSetDefaultAddress instead. Sets a default address for the authenticated user.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td>
-
-ID of the address to set as default.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">type</td>
-<td valign="top"><a href="#addresstypeenum">AddressTypeEnum</a>!</td>
-<td>
-
-The type of address.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>customerRegister</strong></td>
-<td valign="top"><a href="#customerregister">CustomerRegister</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, use AccountRegister instead. Register a new user.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#customerregisterinput">CustomerRegisterInput</a>!</td>
-<td>
-
-Fields required to create a user.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>loggedUserUpdate</strong></td>
-<td valign="top"><a href="#loggeduserupdate">LoggedUserUpdate</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, use AccountUpdate instead.Updates data of the logged in user.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#useraddressinput">UserAddressInput</a>!</td>
-<td>
-
-Fields required to update a logged in user.
 
 </td>
 </tr>
@@ -8080,12 +8975,18 @@ Determine if users will be set active or not.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>userUpdateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>userUpdateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#userupdatemeta">UserUpdateMeta</a></td>
 <td>
 
 Updates metadata for user.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `UpdateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -8107,12 +9008,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>userClearMetadata</strong></td>
+<td colspan="2" valign="top"><strong>userClearMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#userclearmeta">UserClearMeta</a></td>
 <td>
 
 Clear metadata for user.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11. Use the `DeleteMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -8134,12 +9041,18 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>userUpdatePrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>userUpdatePrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#userupdateprivatemeta">UserUpdatePrivateMeta</a></td>
 <td>
 
 Updates private metadata for user.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `UpdatePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -8161,12 +9074,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>userClearPrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>userClearPrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#userclearprivatemeta">UserClearPrivateMeta</a></td>
 <td>
 
 Clear private metadata for user.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `DeletePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -8251,12 +9170,18 @@ ID of a service account to delete.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>serviceAccountUpdatePrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>serviceAccountUpdatePrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#serviceaccountupdateprivatemeta">ServiceAccountUpdatePrivateMeta</a></td>
 <td>
 
 Updates private metadata for a service account.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `UpdatePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -8278,12 +9203,18 @@ Fields required to update new or stored metadata item.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>serviceAccountClearPrivateMetadata</strong></td>
+<td colspan="2" valign="top"><strong>serviceAccountClearPrivateMetadata</strong> ⚠️</td>
 <td valign="top"><a href="#serviceaccountclearprivatemeta">ServiceAccountClearPrivateMeta</a></td>
 <td>
 
 Clear private metadata for a service account.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Will be removed in Saleor 2.11.Use the `DeletePrivateMetadata` mutation instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -8341,20 +9272,119 @@ ID of an auth token to delete.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>passwordReset</strong></td>
-<td valign="top"><a href="#passwordreset">PasswordReset</a></td>
+<td colspan="2" valign="top"><strong>permissionGroupCreate</strong></td>
+<td valign="top"><a href="#permissiongroupcreate">PermissionGroupCreate</a></td>
 <td>
 
-DEPRECATED: Will be removed in Saleor 2.10, use RequestPasswordReset instead. Sends an email with the account password change link to customer.
+Create new permission group.
 
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">email</td>
-<td valign="top"><a href="#string">String</a>!</td>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#permissiongroupcreateinput">PermissionGroupCreateInput</a>!</td>
 <td>
 
-Email.
+Input fields to create permission group.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissionGroupUpdate</strong></td>
+<td valign="top"><a href="#permissiongroupupdate">PermissionGroupUpdate</a></td>
+<td>
+
+Update permission group.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the group to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#permissiongroupinput">PermissionGroupInput</a>!</td>
+<td>
+
+Input fields to create permission group.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissionGroupDelete</strong></td>
+<td valign="top"><a href="#permissiongroupdelete">PermissionGroupDelete</a></td>
+<td>
+
+Delete permission group.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the group to delete.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissionGroupAssignUsers</strong></td>
+<td valign="top"><a href="#permissiongroupassignusers">PermissionGroupAssignUsers</a></td>
+<td>
+
+Assign users to group.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the group to which users will be assigned.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">users</td>
+<td valign="top">[<a href="#id">ID</a>!]!</td>
+<td>
+
+List of users to assign to this group.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissionGroupUnassignUsers</strong></td>
+<td valign="top"><a href="#permissiongroupunassignusers">PermissionGroupUnassignUsers</a></td>
+<td>
+
+Unassign users from group.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of group from which users will be unassigned.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">users</td>
+<td valign="top">[<a href="#id">ID</a>!]!</td>
+<td>
+
+List of users to assign to this group.
 
 </td>
 </tr>
@@ -8596,6 +9626,15 @@ Register a new user.
 <td>
 
 List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>requiresConfirmation</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Informs whether users need to confirm their email address.
 
 </td>
 </tr>
@@ -9247,21 +10286,51 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -9350,7 +10419,7 @@ Whether the attribute can be displayed in the admin product list.
 <td valign="top"><a href="#attributetranslation">AttributeTranslation</a></td>
 <td>
 
-Returns translated Attribute fields for the given language code.
+Returns translated attribute fields for the given language code.
 
 </td>
 </tr>
@@ -9359,7 +10428,7 @@ Returns translated Attribute fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
+A language code to return the translation for attribute.
 
 </td>
 </tr>
@@ -9710,6 +10779,62 @@ Attribute from which values are reordered.
 </tbody>
 </table>
 
+### AttributeTranslatableContent
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#attributetranslation">AttributeTranslation</a></td>
+<td>
+
+Returns translated attribute fields for the given language code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">languageCode</td>
+<td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
+<td>
+
+A language code to return the translation for attribute.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>attribute</strong></td>
+<td valign="top"><a href="#attribute">Attribute</a></td>
+<td>
+
+Custom attribute of a product.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### AttributeTranslate
 
 Creates/Updates translations for attribute.
@@ -9982,7 +11107,7 @@ Type of value (used only when `value` field is set).
 <td valign="top"><a href="#attributevaluetranslation">AttributeValueTranslation</a></td>
 <td>
 
-Returns translated Attribute Value fields for the given language code.
+Returns translated attribute value fields for the given language code.
 
 </td>
 </tr>
@@ -9991,7 +11116,7 @@ Returns translated Attribute Value fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
+A language code to return the translation for attribute value.
 
 </td>
 </tr>
@@ -10133,6 +11258,62 @@ The updated attribute.
 <td colspan="2" valign="top"><strong>attributeValue</strong></td>
 <td valign="top"><a href="#attributevalue">AttributeValue</a></td>
 <td></td>
+</tr>
+</tbody>
+</table>
+
+### AttributeValueTranslatableContent
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#attributevaluetranslation">AttributeValueTranslation</a></td>
+<td>
+
+Returns translated attribute value fields for the given language code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">languageCode</td>
+<td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
+<td>
+
+A language code to return the translation for attribute value.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>attributeValue</strong></td>
+<td valign="top"><a href="#attributevalue">AttributeValue</a></td>
+<td>
+
+Represents a value of an attribute.
+
+</td>
 </tr>
 </tbody>
 </table>
@@ -10472,11 +11653,6 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>slug</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>description</strong></td>
 <td valign="top"><a href="#string">String</a>!</td>
 <td></td>
@@ -10484,6 +11660,11 @@ The ID of the object.
 <tr>
 <td colspan="2" valign="top"><strong>descriptionJson</strong></td>
 <td valign="top"><a href="#jsonstring">JSONString</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -10497,21 +11678,51 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -10677,7 +11888,7 @@ Size of the image.
 <td valign="top"><a href="#categorytranslation">CategoryTranslation</a></td>
 <td>
 
-Returns translated Category fields for the given language code.
+Returns translated category fields for the given language code.
 
 </td>
 </tr>
@@ -10686,7 +11897,7 @@ Returns translated Category fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
+A language code to return the translation for category.
 
 </td>
 </tr>
@@ -10948,6 +12159,82 @@ List of errors that occurred executing the mutation.
 </tbody>
 </table>
 
+### CategoryTranslatableContent
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>seoTitle</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>seoDescription</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>description</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>descriptionJson</strong></td>
+<td valign="top"><a href="#jsonstring">JSONString</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#categorytranslation">CategoryTranslation</a></td>
+<td>
+
+Returns translated category fields for the given language code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">languageCode</td>
+<td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
+<td>
+
+A language code to return the translation for category.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>category</strong></td>
+<td valign="top"><a href="#category">Category</a></td>
+<td>
+
+Represents a single category of products.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### CategoryTranslate
 
 Creates/Updates translations for Category.
@@ -11205,18 +12492,6 @@ Checkout object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>discountAmount</strong> ⚠️</td>
-<td valign="top"><a href="#money">Money</a></td>
-<td>
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-DEPRECATED: Will be removed in Saleor 2.10, use discount instead.
-
-</blockquote>
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>discount</strong></td>
 <td valign="top"><a href="#money">Money</a></td>
 <td></td>
@@ -11255,21 +12530,51 @@ The ID of the object.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -11501,7 +12806,7 @@ List of errors that occurred executing the mutation.
 
 ### CheckoutComplete
 
-Completes the checkout. As a result a new order is created and a payment charge is made. This action requires a successful payment before it can be performed.
+Completes the checkout. As a result a new order is created and a payment charge is made. This action requires a successful payment before it can be performed. In case additional confirmation step as 3D secure is required confirmationNeeded flag will be set to True and no order created until payment is confirmed with second call of this mutation.
 
 <table>
 <thead>
@@ -11528,6 +12833,15 @@ List of errors that occurred executing the mutation.
 <td>
 
 Placed order.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>confirmationNeeded</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td>
+
+Set to true if payment needs to be confirmed before checkout is complete.
 
 </td>
 </tr>
@@ -12303,46 +13617,6 @@ List of errors that occurred executing the mutation.
 </tbody>
 </table>
 
-### CheckoutUpdateVoucher
-
-DEPRECATED: Will be removed in Saleor 2.10, use CheckoutAddPromoCode or CheckoutRemovePromoCode instead. Adds voucher to the checkout. Query it without voucher_code field to remove voucher from checkout.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>errors</strong></td>
-<td valign="top">[<a href="#error">Error</a>!]</td>
-<td>
-
-List of errors that occurred executing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>checkout</strong></td>
-<td valign="top"><a href="#checkout">Checkout</a></td>
-<td>
-
-An checkout with updated voucher.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>checkoutErrors</strong></td>
-<td valign="top">[<a href="#checkouterror">CheckoutError</a>!]</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
 ### ChoiceValue
 
 <table>
@@ -12383,16 +13657,6 @@ Represents a collection of products.
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>publicationDate</strong></td>
-<td valign="top"><a href="#date">Date</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>isPublished</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>seoTitle</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -12417,11 +13681,6 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>slug</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>description</strong></td>
 <td valign="top"><a href="#string">String</a>!</td>
 <td></td>
@@ -12432,21 +13691,66 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>publicationDate</strong></td>
+<td valign="top"><a href="#date">Date</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isPublished</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -12513,7 +13817,7 @@ Size of the image.
 <td valign="top"><a href="#collectiontranslation">CollectionTranslation</a></td>
 <td>
 
-Returns translated Collection fields for the given language code.
+Returns translated collection fields for the given language code.
 
 </td>
 </tr>
@@ -12522,7 +13826,7 @@ Returns translated Collection fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
+A language code to return the translation for collection.
 
 </td>
 </tr>
@@ -12944,6 +14248,82 @@ Collection from which products are reordered.
 </tbody>
 </table>
 
+### CollectionTranslatableContent
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>seoTitle</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>seoDescription</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>description</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>descriptionJson</strong></td>
+<td valign="top"><a href="#jsonstring">JSONString</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#collectiontranslation">CollectionTranslation</a></td>
+<td>
+
+Returns translated collection fields for the given language code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">languageCode</td>
+<td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
+<td>
+
+A language code to return the translation for collection.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>collection</strong></td>
+<td valign="top"><a href="#collection">Collection</a></td>
+<td>
+
+Represents a collection of products.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### CollectionTranslate
 
 Creates/Updates translations for collection.
@@ -13166,7 +14546,7 @@ Name of the field.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>value</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
+<td valign="top"><a href="#string">String</a></td>
 <td>
 
 Current value of the field.
@@ -13199,6 +14579,72 @@ Help text for the field.
 Label for the field.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### ConfirmAccount
+
+Confirm user account by token sent by email during registration
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ConfirmEmailChange
+
+Confirm the email change of the logged-in user.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#user">User</a></td>
+<td>
+
+A user instance with a new email.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -13337,46 +14783,6 @@ Two-digit number representing the card’s expiration month.
 Four-digit number representing the card’s expiration year.
 
 </td>
-</tr>
-</tbody>
-</table>
-
-### CustomerAddressCreate
-
-DEPRECATED: Will be removed in Saleor 2.10, use AccountAddressCreate instead. Create a new address for the customer.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>errors</strong></td>
-<td valign="top">[<a href="#error">Error</a>!]</td>
-<td>
-
-List of errors that occurred executing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>user</strong></td>
-<td valign="top"><a href="#user">User</a></td>
-<td>
-
-A user instance for which the address was created.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>address</strong></td>
-<td valign="top"><a href="#address">Address</a></td>
-<td></td>
 </tr>
 </tbody>
 </table>
@@ -13544,11 +14950,6 @@ User who performed the action.
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>message</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -13587,98 +14988,6 @@ The concerned order line.
 </tbody>
 </table>
 
-### CustomerPasswordReset
-
-DEPRECATED: Will be removed in Saleor 2.10, use RequestPasswordReset instead. Resets the customer's password.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>errors</strong></td>
-<td valign="top">[<a href="#error">Error</a>!]</td>
-<td>
-
-List of errors that occurred executing the mutation.
-
-</td>
-</tr>
-</tbody>
-</table>
-
-### CustomerRegister
-
-DEPRECATED: Will be removed in Saleor 2.10, use AccountRegister instead. Register a new user.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>errors</strong></td>
-<td valign="top">[<a href="#error">Error</a>!]</td>
-<td>
-
-List of errors that occurred executing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>user</strong></td>
-<td valign="top"><a href="#user">User</a></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### CustomerSetDefaultAddress
-
-DEPRECATED: Will be removed in Saleor 2.10, use AccountSetDefaultAddress instead. Sets a default address for the authenticated user.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>errors</strong></td>
-<td valign="top">[<a href="#error">Error</a>!]</td>
-<td>
-
-List of errors that occurred executing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>user</strong></td>
-<td valign="top"><a href="#user">User</a></td>
-<td>
-
-An updated user instance.
-
-</td>
-</tr>
-</tbody>
-</table>
-
 ### CustomerUpdate
 
 Updates an existing customer.
@@ -13710,6 +15019,78 @@ List of errors that occurred executing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>user</strong></td>
 <td valign="top"><a href="#user">User</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DeleteMetadata
+
+Delete metadata of an object.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadataErrors</strong></td>
+<td valign="top">[<a href="#metadataerror">MetadataError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>item</strong></td>
+<td valign="top"><a href="#objectwithmetadata">ObjectWithMetadata</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DeletePrivateMetadata
+
+Delete object's private metadata.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadataErrors</strong></td>
+<td valign="top">[<a href="#metadataerror">MetadataError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>item</strong></td>
+<td valign="top"><a href="#objectwithmetadata">ObjectWithMetadata</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -13776,21 +15157,51 @@ The ID of the object.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 </tbody>
@@ -14605,26 +16016,56 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>shippingDate</strong></td>
+<td colspan="2" valign="top"><strong>created</strong></td>
 <td valign="top"><a href="#datetime">DateTime</a>!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -15369,6 +16810,124 @@ List of errors that occurred executing the mutation.
 </tbody>
 </table>
 
+### Group
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top">[<a href="#permissiondisplay">PermissionDisplay</a>]</td>
+<td>
+
+List of group permissions
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>users</strong></td>
+<td valign="top">[<a href="#user">User</a>]</td>
+<td>
+
+List of group users
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### GroupCountableConnection
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>pageInfo</strong></td>
+<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
+<td>
+
+Pagination data for this connection.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>edges</strong></td>
+<td valign="top">[<a href="#groupcountableedge">GroupCountableEdge</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>totalCount</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+A total count of items in the collection.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### GroupCountableEdge
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#group">Group</a>!</td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### HomepageCollectionUpdate
 
 Updates homepage collection of the shop.
@@ -15473,37 +17032,6 @@ Language code.
 Language.
 
 </td>
-</tr>
-</tbody>
-</table>
-
-### LoggedUserUpdate
-
-DEPRECATED: Will be removed in Saleor 2.10, use AccountUpdate instead.Updates data of the logged in user.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>errors</strong></td>
-<td valign="top">[<a href="#error">Error</a>!]</td>
-<td>
-
-List of errors that occurred executing the mutation.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>user</strong></td>
-<td valign="top"><a href="#user">User</a></td>
-<td></td>
 </tr>
 </tbody>
 </table>
@@ -15818,25 +17346,13 @@ The ID of the object.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>sortOrder</strong> ⚠️</td>
-<td valign="top"><a href="#int">Int</a></td>
-<td>
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-Will be dropped in 2.10 and is deprecated since 2.9: use the position in list instead and relative calculus to determine shift position.
-
-</blockquote>
-</td>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>menu</strong></td>
 <td valign="top"><a href="#menu">Menu</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>name</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -15883,7 +17399,7 @@ URL to the menu item.
 <td valign="top"><a href="#menuitemtranslation">MenuItemTranslation</a></td>
 <td>
 
-Returns translated Menu item fields for the given language code.
+Returns translated menu item fields for the given language code.
 
 </td>
 </tr>
@@ -15892,7 +17408,7 @@ Returns translated Menu item fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
+A language code to return the translation for menu item.
 
 </td>
 </tr>
@@ -16122,6 +17638,62 @@ Assigned menu to move within.
 </tbody>
 </table>
 
+### MenuItemTranslatableContent
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#menuitemtranslation">MenuItemTranslation</a></td>
+<td>
+
+Returns translated menu item fields for the given language code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">languageCode</td>
+<td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
+<td>
+
+A language code to return the translation for menu item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>menuItem</strong></td>
+<td valign="top"><a href="#menuitem">MenuItem</a></td>
+<td>
+
+Represents a single item of the related menu. Can store categories, collection or pages.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### MenuItemTranslate
 
 Creates/Updates translations for Menu Item.
@@ -16313,7 +17885,7 @@ Metadata stored for a client.
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
 
-Key for stored data.
+Key of a metadata item.
 
 </td>
 </tr>
@@ -16322,7 +17894,7 @@ Key for stored data.
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
 
-Stored metadata value.
+Value of a metadata item.
 
 </td>
 </tr>
@@ -16362,6 +17934,81 @@ List of clients that stored metadata in a group.
 </tbody>
 </table>
 
+### MetadataError
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The error message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>code</strong></td>
+<td valign="top"><a href="#metadataerrorcode">MetadataErrorCode</a></td>
+<td>
+
+The error code.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### MetadataItem
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>key</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Key of a metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>value</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Value of a metadata item.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### Money
 
 Represents amount of money in specific currency.
@@ -16395,12 +18042,18 @@ Amount of money.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>localized</strong></td>
+<td colspan="2" valign="top"><strong>localized</strong> ⚠️</td>
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
 
 Money formatted according to the current locale.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. Price formatting according to the current locale should be handled by the frontend client.
+
+</blockquote>
 </td>
 </tr>
 </tbody>
@@ -16603,21 +18256,51 @@ List of user gift cards.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -16789,18 +18472,6 @@ Email address of the customer.
 
 Returns True, if order requires shipping.
 
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>discountAmount</strong> ⚠️</td>
-<td valign="top"><a href="#money">Money</a>!</td>
-<td>
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-DEPRECATED: Will be removed in Saleor 2.10, use discount instead.
-
-</blockquote>
 </td>
 </tr>
 </tbody>
@@ -17199,11 +18870,6 @@ Order event type.
 User who performed the action.
 
 </td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a></td>
-<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>message</strong></td>
@@ -17822,16 +19488,6 @@ A static page that can be manually added by a shop operator through the dashboar
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>publicationDate</strong></td>
-<td valign="top"><a href="#date">Date</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>isPublished</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>seoTitle</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -17851,11 +19507,6 @@ The ID of the object.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>slug</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>title</strong></td>
 <td valign="top"><a href="#string">String</a>!</td>
 <td></td>
@@ -17871,6 +19522,21 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>publicationDate</strong></td>
+<td valign="top"><a href="#date">Date</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isPublished</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>created</strong></td>
 <td valign="top"><a href="#datetime">DateTime</a>!</td>
 <td></td>
@@ -17880,7 +19546,7 @@ The ID of the object.
 <td valign="top"><a href="#pagetranslation">PageTranslation</a></td>
 <td>
 
-Returns translated Page fields for the given language code.
+Returns translated page fields for the given language code.
 
 </td>
 </tr>
@@ -17889,7 +19555,7 @@ Returns translated Page fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
+A language code to return the translation for page.
 
 </td>
 </tr>
@@ -18061,6 +19727,11 @@ List of errors that occurred executing the mutation.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>pageErrors</strong></td>
+<td valign="top">[<a href="#pageerror">PageError</a>!]</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>page</strong></td>
 <td valign="top"><a href="#page">Page</a></td>
 <td></td>
@@ -18092,9 +19763,56 @@ List of errors that occurred executing the mutation.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>pageErrors</strong></td>
+<td valign="top">[<a href="#pageerror">PageError</a>!]</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>page</strong></td>
 <td valign="top"><a href="#page">Page</a></td>
 <td></td>
+</tr>
+</tbody>
+</table>
+
+### PageError
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The error message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>code</strong></td>
+<td valign="top"><a href="#pageerrorcode">PageErrorCode</a></td>
+<td>
+
+The error code.
+
+</td>
 </tr>
 </tbody>
 </table>
@@ -18152,6 +19870,82 @@ When paginating forwards, the cursor to continue.
 </tbody>
 </table>
 
+### PageTranslatableContent
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>seoTitle</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>seoDescription</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>title</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>contentJson</strong></td>
+<td valign="top"><a href="#jsonstring">JSONString</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#pagetranslation">PageTranslation</a></td>
+<td>
+
+Returns translated page fields for the given language code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">languageCode</td>
+<td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
+<td>
+
+A language code to return the translation for page.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>page</strong></td>
+<td valign="top"><a href="#page">Page</a></td>
+<td>
+
+('A static page that can be manually added by a shop operator ', 'through the dashboard.')
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### PageTranslate
 
 Creates/Updates translations for Page.
@@ -18177,7 +19971,7 @@ List of errors that occurred executing the mutation.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>page</strong></td>
-<td valign="top"><a href="#page">Page</a></td>
+<td valign="top"><a href="#pagetranslatablecontent">PageTranslatableContent</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -18265,6 +20059,11 @@ List of errors that occurred executing the mutation.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>pageErrors</strong></td>
+<td valign="top">[<a href="#pageerror">PageError</a>!]</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>page</strong></td>
 <td valign="top"><a href="#page">Page</a></td>
 <td></td>
@@ -18308,32 +20107,6 @@ A user instance with a new password.
 <td colspan="2" valign="top"><strong>accountErrors</strong></td>
 <td valign="top">[<a href="#accounterror">AccountError</a>!]</td>
 <td></td>
-</tr>
-</tbody>
-</table>
-
-### PasswordReset
-
-DEPRECATED: Will be removed in Saleor 2.10, use RequestPasswordReset instead. Sends an email with the account password change link to customer.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>errors</strong></td>
-<td valign="top">[<a href="#error">Error</a>!]</td>
-<td>
-
-List of errors that occurred executing the mutation.
-
-</td>
 </tr>
 </tbody>
 </table>
@@ -18873,6 +20646,186 @@ Describe action(s) allowed to do by permission.
 </tbody>
 </table>
 
+### PermissionGroupAssignUsers
+
+Assign users to group.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>group</strong></td>
+<td valign="top"><a href="#group">Group</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### PermissionGroupCreate
+
+Create new permission group.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>group</strong></td>
+<td valign="top"><a href="#group">Group</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### PermissionGroupDelete
+
+Delete permission group.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>group</strong></td>
+<td valign="top"><a href="#group">Group</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### PermissionGroupUnassignUsers
+
+Unassign users from group.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>group</strong></td>
+<td valign="top"><a href="#group">Group</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### PermissionGroupUpdate
+
+Update permission group.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>group</strong></td>
+<td valign="top"><a href="#group">Group</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### Plugin
 
 Plugin.
@@ -19050,16 +21003,6 @@ The ID of the object.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>publicationDate</strong></td>
-<td valign="top"><a href="#date">Date</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>isPublished</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>seoTitle</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
@@ -19067,11 +21010,6 @@ The ID of the object.
 <tr>
 <td colspan="2" valign="top"><strong>seoDescription</strong></td>
 <td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>productType</strong></td>
-<td valign="top"><a href="#producttype">ProductType</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -19090,8 +21028,28 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>publicationDate</strong></td>
+<td valign="top"><a href="#date">Date</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isPublished</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productType</strong></td>
+<td valign="top"><a href="#producttype">ProductType</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>category</strong></td>
-<td valign="top"><a href="#category">Category</a>!</td>
+<td valign="top"><a href="#category">Category</a></td>
 <td></td>
 </tr>
 <tr>
@@ -19110,21 +21068,51 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -19155,21 +21143,6 @@ Size of thumbnail.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>availability</strong> ⚠️</td>
-<td valign="top"><a href="#productpricinginfo">ProductPricingInfo</a></td>
-<td>
-
-Informs about product's availability in the storefront, current price and discounts.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-DEPRECATED: Will be removed in Saleor 2.10, Has been renamed to `pricing`.
-
-</blockquote>
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>pricing</strong></td>
 <td valign="top"><a href="#productpricinginfo">ProductPricingInfo</a></td>
 <td>
@@ -19194,21 +21167,6 @@ Whether the product is in stock and visible or not.
 
 The product's default base price.
 
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>price</strong> ⚠️</td>
-<td valign="top"><a href="#money">Money</a></td>
-<td>
-
-The product's default base price.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-DEPRECATED: Will be removed in Saleor 2.10, has been replaced by `basePrice`
-
-</blockquote>
 </td>
 </tr>
 <tr>
@@ -19298,7 +21256,7 @@ List of collections for the product.
 <td valign="top"><a href="#producttranslation">ProductTranslation</a></td>
 <td>
 
-Returns translated Product fields for the given language code.
+Returns translated product fields for the given language code.
 
 </td>
 </tr>
@@ -19307,16 +21265,7 @@ Returns translated Product fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>slug</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-The slug of a product.
+A language code to return the translation for product.
 
 </td>
 </tr>
@@ -19675,11 +21624,6 @@ Represents a product image.
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>sortOrder</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>id</strong></td>
 <td valign="top"><a href="#id">ID</a>!</td>
 <td>
@@ -19687,6 +21631,11 @@ Represents a product image.
 The ID of the object.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>sortOrder</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>alt</strong></td>
@@ -19933,21 +21882,6 @@ Represents availability of a product in the storefront.
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>available</strong> ⚠️</td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
-<td>
-
-Whether it is in stock and visible or not.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-DEPRECATED: Will be removed in Saleor 2.10, this has been moved to the parent type as 'isAvailable'.
-
-</blockquote>
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>onSale</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
@@ -19998,6 +21932,82 @@ The undiscounted price range of the product variants.
 <td>
 
 The discounted price range of the product variants in the local currency.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ProductTranslatableContent
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>seoTitle</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>seoDescription</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>description</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>descriptionJson</strong></td>
+<td valign="top"><a href="#jsonstring">JSONString</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#producttranslation">ProductTranslation</a></td>
+<td>
+
+Returns translated product fields for the given language code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">languageCode</td>
+<td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
+<td>
+
+A language code to return the translation for product.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>product</strong></td>
+<td valign="top"><a href="#product">Product</a></td>
+<td>
+
+Represents an individual item for sale in the storefront.
 
 </td>
 </tr>
@@ -20122,6 +22132,11 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>hasVariants</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a>!</td>
 <td></td>
@@ -20142,21 +22157,51 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -20824,12 +22869,12 @@ The ID of the object.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>sku</strong></td>
+<td colspan="2" valign="top"><strong>name</strong></td>
 <td valign="top"><a href="#string">String</a>!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>name</strong></td>
+<td colspan="2" valign="top"><strong>sku</strong></td>
 <td valign="top"><a href="#string">String</a>!</td>
 <td></td>
 </tr>
@@ -20844,49 +22889,101 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>quantityAllocated</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>weight</strong></td>
 <td valign="top"><a href="#weight">Weight</a></td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>quantity</strong></td>
+<td colspan="2" valign="top"><strong>quantity</strong> ⚠️</td>
 <td valign="top"><a href="#int">Int</a>!</td>
 <td>
 
 Quantity of a product in the store's possession, including the allocated stock that is waiting for shipment.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+This field will be removed in Saleor 2.11. Use the stock field instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>stockQuantity</strong></td>
+<td colspan="2" valign="top"><strong>quantityAllocated</strong> ⚠️</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Quantity allocated for orders
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+This field will be removed in Saleor 2.11. Use the stock field instead.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>stockQuantity</strong> ⚠️</td>
 <td valign="top"><a href="#int">Int</a>!</td>
 <td>
 
 Quantity of a product available for sale.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+This field will be removed in Saleor 2.11. Use the stock field instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -20899,36 +22996,6 @@ Override the base price of a product if necessary. A value of `null` indicates t
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>price</strong> ⚠️</td>
-<td valign="top"><a href="#money">Money</a></td>
-<td>
-
-Price of the product variant.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-DEPRECATED: Will be removed in Saleor 2.10, has been replaced by 'pricing.priceUndiscounted'
-
-</blockquote>
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>availability</strong> ⚠️</td>
-<td valign="top"><a href="#variantpricinginfo">VariantPricingInfo</a></td>
-<td>
-
-Informs about variant's availability in the storefront, current price and discounted price.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-DEPRECATED: Will be removed in Saleor 2.10, has been renamed to `pricing`.
-
-</blockquote>
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>pricing</strong></td>
 <td valign="top"><a href="#variantpricinginfo">VariantPricingInfo</a></td>
 <td>
@@ -20938,12 +23005,18 @@ Lists the storefront variant's pricing, the current price and discounts, only me
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>isAvailable</strong></td>
+<td colspan="2" valign="top"><strong>isAvailable</strong> ⚠️</td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
 
 Whether the variant is in stock and visible or not.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+This field will be removed in Saleor 2.11. Use the stock field instead.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -21010,7 +23083,7 @@ List of images for the product variant.
 <td valign="top"><a href="#productvarianttranslation">ProductVariantTranslation</a></td>
 <td>
 
-Returns translated Product Variant fields for the given language code.
+Returns translated product variant fields for the given language code.
 
 </td>
 </tr>
@@ -21019,7 +23092,7 @@ Returns translated Product Variant fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
+A language code to return the translation for product variant.
 
 </td>
 </tr>
@@ -21031,6 +23104,20 @@ A language code to return the translation for.
 Digital content for the product variant.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>stock</strong></td>
+<td valign="top">[<a href="#stock">Stock</a>]</td>
+<td>
+
+Stocks for the product variant.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">country</td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -21339,6 +23426,62 @@ List of errors that occurred executing the mutation.
 </tbody>
 </table>
 
+### ProductVariantTranslatableContent
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#productvarianttranslation">ProductVariantTranslation</a></td>
+<td>
+
+Returns translated product variant fields for the given language code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">languageCode</td>
+<td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
+<td>
+
+A language code to return the translation for product variant.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productVariant</strong></td>
+<td valign="top"><a href="#productvariant">ProductVariant</a></td>
+<td>
+
+Represents a version of a product such as different size or color.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### ProductVariantTranslate
 
 Creates/Updates translations for Product Variant.
@@ -21576,6 +23719,46 @@ A type of goods.
 </tbody>
 </table>
 
+### RequestEmailChange
+
+Request email change of the logged in user.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#user">User</a></td>
+<td>
+
+A user instance.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### RequestPasswordReset
 
 Sends an email with the account password modification link.
@@ -21804,7 +23987,7 @@ Returns translated sale fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
+A language code to return the translation for sale.
 
 </td>
 </tr>
@@ -22049,6 +24232,62 @@ Sale of which catalogue IDs will be modified.
 </tbody>
 </table>
 
+### SaleTranslatableContent
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#saletranslation">SaleTranslation</a></td>
+<td>
+
+Returns translated sale fields for the given language code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">languageCode</td>
+<td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
+<td>
+
+A language code to return the translation for sale.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>sale</strong></td>
+<td valign="top"><a href="#sale">Sale</a></td>
+<td>
+
+Sales allow creating discounts for categories, collections or products and are visible to all the customers.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### SaleTranslate
 
 Creates/updates translations for a sale.
@@ -22173,21 +24412,6 @@ Name of an attribute displayed in the interface.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>value</strong> ⚠️</td>
-<td valign="top"><a href="#attributevalue">AttributeValue</a></td>
-<td>
-
-The value or the first value of an attribute.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-DEPRECATED: Will be removed in Saleor 2.10, use values instead.
-
-</blockquote>
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>values</strong></td>
 <td valign="top">[<a href="#attributevalue">AttributeValue</a>]!</td>
 <td>
@@ -22250,21 +24474,51 @@ Last 4 characters of the tokens.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -22836,7 +25090,63 @@ Returns translated shipping method fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
+A language code to return the translation for shipping method.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ShippingMethodTranslatableContent
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#shippingmethodtranslation">ShippingMethodTranslation</a></td>
+<td>
+
+Returns translated shipping method fields for the given language code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">languageCode</td>
+<td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
+<td>
+
+A language code to return the translation for shipping method.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>shippingMethod</strong></td>
+<td valign="top"><a href="#shippingmethod">ShippingMethod</a></td>
+<td>
+
+Shipping method are the methods you'll use to get customer's orders  to them. They are directly exposed to the customers.
 
 </td>
 </tr>
@@ -23148,6 +25458,15 @@ List of countries available for the method.
 <td>
 
 List of shipping methods available for orders shipped to countries within this shipping zone.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouses</strong></td>
+<td valign="top">[<a href="#warehouse">Warehouse</a>]</td>
+<td>
+
+List of warehouses for shipping zone.
 
 </td>
 </tr>
@@ -23599,7 +25918,7 @@ Default weight unit.
 <td valign="top"><a href="#shoptranslation">ShopTranslation</a></td>
 <td>
 
-Returns translated Shop fields for the given language code.
+Returns translated shop fields for the given language code.
 
 </td>
 </tr>
@@ -23608,7 +25927,7 @@ Returns translated Shop fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
+A language code to return the translation for shop.
 
 </td>
 </tr>
@@ -23654,6 +25973,15 @@ Company address.
 <td>
 
 URL of a view where customers can set their password.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>staffNotificationRecipients</strong></td>
+<td valign="top">[<a href="#staffnotificationrecipient">StaffNotificationRecipient</a>]</td>
+<td>
+
+List of staff notification recipients.
 
 </td>
 </tr>
@@ -24052,6 +26380,167 @@ List of errors that occurred executing the mutation.
 </tbody>
 </table>
 
+### StaffNotificationRecipient
+
+Represents a recipient of email notifications send by Saleor, such as notifications about new orders. Notifications can be assigned to staff users or arbitrary email addresses.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#user">User</a></td>
+<td>
+
+Returns a user subscribed to email notifications.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>active</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Determines if a notification active.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>email</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Returns email address of a user subscribed to email notifications.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### StaffNotificationRecipientCreate
+
+Creates a new staff notification recipient.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>shopErrors</strong></td>
+<td valign="top">[<a href="#shoperror">ShopError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>staffNotificationRecipient</strong></td>
+<td valign="top"><a href="#staffnotificationrecipient">StaffNotificationRecipient</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### StaffNotificationRecipientDelete
+
+Delete staff notification recipient.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>shopErrors</strong></td>
+<td valign="top">[<a href="#shoperror">ShopError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>staffNotificationRecipient</strong></td>
+<td valign="top"><a href="#staffnotificationrecipient">StaffNotificationRecipient</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### StaffNotificationRecipientUpdate
+
+Updates a staff notification recipient.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>shopErrors</strong></td>
+<td valign="top">[<a href="#shoperror">ShopError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>staffNotificationRecipient</strong></td>
+<td valign="top"><a href="#staffnotificationrecipient">StaffNotificationRecipient</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### StaffUpdate
 
 Updates an existing staff user.
@@ -24083,6 +26572,325 @@ List of errors that occurred executing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>user</strong></td>
 <td valign="top"><a href="#user">User</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Stock
+
+Represents stock.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>warehouse</strong></td>
+<td valign="top"><a href="#warehouse">Warehouse</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productVariant</strong></td>
+<td valign="top"><a href="#productvariant">ProductVariant</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>quantity</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td>
+
+Quantity of a product in the warehouse's possession, including the allocated stock that is waiting for shipment.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>quantityAllocated</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td>
+
+Quantity allocated for orders
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>stockQuantity</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td>
+
+Quantity of a product available for sale.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### StockBulkDelete
+
+Deletes stocks in bulk
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>count</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td>
+
+Returns how many objects were affected.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>stockError</strong></td>
+<td valign="top">[<a href="#stockerror">StockError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### StockCountableConnection
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>pageInfo</strong></td>
+<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
+<td>
+
+Pagination data for this connection.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>edges</strong></td>
+<td valign="top">[<a href="#stockcountableedge">StockCountableEdge</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>totalCount</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+A total count of items in the collection.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### StockCountableEdge
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#stock">Stock</a>!</td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### StockCreate
+
+Creates new stock.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>stockErrors</strong></td>
+<td valign="top">[<a href="#stockerror">StockError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>stock</strong></td>
+<td valign="top"><a href="#stock">Stock</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### StockDelete
+
+Deletes selected stock.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>stock</strong></td>
+<td valign="top"><a href="#stock">Stock</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### StockError
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The error message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>code</strong></td>
+<td valign="top"><a href="#stockerorrcode">StockErorrCode</a></td>
+<td>
+
+The error code.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### StockUpdate
+
+Update given stock.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>stockError</strong></td>
+<td valign="top">[<a href="#stockerror">StockError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>stock</strong></td>
+<td valign="top"><a href="#stock">Stock</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -24352,6 +27160,78 @@ A cursor for use in pagination.
 </tbody>
 </table>
 
+### UpdateMetadata
+
+Updates metadata of an object.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadataErrors</strong></td>
+<td valign="top">[<a href="#metadataerror">MetadataError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>item</strong></td>
+<td valign="top"><a href="#objectwithmetadata">ObjectWithMetadata</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### UpdatePrivateMetadata
+
+Updates private metadata of an object.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadataErrors</strong></td>
+<td valign="top">[<a href="#metadataerror">MetadataError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>item</strong></td>
+<td valign="top"><a href="#objectwithmetadata">ObjectWithMetadata</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### User
 
 Represents user data.
@@ -24430,21 +27310,51 @@ A note about the customer.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>privateMeta</strong></td>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of privately stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>meta</strong></td>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
 <td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
 <td>
 
 List of publicly stored metadata namespaces.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -24593,6 +27503,51 @@ List of events associated with the user.
 <td>
 
 List of stored payment sources.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlist</strong></td>
+<td valign="top"><a href="#wishlistitemcountableconnection">WishlistItemCountableConnection</a></td>
+<td>
+
+User's wishlist.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come before the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come after the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the first n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the last n elements from the list.
 
 </td>
 </tr>
@@ -25075,21 +28030,6 @@ Represents availability of a variant in the storefront.
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>available</strong> ⚠️</td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
-<td>
-
-Whether it is in stock and visible or not.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-DEPRECATED: Will be removed in Saleor 2.10, this has been moved to the parent type as 'isAvailable'.
-
-</blockquote>
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>onSale</strong></td>
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
@@ -25197,6 +28137,11 @@ The ID of the object.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>type</strong></td>
 <td valign="top"><a href="#vouchertypeenum">VoucherTypeEnum</a>!</td>
 <td>
@@ -25204,11 +28149,6 @@ The ID of the object.
 Determines a type of voucher.
 
 </td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>name</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>code</strong></td>
@@ -25418,7 +28358,7 @@ List of countries available for the shipping voucher.
 <td valign="top"><a href="#vouchertranslation">VoucherTranslation</a></td>
 <td>
 
-Returns translated Voucher fields for the given language code.
+Returns translated voucher fields for the given language code.
 
 </td>
 </tr>
@@ -25427,20 +28367,8 @@ Returns translated Voucher fields for the given language code.
 <td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
 <td>
 
-A language code to return the translation for.
+A language code to return the translation for voucher.
 
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>minAmountSpent</strong> ⚠️</td>
-<td valign="top"><a href="#money">Money</a></td>
-<td>
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-DEPRECATED: Will be removed in Saleor 2.10, use the minSpent field instead.
-
-</blockquote>
 </td>
 </tr>
 </tbody>
@@ -25684,6 +28612,62 @@ Voucher of which catalogue IDs will be modified.
 </tbody>
 </table>
 
+### VoucherTranslatableContent
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>translation</strong></td>
+<td valign="top"><a href="#vouchertranslation">VoucherTranslation</a></td>
+<td>
+
+Returns translated voucher fields for the given language code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">languageCode</td>
+<td valign="top"><a href="#languagecodeenum">LanguageCodeEnum</a>!</td>
+<td>
+
+A language code to return the translation for voucher.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>voucher</strong></td>
+<td valign="top"><a href="#voucher">Voucher</a></td>
+<td>
+
+Vouchers allow giving discounts to particular customers on categories, collections or specific products. They can be used during checkout by providing valid voucher codes.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### VoucherTranslate
 
 Creates/Updates translations for Voucher.
@@ -25779,6 +28763,375 @@ List of errors that occurred executing the mutation.
 <tr>
 <td colspan="2" valign="top"><strong>voucher</strong></td>
 <td valign="top"><a href="#voucher">Voucher</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### Warehouse
+
+Represents warehouse.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>companyName</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>shippingZones</strong></td>
+<td valign="top"><a href="#shippingzonecountableconnection">ShippingZoneCountableConnection</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>address</strong></td>
+<td valign="top"><a href="#address">Address</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>email</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseCountableConnection
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>pageInfo</strong></td>
+<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
+<td>
+
+Pagination data for this connection.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>edges</strong></td>
+<td valign="top">[<a href="#warehousecountableedge">WarehouseCountableEdge</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>totalCount</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+A total count of items in the collection.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseCountableEdge
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#warehouse">Warehouse</a>!</td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseCreate
+
+Creates new warehouse.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouseErrors</strong></td>
+<td valign="top">[<a href="#warehouseerror">WarehouseError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouse</strong></td>
+<td valign="top"><a href="#warehouse">Warehouse</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseDelete
+
+Deletes selected warehouse.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouseErrors</strong></td>
+<td valign="top">[<a href="#warehouseerror">WarehouseError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouse</strong></td>
+<td valign="top"><a href="#warehouse">Warehouse</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseError
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The error message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>code</strong></td>
+<td valign="top"><a href="#warehouseerrorcode">WarehouseErrorCode</a></td>
+<td>
+
+The error code.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseShippingZoneAssign
+
+Add shipping zone to given warehouse.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouse</strong></td>
+<td valign="top"><a href="#warehouse">Warehouse</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouseErrors</strong></td>
+<td valign="top">[<a href="#warehouseerror">WarehouseError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseShippingZoneUnassign
+
+Remove shipping zone from given warehouse.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouse</strong></td>
+<td valign="top"><a href="#warehouse">Warehouse</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouseErrors</strong></td>
+<td valign="top">[<a href="#warehouseerror">WarehouseError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseUpdate
+
+Updates given warehouse.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouseErrors</strong></td>
+<td valign="top">[<a href="#warehouseerror">WarehouseError</a>!]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouse</strong></td>
+<td valign="top"><a href="#warehouse">Warehouse</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -26135,6 +29488,401 @@ Weight value.
 </tbody>
 </table>
 
+### Wishlist
+
+Wishlist item.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createdAt</strong></td>
+<td valign="top"><a href="#datetime">DateTime</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>items</strong></td>
+<td valign="top"><a href="#wishlistitemcountableconnection">WishlistItemCountableConnection</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WishlistAddProductMutation
+
+Add product to the current user's wishlist.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlist</strong></td>
+<td valign="top">[<a href="#wishlistitem">WishlistItem</a>]</td>
+<td>
+
+The wishlist of the current user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlistErrors</strong></td>
+<td valign="top">[<a href="#wishlisterror">WishlistError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WishlistAddProductVariantMutation
+
+Add product variant to the current user's wishlist.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlist</strong></td>
+<td valign="top">[<a href="#wishlistitem">WishlistItem</a>]</td>
+<td>
+
+The wishlist of the current user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlistErrors</strong></td>
+<td valign="top">[<a href="#wishlisterror">WishlistError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WishlistError
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The error message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>code</strong></td>
+<td valign="top"><a href="#wishlisterrorcode">WishlistErrorCode</a></td>
+<td>
+
+The error code.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WishlistItem
+
+Wishlist item.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlist</strong></td>
+<td valign="top"><a href="#wishlist">Wishlist</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>product</strong></td>
+<td valign="top"><a href="#product">Product</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>variants</strong></td>
+<td valign="top"><a href="#productvariantcountableconnection">ProductVariantCountableConnection</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WishlistItemCountableConnection
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>pageInfo</strong></td>
+<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
+<td>
+
+Pagination data for this connection.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>edges</strong></td>
+<td valign="top">[<a href="#wishlistitemcountableedge">WishlistItemCountableEdge</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>totalCount</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+A total count of items in the collection.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WishlistItemCountableEdge
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#wishlistitem">WishlistItem</a>!</td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WishlistRemoveProductMutation
+
+Remove product from the current user's wishlist.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlist</strong></td>
+<td valign="top">[<a href="#wishlistitem">WishlistItem</a>]</td>
+<td>
+
+The wishlist of the current user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlistErrors</strong></td>
+<td valign="top">[<a href="#wishlisterror">WishlistError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WishlistRemoveProductVariantMutation
+
+Remove product variant from the current user's wishlist.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong></td>
+<td valign="top">[<a href="#error">Error</a>!]</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlist</strong></td>
+<td valign="top">[<a href="#wishlistitem">WishlistItem</a>]</td>
+<td>
+
+The wishlist of the current user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>wishlistErrors</strong></td>
+<td valign="top">[<a href="#wishlisterror">WishlistError</a>!]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### _Service
 
 <table>
@@ -26233,6 +29981,15 @@ The email address of the user.
 <td>
 
 Password.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>redirectUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Base of frontend URL that will be needed to create confirmation URL.
 
 </td>
 </tr>
@@ -26583,7 +30340,16 @@ Internal representation of an attribute name.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>value</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Internal representation of a value (unique per attribute). DEPRECATED: Will be removed in Saleor 2.11
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>values</strong></td>
+<td valign="top">[<a href="#string">String</a>]</td>
 <td>
 
 Internal representation of a value (unique per attribute).
@@ -26605,20 +30371,20 @@ Internal representation of a value (unique per attribute).
 </thead>
 <tbody>
 <tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>field</strong></td>
 <td valign="top"><a href="#attributesortfield">AttributeSortField</a>!</td>
 <td>
 
 Sort attributes by the selected field.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>direction</strong></td>
-<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
-<td>
-
-Specifies the direction in which to sort the attributes.
 
 </td>
 </tr>
@@ -26882,6 +30648,11 @@ Collections related to the discount.
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>ids</strong></td>
+<td valign="top">[<a href="#id">ID</a>]</td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -26956,6 +30727,38 @@ Background image file.
 <td>
 
 Alt text for an image.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### CategorySortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#categorysortfield">CategorySortField</a>!</td>
+<td>
+
+Sort categories by the selected field.
 
 </td>
 </tr>
@@ -27169,6 +30972,11 @@ List of products to be added to the collection.
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>ids</strong></td>
+<td valign="top">[<a href="#id">ID</a>]</td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -27267,6 +31075,38 @@ Publication date. ISO 8601 standard.
 </tbody>
 </table>
 
+### CollectionSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#collectionsortfield">CollectionSortField</a>!</td>
+<td>
+
+Sort collections by the selected field.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### ConfigurationItemInput
 
 <table>
@@ -27289,7 +31129,7 @@ Name of the field to update.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>value</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
+<td valign="top"><a href="#string">String</a></td>
 <td>
 
 Value of the given field to update.
@@ -27409,61 +31249,6 @@ User account is active.
 <td>
 
 A note about the user.
-
-</td>
-</tr>
-</tbody>
-</table>
-
-### CustomerPasswordResetInput
-
-<table>
-<thead>
-<tr>
-<th colspan="2" align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>email</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-Email of the user that will be used for password recovery.
-
-</td>
-</tr>
-</tbody>
-</table>
-
-### CustomerRegisterInput
-
-<table>
-<thead>
-<tr>
-<th colspan="2" align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>email</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-The unique email address of the user.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>password</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-Password.
 
 </td>
 </tr>
@@ -27737,6 +31522,15 @@ ID of the voucher associated with the order.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>customerNote</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A note from a customer. Visible by customers in the order summary.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>lines</strong></td>
 <td valign="top">[<a href="#orderlinecreateinput">OrderLineCreateInput</a>]</td>
 <td>
@@ -27815,6 +31609,15 @@ ID of a selected shipping method.
 <td>
 
 ID of the voucher associated with the order.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>customerNote</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A note from a customer. Visible by customers in the order summary.
 
 </td>
 </tr>
@@ -28360,6 +32163,70 @@ Sorting position of the menu item (from 0 to x).
 </tbody>
 </table>
 
+### MenuItemSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#menuitemssortfield">MenuItemsSortField</a>!</td>
+<td>
+
+Sort menu items by the selected field.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### MenuSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#menusortfield">MenuSortField</a>!</td>
+<td>
+
+Sort menus by the selected field.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### MetaInput
 
 <table>
@@ -28445,6 +32312,38 @@ Metadata client's name.
 <td>
 
 Key for stored data.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### MetadataInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>key</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Key of a metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>value</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Value of a metadata item.
 
 </td>
 </tr>
@@ -28648,6 +32547,38 @@ Number of variant items ordered.
 </tbody>
 </table>
 
+### OrderSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#ordersortfield">OrderSortField</a>!</td>
+<td>
+
+Sort orders by the selected field.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### OrderUpdateInput
 
 <table>
@@ -28808,6 +32739,38 @@ Search engine optimization fields.
 </tbody>
 </table>
 
+### PageSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#pagesortfield">PageSortField</a>!</td>
+<td>
+
+Sort pages by the selected field.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### PageTranslationInput
 
 <table>
@@ -28890,7 +32853,122 @@ Total amount of the transaction, including all taxes and discounts. If no amount
 <td valign="top"><a href="#addressinput">AddressInput</a></td>
 <td>
 
-Billing address. If empty, the billing address associated with the checkout instance will be used.
+Billing address. If empty, the billing address associated with the checkout instance will be used. DEPRECATED: `Checkout.billingAddress` will be used instead. Use `checkoutCreate` or `checkoutBillingAddressUpdate` mutations to set it. This field will be removed in Saleor 2.11
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### PermissionGroupCreateInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Group name.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top">[<a href="#permissionenum">PermissionEnum</a>!]</td>
+<td>
+
+List of permission code names to assign to this group.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### PermissionGroupFilterInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>search</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### PermissionGroupInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Group name.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top">[<a href="#permissionenum">PermissionEnum</a>!]</td>
+<td>
+
+List of permission code names to assign to this group.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### PermissionGroupSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#permissiongroupsortfield">PermissionGroupSortField</a>!</td>
+<td>
+
+Sort permission group by the selected field.
 
 </td>
 </tr>
@@ -28917,6 +32995,38 @@ Billing address. If empty, the billing address associated with the checkout inst
 <td colspan="2" valign="top"><strong>search</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
+</tr>
+</tbody>
+</table>
+
+### PluginSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#pluginsortfield">PluginSortField</a>!</td>
+<td>
+
+Sort plugins by the selected field.
+
+</td>
 </tr>
 </tbody>
 </table>
@@ -29078,6 +33188,15 @@ Product name.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Product slug.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>basePrice</strong></td>
 <td valign="top"><a href="#decimal">Decimal</a></td>
 <td>
@@ -29179,6 +33298,11 @@ ID of the type that product belongs to.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>hasCategory</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>price</strong></td>
 <td valign="top"><a href="#pricerangeinput">PriceRangeInput</a></td>
 <td></td>
@@ -29206,6 +33330,11 @@ ID of the type that product belongs to.
 <tr>
 <td colspan="2" valign="top"><strong>minimalPrice</strong></td>
 <td valign="top"><a href="#pricerangeinput">PriceRangeInput</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productTypes</strong></td>
+<td valign="top">[<a href="#id">ID</a>]</td>
 <td></td>
 </tr>
 </tbody>
@@ -29368,6 +33497,15 @@ Product name.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Product slug.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>basePrice</strong></td>
 <td valign="top"><a href="#decimal">Decimal</a></td>
 <td>
@@ -29445,11 +33583,11 @@ Determines if the inventory of this product should be tracked. If false, the qua
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>field</strong></td>
-<td valign="top"><a href="#productorderfield">ProductOrderField</a></td>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
 <td>
 
-Sort products by the selected field.
+Specifies the direction in which to sort products.
 
 </td>
 </tr>
@@ -29464,11 +33602,11 @@ Note: this doesn't take translations into account yet.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>direction</strong></td>
-<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#productorderfield">ProductOrderField</a></td>
 <td>
 
-Specifies the direction in which to sort products.
+Sort products by the selected field.
 
 </td>
 </tr>
@@ -29501,6 +33639,11 @@ Specifies the direction in which to sort products.
 <td valign="top"><a href="#producttypeenum">ProductTypeEnum</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>ids</strong></td>
+<td valign="top">[<a href="#id">ID</a>]</td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -29521,6 +33664,15 @@ Specifies the direction in which to sort products.
 <td>
 
 Name of the product type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Product type slug.
 
 </td>
 </tr>
@@ -29584,6 +33736,38 @@ Weight of the ProductType items.
 <td>
 
 Tax rate for enabled tax gateway.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ProductTypeSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#producttypesortfield">ProductTypeSortField</a>!</td>
+<td>
+
+Sort product types by the selected field.
 
 </td>
 </tr>
@@ -29982,6 +34166,38 @@ End date of the voucher in ISO 8601 format.
 </tbody>
 </table>
 
+### SaleSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#salesortfield">SaleSortField</a>!</td>
+<td>
+
+Sort sales by the selected field.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### SeoInput
 
 <table>
@@ -30073,6 +34289,38 @@ Determine if this service account should be enabled.
 <td>
 
 List of permission code names to assign to this service account.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ServiceAccountSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#serviceaccountsortfield">ServiceAccountSortField</a>!</td>
+<td>
+
+Sort service accounts by the selected field.
 
 </td>
 </tr>
@@ -30491,15 +34739,6 @@ List of permission code names to assign to this user.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>sendPasswordEmail</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, if mutation has `redirect_url` in input then staff get email with link to set a password. Send an email with a link to set the password.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>redirectUrl</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -30579,6 +34818,47 @@ List of permission code names to assign to this user.
 </tbody>
 </table>
 
+### StaffNotificationRecipientInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#id">ID</a></td>
+<td>
+
+The ID of the user subscribed to email notifications..
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>email</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Email address of a user subscribed to email notifications.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>active</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Determines if a notification active.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### StaffUserInput
 
 <table>
@@ -30599,6 +34879,76 @@ List of permission code names to assign to this user.
 <td colspan="2" valign="top"><strong>search</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
+</tr>
+</tbody>
+</table>
+
+### StockFilterInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>quantity</strong></td>
+<td valign="top"><a href="#float">Float</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>quantityAllocated</strong></td>
+<td valign="top"><a href="#float">Float</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>search</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### StockInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>productVariant</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+Product variant associated with stock.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouse</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+Warehouse in which stock is located.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>quantity</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Quantity of items available for sell.
+
+</td>
 </tr>
 </tbody>
 </table>
@@ -30638,38 +34988,6 @@ List of permission code names to assign to this user.
 <td colspan="2" valign="top"><strong>descriptionJson</strong></td>
 <td valign="top"><a href="#jsonstring">JSONString</a></td>
 <td></td>
-</tr>
-</tbody>
-</table>
-
-### UserAddressInput
-
-<table>
-<thead>
-<tr>
-<th colspan="2" align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>defaultBillingAddress</strong></td>
-<td valign="top"><a href="#addressinput">AddressInput</a></td>
-<td>
-
-Billing address of the customer.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>defaultShippingAddress</strong></td>
-<td valign="top"><a href="#addressinput">AddressInput</a></td>
-<td>
-
-Shipping address of the customer.
-
-</td>
 </tr>
 </tbody>
 </table>
@@ -30749,20 +35067,43 @@ A note about the user.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>sendPasswordEmail</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
-<td>
-
-DEPRECATED: Will be removed in Saleor 2.10, if mutation has `redirect_url` in input then customer get email with link to set a password. Send an email with a link to set a password.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>redirectUrl</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
 
 URL of a view where users should be redirected to set the password. URL in RFC 1808 format.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### UserSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#usersortfield">UserSortField</a>!</td>
+<td>
+
+Sort users by the selected field.
 
 </td>
 </tr>
@@ -30962,6 +35303,302 @@ Limit number of times this voucher can be used in total.
 </tbody>
 </table>
 
+### VoucherSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#vouchersortfield">VoucherSortField</a>!</td>
+<td>
+
+Sort vouchers by the selected field.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseAddressInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>streetAddress1</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Address.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>streetAddress2</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Address.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>city</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+City.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>cityArea</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+District.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>postalCode</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Postal code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>country</strong></td>
+<td valign="top"><a href="#countrycode">CountryCode</a>!</td>
+<td>
+
+Country.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>countryArea</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+State or province.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>phone</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Phone number.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseCreateInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Warehouse slug.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>companyName</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Company name.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>email</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The email address of the warehouse.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Warehouse name.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>address</strong></td>
+<td valign="top"><a href="#warehouseaddressinput">WarehouseAddressInput</a>!</td>
+<td>
+
+Address of the warehouse.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>shippingZones</strong></td>
+<td valign="top">[<a href="#id">ID</a>]</td>
+<td>
+
+Shipping zones supported by the warehouse.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseFilterInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>search</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#warehousesortfield">WarehouseSortField</a>!</td>
+<td>
+
+Sort warehouses by the selected field.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseUpdateInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Warehouse slug.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>companyName</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Company name.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>email</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The email address of the warehouse.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Warehouse name.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>address</strong></td>
+<td valign="top"><a href="#warehouseaddressinput">WarehouseAddressInput</a></td>
+<td>
+
+Address of the warehouse.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### WebhookCreateInput
 
 <table>
@@ -31054,6 +35691,38 @@ The secret key used to create a hash signature with each payload.
 </tbody>
 </table>
 
+### WebhookSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#webhooksortfield">WebhookSortField</a>!</td>
+<td>
+
+Sort webhooks by the selected field.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### WebhookUpdateInput
 
 <table>
@@ -31140,6 +35809,10 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>ACTIVATE_SUPERUSER_ACCOUNT</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>ASSIGN_NON_STAFF_MEMBER</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -31263,7 +35936,7 @@ An enumeration.
 <td valign="top"><strong>NAME</strong></td>
 <td>
 
-Sort attributes by name.
+Sort attributes by name
 
 </td>
 </tr>
@@ -31271,7 +35944,7 @@ Sort attributes by name.
 <td valign="top"><strong>SLUG</strong></td>
 <td>
 
-Sort attributes by slug.
+Sort attributes by slug
 
 </td>
 </tr>
@@ -31279,7 +35952,7 @@ Sort attributes by slug.
 <td valign="top"><strong>VALUE_REQUIRED</strong></td>
 <td>
 
-Sort attributes by the value required flag.
+Sort attributes by the value required flag
 
 </td>
 </tr>
@@ -31287,7 +35960,7 @@ Sort attributes by the value required flag.
 <td valign="top"><strong>IS_VARIANT_ONLY</strong></td>
 <td>
 
-Sort attributes by the variant only flag.
+Sort attributes by the variant only flag
 
 </td>
 </tr>
@@ -31295,7 +35968,7 @@ Sort attributes by the variant only flag.
 <td valign="top"><strong>VISIBLE_IN_STOREFRONT</strong></td>
 <td>
 
-Sort attributes by visibility in the storefront.
+Sort attributes by visibility in the storefront
 
 </td>
 </tr>
@@ -31303,7 +35976,7 @@ Sort attributes by visibility in the storefront.
 <td valign="top"><strong>FILTERABLE_IN_STOREFRONT</strong></td>
 <td>
 
-Sort attributes by the filterable in storefront flag.
+Sort attributes by the filterable in storefront flag
 
 </td>
 </tr>
@@ -31311,7 +35984,7 @@ Sort attributes by the filterable in storefront flag.
 <td valign="top"><strong>FILTERABLE_IN_DASHBOARD</strong></td>
 <td>
 
-Sort attributes by the filterable in dashboard flag.
+Sort attributes by the filterable in dashboard flag
 
 </td>
 </tr>
@@ -31335,7 +36008,7 @@ Sort product attributes by their position in dashboard.
 <td valign="top"><strong>STOREFRONT_SEARCH_POSITION</strong></td>
 <td>
 
-Sort attributes by their position in storefront.
+Sort attributes by their position in storefront
 
 </td>
 </tr>
@@ -31413,6 +36086,41 @@ An enumeration.
 <tr>
 <td valign="top"><strong>GOOGLE_OAUTH2</strong></td>
 <td></td>
+</tr>
+</tbody>
+</table>
+
+### CategorySortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td>
+
+Sort categories by name.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>PRODUCT_COUNT</strong></td>
+<td>
+
+Sort categories by product count.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>SUBCATEGORY_COUNT</strong></td>
+<td>
+
+Sort categories by subcategory count.
+
+</td>
 </tr>
 </tbody>
 </table>
@@ -31521,6 +36229,41 @@ An enumeration.
 </tbody>
 </table>
 
+### CollectionSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td>
+
+Sort collections by name.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>AVAILABILITY</strong></td>
+<td>
+
+Sort collections by availability.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>PRODUCT_COUNT</strong></td>
+<td>
+
+Sort collections by product count.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### ConfigurationTypeFieldEnum
 
 An enumeration.
@@ -31537,6 +36280,14 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>BOOLEAN</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>SECRET</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PASSWORD</strong></td>
 <td></td>
 </tr>
 </tbody>
@@ -32578,6 +37329,18 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>EMAIL_CHANGED_REQUEST</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PASSWORD_CHANGED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>EMAIL_CHANGED</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>PLACED_ORDER</strong></td>
 <td></td>
 </tr>
@@ -32987,6 +37750,77 @@ An enumeration.
 </tbody>
 </table>
 
+### MenuItemsSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td>
+
+Sort menu items by name.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### MenuSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td>
+
+Sort menus by name.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>ITEMS_COUNT</strong></td>
+<td>
+
+Sort menus by items count.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### MetadataErrorCode
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>GRAPHQL_ERROR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>NOT_FOUND</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### NavigationType
 
 <table>
@@ -33094,6 +37928,10 @@ An enumeration.
 <th align="left">Description</th>
 </thead>
 <tbody>
+<tr>
+<td valign="top"><strong>BILLING_ADDRESS_NOT_SET</strong></td>
+<td></td>
+</tr>
 <tr>
 <td valign="top"><strong>CANNOT_CANCEL_FULFILLMENT</strong></td>
 <td></td>
@@ -33307,6 +38145,41 @@ An enumeration.
 </tbody>
 </table>
 
+### OrderSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NUMBER</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>CREATION_DATE</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>CUSTOMER</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PAYMENT</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>FULFILLMENT_STATUS</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>TOTAL</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### OrderStatus
 
 An enumeration.
@@ -33391,6 +38264,90 @@ Canceled
 <tr>
 <td valign="top"><strong>CANCELED</strong></td>
 <td></td>
+</tr>
+</tbody>
+</table>
+
+### PageErrorCode
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>GRAPHQL_ERROR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>NOT_FOUND</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>REQUIRED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>UNIQUE</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### PageSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>TITLE</strong></td>
+<td>
+
+Sort pages by title.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>SLUG</strong></td>
+<td>
+
+Sort pages by slug.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>VISIBILITY</strong></td>
+<td>
+
+Sort pages by visibility.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>CREATION_DATE</strong></td>
+<td>
+
+Sort pages by creation date.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>PUBLICATION_DATE</strong></td>
+<td>
+
+Sort pages by publication date.
+
+</td>
 </tr>
 </tbody>
 </table>
@@ -33496,19 +38453,15 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
-<td valign="top"><strong>IMPERSONATE_USERS</strong></td>
-<td></td>
-</tr>
-<tr>
 <td valign="top"><strong>MANAGE_DISCOUNTS</strong></td>
 <td></td>
 </tr>
 <tr>
-<td valign="top"><strong>MANAGE_GIFT_CARD</strong></td>
+<td valign="top"><strong>MANAGE_PLUGINS</strong></td>
 <td></td>
 </tr>
 <tr>
-<td valign="top"><strong>MANAGE_PLUGINS</strong></td>
+<td valign="top"><strong>MANAGE_GIFT_CARD</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -33541,6 +38494,48 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>MANAGE_WEBHOOKS</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>MANAGE_CHECKOUTS</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### PermissionGroupSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td>
+
+Sort permission group accounts by name.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### PluginSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>IS_ACTIVE</strong></td>
 <td></td>
 </tr>
 </tbody>
@@ -33700,6 +38695,41 @@ Sort products by publication status.
 </tbody>
 </table>
 
+### ProductTypeSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td>
+
+Sort products by name.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>DIGITAL</strong></td>
+<td>
+
+Sort products by type.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>SHIPPING_REQUIRED</strong></td>
+<td>
+
+Sort products by shipping.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### ReportingPeriod
 
 <table>
@@ -33715,6 +38745,57 @@ Sort products by publication status.
 <tr>
 <td valign="top"><strong>THIS_MONTH</strong></td>
 <td></td>
+</tr>
+</tbody>
+</table>
+
+### SaleSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td>
+
+Sort sales by name.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>START_DATE</strong></td>
+<td>
+
+Sort sales by start date.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>END_DATE</strong></td>
+<td>
+
+Sort sales by end date.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>VALUE</strong></td>
+<td>
+
+Sort sales by value.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>TYPE</strong></td>
+<td>
+
+Sort sales by type.
+
+</td>
 </tr>
 </tbody>
 </table>
@@ -33742,6 +38823,33 @@ USD
 <td>
 
 %
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ServiceAccountSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td>
+
+Sort service accounts by name.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>CREATION_DATE</strong></td>
+<td>
+
+Sort service accounts by creation date.
 
 </td>
 </tr>
@@ -33884,6 +38992,43 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>OUT_OF_STOCK</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### StockErorrCode
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>ALREADY_EXISTS</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>GRAPHQL_ERROR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>NOT_FOUND</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>REQUIRED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>UNIQUE</strong></td>
 <td></td>
 </tr>
 </tbody>
@@ -34203,6 +39348,49 @@ Confirm
 </tbody>
 </table>
 
+### UserSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>FIRST_NAME</strong></td>
+<td>
+
+Sort users by first name.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>LAST_NAME</strong></td>
+<td>
+
+Sort users by last name.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>EMAIL</strong></td>
+<td>
+
+Sort users by email.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>ORDER_COUNT</strong></td>
+<td>
+
+Sort users by order count.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### VoucherDiscountType
 
 <table>
@@ -34226,6 +39414,73 @@ Confirm
 </tbody>
 </table>
 
+### VoucherSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>CODE</strong></td>
+<td>
+
+Sort vouchers by code.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>START_DATE</strong></td>
+<td>
+
+Sort vouchers by start date.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>END_DATE</strong></td>
+<td>
+
+Sort vouchers by end date.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>VALUE</strong></td>
+<td>
+
+Sort vouchers by value.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>TYPE</strong></td>
+<td>
+
+Sort vouchers by type.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>USAGE_LIMIT</strong></td>
+<td>
+
+Sort vouchers by usage limit.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>MINIMUM_SPENT_AMOUNT</strong></td>
+<td>
+
+Sort vouchers by minimum spent amount.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### VoucherTypeEnum
 
 <table>
@@ -34245,6 +39500,62 @@ Confirm
 <tr>
 <td valign="top"><strong>SPECIFIC_PRODUCT</strong></td>
 <td></td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseErrorCode
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>ALREADY_EXISTS</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>GRAPHQL_ERROR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>NOT_FOUND</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>REQUIRED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>UNIQUE</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WarehouseSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td>
+
+Sort warehouses by name.
+
+</td>
 </tr>
 </tbody>
 </table>
@@ -34324,6 +39635,45 @@ An enumeration.
 <td valign="top"><strong>PRODUCT_CREATED</strong></td>
 <td></td>
 </tr>
+<tr>
+<td valign="top"><strong>CHECKOUT_QUANTITY_CHANGED</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### WebhookSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td>
+
+Sort webhooks by name.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>SERVICE_ACCOUNT</strong></td>
+<td>
+
+Sort webhooks by service account.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>TARGET_URL</strong></td>
+<td>
+
+Sort webhooks by target url.
+
+</td>
+</tr>
 </tbody>
 </table>
 
@@ -34356,9 +39706,40 @@ An enumeration.
 </tbody>
 </table>
 
-## Scalars
+### WishlistErrorCode
 
-### AttributeScalar
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>GRAPHQL_ERROR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>NOT_FOUND</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>REQUIRED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>UNIQUE</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+## Scalars
 
 ### Boolean
 
@@ -34452,6 +39833,69 @@ An object with an ID
 
 The ID of the object.
 
+</td>
+</tr>
+</tbody>
+</table>
+
+### ObjectWithMetadata
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
+<td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
+<td>
+
+List of privately stored metadata namespaces.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `privetaMetadata` field instead. 
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
+<td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
+<td>
+
+List of publicly stored metadata namespaces.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+DEPRECATED: Will be removed in Saleor 2.11. use the `metadata` field instead. 
+
+</blockquote>
 </td>
 </tr>
 </tbody>
