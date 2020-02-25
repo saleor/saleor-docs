@@ -53,7 +53,7 @@ const siteConfig = {
       doc: "dashboard/before-you-start",
       label: "Saleor Dashboard Guide"
     },
-    { doc: "api/intro", label: "GraphQL API" },
+    { href: "/docs/next/api/intro", label: "GraphQL API" },
     {
       doc: "getting-started/intro",
       label: "Running your Saleor Server"
