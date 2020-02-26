@@ -26,6 +26,6 @@ In order for Docker to use your assets from the host, you need to remove `/app/s
 Additionally, if you wish to have the compiled email templates mounted, also remove the `/app/templates/templated_email/compiled` volume from the web and celery services.
 
 
-## Use Docker to run saleor, storefront and dashboard at once
+## Use Docker to run Saleor, storefront and dashboard at once
 
  Navigate to [saleor-platform](https://github.com/mirumee/saleor-platform/) repository, it contains platform dependent instructions to get it up and running in no time.
