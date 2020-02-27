@@ -3,7 +3,7 @@ id: opentracing-jaeger
 title: OpenTracing with Jaeger
 ---
 
-Jaeger is the currently implemented OpenTracing provider which allows to recap what is collected through a dedicated web interface.
+Jaeger is the currently implemented OpenTracing provider that allows to recapping what's collected through a dedicated web interface.
 
 Jaeger web interface helps you see through particular requests, such as checking how many queries these executes underneath, what these queries are (both SQL and GraphQL), how much time each particular part of the process takes, all on a timeline of a single request and much more.
 
