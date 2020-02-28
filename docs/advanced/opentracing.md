@@ -4,7 +4,8 @@ title: OpenTracing
 ---
 
 Saleor has an implementation of OpenTracing used to trace performance of the application.
-For now, the implemented provider is [Jaeger](https://www.jaegertracing.io/), detailed documentation can be found in [our guide](guides/opentracing-jaeger.md).
+
+For now, the implemented provider is [Jaeger](https://www.jaegertracing.io/), detailed documentation can be found in [our guide](advanced/opentracing-jaeger.md).
 
 ## What is being traced
 - HTTP requests implemented directly in GraphQLView:
