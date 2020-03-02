@@ -14,11 +14,11 @@ sidebar_label: Introduction
 [**Debug Tools**](advanced/debug-tools.md)
 [/card-grid]
 
-
 [card-grid]
 [**Events**](advanced/events.md)
 [**Internationalization and Translation**](advanced/internationalization.md)
 [/card-grid]
 
-
-
+[card-grid]
+[**Opentracing**](advanced/opentracing.md)
+[/card-grid]
