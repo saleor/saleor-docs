@@ -153,7 +153,7 @@ Configuration fields:
 
 ## About Extensions Manager
 
-The `ExtensionsManager` is located in the `saleor.core.extensions.manager`. It is a class responsible for handling all declared plugins and serving a response from them. In case of a non-declared plugin, it serves a default response.
+The `ExtensionsManager` is located in the `saleor.extensions.manager`. It is a class responsible for handling all declared plugins and serving a response from them. In case of a non-declared plugin, it serves a default response.
 It is possible to overwrite an `ExtensionsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.EXTENSIONS_MANAGER`.
 Each Django request object has its own manager included as the `extensions` field. It is attached in the Saleor middleware.
 
