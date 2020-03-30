@@ -46,11 +46,10 @@ module.exports = {
       links: [
         {
           to: "versions/",
-          label: `${versions[0]}`,
-          position: "left",
+          label: "versions",
+          position: "right",
           style: {
-            fontSize: "calc(0.9 * var(--ifm-font-size-base))",
-            textDecoration: "underline"
+            fontVariant: "small-caps"
           }
         },
         {
