@@ -79,7 +79,12 @@ module.exports = {
     twitterImage: "img/og-image.png",
 
     // Google Analytics tracking ID to track page views.
-    gaTrackingId: "UA-10159761-25"
+    gaTrackingId: "UA-10159761-25",
+
+    prism: {
+      theme: require("prism-react-renderer/themes/github"),
+      darkTheme: require("prism-react-renderer/themes/dracula")
+    }
   },
 
   // Add custom scripts here that would be placed in <script> tags.
@@ -113,11 +118,5 @@ module.exports = {
         }
       }
     ]
-  ],
-  themeConfig: {
-    prism: {
-      theme: require("prism-react-renderer/themes/github"),
-      darkTheme: require("prism-react-renderer/themes/dracula")
-    }
-  }
+  ]
 };

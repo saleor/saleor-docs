@@ -1,0 +1,189 @@
+---
+title: Extending Models Using Metadata
+sidebar_label: Metadata
+---
+
+Saleor gives you the possibility to customize your shop without modifying the core. You can extend most of the common models using the metadata API.
+
+Metadata allows you to store additional information about each object, for example external identifiers for items synchronized with a third party platform. You can also use metadata to customize the way your storefront looks and behaves.
+
+The following models contain metadata fields which data can be modified:
+
+* `Attribute`
+* `Category`
+* `Checkout`
+* `Collection`
+* `Product`
+* `ProductVariant`
+* `ProductType` 
+* `ServiceAccount`
+* `User`
+
+Each metadata field is a key-value pair:
+
+```graphql
+type MetadataItem {
+  key: String!
+  value: String!
+}
+```
+
+## Sample Queries 
+
+The below examples show a sample query and response containing metadata:
+
+### Sample Query with Metadata
+
+```graphql {7-10}
+query {
+  products(first: 1) {
+    edges {
+      node {
+        id
+        name
+        metadata {
+          key
+          value
+        }
+      }
+    }
+  }
+}
+```
+
+### Sample Response
+
+```json {9-18}
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDo4Nw==",
+            "name": "Yellow Plimsolls",
+            "metadata": [
+              {
+                "key": "code",
+                "value": "standard"
+              },
+              {
+                "key": "erp_id",
+                "value": "1145"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+## Making Changes in Metadata
+
+You can also add, update or remove metadata. 
+
+### Sample Mutation to Add or Update Metadata
+
+```graphql
+mutation {
+  updateMetadata(
+    id: "UHJvZHVjdDo3Mg=="
+    input: {
+      key: "special_product"
+      value: "true"
+    }
+  ) {
+    errors {
+      field
+      message
+    }
+    product {
+      metadata {
+        key
+        value
+      }
+    }
+  }
+}
+```
+
+### Sample Mutation to Remove Metadata
+
+```graphql
+mutation {
+  deleteMetadata(
+    id: "UHJvZHVjdDo3Mg=="
+    key: "special_product"
+  ) {
+    errors {
+      field
+      message
+    }
+    product {
+      id
+      metadata {
+        key
+        value
+      }
+    }
+  }
+}
+```
+
+## Private and Public Metadata
+
+All objects support two sets of metadata:
+
+* `metadata` is public and visible to unauthenticated users
+
+* `privateMetadata` is protected and visible only to staff users, plugins, and Apps with appropriate permissions
+
+### Sample Mutation to Add or Update a Field in Private Metadata
+
+```graphql
+mutation {
+  updatePrivateMetadata(
+    id: "UHJvZHVjdDo3Mg=="
+    input: {
+      key: "special_product"
+      value: "true"
+    }
+  ) {
+    errors {
+      field
+      message
+    }
+    product {
+      privateMetadata {
+        key
+        value
+      }
+    }
+  }
+}
+```
+
+### Sample Mutation to Remove Private Metadata
+
+```graphql
+mutation {
+  deletePrivateMetadata(
+    id: "UHJvZHVjdDo3Mg=="
+    key: "special_product"
+  ) {
+    errors {
+      field
+      message
+    }
+    product {
+      id
+      privateMetadata {
+        key
+        value
+      }
+    }
+  }
+}
+```
