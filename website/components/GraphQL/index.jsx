@@ -14,7 +14,7 @@ const fetcher = async params => {
 };
 
 const GraphQL = ({ height = 20, query }) => (
-  <div style={{ height: `${height}rem` }}>
+  <div className="graphql-example" style={{ height: `${height}rem` }}>
     <GraphiQL fetcher={fetcher} query={query}>
       <GraphiQL.Logo>
         GraphQL Example
