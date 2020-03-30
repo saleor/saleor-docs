@@ -1,21 +1,13 @@
-const versions = require("./versions.json");
-
 module.exports = {
   title: "Documentation – Saleor Commerce", // Title for your website.
   tagline:
     "A modular, high performance e-commerce storefront built with Python, GraphQL, Django, and ReactJS.",
-  url: "https://saleor.io", // Your website URL
-  baseUrl: "/", // Base URL for your project */
-  // For github.io type URLs, you would set the url and baseUrl like:
-  //   url: 'https://facebook.github.io',
-  //   baseUrl: '/test-site/',
+  url: "https://saleor.io",
+  baseUrl: "/",
 
   // Used for publishing and more
   projectName: "saleor-docs",
   organizationName: "mirumee",
-  // For top-level user or org sites, the organization is still the same.
-  // e.g., for the https://JoelMarcey.github.io site, it would be set like...
-  //   organizationName: 'JoelMarcey'
 
   favicon: "img/saleor-icon.png",
 
