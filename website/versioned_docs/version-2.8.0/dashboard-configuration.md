@@ -1,12 +1,11 @@
 ---
-id: version-2.8.0-dashboard-config
+id: dashboard-config
 title: Configuration
-original_id: dashboard-config
 ---
 
 The Configure section of the dashboard allows you manage your site settings, staff access, and product configurations. These are usually one-time actions that you set up and can then leave running in the background, while the other sections of the dashboard are where you take care of the dynamic, day-to-day running of your store.
 
-![Configure section](assets/dashboard-config/1.png)
+![Configure section](/assets/dashboard-config/1.png)
 
 
 ## Product and Sales Configuration
@@ -20,7 +19,7 @@ Define the type of products you sell and organize them into groups. The Product 
 
 Click on the [[Add&nbsp;Product&nbsp;Type]] icon on the right above the main product types list. The initial page has fields for Information, Shipping, and Taxes. An Attributes section also appears once the Product Type is saved.
 
-![Adding product type](assets/dashboard-config/2.png)
+![Adding product type](/assets/dashboard-config/2.png)
 
 
 #### Information
@@ -59,7 +58,7 @@ Confirm the cancellation in both cases by clicking [[Delete]] in the pop-up wind
 
 Manage how you ship out orders. The Shipping Methods section contains two main fields: Shipping By Zone and Configuration.
 
-![Shipping zones](assets/dashboard-config/3.png)
+![Shipping zones](/assets/dashboard-config/3.png)
 
 
 ### Weight Configuration
@@ -90,7 +89,7 @@ Remove countries from a shipping zone using the trash can icon next to the count
 
 Find rates offered by couriers for the delivery of your goods and add them to your shipping zones. When your customers get to the checkout section of the store, they will be presented with these shipment options and prices.
 
-![Shipping options](assets/dashboard-config/4.png)
+![Shipping options](/assets/dashboard-config/4.png)
 
 There are two types of shipping:
 
@@ -103,22 +102,22 @@ There are two types of shipping:
 1. Click [[Add&nbsp;Rate]] in the appropriate field. 
 2. Fill the name of the courier in the Rate Name field.
 
-![Adding courier](assets/dashboard-config/5.png)
+![Adding courier](/assets/dashboard-config/5.png)
 
 3. Define if there are minimum and/or maximum weight or price values put in place by couriers. If there are no limitations, click the slider until it turns green. If there are limitations, input them into the fields as the value range. If you leave the minimum value empty, it means that there is no lower threshold. If you leave the maximum value empty, it means there is no maximum weight or price value.
 
-![Specifying value range](assets/dashboard-config/6.png)
+![Specifying value range](/assets/dashboard-config/6.png)
 
-![Specifying value range](assets/dashboard-config/7.png)
+![Specifying value range](/assets/dashboard-config/7.png)
 
 
 ### Free or Paid Shipping
 
 If you offer free shipping, click on the slider until it is green. If shipping is charged, input the rate per weight unit in the currency field.
 
-![Enabling free shipping](assets/dashboard-config/8.png)
+![Enabling free shipping](/assets/dashboard-config/8.png)
 
-![Specifying value range](assets/dashboard-config/9.png)
+![Specifying value range](/assets/dashboard-config/9.png)
 
 
 ### Removing Couriers
@@ -138,32 +137,32 @@ In the main Taxes screen, you need to check or uncheck three boxes in the Config
 
 Once you choose these according to how your store works and click [[Fetch&nbsp;Taxes]], the entire Saleor storefront will re-calibrate to take your preferences into account.
 
-![Taxes configuration](assets/dashboard-config/10.png)
+![Taxes configuration](/assets/dashboard-config/10.png)
 
 Saleor uses a program that automatically retrieves tax information for each country. Click on a country from the list on the Taxes page to see a list of non-standard taxes that are applied in that territory, as well as a box on the right side that shows the national standard tax rate for all other goods.
 
-![Taxes in a country](assets/dashboard-config/11.png)
+![Taxes in a country](/assets/dashboard-config/11.png)
 
 
 ## Staff Members
 
 Manage your employees and their permissions. The Staff Members section gives you an alphabetized list of all people who have administrative access to your dashboard.
 
-![Staff members list](assets/dashboard-config/12.png)
+![Staff members list](/assets/dashboard-config/12.png)
 
 
 ### Adding Staff Members
 
 Click on [[Add&nbsp;Staff&nbsp;Member]] above the list of users. Fill in the first and last name of the new staff member and the email address to which any notifications will be sent.
 
-![Staff members details](assets/dashboard-config/13.png)
+![Staff members details](/assets/dashboard-config/13.png)
 
 
 ### Setting Permissions
 
 In the example above, the Permissions section has the box checked which reads [[User&nbsp;has&nbsp;full&nbsp;access&nbsp;to&nbsp;the&nbsp;store]]. If you want to limit access, uncheck the box and a list of different possible administrative activities will appear. Use the checkboxes to assign specific permissions to the user.
 
-![Staff member permissions](assets/dashboard-config/14.png)
+![Staff member permissions](/assets/dashboard-config/14.png)
 
 
 ### Account Status
@@ -184,11 +183,11 @@ To delete a user, click [[Remove]] on the left side of the footer bar and then c
 
 View and update your site settings to control how your site information appears online.
 
-![General information configuration](assets/dashboard-config/15.png)
+![General information configuration](/assets/dashboard-config/15.png)
 
 The text you input to the [[Name&nbsp;of&nbsp;your&nbsp;store]] field will appear in web browser tabs and at the beginning of browser results.
 
-![Store name displayed by browser](assets/dashboard-config/16.png)
+![Store name displayed by browser](/assets/dashboard-config/16.png)
 
 The [[URL&nbsp;of&nbsp;your&nbsp;online&nbsp;store]] should match that which you will send to customers and web browsers.
 
@@ -204,7 +203,7 @@ You can allow dashboard users to enter your store through Google and Facebook an
 3. Enter a key and password, which users will enter when accessing the dashboard through the chosen platform 
 4. Press [[Add&nbsp;Authentication]] to confirm
 
-![Authorization keys](assets/dashboard-config/17.png)
+![Authorization keys](/assets/dashboard-config/17.png)
 
 
 ## Pages
@@ -214,7 +213,7 @@ In the footer of your main storefront, you can display informational pages with 
 To add pages, click on the [[Pages]] field in the Configure section of the dashboard. 
 Click [[Add&nbsp;Page]] at the top right.
 
-![New page creation](assets/dashboard-config/18.png)
+![New page creation](/assets/dashboard-config/18.png)
 
 
 ### General Information
@@ -223,7 +222,7 @@ Fill in the title of the page, as it will appear in the footer of your store. Ke
 
 Add the content that the page will contain. This may be a simple description of your store or a full terms and conditions section. Use the word processor formatting tools to adjust font sizes, add hyperlinks, and style the page as you want it to appear.
 
-![New page displayed by the site](assets/dashboard-config/19.png)
+![New page displayed by the site](/assets/dashboard-config/19.png)
 
 
 ### Search Engine Preview
@@ -250,7 +249,7 @@ To delete a page, click on the checkbox next to the page name on the list, then 
 
 The navigation section allows you to configure what information is visible on the header and footer navigation bars of your website. 
 
-![Navigation displayed on the site](assets/dashboard-config/20.png)
+![Navigation displayed on the site](/assets/dashboard-config/20.png)
 
 
 ### Creating Your Navigation Structure
@@ -261,11 +260,11 @@ When you have more than one layer, the property to the far left will appear as t
 
 What you'll see in the dashboard:
 
-![Navigation configuration](assets/dashboard-config/21.png)
+![Navigation configuration](/assets/dashboard-config/21.png)
 
 How it will appear on your storefront:
 
-![Navigation displayed in the site's footer](assets/dashboard-config/22.png)
+![Navigation displayed in the site's footer](/assets/dashboard-config/22.png)
 
 
 ### Managing Navigation Items

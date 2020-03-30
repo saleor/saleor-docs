@@ -1,14 +1,13 @@
 ---
-id: version-2.8.0-googleforretail
+id: googleforretail
 title: Google for Retail
-original_id: googleforretail
 ---
 
 Saleor has tools for generating product feed which can be used with Google Merchant Center. Final file is compressed CSV and saved in location specified by `saleor.data_feeds.google_merchant.FILE_PATH` variable.
 
 To generate feed use command:
 
-```console
+```shell-session
 $ python manage.py update_feeds
 ```
 

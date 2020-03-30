@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-internationalization
+id: internationalization
 title: Internationalization and Translation
-original_id: internationalization
 ---
 
 ## Localization
@@ -37,7 +36,7 @@ Export the following environment variable:
 
 To update exchange rates, run the following command at least once a day:
 
-```console
+```shell-session
 $ python manage.py update_exchange_rates --all
 ```
 

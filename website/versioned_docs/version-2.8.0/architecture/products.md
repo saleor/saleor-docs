@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-products
+id: products
 title: Product Structure
-original_id: products
 ---
 
 Before filling your shop with products we need to introduce 3 product concepts - _product types_, _products_, _product variants_.
@@ -18,7 +17,7 @@ Type of cover is the only attribute which creates separate variants in our store
 
 ## Class Diagram
 
-[![Product class diagram](assets/architecture-products/1.png)](assets/architecture-products/1.png)
+[![Product class diagram](/assets/architecture-products/1.png)](/assets/architecture-products/1.png)
 
 
 ## Product Variants

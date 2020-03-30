@@ -17,7 +17,7 @@ Export the following environment variable:
 
 To update the exchange rates, run the following command at least once a day:
 
-```console
+```shell-session
 $ python manage.py update_exchange_rates --all
 ```
 

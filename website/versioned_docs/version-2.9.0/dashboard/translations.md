@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-translations
+id: translations
 title: Translations
-original_id: translations
 ---
 ## Introduction
 
@@ -14,15 +13,15 @@ For all dynamic content, such as categories, products, and descriptions, you can
 
 1. Choose the language into which you plan to translate content:
 
-![Language selection](assets/dashboard-translations/translations1.JPG)
+![Language selection](/assets/dashboard-translations/translations1.JPG)
 
 2. Select the information you wish to edit. The information is divided into Categories, Collections, Products, Sales, Vouchers, Pages, and Products Types:
 
-![Content selection](assets/dashboard-translations/translations2.JPG)
+![Content selection](/assets/dashboard-translations/translations2.JPG)
 
 3. Your existing content will be displayed on the right. Click [[Edit]] in the left column for each string you want to translate and input the information in the target language:
 
-![Translation interface](assets/dashboard-translations/translations3.png)
+![Translation interface](/assets/dashboard-translations/translations3.png)
 
 4. [[Save]] or [[Discard]] your changes.
 
@@ -32,4 +31,4 @@ For all dynamic content, such as categories, products, and descriptions, you can
 >
 > If you have a store in several languages and want to make changes to a single product or element, you can easily edit all languages by entering into one language and making changes, then selecting following languages from the drop down menu on the right, above the General Information card.
 >
-> ![Language switch](assets/dashboard-translations/translations4.JPG)
+> ![Language switch](/assets/dashboard-translations/translations4.JPG)

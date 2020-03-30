@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-configuration
+id: configuration
 title: Configuration
-original_id: configuration
 ---
 
 We are fans of the [12factor](https://12factor.net/) approach and portable code so you can configure most of Saleor using just environment variables.

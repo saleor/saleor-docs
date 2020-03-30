@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-writing-commit-message
+id: writing-commit-message
 title: Writing Good Commit Messages
-original_id: writing-commit-message
 ---
 
 To speed up the review process and to keep the logs tidy, we recommend the following simple rules on how to write good commit messages:

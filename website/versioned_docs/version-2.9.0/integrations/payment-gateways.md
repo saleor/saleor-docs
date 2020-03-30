@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-payment-gateways
+id: payment-gateways
 title: Supported Payment Gateways
-original_id: payment-gateways
 ---
 Each payment gateway integrated with Saleor comes as a plugin solution. 
 

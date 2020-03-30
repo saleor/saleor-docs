@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-example-query
+id: example-query
 title: Example Query - Making Your First Call
-original_id: example-query
 ---
 
 There are many ways of communicating with a GraphQL API. You can use a low-level HTTP client like cURL or a dedicated client for the programming language or framework of your choice. The most convenient tool for testing the API and forming queries is Playground. It is an interactive editor which supports features such us autocompletion, error highlighting, setting HTTP headers, and instant access to API documentation in the sidebar.

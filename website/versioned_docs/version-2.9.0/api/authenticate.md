@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-authenticate
+id: authenticate
 title: How to Authenticate with our API
-original_id: authenticate
 ---
 
 If you are entering the API for the first time as a user who is not logged in, you will only have access to the objects available publicly. For example, by default, you can query public data, such as published products or pages.
@@ -71,7 +70,7 @@ If you are using Playground to browse the API, you can authorize your requests b
 
 To authenticate requests sent with cURL, use the `-H` or `--header` parameter to pass the JWT token:
 
-```console
+```shell-session
 curl \
   -H "Authorization: JWT your-token" \
   -H "Content-Type: application/json" \

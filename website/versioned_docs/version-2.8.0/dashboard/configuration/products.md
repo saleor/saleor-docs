@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-products
+id: products
 title: Product Types and Attributes
-original_id: products
 ---
 
 ## Product Types
@@ -13,7 +12,7 @@ Define the type of products you sell and organize them into groups. The Product 
 
 Click [[Add&nbsp;Product&nbsp;Type]] above the main product types list. The initial page has cards for Information, Shipping, and Taxes. A Product Attributes section also appears once the Product Type is saved.
 
-![Adding product type](assets/dashboard-config/2.png)
+![Adding product type](/assets/dashboard-config/2.png)
 
 
 ### Information

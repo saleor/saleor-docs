@@ -1,14 +1,13 @@
 ---
-id: version-2.8.0-heroku
+id: heroku
 title: Heroku
-original_id: heroku
 ---
 
 ## Configuration
 
 Within the repo, git should already be initialized. All you have to do now is add the heroku remote with your app-name
 
-```console
+```shell-session
 $ heroku git:remote -a 'app-name'
 $ heroku buildpacks:set heroku/nodejs
 $ heroku buildpacks:add heroku/python
@@ -28,14 +27,14 @@ $ heroku config:set SECRET_KEY='<your secret key here>'
 
 ## Deployment
 
-```console
+```shell-session
 $ git push heroku master
 ```
 
 
 ## Preparing the Database
 
-```console
+```shell-session
 $ heroku run python manage.py migrate
 ```
 
@@ -44,13 +43,13 @@ $ heroku run python manage.py migrate
 
 This needs to be run periodically. The best way to achieve this is using Heroku’s Scheduler service. Let’s add it to our application:
 
-```console
+```shell-session
 $ heroku addons:create scheduler
 ```
 
 Then log into your Heroku account, find the Heroku Scheduler addon in the active addon list, and have it run the following command on a daily basis:
 
-```console
+```shell-session
 $ python manage.py update_exchange_rates --all
 ```
 
@@ -59,7 +58,7 @@ $ python manage.py update_exchange_rates --all
 
 By default, Saleor uses Postgres as a search backend, but if you want to switch to Elasticsearch, it can be easily achieved using the Bonsai plugin. In order to do that, run the following commands:
 
-```console
+```shell-session
 $ heroku addons:create bonsai:sandbox-6 --version=5.4
 $ heroku run python manage.py search_index --create
 ```

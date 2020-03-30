@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-gdpr
+id: gdpr
 title: GDPR Compliance
-original_id: gdpr
 ---
 
 ## Introduction

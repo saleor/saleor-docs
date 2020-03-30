@@ -7,7 +7,7 @@ title: Shipping Methods
 
 On this page you can manage how you ship out orders. The Shipping Methods section contains two main cards: Shipping By Zone and Configuration.
 
-![Shipping zones](assets/dashboard-config/config3.JPG)
+![Shipping zones](/assets/dashboard-config/config3.JPG)
 
 
 ## Weight configuration
@@ -39,7 +39,7 @@ Remove countries from a shipping zone using the trash can icon next to the count
 
 Find rates offered by couriers for the delivery of your goods and add them to your shipping zones. When your customers get to the checkout section of the store, they will be presented with these shipment options and prices.
 
-![Shipping options](assets/dashboard-config/config4.JPG)
+![Shipping options](/assets/dashboard-config/config4.JPG)
 
 There are two types of shipping:
 
@@ -57,7 +57,7 @@ These two methods cover most of the basic use cases, for example:
 
 1. Click [[Create&nbsp;Rate]] in the Price Based Rates card. 
 
-![Adding courier](assets/dashboard-config/config5.JPG)
+![Adding courier](/assets/dashboard-config/config5.JPG)
 
 2. Fill the name of the courier in the Rate Name field.
 

@@ -24,7 +24,7 @@ Enter the category name, description, and SEO-optimized information the same way
 
 When finished, click [[Save]] in the bottom right corner.
 
-![Adding category](assets/dashboard-catalog/catalog15.JPG)
+![Adding category](/assets/dashboard-catalog/catalog15.JPG)
 
 
 **2. Add a category photo and a subcategory**
@@ -57,7 +57,4 @@ To remove a category, select the category from the main list and click [[Delete]
 
 Click [[Create&nbsp;Subcategory]] in the top right corner of the Subcategories card. In this example, we have paints and cushions in the Accessories category, which can be marked as separate subcategories. Add a description and SEO information just the same as with a main category.
 
-![Products in category](assets/dashboard-catalog/catalog16.png)
-
-
-
+![Products in category](/assets/dashboard-catalog/catalog16.png)

@@ -82,7 +82,7 @@ Use the following fields to complete the properties setup of your attribute:
 
 * Position in Faceted Navigation - Use this field to indicate the order of attributes in the faceted navigation. Type in a number; the lower the number, the higher the position of your attribute.
 
-![Faceted Navigation](assets/dashboard-config/config23.JPG)
+![Faceted Navigation](/assets/dashboard-config/config23.JPG)
 
 * Visible on Product Page in Storefront - If the toggle is active, your attribute will be visible when viewing the product page. 
 

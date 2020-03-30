@@ -37,7 +37,7 @@ Refer to documentation of above projects for help and tips.
 
 The initial search index can be created with the following command:
 
-```console
+```shell-session
 $ python manage.py search_index --rebuild
 ```
 

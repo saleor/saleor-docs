@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-installation-macos
+id: installation-macos
 title: Installation for macOS
-original_id: installation-macos
 ---
 
 
@@ -26,7 +25,7 @@ Download and install the latest version of “Command Line Tools (macOS 10.x) fo
 
 Then run:
 
-```console
+```shell-session
 $ xcode-select --install
 ```
 
@@ -35,7 +34,7 @@ $ xcode-select --install
 
 Run the following command:
 
-```console
+```shell-session
 $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
@@ -44,7 +43,7 @@ $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/inst
 
 Use Homebrew to install the latest version of Python 3:
 
-```console
+```shell-session
 $ brew install python3
 ```
 
@@ -53,7 +52,7 @@ $ brew install python3
 
 Use Homebrew to install Git:
 
-```console
+```shell-session
 $ brew install git
 ```
 
@@ -62,7 +61,7 @@ $ brew install git
 
 Use Homebrew to install the graphical libraries necessary for PDF creation:
 
-```console
+```shell-session
 $ brew install cairo pango gdk-pixbuf libffi
 ```
 
@@ -71,20 +70,20 @@ $ brew install cairo pango gdk-pixbuf libffi
 
 ### 1. Clone the repository (or use your own fork)
 
-```console
+```shell-session
 $ git clone https://github.com/mirumee/saleor.git
 ```
 
 
 ### 2. Enter the directory
 
-```console
+```shell-session
 $ cd saleor/
 ```
 
 ### 3. Install all dependencies
 
-```console
+```shell-session
 $ pip install -r requirements.txt
 ```
 
@@ -95,7 +94,7 @@ $ pip install -r requirements.txt
 
 We try to provide usable default values for all of the settings. We’ve decided not to provide a default for `SECRET_KEY` as we fear someone would inevitably ship a project with the default value left in code.
 
-```console
+```shell-session
 $ export SECRET_KEY='<mysecretkey>'
 ```
 
@@ -108,7 +107,7 @@ $ export SECRET_KEY='<mysecretkey>'
 
 Unless configured otherwise the store will use `saleor` as both username and password. Remember to give your user the `SUPERUSER` privilege so it can create databases and database extensions.
 
-```console
+```shell-session
 $ createuser --superuser --pwprompt saleor
 ```
 
@@ -119,14 +118,14 @@ Enter `saleor` when prompted for password.
 
 Unless configured otherwise the store will use `saleor` as the database name.
 
-```console
+```shell-session
 $ createdb saleor
 ```
 
 
 ### 7. Prepare the database
 
-```console
+```shell-session
 $ python manage.py migrate
 ```
 
@@ -137,7 +136,7 @@ $ python manage.py migrate
 
 ### 8. Install front-end dependencies
 
-```console
+```shell-session
 $ npm install
 ```
 
@@ -148,20 +147,20 @@ $ npm install
 
 ### 9. Prepare front-end assets
 
-```console
+```shell-session
 $ npm run build-assets
 ```
 
 
 ### 10. Compile e-mails
 
-```console
+```shell-session
 $ npm run build-emails
 ```
 
 
 ### 11. Start the development server
 
-```console
+```shell-session
 $ python manage.py runserver
 ```

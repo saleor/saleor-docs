@@ -1,8 +1,7 @@
 ---
-id: version-2.8.0-braintree
+id: braintree
 sidebar_label: Braintree
 title: Braintree (supports PayPal and Credit Cards)
-original_id: braintree
 ---
 
 This gateway implements payments using [Braintree](https://www.braintreepayments.com/).

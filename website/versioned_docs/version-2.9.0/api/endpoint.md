@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-endpoint
+id: endpoint
 title: The GraphQL Endpoint
-original_id: endpoint
 ---
 
 ## Endpoint

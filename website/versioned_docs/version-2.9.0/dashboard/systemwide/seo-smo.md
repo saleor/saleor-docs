@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-seo-smo
+id: seo-smo
 title: SEO and SMO
-original_id: seo-smo
 ---
 ## Introduction
 

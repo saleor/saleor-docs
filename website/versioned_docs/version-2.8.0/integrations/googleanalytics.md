@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-googleanalytics
+id: googleanalytics
 title: Google Analytics
-original_id: googleanalytics
 ---
 
 Because of EU law regulations, Saleor will not use any tracking cookies by default.

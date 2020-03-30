@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-product
+id: product
 title: How to Obtain a Product
-original_id: product
 ---
 
 ## Introduction

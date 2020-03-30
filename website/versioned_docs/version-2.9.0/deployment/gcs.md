@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-gcs
+id: gcs
 title: Storing Files on Google Cloud Storage (GCS)
-original_id: gcs
 ---
 
 If you are using containers for deployment (including Docker and Heroku), you should avoid storing files in the container’s volatile filesystem. 

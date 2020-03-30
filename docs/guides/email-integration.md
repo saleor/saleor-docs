@@ -58,7 +58,7 @@ smtp://YOUR_LOGIN_NAME@YOUR_DOMAIN_NAME:YOUR_DEFAULT_MAILGUN_PASSWORD@smtp.mailg
 
 Let’s say my domain name is `smtp.example.com` and I want to send emails as `john.doe@smtp.example.com` and my password is `my-mailgun-password`.
 
-[![Mailgun panel](assets/guides-email-integration/1.png)](assets/guides-email-integration/1.png)
+[![Mailgun panel](/assets/guides-email-integration/1.png)](/assets/guides-email-integration/1.png)
 
 I have to set `EMAIL_URL` to:
 

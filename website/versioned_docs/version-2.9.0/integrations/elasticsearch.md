@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-elasticsearch
+id: elasticsearch
 title: Elasticsearch
-original_id: elasticsearch
 ---
 
 ## Installation
@@ -38,7 +37,7 @@ Refer to documentation of above projects for help and tips.
 
 The initial search index can be created with the following command:
 
-```console
+```shell-session
 $ python manage.py search_index --rebuild
 ```
 

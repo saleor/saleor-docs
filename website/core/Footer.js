@@ -19,11 +19,6 @@ class Footer extends React.Component {
     this.setState({ value: event.target.value });
   }
 
-  handleSubmit(event) {
-    alert("Podano następujące imię: " + this.state.value);
-    event.preventDefault();
-  }
-
   render() {
     return (
       <footer className="docs-footer">
@@ -266,22 +261,13 @@ class Footer extends React.Component {
               </span>
             </div>
             <div className="dosc-footer-links">
-              <a
-                href="https://saleor.io/terms-and-conditions/"
-                target="_blank"
-              >
+              <a href="https://saleor.io/terms-and-conditions/" target="_blank">
                 Terms of use
               </a>
-              <a
-                href="https://saleor.io/terms-and-conditions/"
-                target="_blank"
-              >
+              <a href="https://saleor.io/terms-and-conditions/" target="_blank">
                 Privacy policy
               </a>
-              <a
-                href="https://saleor.io"
-                target="_blank"
-              >
+              <a href="https://saleor.io" target="_blank">
                 Saleor Commerce
               </a>
             </div>

@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-installation-linux
+id: installation-linux
 title: Installation for Linux
-original_id: installation-linux
 ---
 
 > **Note**
@@ -38,28 +37,28 @@ Some features (for example, PDF creation) require that additional system librari
 
 Debian 9.0 Stretch or newer, Ubuntu 16.04 Xenial or newer:
 
-```console
+```shell-session
 $ sudo apt-get install build-essential python3-dev python3-pip python3-cffi libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info
 ```
 
 
 * Fedora
 
-```console
+```shell-session
 $ sudo yum install redhat-rpm-config python-devel python-pip python-cffi libffi-devel cairo pango gdk-pixbuf2
 ```
 
 
 * Arch Linux
 
-```console
+```shell-session
 $ sudo pacman -S python-pip cairo pango gdk-pixbuf2 libffi pkg-config
 ```
 
 
 * Gentoo
 
-```console
+```shell-session
 $ emerge pip cairo pango gdk-pixbuf cffi
 ```
 
@@ -69,13 +68,13 @@ $ emerge pip cairo pango gdk-pixbuf cffi
 
 ### 1. Clone the repository (or use your own fork)
 
-```console
+```shell-session
 $ git clone https://github.com/mirumee/saleor.git
 ```
 
 ### 2. Enter the directory
 
-```console
+```shell-session
 $ cd saleor/
 ```
 
@@ -84,7 +83,7 @@ $ cd saleor/
 
 We strongly recommend [creating a virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing any Python packages.
 
-```console
+```shell-session
 $ pip install -r requirements.txt
 ```
 
@@ -93,7 +92,7 @@ $ pip install -r requirements.txt
 
 We try to provide usable default values for all the settings. We have decided not to provide a default for `SECRET_KEY` as we fear someone would inevitably ship a project with the default value left in code.
 
-```console
+```shell-session
 $ export SECRET_KEY='<mysecretkey>'
 ```
 
@@ -126,7 +125,7 @@ See [PostgreSQL’s createdb command](https://www.postgresql.org/docs/current/st
 
 ### 7. Prepare the database
 
-```console
+```shell-session
 $ python manage.py migrate
 ```
 
@@ -137,7 +136,7 @@ $ python manage.py migrate
 
 ### 8. Install front-end dependencies
 
-```console
+```shell-session
 $ npm install
 ```
 
@@ -147,20 +146,20 @@ $ npm install
 
 ### 9. Prepare front-end assets
 
-```console
+```shell-session
 $ npm run build-assets
 ```
 
 
 ### 10. Compile e-mails
 
-```console
+```shell-session
 $ npm run build-emails
 ```
 
 
 ### 11. Start the development server
 
-```console
+```shell-session
 $ python manage.py runserver
 ```

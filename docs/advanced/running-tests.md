@@ -1,5 +1,4 @@
 ---
-id: running-tests
 title: Running Tests
 ---
 
@@ -12,13 +11,13 @@ Use `python -m pip install -r requirements_dev.txt`, or `poetry install` if you 
 
 To run backend tests, use [pytest](https://docs.pytest.org/en/latest/):
 
-```console
-$ py.test
+```shell-session
+$ pytest
 ```
 
 You can also test against all supported versions of Django and Python by using [Tox](https://tox.readthedocs.io/en/latest/):
 
-```console
+```shell-session
 $ tox
 ```
 

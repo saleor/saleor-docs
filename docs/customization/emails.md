@@ -28,12 +28,12 @@ Version 10 or later is required. See the [installation instructions](https://nod
 
 You also need to install frontend dependencies first. To do that run:
 
-```console
+```shell-session
 $ npm install
 ```
 
 To compile the emails run:
 
-```console
+```shell-session
 $ npm run build-emails
 ```

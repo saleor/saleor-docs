@@ -7,7 +7,7 @@ Saleor is equipped with tools for generating product feeds to be used with Googl
 
 To generate a feed, use the following command:
 
-```console
+```shell-session
 $ python manage.py update_feeds
 ```
 

@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-payments
+id: payments
 title: Payments
-original_id: payments
 ---
 
 ## Integrating a new Payment Gateway into Saleor

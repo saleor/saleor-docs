@@ -1,12 +1,11 @@
 ---
-id: version-2.8.0-navigation
+id: navigation
 title: Navigation
-original_id: navigation
 ---
 
 The navigation section allows you to configure what information is visible on the header and footer navigation bars of your website. 
 
-![Navigation displayed on the site](assets/dashboard-config/20.png)
+![Navigation displayed on the site](/assets/dashboard-config/20.png)
 
 
 ### Creating Your Navigation Structure
@@ -17,11 +16,11 @@ When you have more than one layer, the property to the far left will appear as t
 
 What you'll see in the dashboard:
 
-![Navigation configuration](assets/dashboard-config/21.png)
+![Navigation configuration](/assets/dashboard-config/21.png)
 
 How it will appear on your storefront:
 
-![Navigation displayed in the site's footer](assets/dashboard-config/22.png)
+![Navigation displayed in the site's footer](/assets/dashboard-config/22.png)
 
 
 ### Managing Navigation Items

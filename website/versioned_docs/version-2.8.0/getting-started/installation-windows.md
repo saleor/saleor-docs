@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-installation-windows
+id: installation-windows
 title: Installation for Windows
-original_id: installation-windows
 ---
 
 This guide assumes a 64-bit installation of Windows.
@@ -52,14 +51,14 @@ All commands need to be performed in either PowerShell or a Command Shell.
 
 ### 1. Clone the repository (replace the URL with your own fork where needed)
 
-```console
+```shell-session
 git clone https://github.com/mirumee/saleor.git
 ```
 
 
 ### 2. Enter the directory
 
-```console
+```shell-session
 cd saleor/
 ```
 
@@ -68,7 +67,7 @@ cd saleor/
 
 We strongly recommend [creating a virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing any Python packages.
 
-```console
+```shell-session
 python -m pip install -r requirements.txt
 ```
 
@@ -78,7 +77,7 @@ python -m pip install -r requirements.txt
 
 We try to provide usable default values for all of the settings. We’ve decided not to provide a default for `SECRET_KEY` as we fear someone would inevitably ship a project with the default value left in code.
 
-```console
+```shell-session
 $env:SECRET_KEY = "<mysecretkey>"
 ```
 
@@ -106,7 +105,7 @@ See [PostgreSQL’s createdb command](https://www.postgresql.org/docs/current/st
 
 ### 7. Prepare the database
 
-```console
+```shell-session
 python manage.py migrate
 ```
 
@@ -117,7 +116,7 @@ python manage.py migrate
 
 ### 8. Install front-end dependencies
 
-```console
+```shell-session
 npm install
 ```
 
@@ -128,20 +127,20 @@ npm install
 
 ### 9. Prepare front-end assets
 
-```console
+```shell-session
 npm run build-assets
 ```
 
 
 ### 10. Compile e-mails
 
-```console
+```shell-session
 npm run build-emails
 ```
 
 
 ### 11. Start the development server:
 
-```console
+```shell-session
 python manage.py runserver
 ```

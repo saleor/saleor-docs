@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-smo
+id: smo
 title: Social Media Optimization (SMO)
-original_id: smo
 ---
 
 ## Open Graph

@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-payments
+id: payments
 title: How to Integrate New Payment Gateway
-original_id: payments
 ---
 ## Introduction
 

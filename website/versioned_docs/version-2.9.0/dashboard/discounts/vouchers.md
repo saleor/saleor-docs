@@ -1,13 +1,12 @@
 ---
-id: version-2.9.0-vouchers
+id: vouchers
 title: Vouchers
-original_id: vouchers
 ---
 ## Using vouchers in Saleor
 
 Vouchers allow you to give all your customers or selected shoppers a great deal on a specific product or order. Users get a voucher code via email, or on social media or your website, which they can they activate at the checkout when making a purchase.
 
-![Voucher page](assets/dashboard-discounts/vouchers1.JPG)
+![Voucher page](/assets/dashboard-discounts/vouchers1.JPG)
 
 ## How to
 

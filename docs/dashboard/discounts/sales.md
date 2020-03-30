@@ -17,7 +17,7 @@ Sales are an excellent way to encourage customers to use your store. Saleor offe
 
 Click [[Create&nbsp;Sale]] above the main sales list and fill in the relevant sections.
 
-![Creating sale](assets/dashboard-discounts/discount1.JPG)
+![Creating sale](/assets/dashboard-discounts/discount1.JPG)
 
 
 **2. General Information card**
@@ -41,11 +41,11 @@ Once you have set the basic parameters of your sale and saved them, the summary 
 
 Select the items in your sale. The categories section allows you to select individual products, assign entire categories, or assign entire pre-created collections.   
 
-![Products in sale](assets/dashboard-discounts/discounts2.png)
+![Products in sale](/assets/dashboard-discounts/discounts2.png)
 
 To assign any product, category or collection, click on the relevant tab and then make your selection using the checkboxes. You can search for specific products, attributes, and so on by typing in the Search Categories section.
 
-![Including categories in sale](assets/dashboard-discounts/discounts3.JPG)
+![Including categories in sale](/assets/dashboard-discounts/discounts3.JPG)
 
 Once you have chosen the products, categories or collections you want to promote, click [[Assign&nbsp;Categories]].
 

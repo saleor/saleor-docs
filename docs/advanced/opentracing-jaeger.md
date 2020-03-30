@@ -1,5 +1,4 @@
 ---
-id: opentracing-jaeger
 title: OpenTracing with Jaeger
 ---
 
@@ -22,4 +21,4 @@ If the default Saleor platform Jaeger setup doesn't suit your needs you can conn
 - JAEGER_LOGGING - boolean to set whether you want verbose logs of tracing, defaults to False.
 
 ## What is being traced
-Summary of tags and logs collected in Saleor is available on [OpenTracing](advanced/opentracing.md) page. These are grouped upon each request and visible in Jaeger as [one expandable timeline entry](assets/advanced/1.png).
+Summary of tags and logs collected in Saleor is available on [OpenTracing](advanced/opentracing.md) page. These are grouped upon each request and visible in Jaeger as [one expandable timeline entry](/assets/advanced/1.png).

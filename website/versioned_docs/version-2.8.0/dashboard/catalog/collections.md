@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-collections
+id: collections
 title: Collections
-original_id: collections
 ---
 
 Collections are a great way to increase sales and give customers better experiences. Group products together to take advantage of seasonal events or link products that are regularly bought in pairs or groups. 
@@ -16,7 +15,7 @@ You can add and edit collections in the same way as categories, with a cover pho
 
 Once you have created a collection, you can easily add more products by choosing the [[Assign&nbsp;Products]] option from the collection overview and choosing products from the list. To find other products, type the name, attribute or product type into the search bar and the list will automatically refresh.
 
-![Assign product to collection](assets/dashboard-catalog/17.jpg)
+![Assign product to collection](/assets/dashboard-catalog/17.jpg)
 
 
 ## Featured Collections

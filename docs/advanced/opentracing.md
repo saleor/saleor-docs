@@ -1,5 +1,4 @@
 ---
-id: opentracing
 title: OpenTracing
 ---
 

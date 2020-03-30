@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-docker
+id: docker
 title: Using Docker for Development
-original_id: docker
 ---
 
 Using Docker to build software allows you to run and test code without having to worry about external dependencies such as cache servers and databases.
@@ -35,13 +34,13 @@ Additionally if you wish to have the compiled templated emails mounted then you 
 
 Build the containers using `docker-compose`:
 
-```console
+```shell-session
 $ docker-compose build
 ```
 
 Prepare the database:
 
-```console
+```shell-session
 $ docker-compose run --rm web python3 manage.py migrate
 $ docker-compose run --rm web python3 manage.py collectstatic
 $ docker-compose run --rm web python3 manage.py populatedb --createsuperuser
@@ -51,7 +50,7 @@ $ docker-compose run --rm web python3 manage.py populatedb --createsuperuser
 
 Run the containers:
 
-```console
+```shell-session
 $ docker-compose up
 ```
 

@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-service-accounts
+id: service-accounts
 title: Service account
-original_id: service-accounts
 ---
 
 ## Introduction
@@ -18,6 +17,6 @@ Set whether the account is active in the Account Status card on the right by cli
 
 Save your changes by clicking [[Save]] in the footer.
 
-![Service accounts](assets/dashboard-config/Serviceaccount.jpg)
+![Service accounts](/assets/dashboard-config/Serviceaccount.jpg)
 
 Once you have generated a token, you will need to provide it to run your script. To ensure integrity and security, tokens are only displayed once, so you need to copy the code and save it in a different destination. If you need to ensure total security and cannot save the token, you can create a new one for the same service through the [[Create token]] option in the Service Account Information card. Tokens can also be deleted in the same place using the trash can icon, or can be deleted using the option in the footer.

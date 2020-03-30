@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-pagination
+id: pagination
 title: Pagination
-original_id: pagination
 ---
 
 Pagination is required in most queries which return lists of items in the Saleor GraphQL API. This limits the number of results returned by the server to a more manageable size and avoids data flow disruptions. 

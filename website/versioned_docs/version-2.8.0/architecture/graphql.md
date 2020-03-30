@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-graphql
+id: graphql
 title: GraphQL API (Beta)
-original_id: graphql
 ---
 
 > **Note**

@@ -1,5 +1,4 @@
 ---
-id: managing-dependencies
 title: Managing Dependencies
 ---
 

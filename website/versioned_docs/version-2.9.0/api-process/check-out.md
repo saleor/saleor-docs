@@ -1,12 +1,11 @@
 ---
-id: version-2.9.0-check-out
+id: check-out
 title: How to Create Checkout
-original_id: check-out
 ---
 
 ## Introduction
 
-Below is a description of a checkout process. We assume that at this stage you have already completed the steps included in the [Getting Started](api/intro.md) section of this chapter and that you are familiar with the basic setup of the Saleor GraphQL API.
+Below is a description of a checkout process. We assume that at this stage you have already completed the steps included in the [Getting Started](api/intro.mdx) section of this chapter and that you are familiar with the basic setup of the Saleor GraphQL API.
 
 The below process describes the key milestones in the checkout process flow in Saleor. There are also additional steps that may occur along the way; however, the purpose of this instruction is to deliver a base reference for the user to work with.
 

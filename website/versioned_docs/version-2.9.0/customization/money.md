@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-money
+id: money
 title: Handling Money Amounts
-original_id: money
 ---
 
 Saleor uses the [Prices](https://github.com/mirumee/prices/) and [django-prices](https://github.com/mirumee/django-prices/) libraries to store, calculate, and display amounts of money, prices, and price ranges, as well as [django-prices-vatlayer](https://github.com/mirumee/django-prices-vatlayer) to optionally handle VAT tax rates in the European Union.

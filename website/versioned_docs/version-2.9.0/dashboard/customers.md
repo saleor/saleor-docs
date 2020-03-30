@@ -1,17 +1,16 @@
 ---
-id: version-2.9.0-customers
+id: customers
 title: Customers
-original_id: customers
 ---
 ## Introduction
 
 In this page you can view the details of all users who have provided you with their information when setting up an account or placing an order.
 
-![Customers list](assets/dashboard-customers/customers1.JPG)
+![Customers list](/assets/dashboard-customers/customers1.JPG)
 
 Click on an individual customer to get an overview of the general information, address, customer activity, and recent orders.
 
-![Customer details](assets/dashboard-customers/customers2.JPG)
+![Customer details](/assets/dashboard-customers/customers2.JPG)
 
 
 ## Customer orders and history

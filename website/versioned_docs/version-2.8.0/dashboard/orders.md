@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-orders
+id: orders
 title: Orders
-original_id: orders
 ---
 
 The Orders section shows you all orders placed through the Saleor system by customers, as well as those created manually by administrators.
@@ -11,7 +10,7 @@ The Orders section shows you all orders placed through the Saleor system by cust
 
 The main list shows all orders in the system, regardless of status.
 
-![Orders list](assets/dashboard-orders/1.png)
+![Orders list](/assets/dashboard-orders/1.png)
 
 ### How to use filters 
 
@@ -20,19 +19,19 @@ To automatically filter orders, use the drop-down menu and view orders by date o
 You can also manually search specific information, such as key words or names, using the Search Orders field. The filter is dynamically applied as you type. 
 
 
-![Orders list filters](assets/dashboard-orders/2.jpg)
+![Orders list filters](/assets/dashboard-orders/2.jpg)
 
 
 Click on any order from the list to get the full details. The order page contains cards for fulfillment status, payment, customer details, and order history.
 
-![Order details](assets/dashboard-orders/3.jpg)
+![Order details](/assets/dashboard-orders/3.jpg)
 
 
 ### How to Fulfill an Order
 
 Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single Unfulfilled or Fulfilled card. Others, as in the example here, will have both cards if parts of the order have been sent to the customer but other products are yet to be dispatched. 
 
-![Order fulfillment options](assets/dashboard-orders/4.jpg)
+![Order fulfillment options](/assets/dashboard-orders/4.jpg)
 
 
 To fulfill an order, click [[Fulfill]] in the Unfulfilled card and use the stepper to confirm which products are being send. In the example below, the t-shirt and hoodie are being sent in full, only two from four pairs of plimsolls are being sent, and the juice is not being sent.
@@ -47,7 +46,7 @@ If you have a tracking number for the package, add it in the field below the pro
 >
 > When fulfillment is confirmed, the customer will automatically receive an email with information about the goods that they will receive, including any additional information such as tracking numbers.
 
-![Order fulfillment](assets/dashboard-orders/5.jpg)
+![Order fulfillment](/assets/dashboard-orders/5.jpg)
 
 
 ### How to Cancel a Shipment
@@ -55,7 +54,7 @@ If you have a tracking number for the package, add it in the field below the pro
 - Click the three dots in the top right corner of a Fulfilled order card
 - Select [[Cancel&nbsp;Shipment]] when the pop-up appears, then confirm. Items will be restocked into the Saleor system
 
-![Canceling shipment](assets/dashboard-orders/6.jpg)
+![Canceling shipment](/assets/dashboard-orders/6.jpg)
 
 
 ### Customer Details
@@ -75,7 +74,7 @@ Orders can have three different payment types:
 
 A traditional credit card or bank payment that is awaiting authorization from the bank. Unpaid amounts are listed as ‘pre-authorized’. Once funds are released, the order status will automatically change to fully paid.	
 
-![Unpaid order](assets/dashboard-orders/7.jpg)
+![Unpaid order](/assets/dashboard-orders/7.jpg)
 
 
 ### Fully Paid Orders
@@ -86,7 +85,7 @@ Payments can be fully or partially refunded if there is an issue with the goods 
 - Click [[Confirm]] to refund the full amount 
 - For partial refunds, input the amount manually or using the stepper, then confirm
 
-![Fully paid order](assets/dashboard-orders/8.jpg)
+![Fully paid order](/assets/dashboard-orders/8.jpg)
 
 
 ### Capture Payments
@@ -95,7 +94,7 @@ Unlike traditional transactions, capture payments are not instantly processed. Y
 
 You can capture the full or partial amount (for example, taking only partial payment for an item due to damage, late delivery, or customer service issues) by clicking [[Capture]] in the bottom right corner and then confirming the full amount or changing the price to the new amount agreed with the customer.
 
-![Order with captured payment](assets/dashboard-orders/9.jpg)
+![Order with captured payment](/assets/dashboard-orders/9.jpg)
 
 
 ## Creating an Order
@@ -113,7 +112,7 @@ This is a function for store administrators to add orders, usually in cases wher
 
 Once you set up the order and finalize it using the button in the footer, it becomes a normal order and replacement goods can be sent to the customer.
 
-![Create an order](assets/dashboard-orders/CreateOrdersImage.png)
+![Create an order](/assets/dashboard-orders/CreateOrdersImage.png)
 
 ## Draft Orders
 

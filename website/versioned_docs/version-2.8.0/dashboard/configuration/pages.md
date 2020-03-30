@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-pages
+id: pages
 title: Pages
-original_id: pages
 ---
 
 In the footer of your main storefront, you can display informational pages with content about your store, your team, terms and conditions, privacy information, and other useful details. These simple text pages enhance the image of your business and sometimes contain essential legal information you need to communicate to customers.
@@ -9,7 +8,7 @@ In the footer of your main storefront, you can display informational pages with 
 To add pages, click on the [[Pages]] field in the Configure section of the dashboard. 
 Click [[Add&nbsp;Page]] at the top right.
 
-![New page creation](assets/dashboard-config/18.png)
+![New page creation](/assets/dashboard-config/18.png)
 
 
 ## General Information
@@ -18,7 +17,7 @@ Fill in the title of the page, as it will appear in the footer of your store. Ke
 
 Add the content that the page will contain. This may be a simple description of your store or a full terms and conditions section. Use the word processor formatting tools to adjust font sizes, add hyperlinks, and style the page as you want it to appear.
 
-![New page displayed by the site](assets/dashboard-config/19.png)
+![New page displayed by the site](/assets/dashboard-config/19.png)
 
 
 ## Search Engine Preview

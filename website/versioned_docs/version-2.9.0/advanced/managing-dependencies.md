@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-managing-dependencies
+id: managing-dependencies
 title: Managing Dependencies
-original_id: managing-dependencies
 ---
 
 

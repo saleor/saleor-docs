@@ -1,5 +1,4 @@
 ---
-id: extensions
 title: Extensions
 ---
 ## Introduction

@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-running-tests
+id: running-tests
 title: Running Tests
-original_id: running-tests
 ---
 
 Before making any permanent changes in the code, make sure the changes you apply do not break the existing functionality.
@@ -13,13 +12,13 @@ Use `python -m pip install -r requirements_dev.txt`, or `poetry install` if you 
 
 To run backend tests, use [pytest](https://docs.pytest.org/en/latest/):
 
-```console
+```shell-session
 $ py.test
 ```
 
 You can also test against all supported versions of Django and Python by using [Tox](https://tox.readthedocs.io/en/latest/):
 
-```console
+```shell-session
 $ tox
 ```
 

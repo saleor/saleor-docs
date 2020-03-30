@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-frontend
+id: frontend
 title: Customizing CSS and JavaScript
-original_id: frontend
 ---
 
 All static assets live in subdirectories of `/saleor/static/`.
@@ -18,7 +17,7 @@ During development it’s very convenient to have webpack automatically track ch
 
 To run webpack in _watch_ mode run:
 
-```console
+```shell-session
 $ npm start
 ```
 
@@ -26,6 +25,6 @@ $ npm start
 >
 > Files produced this way are not ready for production use. To prepare static assets for deployment run:
 >
-> ```console
+> ```shell-session
 > $ npm run build-assets --production
 > ```

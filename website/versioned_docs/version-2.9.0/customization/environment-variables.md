@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-environment-variables
+id: environment-variables
 title: Environment Variables
-original_id: environment-variables
 ---
 
 We are fans of the [12 factor](https://12factor.net/) approach and portable code, so you can configure most of Saleor using only environment variables.

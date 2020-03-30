@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-events
+id: events
 title: Events
-original_id: events
 ---
 
 > **Note**

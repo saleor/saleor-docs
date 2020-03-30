@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-translations
+id: translations
 title: Model Translations
-original_id: translations
 ---
 
 > **Note**

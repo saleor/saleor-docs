@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-email-markup
+id: email-markup
 title: Email Markup
-original_id: email-markup
 ---
 
 Saleor is using schema.org markup to highlight the most important information within an email and allow users to easily interact with it. [Order confirmation email](https://developers.google.com/gmail/markup/reference/order) will be displayed as an interactive summary card.

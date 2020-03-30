@@ -1,5 +1,4 @@
 ---
-id: events
 title: Events
 ---
 
@@ -37,6 +36,7 @@ events.email_sent_event(
     email_type=events.OrderEventsEmails.TRACKING_UPDATED,
 )
 ```
+
 Take note of the way the email type is provided.
 
 > **Note**

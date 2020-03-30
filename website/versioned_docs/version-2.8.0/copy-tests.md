@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-copy-tests
+id: copy-tests
 title: Copy tests
-original_id: copy-tests
 ---
 
 ## Level 2 header

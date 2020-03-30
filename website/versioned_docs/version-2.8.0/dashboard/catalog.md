@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-catalog
+id: catalog
 title: Catalog
-original_id: catalog
 ---
 
 The catalog section contains your entire online inventory. You can view products individually or by category, and can assign products to seasonal collections. Click [[Catalog]] on the left sidebar menu for a drop-down list of sub-sections:
@@ -20,7 +19,7 @@ Products on the Saleor platform can be sorted by category if you sell a range of
 
 Click on the [[Add&nbsp;Category]] button to enter a new set of products. Enter the category name, description, and SEO-optimized information the same way as you would with an individual product. When finished, click [[Save&nbsp;Category]] in the bottom right corner and then add a widescreen banner photo that will appear at the top of the screen when customers view the category.
 
-![Adding category](assets/dashboard-catalog/15.jpg)
+![Adding category](/assets/dashboard-catalog/15.jpg)
 
 
 ### Editing Categories
@@ -34,7 +33,7 @@ Sub-categories break large groups down into smaller subsets that make it easier 
 
 In this example, we have paints and cushions in the Accessories category, which can be marked as separate sub-categories. Add a description and SEO information just the same as with a main category.
 
-![Products in category](assets/dashboard-catalog/16.jpg)
+![Products in category](/assets/dashboard-catalog/16.jpg)
 
 
 ### Deleting Categories
@@ -60,7 +59,7 @@ You can add and edit collections in the same way as categories, with a cover pho
 
 Once you have created a collection, you can easily add more products by choosing the [[Assign&nbsp;Products]] option from the collection overview and choosing products from the list. To find other products, type the name, attribute or product type into the search bar and the list will automatically refresh.
 
-![Assign product to collection](assets/dashboard-catalog/17.jpg)
+![Assign product to collection](/assets/dashboard-catalog/17.jpg)
 
 
 ### Featured Collections
@@ -69,7 +68,7 @@ Once you have created a collection, you can easily add more products by choosing
 - Featuring a collection will make it appear on the front page of your website
 - You can only feature one collection at a time. Turning the [[Feature&nbsp;on&nbsp;Homepage]] option on for one collection will automatically turn it off for all others
 
-![Collection visibility controls](assets/dashboard-catalog/18.jpg)
+![Collection visibility controls](/assets/dashboard-catalog/18.jpg)
 
 
 ### Deleting a Collection

@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-extensions
+id: extensions
 title: Extensions
-original_id: extensions
 ---
 
 Saleor has implemented extensions architecture. It includes hooks for most basic operations like calculation of prices in the checkout or calling some actions when an order has been created.

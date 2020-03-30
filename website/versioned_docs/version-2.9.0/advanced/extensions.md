@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-extensions
+id: extensions
 title: Extensions
-original_id: extensions
 ---
 ## Introduction
 

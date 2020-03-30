@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-recaptcha
+id: recaptcha
 title: reCAPTCHA
-original_id: recaptcha
 ---
 
 ## Pre-requirements

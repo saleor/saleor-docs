@@ -18,7 +18,7 @@ These simple text pages enhance the image of your business and sometimes contain
 
 To add a page, click the [[Pages]] tile in the Configuration section of the dashboard menu. Click [[Create&nbsp;Page]] at the top right corner.
 
-![New page creation](assets/dashboard-config/config18.JPG)
+![New page creation](/assets/dashboard-config/config18.JPG)
 
 
 **2. Provide general information**
@@ -27,7 +27,7 @@ Fill in the title of the page, as it will appear in the footer of your store. Ke
 
 Add the content that the page will contain. This may be a simple description of your store or a full terms and conditions section. Use the word processor formatting tools to adjust font sizes, add hyperlinks, and style the page as you want it to appear.
 
-![New page displayed by the site](assets/dashboard-config/config19.JPG)
+![New page displayed by the site](/assets/dashboard-config/config19.JPG)
 
 
 **3. Search engine preview**

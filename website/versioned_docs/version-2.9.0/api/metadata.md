@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-metadata
+id: metadata
 title: Extending Models Using Metadata
-original_id: metadata
 ---
 
 Saleor gives you the possibility to customize your shop without changes in the code. Once you get your own Saleor instance, you can extend most of Saleor's database models using metadata. 

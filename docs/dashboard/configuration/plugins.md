@@ -9,7 +9,7 @@ Saleor provides the possibility to add various extensions to it so you can creat
 
 The plugin page is used to display general information about installed plugins, along with their activation status (active or not active). 
 
-![plugins](assets/dashboard-config/plugins1.JPG)
+![plugins](/assets/dashboard-config/plugins1.JPG)
 
 If you choose to, you can use the plugin window to display the basic configuration to allow dashboard users to manage the elemental settings of existing plugins. 
 

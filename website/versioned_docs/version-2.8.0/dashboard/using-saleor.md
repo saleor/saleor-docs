@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-using-saleor
+id: using-saleor
 title: Using Saleor
-original_id: using-saleor
 ---
 
 ## About the Dashboard

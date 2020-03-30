@@ -1,12 +1,11 @@
 ---
-id: version-2.8.0-home
+id: home
 title: Home
-original_id: home
 ---
 
 The Home page is the welcome screen of your dashboard. It appears when you log in to the system and gives you a quick overview of recent activity in your store. Refresh your browser to update the statistics.
 
-![Dashboard home](assets/dashboard-home/1.png)
+![Dashboard home](/assets/dashboard-home/1.png)
 
 
 The page consists of the following cards.
@@ -37,4 +36,4 @@ The activity card gives you a quick summary of all actions taken by your Saleor 
 >
 > If you prefer to work in dark mode, simply click on the sun/moon switch in the top right of the screen and you can toggle back and forth as you wish. 
 
-![Dark mode](assets/dashboard-home/2.jpg)
+![Dark mode](/assets/dashboard-home/2.jpg)

@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-taxes
+id: taxes
 title: How to Configure Taxes
-original_id: taxes
 ---
 
 It is possible to configure taxes in Saleor. It supports the following external tax providers: [Avalara](https://www.avalara.com/) and [Vatlayer](https://vatlayer.com/). Currently, only one provider can be enabled at a time.

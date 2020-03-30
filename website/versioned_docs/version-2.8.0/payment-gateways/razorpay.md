@@ -1,8 +1,7 @@
 ---
-id: version-2.8.0-razorpay
+id: razorpay
 sidebar_label: Razorpay
 title: Razorpay (supports only the paisa currency)
-original_id: razorpay
 ---
 
 This gateway implements payments using [Razorpay](https://razorpay.com/).
