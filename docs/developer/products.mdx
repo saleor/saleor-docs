@@ -1,12 +1,283 @@
 ---
-title: Products
-sidebar_label: Index
+title: Querying Product Information
+sidebar_label: Products
 ---
 
-import CardGrid from "@site/components/CardGrid";
+import GraphQL from "@site/components/GraphQL";
 
-<CardGrid>
+## Introduction
 
-[**Fetching Product Information** Querying the GraphQL API.](products/api.mdx)
+This guide describes how to obtain products from the Saleor GraphQL API.
 
-</CardGrid>
+You can either retrieve a single product or a list of products. You may require a list of products in many situations, for example, when you need to simply display the catalog in your storefront, or to provide a third party service with a list of products available in your store.
+
+## Retrieving a List of Products
+
+To fetch a product list, you need to run the `products` query. The `products` field is a paginated collection, see [Pagination](pagination.mdx) for more information.
+
+
+Let's take a look at an example query to fetch a list of products:
+
+<GraphQL
+  height={20}
+  query={`{
+  products(first: 2) {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}`}
+/>
+
+In this example, for each product, we want to return the following fields:
+
+- `id`: the unique product ID, most operations will require one.
+- `name`: the name of the product.
+
+### Filtering
+
+The `products` query gives the ability to filter the results. Use the optional `filter` argument. Some of the filters that are available here are:
+
+- `search: String`: search by name or part of the description.
+- `price: ...`: filter by base price:
+  - `price: {lte: Float}`: price lower than or equal to given value.
+  - `price: {gte: Float}`: price greater than or equal to given value.
+- `minimalPrice: ...`: filter by minimal variant price:
+  - `minimalPrice: {lte: Float}`: price lower than or equal to given value.
+  - `minimalPrice: {gte: Float}`: price greater than or equal to given value.
+- `stockAvailability: ...`: filter by available stock:
+  - `stockAvailability: IN_STOCK`: only available products.
+  - `stockAvailability: OUT_OF_STOCK`: only out-of-stock products.
+
+Here is an example query that looks for the first 3 products containing the term "juice" in the title or description:
+
+<GraphQL
+  height={20}
+  query={`{
+  products(first: 3, filter: { search: "juice" }) {
+    edges {
+      node {
+        name
+      }
+    }
+  }
+}`}
+/>
+
+### Sorting
+
+In `products` you can also sort the results using two `sortBy` arguments:
+
+- `field`: the field to use for sorting the results from several predefined choices:
+  - `NAME`: sort products by name.
+  - `PRICE`: sort products by base price.
+  - `MINIMAL_PRICE`: sort products by minimal variant price.
+  - `DATE`: sort products by last update.
+- `direction` - The direction for sorting items:
+  - `ASC`: sort ascending.
+  - `DESC`: sort descending.
+
+This example shows how to sort the products list by the minimal variant price, lowest to highest:
+
+<GraphQL
+  height={25}
+  query={`{
+  products(
+    first: 2
+    sortBy: { field: MINIMAL_PRICE, direction: ASC }
+  ) {
+    edges {
+      node {
+        name
+        minimalVariantPrice {
+          amount
+          currency
+        }
+      }
+    }
+  }
+}
+`}
+/>
+
+## Obtaining a Single Product
+
+To get a single product, use the `product` query, which requires only one input field:
+
+- `id`: the unique product ID.
+
+Here is the example query that fetches a single product:
+
+```graphql {2}
+query {
+  product(id: "UHJvZHVjdDoxMTU=") {
+    id
+    name
+  }
+}
+```
+
+## Retrieving Product Variants
+
+To obtain product variants, query the `variants` field on the `Product` type:
+
+<GraphQL
+  height={25}
+  query={`{
+  products(first: 1) {
+    edges {
+      node {
+        id
+        name
+        variants {
+          id
+          name
+        }
+      }
+    }
+  }
+}`}
+/>
+
+Like products, here we're asking for two fields from each variant:
+
+- `id`: the unique variant ID.
+- `name`: the name of the variant.
+
+## Pricing
+
+Use the `pricing` field of products and variants to obtain pricing information.
+
+Here are the available fields for product pricing:
+
+```graphql
+type ProductPricingInfo {
+  priceRange: TaxedMoneyRange
+  priceRangeUndiscounted: TaxedMoneyRange
+  discount: TaxedMoney
+  onSale: Boolean
+}
+```
+
+And similar fields for product variants:
+
+```graphql
+type VariantPricingInfo {
+  price: TaxedMoney
+  priceUndiscounted: TaxedMoney
+  discount: TaxedMoney
+  onSale: Boolean
+}
+```
+
+The main difference is that products don't have a price point, instead they offer a price range that includes all of their variant prices.
+
+Here are the money types returned by the above:
+
+```graphql
+type TaxedMoneyRange {
+  # lowest price
+  start: TaxedMoney
+  # highest price
+  stop: TaxedMoney
+}
+
+type TaxedMoney {
+  # before tax
+  net: Money!
+  # after tax
+  gross: Money!
+
+  # gross - net
+  tax: Money!
+  # repeated for convenience
+  currency: String!
+}
+
+type Money {
+  amount: Float!
+  currency: String!
+}
+```
+
+## Images
+
+The `Product` type contains two fields that refer to its images:
+
+- `thumbnail`: the product's main image. An optional `size` parameter specifies the desired size in pixels if given. The following fields are available:
+  - `url`: the image's URL.
+  - `alt`: the alternative text to include when displaying the image.
+- `images`: gives you access to the entire list of associated product images with the following fields available:
+  - `url`: the image's URL. An optional `size` parameter specifies the desired size in pixels if given.
+  - `alt`: the alternative text to include when displaying the image.
+
+Here's a query that asks for both the thumbnail and all images of the first product, optimized for display at 100×100px:
+
+<GraphQL
+  height={30}
+  query={`{
+  products(first: 1) {
+    edges {
+      node {
+        id
+        name
+        thumbnail(size: 100) {
+          url
+          alt
+        }
+        images {
+          url(size: 100)
+          alt
+        }
+      }
+    }
+  }
+}`}
+/>
+
+## Examples
+
+Here's a more complex GraphQL query that combines all of the above information:
+
+```graphql
+{
+  products(first: 2, sortBy: {field: NAME}) {
+    edges {
+      node {
+        id
+        name
+        pricing {
+          priceRange {
+            start {
+              gross {
+                amount
+                currency
+              }
+            }
+          }
+          discount {
+            gross {
+              amount
+              currency
+            }
+          }
+          priceRangeUndiscounted {
+            start {
+              gross {
+                amount
+                currency
+              }
+            }
+          }
+        }
+        thumbnail {
+          url
+        }
+      }
+    }
+  }
+}
+```
