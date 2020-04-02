@@ -1,0 +1,92 @@
+---
+title: Users
+sidebar_label: Users
+---
+
+## Introduction
+
+This guide describes how to use the Saleor GraphQL API to register a new account as a customer and do the most common account management operations.
+
+## Creating a new customer account
+
+Depending on the configuration of your Saleor backend instance, registering a new customer account may be a simple, single-step operation or it may require email confirmation to activate the account (see [`ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL`](developer/configuration.mdx#enable_account_confirmation_by_email)).
+
+Let's see first how to register a new account without email confirmation.
+
+### Registration without email confirmation
+
+To create a new customer account, use the `accountRegister` mutation.
+
+```graphql
+mutation {
+  accountRegister(
+    input: { email: "customer@example.com", password: "secret" }
+  ) {
+    accountErrors {
+      field
+      message
+      code
+    }
+    user {
+      id
+      email
+      isActive
+    }
+  }
+}
+```
+
+The mutation takes the following input fields:
+
+- `email` - the user's email address.
+- `password` - the user's password.
+
+As a result, we get data of the newly created user:
+
+```json
+{
+  "data": {
+    "accountRegister": {
+      "accountErrors": [],
+      "user": {
+        "id": "VXNlcjo1MA==",
+        "email": "customer@example.com",
+        "isActive": true
+      }
+    }
+  }
+}
+```
+
+The `isActive` flag informs that the account is active.
+
+Examples above include `accountErrors` field, which may return any data-level errors when, for some reason, the account couldn't be created. Here is a response that you would get if an account with the email provided in the mutation already exists:
+
+```json
+{
+  "data": {
+    "accountRegister": {
+      "accountErrors": [
+        {
+          "field": "email",
+          "message": "User with this email already exists.",
+          "code": "UNIQUE"
+        }
+      ],
+      "user": null
+    }
+  }
+}
+```
+
+### Registration with email confirmation
+
+...
+
+## Password reset
+
+...
+
+## Email change
+
+...
