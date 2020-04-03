@@ -11,6 +11,10 @@ This guide describes how to use the Saleor GraphQL API to register a new account
 
 Depending on the configuration of your Saleor backend instance, registering a new customer account may be a single-step operation or it may require email confirmation to activate the account (see [`ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL`](developer/configuration.mdx#enable_account_confirmation_by_email)).
 
+:::info
+When a new account is created, Saleor checks if there are any orders in the system that were placed using the new account's email and are not assigned to any other user. If there are any, they're matched with the new account.
+:::
+
 Let's see first how to register a new account without email confirmation.
 
 ### Registration without email confirmation
@@ -164,10 +168,86 @@ If the token is valid, the user will be successfully activated:
 }
 ```
 
-## Password reset
+## Resetting password
+
+Resetting the password is a two-step operation. First, you need to call a mutation to send an email with a unique link to reset the password.
+
+The mutation takes the following input fields:
+
+- `email` - user's email address.
+- `redirectUrl` - path to a view where the user should be redirected to reset the password.
+
+```graphql
+mutation {
+  requestPasswordReset(
+    email: "customer@example.com"
+    redirectUrl: "http://localhost:3000/reset-password/"
+  ) {
+    accountErrors {
+      field
+      code
+    }
+  }
+}
+```
+
+As a result, if there are no errors in the response, the system sends an email to `customer@example.com` with a link to provide a new password, for example:
+
+```
+http://localhost:3000/reset-password/?email=customer%40example.com&token=5fc-9f2116f96bdafd612cf4
+```
+
+The link contains two query parameters - `email` and `token` - which are required to proceed with the second mutation, `setPassword`.
+
+The mutation takes the following input fields:
+
+- `token` - a unique token that was included in the link in the email.
+- `email` - user's email address.
+- `password` - the new password.
+
+```graphql
+mutation {
+  setPassword(
+    token: "5fc-9f2116f96bdafd612cf4"
+    email: "customer@example.com"
+    password: "new-secret"
+  ) {
+    accountErrors {
+      field
+      code
+    }
+  }
+}
+```
+
+If there are no errors in the response, the password is successfully changed.
+
+## Changing password
+
+If you wish to change your password as an authenticated customer, use the `passwordChange` mutation. The mutation takes the following input fields:
+
+- `oldPassword` - the current user's password.
+- `newPassword` - the new password.
+
+```graphql
+mutation {
+  passwordChange(oldPassword: "secret", newPassword: "new-secret") {
+    accountErrors {
+      field
+      code
+    }
+  }
+}
+```
+
+If no errors were returned, the password is now successfully changed.
+
+This mutation requires the [authorization header with a valid JWT](developer/auth/jwt.mdx).
+
+## Changing email
 
 ...
 
-## Email change
+## Deleting an account
 
 ...
