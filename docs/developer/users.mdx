@@ -246,8 +246,130 @@ This mutation requires the [authorization header with a valid JWT](developer/aut
 
 ## Changing email
 
-...
+Changing an email of existing user accounts is a two-step operation. First, you need to call the `requestEmailChange` mutation.
+
+The mutation takes the following input fields:
+
+- `newEmail` - the new email address to set for the account.
+- `password` - the current user's password.
+- `redirectUrl` - path to a view where the user should be redirected to confirm the new email address.
+
+```graphql
+mutation {
+  requestEmailChange(
+    newEmail: "new-address@example.com"
+    password: "secret"
+    redirectUrl: "http://localhost:3000/confirm-email/"
+  ) {
+    accountErrors {
+      field
+      code
+    }
+    user {
+      email
+    }
+  }
+}
+```
+
+If there are no errors, the mutation sends an email to the `newEmail` address with a link to confirm the operation. In this example, we also return the `email` of the current user. As you can see in the response below, the email isn't yet updated.
+
+```json
+{
+  "data": {
+    "requestEmailChange": {
+      "accountErrors": [],
+      "user": {
+        "email": "admin@example.com"
+      }
+    }
+  }
+}
+```
+
+The confirmation links an additional query-string parameter `token` which is required to confirm the operation, e.g.:
+
+```
+http://localhost:3000/confirm-email/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODYxNzY5OTQsIm9sZF9lbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwibmV3X2VtYWlsIjoibmV3LWFkZHJlc3NAZXhhbXBsZS5jb20iLCJ1c2VyX3BrIjoyMX0.aGAo28Ss_zOn_TwAzLCXdY1xENpf_-uw2khORoodKR8
+```
+
+To confirm the operation, we need to use the `confirmEmailChange` mutation, which accepts the following input:
+
+- `token` - a unique token that was included in the link in the email.
+
+```graphql
+mutation {
+  confirmEmailChange(
+    token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODYxNzY5OTQsIm9sZF9lbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwibmV3X2VtYWlsIjoibmV3LWFkZHJlc3NAZXhhbXBsZS5jb20iLCJ1c2VyX3BrIjoyMX0.aGAo28Ss_zOn_TwAzLCXdY1xENpf_-uw2khORoodKR8"
+  ) {
+    accountErrors {
+      field
+      code
+    }
+    user {
+      email
+    }
+  }
+}
+```
+
+If the token is valid the email should be now updated:
+
+```
+{
+  "data": {
+    "confirmEmailChange": {
+      "accountErrors": [],
+      "user": {
+        "email": "new-address@example.com"
+      }
+    }
+  }
+}
+```
+
+Both mutation require the [authorization header with a valid JWT](developer/auth/jwt.mdx).
 
 ## Deleting an account
 
-...
+If you wish to remove your own customer account, you can do so by using two mutations. First, you need to request to delete your account with the `accountRequestDeletion` mutation. This mutation takes the following input:
+
+- `redirectUrl` - path to a view where the user can confirm deleting the account.
+
+```graphql
+mutation {
+  accountRequestDeletion(redirectUrl: "http://localhost:3000/confirm-delete/") {
+    accountErrors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+As a result, ff there are no errors, the user receives an email with a link to confirm deleting their account. The link includes the `token` query parameter that is required in the second mutation:
+
+```
+http://localhost:3000/confirm-delete/?token=5ff-b5818345d8b64331b068
+```
+
+To confirm deleting the account, use the `accountDelete` mutation which accepts the following input:
+
+- `token` - a unique token that was included in the link in the email.
+
+```graphql
+mutation {
+  accountDelete(token: "5ff-b5818345d8b64331b068") {
+    accountErrors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+As a result, the account is now deleted.
+
+Both mutations require the [authorization header with a valid JWT](developer/auth/jwt.mdx).
