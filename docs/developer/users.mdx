@@ -3,6 +3,8 @@ title: Manage Account as a Customer
 sidebar_label: Users
 ---
 
+import Chart from "@site/components/Chart";
+
 ## Introduction
 
 This guide describes how to use the Saleor GraphQL API to register a new account as a customer and do common account management operations.
@@ -11,20 +13,29 @@ This guide describes how to use the Saleor GraphQL API to register a new account
 
 Depending on the configuration of your Saleor backend instance, registering a new customer account may be a single-step operation or it may require email confirmation to activate the account (see [`ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL`](developer/configuration.mdx#enable_account_confirmation_by_email)).
 
-:::info
-When a new account is created, Saleor checks if there are any orders in the system that were placed using the new account's email and are not assigned to any other user. If there are, they're matched with the new account.
-:::
+<Chart
+  definition={`
+  graph TD
+    R([Register an account]) --> CR{Activation required?}
+    CR -->|No| A([New account is active])
+    CR -->|Yes| E[Ask user to check their email]
+    E -.-|User clicks link with token| C[Confirm account using token]
+    C --> A
+`}
+/>
 
-Let's see first how to register a new account without email confirmation.
+### Previous orders
+
+When an account is activated, existing anonymous orders using the same email address are automatically assigned to the new account.
 
 ### Registration without email confirmation
 
 To create a new customer account, use the `accountRegister` mutation. The mutation takes the following input fields:
 
-- `email` - user's email address.
-- `password` - user's password.
+- `email`: user's email address.
+- `password`: user's password.
 
-```graphql
+```graphql {2-4}
 mutation {
   accountRegister(
     input: { email: "customer@example.com", password: "secret" }
@@ -83,13 +94,13 @@ Registering an account with email confirmation consists of two steps and it requ
 
 The mutation takes the following input fields:
 
-- `email` - user's email address.
-- `password` - user's password.
-- `redirectUrl` - path to a view where the user should be redirected to confirm their email
+- `email`: user's email address.
+- `password`: user's password.
+- `redirectUrl`: path to a view where the user should be redirected to confirm their email
 
 This example assumes that you're running the storefront locally with the default settings (running on port `3000`):
 
-```graphql
+```graphql {2-8}
 mutation {
   accountRegister(
     input: {
@@ -132,9 +143,9 @@ At the same time the user `customer@example.com` should receive an email with a 
 http://localhost:3000/account-confirm/?email=customer%40example.com&token=5fc-9f2116f96bdafd612cf4
 ```
 
-The link contains two query parameters - `email` and `token` - which are required to proceed with the second mutation, `confirmAccount`:
+The link contains two query parameters—`email` and `token`—which are required to proceed with the second mutation, `confirmAccount`:
 
-```graphql
+```graphql {2-5}
 mutation {
   confirmAccount(
     email: "customer@example.com"
@@ -168,16 +179,147 @@ If the token is valid, the user will be successfully activated:
 }
 ```
 
-## Resetting password
+## Authentication
+
+Saleor API uses a [JSON Web Token](https://jwt.io/) authentication mechanism.
+To avoid sending passwords with each request, you need to first create a token, and then include it as a header with every GraphQL request.
+
+The authorization header has the following format:
+
+```http
+Authorization: JWT <your-token>
+```
+
+### Creating a JWT token
+
+To create a new JWT token for a user, use the `tokenCreate` mutation and provide the user's credentials as the mutation input (`email` and `password`):
+
+```graphql {2}
+mutation {
+  tokenCreate(email: "admin@example.com", password: "admin") {
+    token
+    user {
+      email
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+A successful response would look like:
+
+```json {4}
+{
+  "data": {
+    "tokenCreate": {
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiZXhwIjoxNTY2OTEzODc1LCJvcmlnSWF0IjoxNTY2OTEzNTc1fQ.Dw0ccxdxEXsSpM61_Zr_uCyZd-88cNZqM62k_nAjFAE",
+      "user": {
+        "email": "admin@example.com"
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+To use the token and authorize subsequent requests, you need to include it as a HTTP Authorization request header:
+
+```
+Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiZXhwIjoxNTY2OTEzODc1LCJvcmlnSWF0IjoxNTY2OTEzNTc1fQ.Dw0ccxdxEXsSpM61_Zr_uCyZd-88cNZqM62k_nAjFAE
+```
+
+#### Using JWT tokens in Playground
+
+If you are using Playground to browse the API, you can authorize your requests by providing the JWT token in the _HTTP HEADERS_ tab. To do that, paste the following JSON structure into the tab, replacing the token with your real token:
+
+```json
+{
+  "Authorization": "JWT <your-token>"
+}
+```
+
+#### Using JWT tokens with cURL
+
+To authenticate requests sent with cURL, use the `-H` or `--header` parameter to pass the JWT token:
+
+```shell
+curl \
+  -H "Authorization: JWT <your-token>" \
+  -H "Content-Type: application/json" \
+  -X POST \
+  -d '{"query": "{ me { email } }"}' \
+  http://localhost:8000/graphql/
+```
+
+### Verifying a token
+
+To verify the token, use the following mutation:
+
+```graphql {2}
+mutation {
+  tokenVerify(token: "<your-token>") {
+    payload
+  }
+}
+```
+
+A successful response:
+
+```json
+{
+  "data": {
+    "tokenVerify": {
+      "payload": {
+        "email": "admin@example.com",
+        "exp": 1566915066,
+        "origIat": 1566548900
+      }
+    }
+  }
+}
+```
+
+### Refreshing a token
+
+```graphql {2}
+mutation {
+  tokenRefresh(token: "<your-token>") {
+    token
+    payload
+  }
+}
+```
+
+A successful response:
+
+```json
+{
+  "data": {
+    "tokenRefresh": {
+      "token": "new-token",
+      "payload": {
+        "email": "admin@example.com",
+        "exp": 1566915066,
+        "origIat": 1566548900
+      }
+    }
+  }
+}
+```
+
+## Resetting the password
 
 Resetting the password is a two-step operation. First, you need to call a mutation to send an email with a unique link to reset the password.
 
 The mutation takes the following input fields:
 
-- `email` - user's email address.
-- `redirectUrl` - path to a view where the user should be redirected to reset the password.
+- `email`: user's email address.
+- `redirectUrl`: path to a view where the user should be redirected to reset the password.
 
-```graphql
+```graphql {2-5}
 mutation {
   requestPasswordReset(
     email: "customer@example.com"
@@ -197,15 +339,15 @@ As a result, if there are no errors in the response, the system sends an email t
 http://localhost:3000/reset-password/?email=customer%40example.com&token=5fc-9f2116f96bdafd612cf4
 ```
 
-The link contains two query parameters - `email` and `token` - which are required to proceed with the second mutation, `setPassword`.
+The link contains two query parameters—`email` and `token`—which are required to proceed with the second mutation, `setPassword`.
 
 The mutation takes the following input fields:
 
-- `token` - a unique token that was included in the link in the email.
-- `email` - user's email address.
-- `password` - the new password.
+- `token`: a unique token that was included in the link in the email.
+- `email`: user's email address.
+- `password`: the new password.
 
-```graphql
+```graphql {2-6}
 mutation {
   setPassword(
     token: "5fc-9f2116f96bdafd612cf4"
@@ -222,14 +364,14 @@ mutation {
 
 If there are no errors in the response, the password is successfully changed.
 
-## Changing password
+## Changing the password
 
 If you wish to change your password as an authenticated customer, use the `passwordChange` mutation. The mutation takes the following input fields:
 
-- `oldPassword` - the current user's password.
-- `newPassword` - the new password.
+- `oldPassword`: the current user's password.
+- `newPassword`: the new password.
 
-```graphql
+```graphql {2}
 mutation {
   passwordChange(oldPassword: "secret", newPassword: "new-secret") {
     accountErrors {
@@ -240,21 +382,21 @@ mutation {
 }
 ```
 
-If no errors were returned, the password is now successfully changed.
+If no errors were returned, the password was changed successfully.
 
-This mutation requires the [authorization header with a valid JWT](developer/auth/jwt.mdx).
+This mutation requires an [authorization header with a valid JWT token](#authentication).
 
-## Changing email
+## Changing the email address
 
-Changing an email of existing user accounts is a two-step operation. First, you need to call the `requestEmailChange` mutation.
+Changing an email address of existing user accounts is a two-step operation. First, you need to call the `requestEmailChange` mutation.
 
 The mutation takes the following input fields:
 
-- `newEmail` - the new email address to set for the account.
-- `password` - the current user's password.
-- `redirectUrl` - path to a view where the user should be redirected to confirm the new email address.
+- `newEmail`: the new email address to set for the account.
+- `password`: the current user's password.
+- `redirectUrl`: path to a view where the user should be redirected to confirm the new email address.
 
-```graphql
+```graphql {2-6}
 mutation {
   requestEmailChange(
     newEmail: "new-address@example.com"
@@ -295,9 +437,9 @@ http://localhost:3000/confirm-email/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.
 
 To confirm the operation, we need to use the `confirmEmailChange` mutation, which accepts the following input:
 
-- `token` - a unique token that was included in the link in the email.
+- `token`: a unique token that was included in the link in the email.
 
-```graphql
+```graphql {2-4}
 mutation {
   confirmEmailChange(
     token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODYxNzY5OTQsIm9sZF9lbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwibmV3X2VtYWlsIjoibmV3LWFkZHJlc3NAZXhhbXBsZS5jb20iLCJ1c2VyX3BrIjoyMX0.aGAo28Ss_zOn_TwAzLCXdY1xENpf_-uw2khORoodKR8"
@@ -315,7 +457,7 @@ mutation {
 
 If the token is valid the email should be now updated:
 
-```
+```json
 {
   "data": {
     "confirmEmailChange": {
@@ -328,15 +470,15 @@ If the token is valid the email should be now updated:
 }
 ```
 
-Both mutation require the [authorization header with a valid JWT](developer/auth/jwt.mdx).
+Both mutation require an [authorization header with a valid JWT token](#authentication).
 
-## Deleting an account
+## Deleting the account
 
 If you wish to remove your own customer account, you can do so by using two mutations. First, you need to request to delete your account with the `accountRequestDeletion` mutation. This mutation takes the following input:
 
-- `redirectUrl` - path to a view where the user can confirm deleting the account.
+- `redirectUrl`: path to a view where the user can confirm deleting the account.
 
-```graphql
+```graphql {2}
 mutation {
   accountRequestDeletion(redirectUrl: "http://localhost:3000/confirm-delete/") {
     accountErrors {
@@ -356,9 +498,9 @@ http://localhost:3000/confirm-delete/?token=5ff-b5818345d8b64331b068
 
 To confirm deleting the account, use the `accountDelete` mutation which accepts the following input:
 
-- `token` - a unique token that was included in the link in the email.
+- `token`: a unique token that was included in the link in the email.
 
-```graphql
+```graphql {2}
 mutation {
   accountDelete(token: "5ff-b5818345d8b64331b068") {
     accountErrors {
@@ -372,4 +514,4 @@ mutation {
 
 As a result, the account is now deleted.
 
-Both mutations require the [authorization header with a valid JWT](developer/auth/jwt.mdx).
+Both mutations require an [authorization header with a valid JWT token](#authentication).

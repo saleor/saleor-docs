@@ -31,7 +31,7 @@ Before you begin, you will need an [Open Exchange Rates account](https://openexc
 
 Export the following environment variable:
 
-* `OPENEXCHANGERATES_API_KEY` - Your store’s Open Exchange Rates “App ID”.
+* `OPENEXCHANGERATES_API_KEY`: Your store’s Open Exchange Rates “App ID”.
 
 To update exchange rates, run the following command at least once a day:
 
@@ -110,9 +110,9 @@ The product has several properties, but let's assume you want to translate just 
 2. Use `ProductTranslation` to store your translated properties. It requires two base fields:
 
 
-* `language_code` - A language code to which this translation correlates.
+* `language_code`: A language code to which this translation correlates.
 
-* `product` - `ForeignKey` relation to the translated object (in this case, it will be named _product_).
+* `product`: `ForeignKey` relation to the translated object (in this case, it will be named _product_).
 
 … and any other field you would like to translate. For the purpose of this example, a `name` and `description` were used.
 

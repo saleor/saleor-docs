@@ -8,10 +8,10 @@ To activate your payment plugin, go to the [Plugins](dashboard/configuration/plu
 
 Saleor supports the following payment gateways:
 
-- `DUMMY` - for testing purposes only
-- `BRAINTREE` - supports PayPal and Credit Cards
-- `RAZORPAY` - supports only the paisa currency
-- `STRIPE` - supports Credit Cards
+- `DUMMY`: for testing purposes only
+- `BRAINTREE`: supports PayPal and Credit Cards
+- `RAZORPAY`: supports only the paisa currency
+- `STRIPE`: supports Credit Cards
 
 The default configuration only uses the dummy backend. It is meant to allow developers to easily simulate different payment results.
 

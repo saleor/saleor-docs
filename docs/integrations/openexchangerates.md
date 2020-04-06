@@ -13,7 +13,7 @@ Before you begin, you will need an [Open Exchange Rates account](https://openexc
 
 Export the following environment variable:
 
-* `OPENEXCHANGERATES_API_KEY` - Your store’s Open Exchange Rates “App ID”.
+* `OPENEXCHANGERATES_API_KEY`: Your store’s Open Exchange Rates “App ID”.
 
 To update the exchange rates, run the following command at least once a day:
 

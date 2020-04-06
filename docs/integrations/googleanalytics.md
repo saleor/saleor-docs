@@ -11,4 +11,4 @@ You can implement this using [google-measurement-protocol](https://pypi.python.o
 
 To get it working, you need to export the following environment variable:
 
-- `GOOGLE_ANALYTICS_TRACKING_ID` - your page’s Google “Tracking ID“.
+- `GOOGLE_ANALYTICS_TRACKING_ID`: your page’s Google “Tracking ID“.

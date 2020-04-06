@@ -21,7 +21,7 @@ A plugin.py file is required in this location. The file contains an implementati
 
 ### Client token
 
-`get_client_token` - A client token is a signed data blob that includes configuration and authorization information required by the payment gateway.
+`get_client_token`: A client token is a signed data blob that includes configuration and authorization information required by the payment gateway.
 
 Client tokens should not be reused; a new client token should be generated for each payment request.
 
@@ -36,23 +36,23 @@ Client tokens should not be reused; a new client token should be generated for e
 
 ### Authorize payment
 
-`authorize(payment_information)` - Authorization is a process of reserving the amount of money against the customer’s funding source. The money does not change hands until the authorization is captured.
+`authorize(payment_information)`: Authorization is a process of reserving the amount of money against the customer’s funding source. The money does not change hands until the authorization is captured.
 
 ### Refund
 
-`refund(payment_information)` - A refund is a full or partial return of captured funds to the customer.
+`refund(payment_information)`: A refund is a full or partial return of captured funds to the customer.
 
 ### Capture payment
 
-`capture(payment_information)` - A transfer of the money that was reserved during the authorization stage.
+`capture(payment_information)`: A transfer of the money that was reserved during the authorization stage.
 
 ### Void
 
-`void(payment_information)` - A cancellation of a pending authorization or capture.
+`void(payment_information)`: A cancellation of a pending authorization or capture.
 
 ### Process payment
 
-`process_payment(payment_information)` - Used for the checkout process, it should perform all the necessary steps to process a payment. It should use already-defined functions, like authorize and capture.
+`process_payment(payment_information)`: Used for the checkout process, it should perform all the necessary steps to process a payment. It should use already-defined functions, like authorize and capture.
 
 #### `PaymentData`
 
@@ -162,7 +162,7 @@ class BraintreePaymentForm(forms.Form):
 
 ### Implement 
 
-`create_form(data, payment_information)` - Should return the form that will be used for the checkout process.
+`create_form(data, payment_information)`: Should return the form that will be used for the checkout process.
 
 > **Note**
 >
@@ -170,7 +170,7 @@ class BraintreePaymentForm(forms.Form):
 
 ### Implement template path
 
-`template_path` - Should specify a path to a template that will be rendered for the checkout.
+`template_path`: Should specify a path to a template that will be rendered for the checkout.
 
 ```python
 PAYMENT_GATEWAYS = {
