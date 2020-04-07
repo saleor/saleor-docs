@@ -16,11 +16,15 @@ Before you are ready to run Saleor, you will need additional software installed 
 
 Saleor requires **Python 3.8** or later. Go to the [Python download page](https://www.python.org/downloads/) for the installer and installation guide for your operating system. You can also use [pyenv](https://github.com/pyenv/pyenv) to install and manage Python versions.
 
-Make sure that “**Add Python 3.8 to PATH**” is selected.
+Make sure “**Add Python 3.8 to PATH**” is selected.
+
+### Node.js
+
+Saleor requires **Node.js 10.0** or later. Go to the [Node.js downloads page](https://nodejs.org/en/download/) for the installer. We recommend using the `.msi` format.
 
 ### PostgreSQL
 
-Saleor needs **PostgreSQL** version **9.6** or above to work. Get the Windows installer from the [project’s download page](https://www.postgresql.org/download/windows/).
+You will need **PostgreSQL** version **12.x**. Get the Windows installer from the [project’s download page](https://www.postgresql.org/download/windows/).
 
 :::note
 Make sure you remember the password you chose for the administrator account during the installation process.
@@ -44,33 +48,109 @@ Once you have installed or updated the pre-requisite software, you are ready to 
 All commands need to be performed in either a PowerShell terminal or a Windows Command Prompt.
 :::
 
-### Step 1: Clone the repository
+### Installing Saleor
 
-```shell
-git clone https://github.com/mirumee/saleor.git
-```
+1. Clone the repository:
 
-Replace the URL with your own if using a custom fork.
+   ```shell
+   git clone https://github.com/mirumee/saleor.git
+   cd saleor
+   ```
 
-### Step 2: Enter the directory
+2. Install the dependencies into a new Python virtual environment:
 
-```shell
-cd saleor/
-```
+   <Tabs defaultValue="cmd" values={[
+     { label: "Command Prompt", value: "cmd" },
+     { label: "PowerShell", value: "ps" }
+   ]}>
+   <TabItem value="cmd">
 
-### Step 3: Install the dependencies
+   ```shell
+   python -m venv saleor-venv
+   saleor-venv\Scripts\activate.bat
+   python -m pip install -r requirements.txt
+   ```
 
-We strongly recommend [creating a virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing any Python packages.
+   </TabItem>
+   <TabItem value="ps">
 
-```shell
-python -m pip install -r requirements.txt
-```
+   ```shell
+   python -m venv saleor-venv
+   saleor-venv\Scripts\Activate.ps1
+   python -m pip install -r requirements.txt
+   ```
 
-### Step 4: Choose a `SECRET_KEY`
+   </TabItem>
+   </Tabs>
 
-We try to provide usable default values for all the settings. We have decided not to provide a default for `SECRET_KEY` as we fear someone would inevitably ship a project with the default value left in code.
+3. Choose a secret key. We try to provide usable default values for all settings but we have decided not to provide a default for `SECRET_KEY` as someone would inevitably ship a project with the default value left in code.
 
-Use the following command to temporarily set an environment variable that will only persist until the terminal window is closed:
+   Use the following command to temporarily set an environment variable that will only persist until the terminal window is closed:
+
+   <Tabs defaultValue="cmd" values={[
+     { label: "Command Prompt", value: "cmd" },
+     { label: "PowerShell", value: "ps" }
+   ]}>
+   <TabItem value="cmd">
+
+   ```shell
+   set SECRET_KEY "<mysecretkey>"
+   ```
+
+   </TabItem>
+   <TabItem value="ps">
+
+   ```shell
+   $Env:SECRET_KEY = "<mysecretkey>"
+   ```
+
+   </TabItem>
+   </Tabs>
+
+   To permanently set the variable:
+
+   ```shell
+   setx SECRET_KEY "<mysecretkey>"
+   ```
+
+   :::caution
+   The secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections. It can also lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
+   :::
+
+4. Create a database user using the command line tools that came with your PostgreSQL installation:
+
+   ```shell
+   C:\"Program Files"\PostgreSQL\12\bin\createuser.exe --username=postgres --superuser --pwprompt saleor
+   ```
+
+   Please correct the path if your installation path or PostgreSQL version are different.
+
+   When asked to choose a password for the new role, use "saleor" (or see [how to configure Saleor to use a different password](developer/running-saleor/configuration.mdx#database_url)). When asked for your password, give the one you set during installation of PostgreSQL.
+
+   :::caution
+   If you've decided to substitute your own credentials, make sure you create a "superuser" or the user won't be able to install all the necessary database extensions.
+   :::
+
+5. Create a database:
+
+   ```shell
+   C:\"Program Files"\PostgreSQL\12\bin\createdb.exe --username=postgres --owner=saleor saleor
+   ```
+
+6. Migrate the database:
+
+   ```shell
+   python manage.py migrate
+   ```
+
+   :::caution
+   This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to user creation step above.
+   :::
+
+
+### Starting the API server
+
+Remember to activate your Python virtual environment if needed (you will need to do this every time you open a new terminal window):
 
 <Tabs defaultValue="cmd" values={[
   { label: "Command Prompt", value: "cmd" },
@@ -79,55 +159,95 @@ Use the following command to temporarily set an environment variable that will o
 <TabItem value="cmd">
 
 ```shell
-set SECRET_KEY "<mysecretkey>"
+cd saleor
+saleor-venv\Scripts\activate.bat
 ```
 
 </TabItem>
 <TabItem value="ps">
 
 ```shell
-$Env:SECRET_KEY = "<mysecretkey>"
+cd saleor
+saleor-venv\Scripts\Activate.ps1
 ```
 
 </TabItem>
 </Tabs>
 
-To permanently set the variable:
-
-```shell
-setx SECRET_KEY "<mysecretkey>"
-```
-
-:::caution
-The secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections. It can also lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
-:::
-
-### Step 5: Create a Database User
-
-Use the **pgAdmin** tool that comes with your PostgreSQL installation to create a database user for your store.
-
-Unless configured otherwise, the store will use `saleor` as both the username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
-
-### Step 6: Create a Database
-
-See [PostgreSQL’s createdb command](https://www.postgresql.org/docs/current/static/app-createdb.html) for details.
-
-:::note
-The database name is extracted from the `DATABASE_URL` environment variable. If absent, it defaults to `saleor`.
-:::
-
-### Step 7: Prepare the Database
-
-```shell
-python manage.py migrate
-```
-
-:::note
-This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
-:::
-
-## Starting the Development Server
+Then execute:
 
 ```shell
 python manage.py runserver
 ```
+
+### Installing the dashboard
+
+1. Clone the repository:
+
+   ```shell
+   git clone https://github.com/mirumee/saleor-dashboard.git
+   cd saleor-dashboard
+   ```
+
+2. Install the dependencies:
+
+   ```shell
+   npm install
+   ```
+
+### Running the dashboard
+
+Set the `API_URI` environment variable to your local API server's URL:
+
+<Tabs defaultValue="cmd" values={[
+  { label: "Command Prompt", value: "cmd" },
+  { label: "PowerShell", value: "ps" }
+]}>
+<TabItem value="cmd">
+
+```shell
+set API_URI "http://localhost:8000/graphql/"
+```
+
+</TabItem>
+<TabItem value="ps">
+
+```shell
+$Env:API_URI = "http://localhost:8000/graphql/"
+```
+
+</TabItem>
+</Tabs>
+
+From within the `saleor-dashboard` directory, run the following command:
+
+```shell
+npm start
+```
+
+Your local dashboard should be accessible by visiting [http://localhost:9000/](http://localhost:9000/).
+
+### Installing the storefront
+
+1. Clone the repository:
+
+   ```
+   git clone https://github.com/mirumee/saleor-storefront.git
+   cd saleor-storefront
+   ```
+
+2. Install the dependencies:
+
+   ```shell
+   npm install
+   ```
+
+### Running the storefront
+
+From within the `saleor-storefront` directory, run the following command:
+
+```shell
+npm start
+```
+
+Your local storefront should be accessible by visiting [http://localhost:3000/](http://localhost:3000/).

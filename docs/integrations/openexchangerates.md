@@ -1,5 +1,4 @@
 ---
-id: openexchangerates
 title: Open Exchange Rates
 ---
 
@@ -7,9 +6,9 @@ This integration will allow your customers to see product prices in their local 
 
 Before you begin, you will need an [Open Exchange Rates account](https://openexchangerates.org/). 
 
-> **Tip**
->
-> Unless you need to update the exchange rates multiple times a day, the free Subscription Plan should be enough. However, do consider paying for the excellent service that Open Exchange Rates provides. Start by signing up and creating an “App ID”.
+:::tip
+Unless you need to update the exchange rates multiple times a day, the free Subscription Plan should be enough. However, do consider paying for the excellent service that Open Exchange Rates provides. Start by signing up and creating an “App ID”.
+:::
 
 Export the following environment variable:
 
@@ -17,10 +16,10 @@ Export the following environment variable:
 
 To update the exchange rates, run the following command at least once a day:
 
-```shell-session
-$ python manage.py update_exchange_rates --all
+```shell
+python manage.py update_exchange_rates --all
 ```
 
-> **Note**
->
-> Heroku users can use the [Scheduler add-on](https://elements.heroku.com/addons/scheduler) to automatically call the command daily at a pre-defined time.
+:::note
+Heroku users can use the [Scheduler add-on](https://elements.heroku.com/addons/scheduler) to automatically call the command daily at a pre-defined time.
+:::
