@@ -104,11 +104,12 @@ module.exports = {
     },
 
     // Open Graph and Twitter card images.
-    ogImage: "img/og-image.png",
-    twitterImage: "img/og-image.png",
+    image: "img/og-image.png",
 
     // Google Analytics tracking ID to track page views.
-    gaTrackingId: "UA-10159761-25",
+    googleAnalytics: {
+      trackingID: "UA-10159761-25",
+    },
 
     prism: {
       theme: require("prism-react-renderer/themes/github"),
