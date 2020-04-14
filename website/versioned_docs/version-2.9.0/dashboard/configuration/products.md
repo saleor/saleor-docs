@@ -19,7 +19,7 @@ Here you can enter your Product Type Name. For example, a product: _bike_ comes 
 
 ### Shipping
 
-In this card you can determine if your products is physical and thus can be send to customers. To do that, select the [[Is&nbsp;this&nbsp;product&nbsp;shippable?]] checkbox. An additional field will then appear to note the weight of the products. Indicating the weight is essential for calculating shipping costs correctly.
+In this card you can determine if your products is physical and thus can be send to customers. To do that, select the _Is&nbsp;this&nbsp;product&nbsp;shippable?_ checkbox. An additional field will then appear to note the weight of the products. Indicating the weight is essential for calculating shipping costs correctly.
 
 ### Taxes
 
@@ -31,27 +31,27 @@ This is very important, as it means you are legally charging the correct amount 
 
 ### How to create a product type
 
-1. Click [[Create&nbsp;Product&nbsp;Type]] and fill out the General Information, Taxes and Shipping cards.
+1. Click _Create&nbsp;Product&nbsp;Type_ and fill out the General Information, Taxes and Shipping cards.
 
-2. Click [[Save]]. An additional Product Attributes card will appear. Assign attributes to your product type.
+2. Click _Save_. An additional Product Attributes card will appear. Assign attributes to your product type.
 
 ![Adding product type](/assets/dashboard-config/config2.JPG)
 
-3. If the product type you are setting up requires variants, click the [[Product&nbsp;type&nbsp;uses&nbsp;Variant&nbsp;Attributes]] switch. This opens additional card where you can assign or remove variant attributes.
+3. If the product type you are setting up requires variants, click the _Product&nbsp;type&nbsp;uses&nbsp;Variant&nbsp;Attributes_ switch. This opens additional card where you can assign or remove variant attributes.
 
-4. Click [[Save]] to keep your changes. Your new product type appears on the main list of existing product types.
+4. Click _Save_ to keep your changes. Your new product type appears on the main list of existing product types.
 
-> **Note**
-> 
-> Only the attributes with the input type (in the Attribute setup page) set to _Dropdown_ may be used as Variant Attributes. 
-> 
-> In other words, when setting up your Product Type, you select a Variant Attribute which is set up as _Multiselect_, you will receive the following error message: "Variants are disabled in this product type".
+:::note
+Only the attributes with the input type (in the Attribute setup page) set to _Dropdown_ may be used as Variant Attributes. 
+
+In other words, when setting up your Product Type, you select a Variant Attribute which is set up as _Multiselect_, you will receive the following error message: "Variants are disabled in this product type".
+:::
 
 ### How to delete a product type
 
 There are two ways to remove a Product Type:
 
-- Select it from the main list, then choose [[Delete]] in the footer
+- Select it from the main list, then choose _Delete_ in the footer
 - Check the box on the main list and then click the trash can that appears above. You can remove single or multiple product types simultaneously from the list.
 
-Confirm the cancellation in both cases by clicking [[Delete]] in the pop-up window.
+Confirm the cancellation in both cases by clicking _Delete_ in the pop-up window.

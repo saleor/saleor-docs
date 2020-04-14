@@ -9,17 +9,15 @@ We are using a universal flow, that each gateway should fulfill, there are sever
 
 Your changes should live under the `saleor.payment.gateways.<gateway name>` module.
 
-> **Note**
->
-> After completing those steps you will also need to integrate your payment gateway into your SPA Storefront’s workflow.
-
+:::note
+After completing those steps you will also need to integrate your payment gateway into your SPA Storefront’s workflow.
+:::
 
 ### `get_client_token(config)`
 
 A client token is a signed data blob that includes configuration and authorization information required by the payment gateway.
 
 These should not be reused; a new client token should be generated for each payment request.
-
 
 #### Example
 
@@ -30,15 +28,13 @@ def get_client_token(config: GatewayConfig) -> str:
     return client_token
 ```
 
-> **Note**
->
-> All the below functions receive `payment_information` as a dataclass: `PaymentData` and `config` as a dataclass: `GatewayConfig`. Those functions should return a response as a dataclass: `GatewayResponse`. The description of the given structures can be found below.
-
+:::note
+All the below functions receive `payment_information` as a dataclass: `PaymentData` and `config` as a dataclass: `GatewayConfig`. Those functions should return a response as a dataclass: `GatewayResponse`. The description of the given structures can be found below.
+:::
 
 ### `authorize(payment_information, config)`
 
 A process of reserving the amount of money against the customer’s funding source. Money does not change hands until the authorization is captured.
-
 
 #### Example
 
@@ -63,7 +59,6 @@ def authorize(
         raw_response=get_payment_gateway_response(response),
     )
 ```
-
 
 ### `refund(payment_information, config)`
 
@@ -93,11 +88,9 @@ def refund(
     )
 ```
 
-
 ### `capture(payment_information, config)`
 
 A transfer of the money that was reserved during the authorization stage.
-
 
 #### Example
 
@@ -123,11 +116,9 @@ def capture(
     )
 ```
 
-
 ### `void(payment_information, config)`
 
 A cancellation of a pending authorization or capture.
-
 
 #### Example
 
@@ -153,11 +144,9 @@ def void(
     )
 ```
 
-
 ### `charge(payment_information, config)`
 
 Authorization and capture in a single step.
-
 
 #### Example
 
@@ -186,11 +175,9 @@ def charge(
     )
 ```
 
-
 ### `process_payment(payment_information, config)`
 
 Used for the checkout process, it should perform all the necessary steps to process a payment. It should use already defined functions, like authorize and capture.
-
 
 #### Example
 
@@ -211,88 +198,79 @@ def process_payment(
 
 ### Parameters
 
-| name | type | description |
-| --- | --- | --- |
-| `payment_information` | `PaymentData` | Payment information, containing the token, amount, currency and billing. |
-| `config` | `GatewayConfig` | Configuration of the payment gateway. |
-
+| name                  | type            | description                                                              |
+| --------------------- | --------------- | ------------------------------------------------------------------------ |
+| `payment_information` | `PaymentData`   | Payment information, containing the token, amount, currency and billing. |
+| `config`              | `GatewayConfig` | Configuration of the payment gateway.                                    |
 
 #### `PaymentData`
 
-| name | type | description |
-| --- | --- | --- |
-| `token` | `str` | Token used for transaction, provided by the gateway. |
-| `amount` | `Decimal` | Amount to be authorized/captured/charged/refunded. |
-| `billing` | `AddressData` | Billing information. |
-| `shipping` | `AddressData` | Shipping information. |
-| `order_id` | `int` | Order id. |
-| `customer_ip_address` | `str` | IP address of the customer |
-| `customer_email` | `str` | Email address of the customer. |
-
+| name                  | type          | description                                          |
+| --------------------- | ------------- | ---------------------------------------------------- |
+| `token`               | `str`         | Token used for transaction, provided by the gateway. |
+| `amount`              | `Decimal`     | Amount to be authorized/captured/charged/refunded.   |
+| `billing`             | `AddressData` | Billing information.                                 |
+| `shipping`            | `AddressData` | Shipping information.                                |
+| `order_id`            | `int`         | Order id.                                            |
+| `customer_ip_address` | `str`         | IP address of the customer                           |
+| `customer_email`      | `str`         | Email address of the customer.                       |
 
 #### `AddressData`
 
-| name | type |
-| --- | --- |
-| `first_name` | `str` |
-| `last_name` | `str` |
-| `company_name` | `str` |
+| name               | type  |
+| ------------------ | ----- |
+| `first_name`       | `str` |
+| `last_name`        | `str` |
+| `company_name`     | `str` |
 | `street_address_1` | `str` |
 | `street_address_2` | `str` |
-| `city` | `str` |
-| `city_area` | `str` |
-| `postal_code` | `str` |
-| `country` | `str` |
-| `country_area` | `str` |
-| `phone` | `str` |
-
+| `city`             | `str` |
+| `city_area`        | `str` |
+| `postal_code`      | `str` |
+| `country`          | `str` |
+| `country_area`     | `str` |
+| `phone`            | `str` |
 
 #### `GatewayConfig`
 
-| name | type | description |
-| --- | --- | --- |
-| `auto_capture` | `bool` | Define if gateway should also capture funds from the card. If false, payment should be only authorized |
-| `template_path` | `str` | Path to a template that will be rendered for the checkout. |
-| `connection_params` | `dict` | List of parameters used for connecting to the payment’s gateway. |
-
+| name                | type   | description                                                                                            |
+| ------------------- | ------ | ------------------------------------------------------------------------------------------------------ |
+| `auto_capture`      | `bool` | Define if gateway should also capture funds from the card. If false, payment should be only authorized |
+| `template_path`     | `str`  | Path to a template that will be rendered for the checkout.                                             |
+| `connection_params` | `dict` | List of parameters used for connecting to the payment’s gateway.                                       |
 
 ### Returns
 
-| name | type | description |
-| --- | --- | --- |
+| name               | type              | description                                                                                                       |
+| ------------------ | ----------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `gateway_response` | `GatewayResponse` | GatewayResponse containing details about every transaction, with `is_success` set to `True` if no error occurred. |
-| `client_token` | `str` | Unique client’s token that will be used as his indentifier in the payment process. |
-
+| `client_token`     | `str`             | Unique client’s token that will be used as his indentifier in the payment process.                                |
 
 #### `GatewayResponse`
 
-| name | type | description |
-| --- | --- | --- |
-| `transaction_id` | `str` | Transaction ID as returned by the gateway. |
-| `kind` | `str` | Transaction kind, one of: auth, capture, charge, refund, void. |
-| `is_success` | `bool` | Status whether the transaction was successful or not. |
-| `amount` | `Decimal` | Amount that the gateway actually charged or authorized. |
-| `currency` | `str` | Currency in which the gateway charged, needs to be an ISO 4217 code. |
-| `error` | `str` | An error message if one occured. Should be `None` if no error occured. |
-| `raw_response` | `dict` | Raw gateway response as a dict object. By default it is `None` |
-
+| name             | type      | description                                                            |
+| ---------------- | --------- | ---------------------------------------------------------------------- |
+| `transaction_id` | `str`     | Transaction ID as returned by the gateway.                             |
+| `kind`           | `str`     | Transaction kind, one of: auth, capture, charge, refund, void.         |
+| `is_success`     | `bool`    | Status whether the transaction was successful or not.                  |
+| `amount`         | `Decimal` | Amount that the gateway actually charged or authorized.                |
+| `currency`       | `str`     | Currency in which the gateway charged, needs to be an ISO 4217 code.   |
+| `error`          | `str`     | An error message if one occured. Should be `None` if no error occured. |
+| `raw_response`   | `dict`    | Raw gateway response as a dict object. By default it is `None`         |
 
 ## Handling errors
 
 Gateway-specific errors should be parsed to Saleor’s universal format. More on this can be found in [Payments Architecture](/docs/architecture/payments).
 
-
 ## Adding payment method to the old checkout (optional)
 
 If you are not using SPA Storefront, there are some additional steps you need to perform in order to enable the payment method in your checkout flow.
-
 
 ### Add a Form
 
 Payment on the storefront will be handled via payment form, it should implement all the steps necessary for the payment to succeed. The form must implement `get_payment_token` that returns a token required to process payments. All payment forms should inherit from `django.forms.Form`.
 
 Your changes should live under `saleor.payment.gateways.<gateway name>.forms.py`.
-
 
 #### Example
 
@@ -305,15 +283,13 @@ class BraintreePaymentForm(forms.Form):
         return self.cleaned_data["payment_method_nonce"]
 ```
 
-
 ### Implement `create_form(data, payment_information, connection_params)`
 
 Should return the form that will be used for the checkout process.
 
-> **Note**
->
-> Should be added as a part of the provider’s methods.
-
+:::note
+Should be added as a part of the provider’s methods.
+:::
 
 #### Example
 
@@ -343,11 +319,9 @@ PAYMENT_GATEWAYS = {
 }
 ```
 
-
 ### Add template
 
 Add a new template to handle the payment process with your payment form. Your changes should live under `saleor.templates.order.payment.<gateway name>.html`.
-
 
 ## Adding new payment gateway to the settings
 
@@ -377,15 +351,13 @@ Please take a moment to consider the example settings above.
 - `connection_params` - List of parameters used for connecting to the payment’s gateway.
 - `auto_capture`- Define if the gateway should also capture funds from the card. When `auto_capture` is set to `False`, funds will be blocked by the customer’s bank for a 7-days period, a manual capture will be required.
 
-> **Note**
->
-> All payment backends default to using sandbox mode. This is very useful for development but make sure you use production mode when deploying to a production server.
-
+:::note
+All payment backends default to using sandbox mode. This is very useful for development but make sure you use production mode when deploying to a production server.
+:::
 
 ## Enabling new payment gateway
 
 Last but not least, if you want to enable your payment gateway in the checkout process, add it’s name to the `CHECKOUT_PAYMENT_GATEWAYS` setting.
-
 
 ## Tips
 

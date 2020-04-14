@@ -3,7 +3,7 @@ id: catalog
 title: Catalog
 ---
 
-The catalog section contains your entire online inventory. You can view products individually or by category, and can assign products to seasonal collections. Click [[Catalog]] on the left sidebar menu for a drop-down list of sub-sections:
+The catalog section contains your entire online inventory. You can view products individually or by category, and can assign products to seasonal collections. Click _Catalog_ on the left sidebar menu for a drop-down list of sub-sections:
 
 - Products: Add, remove, and edit products, descriptions, and images
 - Categories: Gather products by type to make it easier for admins and customers to browse the store
@@ -17,7 +17,7 @@ Products on the Saleor platform can be sorted by category if you sell a range of
 
 ### Adding a Category
 
-Click on the [[Add&nbsp;Category]] button to enter a new set of products. Enter the category name, description, and SEO-optimized information the same way as you would with an individual product. When finished, click [[Save&nbsp;Category]] in the bottom right corner and then add a widescreen banner photo that will appear at the top of the screen when customers view the category.
+Click on the _Add&nbsp;Category_ button to enter a new set of products. Enter the category name, description, and SEO-optimized information the same way as you would with an individual product. When finished, click _Save&nbsp;Category_ in the bottom right corner and then add a widescreen banner photo that will appear at the top of the screen when customers view the category.
 
 ![Adding category](/assets/dashboard-catalog/15.jpg)
 
@@ -29,7 +29,7 @@ Once you have your categories, you can edit them at any time by clicking on a ca
 
 ### Adding Sub-categories
 
-Sub-categories break large groups down into smaller subsets that make it easier to manage stores and help customers find the right products. To add a sub-category, click [[Add&nbsp;Subcategory]] text in the top right corner of the sub-categories box.
+Sub-categories break large groups down into smaller subsets that make it easier to manage stores and help customers find the right products. To add a sub-category, click _Add&nbsp;Subcategory_ text in the top right corner of the sub-categories box.
 
 In this example, we have paints and cushions in the Accessories category, which can be marked as separate sub-categories. Add a description and SEO information just the same as with a main category.
 
@@ -38,7 +38,7 @@ In this example, we have paints and cushions in the Accessories category, which 
 
 ### Deleting Categories
 
-To remove a category, simply click the [[Delete&nbsp;Category]] button in the footer. 
+To remove a category, simply click the _Delete&nbsp;Category_ button in the footer. 
 
 > **Caution** 
 >
@@ -57,7 +57,7 @@ You can add and edit collections in the same way as categories, with a cover pho
 
 ### Adding Products to Existing Collections
 
-Once you have created a collection, you can easily add more products by choosing the [[Assign&nbsp;Products]] option from the collection overview and choosing products from the list. To find other products, type the name, attribute or product type into the search bar and the list will automatically refresh.
+Once you have created a collection, you can easily add more products by choosing the _Assign&nbsp;Products_ option from the collection overview and choosing products from the list. To find other products, type the name, attribute or product type into the search bar and the list will automatically refresh.
 
 ![Assign product to collection](/assets/dashboard-catalog/17.jpg)
 
@@ -66,7 +66,7 @@ Once you have created a collection, you can easily add more products by choosing
 
 - Collections can be easily published and unpublished by clicking on the slider in the Availability section when viewing a specific collection 
 - Featuring a collection will make it appear on the front page of your website
-- You can only feature one collection at a time. Turning the [[Feature&nbsp;on&nbsp;Homepage]] option on for one collection will automatically turn it off for all others
+- You can only feature one collection at a time. Turning the _Feature&nbsp;on&nbsp;Homepage_ option on for one collection will automatically turn it off for all others
 
 ![Collection visibility controls](/assets/dashboard-catalog/18.jpg)
 
@@ -76,6 +76,6 @@ Once you have created a collection, you can easily add more products by choosing
 There are two ways to remove a collection:
 
 - Click the checkbox next to the collection name on the main list. Options to Publish, Unpublish, and Delete will appear above the list
-- Click on the collection name and enter the detailed information, then use the red [[remove]] button in the footer.
+- Click on the collection name and enter the detailed information, then use the red _remove_ button in the footer.
 
 Removing a collection will not delete all products from the site; it only disables the grouping of selected products and deletes information about the collection.

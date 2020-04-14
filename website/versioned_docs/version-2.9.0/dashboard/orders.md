@@ -14,7 +14,7 @@ There are essentially two order types in Saleor:
 
 * Draft orders - These are orders created by administrators, which have not yet been released to the system. For example, store operators can create orders during discussions with customers, then save them as drafts until approval is gained from management to send replacement goods. Draft orders can be edited in the same way that an order is created. 
 
-To process an order in the system, click [[Finalize]] in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels. 
+To process an order in the system, click _Finalize_ in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels. 
 
 ## Order list page
 
@@ -24,7 +24,7 @@ The main page shows a list of all orders in the system, regardless their status.
 
 ### Order filters  
 
-To automatically filter orders, use the drop-down menu and view orders by date or fulfillment status. Sorting by status brings up a second menu from which you can choose _Fulfilled_, _Partially Fulfilled_, or _Unfilled Orders_. Click [[Add filter]] to apply the filter. 
+To automatically filter orders, use the drop-down menu and view orders by date or fulfillment status. Sorting by status brings up a second menu from which you can choose _Fulfilled_, _Partially Fulfilled_, or _Unfilled Orders_. Click _Add filter_ to apply the filter. 
 
 You can also manually search specific information, such as key words or names, using the Search Orders field. The filter is dynamically applied as you type. 
 
@@ -86,7 +86,7 @@ Note, that the card may be charged in the timeframe between few days to a month 
 
 This is very useful when an exact price cannot be determined until after the order is prepared, or you want to capture the money as soon as you ship the order. It is also useful if you prefer to manually screen orders for fraud attempts.
 
-When viewing orders with pre-authorized payments, Saleor offers options to either capture or void the funds. You can capture the full or partial amount (for example, taking only partial payment for an item due to damage, late delivery, or customer service issues) by clicking [[Capture]] in the bottom right corner and then confirming the full amount or changing the price to the new amount agreed with the customer.
+When viewing orders with pre-authorized payments, Saleor offers options to either capture or void the funds. You can capture the full or partial amount (for example, taking only partial payment for an item due to damage, late delivery, or customer service issues) by clicking _Capture_ in the bottom right corner and then confirming the full amount or changing the price to the new amount agreed with the customer.
 
 ![Order with captured payment](/assets/dashboard-orders/orders9.JPG)
 
@@ -113,9 +113,9 @@ This card displays any additional information or remarks your customer made when
 This is a function for store administrators to add orders, usually in cases where customer orders need to be re-sent but have already been fulfilled in the system. For example, if the customer was send damaged goods or is being sent a complimentary product due to customer service issues. It can also be used to create dummy and test orders, as well as to deal with stock issues.
 
 
-1. Click [[Create&nbsp;Order]] on the main orders page or the draft orders section
+1. Click _Create&nbsp;Order_ on the main orders page or the draft orders section
 
-2. Click [[Add&nbsp;Products]] in the Order Details card
+2. Click _Add&nbsp;Products_ in the Order Details card
 
 3. Select products from the drop-down menu or by typing the product name in the search field. Assign using the check boxes
 
@@ -129,9 +129,9 @@ Once you set up the order and finalize it using the button in the footer, it bec
 
 ### How to process a refund
 
-1. In the selected order page, click the [[Refund]] label in the bottom right corner of the payment status card
+1. In the selected order page, click the _Refund_ label in the bottom right corner of the payment status card
 
-2. Click [[Confirm]] to refund the full amount 
+2. Click _Confirm_ to refund the full amount 
 
 3. For partial refunds, input the amount manually or using the stepper, then confirm
 
@@ -139,26 +139,24 @@ Once you set up the order and finalize it using the button in the footer, it bec
 
 ### How to fulfill an order
 
-To fulfill an order, click [[Fulfill]] in the Unfulfilled card and use the stepper to confirm which products are being send. 
+To fulfill an order, click _Fulfill_ in the Unfulfilled card and use the stepper to confirm which products are being send. 
 
 In the example below, the t-shirt and hoodie are being sent in full, only two from four pairs of plimsolls are being sent, and the juice is not being sent.
 
-Once you click [[Confirm]], the t-shirt and hoodie will move to the Fulfilled card, as will two pairs of shoes. The other shoes and the juice will remain Unfulfilled.
+Once you click _Confirm_, the t-shirt and hoodie will move to the Fulfilled card, as will two pairs of shoes. The other shoes and the juice will remain Unfulfilled.
 
 If you have a tracking number for the package, add it in the field below the products.
 
-> **Note**
->
-> ##### Automatic customer notifications
->
-> When fulfillment is confirmed, the customer will automatically receive an email with information about the goods that they will receive, including any additional information such as tracking numbers.
+:::note Automatic customer notifications
+When fulfillment is confirmed, the customer will automatically receive an email with information about the goods that they will receive, including any additional information such as tracking numbers.
+:::
 
 ![Order fulfillment](/assets/dashboard-orders/orders5.png)
 
 
 ### How to cancel an order
 
-Click the three dots in the top right corner of a Fulfilled order card. Select [[Cancel&nbsp;order]] when the pop-up appears, then confirm. Items will be restocked into the Saleor system.
+Click the three dots in the top right corner of a Fulfilled order card. Select _Cancel&nbsp;order_ when the pop-up appears, then confirm. Items will be restocked into the Saleor system.
 
 ![Canceling shipment](/assets/dashboard-orders/orders6.JPG)
 

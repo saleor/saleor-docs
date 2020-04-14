@@ -5,11 +5,9 @@ title: Extensions
 
 Saleor has implemented extensions architecture. It includes hooks for most basic operations like calculation of prices in the checkout or calling some actions when an order has been created.
 
-
 ## Plugin
 
 Saleor has some plugins implemented by default. These plugins are located in `saleor.core.extensions.plugins`. The ExtensionManager needs to receive a list of enabled plugins. It can be done by including the Python plugin path in the `settings.PLUGINS` list.
-
 
 ### Writing Your Own Plugin
 
@@ -39,10 +37,9 @@ class CustomPlugin(BasePlugin):
         api_post_request_task.delay(transaction_url, data)
 ```
 
-> **Note**
->
-> There is no need to implement all base methods. `ExtensionManager` will use default values for methods that are not implemented.
-
+:::note
+There is no need to implement all base methods. `ExtensionManager` will use default values for methods that are not implemented.
+:::
 
 ### Activating Plugin
 
@@ -54,21 +51,17 @@ To activate the plugin, add it to the `PLUGINS` list in your Django settings:
 PLUGINS = ["saleor.core.extensions.plugins.custom.CustomPlugin", ]
 ```
 
-
 ## `ExtensionsManager`
 
 `ExtensionsManager` is located in the `saleor.core.extensions.base_plugin`. It is a class responsible for handling all declared plugins and serving a response from them. It serves a default response in case of a non-declared plugin. There is a possibility to overwrite an `ExtensionsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.EXTENSIONS_MANAGER`. Each Django request object has its own manager included as the `extensions` field. It is attached in the Saleor middleware.
-
 
 ## BasePlugin
 
 `BasePlugin` is located in the `saleor.core.extensions.base_plugin`. It is an abstract class for storing all methods available for any plugin. All methods take the `previous_value` parameter. This contains a value calculated by the previous plugin in the queue. If the plugin is first in line, it will use the default value calculated by the manager.
 
-
 ## Celery Tasks
 
 Some plugin operations should be done asynchronously. If Saleor has Celery enabled, it will discover all tasks declared in tasks.py in the plugin directories.
-
 
 ### `plugin.py`
 
@@ -81,7 +74,6 @@ def postprocess_order_creation(self, order: "Order", previous_value: Any):
 
     api_post_request_task.delay(transaction_url, data)
 ```
-
 
 ### `tasks.py`
 

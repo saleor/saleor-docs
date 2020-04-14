@@ -39,9 +39,9 @@ events.email_sent_event(
 
 Take note of the way the email type is provided.
 
-> **Note**
->
-> The methods are using a `model_action_event` naming pattern.
+:::note
+The methods are using a `model_action_event` naming pattern.
+:::
 
 
 ### Order events

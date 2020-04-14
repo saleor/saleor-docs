@@ -13,13 +13,15 @@ The code snippets included in this section may be run in [Playground](api/playgr
 
 ## Creating the Checkout
 
-> **Note**
->
-> A `Checkout` object can be created for logged in users and for anonymous (guest) users.
->
-> - If you use the `checkoutCreate` mutation including the authentication token, this checkout is assigned to the user who is authenticated by this token. For more information on how to authenticate with our API, see the [Authentication](api/authenticate.md) topic.
->
-> - If no authentication token is provided, the checkout is created for an anonymous user, and an email address is used to identify such a `Checkout` object, linking it with the anonymous user. In this case, an email is required to create the checkout.
+:::note
+
+A `Checkout` object can be created for logged in users and for anonymous (guest) users.
+
+- If you use the `checkoutCreate` mutation including the authentication token, this checkout is assigned to the user who is authenticated by this token. For more information on how to authenticate with our API, see the [Authentication](api/authenticate.md) topic.
+
+- If no authentication token is provided, the checkout is created for an anonymous user, and an email address is used to identify such a `Checkout` object, linking it with the anonymous user. In this case, an email is required to create the checkout.
+
+:::
 
 To create a `Checkout` object, use the `checkoutCreate` mutation.
 
@@ -31,7 +33,7 @@ This mutation requires the following input:
 
 - `billingAddress` - user's billing address
 
-- `lines` - list of checkout lines. Each checkout line represents a _variant id_ (the specific product) and its quantity 
+- `lines` - list of checkout lines. Each checkout line represents a _variant id_ (the specific product) and its quantity
 
 As a result, this mutation returns the following fields:
 
@@ -110,7 +112,7 @@ mutation {
 }
 ```
 
-We get a newly created checkout object for which we return the ID, total price, and  list of available shipping and payment methods:
+We get a newly created checkout object for which we return the ID, total price, and list of available shipping and payment methods:
 
 ```json
 {
@@ -224,7 +226,6 @@ As a result, we get an updated checkout object with a shipping method set:
 ## Creating the payment
 
 Depending on the selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway will direct you to an external payment page. The payment gateway sends information about if the payment is successful, along with tokenized credit card payment information. This token is then used to run the `checkoutPaymentCreate` mutation.
-
 
 ### `checkoutPaymentCreate`
 

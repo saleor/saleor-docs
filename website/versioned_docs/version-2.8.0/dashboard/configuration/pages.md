@@ -5,8 +5,8 @@ title: Pages
 
 In the footer of your main storefront, you can display informational pages with content about your store, your team, terms and conditions, privacy information, and other useful details. These simple text pages enhance the image of your business and sometimes contain essential legal information you need to communicate to customers.
 
-To add pages, click on the [[Pages]] field in the Configure section of the dashboard. 
-Click [[Add&nbsp;Page]] at the top right.
+To add pages, click on the _Pages_ field in the Configure section of the dashboard. 
+Click _Add&nbsp;Page_ at the top right.
 
 ![New page creation](/assets/dashboard-config/18.png)
 
@@ -22,7 +22,7 @@ Add the content that the page will contain. This may be a simple description of 
 
 ## Search Engine Preview
 
-Click [[Edit&nbsp;Website&nbsp;SEO]] to add a description that will appear in web searches.
+Click _Edit&nbsp;Website&nbsp;SEO_ to add a description that will appear in web searches.
 
 
 ## URL
@@ -37,5 +37,5 @@ You can choose if your page is published or not. If the slider is green, it is l
 
 ## Deleting Pages
 
-To delete a page, click on the checkbox next to the page name on the list, then click the trash can icon. Alternatively, you can enter the page and then click [[Remove]] in the footer.
+To delete a page, click on the checkbox next to the page name on the list, then click the trash can icon. Alternatively, you can enter the page and then click _Remove_ in the footer.
 

@@ -3,21 +3,17 @@ id: installation-macos
 title: Installation for macOS
 ---
 
-
 ## Prerequisites
 
 Before you are ready to run Saleor, you will need additional software installed on your computer.
-
 
 ### Node.js
 
 Version 10 or later is required. Download the macOS installer from the [Node.js downloads page](https://nodejs.org/en/download/).
 
-
 ### PostgreSQL
 
 Saleor needs PostgreSQL version 9.4 or above to work. Get the macOS installer from the [PostgreSQL download page](https://www.postgresql.org/download/macosx/).
-
 
 ### Command line tools for Xcode
 
@@ -28,6 +24,7 @@ Then run:
 ```shell-session
 $ xcode-select --install
 ```
+
 ### Homebrew
 
 Run the following command:
@@ -35,6 +32,7 @@ Run the following command:
 ```shell-session
 $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
+
 ### Python 3
 
 Use Homebrew to install the latest version of Python 3:
@@ -42,7 +40,6 @@ Use Homebrew to install the latest version of Python 3:
 ```shell-session
 $ brew install python3
 ```
-
 
 ### Git
 
@@ -52,7 +49,6 @@ Use Homebrew to install Git:
 $ brew install git
 ```
 
-
 ### GTK+
 
 Use Homebrew to install the graphical libraries necessary for PDF creation:
@@ -60,7 +56,6 @@ Use Homebrew to install the graphical libraries necessary for PDF creation:
 ```shell-session
 $ brew install cairo pango gdk-pixbuf libffi
 ```
-
 
 ## Installation
 
@@ -71,7 +66,6 @@ Once you have installed or updated the pre-requisite software, you are ready for
 ```shell-session
 $ git clone https://github.com/mirumee/saleor.git
 ```
-
 
 ### 2. Enter the directory
 
@@ -84,10 +78,10 @@ $ cd saleor/
 ```shell-session
 $ pip install -r requirements.txt
 ```
-> **Tip**
->
-> We strongly recommend [creating a virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing any Python packages.
 
+:::tip
+We strongly recommend [creating a virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing any Python packages.
+:::
 
 ### 4. Set `SECRET_KEY` environment variable
 
@@ -97,10 +91,9 @@ We try to provide usable default values for all the settings. We have decided no
 $ export SECRET_KEY='<mysecretkey>'
 ```
 
-> **Warning**
->
-> The secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections. It can also lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
-
+:::warning
+The secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections. It can also lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
+:::
 
 ### 5. Create a PostgreSQL user
 
@@ -112,12 +105,11 @@ $ createuser --superuser --pwprompt saleor
 
 Enter `saleor` when prompted for password.
 
-
 ### 6. Create a PostgreSQL database
 
-> **Note**
->
-> The database name is extracted from the `DATABASE_URL` environment variable. If absent, it defaults to `saleor`.
+:::note
+The database name is extracted from the `DATABASE_URL` environment variable. If absent, it defaults to `saleor`.
+:::
 
 ```shell-session
 $ createdb saleor
@@ -129,10 +121,9 @@ $ createdb saleor
 $ python manage.py migrate
 ```
 
-> **Warning**
->
-> This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
-
+:::warning
+This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
+:::
 
 ### 8. Install front-end dependencies
 
@@ -140,10 +131,9 @@ $ python manage.py migrate
 $ npm install
 ```
 
-> **Note**
->
-> If this step fails, make sure you are using a recent version of Node.js.
-
+:::note
+If this step fails, make sure you are using a recent version of Node.js.
+:::
 
 ### 9. Prepare front-end assets
 
@@ -151,13 +141,11 @@ $ npm install
 $ npm run build-assets
 ```
 
-
 ### 10. Compile e-mails
 
 ```shell-session
 $ npm run build-emails
 ```
-
 
 ### 11. Start the development server
 

@@ -11,7 +11,7 @@ Webhooks allow you to set up integrations which subscribe to events. They can th
 
 ## Adding a webhook
 
-The main webhooks page has a standard list with options to edit and delete existing webhooks. You can also create a new webhook by clicking the [[Create webhook]] button on the right above the list.
+The main webhooks page has a standard list with options to edit and delete existing webhooks. You can also create a new webhook by clicking the _Create webhook_ button on the right above the list.
 
 In the Webhook Information card:
 
@@ -22,8 +22,8 @@ In the Webhook Information card:
 
 ## Events
 
-in the Events card, assign singular events which you want to be triggered the webhook or choose the [[Register all events]] option to send notifications about all events, regardless of type. By choosing this option, you will send payloads for all events currently assigned, so your range will change as events are added or deleted by the Saleor team. If you want to assigned a limited range of events, choose them from the menu of specific items.
+in the Events card, assign singular events which you want to be triggered the webhook or choose the _Register all events_ option to send notifications about all events, regardless of type. By choosing this option, you will send payloads for all events currently assigned, so your range will change as events are added or deleted by the Saleor team. If you want to assigned a limited range of events, choose them from the menu of specific items.
 
 ## Activate webhooks
 
-By default, you new webhooks will not be active until your click the [[Webhook is active]] in the Webhook status card. 
+By default, you new webhooks will not be active until your click the _Webhook is active_ in the Webhook status card. 

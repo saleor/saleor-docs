@@ -20,9 +20,9 @@ If you want to store and serve media files, set the following environment variab
 
 - `GS_MEDIA_BUCKET_NAME` - The GCS bucket name to use for media files.
 
-> **Note**
->
-> The media files are all data uploaded through the dashboard (product images, category images, etc.).
+:::note
+The media files are all data uploaded through the dashboard (product images, category images, etc.).
+:::
 
 
 ## Serving static files with a GCS bucket
@@ -33,29 +33,32 @@ If you also intend to use GCS for your static files, set an additional environme
 
 - `GS_STORAGE_BUCKET_NAME` - The GCS bucket name to use for static files.
 
-> **Note**
->
-> You need to configure your GCS bucket to allow cross-origin requests for some files to be properly served (SVG files, Javascript files, etc.). To do this, set the following instructions in your GCS Bucket’s permissions tab under the [CORS section](https://cloud.google.com/storage/docs/xml-api/put-bucket-cors).
->
-> ```xml
-><?xml version="1.0" encoding="UTF-8"?>
-><CorsConfig>
-><Cors>
->    <Origins>
->       <Origin>http://origin1.example.com</Origin>
->       <Origin>http://origin2.example.com</Origin>
->    </Origins>
->    <Methods>
->        <Method>GET</Method>
->        <Method>HEAD</Method>
->        <Method>PUT</Method>
->        <Method>POST</Method>
->        <Method>DELETE</Method>
->     </Methods>
->     <ResponseHeaders>
->         <ResponseHeader>x-goog-meta-foo1</ResponseHeader>
->         <ResponseHeader>x-goog-meta-foo2</ResponseHeader>
->     </ResponseHeaders>
->     <MaxAgeSec>1800</MaxAgeSec>
-></Cors>
-></CorsConfig>
+:::note
+
+You need to configure your GCS bucket to allow cross-origin requests for some files to be properly served (SVG files, Javascript files, etc.). To do this, set the following instructions in your GCS Bucket’s permissions tab under the [CORS section](https://cloud.google.com/storage/docs/xml-api/put-bucket-cors).
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<CorsConfig>
+<Cors>
+    <Origins>
+       <Origin>http://origin1.example.com</Origin>
+       <Origin>http://origin2.example.com</Origin>
+    </Origins>
+    <Methods>
+        <Method>GET</Method>
+        <Method>HEAD</Method>
+        <Method>PUT</Method>
+        <Method>POST</Method>
+        <Method>DELETE</Method>
+     </Methods>
+     <ResponseHeaders>
+         <ResponseHeader>x-goog-meta-foo1</ResponseHeader>
+         <ResponseHeader>x-goog-meta-foo2</ResponseHeader>
+     </ResponseHeaders>
+     <MaxAgeSec>1800</MaxAgeSec>
+</Cors>
+</CorsConfig>
+```
+
+:::

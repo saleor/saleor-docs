@@ -14,7 +14,7 @@ On the main Taxes page, you need to check or uncheck three switches in the Confi
 - Show gross prices to customers in storefront
 - Charge tax on shipping rates
 
-Once you choose these according to how your store works and click [[Fetch&nbsp;Taxes]]. The entire Saleor storefront will re-calibrate to take your preferences into account.
+Once you choose these according to how your store works and click _Fetch&nbsp;Taxes_. The entire Saleor storefront will re-calibrate to take your preferences into account.
 
 ![Taxes configuration](/assets/dashboard-config/config10.JPG)
 

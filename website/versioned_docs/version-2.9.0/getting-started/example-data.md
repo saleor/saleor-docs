@@ -10,6 +10,7 @@ Use the following command to populate the database and test your new storefront 
 ```shell-session
 $ python manage.py populatedb --createsuperuser
 ```
->**Note**
->
->The `--createsuperuser` argument creates an admin account for `admin@example.com` with the password set to `admin`.
+
+:::note
+The `--createsuperuser` argument creates an admin account for `admin@example.com` with the password set to `admin`.
+:::

@@ -21,10 +21,12 @@ To run webpack in _watch_ mode run:
 $ npm start
 ```
 
-> **Warning**
->
-> Files produced this way are not ready for production use. To prepare static assets for deployment run:
->
-> ```shell-session
-> $ npm run build-assets --production
-> ```
+:::warning
+
+Files produced this way are not ready for production use. To prepare static assets for deployment run:
+
+```shell-session
+$ npm run build-assets --production
+```
+
+:::

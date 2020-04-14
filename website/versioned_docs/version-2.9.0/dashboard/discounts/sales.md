@@ -15,7 +15,7 @@ Sales are an excellent way to encourage customers to use your store. Saleor offe
 
 **1. Add a new sale**
 
-Click [[Create&nbsp;Sale]] above the main sales list and fill in the relevant sections.
+Click _Create&nbsp;Sale_ above the main sales list and fill in the relevant sections.
 
 ![Creating sale](/assets/dashboard-discounts/discount1.JPG)
 
@@ -47,9 +47,9 @@ To assign any product, category or collection, click on the relevant tab and the
 
 ![Including categories in sale](/assets/dashboard-discounts/discounts3.JPG)
 
-Once you have chosen the products, categories or collections you want to promote, click [[Assign&nbsp;Categories]].
+Once you have chosen the products, categories or collections you want to promote, click _Assign&nbsp;Categories_.
 
 
 **6. Save your changes**
 
-Click [[Save]] on the footer bar to save the sale.
+Click _Save_ on the footer bar to save the sale.

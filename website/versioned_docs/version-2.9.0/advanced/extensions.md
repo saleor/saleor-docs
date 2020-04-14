@@ -2,6 +2,7 @@
 id: extensions
 title: Extensions
 ---
+
 ## Introduction
 
 Saleor is built based on extensions architecture. It includes hooks for most standard operations, such as the calculation of prices in the checkout or calling certain actions when an order has been created.
@@ -38,9 +39,9 @@ class CustomPlugin(BasePlugin):
         api_post_request_task.delay(transaction_url, data)
 ```
 
-> **Note**
->
-> There is no need to implement all base methods as the `ExtensionManager` will use default values for methods that are not implemented.
+:::note
+There is no need to implement all base methods as the `ExtensionManager` will use default values for methods that are not implemented.
+:::
 
 ### Activating your plugin
 
@@ -123,33 +124,33 @@ class TaxApiPlugin(BasePlugin):
 
 `ExtensionManager` will use this data to create default configuration in DB which will be served by the API.
 
-By using GraphQL queries, the `pluginConfigurations` and `pluginConfiguration` user will be able to list all enabled plugins. Mutation `pluginConfigurationUpdate` will allow the user to active, disable and update configuration fields like `API keys` for a  given plugin. The API serves a response with the given fields:
+By using GraphQL queries, the `pluginConfigurations` and `pluginConfiguration` user will be able to list all enabled plugins. Mutation `pluginConfigurationUpdate` will allow the user to active, disable and update configuration fields like `API keys` for a given plugin. The API serves a response with the given fields:
 
-| Name | Description |
-| --- | --- |
-| `id` | Id of the plugin |
-| `name` | Name of the plugin |
-| `active` | Indicates if the plugin is activated or not |
-| `description` | Description of the plugin |
+| Name            | Description                                                             |
+| --------------- | ----------------------------------------------------------------------- |
+| `id`            | Id of the plugin                                                        |
+| `name`          | Name of the plugin                                                      |
+| `active`        | Indicates if the plugin is activated or not                             |
+| `description`   | Description of the plugin                                               |
 | `configuration` | Stores all configuration fields as a list that can be changed by a user |
 
 Configuration fields:
 
-| Name | Description |
-| --- | --- |
-| `name` | Name of the field |
-| `value` | Current value of the field |
-| `type` | Type of the field. Saleor supports `String` and `Boolean` |
-| `helpText` | Description of the field |
-| `label` | Label for the field |
+| Name       | Description                                               |
+| ---------- | --------------------------------------------------------- |
+| `name`     | Name of the field                                         |
+| `value`    | Current value of the field                                |
+| `type`     | Type of the field. Saleor supports `String` and `Boolean` |
+| `helpText` | Description of the field                                  |
+| `label`    | Label for the field                                       |
 
-> **Note**
-> 
-> Once you have completed the above configuration, as a plugin owner, you can decide to display certain configuration options in the Plugins page in the dashboard's Configuration section of Saleor. 
-> 
-> This allows dashboard users to manage the plugin's basic setup. The scope of the setup available via Plugins page is up to you. 
-> 
-> See the [Plugins](dashboard/configuration/plugins.md) topic for more information.
+:::note
+Once you have completed the above configuration, as a plugin owner, you can decide to display certain configuration options in the Plugins page in the dashboard's Configuration section of Saleor.
+
+This allows dashboard users to manage the plugin's basic setup. The scope of the setup available via Plugins page is up to you.
+
+See the [Plugins](dashboard/configuration/plugins.md) topic for more information.
+:::
 
 ## About Extensions Manager
 

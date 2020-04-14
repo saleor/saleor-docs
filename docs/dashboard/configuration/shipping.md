@@ -20,17 +20,17 @@ You can choose metric or imperial weight units as the default in which your stor
 
 Shipping Zones define the cost of shipping in different areas of the world. Collecting countries together in zones allows you to assign the best shipping and delivery options for customers.
 
-Click [[Add&nbsp;Shipping&nbsp;Zone]] in the top right corner of the Shipping by Zone card. Add the name of the shipping zone then click [[Assign&nbsp;Countries]] and use one of the three options in the pop-up window that appears:
+Click _Add&nbsp;Shipping&nbsp;Zone_ in the top right corner of the Shipping by Zone card. Add the name of the shipping zone then click _Assign&nbsp;Countries_ and use one of the three options in the pop-up window that appears:
 
 1. In the Search Countries section at the top, you can search specific countries by name and assign them to the shipping zone
 2. The Quick Pick section is an option that allows you create a shipping for all unassigned countries. This is a useful option for defining a final ‘Rest Of The World’ shipping zone to guarantee global coverage 
 3. Scroll through the Countries A to Z list and assign countries using the checkboxes
 
-Click [[Assign]] to confirm your selection.
+Click _Assign_ to confirm your selection.
 
 ### How to remove shipping zones and countries
 
-You can remove individual shipping zones by entering the zone from the list and clicking [[Remove]] in the footer. To remove multiple zones, click the checkboxes on the main list and then confirm using the trash can icon that appears above the list.
+You can remove individual shipping zones by entering the zone from the list and clicking _Remove_ in the footer. To remove multiple zones, click the checkboxes on the main list and then confirm using the trash can icon that appears above the list.
 
 Remove countries from a shipping zone using the trash can icon next to the country name when you enter a specific zone from the main list.
 
@@ -55,7 +55,7 @@ These two methods cover most of the basic use cases, for example:
 
 ### How to add a courier
 
-1. Click [[Create&nbsp;Rate]] in the Price Based Rates card. 
+1. Click _Create&nbsp;Rate_ in the Price Based Rates card. 
 
 ![Adding courier](/assets/dashboard-config/config5.JPG)
 

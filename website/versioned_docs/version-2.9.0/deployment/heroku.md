@@ -20,10 +20,9 @@ $ heroku config:set NPM_CONFIG_PRODUCTION=false
 $ heroku config:set SECRET_KEY='<your secret key here>'
 ```
 
-> **Note**
->
-> Heroku’s storage is volatile. This means that all instances of your application have separate disks and lose all changes made to the local disk each time the application is restarted. The best approach is to use cloud storage such as Amazon S3. See [Storing Files on Amazon S3](deployment/s3.md) for configuration details.
-
+:::note
+Heroku’s storage is volatile. This means that all instances of your application have separate disks and lose all changes made to the local disk each time the application is restarted. The best approach is to use cloud storage such as Amazon S3. See [Storing Files on Amazon S3](deployment/s3.md) for configuration details.
+:::
 
 ## Deployment
 
@@ -31,17 +30,15 @@ $ heroku config:set SECRET_KEY='<your secret key here>'
 $ git push heroku master
 ```
 
-
 ## Preparing the database
 
 ```shell-session
 $ heroku run python manage.py migrate
 ```
 
-
 ## Updating currency exchange rates
 
-You should run this command periodically. The best way to ensure this is done is by using Heroku’s Scheduler service. 
+You should run this command periodically. The best way to ensure this is done is by using Heroku’s Scheduler service.
 
 To add it to our application:
 
@@ -54,7 +51,6 @@ Then log into your Heroku account, find the Heroku Scheduler add-on in the activ
 ```shell-session
 $ python manage.py update_exchange_rates --all
 ```
-
 
 ## Enabling Elasticsearch
 

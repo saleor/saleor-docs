@@ -107,6 +107,6 @@ The successful server response for the mutation is:
 }
 ```
 
-> **Note**
->
-> To perform the `productUpdate` mutation, you need to be authenticated as an admin user with permission to manage products. See how authentication works in the Saleor API in the [Authentication](api/authenticate.md) section.
+:::note
+To perform the `productUpdate` mutation, you need to be authenticated as an admin user with permission to manage products. See how authentication works in the Saleor API in the [Authentication](api/authenticate.md) section.
+:::

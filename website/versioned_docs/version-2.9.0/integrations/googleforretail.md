@@ -11,9 +11,9 @@ To generate a feed, use the following command:
 $ python manage.py update_feeds
 ```
 
-> **Tip**
->
->We recommend that you run this command periodically.
+:::tip
+We recommend that you run this command periodically.
+:::
 
 Merchant Center has few country-dependent settings. For this reason, make sure to validate your feed at Google dashboard. 
 
