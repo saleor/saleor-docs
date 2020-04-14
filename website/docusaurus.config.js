@@ -29,6 +29,7 @@ module.exports = {
       logo: {
         alt: "Saleor",
         src: "img/saleor-logo.svg",
+        srcDark: "img/saleor-logo-dark.svg",
       },
       links: [
         {
@@ -54,10 +55,6 @@ module.exports = {
     footer: {
       // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
       copyright: `Copyright © 2009–${new Date().getFullYear()} <a href="https://mirumee.com/">Mirumee Software</a>`,
-      logo: {
-        src: "img/footer-logo.png",
-        alt: "Saleor",
-      },
       links: [
         {
           title: "Saleor Commerce",
