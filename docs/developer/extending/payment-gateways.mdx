@@ -1,22 +1,15 @@
 ---
-id: payments
-title: How to Integrate New Payment Gateway
+title: Payment Gateways
 ---
 
-## Introduction
+## Adding a new payment gateway
 
-For more details on the payment platforms supported in Saleor, see the [Supported Payment Gateways](integrations/payment-gateways.md) topic.
+Saleor uses a universal flow that each gateway should implement by providing a class that contains all the necessary methods.
 
-## How to integrate a new payment gateway into Saleor
-
-Saleor uses a universal flow that each gateway should fulfill. There are several methods that should be implemented.
-
-Your changes should be stored in the `saleor.payment.gateways.<gateway name>` package.
-
-A plugin.py file is required in this location. The file contains an implementation of the plugin to this specific payment gateway. For more information on the plugin implementation methods, see plugin.py file for existing Stripe or Braintree implementation
+For more information on the plugin implementation methods, see the `plugin.py` file for an existing payment gateway.
 
 :::note
-After completing the steps, you will also need to integrate your payment gateway into your SPA Storefront’s workflow.
+You will also need to integrate your payment gateway into your storefront’s code.
 :::
 
 ### Client token
@@ -131,54 +124,3 @@ Saleor unifies error codes across all gateways.
 | `expired`             | `EXPIRED`             | Expired payment method token                       |
 | `declined`            | `DECLINED`            | Transaction was declined by the gateway            |
 | `processing_error`    | `PROCESSING_ERROR`    | Default error used for all cases not covered above |
-
-## How to add a payment method to the old checkout (optional)
-
-If you are not using SPA Storefront, there are some additional steps you need to perform to enable the payment method in your checkout flow.
-
-### Add a form
-
-Payment on the storefront is handled via a payment form which should implement all the steps necessary for the payment to succeed. The form must implement a `get_payment_token` that returns a token required to process payments. All payment forms should inherit from `django.forms.Form`.
-
-Your changes should reside under `saleor.payment.gateways.<gateway name>.forms.py`.
-
-**Example**
-
-```python
-class BraintreePaymentForm(forms.Form):
-    amount = forms.DecimalField()
-    payment_method_nonce = forms.CharField()
-
-    def get_payment_token(self):
-        return self.cleaned_data["payment_method_nonce"]
-```
-
-### Implement
-
-`create_form(data, payment_information)`: Should return the form that will be used for the checkout process.
-
-:::note
-Should be added as a part of the provider’s methods.
-:::
-
-### Implement template path
-
-`template_path`: Should specify a path to a template that will be rendered for the checkout.
-
-```python
-PAYMENT_GATEWAYS = {
-    DUMMY: {
-        "config": {
-            "template_path": "order/payment/dummy.html",
-        },
-    },
-}
-```
-
-### Add template
-
-Add a new template to handle the payment process with your payment form. Your changes should live under `saleor.templates.order.payment.<gateway name>.html`.
-
-:::tip
-Whenever possible, use `currency` and `amount` as **returned** by the payment gateway, **not** the one that was sent to it. It may happen that a gateway (eg. Braintree) is set to a different currency than your shop. In such cases, you may want to charge the customer 70 dollars but, due to gateway misconfiguration, the charge will be 70 Euros. Such situation is then handled and an adequate error is given.
-:::
