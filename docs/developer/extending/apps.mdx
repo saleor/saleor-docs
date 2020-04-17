@@ -2,6 +2,114 @@
 title: Apps
 ---
 
-:::note
-This section is still under construction. Contributions are welcome!
-:::
+## Core concepts
+
+...
+
+## Creating new apps
+
+To create a new app, use the `serviceAccountCreate` mutation. This mutation requires a staff account with the `MANAGE_SERVICE_ACCOUNTS` permission. The mutations takes the following input fields:
+
+- `name`: the name of the app.
+- `isActive`: whether to activate the app.
+- `permissions`: list of permissions the app should be granted.
+
+Let's assume that we want to create an order processing service that can fetch and manage orders in Saleor. To do so, we create a new app with the `MANAGE_ORDERS` permission:
+
+```graphql
+mutation {
+  serviceAccountCreate(
+    input: {
+      name: "Order processing service"
+      isActive: true
+      permissions: [MANAGE_ORDERS]
+    }
+  ) {
+    authToken
+    serviceAccount {
+      id
+      name
+    }
+    accountErrors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+If there are no errors in the response, a new app is created:
+
+```json
+{
+  "data": {
+    "serviceAccountCreate": {
+      "authToken": "Es1O0oB2O3PTeG9A4IVYUcaMoru3Ls",
+      "serviceAccount": {
+        "id": "U2VydmljZUFjY291bnQ6Nw==",
+        "name": "Order processing service"
+      },
+      "accountErrors": []
+    }
+  }
+}
+```
+
+The response contains the `authToken` field - this is the token that the app needs to include in requests to Saleor API to authorize itself and have access to queries or mutations that it needs. Apps can authorize in Saleor using [the Authorization header, just as regular users](developer/users.mdx#authentication).
+
+## Creating authorization keys
+
+...
+
+# Webhooks
+
+Webhooks can be used to receive data from Saleor when particular events happen. The available events are:
+
+- `ANY_EVENTS`: wildcard event - receive webhook when any of the available events is triggered
+- `ORDER_CREATED`: triggered when a new order is placed
+- `ORDER_FULLY_PAID`: triggered when an order is fully paid
+- `ORDER_UPDATED`: an order was updated
+- `ORDER_CANCELLED`: an order was cancelled
+- `ORDER_FULFILLED`: an order was fulfilled
+- `FULFILLMENT_CREATED`: a new fulfillment is created
+- `CHECKOUT_QUANTITY_CHANGED`: triggered when checkout line's quantity was changed
+- `CUSTOMER_CREATED`: a new customer account was created
+- `PRODUCT_CREATED`: a new product is created
+
+Webhook's payload is sent in `POST` requests with the `application/json` content type.
+
+## Subscribing to a webhook
+
+To subscribe to a webhook we need to first create an app with proper permissions. Let's assume that we want to extend the order processing app that we've created in the example above. The app should receive notifications whenever new orders are created in Saleor. To do so, we'll create a new webhook using the `webhookCreate` mutation. The mutation takes the following input:
+
+- `name`: name of the webhook.
+- `targetUrl`: URL of a service that will receive webhooks requests.
+- `events`: list of the events to subscribe to
+- `serviceAccount`: ID of the app to which the webhook belongs
+- `isActive`: whether to activate the webhook
+
+```graphql
+mutation {
+  webhookCreate(
+    input: {
+      name: "New orders notification"
+      targetUrl: "https://webhook.site/10fb6d32-7d96-42a9-a852-0aa532aad1c3"
+      events: [ORDER_CREATED]
+      serviceAccount: "U2VydmljZUFjY291bnQ6OQ=="
+      isActive: true
+    }
+  ) {
+    webhook {
+      id
+    }
+    webhookErrors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+If there are no errors in the response, the webhook is succesfully created.
