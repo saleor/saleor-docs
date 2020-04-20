@@ -5,24 +5,24 @@ import "./styles.css";
 
 mermaid.initialize({
   startOnLoad: false,
-  theme: null
+  theme: null,
 });
 
 const Chart = ({ definition }) => {
   const id = useMemo(() => `mermaid-${Date.now().toString()}`, [definition]);
   const [fontsLoaded, setFontsLoaded] = useState(
-    document.fonts.status === "loaded"
+    typeof window !== "undefined" && document.fonts.status === "loaded"
   );
   const [svg, setSvg] = useState("");
 
   useEffect(() => {
-    if (!fontsLoaded) {
+    if (typeof window !== "undefined" && !fontsLoaded) {
       document.fonts.ready.then(() => setFontsLoaded(true));
     }
   }, [id]);
 
   useEffect(() => {
-    mermaid.render(id, definition, svg => setSvg(svg));
+    mermaid.render(id, definition, (svg) => setSvg(svg));
   }, [id, fontsLoaded]);
 
   return (
