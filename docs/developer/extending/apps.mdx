@@ -2,16 +2,12 @@
 title: Apps
 ---
 
-## Core concepts
-
-...
-
 ## Creating new apps
 
-To create a new app, use the `serviceAccountCreate` mutation. This mutation requires a staff account with the `MANAGE_SERVICE_ACCOUNTS` permission. The mutations takes the following input fields:
+To create a new app, use the `serviceAccountCreate` mutation. This mutation is only available to staff users with the `MANAGE_SERVICE_ACCOUNTS` permission. The mutation takes the following input fields:
 
 - `name`: the name of the app.
-- `isActive`: whether to activate the app.
+- `isActive`: whether to activate the app, defaults to `true`.
 - `permissions`: list of permissions the app should be granted.
 
 Let's assume that we want to create an order processing service that can fetch and manage orders in Saleor. To do so, we create a new app with the `MANAGE_ORDERS` permission:
@@ -19,11 +15,7 @@ Let's assume that we want to create an order processing service that can fetch a
 ```graphql
 mutation {
   serviceAccountCreate(
-    input: {
-      name: "Order processing service"
-      isActive: true
-      permissions: [MANAGE_ORDERS]
-    }
+    input: { name: "Order processing service", permissions: [MANAGE_ORDERS] }
   ) {
     authToken
     serviceAccount {
@@ -32,7 +24,6 @@ mutation {
     }
     accountErrors {
       field
-      message
       code
     }
   }
@@ -58,43 +49,83 @@ If there are no errors in the response, a new app is created:
 
 The response contains the `authToken` field - this is the token that the app needs to include in requests to Saleor API to authorize itself and have access to queries or mutations that it needs. Apps can authorize in Saleor using [the Authorization header, just as regular users](developer/users.mdx#authentication).
 
+:::note
+The `authToken` field is only available in the mutation response and cannot be fetched later, except for the last four digits.
+:::
+
 ## Creating authorization keys
 
-...
+Creating an app with `serviceAccountCreate` mutation creates the default authorization token (`authToken`). You can create more authorization keys with the `serviceAccountTokenCreate`. The mutation takes the following fields:
+
+- `serviceAccount`: ID of the app.
+- `name`: (optional) name of the key.
+
+```graphql
+mutation {
+  serviceAccountTokenCreate(
+    input: { serviceAccount: "U2VydmljZUFjY291bnQ6OQ==" }
+  ) {
+    authToken
+    accountErrors {
+      field
+      code
+    }
+    serviceAccountToken {
+      id
+    }
+  }
+}
+```
+
+## Revoking authorization keys
+
+To revoke an authorization key, use the `serviceAccountTokenDelete`:
+
+```graphql
+mutation {
+  serviceAccountTokenDelete(id: "U2VydmljZUFjY291bnRUb2tlbjoxNw==") {
+    accountErrors {
+      field
+      code
+  }
+}
+```
 
 # Webhooks
 
 Webhooks can be used to receive data from Saleor when particular events happen. The available events are:
 
-- `ANY_EVENTS`: wildcard event - receive webhook when any of the available events is triggered
-- `ORDER_CREATED`: triggered when a new order is placed
-- `ORDER_FULLY_PAID`: triggered when an order is fully paid
-- `ORDER_UPDATED`: an order was updated
-- `ORDER_CANCELLED`: an order was cancelled
-- `ORDER_FULFILLED`: an order was fulfilled
-- `FULFILLMENT_CREATED`: a new fulfillment is created
-- `CHECKOUT_QUANTITY_CHANGED`: triggered when checkout line's quantity was changed
-- `CUSTOMER_CREATED`: a new customer account was created
-- `PRODUCT_CREATED`: a new product is created
+| Name                        | Description                                                                                                                      |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `ANY_EVENTS`                | Receive webhooks when any of the available events is triggered (wildcard event).                                                 |
+| `CHECKOUT_QUANTITY_CHANGED` | Quantity of a checkout line is changed.                                                                                          |
+| `CUSTOMER_CREATED`          | A new customer account is created.                                                                                               |
+| `ORDER_CREATED`             | A new order is placed.                                                                                                           |
+| `ORDER_FULLY_PAID`          | Payment is made and an order is fully paid.                                                                                      |
+| `ORDER_UPDATED`             | An order is updated; triggered for all changes related to an order; covers all other order webhooks, except for `ORDER_CREATED`. |
+| `ORDER_CANCELLED`           | An order is cancelled.                                                                                                           |
+| `ORDER_FULFILLED`           | An order is fulfilled.                                                                                                           |
+| `FULFILLMENT_CREATED`       | A new fulfillment is created.                                                                                                    |
+| `PRODUCT_CREATED`           | A new product is created.                                                                                                        |
 
-Webhook's payload is sent in `POST` requests with the `application/json` content type.
+Webhooks' payloads are sent in `POST` requests.
 
 ## Subscribing to a webhook
 
-To subscribe to a webhook we need to first create an app with proper permissions. Let's assume that we want to extend the order processing app that we've created in the example above. The app should receive notifications whenever new orders are created in Saleor. To do so, we'll create a new webhook using the `webhookCreate` mutation. The mutation takes the following input:
+To subscribe to a webhook, we need to first create an app with proper permissions. Let's assume that we want to extend the order processing app that we've created in the example above. The app should receive notifications whenever new orders are created in Saleor. To do so, we'll create a new webhook using the `webhookCreate` mutation. The mutation takes the following input:
 
 - `name`: name of the webhook.
 - `targetUrl`: URL of a service that will receive webhooks requests.
-- `events`: list of the events to subscribe to
-- `serviceAccount`: ID of the app to which the webhook belongs
-- `isActive`: whether to activate the webhook
+- `events`: list of the events to subscribe to.
+- `serviceAccount`: ID of the app to which the webhook belongs.
+- `isActive`: whether to activate the webhook.
 
 ```graphql
 mutation {
   webhookCreate(
     input: {
       name: "New orders notification"
-      targetUrl: "https://webhook.site/10fb6d32-7d96-42a9-a852-0aa532aad1c3"
+      targetUrl: "https://order-processing-service.example.com"
       events: [ORDER_CREATED]
       serviceAccount: "U2VydmljZUFjY291bnQ6OQ=="
       isActive: true
@@ -105,11 +136,43 @@ mutation {
     }
     webhookErrors {
       field
-      message
       code
     }
   }
 }
 ```
 
-If there are no errors in the response, the webhook is succesfully created.
+If there are no errors in the response, the webhook is successfully created. From now on, whenever a new order is placed, payload with order data will be sent to your `targetUrl`.
+
+## Updating a webhook
+
+To update a webhook (e.g. to deactivate it or change the permissions), use the `webhookUpdate` mutation. The mutation takes similar input fields as the `webhookCreate` mutation. The example below shows how to deactive a webhook:
+
+```graphql
+mutation {
+  webhookUpdate(id: "V2ViaG9vazox", input: { isActive: false }) {
+    webhook {
+      isActive
+    }
+    webhookErrors {
+      field
+      code
+    }
+  }
+}
+```
+
+## Removing a webhook
+
+To fully remove a webhook, use the `webhookDelete` mutation:
+
+```graphql
+mutation {
+  webhookDelete(id: "V2ViaG9vazox") {
+    webhookErrors {
+      field
+      code
+    }
+  }
+}
+```
