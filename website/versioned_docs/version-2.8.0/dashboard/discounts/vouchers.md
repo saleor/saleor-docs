@@ -1,26 +1,25 @@
 ---
-id: version-2.8.0-vouchers
+id: vouchers
 title: Vouchers
-original_id: vouchers
 ---
 
 Vouchers allow you to give all your customers or selected shoppers a great deal on a specific product or order. Users get a voucher code via email, or on social media or your website, which they can they activate at the checkout when making a purchase.
 
-![Voucher page](assets/dashboard-discounts/Vouchers.jpg)
+![Voucher page](/assets/dashboard-discounts/Vouchers.jpg)
 
 
 ## How to Add a Voucher Offer
 
 ### 1. Enter the Add Voucher Screen
 
-Click [[Add&nbsp;Voucher]] above the main list on the vouchers page to get started.
+Click _Add&nbsp;Voucher_ above the main list on the vouchers page to get started.
 
 ### 2. Add General Information
 
 There are two options to give your voucher a name:
 
 - Type a name like ‘BlackFridayVoucher’ into the Discount Code box
-- Click [[Generate&nbsp;Code]] to create a randomized voucher code 
+- Click _Generate&nbsp;Code_ to create a randomized voucher code 
 
 ### 3. Choose Discount Type
 
@@ -44,7 +43,7 @@ You can decide if your offer applies to products which are already discounted in
 
 ### 7. Set Minimum Requirements
 
-Vouchers are a great upselling opportunity. You can choose a minimum order value or quantity of products that customers must reach before the voucher can be applied, or you can choose [[None]] and apply the voucher to all products.
+Vouchers are a great upselling opportunity. You can choose a minimum order value or quantity of products that customers must reach before the voucher can be applied, or you can choose _None_ and apply the voucher to all products.
 
 ### 8. Set Usage Limit
 
@@ -54,9 +53,9 @@ Choose if each customer (defined by e-mail address) can use the voucher only onc
 
 ### 9. Choose the Dates
 
-Leave the start date blank in [[Active&nbsp;Dates]] if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
+Leave the start date blank in _Active&nbsp;Dates_ if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
 
 
 ## Editing and Revoming Vouchers
 
-Click on any voucher from the main list to edit it. To remove vouchers, click the checkbox on the main list and then use the trash can icon, or enter the voucher and click [[remove]] in the footer.
+Click on any voucher from the main list to edit it. To remove vouchers, click the checkbox on the main list and then use the trash can icon, or enter the voucher and click _remove_ in the footer.

@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-intro-to-graphql
+id: intro-to-graphql
 title: Introduction to GraphQL API
-original_id: intro-to-graphql
 ---
 
 

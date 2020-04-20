@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-emails
+id: emails
 title: Customizing Emails
-original_id: emails
 ---
 
 ## Sending Emails
@@ -24,6 +23,6 @@ Source emails use [MJML](https://mjml.io/) and must be compiled to HTML before u
 
 To compile emails run:
 
-```console
+```shell-session
 $ npm run build-emails
 ```

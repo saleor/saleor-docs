@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-seo
+id: seo
 title: Search Engine Optimization (SEO)
-original_id: seo
 ---
 
 Out of the box Saleor will automatically handle certain aspects of how search engines see and index your products.

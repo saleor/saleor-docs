@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-password-validation
+id: password-validation
 title: Password Validation
-original_id: password-validation
 ---
 
 When setting up your new Saleor instance, you must consider the password policy you want to implement in order to properly protect customer data. 

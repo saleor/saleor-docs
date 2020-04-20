@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-using-saleor
+id: using-saleor
 title: Using Saleor
-original_id: using-saleor
 ---
 
 ## About the Dashboard
@@ -24,7 +23,7 @@ The first thing you need to do is set up a master account for your store—somet
 
 Once you have your store, you can access the administration panel by: 
 
-- Clicking [[dashboard]] on the right side of the top navigation bar of your store’s front page
+- Clicking _dashboard_ on the right side of the top navigation bar of your store’s front page
 - Entering `www.YOURSTORENAME/dashboard` into the web browser
 
 You will then be asked to input the email address and password you used to create your superuser account. Each new user can access the dashboard the same way using their unique credentials.

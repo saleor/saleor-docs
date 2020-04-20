@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-page
+id: page
 title: Pages
-original_id: page
 ---
 
 ## Setting up custom pages

@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-payments
+id: payments
 title: Payments Architecture
-original_id: payments
 ---
 
 ## Authorization and Capture

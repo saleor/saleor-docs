@@ -1,8 +1,7 @@
 ---
-id: version-2.8.0-stripe
+id: stripe
 sidebar_label: Stripe
 title: Stripe (supports Credit Cards)
-original_id: stripe
 ---
 
 This gateway implements payments using [Stripe](https://stripe.com/).

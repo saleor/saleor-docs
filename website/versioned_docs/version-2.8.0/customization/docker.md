@@ -1,24 +1,21 @@
 ---
-id: version-2.8.0-docker
+id: docker
 title: Using Docker for Development
-original_id: docker
 ---
 
 Using Docker to build software allows you to run and test code without having to worry about external dependencies such as cache servers and databases.
 
-> **Warning**
->
-> The following setup is only meant for local development. See [Docker](/docs/deployment/docker) for production use of Docker.
-
+:::warning
+The following setup is only meant for local development. See [Docker](/docs/deployment/docker) for production use of Docker.
+:::
 
 ## Local Prerequisites
 
 You will need to install [Docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/) before performing the following steps.
 
-> **Note**
->
-> Our configuration uses [docker-compose.override.yml](https://docs.docker.com/compose/extends/#understanding-multiple-compose-files) that exposes Saleor, PostgreSQL and Redis ports and runs Saleor via `python manage.py runserver` for local development. If you do not wish to use any overrides then you can tell compose to only use docker-compose.yml configuration using `-f`, like so: `docker-compose -f docker-compose.yml up`.
-
+:::note
+Our configuration uses [docker-compose.override.yml](https://docs.docker.com/compose/extends/#understanding-multiple-compose-files) that exposes Saleor, PostgreSQL and Redis ports and runs Saleor via `python manage.py runserver` for local development. If you do not wish to use any overrides then you can tell compose to only use docker-compose.yml configuration using `-f`, like so: `docker-compose -f docker-compose.yml up`.
+:::
 
 ## Using local assets
 
@@ -30,18 +27,17 @@ In order for Docker to use your assets from the host, you need to remove `/app/s
 
 Additionally if you wish to have the compiled templated emails mounted then you need to also remove `/app/templates/templated_email/compiled` volume from web and celery services.
 
-
 ## Usage
 
 Build the containers using `docker-compose`:
 
-```console
+```shell-session
 $ docker-compose build
 ```
 
 Prepare the database:
 
-```console
+```shell-session
 $ docker-compose run --rm web python3 manage.py migrate
 $ docker-compose run --rm web python3 manage.py collectstatic
 $ docker-compose run --rm web python3 manage.py populatedb --createsuperuser
@@ -51,7 +47,7 @@ $ docker-compose run --rm web python3 manage.py populatedb --createsuperuser
 
 Run the containers:
 
-```console
+```shell-session
 $ docker-compose up
 ```
 

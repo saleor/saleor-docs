@@ -6,7 +6,7 @@ title: Vouchers
 
 Vouchers allow you to give all your customers or selected shoppers a great deal on a specific product or order. Users get a voucher code via email, or on social media or your website, which they can they activate at the checkout when making a purchase.
 
-![Voucher page](assets/dashboard-discounts/vouchers1.JPG)
+![Voucher page](/assets/dashboard-discounts/vouchers1.JPG)
 
 ## How to
 
@@ -14,14 +14,14 @@ Vouchers allow you to give all your customers or selected shoppers a great deal 
 
 **1. Enter the Create Voucher view**
 
-Click [[Create&nbsp;Voucher]] above the main list on the vouchers page to get started.
+Click _Create&nbsp;Voucher_ above the main list on the vouchers page to get started.
 
 **2. Add general information**
 
 There are two options to give your voucher a name:
 
 - Type a name, for example, ‘BlackFridayVoucher’ into the Discount Code field
-- Click [[Generate&nbsp;Code]] to create a randomized voucher code 
+- Click _Generate&nbsp;Code_ to create a randomized voucher code 
 
 **3. Choose discount type**
 
@@ -45,7 +45,7 @@ You can decide if your offer applies to products which are already discounted in
 
 **7. Set minimum requirements**
 
-Vouchers are a great upselling opportunity. You can choose a minimum order value or quantity of products that customers must reach before the voucher can be applied, or you can choose [[None]] and apply the voucher to all products.
+Vouchers are a great upselling opportunity. You can choose a minimum order value or quantity of products that customers must reach before the voucher can be applied, or you can choose _None_ and apply the voucher to all products.
 
 **8. Set usage limit**
 
@@ -62,4 +62,4 @@ Leave the start date blank in Active Dates card if you want the offer to start i
 
 Click on any voucher from the main list to edit it. 
 
-To remove vouchers, click the checkbox on the main list and then use the trash can icon, or enter the voucher and click [[Delete]] in the footer.
+To remove vouchers, click the checkbox on the main list and then use the trash can icon, or enter the voucher and click _Delete_ in the footer.

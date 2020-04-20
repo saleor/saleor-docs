@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-gdpr
+id: gdpr
 title: GDPR Compliance
-original_id: gdpr
 ---
 
 Saleor handles few aspects of the GDPR regulation by default.

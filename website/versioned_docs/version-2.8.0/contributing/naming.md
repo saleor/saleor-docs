@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-naming
+id: naming
 title: Naming Conventions
-original_id: naming
 ---
 
 To keep a consistent code structure we follow some rules when naming files.

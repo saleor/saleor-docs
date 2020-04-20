@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-sentry
+id: sentry
 title: Error tracking with Sentry
-original_id: sentry
 ---
 
 Saleor provides integration with [Sentry](https://sentry.io/) - a comprehensive error tracking and reporting tool.

@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-search
+id: search
 title: Search
-original_id: search
 ---
 
 There are two search mechanisms available in Saleor.

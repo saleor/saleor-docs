@@ -1,0 +1,41 @@
+---
+title: Extending Saleor
+sidebar_label: Key Concepts
+---
+
+import Chart from "@site/components/Chart";
+
+It may seem that the easiest way to customize Saleor is to modify its source code directly. While possible, it leads to all sorts of problems, including inability to easily upgrade Saleor if a security fix is required. To keep your changes separate from the Core, Saleor offers two mechanisms to aid with customization:
+
+## Apps
+
+Apps are standalone web applications that are given access to Saleor's API. Apps can be given permissions and are able to perform most actions that a staff member is able to perform. Apps can also subscribe to certain events as they happen in Saleor and get notified about them using webhooks.
+
+<Chart definition={`
+  graph LR
+    C -->|Webhooks| A[App]
+    A -->|GraphQL| C
+    subgraph Saleor Server
+      C((Saleor Core))
+    end
+`} />
+
+## Plugins
+
+Plugins offer a way to run your code within the same application process as Saleor Core. Plugins are notified about events using callbacks and have direct access to the database.
+
+<Chart definition={`
+  graph LR
+    subgraph Saleor Server
+      C((Saleor Core)) -->|Callbacks| P[Plugin]
+    end
+    P --> D[(Database)]
+`} />
+
+:::caution
+Because the code is run as part of the same process, there is no way to restrict plugin permissions or to audit their actions. Make sure you only run plugins you trust.
+:::
+
+:::note
+Due to their security implications, plugins are not supported by Saleor Cloud.
+:::

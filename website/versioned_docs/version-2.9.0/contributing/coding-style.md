@@ -1,19 +1,18 @@
 ---
-id: version-2.9.0-coding-style
+id: coding-style
 title: Coding Style
-original_id: coding-style
 ---
 
 Saleor uses various tools to maintain a common coding style and help with development. 
 To install all the development tools, run the following commands:
 
-```console
+```shell-session
 $ python -m pip install -r requirements_dev.txt
 ```
 
 or if using `poetry`:
 
-```console
+```shell-session
 $ poetry install
 ```
 
@@ -21,7 +20,7 @@ Saleor uses the [pre-commit](https://pre-commit.com/#install) tool to check and 
 
 Run the following command to install pre-commit into your git hooks and have it run on every commit:
 
-```console
+```shell-session
 $ pre-commit install
 ```
 

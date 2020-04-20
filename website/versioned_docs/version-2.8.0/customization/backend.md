@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-backend
+id: backend
 title: Working with Python Code
-original_id: backend
 ---
 
 ## Managing Dependencies

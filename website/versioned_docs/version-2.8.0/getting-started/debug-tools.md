@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-debug-tools
+id: debug-tools
 title: Debug tools
-original_id: debug-tools
 ---
 
 We have built in support for some of the debug tools.
@@ -23,7 +22,7 @@ Controls django-silk. Defaults to False
 
 #### Setting environment variable:
 
-```console
+```shell-session
 $ export ENABLE_SILK='True'
 ```
 

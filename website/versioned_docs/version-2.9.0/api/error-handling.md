@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-error-handling
+id: error-handling
 title: Error Handling
-original_id: error-handling
 ---
 
 There are several error types in the GraphQL API and you may come across different ones depending on the operations you are trying to perform.

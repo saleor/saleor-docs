@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-debug-tools
+id: debug-tools
 title: Debug Tools
-original_id: debug-tools
 ---
 
 We have built-in support for the following debug tools:
@@ -12,15 +11,14 @@ We have built-in support for the following debug tools:
 
 ### Silk
 
-You can control Silk’s presence via the environmental variable `ENABLE_SILK`. It controls django-silk and defaults to <em>False</em>.
-
+You can control Silk’s presence via the environmental variable `ENABLE_SILK`. It controls django-silk and defaults to _False_.
 
 #### Setting environment variable
 
-```console
+```shell-session
 $ export ENABLE_SILK='True'
 ```
 
-> **Note**
->
-> To process your changes, you need to restart the server.
+:::note
+To process your changes, you need to restart the server.
+:::

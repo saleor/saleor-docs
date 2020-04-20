@@ -1,24 +1,21 @@
 ---
-id: version-2.8.0-graphql
+id: graphql
 title: GraphQL API (Beta)
-original_id: graphql
 ---
 
-> **Note**
->
-> The GraphQL API is in the early version. It is not yet fully optimized against database queries and some mutations or queries may be missing.
+:::note
+The GraphQL API is in the early version. It is not yet fully optimized against database queries and some mutations or queries may be missing.
+:::
 
 Saleor provides a GraphQL API which allows to query and modify the shop’s data in an efficient and flexible manner. You can [preview it here](https://pwa.demo.saleor.rocks/graphql/).
 
 Learn more about GraphQL language and its concepts on the [official website](https://graphql.org/).
-
 
 ## Endpoint
 
 API is available under `/graphql` endpoint. Requests must be sent using HTTP `POST` method and `application/json` content type.
 
 With the `DEBUG=True` setting enabled, Saleor exposes an interactive GraphQL editor under `/graphql`, that allows accessing the API from the browser.
-
 
 ## Example Query
 
@@ -77,7 +74,6 @@ Server will return following JSON:
   }
 }
 ```
-
 
 ## Authorization
 

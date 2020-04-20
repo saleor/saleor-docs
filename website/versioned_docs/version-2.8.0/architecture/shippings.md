@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-shippings
+id: shippings
 title: Shippings
-original_id: shippings
 ---
 
 Saleor uses the concept of Shipping Zones and Shipping Methods to fulfill the shipping process.

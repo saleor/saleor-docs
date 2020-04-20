@@ -1,12 +1,11 @@
 ---
-id: version-2.8.0-example-data
+id: example-data
 title: Example Data
-original_id: example-data
 ---
 
 If you’d like some data to test your new storefront you can populate the database with example products and orders:
 
-```console
+```shell-session
 $ python manage.py populatedb --createsuperuser
 ```
 

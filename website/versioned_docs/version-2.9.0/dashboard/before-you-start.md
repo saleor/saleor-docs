@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-before-you-start
+id: before-you-start
 title: Before you start
-original_id: before-you-start
 ---
 
 ## What is Saleor?

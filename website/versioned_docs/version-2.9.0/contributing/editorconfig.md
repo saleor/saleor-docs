@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-editorconfig
+id: editorconfig
 title: EditorConfig
-original_id: editorconfig
 ---
 
 The [EditorConfig](http://editorconfig.org/) is a standard configuration file that aims to ensure consistent style across multiple programming environments.

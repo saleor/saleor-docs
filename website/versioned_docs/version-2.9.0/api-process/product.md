@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-product
+id: product
 title: How to Obtain a Product
-original_id: product
 ---
 
 ## Introduction
@@ -18,11 +17,11 @@ To fetch a product list, you need to run the `products` query. This query takes 
 
 This argument must be coupled with the number of products you want to get. The maximum number of products per request is 100. This input field is required.
 
-> **Note**
->
-> **Pagination**
->
-> Pagination is required in most of the queries returning lists of items in the Saleor GraphQL API. This mechanism protects the server from requests returning large datasets as these can slow down your application and make it less efficient. See the [Pagination](api/pagination.md) topic for more about pagination in Saleor.
+:::note Pagination
+
+Pagination is required in most of the queries returning lists of items in the Saleor GraphQL API. This mechanism protects the server from requests returning large datasets as these can slow down your application and make it less efficient. See the [Pagination](api/pagination.md) topic for more about pagination in Saleor.
+
+:::
 
 Let's take a look at an example query to fetch a list of products:
 
@@ -70,17 +69,17 @@ In this example, for each product, we want to return the following fields:
 
 - `id` - Unique product ID. It can be later used to fetch single products
 
-- `name` - This is the name of the product, regardless of its possible variants 
+- `name` - This is the name of the product, regardless of its possible variants
 
 - `pricing` - A price is an object composed of different fields, including but not limited to:
 
-  - `priceRange` - This field always returns the current price. If a product is in sale currently or a discount has been applied, this field will display the discounted price. 
+  - `priceRange` - This field always returns the current price. If a product is in sale currently or a discount has been applied, this field will display the discounted price.
 
   - `discount` - Indicates the discount amount
 
   - `priceRangeUndiscounted` - Indicates the base price before any discounts or sales were applied
 
-- `thumbnail` - The product's thumbnail image. The `thumbnail` field has the optional `size` parameter. You can use it to specify the required size of the thumbnails you want when querying products 
+- `thumbnail` - The product's thumbnail image. The `thumbnail` field has the optional `size` parameter. You can use it to specify the required size of the thumbnails you want when querying products
 
 Here is the response for the above query:
 

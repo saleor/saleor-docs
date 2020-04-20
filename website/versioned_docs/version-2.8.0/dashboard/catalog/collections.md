@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-collections
+id: collections
 title: Collections
-original_id: collections
 ---
 
 Collections are a great way to increase sales and give customers better experiences. Group products together to take advantage of seasonal events or link products that are regularly bought in pairs or groups. 
@@ -14,16 +13,16 @@ You can add and edit collections in the same way as categories, with a cover pho
 
 ## Adding Products to Existing Collections
 
-Once you have created a collection, you can easily add more products by choosing the [[Assign&nbsp;Products]] option from the collection overview and choosing products from the list. To find other products, type the name, attribute or product type into the search bar and the list will automatically refresh.
+Once you have created a collection, you can easily add more products by choosing the _Assign&nbsp;Products_ option from the collection overview and choosing products from the list. To find other products, type the name, attribute or product type into the search bar and the list will automatically refresh.
 
-![Assign product to collection](assets/dashboard-catalog/17.jpg)
+![Assign product to collection](/assets/dashboard-catalog/17.jpg)
 
 
 ## Featured Collections
 
 - Collections can be easily published and unpublished by clicking on the switch in the Visibility card when viewing a specific collection 
 - Featuring a collection will make it appear on the front page of your website
-- You can only feature one collection at a time. Turning the [[Feature&nbsp;on&nbsp;Homepage]] option on for one collection will automatically turn it off for all others
+- You can only feature one collection at a time. Turning the _Feature&nbsp;on&nbsp;Homepage_ option on for one collection will automatically turn it off for all others
 
 
 ## Deleting a Collection
@@ -31,6 +30,6 @@ Once you have created a collection, you can easily add more products by choosing
 There are two ways to remove a collection:
 
 - Click the checkbox next to the collection name on the main list. Options to Publish, Unpublish, and Delete will appear above the list
-- Click on the collection name and enter the detailed information, then use the red [[remove]] button in the footer
+- Click on the collection name and enter the detailed information, then use the red _remove_ button in the footer
 
 Removing a collection will not delete all products from the site; it only disables the grouping of selected products and deletes information about the collection.

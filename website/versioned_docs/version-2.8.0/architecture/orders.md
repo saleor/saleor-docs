@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-orders
+id: orders
 title: Order Management
-original_id: orders
 ---
 
 Orders are created after customers complete the checkout process. The Order object itself contains only general information about the customer’s order.

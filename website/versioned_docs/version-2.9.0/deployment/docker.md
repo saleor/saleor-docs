@@ -1,20 +1,19 @@
 ---
-id: version-2.9.0-docker
+id: docker
 title: Docker
-original_id: docker
 ---
 
 Before you start, you need to install Docker.
 
 1. Use Docker to build the following image:
 
-```console
+```shell-session
 $ docker build -t mystorefront .
 ```
 
 2. Run a Saleor container with the following settings:
 
-```console
+```shell-session
 $ docker run -e SECRET_KEY=<SECRET_KEY> -e DATABASE_URL=<DATABASE_URL> -p 8000:8000 mystorefront
 ```
 

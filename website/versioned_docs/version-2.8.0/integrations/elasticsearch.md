@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-elasticsearch
+id: elasticsearch
 title: Elasticsearch
-original_id: elasticsearch
 ---
 
 ## Installation
@@ -31,7 +30,7 @@ Saleor uses [Django Elasticsearch DSL](https://github.com/sabricot/django-elasti
 
 Initial search index can be created with following command:
 
-```console
+```shell-session
 $ python manage.py search_index --rebuild
 ```
 

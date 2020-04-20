@@ -1,7 +1,6 @@
 ---
-id: version-2.9.0-api-reference
+id: api-reference
 title: API Reference
-original_id: api-reference
 ---
 
 This document describes all queries, mutations, and types available in the Saleor GraphQL API.

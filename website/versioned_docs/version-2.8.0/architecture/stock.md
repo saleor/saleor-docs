@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-stock
+id: stock
 title: Stock Management
-original_id: stock
 ---
 
 Each product variant has a stock keeping unit (SKU).

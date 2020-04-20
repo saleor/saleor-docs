@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-openexchangerates
+id: openexchangerates
 title: Open Exchange Rates
-original_id: openexchangerates
 ---
 
 This integration will allow your customers to see product prices in their local currencies. Local prices are only provided as an estimate, customers are still charged in your store’s default currency.
@@ -14,10 +13,10 @@ Export the following environment variable:
 
 To update the exchange rates run the following command at least once per day:
 
-```console
+```shell-session
 $ python manage.py update_exchange_rates --all
 ```
 
-> **Note**
->
-> Heroku users can use the [Scheduler add-on](https://elements.heroku.com/addons/scheduler) to automatically call the command daily at a predefined time.
+:::note
+Heroku users can use the [Scheduler add-on](https://elements.heroku.com/addons/scheduler) to automatically call the command daily at a predefined time.
+:::

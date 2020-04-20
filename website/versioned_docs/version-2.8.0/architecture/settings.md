@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-settings
+id: settings
 title: Site Settings
-original_id: settings
 ---
 
 _Site settings_ module allows your users to change common shop settings from dashboard like its name or domain. Settings object is chosen by pk from `SITE_SETTINGS_ID` variable.

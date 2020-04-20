@@ -1,20 +1,17 @@
 ---
-id: version-2.8.0-money
+id: money
 title: Handling Money Amounts
-original_id: money
 ---
 
 Saleor uses the [Prices](https://github.com/mirumee/prices/) and [django-prices](https://github.com/mirumee/django-prices/) libraries to store, calculate and display amounts of money, prices and ranges of those and [django-prices-vatlayer](https://github.com/mirumee/django-prices-vatlayer) to handle VAT tax rates in European Union (optionally).
-
 
 ## Default currency
 
 All prices are entered and stored in a single default currency controlled by the [`DEFAULT_CURRENCY`](/docs/getting-started/configuration#default_currency) settings key. Saleor can display prices in a user’s local currency (see [Open Exchange Rates](/docs/integrations/openexchangerates)) but all purchases are charged in the default currency.
 
-> **Warning**
->
-> The currency is not stored in the database. Changing the default currency in a production environment will not recalculate any existing orders. All numbers will remain the same and will be incorrectly displayed as the new currency.
-
+:::warning
+The currency is not stored in the database. Changing the default currency in a production environment will not recalculate any existing orders. All numbers will remain the same and will be incorrectly displayed as the new currency.
+:::
 
 ## `Money` and `TaxedMoney`
 
@@ -29,7 +26,6 @@ If you ever need to get to the Decimal of your Money object, you’ll find it on
 Products and shipping methods prices are stored using MoneyField. All prices displayed in dashboard, excluding orders, are as they have been entered in the forms. You can decide if those prices are treated as gross or net in dashboard `Taxes` tab.
 
 Prices displayed in orders are gross or net depending on setting how prices are displayed for customers, both in storefront and dashboard. This way staff users will always see the same state of an order as the customer.
-
 
 ## `TaxedMoneyRange`
 

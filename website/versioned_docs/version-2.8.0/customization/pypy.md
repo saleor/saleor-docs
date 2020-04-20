@@ -1,7 +1,6 @@
 ---
-id: version-2.8.0-pypy
+id: pypy
 title: Running with PyPy 3.5
-original_id: pypy
 ---
 
 Saleor works well with PyPy 3.5 and using it is an option when additional performance is required.
