@@ -43,7 +43,7 @@ The repo includes:
 * [Saleor Storefront](https://github.com/mirumee/saleor-storefront)
 
 :::note
-To successfully clone the repo using SSH, make sure to add the SSH key to your ssh-agent.
+To successfully clone the repo using SSH, make sure to add the SSH key to your ssh-agent (refer to this [guide](https://help.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh) for more information).
 
 Start the SSH agent: `eval $(ssh-agent -s)`
 
