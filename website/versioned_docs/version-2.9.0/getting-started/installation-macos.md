@@ -57,45 +57,9 @@ Use Homebrew to install the graphical libraries necessary for PDF creation:
 $ brew install cairo pango gdk-pixbuf libffi
 ```
 
-## Installation
+## Setup
 
-Once you have installed or updated the pre-requisite software, you are ready for your Saleor installation. Follow the steps below to start and execute the process:
-
-### 1. Clone the repository (or use your own fork)
-
-```shell-session
-$ git clone https://github.com/mirumee/saleor.git
-```
-
-### 2. Enter the directory
-
-```shell-session
-$ cd saleor/
-```
-
-### 3. Install all dependencies
-
-```shell-session
-$ pip install -r requirements.txt
-```
-
-:::tip
-We strongly recommend [creating a virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing any Python packages.
-:::
-
-### 4. Set `SECRET_KEY` environment variable
-
-We try to provide usable default values for all the settings. We have decided not to provide a default for `SECRET_KEY` as we fear someone would inevitably ship a project with the default value left in the code.
-
-```shell-session
-$ export SECRET_KEY='<mysecretkey>'
-```
-
-:::warning
-The secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections. It can also lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
-:::
-
-### 5. Create a PostgreSQL user
+### Create a PostgreSQL user
 
 Unless configured otherwise, the store will use `saleor` as both the username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
 
@@ -105,50 +69,34 @@ $ createuser --superuser --pwprompt saleor
 
 Enter `saleor` when prompted for password.
 
-### 6. Create a PostgreSQL database
-
-:::note
-The database name is extracted from the `DATABASE_URL` environment variable. If absent, it defaults to `saleor`.
+:::warning
+For local development you can grant your database user the `SUPERUSER` privilege. For publicly available systems, we recommend using a separate privileged user to perform database migrations.
 :::
+
+### Create a PostgreSQL database
 
 ```shell-session
 $ createdb saleor
 ```
 
-### 7. Prepare the database
-
-```shell-session
-$ python manage.py migrate
-```
-
-:::warning
-This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
+:::note
+The database name is extracted from the `DATABASE_URL` environment variable. If absent, it defaults to `saleor`.
 :::
 
-### 8. Install front-end dependencies
+### Clone the [Saleor Platform](https://github.com/mirumee/saleor-platform) repository
 
 ```shell-session
-$ npm install
+$ git clone git@github.com:mirumee/saleor-platform.git --recursive --jobs 3
 ```
+
+The repo includes:
+
+- [Saleor Core (API)](https://github.com/mirumee/saleor)
+- [Saleor Dashboard](https://github.com/mirumee/saleor-dashboard)
+- [Saleor Storefront](https://github.com/mirumee/saleor-storefront)
 
 :::note
-If this step fails, make sure you are using a recent version of Node.js.
+To successfully clone the repo using SSH, make sure to add the SSH key to your ssh-agent (refer to this [guide](https://help.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh) for more information).
 :::
 
-### 9. Prepare front-end assets
-
-```shell-session
-$ npm run build-assets
-```
-
-### 10. Compile e-mails
-
-```shell-session
-$ npm run build-emails
-```
-
-### 11. Start the development server
-
-```shell-session
-$ python manage.py runserver
-```
+Continue to [Building the Web Application](building-web-application.md)

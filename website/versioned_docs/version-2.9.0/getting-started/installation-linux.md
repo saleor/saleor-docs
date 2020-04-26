@@ -13,7 +13,7 @@ Before you are ready to run Saleor, you will need additional software installed 
 
 ### Python 3
 
-Saleor requires Python version 3.6 or later. A compatible version comes pre-installed with most current Linux systems. If not, consult your Linux distributor for instructions on how to install Python 3.6 or 3.7.
+Saleor requires Python version 3.7 or later.
 
 ### Node.js
 
@@ -53,53 +53,19 @@ $ sudo pacman -S python-pip cairo pango gdk-pixbuf2 libffi pkg-config
 $ emerge pip cairo pango gdk-pixbuf cffi
 ```
 
-## Installation
+## Setup
 
-### 1. Clone the repository (or use your own fork)
+### Create a PostgreSQL user
 
-```shell-session
-$ git clone https://github.com/mirumee/saleor.git
-```
+See PostgreSQL’s [createuser](https://www.postgresql.org/docs/current/app-createuser.html) command for details.
 
-### 2. Enter the directory
-
-```shell-session
-$ cd saleor/
-```
-
-### 3. Install all dependencies
-
-We strongly recommend [creating a virtual environment](https://docs.python.org/3/tutorial/venv.html) before installing any Python packages.
-
-```shell-session
-$ pip install -r requirements.txt
-```
-
-### 4. Set `SECRET_KEY` environment variable
-
-We try to provide usable default values for all the settings. We have decided not to provide a default for `SECRET_KEY` as we fear someone would inevitably ship a project with the default value left in code.
-
-```shell-session
-$ export SECRET_KEY='<mysecretkey>'
-```
+Unless configured otherwise, the store will use saleor as both the username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
 
 :::warning
-The secret key should be a unique string that only your team knows. Running the code with a known `SECRET_KEY` defeats many of Django’s security protections; it can also lead to privilege escalation and remote code execution vulnerabilities. Consult [Django’s documentation](https://docs.djangoproject.com/en/1.11/ref/settings/#secret-key) for details.
-:::
-
-### 5. Create a PostgreSQL user
-
-See PostgreSQL’s [createuser command](https://www.postgresql.org/docs/current/static/app-createuser.html) for details.
-
-Unless configured otherwise, the store will use `saleor` as both the username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
-
-:::warning
-While creating the database, Django will need to create some PostgreSQL extensions if they are not already present. This requires superuser privileges.
-
 For local development you can grant your database user the `SUPERUSER` privilege. For publicly available systems, we recommend using a separate privileged user to perform database migrations.
 :::
 
-### 6. Create a PostgreSQL database
+### Create a PostgreSQL database
 
 See [PostgreSQL’s createdb command](https://www.postgresql.org/docs/current/static/app-createdb.html) for details.
 
@@ -107,40 +73,20 @@ See [PostgreSQL’s createdb command](https://www.postgresql.org/docs/current/st
 The database name is extracted from the `DATABASE_URL` environment variable. If absent, it defaults to `saleor`.
 :::
 
-### 7. Prepare the database
+### Clone the [Saleor Platform](https://github.com/mirumee/saleor-platform) repository
 
 ```shell-session
-$ python manage.py migrate
+$ git clone git@github.com:mirumee/saleor-platform.git --recursive --jobs 3
 ```
 
-:::warning
-This command creates database extensions. If you get an error related to the `CREATE EXTENSION` command, please return to the instructions in the PostgreSQL user creation step.
-:::
+The repo includes:
 
-### 8. Install front-end dependencies
-
-```shell-session
-$ npm install
-```
+- [Saleor Core (API)](https://github.com/mirumee/saleor)
+- [Saleor Dashboard](https://github.com/mirumee/saleor-dashboard)
+- [Saleor Storefront](https://github.com/mirumee/saleor-storefront)
 
 :::note
-If this step fails, make sure you are using a recent version of Node.js.
+To successfully clone the repo using SSH, make sure to add the SSH key to your ssh-agent (refer to this [guide](https://help.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh) for more information).
 :::
 
-### 9. Prepare front-end assets
-
-```shell-session
-$ npm run build-assets
-```
-
-### 10. Compile e-mails
-
-```shell-session
-$ npm run build-emails
-```
-
-### 11. Start the development server
-
-```shell-session
-$ python manage.py runserver
-```
+Continue to [Building the Web Application](building-web-application.md)
