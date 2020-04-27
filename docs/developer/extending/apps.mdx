@@ -4,7 +4,7 @@ title: Apps
 
 ## Creating a new app
 
-To create a new app, use the `serviceAccountCreate` mutation. This mutation is only available to staff users with the `MANAGE_SERVICE_ACCOUNTS` permission. The mutation takes the following input fields:
+To create a new app, use the `appCreate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. Staff user can't grant app more permissions than he has for his own. The mutation takes the following input fields:
 
 - `name`: the name of the app.
 - `isActive`: whether to activate the app, defaults to `true`.
@@ -14,11 +14,11 @@ Let's assume that we want to create an order processing service that can fetch a
 
 ```graphql {2-4}
 mutation {
-  serviceAccountCreate(
+  appCreate(
     input: { name: "Order processing service", permissions: [MANAGE_ORDERS] }
   ) {
     authToken
-    serviceAccount {
+    app {
       id
       name
     }
@@ -35,10 +35,10 @@ If there are no errors in the response, a new app is created:
 ```json
 {
   "data": {
-    "serviceAccountCreate": {
+    "appCreate": {
       "authToken": "Es1O0oB2O3PTeG9A4IVYUcaMoru3Ls",
-      "serviceAccount": {
-        "id": "U2VydmljZUFjY291bnQ6Nw==",
+      "app": {
+        "id": "QXBwOjk=",
         "name": "Order processing service"
       },
       "accountErrors": []
@@ -47,30 +47,41 @@ If there are no errors in the response, a new app is created:
 }
 ```
 
-The response contains the `authToken` field - this is the token that the app needs to include in requests to Saleor API to authorize itself and have access to queries or mutations that it needs. Apps can authorize in Saleor using [the Authorization header, just as regular users](developer/users.mdx#authentication).
+The response contains the `authToken` field - this is the token that the app needs to include in requests to Saleor API to authorize itself and have access to queries or mutations that it needs.
 
 :::note
 The `authToken` field is only available in the mutation response and cannot be fetched later, except for the last four digits.
 :::
 
+### App authentication
+
+Saleor API for apps uses a bearer token.
+To avoid sending passwords with each request, you need to first create a token, and then include it as a header with every GraphQL request.
+
+The authorization header for apps has the following format:
+
+```http
+Authorization: Bearer <app-token>
+```
+
 ## Creating authorization keys
 
-Creating an app with `serviceAccountCreate` mutation creates the default authorization token (`authToken`). You can create more authorization keys with the `serviceAccountTokenCreate`. The mutation takes the following fields:
+Creating an app with `appCreate` mutation creates the default authorization token (`authToken`). You can create more authorization keys with the `appTokenCreate`. The mutation takes the following fields:
 
-- `serviceAccount`: ID of the app.
+- `app`: ID of the app.
 - `name`: (optional) name of the key.
 
-```graphql
+```graphql {2-4}
 mutation {
-  serviceAccountTokenCreate(
-    input: { serviceAccount: "U2VydmljZUFjY291bnQ6OQ==" }
+  appTokenCreate(
+    input: { app: "QXBwOjk=" }
   ) {
     authToken
     accountErrors {
       field
       code
     }
-    serviceAccountToken {
+    appToken {
       id
     }
   }
@@ -79,11 +90,11 @@ mutation {
 
 ## Revoking authorization keys
 
-To revoke an authorization key, use the `serviceAccountTokenDelete`:
+To revoke an authorization key, use the `appTokenDelete`:
 
 ```graphql
 mutation {
-  serviceAccountTokenDelete(id: "U2VydmljZUFjY291bnRUb2tlbjoxNw==") {
+  appTokenDelete(id: "QXBwOjk=") {
     accountErrors {
       field
       code
@@ -117,7 +128,7 @@ To subscribe to a webhook, we need to first create an app with proper permission
 - `name`: name of the webhook.
 - `targetUrl`: URL of a service that will receive webhooks requests.
 - `events`: list of the events to subscribe to.
-- `serviceAccount`: ID of the app to which the webhook belongs.
+- `app`: ID of the app to which the webhook belongs.
 - `isActive`: whether to activate the webhook.
 
 ```graphql
@@ -127,7 +138,7 @@ mutation {
       name: "New orders notification"
       targetUrl: "https://order-processing-service.example.com"
       events: [ORDER_CREATED]
-      serviceAccount: "U2VydmljZUFjY291bnQ6OQ=="
+      app: "QXBwOjk="
       isActive: true
     }
   ) {
