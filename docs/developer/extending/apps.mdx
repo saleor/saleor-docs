@@ -47,14 +47,22 @@ If there are no errors in the response, a new app is created:
 }
 ```
 
-The response contains the `authToken` field - this is the token that the app needs to include in requests to Saleor API to authorize itself and have access to queries or mutations that it needs. Apps can authorize in Saleor using [the Authorization header, just as regular users](developer/users.mdx#authentication).
-:::note
-App uses the same header to authorize but token should be provided with a different prefix. Use `Bearer <TOKEN>` instead of `JWT <TOKEN>` prefix.
-:::
+The response contains the `authToken` field - this is the token that the app needs to include in requests to Saleor API to authorize itself and have access to queries or mutations that it needs.
 
 :::note
 The `authToken` field is only available in the mutation response and cannot be fetched later, except for the last four digits.
 :::
+
+### App authentication
+
+Saleor API for apps uses a bearer token.
+To avoid sending passwords with each request, you need to first create a token, and then include it as a header with every GraphQL request.
+
+The authorization header for apps has the following format:
+
+```http
+Authorization: Bearer <app-token>
+```
 
 ## Creating authorization keys
 
@@ -63,7 +71,7 @@ Creating an app with `appCreate` mutation creates the default authorization toke
 - `app`: ID of the app.
 - `name`: (optional) name of the key.
 
-```graphql
+```graphql {2-4}
 mutation {
   appTokenCreate(
     input: { app: "QXBwOjk=" }
