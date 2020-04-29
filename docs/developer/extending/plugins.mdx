@@ -4,18 +4,18 @@ title: Plugins
 
 ## Introduction
 
-Saleor arrives with some plugins already implemented by default. These plugins are located in `saleor.extensions.plugins`.
-To provide the `ExtensionManager` with a list of enabled plugins, include the Python plugin path in the `settings.PLUGINS` list.
+Saleor arrives with some plugins already implemented by default. These plugins are located in `saleor.plugins`.
+To provide the `PluginsManager` with a list of enabled plugins, include the Python plugin path in the `settings.PLUGINS` list.
 
-## Extension manager
+## Plugins manager
 
-The `ExtensionsManager` is located in the `saleor.extensions.manager`. It is a class responsible for handling all declared plugins and serving a response from them. In case of a non-declared plugin, it serves a default response.
+The `PluginsManager` is located in the `saleor.plugins.manager`. It is a class responsible for handling all declared plugins and serving a response from them. In case of a non-declared plugin, it serves a default response.
 
-It is possible to overwrite an `ExtensionsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.EXTENSIONS_MANAGER`.
+It is possible to overwrite an `PluginsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.PLUGINS_MANAGER`.
 
 ## Base plugin class
 
-The `BasePlugin` class is located in the `saleor.extensions.base_plugin`.It serves as an abstract class for storing all callback methods available to plugins.
+The `BasePlugin` class is located in the `saleor.plugins.base_plugin`.It serves as an abstract class for storing all callback methods available to plugins.
 
 Multiple plugins are executed as a pipeline: each callback receives a `previous_value` parameter, the first plugin receives the default value, each consecutive plugin receives the output of the previous one.
 
@@ -33,12 +33,13 @@ The plugin configuration can be further validated by overwriting the `validate_p
 # custom_tax/plugin.py
 
 from django.core.exceptions import ValidationError
-from saleor.extensions import ConfigurationTypeField
-from saleor.extensions.base_plugin import BasePlugin
+from saleor.plugins.base_plugin import BasePlugin, ConfigurationTypeField
 
 
 class TaxApiPlugin(BasePlugin):
-    PLUGIN_NAME = "Tax API"
+
+    PLUGIN_ID = "plugin.taxapi"  # plugin identifier
+    PLUGIN_NAME = "Tax API"  # display name of plugin
     CONFIG_STRUCTURE = {
         "login": {
             "type": ConfigurationTypeField.STRING,
@@ -88,7 +89,7 @@ You can write your plugin as a class which has callable instances, like the one 
 from django.conf import settings
 from urllib.parse import urljoin
 
-from ...base_plugin import BasePlugin
+from ..base_plugin import BasePlugin
 from .tasks import api_post_request_task
 
 
@@ -101,7 +102,7 @@ class CustomPlugin(BasePlugin):
 ```
 
 :::note
-There is no need to implement all base methods as the `ExtensionManager` will use default values for methods that are not implemented.
+There is no need to implement all base methods as the `PluginsManager` will use default values for methods that are not implemented.
 :::
 
 ### Loading your plugin
@@ -111,7 +112,7 @@ To activate the new plugin, add it to the `settings.PLUGINS` list in your Django
 ```python
 # settings.py
 
-PLUGINS = ["saleor.extensions.plugins.custom.CustomPlugin", ]
+PLUGINS = ["saleor.plugins.custom.plugin.CustomPlugin", ]
 ```
 
 ### Background tasks
