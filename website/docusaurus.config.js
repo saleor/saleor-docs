@@ -45,7 +45,7 @@ module.exports = {
           label: "Dashboard Manual",
         },
         {
-          to: "docs/getting-started/intro",
+          to: "docs/developer",
           label: "Developer's Guide",
         },
       ],
