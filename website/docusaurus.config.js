@@ -44,9 +44,8 @@ module.exports = {
           to: "docs/dashboard/before-you-start",
           label: "Dashboard Manual",
         },
-        { to: "docs/api/intro", label: "GraphQL API" },
         {
-          to: "docs/getting-started/intro",
+          to: "docs/developer",
           label: "Developer's Guide",
         },
       ],
