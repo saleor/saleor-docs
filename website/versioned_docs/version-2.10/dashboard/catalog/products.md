@@ -63,7 +63,7 @@ Think about _product types_ as templates for your products. Multiple products ca
 
 ### Product
 
-The _product_ concept reflects common details of several product variants. When the shop displays the products in the category view, items on the list are displayed as separate products.
+The _product_ concept reflects the common details of several product variants. When the shop displays the products in the category view, items on the list are displayed as separate products.
 If the _product variant_ has no overridden property (for example: price specifically set for this variant), the default value is taken from the _product_.
 
 ### Product variants
@@ -72,16 +72,16 @@ Variants are the most important objects in your shop. All operations on cart or 
 
 To explain the difference, we will use a bookstore example. Let's imagine you are an owner and one of your products is a book titled "Introduction to Saleor".
 
-The book is available in hard and soft cover, so there would be _2 product variants_.
+The book is available in hard and softcover, so there would be _2 product variants_.
 
 To simplify this for the example purposes, let's assume that the _type of cover_ is the only attribute creating separate _variants_ in your store.
-You would then use _product type_ called “Book”, enable variants and use the “Cover type” as your _variant attribute_.
+You would then use _product type_ called “Book”, enable variants, and use the “Cover type” as your _variant attribute_.
 
 #### Product attributes
 
 Attributes are shared among all product variants.
-For example, consider the publisher: all book variants are published by same company (the publisher is an attribute in this case).
-Or being back to the hard/ soft cover books: the attribute here is a _Cover Type_ and it is common to its variants.
+For example, consider the publisher: all book variants are published by the same company (the publisher is an attribute in this case).
+Or being back to the hard-/softcover books: the attribute here is a _Cover Type_ and it is common to its variants.
 
 #### Variant attributes
 
@@ -91,7 +91,7 @@ For more information on the product structure in Saleor, see the [Product Types]
 
 ## Stock management
 
-Each product variant has also a stock keeping unit (SKU).
+Each product variant has also a stock-keeping unit (SKU).
 
 Each variant holds information about:
 
@@ -109,6 +109,14 @@ Each variant holds information about:
 
 Each variant also has a _cost price_ (the price that your store had to pay to purchase it).
 
+Within a variant, stock information is split between warehouses. Use the _Inventory_ card to define which warehouses carry that particular SKU and what quantities they hold.
+
+![Inventory card](/assets/dashboard-catalog/products-inventory.png)
+
+:::note
+Even if your product is set to not track inventory, you need to assign it to some warehouses for the product to become available for purchase.
+:::
+
 ### Product availability
 
 A variant is in stock, if it has unallocated quantity.
@@ -117,7 +125,7 @@ The highest quantity that can be ordered is the available quantity of product va
 
 ### Allocating stock for new orders
 
-Once a new order is placed, quantity needed to fulfil each order line is immediately marked as allocated.
+Once a new order is placed, the quantity needed to fulfill each order line is immediately marked as allocated.
 
 > **Example**
 >
@@ -147,7 +155,7 @@ Click _Create&nbsp;Product_ above the main list to enter the product setup page.
 
 ![Adding product](/assets/dashboard-catalog/catalog3.JPG)
 
-**1. Fill out the General Information card**
+#### Step 1: Fill out the General Information card
 
 Add the name of your product and a description. Use text formatting to make your product descriptions clear and engaging. The eight basic functions are: bold type, italic type, sub-header, second sub-header, quote, bullet point list, numbered list, new text line, and add hyperlink.
 
@@ -161,7 +169,7 @@ Your product descriptions can be cool and fun, or just based on the facts. They 
 ![Formatting product description](/assets/dashboard-catalog/catalog4.JPG)
 :::
 
-**2. Define pricing**
+#### Step 2: Define pricing
 
 Type the price of your product manually or using the stepper by the currency indicator. If your product is tax-exempt, leave the _Charge&nbsp;taxes&nbsp;for&nbsp;this&nbsp;item_ checkbox empty. If you need to charge taxes, click on the box and a green check mark will appear.
 
@@ -177,7 +185,7 @@ Saleor operates and charges in the store’s default currency but is capable of 
 
 :::
 
-**3. Add optional search engine preview content**
+#### Step 3: Add optional search engine preview content
 
 Click _Edit&nbsp;Website&nbsp;SEO_ to add a description. If you do not add unique SEO content, details will be taken from the General Information card.
 
@@ -187,11 +195,11 @@ Increase traffic to your store by adding SEO-friendly descriptions for search en
 
 ![Editing product SEO](/assets/dashboard-catalog/catalog5.JPG)
 
-**4. Organize your product**
+#### Step 4: Organize your product
 
 Categorize your new product using the drop-down menus to assign a relevant Product Type and Category. This is mandatory before you can save the product. You can also optionally assign your product to a Collection.
 
-**5. Make your product visible**
+#### Step 5: Make your product visible
 
 Once you have set up all your product details, you can choose if it appears for sale or remains hidden from view.
 If set, it allows you to hold some of your products unavailable to your customers until the publication date. They are simply not listed in your storefront.
@@ -200,11 +208,11 @@ If set, it allows you to hold some of your products unavailable to your customer
 
 If you want to push your product for sale, select the _Visible_ option.
 
-**6. Save your new product**
+#### Step 6: Save your new product
 
 Once you have input your minimum required product information, click _save_ in the footer to add it to your catalog and continue with further setup.
 
-**7. Add images**
+#### Step 7: Add images
 
 Much the same as on social media or other platforms, there are two ways to add an image:
 
@@ -215,7 +223,7 @@ You can add an unlimited number of images per product. The main image will be th
 
 ![Uploading product images](/assets/dashboard-catalog/catalog8.JPG)
 
-**8. Add image descriptions**
+#### Step 8: Add image descriptions
 
 You can also add descriptions of specific product features to your images. Hover over the image and click on the pencil to edit the information.
 
@@ -250,7 +258,7 @@ Choose the variants of the product that you will stock and click _Next_ to move 
 
 ![Product Variant Creator](/assets/dashboard-catalog/Creator1.jpg)
 
-**Price Section**
+#### Price Section
 
 Specify how you want your prices to be applied to each variant:
 
@@ -259,7 +267,7 @@ Specify how you want your prices to be applied to each variant:
 
 ![Product Variant Creator](/assets/dashboard-catalog/Creator2.jpg)
 
-**Stock section**
+#### Stock section
 
 How you want to manage your stock:
 
