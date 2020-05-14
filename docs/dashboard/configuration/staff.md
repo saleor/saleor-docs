@@ -1,5 +1,4 @@
 ---
-id: staff
 title: Staff Members
 ---
 
@@ -15,10 +14,13 @@ New users are automatically active in the system. To deactivate a user’s acces
 
 ### How to set permissions
 
-In the example above, the Permissions card has the box checked which reads _User&nbsp;has&nbsp;full&nbsp;access&nbsp;to&nbsp;the&nbsp;store_. If you want to limit access, uncheck the box and a list of different possible administrative activities will appear. Use the checkboxes to assign specific permissions to the user.
+Use the _Permissions_ card to select the permission groups the user is assigned to. See [Permission Groups](dashboard/configuration/permission-groups.mdx) for instructions on how to manage your permission groups.
 
-![Staff member permissions](/assets/dashboard-config/config14.png)
+![Staff member permissions](/assets/dashboard-config/staff-permissions.png)
 
+:::note
+You can only manage groups (including adding and removing members) that grant a subset of your effective permissions. This is a security precaution that prevents users from escalating their permissions beyond what was explicitly granted.
+:::
 
 ### How to add staff members
 
@@ -30,5 +32,4 @@ Click _Add&nbsp;Staff&nbsp;Member_ above the list of users. Fill in the first an
 
 To edit a user account, access it from the staff members list, make any relevant changes, and then click _Save_ in the footer.
 
-To delete a user, click _Delete_ on the left side of the footer and then confirm removal.
-
+To delete a user, click _Delete_ on the left side of the footer and then confirm the removal.
