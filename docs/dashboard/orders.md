@@ -19,7 +19,7 @@ To process an order in the system, click _Finalize_ in the footer. Once the orde
 
 ## Order list page
 
-The main page shows a list of all orders in the system, regardless their status.
+The main page shows a list of all orders in the system, regardless of their status.
 
 ![Orders list](/assets/dashboard-orders/orders1.JPG)
 
@@ -33,17 +33,21 @@ You can also manually search specific information, such as key words or names, u
 
 ## Order details page
 
-Click on any order record from the list to get the full details. The order page contains cards indicating order fulfillment status, payment stage, order history, customer details and notes.
+Click on any order record from the list to get the full details. The order page contains cards indicating order fulfillment status, payment stage, order history, customer details, and notes.
 
 ![Order details](/assets/dashboard-orders/orders3.png)
 
 ### Order fulfillment card
 
-The fulfillment represents a group of shipped items with corresponding tracking number. Fulfillments are created by a shop operator to mark selected products in an order as fulfilled.
+The fulfillment represents a group of shipped items with a corresponding tracking number. Fulfillments are created by a shop operator and usually represent physical shipments.
 
 Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single _Unfulfilled_ or _Fulfilled_ card. Others, as in the example below, will have both cards if parts of the order have been sent to the customer but other products are yet to be dispatched.
 
 ![Order fulfillment options](/assets/dashboard-orders/orders4.png)
+
+When creating a fulfillment you will have the option to select which warehouse(s) to use. If multiple warehouses are used, a separate fulfillment will be created for each warehouse.
+
+![Creating a fulfillment](/assets/dashboard-orders/orders-fulfill.png)
 
 #### Fulfillment statuses
 
@@ -51,11 +55,11 @@ There are four possible order statuses (and a _Daft_ one), based on the stage of
 
 - **Unfulfilled** - There are no fulfillments related to an order or each one is canceled. An action by a shop operator is required to continue order processing.
 
-* **Partially fulfilled** - There are some fulfillments with _Fulfilled_ status related to an order. An action by a shop operator is required to continue order processing.
+- **Partially fulfilled** - There are some fulfillments with _Fulfilled_ status related to an order. An action by a shop operator is required to continue order processing.
 
 - **Fulfilled** - Each order line is fulfilled in existing fulfillments. Order doesn’t require further actions by a shop operator.
 
-* **Cancelled** - Order has been canceled. Every fulfillment (if there is any) has _Cancelled_ status. Order doesn’t require further actions by a shop operator.
+- **Cancelled** - Order has been canceled. Every fulfillment (if there is any) has _Cancelled_ status. Order doesn’t require further actions by a shop operator.
 
 - **Draft** - Used for orders newly created from dashboard and not yet published.
 
@@ -136,19 +140,11 @@ Once you set up the order and finalize it using the button in the footer, it bec
 
 ### How to fulfill an order
 
-To fulfill an order, click _Fulfill_ in the Unfulfilled card and use the stepper to confirm which products are being send.
+To fulfill an order click _Fulfill_ in the Unfulfilled card and use the stepper to confirm which products are being sent.
 
-In the example below, the t-shirt and hoodie are being sent in full, only two from four pairs of plimsolls are being sent, and the juice is not being sent.
+Use the form to select how much of each product is being fulfilled from which warehouse. It's possible to only partially fulfill an order by not fully allocating the quantity to fulfill for some of all of the order lines. If multiple warehouses are used, a separate fulfillment will be created for each warehouse used.
 
-Once you click _Confirm_, the t-shirt and hoodie will move to the Fulfilled card, as will two pairs of shoes. The other shoes and the juice will remain Unfulfilled.
-
-If you have a tracking number for the package, add it in the field below the products.
-
-:::note Automatic customer notifications
-When fulfillment is confirmed, the customer will automatically receive an email with information about the goods that they will receive, including any additional information such as tracking numbers.
-:::
-
-![Order fulfillment](/assets/dashboard-orders/orders5.png)
+![Creating a fulfillment](/assets/dashboard-orders/orders-fulfill.png)
 
 ### How to cancel an order
 
