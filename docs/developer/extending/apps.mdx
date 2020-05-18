@@ -2,6 +2,10 @@
 title: Apps
 ---
 
+
+import Chart from "@site/components/Chart";
+
+
 ## Creating a new app
 
 To create a new app, use the `appCreate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. Staff user can't grant app more permissions than he has for his own. The mutation takes the following input fields:
@@ -187,3 +191,88 @@ mutation {
   }
 }
 ```
+
+## App shell commands
+
+App has defined Django commands which can be used to create a new app directly from shell.
+
+### create_app
+  Creates new app by using provided data. 
+
+    arguments:
+      name: Name of the new app
+
+    optional arguments:
+      --permission: Assign new permission to app. Argument can be specified multiple times.
+      --activate-after-installation: Determines if app will be set active or not.
+      --target_url: Url which will receive newly created data of app object. 
+            Command doesn't return app data to stdout when this argument is provided
+
+To create app with name `Order App` and with access to users and orders, run the following command:
+```shell
+./manage.py create_app "Order App" --permission MANAGE_USERS --permission MANAGE_ORDERS 
+```
+The command will return a new app token in following format:
+```shell
+{"auth_token": "new-app-token"}
+```
+
+When  `target_url` argument is provided, Saleor will execute POST request with auth token to provided URL. 
+Data is in json format - `{"auth_token": "app-token"}`
+```shell
+./manage.py create_app App --permission MANAGE_USERS --target_url http://www.your.app.com/webhooks/register
+```
+
+
+<Chart definition={`
+  graph LR
+    C -->|Auth Token| A[App]
+    A -.->|Success<br>Response| C
+    subgraph Saleor Server
+      C((Saleor Core))
+    end
+`} />
+
+
+### create_app_from_manifest
+
+  Creates new app by fetching data from url
+
+    arguments:
+      manifest-url: Url with app manifest.
+
+    optional arguments:
+      --activate-after-installation: Determines if app will be set active or not.
+
+  Command executes GET request to provided `manifest-url`. `manifest-url` should return a data in json format.
+  Saleor requires following structure of returned data.
+
+  ```json
+  {
+    "name": "app",
+    "version": "1.0.0",
+    "about_app": "Lorem ipsum",
+    "data_privacy": "Lorem ipsum",
+    "data_privacy_url": "http://localhost:3000/app-data-privacy",
+    "homepage_url": "http://localhost:3000/homepage",
+    "support_url": "http://localhost:3000/support",
+    "configuration_url": "htpp://localhost:3000/configuration",
+    "app_url": "http://localhost:3000/app",
+    "token_target_url": "http://localhost:3000/register",
+    "identificator": "saleor.app.sample",
+    "permissions": [
+      "MANAGE_USERS",
+      "MANAGE_STAFF"
+    ]
+  }
+  ```
+
+  <Chart definition={`
+  sequenceDiagram
+    Saleor ->> App: GET manifest-url
+    App -->> Saleor: App details in json format
+    Saleor ->> Saleor: Validate app details<br>
+    Saleor ->> Saleor: Create new app instance
+    Saleor ->> App: POST {token_target_url}<br> with auth_token
+    App -->> Saleor: Response OK
+`} />
