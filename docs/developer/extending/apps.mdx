@@ -1,12 +1,139 @@
 ---
-title: Apps
+title: Writing Apps for Saleor
+sidebar_label: Apps
 ---
-
 
 import Chart from "@site/components/Chart";
 
+## Key Concepts
 
-## Creating a new app
+### Architecture
+
+Saleor Apps are separate applications that use GraphQL to talk to a Saleor server and that can receive webhooks with event notifications from Saleor.
+
+### Authentication
+
+Unlike regular users, Saleor Apps use a bearer token. The token is assigned at App installation time and needs to be stored in a secure manner.
+
+The authorization header for Apps has the following format:
+
+```http
+Authorization: Bearer <app-token>
+```
+
+### The App manifest
+
+The App manifest is a JSON file that describes the application, including its name, version, required permissions, and how it handles the store's data.
+
+Saleor expectes the manifest to use the following format:
+
+```json
+{
+  "identifier": "saleor.app.sample",
+  "version": "1.0.0",
+  "name": "My Wonderful App",
+  "about": "My Wonderful App is a wonderful App for Saleor.",
+
+  "permissions": ["MANAGE_USERS", "MANAGE_STAFF"],
+
+  "appUrl": "http://localhost:3000/app",
+  "configurationUrl": "htpp://localhost:3000/configuration",
+  "tokenTargetUrl": "http://localhost:3000/register",
+
+  "dataPrivacy": "Lorem ipsum",
+  "dataPrivacyUrl": "http://localhost:3000/app-data-privacy",
+  "homepageUrl": "http://localhost:3000/homepage",
+  "supportUrl": "http://localhost:3000/support"
+}
+```
+
+### Permissions
+
+TBD
+
+### Webhooks
+
+Webhooks can be used to receive data from Saleor when particular events happen. The available events are:
+
+| Name                        | Description                                                                                                                      |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `ANY_EVENTS`                | Receive webhooks when any of the available events are triggered (wildcard event).                                                |
+| `CHECKOUT_QUANTITY_CHANGED` | Quantity of a checkout line is changed.                                                                                          |
+| `CUSTOMER_CREATED`          | A new customer account is created.                                                                                               |
+| `ORDER_CREATED`             | A new order is placed.                                                                                                           |
+| `ORDER_FULLY_PAID`          | Payment is made and an order is fully paid.                                                                                      |
+| `ORDER_UPDATED`             | An order is updated; triggered for all changes related to an order; covers all other order webhooks, except for `ORDER_CREATED`. |
+| `ORDER_CANCELLED`           | An order is cancelled.                                                                                                           |
+| `ORDER_FULFILLED`           | An order is fulfilled.                                                                                                           |
+| `FULFILLMENT_CREATED`       | A new fulfillment is created.                                                                                                    |
+| `PRODUCT_CREATED`           | A new product is created.                                                                                                        |
+
+Webhooks' payloads are sent in `POST` requests.
+
+## Creating and installing Apps from the command line
+
+Saleor provides commands that can be used to create/install an App from the command line.
+
+### `create_app`
+
+Creates a custom App with explicitly provided permissions.
+
+Arguments:
+
+- `<name>`: the name of the App, required.
+- `--permission <PERM>`: assign permission `PERM` to the App. This argument can be repeated to specify multiple permissions.
+- `--activate-after-installation`: immediately activate the new App.
+- `--target-url <URL>`: URL to send the API auth token to once installation is complete.
+
+> **Example:** The following command will create an App named "Order App" that can access users and orders:
+>
+> ```shell
+> python manage.py create_app "Order App" \
+>    --permission MANAGE_USERS \
+>    --permission MANAGE_ORDERS
+> ```
+
+If the target URL is not specified, the command will output an API auth token in the following format:
+
+```shell
+{"auth_token": "new-app-token"}
+```
+
+If the target URL is provided, Saleor will POST the API auth token, in the same JSON format, to the provided URL:
+
+<Chart
+  definition={`
+  sequenceDiagram
+    Saleor ->> App: POST /token/target/url/<br>{"auth_token": "new-app-token"}
+    App -->> Saleor: HTTP 200 OK
+`}
+/>
+
+### `create_app_from_manifest`
+
+Installs an App based on its manifest URL.
+
+Arguments:
+
+- `<manifest URL>`: URL of the manifest file, required.
+- `--activate-after-installation`: immediately activate the new App.
+
+App installation is confirmed by sending an API token to the specified token target URL:
+
+<Chart
+  definition={`
+  sequenceDiagram
+    Saleor ->> App: GET /path/to/manifest.json
+    App -->> Saleor: App manifest
+    Saleor ->> Saleor: Validate manifest
+    Saleor ->> App: POST /token/target/url/<br>{"auth_token": "new-app-token"}
+    App -->> Saleor: HTTP 200 OK
+`}
+/>
+
+## The GraphQL API
+
+### Creating an App
 
 To create a new app, use the `appCreate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. Staff user can't grant app more permissions than he has for his own. The mutation takes the following input fields:
 
@@ -57,18 +184,7 @@ The response contains the `authToken` field - this is the token that the app nee
 The `authToken` field is only available in the mutation response and cannot be fetched later, except for the last four digits.
 :::
 
-### App authentication
-
-Saleor API for apps uses a bearer token.
-To avoid sending passwords with each request, you need to first create a token, and then include it as a header with every GraphQL request.
-
-The authorization header for apps has the following format:
-
-```http
-Authorization: Bearer <app-token>
-```
-
-## Creating authorization keys
+### Creating authorization keys
 
 Creating an app with `appCreate` mutation creates the default authorization token (`authToken`). You can create more authorization keys with the `appTokenCreate`. The mutation takes the following fields:
 
@@ -77,9 +193,7 @@ Creating an app with `appCreate` mutation creates the default authorization toke
 
 ```graphql {2-4}
 mutation {
-  appTokenCreate(
-    input: { app: "QXBwOjk=" }
-  ) {
+  appTokenCreate(input: { app: "QXBwOjk=" }) {
     authToken
     accountErrors {
       field
@@ -92,7 +206,7 @@ mutation {
 }
 ```
 
-## Revoking authorization keys
+### Revoking authorization keys
 
 To revoke an authorization key, use the `appTokenDelete`:
 
@@ -106,26 +220,7 @@ mutation {
 }
 ```
 
-# Webhooks
-
-Webhooks can be used to receive data from Saleor when particular events happen. The available events are:
-
-| Name                        | Description                                                                                                                      |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `ANY_EVENTS`                | Receive webhooks when any of the available events is triggered (wildcard event).                                                 |
-| `CHECKOUT_QUANTITY_CHANGED` | Quantity of a checkout line is changed.                                                                                          |
-| `CUSTOMER_CREATED`          | A new customer account is created.                                                                                               |
-| `ORDER_CREATED`             | A new order is placed.                                                                                                           |
-| `ORDER_FULLY_PAID`          | Payment is made and an order is fully paid.                                                                                      |
-| `ORDER_UPDATED`             | An order is updated; triggered for all changes related to an order; covers all other order webhooks, except for `ORDER_CREATED`. |
-| `ORDER_CANCELLED`           | An order is cancelled.                                                                                                           |
-| `ORDER_FULFILLED`           | An order is fulfilled.                                                                                                           |
-| `FULFILLMENT_CREATED`       | A new fulfillment is created.                                                                                                    |
-| `PRODUCT_CREATED`           | A new product is created.                                                                                                        |
-
-Webhooks' payloads are sent in `POST` requests.
-
-## Subscribing to a webhook
+### Subscribing to a webhook
 
 To subscribe to a webhook, we need to first create an app with proper permissions. Let's assume that we want to extend the order processing app that we've created in the example above. The app should receive notifications whenever new orders are created in Saleor. To do so, we'll create a new webhook using the `webhookCreate` mutation. The mutation takes the following input:
 
@@ -159,7 +254,7 @@ mutation {
 
 If there are no errors in the response, the webhook is successfully created. From now on, whenever a new order is placed, payload with order data will be sent to your `targetUrl`.
 
-## Updating a webhook
+### Updating a webhook
 
 To update a webhook (e.g. to deactivate it or change the permissions), use the `webhookUpdate` mutation. The mutation takes similar input fields as the `webhookCreate` mutation. The example below shows how to deactive a webhook:
 
@@ -177,7 +272,7 @@ mutation {
 }
 ```
 
-## Removing a webhook
+### Removing a webhook
 
 To fully remove a webhook, use the `webhookDelete` mutation:
 
@@ -191,88 +286,3 @@ mutation {
   }
 }
 ```
-
-## App shell commands
-
-App has defined Django commands which can be used to create a new app directly from shell.
-
-### create_app
-  Creates new app by using provided data. 
-
-    arguments:
-      name: Name of the new app
-
-    optional arguments:
-      --permission: Assign new permission to app. Argument can be specified multiple times.
-      --activate-after-installation: Determines if app will be set active or not.
-      --target_url: Url which will receive newly created data of app object. 
-            Command doesn't return app data to stdout when this argument is provided
-
-To create app with name `Order App` and with access to users and orders, run the following command:
-```shell
-./manage.py create_app "Order App" --permission MANAGE_USERS --permission MANAGE_ORDERS 
-```
-The command will return a new app token in following format:
-```shell
-{"auth_token": "new-app-token"}
-```
-
-When  `target_url` argument is provided, Saleor will execute POST request with auth token to provided URL. 
-Data is in json format - `{"auth_token": "app-token"}`
-```shell
-./manage.py create_app App --permission MANAGE_USERS --target_url http://www.your.app.com/webhooks/register
-```
-
-
-<Chart definition={`
-  graph LR
-    C -->|Auth Token| A[App]
-    A -.->|Success<br>Response| C
-    subgraph Saleor Server
-      C((Saleor Core))
-    end
-`} />
-
-
-### create_app_from_manifest
-
-  Creates new app by fetching data from url
-
-    arguments:
-      manifest-url: Url with app manifest.
-
-    optional arguments:
-      --activate-after-installation: Determines if app will be set active or not.
-
-  Command executes GET request to provided `manifest-url`. `manifest-url` should return a data in json format.
-  Saleor requires following structure of returned data.
-
-  ```json
-  {
-    "name": "app",
-    "version": "1.0.0",
-    "about_app": "Lorem ipsum",
-    "data_privacy": "Lorem ipsum",
-    "data_privacy_url": "http://localhost:3000/app-data-privacy",
-    "homepage_url": "http://localhost:3000/homepage",
-    "support_url": "http://localhost:3000/support",
-    "configuration_url": "htpp://localhost:3000/configuration",
-    "app_url": "http://localhost:3000/app",
-    "token_target_url": "http://localhost:3000/register",
-    "identificator": "saleor.app.sample",
-    "permissions": [
-      "MANAGE_USERS",
-      "MANAGE_STAFF"
-    ]
-  }
-  ```
-
-  <Chart definition={`
-  sequenceDiagram
-    Saleor ->> App: GET manifest-url
-    App -->> Saleor: App details in json format
-    Saleor ->> Saleor: Validate app details<br>
-    Saleor ->> Saleor: Create new app instance
-    Saleor ->> App: POST {token_target_url}<br> with auth_token
-    App -->> Saleor: Response OK
-`} />
