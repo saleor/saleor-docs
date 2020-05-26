@@ -28,6 +28,9 @@ The App manifest is a JSON file that describes the application, including its na
 Saleor expectes the manifest to use the following format:
 
 ```json
+
+
+
 {
   "id": "example.app.wonderful",
   "version": "1.0.0",
@@ -160,6 +163,74 @@ To see workflow details check  - [install app workflow.](developer/extending/app
 
 ## The GraphQL API
 
+### Fetching the manifest
+
+`appFetchManifest` mutation fetches manifest from provided `manifestUrl`. Saleor downloads, parses and returns data as a `Manifest` object.
+This mutation is only available to staff users with the `MANAGE_APPS` permission.
+
+```graphql
+mutation{
+  appFetchManifest(manifestUrl:"http://localhost:3000/manifest"){
+    manifest{
+      identifier
+      version
+      about
+      aboutUrl
+      name
+      appUrl
+      configurationUrl
+      tokenTargetUrl
+      dataPrivacy
+      dataPrivacyUrl
+      homepageUrl
+      supportUrl
+      permissions{
+        code
+        name
+      }
+    }
+    appErrors{
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+If there are no errors in the response, a manifest object is returned:
+```json
+{
+  "data": {
+    "appFetchManifest": {
+      "manifest": {
+        "identifier": "example.app.wonderful",",
+        "version": "1.0.0",
+        "about": "My Wonderful App is a wonderful App for Saleor.",
+        "name": "My Wonderful App",
+        "appUrl": "http://localhost:8888/app",
+        "configurationUrl": "htpp://localhost:8888/configuration",
+        "tokenTargetUrl": "http://localhost:3000/register",
+        "dataPrivacy": "Lorem ipsum",
+        "dataPrivacyUrl": "http://localhost:8888/app-data-privacy",
+        "homepageUrl": "http://localhost:8888/homepage",
+        "supportUrl": "http://localhost:8888/support",
+        "permissions": [
+          {
+            "code": "MANAGE_ORDERS",
+            "name": "Manage orders."
+          },
+          {
+            "code": "MANAGE_USERS",
+            "name": "Manage customers."
+          }
+        ]
+      },
+      "appErrors": []
+    }
+  }
+}
+```
 ### Installing an App
 
 Installing an App with `appInstall` mutation creates an App based on its manifest URL. 
