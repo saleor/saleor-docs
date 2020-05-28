@@ -43,10 +43,12 @@ module.exports = {
         {
           to: "docs/dashboard/before-you-start",
           label: "Dashboard Manual",
+          position: "left",
         },
         {
           to: "docs/developer",
           label: "Developer's Guide",
+          position: "left",
         },
       ],
     },
