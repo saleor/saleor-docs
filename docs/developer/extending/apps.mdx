@@ -47,7 +47,7 @@ Saleor expectes the manifest to use the following format:
 }
 ```
 :::note
-During an app installation, Saleor will try to send an authentication token to provided `tokenTargetUrl`. 
+During an installation of third-party App, Saleor will try to send an authentication token to provided `tokenTargetUrl`. 
 For more details, see [installing an app.](developer/extending/apps.mdx#installing-an-app)
 :::
 
@@ -90,22 +90,28 @@ Webhooks can be used to receive data from Saleor when particular events happen. 
 
 Webhooks' payloads are sent in `POST` requests.
 
-### Difference between `create` and `install`
-- `create`: create a custom App instance, assign explicitly provided permissions. 
-The app is fully manageable. You can change assigned permissions, add webhooks, or auth_token. 
-`create` can be useful for creating integration with some services which will parse the webhook payload.
-- `install`: create App instance and prepare communication channel. 
-This approach uses a defined App manifest to prepare all required objects. 
-This approach is recommended for creating integration with a service dedicated to Saleor. 
-Installed App can be activated, deactivated, deleted but cannot be modified by using a mutation dedicated to `create` actions. 
+### Type of Apps
+- `local`: create a custom App instance, assign explicitly provided permissions. 
+The app is fully manageable from dashboard. You can change assigned permissions, add webhooks, or authentication token. 
+`local` app can be useful for creating integration with some services which will parse the webhook payload.  
+:::note
+If you're building a single service dedicated only to your shop this solution will handle all your needs.
+:::
+
+- `third-party`: install App in Saleor and proceed with all required steps to prepare the communication channel for App.  
+Installation is fully automated.  Saleor uses a defined App manifest to gather all required information.  
+If there are no errors during the installation, App gets the possibility to attach to Saleor over the iframe, 
+communicate with Saleor over API and use webhooks to subscribe for the given events.
+:::note
+If you're building an App that will be published in the marketplace, then this solution is dedicated to you. 
+:::
 
 ## Creating and installing Apps from the command line
 
 Saleor provides commands that can be used to create/install an App from the command line.
-
 ### `create_app`
 
-Creates a custom App with explicitly provided permissions.
+Creates a `local` App with explicitly provided permissions.
 
 Arguments:
 
@@ -140,7 +146,7 @@ If the target URL is provided, Saleor will POST the API auth token, in the same 
 
 ### `install_app`
 
-Installs an App based on its manifest URL.
+Installs a `third-party` App based on its manifest URL.
 
 Arguments:
 
@@ -160,7 +166,8 @@ To see workflow details check  - [install app workflow.](developer/extending/app
 
 ## The GraphQL API
 
-### Installing an App
+### Third-party Apps
+#### Installing an App
 
 Installing an App with `appInstall` mutation creates an App based on its manifest URL. 
 
@@ -218,7 +225,7 @@ If there are no errors in the response, a new app installation process is create
 
 The chart below explains workflow of the installation process:
 
-#### Schedule installation
+##### Schedule installation
 
 <Chart
   definition={`
@@ -231,7 +238,7 @@ The chart below explains workflow of the installation process:
 `}
 />
 
-#### Install an App
+##### Install an App
 
 <Chart
   definition={`
@@ -250,7 +257,7 @@ The chart below explains workflow of the installation process:
 `}
 />
 
-### Retrieving ongoing installations
+#### Retrieving ongoing installations
 
 To fetch all ongoing and failed installations, use the `appsInstallations` query. 
 This query is only available to staff users with the `MANAGE_APPS` permission. 
@@ -284,7 +291,7 @@ The query returns simillar response:
   }
 }
 ```
-### Retrying failed installation
+#### Retrying failed installation
 
 If the `appsInstallations` query returns App with failed status, there is a possibility to retry the installation process. 
 This mutation is only available to staff users with the `MANAGE_APPS` permission. 
@@ -312,7 +319,7 @@ Example of retrying installation of app with id `QXBwT25nb2luZ0luc3RhbGxhdGlvbjo
 }
 ```
 
-### Deleting failed installation
+#### Deleting failed installation
 If the `appsInstallations` query returns App with failed status, there is a possibility to delete failed installation. 
 This mutation is only available to staff users with the `MANAGE_APPS` permission.
 The `appDeleteFailedInstallation` mutation will delete failed installation.
@@ -320,6 +327,97 @@ The `appDeleteFailedInstallation` mutation will delete failed installation.
 The mutation takes the following fields:
 - `id`: the id of the `AppInstallation`, required.
 
+
+
+### Local Apps
+
+
+#### Creating an App
+
+To create a new app, use the `appCreate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. Staff user can't grant app more permissions than he has for his own. The mutation takes the following input fields:
+
+- `name`: the name of the app.
+- `isActive`: whether to activate the app, defaults to `true`.
+- `permissions`: list of permissions the app should be granted.
+
+Let's assume that we want to create an order processing service that can fetch and manage orders in Saleor. To do so, we create a new app with the `MANAGE_ORDERS` permission:
+
+```graphql {2-4}
+mutation {
+  appCreate(
+    input: { name: "Order processing service", permissions: [MANAGE_ORDERS] }
+  ) {
+    authToken
+    app {
+      id
+      name
+    }
+    accountErrors {
+      field
+      code
+    }
+  }
+}
+```
+
+If there are no errors in the response, a new app is created:
+
+```json
+{
+  "data": {
+    "appCreate": {
+      "authToken": "Es1O0oB2O3PTeG9A4IVYUcaMoru3Ls",
+      "app": {
+        "id": "QXBwOjk=",
+        "name": "Order processing service"
+      },
+      "accountErrors": []
+    }
+  }
+}
+```
+
+The response contains the `authToken` field - this is the token that the app needs to include in requests to Saleor API to authorize itself and have access to queries or mutations that it needs.
+
+:::note
+The `authToken` field is only available in the mutation response and cannot be fetched later, except for the last four digits.
+:::
+
+#### Creating authorization keys
+
+Creating an app with `appCreate` mutation creates the default authorization token (`authToken`). You can create more authorization keys with the `appTokenCreate`. The mutation takes the following fields:
+
+- `app`: ID of the app.
+- `name`: (optional) name of the key.
+
+```graphql {2-4}
+mutation {
+  appTokenCreate(input: { app: "QXBwOjk=" }) {
+    authToken
+    accountErrors {
+      field
+      code
+    }
+    appToken {
+      id
+    }
+  }
+}
+```
+
+#### Revoking authorization keys
+
+To revoke an authorization key, use the `appTokenDelete`:
+
+```graphql
+mutation {
+  appTokenDelete(id: "QXBwOjk=") {
+    accountErrors {
+      field
+      code
+  }
+}
+```
 
 ### Retrieving all Apps
 
@@ -371,6 +469,7 @@ The query returns simillar response:
   }
 }
 ```
+
 
 ### Activating an App
 To activate an app, use the `appActivate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. 
@@ -454,93 +553,6 @@ The query returns simillar response:
 }
 ```
 
-
-### Creating an App
-
-To create a new app, use the `appCreate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. Staff user can't grant app more permissions than he has for his own. The mutation takes the following input fields:
-
-- `name`: the name of the app.
-- `isActive`: whether to activate the app, defaults to `true`.
-- `permissions`: list of permissions the app should be granted.
-
-Let's assume that we want to create an order processing service that can fetch and manage orders in Saleor. To do so, we create a new app with the `MANAGE_ORDERS` permission:
-
-```graphql {2-4}
-mutation {
-  appCreate(
-    input: { name: "Order processing service", permissions: [MANAGE_ORDERS] }
-  ) {
-    authToken
-    app {
-      id
-      name
-    }
-    accountErrors {
-      field
-      code
-    }
-  }
-}
-```
-
-If there are no errors in the response, a new app is created:
-
-```json
-{
-  "data": {
-    "appCreate": {
-      "authToken": "Es1O0oB2O3PTeG9A4IVYUcaMoru3Ls",
-      "app": {
-        "id": "QXBwOjk=",
-        "name": "Order processing service"
-      },
-      "accountErrors": []
-    }
-  }
-}
-```
-
-The response contains the `authToken` field - this is the token that the app needs to include in requests to Saleor API to authorize itself and have access to queries or mutations that it needs.
-
-:::note
-The `authToken` field is only available in the mutation response and cannot be fetched later, except for the last four digits.
-:::
-
-### Creating authorization keys
-
-Creating an app with `appCreate` mutation creates the default authorization token (`authToken`). You can create more authorization keys with the `appTokenCreate`. The mutation takes the following fields:
-
-- `app`: ID of the app.
-- `name`: (optional) name of the key.
-
-```graphql {2-4}
-mutation {
-  appTokenCreate(input: { app: "QXBwOjk=" }) {
-    authToken
-    accountErrors {
-      field
-      code
-    }
-    appToken {
-      id
-    }
-  }
-}
-```
-
-### Revoking authorization keys
-
-To revoke an authorization key, use the `appTokenDelete`:
-
-```graphql
-mutation {
-  appTokenDelete(id: "QXBwOjk=") {
-    accountErrors {
-      field
-      code
-  }
-}
-```
 
 ### Subscribing to a webhook
 
