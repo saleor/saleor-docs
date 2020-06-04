@@ -23,17 +23,27 @@ Products can be exported only by logged users with `MANAGE_PRODUCTS` permission.
 To export products, use `exportProducts` mutation.
 
 This mutation takes the following input:
-- `scope`:
-- `filter`:
-- `ids`:
-- `fileType`:
-- `exportInfo`:
-
-`exportInfo` takes the following input:
-- `attributes`:
-- `warehouses`:
-- `fields`: 
+- `scope`: determine which products should be exported. You can choose between exporting
+all products (`ALL`), filtered products (`FILTER`) or selected ids (`IDS`).
+You can find more details below.
+- `filter`: defines filtering option. This field is optional but must be specified if your
+choose `FILTER` scope option.
+- `ids`: a list of products ids to export. This field is optional but must be specified
+if `IDS` in `scope` is chosen.
+- `fileType`: defines exported file type. You can choose between CSV and XLSX file.
+- `exportInfo`: determine exported fields. It takes the following input:
+    - `attributes`: list of attribute ids to export (optional).
+    - `warehouses`: list of warehouse ids to export (optional).
+    - `fields`: list of product and variants fields to export
+    (optional, `id` field is exported by default).
 
 As a result, this mutation returns `ExportFile` object which is a `Job` instance.
 It corresponds to running export tasks, keeps task status, and created file.
-
+`ExportFile` object contains the following fields:
+- `id`: a unique export file ID. Could be use to check job status.
+- `status`: status of running job.
+- `createdBy`: instance of `User` who requested exporting products.
+- `createdAt`: the date and time when the job was started.
+- `updatedAt`: the date and time when the job was last time updated.
+- `url`: URL to the exported file. Set to `null` when the file doesn't exist yet.
+- `events`: a list of events associated with the export.
