@@ -16,13 +16,17 @@ jobs:
     - uses: chrislennon/action-aws-cli@v1.1
 
     - uses: bahmutov/npm-install@v1
+      with:
+        working-directory: website
 
     - run: npm run build
+      working-directory: website
 
     - name: Push to S3
       run: |
         aws s3 sync website/build ${{ secrets.AWS_S3_BUCKET }} --cache-control "public,max-age=86400,s-maxage=86400" --delete
         aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION }} --paths "/*"
+      working-directory: website
       env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
