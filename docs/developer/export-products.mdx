@@ -47,3 +47,177 @@ It corresponds to running export tasks, keeps task status, and created file.
 - `updatedAt`: the date and time when the job was last time updated.
 - `url`: URL to the exported file. Set to `null` when the file doesn't exist yet.
 - `events`: a list of events associated with the export.
+
+In addition the following field is available on the mutation results:
+- `csvErrors`: a list of errors that occurred during mutation execution.
+
+### Exporting all products
+The following example shows how to export all products with all available fields
+to csv file.
+
+:::note
+Fields order defines order of headers in exported file. Exporting any of `price` fields
+adding `currency` field be default.
+:::
+
+
+```graphql {2-26}
+mutation {
+  exportProducts(
+    input: {
+        scope:ALL,
+        fileType: CSV,
+        exportInfo: {
+            fields: [
+                NAME
+                DESCRIPTION
+                PRODUCT_TYPE
+                CATEGORY
+                VISIBLE
+                COLLECTIONS
+                CHARGE_TAXES
+                PRICE
+                PRODUCT_IMAGES
+                VARIANT_SKU
+                PRICE_OVERRIDE
+                COST_PRICE
+                VARIANT_IMAGES
+                PRODUCT_WEIGHT
+                VARIANT_WEIGHT
+            ]
+        }
+    }
+ ){
+    exportFile {
+      id
+      status
+      createdAt
+      updatedAt
+      url
+    }
+    csvErrors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+In response we get workers information:
+```json
+{
+  "data": {
+    "exportProducts": {
+      "exportFile": {
+        "id": "RXhwb3J0RmlsZToxMA==",
+        "status": "PENDING",
+        "createdAt": "2020-06-05T09:15:42.924676+00:00",
+        "updatedAt": "2020-06-05T09:16:27.691838+00:00",
+        "url": ""
+      },
+      "csvErrors": []
+    }
+  }
+}
+```
+
+When task success finished, you will see `url` field with the URL address to
+exported file. Example data below:
+```json
+{
+  "data": {
+    "exportProducts": {
+      "exportFile": {
+        "id": "RXhwb3J0RmlsZToxMA==",
+        "status": "PENDING",
+        "createdAt": "2020-06-05T09:15:42.924676+00:00",
+        "updatedAt": "2020-06-05T09:16:27.691838+00:00",
+        "url": "http://localhost:8000/media/export_files/product_data_05_06_2020.csv"
+      },
+      "csvErrors": []
+    }
+  }
+}
+```
+
+### Exporting filtered products
+To export only filtered products you need to define `FILTER` `scope` and `filter`
+field. Lets see an example for exporting only published products from two specific
+categories:
+
+```graphql {2-19}
+mutation {
+  exportProducts(
+    input: {
+        scope:ALL,
+        fileType: CSV,
+        exportInfo: {
+            fields: [
+                NAME
+                DESCRIPTION
+                PRODUCT_TYPE
+                VARIANT_SKU
+            ]
+        },
+        filter: {
+            isPublished: true,
+            categories: ["Q2F0ZWdvcnk6Nw==", "Q2F0ZWdvcnk6MjI="]
+        }
+    }
+ ){
+    exportFile {
+      id
+      status
+      createdAt
+      updatedAt
+      url
+    }
+    csvErrors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+### Exporting products with specified IDs
+To export only products with provided ids you need to define `IDS` `scope` and `ids`
+field. Lets see an example:
+```graphql {2-19}
+mutation {
+  exportProducts(
+    input: {
+        scope:ALL,
+        fileType: CSV,
+        exportInfo: {
+            fields: [
+                NAME
+                DESCRIPTION
+                PRODUCT_TYPE
+                VARIANT_SKU
+            ]
+        },
+        filter: {
+            isPublished: true,
+            categories: ["Q2F0ZWdvcnk6Nw==", "Q2F0ZWdvcnk6MjI="]
+        }
+    }
+ ){
+    exportFile {
+      id
+      status
+      createdAt
+      updatedAt
+      url
+    }
+    csvErrors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
