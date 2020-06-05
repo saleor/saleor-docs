@@ -192,12 +192,17 @@ Authorization: JWT <your-token>
 
 ### Creating a JWT token
 
-To create a new JWT token for a user, use the `tokenCreate` mutation and provide the user's credentials as the mutation input (`email` and `password`):
+To create a new JWT token for a user, use the `tokenCreate` mutation and provide the user's credentials as the mutation input (`email` and `password`). 
+The mutation generates also `refreshToken` and returns it as a secure, http-only cookie - `refreshToken` and as a field in the response. `refreshToken` can 
+be used to re-generate an expired authentication token:
+
+For more details about expiration time of the token, see [token expiration time.](developer/running-saleor/configuration.mdx#JWT_EXPIRATION_DELTA)
 
 ```graphql {2}
 mutation {
   tokenCreate(email: "admin@example.com", password: "admin") {
     token
+    refreshToken
     user {
       email
     }
@@ -216,6 +221,7 @@ A successful response would look like:
   "data": {
     "tokenCreate": {
       "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiZXhwIjoxNTY2OTEzODc1LCJvcmlnSWF0IjoxNTY2OTEzNTc1fQ.Dw0ccxdxEXsSpM61_Zr_uCyZd-88cNZqM62k_nAjFAE",
+      "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM5MzQyMTYsImlhdCI6MTU5MTM0MjIxNiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInR5cGUiOiJyZWZyZXNoIiwidXNlcl9pZCI6IlZYTmxjam95TVE9PSIsImlzX3N0YWZmIjp0cnVlLCJpc19zdXBlcnVzZXIiOnRydWV9.CD7JEHc9Og-KFURu6MCR3VnaxISjZfJkqRhx8Y552pU",
       "user": {
         "email": "admin@example.com"
       },
@@ -261,10 +267,17 @@ To verify the token, use the following mutation:
 ```graphql {2}
 mutation {
   tokenVerify(token: "<your-token>") {
-    payload
+    isValid
+    accountErrors{
+      field
+      code
+    }
   }
 }
 ```
+:::note
+You can verify authentication token as well as the refresh token.
+:::
 
 A successful response:
 
@@ -272,11 +285,8 @@ A successful response:
 {
   "data": {
     "tokenVerify": {
-      "payload": {
-        "email": "admin@example.com",
-        "exp": 1566915066,
-        "origIat": 1566548900
-      }
+      "isValid": true,
+      "accountErrors": []
     }
   }
 }
@@ -284,11 +294,19 @@ A successful response:
 
 ### Refreshing a token
 
+The `tokenRefresh` mutation will try to fetch token from the secure, http-only cookie - `refreshToken`. 
+If it fails then it will use `refreshToken` provided as an input of mutation. If `refreshToken` 
+is valid it will re-generate an authentication token and return it in the response of mutation.
+
+For more details about expiration time of the `refreshToken`, see [refresh token expiration time.](developer/running-saleor/configuration.mdx#JWT_REFRESH_EXPIRATION_DELTA)
+
 ```graphql {2}
 mutation {
-  tokenRefresh(token: "<your-token>") {
+  tokenRefresh(refreshToken: "<your-token>") {
     token
-    payload
+    accountErrors{
+      code
+    }
   }
 }
 ```
@@ -300,11 +318,7 @@ A successful response:
   "data": {
     "tokenRefresh": {
       "token": "new-token",
-      "payload": {
-        "email": "admin@example.com",
-        "exp": 1566915066,
-        "origIat": 1566548900
-      }
+      "accountErrors": []
     }
   }
 }
