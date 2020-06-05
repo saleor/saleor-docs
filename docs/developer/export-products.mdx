@@ -11,9 +11,13 @@ Products data can be exported to CSV or XLSX file, but CSV file is recommended b
 it is much less time-consuming. You can also defined which fields will be exported.
 If any product variants fields are specified then products and variants data are exported.
 
+Every row in file corresponds to one variant, if any variants fields are specified
+otherwise single row corresponds to one product.
+
 **What is useful for?**
 - Creating a backup of your products
 - Easy and quick bulk editing of products
+
 
 ## Exporting products
 :::note
@@ -53,7 +57,7 @@ In addition the following field is available on the mutation results:
 
 ### Exporting all products
 The following example shows how to export all products with all available fields
-to csv file.
+to CSV file. (For exporting to XLSX just replace `CSV` with `XLSX` in `fileType` field.)
 
 :::note
 Fields order defines order of headers in exported file. Exporting any of `price` fields
@@ -221,3 +225,57 @@ mutation {
 }
 ```
 
+### Define warehouses and attributes to export
+To export data about specified warehouses and attributes you need to provide list of
+warehouses or attributes ids.
+
+If you specify warehouses, then for all variants with stocks in given warehouse,
+data about stock quantity will be exported. It will be visible in column:
+`warehouse-slug (warehouse quantity)`.
+
+If you specify attributes, then data about given attribute value for all
+products and variants will be exported (empty if not exists).
+Attributes value will be visible in column:
+`attribute-slug (product attribute)` for product attributes and
+`attribute-slug (product attribute)` for variant attributes.
+
+Below you can find example of exporting warehouses and
+attributes data.
+
+```graphql {2-19}
+mutation {
+  exportProducts(
+    input: {
+        scope:ALL,
+        fileType: CSV,
+        exportInfo: {
+            fields: [
+                NAME
+                VARIANT_SKU
+            ],
+            warehouses: [
+                "V2FyZWhvdXNlOjA1ZmFmZjRmLTViYWItNDIzNC04MTBhLTM5NjI5MDMyMWFkMg==",
+                "V2FyZWhvdXNlOjQ3Mjc3NjM2LTQ1MWItNGNmZi04OWJkLWM5MTA4OWNiNTdkYQ==",
+            ],
+            attributes: [
+                "QXR0cmlidXRlOjE1",
+                "QXR0cmlidXRlOjE4",
+            ],
+        },
+    }
+ ){
+    exportFile {
+      id
+      status
+      createdAt
+      updatedAt
+      url
+    }
+    csvErrors {
+      field
+      code
+      message
+    }
+  }
+}
+```
