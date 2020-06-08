@@ -8,7 +8,7 @@ import Chart from "@site/components/Chart";
 ## Introduction
 This guide describes how to export products from the Saleor GraphQL API.
 
-You can export all products, filtered products, or products with specific ids. 
+You can export all products, filtered products, or products with specific IDs. 
 Products data can be exported to CSV or XLSX file, but CSV file is recommended because
 it is much less time-consuming. You can also defined which fields will be exported.
 If any product variants fields are specified then products and variants data are exported.
@@ -31,12 +31,12 @@ To export products, use `exportProducts` mutation.
 This mutation takes the following input:
 - `scope`: determine which products should be exported. You can choose between exporting
 all products (`ALL`), filtered products (`FILTER`) or selected ids (`IDS`).
-You can find more details below.
+You can find more details in the next sections.
 - `filter`: defines filtering option. This field is optional but must be specified if your
 choose `FILTER` scope option.
 - `ids`: a list of products ids to export. This field is optional but must be specified
 if `IDS` in `scope` is chosen.
-- `fileType`: defines exported file type. You can choose between CSV and XLSX file.
+- `fileType`: defines exported file type. You can choose between `CSV` and `XLSX` file.
 - `exportInfo`: determine exported fields. It takes the following input:
     - `attributes`: list of attribute ids to export (optional).
     - `warehouses`: list of warehouse ids to export (optional).
@@ -44,12 +44,12 @@ if `IDS` in `scope` is chosen.
     (optional, `id` field is exported by default).
 
 As a result, this mutation returns `ExportFile` object which is a `Job` instance.
-It corresponds to running export tasks, keeps task status, and created file.
+It corresponds to running export background worker, keeps task status, and created file.
 `ExportFile` object contains the following fields:
-- `id`: a unique export file ID. Could be use to check job status.
+- `id`: a unique export file ID. Could be use to check export status.
 - `status`: status of running job.
 - `createdBy`: instance of `User` who requested exporting products.
-- `createdAt`: the date and time when the job was started.
+- `createdAt`: the date and time when the export was started.
 - `updatedAt`: the date and time when the job was last time updated.
 - `url`: URL to the exported file. Set to `null` when the file doesn't exist yet.
 - `events`: a list of events associated with the export.
@@ -71,7 +71,7 @@ adding `currency` field be default.
 mutation {
   exportProducts(
     input: {
-        scope:ALL,
+        scope: ALL,
         fileType: CSV,
         exportInfo: {
             fields: [
@@ -156,7 +156,7 @@ categories:
 mutation {
   exportProducts(
     input: {
-        scope:ALL,
+        scope: FILTER,
         fileType: CSV,
         exportInfo: {
             fields: [
@@ -195,7 +195,7 @@ field. Lets see an example:
 mutation {
   exportProducts(
     input: {
-        scope:ALL,
+        scope: IDS,
         fileType: CSV,
         exportInfo: {
             fields: [
@@ -205,10 +205,9 @@ mutation {
                 VARIANT_SKU
             ]
         },
-        filter: {
-            isPublished: true,
-            categories: ["Q2F0ZWdvcnk6Nw==", "Q2F0ZWdvcnk6MjI="]
-        }
+        ids: [
+          "UHJvZHVjdDo3Mg==", "UHJvZHVjdDo4Nw==", "UHJvZHVjdDoxMTU="
+        ]
     }
  ){
     exportFile {
@@ -248,7 +247,7 @@ attributes data.
 mutation {
   exportProducts(
     input: {
-        scope:ALL,
+        scope: ALL,
         fileType: CSV,
         exportInfo: {
             fields: [
