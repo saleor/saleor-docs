@@ -6,6 +6,9 @@ import "./styles.css";
 mermaidAPI.initialize({
   startOnLoad: false,
   theme: null,
+  sequence: {
+    mirrorActors: false
+  }
 });
 
 const Chart = ({ definition }) => {
