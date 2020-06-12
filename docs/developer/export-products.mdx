@@ -14,16 +14,35 @@ You can export all products, filtered products, or products with specific IDs.
 Products data can be exported to CSV or XLSX file, but CSV file is recommended because
 it is much less time-consuming to generate. You can also define which fields will be exported.
 If any product variants fields are specified then products and variants data are exported.
-
-### File
-Link to download file is sent by email to requestor. If any variants fields are
-specified every row in file corresponds to one variant,  otherwise single row
-corresponds to one product.
+Link to download file is sent by email to requestor.
 
 :::note
 When the export is made by the `App` email is not sent. You can get the file by query the
 `ExportFile` with ID returned from `exportProducts` mutation.
 :::
+
+### Export file structure
+Each row in the exported file represents a single product variant, but it also contains
+general product fields.
+For example, if a product has three variants, there will be three lines in total.
+Each line will contain common product fields such as name or description,
+and fields specific to given variant:
+
+| id | name         | description                    | variant sku | variant weight |
+|----|--------------|--------------------------------|-------------|----------------|
+| 61 | Orange Juice | No additives, no preservatives | 12345       | 500 g          |
+| 61 | Orange Juice | No additives, no preservatives | 32145       | 1000 g         |
+| 61 | Orange Juice | No additives, no preservatives | 45123       | 1500 g         |
+
+The exact shape of the file depends on the fields selected for export
+(see the `exportInfo` input fields). If no variant fields are provided,
+each row will contain only product fields:
+
+| id  | name         | description                    | category    | product weight |
+|-----|--------------|--------------------------------|-------------|----------------|
+| 61  | Orange Juice | No additives, no preservatives | juices      | 500 g          |
+| 65  | Apple Juice  | No additives, great taste      | juices      | 1000 g         |
+| 101 | Polo Shirt   | Nice and comfortable           | polo-shirts | 200 g          |
 
 ### The charts below explains workflow of the exporting products:
 
@@ -264,7 +283,7 @@ mutation {
 
 ### Define warehouses and attributes to export
 To export data about specified warehouses and attributes you need to provide list of
-warehouses or attributes ids.
+warehouses or attributes IDs.
 
 If you specify warehouses, then for all variants with stocks in given warehouse,
 data about stock quantity will be exported. It will be visible in column:
