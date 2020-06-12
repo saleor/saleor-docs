@@ -25,6 +25,35 @@ When the export is made by the `App` email is not sent. You can get the file by 
 `ExportFile` with ID returned from `exportProducts` mutation.
 :::
 
+### The charts below explains workflow of the exporting products:
+
+#### Schedule export products
+<Chart
+  definition={`
+  sequenceDiagram
+  Client ->>+ Saleor: mutation exportProducts
+  Saleor ->> Saleor: Validate input data
+  Saleor ->>+ Background Worker: Schedule export products
+  Background Worker -->>- Saleor: Scheduled
+  Saleor -->>- Client: return ExportFile instance
+`}
+/>
+
+#### Handling background worker result
+<Chart
+  definition={`
+  graph TD
+    D[Export products data <br> Background Worker] -->|Success| E[Send email to user <br> with a link to <br> download file]
+    D -->|Success| X[Set SUCCESS <br>ExportFile status]
+    E -->Y[Create export file <br>sent event]
+    X -->F[Create data export <br>success event]
+    D -->|Failed| G[Set FAILED <br>ExportFile status]
+    G --> U[Create data export <br>failed event]
+    U --> J[Send email to the user<br>with information <br>about failing export]
+    J --> K[Create export failed <br>info sent event]
+`}
+/>
+
 ## Exporting products
 :::note
 Products can be exported only by logged users with `MANAGE_PRODUCTS` permission.
@@ -284,32 +313,3 @@ mutation {
   }
 }
 ```
-
-### The charts below explains workflow of the exporting products:
-
-#### Schedule export products
-<Chart
-  definition={`
-  sequenceDiagram
-  Client ->>+ Saleor: mutation exportProducts
-  Saleor ->> Saleor: Validate input data
-  Saleor ->>+ Background Worker: Schedule export products
-  Background Worker -->>- Saleor: Scheduled
-  Saleor -->>- Client: return ExportFile instance
-`}
-/>
-
-#### Handling background worker result
-<Chart
-  definition={`
-  graph TD
-    D[Export products data <br> Background Worker] -->|Success| E[Send email to user <br> with a link to <br> download csv file]
-    D -->|Success| X[Set SUCCESS <br>ExportFile status]
-    E -->Y[Create export file <br>sent event]
-    X -->F[Create data export <br>success event]
-    D -->|Failed| G[Set FAILED <br>ExportFile status]
-    G --> U[Create data export <br>failed event]
-    U --> J[Send email to the user<br>with information <br>about failing export]
-    J --> K[Create export failed <br>info sent event]
-`}
-/>
