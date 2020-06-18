@@ -306,19 +306,51 @@ A successful response:
 
 ### Refreshing an access token
 
-The `tokenRefresh` mutation will generate a new access token when provided with a valid refresh token and a matching CSRF token.
-If the refresh token is not provided as an argument, the code will try to read it from a cookie set by the `tokenCreate` mutation.
-
-The mutation takes the following input fields:
-
-- `refreshToken`: the refresh token, if not specified will be read from browser cookies.
-- `csrfToken`: the CSRF token used to protect against cross-site resource forgery attacks.
+The `tokenRefresh` mutation will generate a new access token when provided with a valid refresh token.
+If the refresh token is not provided as an argument, the code will try to read it from a cookie set by the `tokenCreate` mutation. In that case, matching CSRF token is required.
 
 For more details about expiration time of the `refreshToken`, see [refresh token expiration time.](developer/running-saleor/configuration.mdx#JWT_TTL_REFRESH)
 
+#### Refreshing with refresh token as a browser cookie
+
+The mutation takes the following input fields:
+
+- `csrfToken`: the CSRF token used to protect against cross-site resource forgery attacks.
+
 ```graphql {2}
 mutation {
-  tokenRefresh(refreshToken: "<your-refresh-token>", csrfToken: "<your-csrf-token>") {
+  tokenRefresh( csrfToken: "<your-csrf-token>") {
+    token
+    accountErrors {
+      code
+    }
+  }
+}
+```
+
+A successful response:
+
+```json
+{
+  "data": {
+    "tokenRefresh": {
+      "token": "new-token",
+      "accountErrors": []
+    }
+  }
+}
+```
+
+#### Refreshing with refresh token as an input
+
+The mutation takes the following input fields:
+
+- `refreshToken`: the refresh token returned from the `tokenCreate` mutation.
+
+
+```graphql {2}
+mutation {
+  tokenRefresh(refreshToken: "<your-refresh-token>") {
     token
     accountErrors {
       code
