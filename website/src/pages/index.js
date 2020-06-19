@@ -9,7 +9,7 @@ const React = require("react");
 import { Redirect } from "@docusaurus/router";
 
 const Index = () => {
-  return <Redirect to="/docs/index/" />;
+  return <Redirect to="/docs/" />;
 };
 
 export default Index;
