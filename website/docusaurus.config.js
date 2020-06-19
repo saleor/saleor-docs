@@ -138,6 +138,7 @@ module.exports = {
           // docs folder path relative to website dir.
           path: "../docs",
           editUrl: "https://github.com/mirumee/saleor-docs/edit/master/docs/",
+          homePageId: "index",
           // sidebars file relative to website dir.
           sidebarPath: require.resolve("./sidebars.json"),
         },
