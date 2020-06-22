@@ -5,6 +5,8 @@ title: Payment Gateways
 ## Adding a new payment gateway
 
 Saleor uses a universal flow that each gateway should implement by providing a class that contains all the necessary methods.
+All of the plugins method takes `previous_value` as a second argument.
+More information about `previous_value` can be found [here](plugins#base-plugin-class).
 
 For more information on the plugin implementation methods, see the `plugin.py` file for an existing payment gateway.
 
@@ -58,6 +60,7 @@ For more information on how to configure your plugin, see the [Plugins](dashboar
 | `customer_ip_address` | `str`         | IP address of the customer                                                                                                             |
 | `customer_email`      | `str`         | Email address of the customer                                                                                                          |
 | `token`               | `str`         | Token used for transaction, provided by the gateway                                                                                    |
+| `customer_id`         | `str`         | Customer ID
 | `reuse_source`        | `bool`        | Indicates that if a payment method for this user has already been stored in payment service, the system should use this payment method |
 
 #### `AddressData`
@@ -80,10 +83,11 @@ For more information on how to configure your plugin, see the [Plugins](dashboar
 
 | Name                | Type   | Description                                                                                              |
 | ------------------- | ------ | -------------------------------------------------------------------------------------------------------- |
+| `gateway_name`      | `str`  | Define gateway name                                                                                      |
 | `auto_capture`      | `bool` | Define if a gateway should also capture funds from the card. If false, payment should be only authorized |
-| `template_path`     | `str`  | Path to a template that will be rendered for the checkout                                                |
 | `connection_params` | `dict` | List of parameters used for connecting to the payment’s gateway                                          |
 | `store_customer`    | `bool` | If set to True, the system will save this payment method for this customer                               |
+| `require_3d_secure` | `bool` | Determines if gateway should enforce 3D secure verification during payment                               |
 
 ### Returns
 
@@ -94,15 +98,27 @@ For more information on how to configure your plugin, see the [Plugins](dashboar
 
 #### `GatewayResponse`
 
-| Name             | Type      | Description                                                              |
-| ---------------- | --------- | ------------------------------------------------------------------------ |
-| `transaction_id` | `str`     | Transaction ID as returned by the gateway                                |
-| `kind`           | `str`     | Transaction kind, one of: auth, capture, charge, refund, void            |
-| `is_success`     | `bool`    | Status showing whether the transaction was successful or not             |
-| `amount`         | `Decimal` | Amount that the gateway actually charged or authorized                   |
-| `currency`       | `str`     | Currency in which the gateway charged, needs to be an ISO 4217 code      |
-| `error`          | `str`     | An error message, if one occurred. Should be `None` if no error occurred |
-| `raw_response`   | `dict`    | Raw gateway response as a dict object. By default it is `None`           |
+| Name              | Type             | Description                                                              |
+| ----------------- | ---------------- | ------------------------------------------------------------------------ |
+| `is_success`      | `bool`           | Status showing whether the transaction was successful or not             |
+| `action_required` | `bool`           | Determines if additional action is required to complete the payment      |
+| `kind`            | `str`            | Transaction kind, one of: auth, capture, charge, refund, void            |
+| `amount`          | `Decimal`        | Amount that the gateway actually charged or authorized                   |
+| `currency`        | `str`            | Currency in which the gateway charged, needs to be an ISO 4217 code      |
+| `transaction_id`  | `str`            | Transaction ID as returned by the gateway                                |
+| `error`           | `str`            | An error message, if one occurred. Should be `None` if no error occurred |
+| `customer_id`     | `str`            | Customer ID                                                              |
+| `card_info`       | `CreditCardInfo` | Credit Card information                                                  |
+| `raw_response`    | `dict`           | Raw gateway response as a dict object. By default it is `None`           |
+
+#### `CreditCardInfo`
+| Name           | Type  | Description                                                                                              |
+| -------------- | ----- | ------------------------------- |
+| `last_4`       | `str` | Last four digits of card number |
+| `exp_year`     | `int` | Card expiration year            |
+| `exp_month`    | `int` | Card expiration month           |
+| `brand`        | `str` | Card brand                      |
+| `name_on_card` | `str` | Customer name on the card       |
 
 ## Handling errors
 
