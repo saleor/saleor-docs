@@ -10,9 +10,11 @@ This document describes how to add a sorter to the query resolver.
 ## Add sorter to query resolver
 
 ### Step 1: Create new sort field
-To create a new sort field, add `sorters.py` file in the target graphql directory.
-Inside this directory, create GraphQL enum with fields that can be used for sorting
-and description property defining enum field explanations.
+
+To create a new sort field, add `sorters.py` file in the target `graphql` directory.
+Inside this directory, create a GraphQL enum with members representing the options that can be used
+for sorting and a `description` property explaining how to use the field.
+
 Let's see an example:
 
 ```python
@@ -32,16 +34,18 @@ class ExampleSortField(graphene.Enum):
 ```
 
 GraphQL field name defines the schema field, which can be used to sort elements,
-and value defines the list of model fields, that will be used for sorting. The list can contain
-multiple elements, the next value from the list will be used when items have the same value
-for previous field from the list. For example, if elements sorting by `NAME` have the same
-value of the `name` field, they will be sorted by `slug` field value.
+and the value defines the list of model fields that will be used for sorting. The list can contain
+multiple elements, each consecutive field used when the values of the previous one are tied.
+
+In the above example, if elements sorted by `NAME` have the same value in the `name` field,
+they will be sorted by the value of the `slug` field.
 
 ### Step 2: Create Sort Input
-In the same file create Sorting Input with `Meta`. In `Meta` define `sort_enum` which
+
+In the same file create a `SortInputObjectType`. In its `Meta` class, define `sort_enum` which
 corresponds to just created sorted enum and `type_name` which is used to create sorter description.
 
-```python
+```python {6-7}
 from saleor.graphql.core.types import SortInputObjectType
 
 
@@ -52,6 +56,7 @@ class ExampleSortingInput(SortInputObjectType):
 ```
 
 ### Step 3: Add sorter to query
+
 Define the `sort_by` field in your target query resolver in the `schema.py` file. Make sure that resolver use
 `BaseDjangoConnectionField` or another type which inherits from this. Here is an example:
 
@@ -69,15 +74,16 @@ class ExampleQueries(graphene.ObjectType):
 ```
 
 ## Add custom sorter
-When defining sorter apart from a model field you can define the custom one, and use it
+
+When defining sorter apart from a model field you can define a custom sort field, and use it
 like other fields.
 
-### Step 1: Define static method in your sorter field
-The method name must be in format `qs_with_new_field` where `new_field` corresponds
-to the custom field which you wanted to sort your queryset. The method must take the
-queryset as an argument and return queryset with the annotated new field.
-Please notice that the new field name from the method name must be the same as the annotated field.
+### Step 1: Define a static method in your sorter field
 
+The method name must follow the format `qs_with_new_field` where `new_field` corresponds
+to the custom field you want to sort your queryset with. The method must take a
+queryset as an argument and return a queryset with the annotated new field.
+Please notice that the new field name from the method name must be the same as the annotated field.
 
 ```python {12-14}
 class ExampleSortField(graphene.Enum):
@@ -96,7 +102,8 @@ class ExampleSortField(graphene.Enum):
         return queryset.annotate(item_count=Count("item"))
 ```
 
-### Step 2: Use the field in sort field definition
+### Step 2: Use the field in a sort field definition
+
 The next step is just using it in sort field definition as a normal model field.
 Notice that value in the list must be the same as annotated field name.
 
