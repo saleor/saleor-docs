@@ -2,7 +2,7 @@ module.exports = {
   title: "Documentation – Saleor Commerce", // Title for your website.
   tagline:
     "A modular, high performance e-commerce storefront built with Python, GraphQL, Django, and ReactJS.",
-  url: "https://saleor.io",
+  url: "https://docs.saleor.io",
   baseUrl: "/",
 
   // Used for publishing and more
