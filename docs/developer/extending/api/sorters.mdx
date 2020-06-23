@@ -5,12 +5,12 @@ title: Sorters
 ## Key concepts
 
 Sorters allow returning elements that are ordered based on specific criteria.
-This document describes how to add a sorter to the query.
+This document describes how to add a sorter to the query resolver.
 
 ## Add sorting to query
 
-### Step 1: Create new sorter GraphQL enum
-To create new sorter enum, add `sorters.py` file in target graphql directory.
+### Step 1: Create new sort field
+To create new sort field, add `sorters.py` file in target graphql directory.
 Inside this directory, create GraphQL enum with fields that can be used for sorting
 and description property defining enum fields explanations.
 Lets see an example:
@@ -26,6 +26,7 @@ class ExampleSortField(graphene.Enum):
     @property
     def description(self):
         if self.name in ExampleSortField.__enum__._member_names_:
+            sort_name = self.name.lower().replace("_", " ")
             return f"Sort Example by {sort_name}."
         raise ValueError("Unsupported enum value: %s" % self.value)
 ```
@@ -66,3 +67,50 @@ class ExampleQueries(graphene.ObjectType):
     )
 ```
 
+## Add custom sorter
+When defining sorter apart from model field you can define the custom one, and use it
+as others fields.
+
+### Step 1: Define static method in your sorter field
+The method name must be in format `qs_with_new_field` where `new_field` corresponds
+to the custom field which you wanted to sort your queryset. The method must take the
+queryset as a argument and return queryset with the annotated new field.
+
+
+```python
+class ExampleSortField(graphene.Enum):
+    NAME = ["name", "slug"]
+    VISIBILITY = ["is_published", "name", "slug"]
+
+    @property
+    def description(self):
+        if self.name in ExampleSortField.__enum__._member_names_:
+            sort_name = self.name.lower().replace("_", " ")
+            return f"Sort Example by {sort_name}."
+        raise ValueError("Unsupported enum value: %s" % self.value)
+
+    @staticmethod
+    def qs_with_item_count(queryset: Queryset) -> Queryset:
+        return queryset.annotate(item_count=Count("item"))
+```
+
+### Step 2: Use the field in sort field definition
+The next step is just using it in sort field definition as normal model field.
+
+```python
+class ExampleSortField(graphene.Enum):
+    NAME = ["name", "slug"]
+    VISIBILITY = ["is_published", "name", "slug"]
+    ITEM_COUNT = ["item_count"]
+
+    @property
+    def description(self):
+        if self.name in ExampleSortField.__enum__._member_names_:
+            sort_name = self.name.lower().replace("_", " ")
+            return f"Sort Example by {sort_name}."
+        raise ValueError("Unsupported enum value: %s" % self.value)
+
+    @staticmethod
+    def qs_with_item_count(queryset: Queryset) -> Queryset:
+        return queryset.annotate(item_count=Count("item"))
+```
