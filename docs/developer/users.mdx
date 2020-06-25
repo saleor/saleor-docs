@@ -182,22 +182,37 @@ If the token is valid, the user will be successfully activated:
 ## Authentication
 
 Saleor API uses a [JSON Web Token](https://jwt.io/) authentication mechanism.
-To avoid sending passwords with each request, you need to first create a token, and then include it as a header with every GraphQL request.
+To avoid sending passwords with each request, you need to first create an access token, and then include it as a header with every GraphQL request.
 
 The authorization header has the following format:
 
 ```http
-Authorization: JWT <your-token>
+Authorization: JWT <your-access-token>
 ```
 
-### Creating a JWT token
+### Architecture
 
-To create a new JWT token for a user, use the `tokenCreate` mutation and provide the user's credentials as the mutation input (`email` and `password`):
+There are several types of JWT tokens used in the authentication process:
+
+- **Access tokens** are short-lived tokens that allow clients to authenticate as a particular user, and to conduct privileged operations. They should not be persisted as leaking an access token is like giving someone else access to your account.
+
+- **Refresh tokens** are long-lived tokens that allow you to generate additional access tokens without requiring the user to provide their email and password every time an access token expires. They should be stored in a way that makes them inaccessible to potential attackers. For web clients, the safest way to store them is an HTTP-only secure cookie. For native clients, use the platform's secure keyring where available.
+
+- **CSRF tokens** are used to protect against cross-site resource forgery attacks when the refresh token is stored in a cookie. If you use cookies to store the refresh token, persist the CSRF token in another way, for example using the browser's local storage.
+
+### Creating a JWT access token
+
+To create a new JWT token for a user, use the `tokenCreate` mutation, and provide the user's credentials as the mutation input (`email` and `password`).
+The mutation also generates a refresh token and returns it as a secure, HTTP-only cookie, and as a field (`refreshToken`) in the response. The refresh token can be used to generate new access token without the need to store the user's password, see [refreshing token](developer/users.mdx#refreshing-a-token). As cookies can be subject to cross-site request forgery attacks, a CSRF token is also generated that needs to be stored and presented when refreshing an access token.
+
+For more details about expiration time of the token, see [token expiration time](developer/running-saleor/configuration.mdx#JWT_TTL_ACCESS).
 
 ```graphql {2}
 mutation {
   tokenCreate(email: "admin@example.com", password: "admin") {
     token
+    refreshToken
+    csrfToken
     user {
       email
     }
@@ -216,6 +231,8 @@ A successful response would look like:
   "data": {
     "tokenCreate": {
       "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwiZXhwIjoxNTY2OTEzODc1LCJvcmlnSWF0IjoxNTY2OTEzNTc1fQ.Dw0ccxdxEXsSpM61_Zr_uCyZd-88cNZqM62k_nAjFAE",
+      "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1OTM5MzQyMTYsImlhdCI6MTU5MTM0MjIxNiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInR5cGUiOiJyZWZyZXNoIiwidXNlcl9pZCI6IlZYTmxjam95TVE9PSIsImlzX3N0YWZmIjp0cnVlLCJpc19zdXBlcnVzZXIiOnRydWV9.CD7JEHc9Og-KFURu6MCR3VnaxISjZfJkqRhx8Y552pU",
+      "csrfToken": "7Jzm6rCF2r3CGPYtZls1n5Uh2Lb6sA7IlNtsWej0g7ILCHLOy2nPQzz7awDDnUZW",
       "user": {
         "email": "admin@example.com"
       },
@@ -237,7 +254,7 @@ If you are using Playground to browse the API, you can authorize your requests b
 
 ```json
 {
-  "Authorization": "JWT <your-token>"
+  "Authorization": "JWT <your-access-token>"
 }
 ```
 
@@ -260,11 +277,19 @@ To verify the token, use the following mutation:
 
 ```graphql {2}
 mutation {
-  tokenVerify(token: "<your-token>") {
-    payload
+  tokenVerify(token: "<your-access-token>") {
+    isValid
+    accountErrors {
+      field
+      code
+    }
   }
 }
 ```
+
+:::note
+You can verify both access tokens and refresh tokens.
+:::
 
 A successful response:
 
@@ -272,23 +297,33 @@ A successful response:
 {
   "data": {
     "tokenVerify": {
-      "payload": {
-        "email": "admin@example.com",
-        "exp": 1566915066,
-        "origIat": 1566548900
-      }
+      "isValid": true,
+      "accountErrors": []
     }
   }
 }
 ```
 
-### Refreshing a token
+### Refreshing an access token
+
+The `tokenRefresh` mutation will generate a new access token when provided with a valid refresh token.
+If the refresh token is not provided as an argument, the code will try to read it from a cookie set by the `tokenCreate` mutation. In that case, matching CSRF token is required.
+
+For more details about expiration time of the `refreshToken`, see [refresh token expiration time.](developer/running-saleor/configuration.mdx#JWT_TTL_REFRESH)
+
+#### Refreshing with refresh token as a browser cookie
+
+The mutation takes the following input fields:
+
+- `csrfToken`: the CSRF token used to protect against cross-site resource forgery attacks.
 
 ```graphql {2}
 mutation {
-  tokenRefresh(token: "<your-token>") {
+  tokenRefresh(csrfToken: "<your-csrf-token>") {
     token
-    payload
+    accountErrors {
+      code
+    }
   }
 }
 ```
@@ -300,11 +335,54 @@ A successful response:
   "data": {
     "tokenRefresh": {
       "token": "new-token",
-      "payload": {
-        "email": "admin@example.com",
-        "exp": 1566915066,
-        "origIat": 1566548900
-      }
+      "accountErrors": []
+    }
+  }
+}
+```
+
+#### Refreshing with refresh token as an input
+
+The mutation takes the following input fields:
+
+- `refreshToken`: the refresh token returned from the `tokenCreate` mutation.
+
+
+```graphql {2}
+mutation {
+  tokenRefresh(refreshToken: "<your-refresh-token>") {
+    token
+    accountErrors {
+      code
+    }
+  }
+}
+```
+
+A successful response:
+
+```json
+{
+  "data": {
+    "tokenRefresh": {
+      "token": "new-token",
+      "accountErrors": []
+    }
+  }
+}
+```
+
+### Deactivating all tokens of a particular user
+
+The `tokensDeactivateAll` mutation will invalidate all tokens (access and refresh, including the token used to invoke the mutation) that belong to the current user.
+
+```graphql
+mutation {
+  tokensDeactivateAll {
+    accountErrors {
+      field
+      message
+      code
     }
   }
 }
