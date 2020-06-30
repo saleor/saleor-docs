@@ -135,6 +135,7 @@ module.exports = {
           "developer/running-saleor/gcs",
           "developer/running-saleor/emails",
           "developer/running-saleor/monitoring",
+          "developer/running-saleor/dummy-payment",
           "developer/running-saleor/background-tasks"
         ]
       },
