@@ -162,6 +162,33 @@ def api_post_request(
     except requests.exceptions.RequestException:
         return
 ```
+### Webhook handler
+
+The `BasePlugin` has an abstract method `webhook`. The `webhook` method can be used for processing the payload received over HTTP. It is useful in case when a plugin can receive the data from the external services, like payment gateway or external notification system.
+
+```python
+# custom_plugin/plugin.py
+
+class MyPlugin(BasePlugin):
+    PLUGIN_ID = "my.plugin"
+    def webhook(self, request: WSGIRequest, path: str, previous_value) -> HttpResponse:
+        # check if plugin is active
+        # check signatures and headers.
+        if path == '/webhook/paid`:
+            # do something with the request
+            return JsonResponse(data={"paid":True})
+        return HttpResponseNotFound()
+        
+```
+
+The above method will be called when we execute the request to `www.your.saleor.com/plugins/my.plugin/webhook/paid`.
+
+`PluginManager` will identify the owner of the request and will pass the data to the expected plugin. Everything in the URL path after the `PLUGIN_ID`(my.plugin) will be passed to the plugin as a `path` argument. 
+
+:::note
+Plugin as a response needs to return the object of type inherited from `django.http.HttpResponse`.
+:::
+
 
 ## Customizing the plugins manager
 
