@@ -41132,10 +41132,6 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
-<td valign="top"><strong>MANAGE_WEBHOOKS</strong></td>
-<td></td>
-</tr>
-<tr>
 <td valign="top"><strong>MANAGE_CHECKOUTS</strong></td>
 <td></td>
 </tr>
