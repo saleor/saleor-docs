@@ -41132,10 +41132,6 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
-<td valign="top"><strong>MANAGE_WEBHOOKS</strong></td>
-<td></td>
-</tr>
-<tr>
 <td valign="top"><strong>MANAGE_CHECKOUTS</strong></td>
 <td></td>
 </tr>
@@ -42390,7 +42386,11 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
-<td valign="top"><strong>CHECKOUT_QUANTITY_CHANGED</strong></td>
+<td valign="top"><strong>CHECKOUT_CREATED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>CHECKOUT_UPDATED</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -42439,7 +42439,11 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
-<td valign="top"><strong>CHECKOUT_QUANTITY_CHANGED</strong></td>
+<td valign="top"><strong>CHECKOUT_CREATED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>CHECKOUT_UPDATED</strong></td>
 <td></td>
 </tr>
 <tr>

@@ -2,7 +2,7 @@ module.exports = {
   title: "Documentation – Saleor Commerce", // Title for your website.
   tagline:
     "A modular, high performance e-commerce storefront built with Python, GraphQL, Django, and ReactJS.",
-  url: "https://saleor.io",
+  url: "https://docs.saleor.io",
   baseUrl: "/",
 
   // Used for publishing and more
@@ -43,10 +43,12 @@ module.exports = {
         {
           to: "docs/dashboard/before-you-start",
           label: "Dashboard Manual",
+          position: "left",
         },
         {
           to: "docs/developer",
           label: "Developer's Guide",
+          position: "left",
         },
       ],
     },
@@ -136,6 +138,7 @@ module.exports = {
           // docs folder path relative to website dir.
           path: "../docs",
           editUrl: "https://github.com/mirumee/saleor-docs/edit/master/docs/",
+          homePageId: "index",
           // sidebars file relative to website dir.
           sidebarPath: require.resolve("./sidebars.json"),
         },

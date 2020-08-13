@@ -4,20 +4,15 @@ title: Plugins
 
 ## Introduction
 
-Saleor arrives with some plugins already implemented by default. These plugins are located in `saleor.plugins`.
-To provide the `PluginsManager` with a list of enabled plugins, include the Python plugin path in the `settings.PLUGINS` list.
+Plugins offer a mechanism to extend Saleor's Python core with new functionality. They are loaded by the core process and use predefined callbacks to execute custom code in response to certain events.
 
-## Plugins manager
-
-The `PluginsManager` is located in the `saleor.plugins.manager`. It is a class responsible for handling all declared plugins and serving a response from them. In case of a non-declared plugin, it serves a default response.
-
-It is possible to overwrite an `PluginsManager` class by implementing it on its own. Saleor will discover the manager class by taking the declared path from `settings.PLUGINS_MANAGER`.
+Saleor ships with some plugins included, you can find those in the `saleor/plugins/` and `saleor/payment/gateways/` directories of the core.
 
 ## Base plugin class
 
-The `BasePlugin` class is located in the `saleor.plugins.base_plugin`. It serves as an abstract class for storing all callback methods available to plugins.
+The `BasePlugin` class is located in the `saleor.plugins.base_plugin`. It's an abstract class implementing the entire API of callback methods available to plugins.
 
-Multiple plugins are executed as a pipeline: each callback receives a `previous_value` parameter, the first plugin receives the default value, each consecutive plugin receives the output of the previous one.
+Multiple plugins are executed as a pipeline. Each callback receives a `previous_value` parameter: the first plugin receives the default value, each consecutive plugin receives the value returned by the previous one.
 
 ## Configuration
 
@@ -80,7 +75,7 @@ class TaxApiPlugin(BasePlugin):
 
 Saleor will use this data to create default configuration in DB which will be served by the API.
 
-## Writing your own plugins
+## Writing a new plugin
 
 Make sure that each plugin inherits from the `BasePlugin` class and that it overwrites base methods.
 You can write your plugin as a class which has callable instances, like the one below:
@@ -109,13 +104,23 @@ There is no need to implement all base methods as the `PluginsManager` will use 
 
 ### Loading your plugin
 
-To activate the new plugin, add it to the `settings.PLUGINS` list in your Django settings:
+Saleor uses the *entry points* API of Python's `setuptools` to automatically discover installed plugins. To make a plugin discoverable, include a `saleor.plugins` entry point in your `setup()` call. The syntax is `package_name = package_name.path.to:PluginClass`:
 
 ```python
-# settings.py
+# setup.py
+from setuptools import setup
 
-PLUGINS = ["saleor.plugins.custom.plugin.CustomPlugin", ]
+setup(
+    ...,
+    entry_points={
+        "saleor.plugins": [
+            "my_plugin = my_plugin.plugin:MyPlugin"
+        ]
+    }
+)
 ```
+
+If your plugin is a Django app, the package name (the part before the equal sign) will be added to Django's `INSTALLED_APPS` so you can take advantage of Django's features such as ORM integration and database migrations.
 
 ### Background tasks
 
@@ -157,3 +162,34 @@ def api_post_request(
     except requests.exceptions.RequestException:
         return
 ```
+### Webhook handler
+
+The `BasePlugin` has an abstract method `webhook`. The `webhook` method can be used for processing the payload received over HTTP. It is useful in case when a plugin can receive the data from the external services, like payment gateway or external notification system.
+
+```python
+# custom_plugin/plugin.py
+
+class MyPlugin(BasePlugin):
+    PLUGIN_ID = "my.plugin"
+    def webhook(self, request: WSGIRequest, path: str, previous_value) -> HttpResponse:
+        # check if plugin is active
+        # check signatures and headers.
+        if path == '/webhook/paid`:
+            # do something with the request
+            return JsonResponse(data={"paid":True})
+        return HttpResponseNotFound()
+        
+```
+
+The above method will be called when we execute the request to `www.your.saleor.com/plugins/my.plugin/webhook/paid`.
+
+`PluginManager` will identify the owner of the request and will pass the data to the expected plugin. Everything in the URL path after the `PLUGIN_ID`(my.plugin) will be passed to the plugin as a `path` argument. 
+
+:::note
+Plugin as a response needs to return the object of type inherited from `django.http.HttpResponse`.
+:::
+
+
+## Customizing the plugins manager
+
+The `PluginsManager` class is located in the `saleor.plugins.manager` module. It is a class responsible for handling all declared plugins and serving a response from them. Unless further customized this class is used to interface with the plugins. Should you need to use a custom sub-class (or an entirely new implementation), you can tell Saleor to use it by setting `settings.PLUGIN_MANAGER` to the Python path of your custom implementation.

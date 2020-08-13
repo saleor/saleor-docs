@@ -19,7 +19,7 @@ function Versions() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
   const latestVersion = versions[0];
-  const pastVersions = versions.filter(version => version !== latestVersion);
+  const pastVersions = versions.filter((version) => version !== latestVersion);
   const repoUrl = `https://github.com/${siteConfig.organizationName}/${siteConfig.projectName}`;
   return (
     <Layout
@@ -37,7 +37,7 @@ function Versions() {
               <tr>
                 <th>{latestVersion}</th>
                 <td>
-                  <Link to={useBaseUrl("/docs/index/")}>Documentation</Link>
+                  <Link to={useBaseUrl("/docs/")}>Documentation</Link>
                 </td>
               </tr>
             </tbody>
@@ -51,9 +51,7 @@ function Versions() {
               <tr>
                 <th>master</th>
                 <td>
-                  <Link to={useBaseUrl("/docs/next/index/")}>
-                    Documentation
-                  </Link>
+                  <Link to={useBaseUrl("/docs/next/")}>Documentation</Link>
                 </td>
                 <td>
                   <a href={repoUrl}>Source Code</a>
@@ -71,11 +69,11 @@ function Versions() {
             </p>
             <table>
               <tbody>
-                {pastVersions.map(version => (
+                {pastVersions.map((version) => (
                   <tr key={version}>
                     <th>{version}</th>
                     <td>
-                      <Link to={useBaseUrl(`/docs/${version}/index/`)}>
+                      <Link to={useBaseUrl(`/docs/${version}/`)}>
                         Documentation
                       </Link>
                     </td>

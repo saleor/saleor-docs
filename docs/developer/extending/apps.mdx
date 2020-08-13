@@ -77,8 +77,9 @@ Webhooks can be used to receive data from Saleor when particular events happen. 
 
 | Name                        | Description                                                                                                                      |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `ANY_EVENTS`                | Receive webhooks when any of the available events are triggered (wildcard event).                                                |
-| `CHECKOUT_QUANTITY_CHANGED` | Quantity of a checkout line is changed.                                                                                          |
+| `ANY_EVENTS`                | Receive webhooks when any of the available events is triggered (wildcard event).                                                 |
+| `CHECKOUT_CREATED`          | A new checkout is created.                                                                                          |
+| `CHECKOUT_UPDATED`          | A checkout is updated; triggered for all updates related to an checkout;.                                                                                          |
 | `CUSTOMER_CREATED`          | A new customer account is created.                                                                                               |
 | `ORDER_CREATED`             | A new order is placed.                                                                                                           |
 | `ORDER_FULLY_PAID`          | Payment is made and an order is fully paid.                                                                                      |
@@ -88,7 +89,44 @@ Webhooks can be used to receive data from Saleor when particular events happen. 
 | `FULFILLMENT_CREATED`       | A new fulfillment is created.                                                                                                    |
 | `PRODUCT_CREATED`           | A new product is created.                                                                                                        |
 
-Webhooks' payloads are sent in `POST` requests.
+
+#### Webhook protocols
+
+Webhooks support below protocols:
+
+- HTTP(S) 
+- Google Cloud Pub/Sub
+- AWS SQS
+
+##### HTTP(S)
+
+Webhook payloads are sent in POST requests.
+
+All webhooks with `targetUrl`, where the scheme is HTTP(S) will use this protocol.
+
+Saleor calculates the HMAC sha256 header - `X-Saleor-Signature` based on `secretKey` and the payload
+
+
+##### Google Cloud Pub/Sub
+
+All webhooks where scheme is `gcpubsub` will be treated as a Google Cloud Pub/Sub webhooks.
+The structure of `targetUrl` should be as below:
+```
+gcpubsub://cloud.google.com/projects/<yourproject>/topics/<yourtopic>
+```
+
+To proper use the Google Cloud Pub/Sub you need to set the [`GOOGLE_APPLICATION_CREDENTIALS` environment variable](https://cloud.google.com/pubsub/docs/quickstart-client-libraries) 
+
+
+##### AWS SQS
+
+All webhooks where scheme is `awssqs` will be treated as AWS SQS webhooks.
+
+The structure of `targetUrl` should be as below:
+```
+awssqs://<access_key_id>:<secret_access_key>@sqs.<region>.amazonaws.com/<account_id>/<queue_name>
+```
+
 
 ### Type of Apps
 - `local`: create a custom App instance, assign explicitly provided permissions. 
@@ -357,7 +395,7 @@ mutation {
       id
       name
     }
-    accountErrors {
+    appErrors {
       field
       code
     }
@@ -376,7 +414,7 @@ If there are no errors in the response, a new app is created:
         "id": "QXBwOjk=",
         "name": "Order processing service"
       },
-      "accountErrors": []
+      "appErrors": []
     }
   }
 }
@@ -399,7 +437,7 @@ Creating an app with `appCreate` mutation creates the default authorization toke
 mutation {
   appTokenCreate(input: { app: "QXBwOjk=" }) {
     authToken
-    accountErrors {
+    appErrors {
       field
       code
     }
@@ -417,7 +455,7 @@ To revoke an authorization key, use the `appTokenDelete`:
 ```graphql {2}
 mutation {
   appTokenDelete(id: "QXBwOjk=") {
-    accountErrors {
+    appErrors {
       field
       code
   }
@@ -558,7 +596,6 @@ The query returns a similar response:
 }
 ```
 
-
 ### Subscribing to a webhook
 
 To subscribe to a webhook, we need to first create an app with proper permissions. Let's assume that we want to extend the order processing app that we've created in the example above. The app should receive notifications whenever new orders are created in Saleor. To do so, we'll create a new webhook using the `webhookCreate` mutation. The mutation takes the following input:
@@ -578,6 +615,7 @@ mutation {
       events: [ORDER_CREATED]
       app: "QXBwOjk="
       isActive: true
+      secretKey: "secret-key"
     }
   ) {
     webhook {

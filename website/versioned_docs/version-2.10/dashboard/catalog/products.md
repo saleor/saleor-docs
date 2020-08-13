@@ -100,9 +100,9 @@ Each variant holds information about:
 - Quantity available
 
 > **Example**
->
+> 
 > There are five boxes of shoes in your store. Three of them have already been sold to customers but were not yet dispatched for shipment. The stock record is as follows:
->
+> 
 > - Quantity is 5
 > - Quantity allocated is 3
 > - Quantity available is 2
@@ -128,9 +128,9 @@ The highest quantity that can be ordered is the available quantity of product va
 Once a new order is placed, the quantity needed to fulfill each order line is immediately marked as allocated.
 
 > **Example**
->
+> 
 > A customer places an order for another box of shoes. The stock record is as follows:
->
+> 
 > - Quantity is 5
 > - Quantity allocated is now 4
 > - Quantity available becomes 1
@@ -140,9 +140,9 @@ Once a new order is placed, the quantity needed to fulfill each order line is im
 Once order lines are marked as shipped, each corresponding stock record will have both its _quantity at hand_ and _quantity allocated_ decreased by the number of items shipped.
 
 > **Example**
->
+> 
 > Two boxes of shoes are shipped to a customer. The stock record is now as follows:
->
+> 
 > - Quantity is 3
 > - Quantity allocated becomes 2
 > - Quantity available stays at 1.
