@@ -4,7 +4,7 @@ title: Installation for Linux
 ---
 
 :::note
-If you prefer using containers or have problems with configuring PostgreSQL, Redis and Elasticsearch, try [Using Docker for Development](/docs/customization/docker) instructions.
+If you prefer using containers or have problems with configuring PostgreSQL, Redis and Elasticsearch, try [Using Docker for Development](../customization/docker) instructions.
 :::
 
 ## Prerequisites

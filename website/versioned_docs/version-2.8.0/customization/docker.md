@@ -6,7 +6,7 @@ title: Using Docker for Development
 Using Docker to build software allows you to run and test code without having to worry about external dependencies such as cache servers and databases.
 
 :::warning
-The following setup is only meant for local development. See [Docker](/docs/deployment/docker) for production use of Docker.
+The following setup is only meant for local development. See [Docker](../deployment/docker) for production use of Docker.
 :::
 
 ## Local Prerequisites
