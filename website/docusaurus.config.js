@@ -31,14 +31,15 @@ module.exports = {
         src: "img/saleor-logo.svg",
         srcDark: "img/saleor-logo-dark.svg",
       },
-      links: [
+      items: [
         {
-          to: "versions/",
-          label: "versions",
+          type: "docsVersionDropdown",
           position: "right",
-          style: {
-            fontVariant: "small-caps",
-          },
+        },
+        {
+          to: "/versions",
+          label: "All versions",
+          position: "right",
         },
         {
           to: "docs/dashboard/before-you-start",
