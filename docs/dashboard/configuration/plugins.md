@@ -45,7 +45,7 @@ In all cases of plugin configuration, you need to provide your credentials. Depe
 
 ## Adyen
 
-### Enabling the adyen integration
+### Enabling the Adyen integration
 
 Go to _Configuration_ -> _Plugins_ -> _Adyen_ and fill in the fields:
 
