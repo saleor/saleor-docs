@@ -34,7 +34,7 @@ Save your changes by clicking *Save* in the footer.
 
 ## Tokens
 
-Once you have created the app, there will be generated a token. You will need to provide the token to your script. To ensure integrity and security, tokens are only displayed once, so you need to copy the code and save it in a different destination. If you need to ensure total security and cannot save the token, you can create a new one for the same service through the *Create token* option in the App information card. Tokens can also be deleted in the same place using the trash can icon, or can be deleted using the option in the footer.
+Once you have created the app, you will be able to create a token. You will need to provide the token to your script. To ensure integrity and security, tokens are only displayed once, so you need to copy the code and save it in a different destination. If you need to ensure total security and cannot save the token, you can create a new one for the same service through the *Create token* option in the App information card. Tokens can also be deleted in the same place using the trash can icon, or can be deleted using the option in the footer.
 
 ## Webhooks
 
