@@ -85,7 +85,7 @@ Make sure all images come with a pre-warm to ensure they’re created and availa
 
 ## Tax variables
 
-For more information on how to configure taxes in Saleor, see the [taxes](guides/taxes.md) topic of the _How to_ section.
+For more information on how to configure taxes in Saleor, see the [taxes](../guides/taxes.md) topic of the _How to_ section.
 
 ### `VATLAYER_ACCESS_KEY`
 

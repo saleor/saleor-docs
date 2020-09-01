@@ -2,12 +2,11 @@
 title: Heroku
 ---
 
-## Configuration
-
-Git should already be initialized within the repo. You only need to add the heroku remote with your app-name:
+## Saleor Deployment
+To deploy Saleor to Heroku create a new Heroku app and configure your Saleor's git repository together with Heroku app using:
 
 ```shell
-heroku git:remote -a 'app-name'
+heroku git:remote -a '<saleor-app name>'
 heroku buildpacks:set heroku/nodejs
 heroku buildpacks:add heroku/python
 heroku addons:create heroku-postgresql:hobby-dev
@@ -18,28 +17,35 @@ heroku config:set NODE_MODULES_CACHE=false
 heroku config:set NPM_CONFIG_PRODUCTION=false
 heroku config:set SECRET_KEY='<your secret key here>'
 ```
+*ALLOWED_HOSTS* are required to properly setup CORS headers.
+*SECRET_KEY* is used by Django to store your secret data, it should have a cryptographically strong amount of entropy in case of production deployments.
 
-:::note
-Heroku’s storage is volatile. This means that all instances of your application have separate disks and lose all changes made to the local disk each time the application is restarted. The best approach is to use cloud storage such as Amazon S3. See [Storing Files on Amazon S3](s3.md) for configuration details.
-:::
-
-:::note
-This guide does not cover the deployment of either the dashboard or the storefront. Contributions are welcome!
-:::
-
-## Deployment
-
-```shell
+In the next step, deploy using
+```
 git push heroku master
 ```
+Heroku will build and deploy Saleor automatically.
 
+:::note
+Heroku’s storage is volatile. This means that all instances of your application have separate disks and lose all changes made to the local disk each time the application is restarted. The best approach is to use cloud storage such as Amazon S3. See [Storing Files on Amazon S3](s3) for configuration details.
+:::
 
-## Preparing the database
+### Populating the database with example data
+TBD
 
-```shell
-heroku run python manage.py migrate
+## Storefront and Dashboard Deployment
+Deployment of both Saleor Storefront and Dashboard require exactly the same steps. First, create new Heroku apps for both services. Then configure both of them and your Storefront and Dashboard git repository using:
 ```
-
+heroku git:remote -a '<Heroku-app name>'
+heroku buildpacks:set mars/create-react-app
+heroku config:set NODE_MODULES_CACHE=false
+heroku config:set NPM_CONFIG_PRODUCTION=false
+heroku config:set API_URL='<URL to your Saleor instance>/graphql/'
+```
+The next step is just to deploy using
+```
+git push heroku master
+```
 
 ## Updating currency exchange rates
 

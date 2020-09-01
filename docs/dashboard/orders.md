@@ -25,7 +25,7 @@ The main page shows a list of all orders in the system, regardless of their stat
 
 ### Order filters
 
-To automatically filter orders, use the drop-down menu and view orders by date or fulfillment status. Sorting by status brings up a second menu from which you can choose _Fulfilled_, _Partially Fulfilled_, or _Unfilled Orders_. Click _Add filter_ to apply the filter.
+To automatically filter orders, use the drop-down menu and view orders by date, customer or fulfillment status. Sorting by status brings up a second menu from which you can choose _Fulfilled_, _Partially Fulfilled_, or _Unfilled Orders_. Click _Add filter_ to apply the filter.
 
 You can also manually search specific information, such as key words or names, using the Search Orders field. The filter is dynamically applied as you type.
 

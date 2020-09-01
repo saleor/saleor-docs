@@ -29,7 +29,7 @@ The supported payment providers are:
 
 ### `PAYMENT_GATEWAYS`
 
-For information on how to configure payment gateways (API keys, miscellaneous information, …), see [the list of supported payment gateway and their associated environment variables](/docs/payment-gateways/intro).
+For information on how to configure payment gateways (API keys, miscellaneous information, …), see [the list of supported payment gateway and their associated environment variables](../payment-gateways/intro).
 
 ## Environment variables
 
@@ -53,7 +53,7 @@ If you plan to use more than one WSGI process (or run more than one server/conta
 
 ### `DATABASE_URL`
 
-Defaults to a local PostgreSQL instance. See [Using Docker for Development](/docs/customization/docker) for how to get a local database running inside a Docker container.
+Defaults to a local PostgreSQL instance. See [Using Docker for Development](../customization/docker) for how to get a local database running inside a Docker container.
 
 Most Heroku databases will export this setting automatically.
 
@@ -85,7 +85,7 @@ Controls [Django’s secret key](https://docs.djangoproject.com/en/2.1/ref/setti
 
 ### `SENTRY_DSN`
 
-Sentry’s [Data Source Name](https://docs.sentry.io/error-reporting/configuration/?platform=python#dsn). Disabled by default, allows to enable integration with Sentry (see [Error tracking with Sentry](/docs/integrations/sentry) for details).
+Sentry’s [Data Source Name](https://docs.sentry.io/error-reporting/configuration/?platform=python#dsn). Disabled by default, allows to enable integration with Sentry (see [Error tracking with Sentry](../integrations/sentry) for details).
 
 ### `MAX_CART_LINE_QUANTITY`
 
@@ -97,7 +97,7 @@ Controls production assets’ mount path. Defaults to `/static/`.
 
 ### `DEFAULT_CURRENCY`
 
-Controls all prices entered and stored in the store as this single default currency (for more information, see [Handling Money Amounts](/docs/architecture/money)).
+Controls all prices entered and stored in the store as this single default currency (for more information, see [Handling Money Amounts](../architecture/money)).
 
 ### `DEFAULT_COUNTRY`
 
@@ -109,7 +109,7 @@ Whether or not to create new images on-the-fly (`True` by default). Set this to 
 
 ### Tax variables
 
-Refer to the configuration of [taxes](dashboard-config#taxes-1).
+Refer to the configuration of [taxes](../dashboard/configuration/taxes#taxes-1).
 
 #### `VATLAYER_ACCESS_KEY`
 

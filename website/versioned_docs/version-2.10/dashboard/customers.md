@@ -43,6 +43,14 @@ Click _Add Customer_ to open a new Add Customer page. Enter the customer’s mai
 
 Click _Save_ to proceed. Your new customer is now set up in the system and you are redirected to this customer’s overview page.
 
+### Managing the list view
+
+By default, the page displays all customers. You can also use convenient filters to view customers by their:
+
+- Join Date
+- Number of Orders
+- Money Spent
+
 ### How to edit general information
 
 Make changes to the customer name and e-mail by simply typing into the relevant field in the General Information card. The _Save_ button in the footer will activate once changes that need to be confirmed have been made.
