@@ -35,7 +35,7 @@ This is very important, as it means you are legally charging the correct amount 
 
 2. Click _Save_. An additional _Product Attributes_ card will appear. Assign attributes to your product type.
 
-![Adding product type](/assets/dashboard-config/config2.JPG)
+![Adding product type](../screenshots/config-product-type-details.jpeg)
 
 3. If the product type you are setting up requires variants, click the _Product&nbsp;type&nbsp;uses&nbsp;Variant&nbsp;Attributes_ switch. This opens an additional card where you can assign or remove variant attributes.
 
