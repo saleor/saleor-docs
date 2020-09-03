@@ -27,7 +27,7 @@ To delete individual products, click on the trash can icon next to the product a
 
 Once you have created a collection, you can easily add more products by choosing the _Assign&nbsp;Products_ option from the collection overview and selecting products from the list. To find other products, type the name, attribute or product type into the search bar and the list will automatically refresh.
 
-![Assign product to collection](/assets/dashboard-catalog/catalog17.png)
+![Assign product to collection](../screenshots/catalog-collection-assign.png)
 
 ### How to delete a collection
 

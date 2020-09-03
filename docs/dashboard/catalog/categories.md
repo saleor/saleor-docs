@@ -1,5 +1,4 @@
 ---
-id: categories
 title: Categories
 ---
 
@@ -15,19 +14,19 @@ Subcategories break large groups down into smaller subsets that make it easier t
 
 ## How to
 
-### How to add product category
+### How to add a product category
 
-Adding a new product category is a two step process:
+Adding a new product category is a two-step process:
 
-**1. Click _Create&nbsp;Category_ to set up a new product category**
+#### Step 1: Click _Create&nbsp;Category_ to set up a new product category
 
 Enter the category name, description, and SEO-optimized information the same way as you would with an individual product.
 
 When finished, click _Save_ in the bottom right corner.
 
-![Adding category](/assets/dashboard-catalog/catalog15.JPG)
+![Adding category](../screenshots/catalog-category-new.jpeg)
 
-**2. Add a category photo and a subcategory**
+#### Step 2: Add a category photo and a subcategory
 
 At this stage your new category is already created. You can go back or click _Cancel_ if you do not want to continue with additional setup at this point. You can always come back and finish it later.
 
@@ -52,6 +51,4 @@ Products are mandatorily assigned to categories. Deleting a category will also r
 
 ### How to add a subcategory
 
-Click _Create&nbsp;Subcategory_ in the top right corner of the Subcategories card. In this example, we have paints and cushions in the Accessories category, which can be marked as separate subcategories. Add a description and SEO information just the same as with a main category.
-
-![Products in category](/assets/dashboard-catalog/catalog16.png)
+Click _Create&nbsp;Subcategory_ in the top right corner of the Subcategories card.

@@ -49,11 +49,11 @@ For more information on the product structure in Saleor, see the [Products](dash
 
 ### How to create an attribute
 
-#### 1. Create an attribute
+#### Step 1: Create an attribute
 
 In the main Attribute page, click _Create&nbsp;Attribute_.
 
-#### 2. General Information card
+#### Step 2: General Information card
 
 In the General Information card, provide the following data:
 
@@ -71,7 +71,7 @@ In other words, when setting up your Product Type, if you select a Variant Attri
 
 - Value Required - If the toggle is active, this attribute is required on the Product setup page. When creating a Product using this attribute, you will be required to provide a value for this attribute.
 
-#### 3. Properties card
+#### Step 3: Properties card
 
 The Properties card is divided into three properties sections. These sections allow you to define how your attribute should behave from the Storefront and Dashboard perspective.
 
@@ -83,7 +83,7 @@ Use the following fields to complete the properties setup of your attribute:
 
 - Position in Faceted Navigation - Use this field to indicate the order of attributes in the faceted navigation. Type in a number; the lower the number, the higher the position of your attribute.
 
-![Faceted Navigation](/assets/dashboard-config/config23.JPG)
+![Faceted Navigation](../screenshots/config-attributes-facets.jpeg)
 
 - Visible on Product Page in Storefront - If the toggle is active, your attribute will be visible when viewing the product page.
 
@@ -93,11 +93,11 @@ Use the following fields to complete the properties setup of your attribute:
 
 - Add to Column Options - Allows to use this attribute as one of the column options on the product list page. See the [Product](dashboard/catalog/products.md#editing-columns) topic for more information on managing the product list view.
 
-#### 4. Add values
+#### Step 4: Add values
 
 To add specific values to your attribute, click _Assign&nbsp;Value_ in the Attribute Values card and type in the value. This is visible to your customers.
 
-#### 5. Save changes
+#### Step 5: Save changes
 
 Click _Save_ once finished.
 
