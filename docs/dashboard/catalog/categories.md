@@ -55,3 +55,7 @@ Products are mandatorily assigned to categories. Deleting a category will also r
 Click _Create&nbsp;Subcategory_ in the top right corner of the Subcategories card. In this example, we have paints and cushions in the Accessories category, which can be marked as separate subcategories. Add a description and SEO information just the same as with a main category.
 
 ![Products in category](/assets/dashboard-catalog/catalog16.png)
+
+### How to manage metadata in the category setup page
+
+You can add private and public metadata for each category in the category setup page. Use the button _Add Field_ to add new metadata field. 

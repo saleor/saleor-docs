@@ -239,6 +239,10 @@ You can also add descriptions of specific product features to your images. Hover
 
 ![Editing product images](/assets/dashboard-catalog/9.jpg)
 
+### How to manage metadata in the product setup page
+
+You can add private and public metadata for each product in the product setup page. Use the button _Add Field_ to add new metadata field. 
+
 ### How to delete or edit products
 
 Click on an existing product from the main list. You will be redirected to the same interface as for adding products.

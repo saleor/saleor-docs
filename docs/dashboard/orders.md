@@ -153,3 +153,7 @@ Click the three dots in the top right corner of a Fulfilled order card. Select _
 ![Canceling shipment](/assets/dashboard-orders/orders6.JPG)
 
 For more information on Shipment configuration, see the [Shipping Methods](configuration/shipping.md).
+
+### How to manage metadata in the order setup page
+
+You can add private and public metadata for each order in the order setup page. Use the button _Add Field_ to add new metadata field.
