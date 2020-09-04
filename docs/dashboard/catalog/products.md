@@ -241,7 +241,7 @@ You can also add descriptions of specific product features to your images. Hover
 
 ### How to manage metadata in the product setup page
 
-You can add private and public metadata for each product in the product setup page. Use the button _Add Field_ to add new metadata field. 
+You can add private and public metadata for each product in the product setup page. Use the button _Add Field_ to add a new metadata field. 
 
 ### How to delete or edit products
 

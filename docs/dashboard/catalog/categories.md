@@ -58,4 +58,4 @@ Click _Create&nbsp;Subcategory_ in the top right corner of the Subcategories car
 
 ### How to manage metadata in the category setup page
 
-You can add private and public metadata for each category in the category setup page. Use the button _Add Field_ to add new metadata field. 
+You can add private and public metadata for each category in the category setup page. Use the button _Add Field_ to add a new metadata field. 

@@ -42,4 +42,4 @@ Removing a collection will not delete all products from the site; it only disabl
 
 ### How to manage metadata in the collection setup page
 
-You can add private and public metadata for each collection in the collection setup page. Use the button _Add Field_ to add new metadata field. 
+You can add private and public metadata for each collection in the collection setup page. Use the button _Add Field_ to add a new metadata field. 

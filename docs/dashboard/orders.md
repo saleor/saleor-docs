@@ -156,4 +156,4 @@ For more information on Shipment configuration, see the [Shipping Methods](confi
 
 ### How to manage metadata in the order setup page
 
-You can add private and public metadata for each order in the order setup page. Use the button _Add Field_ to add new metadata field.
+You can add private and public metadata for each order in the order setup page. Use the button _Add Field_ to add a new metadata field.
