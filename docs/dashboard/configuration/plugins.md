@@ -1,5 +1,4 @@
 ---
-id: plugins
 title: Plugins
 ---
 
@@ -10,7 +9,7 @@ Saleor provides the possibility to add various extensions to it so you can creat
 
 The plugin page is used to display general information about installed plugins, along with their activation status (active or not active).
 
-![plugins](/assets/dashboard-config/plugins1.JPG)
+![Plugin list](../screenshots/config-plugins-list.jpeg)
 
 If you choose to, you can use the plugin window to display the basic configuration to allow dashboard users to manage the elemental settings of existing plugins.
 
@@ -71,4 +70,4 @@ Go to _Configuration_ -> _Plugins_ -> _Adyen_ and fill in the fields:
 
 Below you can find an example configuration of the Adyen plugin:
 
-![Adyen](/assets/dashboard-config/adyen_configuration.png)
+![Adyen](../screenshots/config-plugins-adyen.png)

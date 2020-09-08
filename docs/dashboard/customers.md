@@ -7,11 +7,11 @@ title: Customers
 
 On this page, you can view the details of all users who have provided you with their information when setting up an account or placing an order.
 
-![Customers list](/assets/dashboard-customers/customers1.JPG)
+![Customer list](screenshots/customer-list.jpeg)
 
 Click on an individual customer to get an overview of the general information, address, customer activity, and recent orders.
 
-![Customer details](/assets/dashboard-customers/customers2.JPG)
+![Customer details](screenshots/customer-details.jpeg)
 
 ## Customer orders and history
 

@@ -6,7 +6,7 @@ title: Navigation
 
 The navigation section allows you to configure what information is visible on the header and footer navigation bars of your website. 
 
-![Navigation displayed on the site](/assets/dashboard-config/config20.JPG)
+![Navigation displayed on the site](../screenshots/config-navigation-example.jpeg)
 
 ## How to
 
@@ -18,11 +18,11 @@ When you have more than one layer, the property to the far left will appear as t
 
 What you'll see in the dashboard:
 
-![Navigation configuration](/assets/dashboard-config/config22.JPG)
+![Navigation configuration](../screenshots/config-navigation-setup.jpeg)
 
 How it will appear on your storefront:
 
-![Navigation displayed in the site's footer](/assets/dashboard-config/config222.JPG)
+![Navigation displayed in the site's footer](../screenshots/config-navigation-example-footer.jpeg)
 
 ### How to manage navigation items
 

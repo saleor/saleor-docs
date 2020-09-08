@@ -1,5 +1,4 @@
 ---
-id: orders
 title: Orders
 ---
 
@@ -21,7 +20,7 @@ To process an order in the system, click _Finalize_ in the footer. Once the orde
 
 The main page shows a list of all orders in the system, regardless of their status.
 
-![Orders list](/assets/dashboard-orders/orders1.JPG)
+![Orders list](screenshots/order-list.jpeg)
 
 ### Order filters
 
@@ -29,13 +28,13 @@ To automatically filter orders, use the drop-down menu and view orders by date, 
 
 You can also manually search specific information, such as key words or names, using the Search Orders field. The filter is dynamically applied as you type.
 
-![Orders list filters](/assets/dashboard-orders/orders2.JPG)
+![Orders list filters](screenshots/order-filters.jpeg)
 
 ## Order details page
 
 Click on any order record from the list to get the full details. The order page contains cards indicating order fulfillment status, payment stage, order history, customer details, and notes.
 
-![Order details](/assets/dashboard-orders/orders3.png)
+![Order details](screenshots/order-details.png)
 
 ### Order fulfillment card
 
@@ -43,11 +42,11 @@ The fulfillment represents a group of shipped items with a corresponding trackin
 
 Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single _Unfulfilled_ or _Fulfilled_ card. Others, as in the example below, will have both cards if parts of the order have been sent to the customer but other products are yet to be dispatched.
 
-![Order fulfillment options](/assets/dashboard-orders/orders4.png)
+![Order fulfillment options](screenshots/order-fulfillments.png)
 
-When creating a fulfillment you will have the option to select which warehouse(s) to use. If multiple warehouses are used, a separate fulfillment will be created for each warehouse.
+When creating a fulfillment, you will have the option to select which warehouse(s) to use. If multiple warehouses are used, a separate fulfillment will be created for each warehouse.
 
-![Creating a fulfillment](/assets/dashboard-orders/orders-fulfill.png)
+![Creating a fulfillment](screenshots/order-new-fulfillment.png)
 
 #### Fulfillment statuses
 
@@ -90,7 +89,7 @@ This is very useful when an exact price cannot be determined until after the ord
 
 When viewing orders with pre-authorized payments, Saleor offers options to either capture or void the funds. You can capture the full or partial amount (for example, taking only partial payment for an item due to damage, late delivery, or customer service issues) by clicking _Capture_ in the bottom right corner and then confirming the full amount or changing the price to the new amount agreed with the customer.
 
-![Order with captured payment](/assets/dashboard-orders/orders9.JPG)
+![Order with an uncaptured payment](screenshots/order-payment.jpeg)
 
 #### Refunds
 
@@ -126,7 +125,7 @@ This is a function for store administrators to add orders, usually in cases wher
 
 Once you set up the order and finalize it using the button in the footer, it becomes a normal order and replacement goods can be sent to the customer.
 
-![Create an order](/assets/dashboard-orders/create-new-order.JPG)
+![Create an order](screenshots/order-create-new.jpeg)
 
 ### How to process a refund
 
@@ -136,7 +135,7 @@ Once you set up the order and finalize it using the button in the footer, it bec
 
 3. For partial refunds, input the amount manually or using the stepper, then confirm
 
-![Fully paid order](/assets/dashboard-orders/orders8.JPG)
+![Fully paid order](screenshots/order-payment-captured.jpeg)
 
 ### How to fulfill an order
 
@@ -144,13 +143,13 @@ To fulfill an order click _Fulfill_ in the Unfulfilled card and use the stepper 
 
 Use the form to select how much of each product is being fulfilled from which warehouse. It's possible to only partially fulfill an order by not fully allocating the quantity to fulfill for some of all of the order lines. If multiple warehouses are used, a separate fulfillment will be created for each warehouse used.
 
-![Creating a fulfillment](/assets/dashboard-orders/orders-fulfill.png)
+![Creating a fulfillment](screenshots/order-new-fulfillment.png)
 
 ### How to cancel an order
 
 Click the three dots in the top right corner of a Fulfilled order card. Select _Cancel&nbsp;order_ when the pop-up appears, then confirm. Items will be restocked into the Saleor system.
 
-![Canceling shipment](/assets/dashboard-orders/orders6.JPG)
+![Canceling shipment](screenshots/order-cancel.jpeg)
 
 For more information on Shipment configuration, see the [Shipping Methods](configuration/shipping.md).
 

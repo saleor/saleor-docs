@@ -7,7 +7,7 @@ title: Shipping Methods
 
 On this page you can manage how you ship out orders. The Shipping Methods section contains two main cards: Shipping By Zone and Configuration.
 
-![Shipping zones](/assets/dashboard-config/config3.JPG)
+![Shipping zones](../screenshots/config-shipping-zone-list.jpeg)
 
 
 ## Weight configuration
@@ -39,7 +39,7 @@ Remove countries from a shipping zone using the trash can icon next to the count
 
 Find rates offered by couriers for the delivery of your goods and add them to your shipping zones. When your customers get to the checkout section of the store, they will be presented with these shipment options and prices.
 
-![Shipping options](/assets/dashboard-config/config4.JPG)
+![Shipping options](../screenshots/config-shipping-zone-details.jpeg)
 
 There are two types of shipping:
 
@@ -55,13 +55,11 @@ These two methods cover most of the basic use cases, for example:
 
 ### How to add a courier
 
-1. Click _Create&nbsp;Rate_ in the Price Based Rates card. 
+1. Click _Create&nbsp;Rate_ in the Price Based Rates card.
 
-![Adding courier](/assets/dashboard-config/config5.JPG)
+![Adding courier](../screenshots/config-shipping-zone-prices.jpeg)
 
-2. Fill the name of the courier in the Rate Name field.
-
-
+2. Put the name of the courier in the Rate Name field.
 
 3. Define if there are minimum and/or maximum weight or price values put in place by couriers. 
 
@@ -70,10 +68,9 @@ These two methods cover most of the basic use cases, for example:
     * If there are limitations, input them into the fields as the value range. If you leave the minimum value empty, it means that there is no lower threshold. If you leave the maximum value empty, it means there is no maximum weight or price value.
 
 
-
 #### Free or paid shipping
 
-If you offer free shipping, select the This is free shipping checkbox. 
+If you offer free shipping, select the _This is free shipping_ checkbox. 
 
 If shipping is charged, input the rate per weight unit in the currency field.
 

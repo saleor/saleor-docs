@@ -4,7 +4,7 @@ title: Staff Members
 
 Manage your employees and their permissions. The Staff Members page gives you an alphabetized list of all people who have administrative access to your dashboard.
 
-![Staff members list](/assets/dashboard-config/config12.png)
+![Staff members list](../screenshots/config-staff-list.png)
 
 ## Account status
 
@@ -16,7 +16,7 @@ New users are automatically active in the system. To deactivate a user’s acces
 
 Use the _Permissions_ card to select the permission groups the user is assigned to. See [Permission Groups](dashboard/configuration/permission-groups.mdx) for instructions on how to manage your permission groups.
 
-![Staff member permissions](/assets/dashboard-config/staff-permissions.png)
+![Staff member permissions](../screenshots/config-staff-permissions.png)
 
 :::note
 You can only manage groups (including adding and removing members) that grant a subset of your effective permissions. This is a security precaution that prevents users from escalating their permissions beyond what was explicitly granted.
@@ -26,7 +26,7 @@ You can only manage groups (including adding and removing members) that grant a 
 
 Click _Add&nbsp;Staff&nbsp;Member_ above the list of users. Fill in the first and last name of the new staff member and the email address to which any notifications will be sent.
 
-![Staff members details](/assets/dashboard-config/config13.png)
+![Staff members details](../screenshots/config-staff-details.png)
 
 ### How to edit or delete users
 
