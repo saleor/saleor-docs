@@ -22881,6 +22881,33 @@ Whether the product is in stock and visible or not.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>availableForPurchase</strong></td>
+<td valign="top"><a href="#date">Date</a></td>
+<td>
+
+Date since when product is available for purchase.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isAvailableForPurchase</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Whether the product is available for purchase.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>visibleInListings</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Whether the product is visible in listings.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>basePrice</strong></td>
 <td valign="top"><a href="#money">Money</a></td>
 <td>
