@@ -14,35 +14,35 @@ You can create variations of products you sell to reflect the wide range of colo
 For more information on the product structure in Saleor, see the [Products](dashboard/catalog/products.md#product-concept-introduction) topic.
 
 > **Example**
->
+> 
 > As an illustration of the role Attributes play, consider the following example:
->
+> 
 > Product Category: Shoes
->
+> 
 > Product Type: Women's Sport Shoes
->
+> 
 > Product: NB Women's Running Shoes
->
+> 
 > At this stage, you sell pink and black NB Women Running Shoes.
->
+> 
 > Both these colors come in sizes ranging from 36 to 40.
->
+> 
 > We have then two attributes to handle:
->
+> 
 > - shoe size
 > - color
->
+> 
 > The available **Attribute Values** in this case are:
->
+> 
 > - For Attribute _shoe size_: 36, 37, 38, 39, and 40.
 > - For Attribute _color_: Pink and black.
->
+> 
 > The **Variant Attributes** are a combination of an Attribute and its specific Value.
->
+> 
 > Variant Attributes are created according to the following pattern:
->
+> 
 > Variant Attribute = Attribute_1 (shoe size: 36) + Attribute Value_1 (color: pink)
->
+> 
 > This way you can create an entire matrix of colors and sizes and make them available to your customers.
 
 ## How to
@@ -112,3 +112,11 @@ Select the specific attribute from the list of existing attributes.
 :::warning
 Make sure to remove attributes with caution. There may be dependent product types related to them. Inspect the existing dependencies before continuing.
 :::
+
+### How to manage metadata in the attribute setup page
+
+You can add private and public metadata for each attribute in the attribute setup page. Use the button *Add Field* to add a new metadata field.
+
+![](../screenshots/metadata.jpg)
+
+To learn more about object metadata, see the [Developer's Guide](developer/metadata.mdx).

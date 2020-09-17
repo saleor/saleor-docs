@@ -6,7 +6,7 @@ title: Products
 
 This page contains an alphabetically sorted list of all your products with a picture for each (if set), the product name and type, information on its visibility on your site (if it is published or not), and the product's price.
 
-![Product list](../screenshots/catalog-product-list.png)
+![](../screenshots/catalog-product-list.jpg)
 
 ### Managing the list view
 
@@ -30,7 +30,7 @@ By default, the page displays all products. You can also use convenient filters 
 
 You can also set up and save custom filters which will be unique to your browser (so other users will not see it).
 
-![Filtering products](../screenshots/catalog-product-filters.jpeg)
+![](../screenshots/catalog-product-filters.jpg)
 
 #### Editing columns
 
@@ -162,7 +162,7 @@ Once order lines are marked as shipped, each corresponding stock record will hav
 
 Click _Create&nbsp;Product_ above the main list to enter the product setup page.
 
-![Adding product](../screenshots/catalog-product-new.jpeg)
+![](../screenshots/catalog-product-new.jpg)
 
 #### Step 1: Fill out the General Information card
 
@@ -213,9 +213,13 @@ Categorize your new product using the drop-down menus to assign a relevant Produ
 Once you have set up all your product details, you can choose if it appears for sale or remains hidden from view.
 If set, it allows you to hold some of your products unavailable to your customers until the publication date. They are simply not listed in your storefront.
 
-![Changing product visibility](../screenshots/catalog-product-visibility.jpeg)
+![Changing product visibility](../screenshots/catalog-product-visibility.jpg)
 
-If you want to push your product for sale, select the _Visible_ option.
+If you want to push your product for sale, select the _Published_ option.
+
+You also have to choose the availability for purchasing your product. If you select *unavailable for purchase*, you can set a date when your customers will next be able to buy your product.
+
+To show a product in the product listings, you have to enable the *Show in product listings* checkbox.
 
 #### Step 6: Save your new product
 
@@ -238,9 +242,23 @@ You can also add descriptions of specific product features to your images. Hover
 
 ![Editing product images](../screenshots/catalog-product-images.jpeg)
 
+### How to export products
+
+The CSV export tool allows you to export products from your dashboard to a CSV file. To export products go to *Catalog* , then on the main *Products* page click the three dots at the top of the page. You can export the whole product base or select and export specific products to a CSV file.
+
+![](../screenshots/catalog-export-product-list.jpg)
+
+![](../screenshots/catalog-export-information.jpg)
+
+
+
 ### How to manage metadata in the product setup page
 
 You can add private and public metadata for each product in the product setup page. Use the button _Add Field_ to add a new metadata field. 
+
+![](../screenshots/metadata.jpg)
+
+To learn more about object metadata, see the [Developer's Guide](developer/metadata.mdx).
 
 ### How to delete or edit products
 
@@ -310,6 +328,14 @@ You can edit the cost and sale price of an item in the Pricing card.
 When you receive new stock, enter the amount in the Inventory field to keep up to date and avoid false out-of-stock messages. Make sure to save your changes before exiting.
 
 You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) which is unique to specific variants.
+
+#### How to manage metadata in the variant creator page
+
+You can add private and public metadata for each variant in the variant creator page. Use the button *Add Field* to add a new metadata field.
+
+![](../screenshots/metadata.jpg)
+
+To learn more about object metadata, see the [Developer's Guide](developer/metadata.mdx).
 
 ### How to manage attributes
 

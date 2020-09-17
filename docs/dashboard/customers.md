@@ -17,6 +17,18 @@ Click on an individual customer to get an overview of the general information, a
 
 The Customer History card gives a brief overview of customer activity. You can view a single order or all orders of a specific customer by clicking in the Recent Orders card. From there you can amend and take actions as described in the [Orders](dashboard/orders.md) section of these documents.
 
+## Customer filters
+
+By default, the page displays all customers. You can also use convenient filters to view customers by their:
+
+- Join Date
+
+- Number of Orders
+
+- Money Spent
+
+![](screenshots/customer-filters.jpg)
+
 ## Managing customer addresses
 
 Click _Manage_ in the Address Information card to edit or delete a customer address. Click the three dots in the top right corner of a specific address, to set it as the default shipping or billing address.

@@ -22,6 +22,7 @@ The dashboard has the following sections:
 - [Orders](dashboard/orders.md): A full view of current and past orders
 - [Customers](dashboard/customers.md): Your customer database, with specific details for each buyer
 - [Discounts](dashboard/discounts/sales.md): Give your customers great sales offers or discount vouchers
+- [Apps](dashboard/apps.md): Install and manage all the apps 
 - [Translations](dashboard/translations.md): Translate dynamic content in your Saleor store
 - [Configuration](dashboard/configuration/intro.mdx): Manage all the administration elements of your dashboard and processes like tax automation and shipping
 
@@ -37,7 +38,6 @@ Most sections of the dashboard consist of two types of views:
 
 The first thing you need to do is set up a master account for your store — sometimes called an Admin Account or a Superuser Account. This is done by your developer when forking the platform and setting up your iteration of Saleor. You just need to supply the developer with the details of your main administrator and the setup password.
 
-
 ### How to access your dashboard
 
 Once you have your store, you can access the administration panel by: 
@@ -52,7 +52,7 @@ You will then be asked to input the email address and password you used to creat
 In case you forget your password, the dashboard login page allows you to reset it in few simple steps:
 
 * Click the password recovery link on the login page and provide the same email address used when creating your account. 
-
+  
     A message will be send to that address with a link redirecting you to a password change page. 
 
 * Once you input your new password, you will be directed back to the login page where you can use it to log in. 
