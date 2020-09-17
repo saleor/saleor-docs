@@ -109,9 +109,9 @@ Each variant holds information about:
 - Quantity available
 
 > **Example**
-> 
+>
 > There are five boxes of shoes in your store. Three of them have already been sold to customers but were not yet dispatched for shipment. The stock record is as follows:
-> 
+>
 > - Quantity is 5
 > - Quantity allocated is 3
 > - Quantity available is 2
@@ -137,9 +137,9 @@ The highest quantity that can be ordered is the available quantity of product va
 Once a new order is placed, the quantity needed to fulfill each order line is immediately marked as allocated.
 
 > **Example**
-> 
+>
 > A customer places an order for another box of shoes. The stock record is as follows:
-> 
+>
 > - Quantity is 5
 > - Quantity allocated is now 4
 > - Quantity available becomes 1
@@ -149,9 +149,9 @@ Once a new order is placed, the quantity needed to fulfill each order line is im
 Once order lines are marked as shipped, each corresponding stock record will have both its _quantity at hand_ and _quantity allocated_ decreased by the number of items shipped.
 
 > **Example**
-> 
+>
 > Two boxes of shoes are shipped to a customer. The stock record is now as follows:
-> 
+>
 > - Quantity is 3
 > - Quantity allocated becomes 2
 > - Quantity available stays at 1.
@@ -217,9 +217,9 @@ If set, it allows you to hold some of your products unavailable to your customer
 
 If you want to push your product for sale, select the _Published_ option.
 
-You also have to choose the availability for purchasing your product. If you select *unavailable for purchase*, you can set a date when your customers will next be able to buy your product.
+You also have to choose the availability for purchasing your product. If you select _unavailable for purchase_, you can set a date when your customers will next be able to buy your product.
 
-To show a product in the product listings, you have to enable the *Show in product listings* checkbox.
+To show a product in the product listings, you have to enable the _Show in product listings_ checkbox.
 
 #### Step 6: Save your new product
 
@@ -244,17 +244,15 @@ You can also add descriptions of specific product features to your images. Hover
 
 ### How to export products
 
-The CSV export tool allows you to export products from your dashboard to a CSV file. To export products go to *Catalog* , then on the main *Products* page click the three dots at the top of the page. You can export the whole product base or select and export specific products to a CSV file.
+The CSV export tool allows you to export products from your dashboard to a CSV file. To export products go to _Catalog_ , then on the main _Products_ page click the three dots at the top of the page. You can export the whole product base or select and export specific products to a CSV file.
 
 ![](../screenshots/catalog-export-product-list.jpg)
 
 ![](../screenshots/catalog-export-information.jpg)
 
-
-
 ### How to manage metadata in the product setup page
 
-You can add private and public metadata for each product in the product setup page. Use the button _Add Field_ to add a new metadata field. 
+You can add private and public metadata for each product in the product setup page. Use the button _Add Field_ to add a new metadata field.
 
 ![](../screenshots/metadata.jpg)
 
@@ -331,7 +329,7 @@ You can repeat this process for all sizes or types of the same product by clicki
 
 #### How to manage metadata in the variant creator page
 
-You can add private and public metadata for each variant in the variant creator page. Use the button *Add Field* to add a new metadata field.
+You can add private and public metadata for each variant in the variant creator page. Use the button _Add Field_ to add a new metadata field.
 
 ![](../screenshots/metadata.jpg)
 

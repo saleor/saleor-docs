@@ -24,7 +24,7 @@ The main page shows a list of all orders in the system, regardless of their stat
 
 ### Order filters
 
-To automatically filter orders, click *Filters* and view orders by date, customer or fulfillment status. Sorting by *status* brings up a second menu from which you can choose *Cancelled*, _Fulfilled_, _Partially Fulfilled_, *Unfulfilled*, *Ready to capture*, *Ready to fulfill*.
+To automatically filter orders, click _Filters_ and view orders by date, customer or fulfillment status. Sorting by _status_ brings up a second menu from which you can choose _Cancelled_, _Fulfilled_, _Partially Fulfilled_, _Unfulfilled_, _Ready to capture_, _Ready to fulfill_.
 
 You can also manually search specific information, such as key words or names, using the Search Orders field. The filter is dynamically applied as you type.
 
@@ -155,11 +155,11 @@ For more information on Shipment configuration, see the [Shipping Methods](confi
 
 ### How to generate an invoice
 
-To create an invoice for an order, click *generate invoice* on the right side of the order details page.
+To create an invoice for an order, click _generate invoice_ on the right side of the order details page.
 
 You will receive a notification on the right-hand side once the invoice has been generated. You cannot remove the invoice from the order after it has been generated.
 
-To send an invoice to the customer, click the *send* button.
+To send an invoice to the customer, click the _send_ button.
 
 ![](screenshots/create-invoice.jpg)
 

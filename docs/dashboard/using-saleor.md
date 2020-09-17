@@ -22,15 +22,15 @@ The dashboard has the following sections:
 - [Orders](dashboard/orders.md): A full view of current and past orders
 - [Customers](dashboard/customers.md): Your customer database, with specific details for each buyer
 - [Discounts](dashboard/discounts/sales.md): Give your customers great sales offers or discount vouchers
-- [Apps](dashboard/apps.md): Install and manage all the apps 
+- [Apps](dashboard/apps.md): Install and manage external applications and integration
 - [Translations](dashboard/translations.md): Translate dynamic content in your Saleor store
 - [Configuration](dashboard/configuration/intro.mdx): Manage all the administration elements of your dashboard and processes like tax automation and shipping
 
 Most sections of the dashboard consist of two types of views:
 
-* List of records - This view displays a list of existing records in Saleor. Some of these views allow you to filter the records or manage the column settings. Most of the views also allow you to set the number of list items displayed on the page (number of rows). Most of the list views are equipped with a search bar. You can search by different elements, depending on the page (list)  you are browsing.
+- List of records - This view displays a list of existing records in Saleor. Some of these views allow you to filter the records or manage the column settings. Most of the views also allow you to set the number of list items displayed on the page (number of rows). Most of the list views are equipped with a search bar. You can search by different elements, depending on the page (list) you are browsing.
 
-* Record details - This view is displayed when you select one of the records on the list view. This page provides more details on the selected record.
+- Record details - This view is displayed when you select one of the records on the list view. This page provides more details on the selected record.
 
 ## How to
 
@@ -40,7 +40,7 @@ The first thing you need to do is set up a master account for your store — som
 
 ### How to access your dashboard
 
-Once you have your store, you can access the administration panel by: 
+Once you have your store, you can access the administration panel by:
 
 - Clicking _dashboard_ on the right side of the top navigation bar of your store’s front page
 - Entering `www.YOURSTORENAME/dashboard` into the web browser
@@ -51,8 +51,8 @@ You will then be asked to input the email address and password you used to creat
 
 In case you forget your password, the dashboard login page allows you to reset it in few simple steps:
 
-* Click the password recovery link on the login page and provide the same email address used when creating your account. 
-  
-    A message will be send to that address with a link redirecting you to a password change page. 
+- Click the password recovery link on the login page and provide the same email address used when creating your account.
 
-* Once you input your new password, you will be directed back to the login page where you can use it to log in. 
+  A message will be send to that address with a link redirecting you to a password change page.
+
+- Once you input your new password, you will be directed back to the login page where you can use it to log in.

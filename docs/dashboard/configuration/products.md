@@ -1,5 +1,4 @@
 ---
-id: products
 title: Product Types
 ---
 
@@ -58,7 +57,7 @@ Confirm the cancellation in both cases by clicking _Delete_ in the pop-up window
 
 ### How to manage metadata in the product type setup page
 
-You can add private and public metadata for each product type in the product type setup page. Use the button _Add Field_ to add a new metadata field. 
+You can add private and public metadata for each product type in the product type setup page. Use the button _Add Field_ to add a new metadata field.
 
 ![](../screenshots/metadata.jpg)
 
