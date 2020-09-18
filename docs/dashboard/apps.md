@@ -12,13 +12,11 @@ The main page of Apps contains the following sections:
 
 - _Local Apps_ with an option to create a new app.
 
-- _Saleor Marketplace_ - coming in Q3/Q4 2020.
-
-![](screenshots/apps.jpg)
+![](screenshots/apps-main.png)
 
 ## Local Apps
 
-In this section, you can see the list of local apps installed and their status - activated or deactivated.
+In this section, you can see the list of local apps installed. To delete the app, click the bin button.
 
 ## Creating new app
 
@@ -34,13 +32,13 @@ In the _Create New App_ information card:
 
 Save your changes by clicking _Save_ in the footer.
 
-![](screenshots/apps-create-new-app.jpg)
+![](screenshots/apps-create-new.png)
 
 ## Tokens
 
 Once you have created the app, a token will be generated. You will need to provide this token to your script. To ensure integrity and security, tokens are only displayed once, so you need to copy the code and save it in a different location. If you need to ensure total security and cannot save the token, you can create a new one for the same service through the _Create Token_ option in the app information card. Tokens can also be deleted in the same place using the trash can icon or using the delete option in the footer.
 
-![](screenshots/apps-token-new.jpg)
+![](screenshots/apps-token-new.png)
 
 ## Webhooks
 
@@ -56,9 +54,11 @@ In the Webhook Information card:
 
 - Input the target URL to which payloads will be sent.
 
-- Optionally, if the service to which you are sending the webhook wants additional validation of the content that is being sent, you need to set a Secret Key. After selecting the name of the key, you need to pass it to the third-party service so that they can use it to validate content sent from Saleor via webhooks.
+- Optionally, if the service to which you are sending the webhook wants additional validation of the content that is being sent, you need to set a Secret Key. After generating the secret key value, you need to pass it to the third-party service so that they can use it to validate content sent from Saleor via webhooks.
 
-  ![](screenshots/apps-webhook-new.jpg)
+To learn more about the webhook protocols, see the [Developer's Guide](developer/extending/apps.mdx#webhook-protocols).
+
+  ![](screenshots/apps-webhook-new.png)
 
 ### Events
 

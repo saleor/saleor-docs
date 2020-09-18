@@ -6,7 +6,7 @@ title: Products
 
 This page contains an alphabetically sorted list of all your products with a picture for each (if set), the product name and type, information on its visibility on your site (if it is published or not), and the product's price.
 
-![](../screenshots/catalog-product-list.jpg)
+![](../screenshots/catalog-product-list.png)
 
 ### Managing the list view
 
@@ -30,7 +30,7 @@ By default, the page displays all products. You can also use convenient filters 
 
 You can also set up and save custom filters which will be unique to your browser (so other users will not see it).
 
-![](../screenshots/catalog-product-filters.jpg)
+![](../screenshots/catalog-product-filters.png)
 
 #### Editing columns
 
@@ -162,7 +162,7 @@ Once order lines are marked as shipped, each corresponding stock record will hav
 
 Click _Create&nbsp;Product_ above the main list to enter the product setup page.
 
-![](../screenshots/catalog-product-new.jpg)
+![](../screenshots/catalog-product-new.png)
 
 #### Step 1: Fill out the General Information card
 
@@ -213,7 +213,7 @@ Categorize your new product using the drop-down menus to assign a relevant Produ
 Once you have set up all your product details, you can choose if it appears for sale or remains hidden from view.
 If set, it allows you to hold some of your products unavailable to your customers until the publication date. They are simply not listed in your storefront.
 
-![Changing product visibility](../screenshots/catalog-product-visibility.jpg)
+![Changing product visibility](../screenshots/catalog-product-visibility.png)
 
 If you want to push your product for sale, select the _Published_ option.
 
@@ -244,11 +244,11 @@ You can also add descriptions of specific product features to your images. Hover
 
 ### How to export products
 
-The CSV export tool allows you to export products from your dashboard to a CSV file. To export products go to _Catalog_ , then on the main _Products_ page click the three dots at the top of the page. You can export the whole product base or select and export specific products to a CSV file.
+The CSV export tool allows you to export products from your dashboard to a CSV file. To export products go to _Catalog_ , then on the main _Products_ page click the three dots at the top of the page. You can export the whole product base or select and export specific products to a CSV file. The CSV file will be sent via email.
 
-![](../screenshots/catalog-export-product-list.jpg)
+![](../screenshots/catalog-product-export-list.png)
 
-![](../screenshots/catalog-export-information.jpg)
+![](../screenshots/catalog-product-export-information.png)
 
 ### How to manage metadata in the product setup page
 

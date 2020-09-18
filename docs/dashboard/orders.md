@@ -28,13 +28,13 @@ To automatically filter orders, click _Filters_ and view orders by date, custome
 
 You can also manually search specific information, such as key words or names, using the Search Orders field. The filter is dynamically applied as you type.
 
-![](screenshots/order-filters.jpg)
+![](screenshots/order-filters.png)
 
 ## Order details page
 
 Click on any order record from the list to get the full details. The order page contains cards indicating order fulfillment status, payment stage, order history, customer details, and notes.
 
-![Order details](screenshots/order-details.jpg)
+![Order details](screenshots/order-details.png)
 
 ### Order fulfillment card
 
@@ -159,9 +159,9 @@ To create an invoice for an order, click _generate invoice_ on the right side of
 
 You will receive a notification on the right-hand side once the invoice has been generated. You cannot remove the invoice from the order after it has been generated.
 
-To send an invoice to the customer, click the _send_ button.
+![](screenshots/order-generate-invoice.png)
 
-![](screenshots/create-invoice.jpg)
+To send an invoice to the customer, click the _send_ button.
 
 ### How to manage metadata in the order setup page
 
