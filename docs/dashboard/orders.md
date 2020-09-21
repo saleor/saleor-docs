@@ -155,7 +155,7 @@ For more information on Shipment configuration, see the [Shipping Methods](confi
 
 ### How to generate an invoice
 
-To create an invoice for an order, click _generate invoice_ on the right side of the order details page.
+To create an invoice for an order, click _generate_ on the right side of the order details page.
 
 You will receive a notification on the right-hand side once the invoice has been generated. You cannot remove the invoice from the order after it has been generated.
 

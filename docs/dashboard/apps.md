@@ -54,11 +54,11 @@ In the Webhook Information card:
 
 - Input the target URL to which payloads will be sent.
 
-- Optionally, if the service to which you are sending the webhook wants additional validation of the content that is being sent, you need to set a Secret Key. After generating the secret key value, you need to pass it to the third-party service so that they can use it to validate content sent from Saleor via webhooks.
+- Optionally, if the service to which you are sending the webhook wants additional validation of the content that is being sent, you need to set a _Secret Key_. After generating the secret key value, you need to pass it to the third-party service so that they can use it to validate content sent from Saleor via webhooks.
 
 To learn more about the webhook protocols, see the [Developer's Guide](developer/extending/apps.mdx#webhook-protocols).
 
-  ![](screenshots/apps-webhook-new.png)
+![](screenshots/apps-webhook-new.png)
 
 ### Events
 

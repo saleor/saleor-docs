@@ -317,19 +317,23 @@ In this example, you can see five types of t-shirt. Four have enough stock to co
 
 #### Managing variants of a product
 
-Click on a specific product from the variants list to edit the size, images, pricing, and stock.
+Click on a specific product from the variants list to edit the size, images, pricing, shipping and inventory.
 
-![Editing product variants](../screenshots/catalog-product-variant-details.jpeg)
+To add a new variant, click the _Add variant_ button in the _variants_ list. While creating a new variant, you need to fill in all information required and assign to a specific warehouse by clicking the _+_ button in the _Inventory_ section.
+
+![Editing product variants](../screenshots/catalog-product-variant-details.png)
 
 You can edit the cost and sale price of an item in the Pricing card.
 
-When you receive new stock, enter the amount in the Inventory field to keep up to date and avoid false out-of-stock messages. Make sure to save your changes before exiting.
+When you receive new stock, enter the amount in the _Quantity Available_ field in the _Inventory_ section to keep up to date and avoid false out-of-stock messages. Make sure to save your changes before exiting.
+
+To track inventory, you need to enable the _Track Inventory_ checkbox.
 
 You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) which is unique to specific variants.
 
-#### How to manage metadata in the variant creator page
+#### How to manage metadata in the variants page
 
-You can add private and public metadata for each variant in the variant creator page. Use the button _Add Field_ to add a new metadata field.
+Once the product is created, you can add private and public metadata for each variant in the variants page. Use the button _Add Field_ to add a new metadata field.
 
 ![](../screenshots/metadata.jpg)
 
