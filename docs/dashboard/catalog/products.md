@@ -6,7 +6,7 @@ title: Products
 
 This page contains an alphabetically sorted list of all your products with a picture for each (if set), the product name and type, information on its visibility on your site (if it is published or not), and the product's price.
 
-![Product list](../screenshots/catalog-product-list.png)
+![](../screenshots/catalog-product-list.png)
 
 ### Managing the list view
 
@@ -30,7 +30,7 @@ By default, the page displays all products. You can also use convenient filters 
 
 You can also set up and save custom filters which will be unique to your browser (so other users will not see it).
 
-![Filtering products](../screenshots/catalog-product-filters.jpeg)
+![](../screenshots/catalog-product-filters.png)
 
 #### Editing columns
 
@@ -109,9 +109,9 @@ Each variant holds information about:
 - Quantity available
 
 > **Example**
-> 
+>
 > There are five boxes of shoes in your store. Three of them have already been sold to customers but were not yet dispatched for shipment. The stock record is as follows:
-> 
+>
 > - Quantity is 5
 > - Quantity allocated is 3
 > - Quantity available is 2
@@ -137,9 +137,9 @@ The highest quantity that can be ordered is the available quantity of product va
 Once a new order is placed, the quantity needed to fulfill each order line is immediately marked as allocated.
 
 > **Example**
-> 
+>
 > A customer places an order for another box of shoes. The stock record is as follows:
-> 
+>
 > - Quantity is 5
 > - Quantity allocated is now 4
 > - Quantity available becomes 1
@@ -149,9 +149,9 @@ Once a new order is placed, the quantity needed to fulfill each order line is im
 Once order lines are marked as shipped, each corresponding stock record will have both its _quantity at hand_ and _quantity allocated_ decreased by the number of items shipped.
 
 > **Example**
-> 
+>
 > Two boxes of shoes are shipped to a customer. The stock record is now as follows:
-> 
+>
 > - Quantity is 3
 > - Quantity allocated becomes 2
 > - Quantity available stays at 1.
@@ -162,7 +162,7 @@ Once order lines are marked as shipped, each corresponding stock record will hav
 
 Click _Create&nbsp;Product_ above the main list to enter the product setup page.
 
-![Adding product](../screenshots/catalog-product-new.jpeg)
+![](../screenshots/catalog-product-new.png)
 
 #### Step 1: Fill out the General Information card
 
@@ -213,9 +213,13 @@ Categorize your new product using the drop-down menus to assign a relevant Produ
 Once you have set up all your product details, you can choose if it appears for sale or remains hidden from view.
 If set, it allows you to hold some of your products unavailable to your customers until the publication date. They are simply not listed in your storefront.
 
-![Changing product visibility](../screenshots/catalog-product-visibility.jpeg)
+![Changing product visibility](../screenshots/catalog-product-visibility.png)
 
-If you want to push your product for sale, select the _Visible_ option.
+If you want to push your product for sale, select the _Published_ option.
+
+You also have to choose the availability for purchasing your product. If you select _unavailable for purchase_, you can set a date when your customers will next be able to buy your product.
+
+To show a product in the product listings, you have to enable the _Show in product listings_ checkbox.
 
 #### Step 6: Save your new product
 
@@ -237,6 +241,22 @@ You can add an unlimited number of images per product. The main image will be th
 You can also add descriptions of specific product features to your images. Hover over the image and click on the pencil to edit the information.
 
 ![Editing product images](../screenshots/catalog-product-images.jpeg)
+
+### How to export products
+
+The CSV export tool allows you to export products from your dashboard to a CSV file. To export products go to _Catalog_ , then on the main _Products_ page click the three dots at the top of the page. You can export the whole product base or select and export specific products to a CSV file. The CSV file will be sent via email.
+
+![](../screenshots/catalog-product-export-list.png)
+
+![](../screenshots/catalog-product-export-information.png)
+
+### How to manage metadata in the product setup page
+
+You can add private and public metadata for each product in the product setup page. Use the button _Add Field_ to add a new metadata field.
+
+![](../screenshots/metadata.jpg)
+
+To learn more about object metadata, see the [Developer's Guide](developer/metadata.mdx).
 
 ### How to delete or edit products
 
@@ -297,15 +317,27 @@ In this example, you can see five types of t-shirt. Four have enough stock to co
 
 #### Managing variants of a product
 
-Click on a specific product from the variants list to edit the size, images, pricing, and stock.
+Click on a specific product from the variants list to edit the size, images, pricing, shipping and inventory.
 
-![Editing product variants](../screenshots/catalog-product-variant-details.jpeg)
+To add a new variant, click the _Add variant_ button in the _variants_ list. While creating a new variant, you need to fill in all information required and assign to a specific warehouse by clicking the _+_ button in the _Inventory_ section.
+
+![Editing product variants](../screenshots/catalog-product-variant-details.png)
 
 You can edit the cost and sale price of an item in the Pricing card.
 
-When you receive new stock, enter the amount in the Inventory field to keep up to date and avoid false out-of-stock messages. Make sure to save your changes before exiting.
+When you receive new stock, enter the amount in the _Quantity Available_ field in the _Inventory_ section to keep up to date and avoid false out-of-stock messages. Make sure to save your changes before exiting.
+
+To track inventory, you need to enable the _Track Inventory_ checkbox.
 
 You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) which is unique to specific variants.
+
+#### How to manage metadata in the variants page
+
+Once the product is created, you can add private and public metadata for each variant in the variants page. Use the button _Add Field_ to add a new metadata field.
+
+![](../screenshots/metadata.jpg)
+
+To learn more about object metadata, see the [Developer's Guide](developer/metadata.mdx).
 
 ### How to manage attributes
 

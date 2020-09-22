@@ -1,5 +1,4 @@
 ---
-id: collections
 title: Collections
 ---
 
@@ -39,3 +38,11 @@ There are two ways to delete a collection:
 :::note
 Removing a collection will not delete all products from the site; it only disables the grouping of selected products and deletes information about the collection.
 :::
+
+### How to manage metadata in the collection setup page
+
+You can add private and public metadata for each collection in the collection setup page. Use the button _Add Field_ to add a new metadata field.
+
+![](../screenshots/metadata.jpg)
+
+To learn more about object metadata, see the [Developer's Guide](developer/metadata.mdx).

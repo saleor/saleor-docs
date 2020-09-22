@@ -1,5 +1,4 @@
 ---
-id: attributes
 title: Attributes
 ---
 
@@ -112,3 +111,11 @@ Select the specific attribute from the list of existing attributes.
 :::warning
 Make sure to remove attributes with caution. There may be dependent product types related to them. Inspect the existing dependencies before continuing.
 :::
+
+### How to manage metadata in the attribute setup page
+
+You can add private and public metadata for each attribute in the attribute setup page. Use the button _Add Field_ to add a new metadata field.
+
+![](../screenshots/metadata.jpg)
+
+To learn more about object metadata, see the [Developer's Guide](developer/metadata.mdx).

@@ -20,15 +20,15 @@ To process an order in the system, click _Finalize_ in the footer. Once the orde
 
 The main page shows a list of all orders in the system, regardless of their status.
 
-![Orders list](screenshots/order-list.jpeg)
+![](screenshots/order-list.jpg)
 
 ### Order filters
 
-To automatically filter orders, use the drop-down menu and view orders by date, customer or fulfillment status. Sorting by status brings up a second menu from which you can choose _Fulfilled_, _Partially Fulfilled_, or _Unfilled Orders_. Click _Add filter_ to apply the filter.
+To automatically filter orders, click _Filters_ and view orders by date, customer or fulfillment status. Sorting by _status_ brings up a second menu from which you can choose _Cancelled_, _Fulfilled_, _Partially Fulfilled_, _Unfulfilled_, _Ready to capture_, _Ready to fulfill_.
 
 You can also manually search specific information, such as key words or names, using the Search Orders field. The filter is dynamically applied as you type.
 
-![Orders list filters](screenshots/order-filters.jpeg)
+![](screenshots/order-filters.png)
 
 ## Order details page
 
@@ -152,3 +152,21 @@ Click the three dots in the top right corner of a Fulfilled order card. Select _
 ![Canceling shipment](screenshots/order-cancel.jpeg)
 
 For more information on Shipment configuration, see the [Shipping Methods](configuration/shipping.md).
+
+### How to generate an invoice
+
+To create an invoice for an order, click _generate_ on the right side of the order details page.
+
+You will receive a notification on the right-hand side once the invoice has been generated. You cannot remove the invoice from the order after it has been generated.
+
+![](screenshots/order-generate-invoice.png)
+
+To send an invoice to the customer, click the _send_ button.
+
+### How to manage metadata in the order setup page
+
+You can add private and public metadata for each order in the order setup page. Use the button _Add Field_ to add a new metadata field.
+
+![](screenshots/metadata.jpg)
+
+To learn more about object metadata, see the [Developer's Guide](developer/metadata.mdx).
