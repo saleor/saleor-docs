@@ -29,14 +29,22 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AddressUpdate](#addressupdate)
     * [AddressValidationData](#addressvalidationdata)
     * [App](#app)
+    * [AppActivate](#appactivate)
     * [AppCountableConnection](#appcountableconnection)
     * [AppCountableEdge](#appcountableedge)
     * [AppCreate](#appcreate)
+    * [AppDeactivate](#appdeactivate)
     * [AppDelete](#appdelete)
+    * [AppDeleteFailedInstallation](#appdeletefailedinstallation)
     * [AppError](#apperror)
+    * [AppFetchManifest](#appfetchmanifest)
+    * [AppInstall](#appinstall)
+    * [AppInstallation](#appinstallation)
+    * [AppRetryInstall](#appretryinstall)
     * [AppToken](#apptoken)
     * [AppTokenCreate](#apptokencreate)
     * [AppTokenDelete](#apptokendelete)
+    * [AppTokenVerify](#apptokenverify)
     * [AppUpdate](#appupdate)
     * [AssignNavigation](#assignnavigation)
     * [Attribute](#attribute)
@@ -138,6 +146,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [CustomerDelete](#customerdelete)
     * [CustomerEvent](#customerevent)
     * [CustomerUpdate](#customerupdate)
+    * [DeactivateAllUserTokens](#deactivateallusertokens)
     * [DeleteMetadata](#deletemetadata)
     * [DeletePrivateMetadata](#deleteprivatemetadata)
     * [DigitalContent](#digitalcontent)
@@ -160,6 +169,12 @@ This document describes all queries, mutations, and types available in the Saleo
     * [DraftOrderLinesCreate](#draftorderlinescreate)
     * [DraftOrderUpdate](#draftorderupdate)
     * [Error](#error)
+    * [ExportError](#exporterror)
+    * [ExportEvent](#exportevent)
+    * [ExportFile](#exportfile)
+    * [ExportFileCountableConnection](#exportfilecountableconnection)
+    * [ExportFileCountableEdge](#exportfilecountableedge)
+    * [ExportProducts](#exportproducts)
     * [Fulfillment](#fulfillment)
     * [FulfillmentCancel](#fulfillmentcancel)
     * [FulfillmentClearMeta](#fulfillmentclearmeta)
@@ -183,7 +198,16 @@ This document describes all queries, mutations, and types available in the Saleo
     * [GroupCountableEdge](#groupcountableedge)
     * [HomepageCollectionUpdate](#homepagecollectionupdate)
     * [Image](#image)
+    * [Invoice](#invoice)
+    * [InvoiceCreate](#invoicecreate)
+    * [InvoiceDelete](#invoicedelete)
+    * [InvoiceError](#invoiceerror)
+    * [InvoiceRequest](#invoicerequest)
+    * [InvoiceRequestDelete](#invoicerequestdelete)
+    * [InvoiceSendEmail](#invoicesendemail)
+    * [InvoiceUpdate](#invoiceupdate)
     * [LanguageDisplay](#languagedisplay)
+    * [Manifest](#manifest)
     * [Margin](#margin)
     * [Menu](#menu)
     * [MenuBulkDelete](#menubulkdelete)
@@ -256,7 +280,6 @@ This document describes all queries, mutations, and types available in the Saleo
     * [PaymentError](#paymenterror)
     * [PaymentGateway](#paymentgateway)
     * [PaymentRefund](#paymentrefund)
-    * [PaymentSecureConfirm](#paymentsecureconfirm)
     * [PaymentSource](#paymentsource)
     * [PaymentVoid](#paymentvoid)
     * [Permission](#permission)
@@ -287,6 +310,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [ProductImageReorder](#productimagereorder)
     * [ProductImageUpdate](#productimageupdate)
     * [ProductPricingInfo](#productpricinginfo)
+    * [ProductSetAvailabilityForPurchase](#productsetavailabilityforpurchase)
     * [ProductTranslatableContent](#producttranslatablecontent)
     * [ProductTranslate](#producttranslate)
     * [ProductTranslation](#producttranslation)
@@ -314,6 +338,8 @@ This document describes all queries, mutations, and types available in the Saleo
     * [ProductVariantCountableEdge](#productvariantcountableedge)
     * [ProductVariantCreate](#productvariantcreate)
     * [ProductVariantDelete](#productvariantdelete)
+    * [ProductVariantReorder](#productvariantreorder)
+    * [ProductVariantSetDefault](#productvariantsetdefault)
     * [ProductVariantStocksCreate](#productvariantstockscreate)
     * [ProductVariantStocksDelete](#productvariantstocksdelete)
     * [ProductVariantStocksUpdate](#productvariantstocksupdate)
@@ -451,6 +477,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AddressInput](#addressinput)
     * [AppFilterInput](#appfilterinput)
     * [AppInput](#appinput)
+    * [AppInstallInput](#appinstallinput)
     * [AppSortingInput](#appsortinginput)
     * [AppTokenInput](#apptokeninput)
     * [AttributeAssignInput](#attributeassigninput)
@@ -482,11 +509,16 @@ This document describes all queries, mutations, and types available in the Saleo
     * [DigitalContentUrlCreateInput](#digitalcontenturlcreateinput)
     * [DraftOrderCreateInput](#draftordercreateinput)
     * [DraftOrderInput](#draftorderinput)
+    * [ExportFileFilterInput](#exportfilefilterinput)
+    * [ExportFileSortingInput](#exportfilesortinginput)
+    * [ExportInfoInput](#exportinfoinput)
+    * [ExportProductsInput](#exportproductsinput)
     * [FulfillmentCancelInput](#fulfillmentcancelinput)
     * [FulfillmentUpdateTrackingInput](#fulfillmentupdatetrackinginput)
     * [GiftCardCreateInput](#giftcardcreateinput)
     * [GiftCardUpdateInput](#giftcardupdateinput)
     * [IntRangeInput](#intrangeinput)
+    * [InvoiceCreateInput](#invoicecreateinput)
     * [MenuCreateInput](#menucreateinput)
     * [MenuFilterInput](#menufilterinput)
     * [MenuInput](#menuinput)
@@ -560,6 +592,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [StockFilterInput](#stockfilterinput)
     * [StockInput](#stockinput)
     * [TranslationInput](#translationinput)
+    * [UpdateInvoiceInput](#updateinvoiceinput)
     * [UserCreateInput](#usercreateinput)
     * [UserSortingInput](#usersortinginput)
     * [VoucherFilterInput](#voucherfilterinput)
@@ -579,6 +612,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AddressTypeEnum](#addresstypeenum)
     * [AppErrorCode](#apperrorcode)
     * [AppSortField](#appsortfield)
+    * [AppTypeEnum](#apptypeenum)
     * [AttributeInputTypeEnum](#attributeinputtypeenum)
     * [AttributeSortField](#attributesortfield)
     * [AttributeTypeEnum](#attributetypeenum)
@@ -594,8 +628,15 @@ This document describes all queries, mutations, and types available in the Saleo
     * [DiscountErrorCode](#discounterrorcode)
     * [DiscountStatusEnum](#discountstatusenum)
     * [DiscountValueTypeEnum](#discountvaluetypeenum)
+    * [ExportErrorCode](#exporterrorcode)
+    * [ExportEventsEnum](#exporteventsenum)
+    * [ExportFileSortField](#exportfilesortfield)
+    * [ExportScope](#exportscope)
+    * [FileTypesEnum](#filetypesenum)
     * [FulfillmentStatus](#fulfillmentstatus)
     * [GiftCardErrorCode](#giftcarderrorcode)
+    * [InvoiceErrorCode](#invoiceerrorcode)
+    * [JobStatusEnum](#jobstatusenum)
     * [LanguageCodeEnum](#languagecodeenum)
     * [MenuErrorCode](#menuerrorcode)
     * [MenuItemsSortField](#menuitemssortfield)
@@ -620,6 +661,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [PluginErrorCode](#pluginerrorcode)
     * [PluginSortField](#pluginsortfield)
     * [ProductErrorCode](#producterrorcode)
+    * [ProductFieldEnum](#productfieldenum)
     * [ProductOrderField](#productorderfield)
     * [ProductTypeConfigurable](#producttypeconfigurable)
     * [ProductTypeEnum](#producttypeenum)
@@ -654,18 +696,19 @@ This document describes all queries, mutations, and types available in the Saleo
     * [Boolean](#boolean)
     * [Date](#date)
     * [DateTime](#datetime)
-    * [Decimal](#decimal)
     * [Float](#float)
     * [GenericScalar](#genericscalar)
     * [ID](#id)
     * [Int](#int)
     * [JSONString](#jsonstring)
+    * [PositiveDecimal](#positivedecimal)
     * [String](#string)
     * [UUID](#uuid)
     * [Upload](#upload)
     * [WeightScalar](#weightscalar)
     * [_Any](#_any)
   * [Interfaces](#interfaces)
+    * [Job](#job)
     * [Node](#node)
     * [ObjectWithMetadata](#objectwithmetadata)
 
@@ -1307,16 +1350,25 @@ Return the last n elements from the list.
 <td valign="top"><a href="#category">Category</a></td>
 <td>
 
-Look up a category by ID.
+Look up a category by ID or slug.
 
 </td>
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td valign="top"><a href="#id">ID</a></td>
 <td>
 
 ID of the category.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">slug</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Slug of the category
 
 </td>
 </tr>
@@ -1331,10 +1383,19 @@ Look up a collection by ID.
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td valign="top"><a href="#id">ID</a></td>
 <td>
 
 ID of the collection.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">slug</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Slug of the category
 
 </td>
 </tr>
@@ -1412,10 +1473,19 @@ Look up a product by ID.
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td valign="top"><a href="#id">ID</a></td>
 <td>
 
 ID of the product.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">slug</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Slug of the category
 
 </td>
 </tr>
@@ -2599,6 +2669,87 @@ Return the last n elements from the list.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>exportFile</strong></td>
+<td valign="top"><a href="#exportfile">ExportFile</a></td>
+<td>
+
+Look up a export file by ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the export file job.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>exportFiles</strong></td>
+<td valign="top"><a href="#exportfilecountableconnection">ExportFileCountableConnection</a></td>
+<td>
+
+List of export files.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">filter</td>
+<td valign="top"><a href="#exportfilefilterinput">ExportFileFilterInput</a></td>
+<td>
+
+Filtering options for export files.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#exportfilesortinginput">ExportFileSortingInput</a></td>
+<td>
+
+Sort export files.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come before the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come after the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the first n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the last n elements from the list.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>taxTypes</strong></td>
 <td valign="top">[<a href="#taxtype">TaxType</a>]</td>
 <td>
@@ -2730,6 +2881,15 @@ Return the first n elements from the list.
 <td>
 
 Return the last n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appsInstallations</strong></td>
+<td valign="top">[<a href="#appinstallation">AppInstallation</a>!]!</td>
+<td>
+
+List of all apps installations
 
 </td>
 </tr>
@@ -5151,6 +5311,42 @@ Fields required to identify stored metadata item.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>productSetAvailabilityForPurchase</strong></td>
+<td valign="top"><a href="#productsetavailabilityforpurchase">ProductSetAvailabilityForPurchase</a></td>
+<td>
+
+Set product availability for purchase date.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">isAvailable</td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td>
+
+Determine if product should be available for purchase.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">productId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+Id of product that availability for purchase should be changed.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">startDate</td>
+<td valign="top"><a href="#date">Date</a></td>
+<td>
+
+A start date from which a product will be available for purchase. When not set and isAvailable is set to True, the current day is assumed.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>productImageCreate</strong></td>
 <td valign="top"><a href="#productimagecreate">ProductImageCreate</a></td>
 <td>
@@ -5165,6 +5361,33 @@ Create a product image. This mutation must be sent as a `multipart` request. Mor
 <td>
 
 Fields required to create a product image.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productVariantReorder</strong></td>
+<td valign="top"><a href="#productvariantreorder">ProductVariantReorder</a></td>
+<td>
+
+Reorder the variants of a product. Mutation updates updated_at on product and triggers PRODUCT_UPDATED webhook.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">moves</td>
+<td valign="top">[<a href="#reorderinput">ReorderInput</a>]!</td>
+<td>
+
+The list of variant reordering operations.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">productId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+Id of product that variants order will be altered.
 
 </td>
 </tr>
@@ -5783,6 +6006,33 @@ Fields required to update a product variant.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>productVariantSetDefault</strong></td>
+<td valign="top"><a href="#productvariantsetdefault">ProductVariantSetDefault</a></td>
+<td>
+
+Set default variant for a product. Mutation triggers PRODUCT_UPDATED webhook.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">productId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+Id of a product that will have the default variant set.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">variantId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+Id of a variant that will be set as default.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>productVariantTranslate</strong></td>
 <td valign="top"><a href="#productvarianttranslate">ProductVariantTranslate</a></td>
 <td>
@@ -6011,7 +6261,7 @@ Captures the authorized payment amount.
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">amount</td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Transaction amount.
@@ -6038,7 +6288,7 @@ Refunds the captured payment amount.
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">amount</td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Transaction amount.
@@ -6060,24 +6310,6 @@ Payment ID.
 <td>
 
 Voids the authorized payment.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">paymentId</td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td>
-
-Payment ID.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>paymentSecureConfirm</strong></td>
-<td valign="top"><a href="#paymentsecureconfirm">PaymentSecureConfirm</a></td>
-<td>
-
-Confirms payment in a two-step process like 3D secure
 
 </td>
 </tr>
@@ -6475,7 +6707,7 @@ Capture an order.
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">amount</td>
-<td valign="top"><a href="#decimal">Decimal</a>!</td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a>!</td>
 <td>
 
 Amount of money to capture.
@@ -6799,7 +7031,7 @@ Refund an order.
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">amount</td>
-<td valign="top"><a href="#decimal">Decimal</a>!</td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a>!</td>
 <td>
 
 Amount of money to refund.
@@ -7328,6 +7560,141 @@ The menu position data.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>invoiceRequest</strong></td>
+<td valign="top"><a href="#invoicerequest">InvoiceRequest</a></td>
+<td>
+
+Request an invoice for the order using plugin.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">number</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Invoice number, if not provided it will be generated.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">orderId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the order related to invoice.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoiceRequestDelete</strong></td>
+<td valign="top"><a href="#invoicerequestdelete">InvoiceRequestDelete</a></td>
+<td>
+
+Requests deletion of an invoice.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an invoice to request the deletion.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoiceCreate</strong></td>
+<td valign="top"><a href="#invoicecreate">InvoiceCreate</a></td>
+<td>
+
+Creates a ready to send invoice.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#invoicecreateinput">InvoiceCreateInput</a>!</td>
+<td>
+
+Fields required when creating an invoice.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">orderId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the order related to invoice.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoiceDelete</strong></td>
+<td valign="top"><a href="#invoicedelete">InvoiceDelete</a></td>
+<td>
+
+Deletes an invoice.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an invoice to delete.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoiceUpdate</strong></td>
+<td valign="top"><a href="#invoiceupdate">InvoiceUpdate</a></td>
+<td>
+
+Updates an invoice.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an invoice to update.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updateinvoiceinput">UpdateInvoiceInput</a>!</td>
+<td>
+
+Fields to use when updating an invoice.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoiceSendEmail</strong></td>
+<td valign="top"><a href="#invoicesendemail">InvoiceSendEmail</a></td>
+<td>
+
+Send an invoice by email.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of an invoice to be sent.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>giftCardActivate</strong></td>
 <td valign="top"><a href="#giftcardactivate">GiftCardActivate</a></td>
 <td>
@@ -7770,57 +8137,22 @@ Translation language code.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>tokenCreate</strong></td>
-<td valign="top"><a href="#createtoken">CreateToken</a></td>
+<td colspan="2" valign="top"><strong>exportProducts</strong></td>
+<td valign="top"><a href="#exportproducts">ExportProducts</a></td>
 <td>
 
-Mutation that authenticates a user and returns token and user data.
-
-It overrides the default graphql_jwt.ObtainJSONWebToken to wrap potential
-authentication errors in our Error type, which is consistent to how the rest of
-the mutation works.
+Export products to csv file.
 
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">email</td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">password</td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>tokenRefresh</strong></td>
-<td valign="top"><a href="#refreshtoken">RefreshToken</a></td>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#exportproductsinput">ExportProductsInput</a>!</td>
 <td>
 
-Mutation that refresh user token.
-
-It overrides the default graphql_jwt.Refresh to update user's last_login field.
+Fields required to export product data
 
 </td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">token</td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>tokenVerify</strong></td>
-<td valign="top"><a href="#verifytoken">VerifyToken</a></td>
-<td>
-
-Mutation that confirms if token is valid and also returns user data.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">token</td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>checkoutAddPromoCode</strong></td>
@@ -7891,6 +8223,15 @@ Completes the checkout. As a result a new order is created and a payment charge 
 <td>
 
 Checkout ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">paymentData</td>
+<td valign="top"><a href="#jsonstring">JSONString</a></td>
+<td>
+
+Client-side generated data required to finalize the payment.
 
 </td>
 </tr>
@@ -8423,6 +8764,218 @@ ID of an auth token to delete.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>appTokenVerify</strong></td>
+<td valign="top"><a href="#apptokenverify">AppTokenVerify</a></td>
+<td>
+
+Verify provided app token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">token</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+App token to verify.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appInstall</strong></td>
+<td valign="top"><a href="#appinstall">AppInstall</a></td>
+<td>
+
+Install new app by using app manifest.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#appinstallinput">AppInstallInput</a>!</td>
+<td>
+
+Fields required to install a new app.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appRetryInstall</strong></td>
+<td valign="top"><a href="#appretryinstall">AppRetryInstall</a></td>
+<td>
+
+Retry failed installation of new app.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">activateAfterInstallation</td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Determine if app will be set active or not.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of failed installation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appDeleteFailedInstallation</strong></td>
+<td valign="top"><a href="#appdeletefailedinstallation">AppDeleteFailedInstallation</a></td>
+<td>
+
+Delete failed installation.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of failed installation to delete.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appFetchManifest</strong></td>
+<td valign="top"><a href="#appfetchmanifest">AppFetchManifest</a></td>
+<td>
+
+Fetch and validate manifest.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">manifestUrl</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appActivate</strong></td>
+<td valign="top"><a href="#appactivate">AppActivate</a></td>
+<td>
+
+Activate the app.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of app to activate.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appDeactivate</strong></td>
+<td valign="top"><a href="#appdeactivate">AppDeactivate</a></td>
+<td>
+
+Deactivate the app.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of app to deactivate.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>tokenCreate</strong></td>
+<td valign="top"><a href="#createtoken">CreateToken</a></td>
+<td>
+
+Create JWT token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">email</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Email of a user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">password</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Password of a user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>tokenRefresh</strong></td>
+<td valign="top"><a href="#refreshtoken">RefreshToken</a></td>
+<td>
+
+Refresh JWT token. Mutation tries to take refreshToken from the input.If it fails it will try to take refreshToken from the http-only cookie -refreshToken. csrfToken is required when refreshToken is provided as a cookie.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">csrfToken</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+CSRF token required to refresh token. This argument is required when refreshToken is provided as a cookie.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">refreshToken</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Refresh token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>tokenVerify</strong></td>
+<td valign="top"><a href="#verifytoken">VerifyToken</a></td>
+<td>
+
+Verify JWT token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">token</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+JWT token to validate.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>tokensDeactivateAll</strong></td>
+<td valign="top"><a href="#deactivateallusertokens">DeactivateAllUserTokens</a></td>
+<td>
+
+Deactivate all JWT tokens of the currently authenticated user.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>requestPasswordReset</strong></td>
 <td valign="top"><a href="#requestpasswordreset">RequestPasswordReset</a></td>
 <td>
@@ -8486,6 +9039,24 @@ Sets the user's password from the token sent by email using the RequestPasswordR
 </td>
 </tr>
 <tr>
+<td colspan="2" align="right" valign="top">email</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Email of a user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">password</td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Password of a user.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" align="right" valign="top">token</td>
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
@@ -8493,16 +9064,6 @@ Sets the user's password from the token sent by email using the RequestPasswordR
 A one-time token required to set the password.
 
 </td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">email</td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">password</td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>passwordChange</strong></td>
@@ -10473,6 +11034,15 @@ Use the `metadata` field. This field will be removed after 2020-07-31.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>type</strong></td>
+<td valign="top"><a href="#apptypeenum">AppTypeEnum</a></td>
+<td>
+
+Type of the app.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>webhooks</strong></td>
 <td valign="top">[<a href="#webhook">Webhook</a>]</td>
 <td>
@@ -10480,6 +11050,129 @@ Use the `metadata` field. This field will be removed after 2020-07-31.
 List of webhooks assigned to this app.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>aboutApp</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Description of this app.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dataPrivacy</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Description of the data privacy defined for this app.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dataPrivacyUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Url to details about the privacy policy on the app owner page.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>homepageUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Homepage of the app.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>supportUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Support page for the app.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>configurationUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Url to iframe with the configuration for the app.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Url to iframe with the app.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Version number of the app.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accessToken</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+JWT token used to authenticate by thridparty app.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### AppActivate
+
+Activate the app.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appErrors</strong></td>
+<td valign="top">[<a href="#apperror">AppError</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>app</strong></td>
+<td valign="top"><a href="#app">App</a></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -10606,6 +11299,48 @@ The newly created authentication token.
 </tbody>
 </table>
 
+### AppDeactivate
+
+Deactivate the app.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appErrors</strong></td>
+<td valign="top">[<a href="#apperror">AppError</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>app</strong></td>
+<td valign="top"><a href="#app">App</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### AppDelete
 
 Deletes an app.
@@ -10643,6 +11378,48 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 <tr>
 <td colspan="2" valign="top"><strong>app</strong></td>
 <td valign="top"><a href="#app">App</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### AppDeleteFailedInstallation
+
+Delete failed installation.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appErrors</strong></td>
+<td valign="top">[<a href="#apperror">AppError</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appInstallation</strong></td>
+<td valign="top"><a href="#appinstallation">AppInstallation</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -10695,6 +11472,204 @@ The error code.
 List of permissions which causes the error.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### AppFetchManifest
+
+Fetch and validate manifest.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>manifest</strong></td>
+<td valign="top"><a href="#manifest">Manifest</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appErrors</strong></td>
+<td valign="top">[<a href="#apperror">AppError</a>!]!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### AppInstall
+
+Install new app by using app manifest.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appErrors</strong></td>
+<td valign="top">[<a href="#apperror">AppError</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appInstallation</strong></td>
+<td valign="top"><a href="#appinstallation">AppInstallation</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### AppInstallation
+
+Represents ongoing installation of app.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>appName</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>manifestUrl</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>status</strong></td>
+<td valign="top"><a href="#jobstatusenum">JobStatusEnum</a>!</td>
+<td>
+
+Job status.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createdAt</strong></td>
+<td valign="top"><a href="#datetime">DateTime</a>!</td>
+<td>
+
+Created date time of job in ISO 8601 format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updatedAt</strong></td>
+<td valign="top"><a href="#datetime">DateTime</a>!</td>
+<td>
+
+Date time of job last update in ISO 8601 format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Job message.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### AppRetryInstall
+
+Retry failed installation of new app.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appErrors</strong></td>
+<td valign="top">[<a href="#apperror">AppError</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appInstallation</strong></td>
+<td valign="top"><a href="#appinstallation">AppInstallation</a></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -10831,6 +11806,52 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 <tr>
 <td colspan="2" valign="top"><strong>appToken</strong></td>
 <td valign="top"><a href="#apptoken">AppToken</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### AppTokenVerify
+
+Verify provided app token.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>valid</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td>
+
+Determine if token is valid or not.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appErrors</strong></td>
+<td valign="top">[<a href="#apperror">AppError</a>!]!</td>
 <td></td>
 </tr>
 </tbody>
@@ -11883,12 +12904,18 @@ Internal representation of a value (unique per attribute).
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>type</strong></td>
+<td colspan="2" valign="top"><strong>type</strong> ⚠️</td>
 <td valign="top"><a href="#attributevaluetype">AttributeValueType</a></td>
 <td>
 
 Type of value (used only when `value` field is set).
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use the `inputType` field to determine the type of attribute's value. This field will be removed after 2020-07-31.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -13423,11 +14450,6 @@ Checkout object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>token</strong></td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>quantity</strong></td>
 <td valign="top"><a href="#int">Int</a>!</td>
 <td></td>
@@ -13598,6 +14620,15 @@ The price of the shipping, with all the taxes included.
 <td>
 
 The price of the checkout before shipping, with taxes included.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>token</strong></td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td>
+
+The checkout's token.
 
 </td>
 </tr>
@@ -13833,6 +14864,15 @@ Placed order.
 <td>
 
 Set to true if payment needs to be confirmed before checkout is complete.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>confirmationData</strong></td>
+<td valign="top"><a href="#jsonstring">JSONString</a></td>
+<td>
+
+Confirmation data used to process additional authorization steps.
 
 </td>
 </tr>
@@ -14140,6 +15180,15 @@ The error message.
 <td>
 
 The error code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>variants</strong></td>
+<td valign="top">[<a href="#id">ID</a>!]</td>
+<td>
+
+List of varint IDs which causes the error.
 
 </td>
 </tr>
@@ -14828,6 +15877,24 @@ Use the `metadata` field. This field will be removed after 2020-07-31.
 <td>
 
 List of products in this collection.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">filter</td>
+<td valign="top"><a href="#productfilterinput">ProductFilterInput</a></td>
+<td>
+
+Filtering options for products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#productorder">ProductOrder</a></td>
+<td>
+
+Sort products.
 
 </td>
 </tr>
@@ -15871,11 +16938,7 @@ Country tax.
 
 ### CreateToken
 
-Mutation that authenticates a user and returns token and user data.
-
-It overrides the default graphql_jwt.ObtainJSONWebToken to wrap potential
-authentication errors in our Error type, which is consistent to how the rest of
-the mutation works.
+Create JWT token.
 
 <table>
 <thead>
@@ -15888,14 +16951,12 @@ the mutation works.
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>token</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
 <td valign="top">[<a href="#error">Error</a>!]!</td>
 <td>
+
+List of errors that occurred executing the mutation.
+
 <p>⚠️ <strong>DEPRECATED</strong></p>
 <blockquote>
 
@@ -15905,11 +16966,29 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>accountErrors</strong></td>
-<td valign="top">[<a href="#accounterror">AccountError</a>!]!</td>
+<td colspan="2" valign="top"><strong>token</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td>
 
-List of errors that occurred executing the mutation.
+JWT token, required to authenticate.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>refreshToken</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+JWT refresh token, required to re-generate access token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>csrfToken</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+CSRF token required to re-generate access token.
 
 </td>
 </tr>
@@ -15921,6 +17000,11 @@ List of errors that occurred executing the mutation.
 A user instance.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]!</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -15948,10 +17032,10 @@ Card brand.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>firstDigits</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
+<td valign="top"><a href="#string">String</a></td>
 <td>
 
-The host name of the domain.
+First 4 digits of the card number.
 
 </td>
 </tr>
@@ -15966,7 +17050,7 @@ Last 4 digits of the card number.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>expMonth</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
+<td valign="top"><a href="#int">Int</a></td>
 <td>
 
 Two-digit number representing the card’s expiration month.
@@ -15975,7 +17059,7 @@ Two-digit number representing the card’s expiration month.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>expYear</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
+<td valign="top"><a href="#int">Int</a></td>
 <td>
 
 Four-digit number representing the card’s expiration year.
@@ -16241,6 +17325,43 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 <tr>
 <td colspan="2" valign="top"><strong>user</strong></td>
 <td valign="top"><a href="#user">User</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### DeactivateAllUserTokens
+
+Deactivate all JWT tokens of the currently authenticated user.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]!</td>
 <td></td>
 </tr>
 </tbody>
@@ -16661,11 +17782,6 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>token</strong></td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>content</strong></td>
 <td valign="top"><a href="#digitalcontent">DigitalContent</a>!</td>
 <td></td>
@@ -16695,6 +17811,15 @@ The ID of the object.
 <td>
 
 URL for digital content.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>token</strong></td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td>
+
+UUID of digital content.
 
 </td>
 </tr>
@@ -17285,6 +18410,326 @@ Name of a field that caused the error. A value of `null` indicates that the erro
 The error message.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### ExportError
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The error message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>code</strong></td>
+<td valign="top"><a href="#exporterrorcode">ExportErrorCode</a>!</td>
+<td>
+
+The error code.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ExportEvent
+
+History log of export file.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>date</strong></td>
+<td valign="top"><a href="#datetime">DateTime</a>!</td>
+<td>
+
+Date when event happened at in ISO 8601 format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>type</strong></td>
+<td valign="top"><a href="#exporteventsenum">ExportEventsEnum</a>!</td>
+<td>
+
+Export event type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#user">User</a></td>
+<td>
+
+User who performed the action.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>app</strong></td>
+<td valign="top"><a href="#app">App</a></td>
+<td>
+
+App which performed the action.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Content of the event.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ExportFile
+
+Represents a job data of exported file.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#user">User</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>app</strong></td>
+<td valign="top"><a href="#app">App</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>status</strong></td>
+<td valign="top"><a href="#jobstatusenum">JobStatusEnum</a>!</td>
+<td>
+
+Job status.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createdAt</strong></td>
+<td valign="top"><a href="#datetime">DateTime</a>!</td>
+<td>
+
+Created date time of job in ISO 8601 format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updatedAt</strong></td>
+<td valign="top"><a href="#datetime">DateTime</a>!</td>
+<td>
+
+Date time of job last update in ISO 8601 format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Job message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>url</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The URL of field to download.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>events</strong></td>
+<td valign="top">[<a href="#exportevent">ExportEvent</a>!]</td>
+<td>
+
+List of events associated with the export.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ExportFileCountableConnection
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>pageInfo</strong></td>
+<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
+<td>
+
+Pagination data for this connection.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>edges</strong></td>
+<td valign="top">[<a href="#exportfilecountableedge">ExportFileCountableEdge</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>totalCount</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+A total count of items in the collection.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ExportFileCountableEdge
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#exportfile">ExportFile</a>!</td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ExportProducts
+
+Export products to csv file.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>exportFile</strong></td>
+<td valign="top"><a href="#exportfile">ExportFile</a></td>
+<td>
+
+The newly created export file job which is responsible for export data.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>exportErrors</strong></td>
+<td valign="top">[<a href="#exporterror">ExportError</a>!]!</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -18352,6 +19797,438 @@ Alt text for an image.
 </tbody>
 </table>
 
+### Invoice
+
+Represents an Invoice.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>status</strong></td>
+<td valign="top"><a href="#jobstatusenum">JobStatusEnum</a>!</td>
+<td>
+
+Job status.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>number</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>externalUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
+<td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
+<td>
+
+List of privately stored metadata namespaces.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use the `privetaMetadata` field. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
+<td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
+<td>
+
+List of publicly stored metadata namespaces.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use the `metadata` field. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createdAt</strong></td>
+<td valign="top"><a href="#datetime">DateTime</a>!</td>
+<td>
+
+Created date time of job in ISO 8601 format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updatedAt</strong></td>
+<td valign="top"><a href="#datetime">DateTime</a>!</td>
+<td>
+
+Date time of job last update in ISO 8601 format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Job message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>url</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+URL to download an invoice.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### InvoiceCreate
+
+Creates a ready to send invoice.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoiceErrors</strong></td>
+<td valign="top">[<a href="#invoiceerror">InvoiceError</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoice</strong></td>
+<td valign="top"><a href="#invoice">Invoice</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### InvoiceDelete
+
+Deletes an invoice.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoiceErrors</strong></td>
+<td valign="top">[<a href="#invoiceerror">InvoiceError</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoice</strong></td>
+<td valign="top"><a href="#invoice">Invoice</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### InvoiceError
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The error message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>code</strong></td>
+<td valign="top"><a href="#invoiceerrorcode">InvoiceErrorCode</a>!</td>
+<td>
+
+The error code.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### InvoiceRequest
+
+Request an invoice for the order using plugin.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>order</strong></td>
+<td valign="top"><a href="#order">Order</a></td>
+<td>
+
+Order related to an invoice.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoiceErrors</strong></td>
+<td valign="top">[<a href="#invoiceerror">InvoiceError</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoice</strong></td>
+<td valign="top"><a href="#invoice">Invoice</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### InvoiceRequestDelete
+
+Requests deletion of an invoice.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoiceErrors</strong></td>
+<td valign="top">[<a href="#invoiceerror">InvoiceError</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoice</strong></td>
+<td valign="top"><a href="#invoice">Invoice</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### InvoiceSendEmail
+
+Send an invoice by email.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoiceErrors</strong></td>
+<td valign="top">[<a href="#invoiceerror">InvoiceError</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoice</strong></td>
+<td valign="top"><a href="#invoice">Invoice</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### InvoiceUpdate
+
+Updates an invoice.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoiceErrors</strong></td>
+<td valign="top">[<a href="#invoiceerror">InvoiceError</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>invoice</strong></td>
+<td valign="top"><a href="#invoice">Invoice</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### LanguageDisplay
 
 <table>
@@ -18381,6 +20258,83 @@ ISO 639 representation of the language name.
 Full name of the language.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### Manifest
+
+The manifest definition.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>identifier</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>version</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>about</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top">[<a href="#permission">Permission</a>]</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>appUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>configurationUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>tokenTargetUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dataPrivacy</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>dataPrivacyUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>homepageUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>supportUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -19754,6 +21708,15 @@ Shipping methods that can be used with this order.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>invoices</strong></td>
+<td valign="top">[<a href="#invoice">Invoice</a>]</td>
+<td>
+
+List of order invoices.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>number</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -20421,6 +22384,15 @@ User-friendly number of an order.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>invoiceNumber</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Number of an invoice related to the order.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>oversoldItems</strong></td>
 <td valign="top">[<a href="#string">String</a>]</td>
 <td>
@@ -20714,6 +22686,15 @@ Size of thumbnail.
 <td>
 
 Price of the single item in the order line.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>totalPrice</strong></td>
+<td valign="top"><a href="#taxedmoney">TaxedMoney</a></td>
+<td>
+
+Price of the order line.
 
 </td>
 </tr>
@@ -21801,18 +23782,8 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>billingEmail</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>customerIpAddress</strong></td>
 <td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>extraData</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -21848,15 +23819,6 @@ Total amount of the payment.
 <td>
 
 Total amount captured for this payment.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>billingAddress</strong></td>
-<td valign="top"><a href="#address">Address</a></td>
-<td>
-
-Customer billing address.
 
 </td>
 </tr>
@@ -22099,58 +24061,21 @@ Payment gateway client configuration.
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>currencies</strong></td>
+<td valign="top">[<a href="#string">String</a>]!</td>
+<td>
+
+Payment gateway supported currencies.
+
+</td>
+</tr>
 </tbody>
 </table>
 
 ### PaymentRefund
 
 Refunds the captured payment amount.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
-<td valign="top">[<a href="#error">Error</a>!]!</td>
-<td>
-
-List of errors that occurred executing the mutation.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-Use typed errors with error codes. This field will be removed after 2020-07-31.
-
-</blockquote>
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>payment</strong></td>
-<td valign="top"><a href="#payment">Payment</a></td>
-<td>
-
-Updated payment.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>paymentErrors</strong></td>
-<td valign="top">[<a href="#paymenterror">PaymentError</a>!]!</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-### PaymentSecureConfirm
-
-Confirms payment in a two-step process like 3D secure
 
 <table>
 <thead>
@@ -22340,13 +24265,13 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>group</strong></td>
-<td valign="top"><a href="#group">Group</a></td>
+<td colspan="2" valign="top"><strong>permissionGroupErrors</strong></td>
+<td valign="top">[<a href="#permissiongrouperror">PermissionGroupError</a>!]!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>permissionGroupErrors</strong></td>
-<td valign="top">[<a href="#permissiongrouperror">PermissionGroupError</a>!]!</td>
+<td colspan="2" valign="top"><strong>group</strong></td>
+<td valign="top"><a href="#group">Group</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -22484,13 +24409,13 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>group</strong></td>
-<td valign="top"><a href="#group">Group</a></td>
+<td colspan="2" valign="top"><strong>permissionGroupErrors</strong></td>
+<td valign="top">[<a href="#permissiongrouperror">PermissionGroupError</a>!]!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>permissionGroupErrors</strong></td>
-<td valign="top">[<a href="#permissiongrouperror">PermissionGroupError</a>!]!</td>
+<td colspan="2" valign="top"><strong>group</strong></td>
+<td valign="top"><a href="#group">Group</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -22782,6 +24707,21 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>availableForPurchase</strong></td>
+<td valign="top"><a href="#date">Date</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>visibleInListings</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>defaultVariant</strong></td>
+<td valign="top"><a href="#productvariant">ProductVariant</a></td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>privateMetadata</strong></td>
 <td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
 <td>
@@ -22877,42 +24817,6 @@ Lists the storefront product's pricing, the current price and discounts, only me
 <td>
 
 Whether the product is in stock and visible or not.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>availableForPurchase</strong></td>
-<td valign="top"><a href="#date">Date</a></td>
-<td>
-
-Date since when product is available for purchase.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>isAvailableForPurchase</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
-<td>
-
-Whether the product is available for purchase.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>visibleInListings</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a></td>
-<td>
-
-Whether the product is visible in listings.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>basePrice</strong></td>
-<td valign="top"><a href="#money">Money</a></td>
-<td>
-
-The product's default base price.
 
 </td>
 </tr>
@@ -23013,6 +24917,15 @@ Returns translated product fields for the given language code.
 <td>
 
 A language code to return the translation for product.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isAvailableForPurchase</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Whether the product is available for purchase.
 
 </td>
 </tr>
@@ -23798,6 +25711,48 @@ The undiscounted price range of the product variants.
 The discounted price range of the product variants in the local currency.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### ProductSetAvailabilityForPurchase
+
+Set product availability for purchase date.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>product</strong></td>
+<td valign="top"><a href="#product">Product</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productErrors</strong></td>
+<td valign="top">[<a href="#producterror">ProductError</a>!]!</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -24928,17 +26883,17 @@ Quantity of a product available for sale.
 <p>⚠️ <strong>DEPRECATED</strong></p>
 <blockquote>
 
-Use the stock field instead. This field will be removed after 2020-07-31.
+Use the quantityAvailable field instead. This field will be removed after 2020-07-31.
 
 </blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>priceOverride</strong></td>
+<td colspan="2" valign="top"><strong>price</strong></td>
 <td valign="top"><a href="#money">Money</a></td>
 <td>
 
-Override the base price of a product if necessary. A value of `null` indicates that the default product price is used.
+Base price of a product variant. This field is restricted for admins. Use the pricing field to get the public price for customers.
 
 </td>
 </tr>
@@ -25067,6 +27022,24 @@ Stocks for the product variant.
 <td>
 
 Two-letter ISO 3166-1 country code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>quantityAvailable</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td>
+
+Quantity of a product available for sale in one checkout.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">countryCode</td>
+<td valign="top"><a href="#countrycode">CountryCode</a></td>
+<td>
+
+Two-letter ISO 3166-1 country code. When provided, the exact quantity from a warehouse operating in shipping zones that contain this country will be returned. Otherwise, it will return the maximum quantity from all shipping zones.
 
 </td>
 </tr>
@@ -25408,6 +27381,90 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 <tr>
 <td colspan="2" valign="top"><strong>productVariant</strong></td>
 <td valign="top"><a href="#productvariant">ProductVariant</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ProductVariantReorder
+
+Reorder the variants of a product. Mutation updates updated_at on product and triggers PRODUCT_UPDATED webhook.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>product</strong></td>
+<td valign="top"><a href="#product">Product</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productErrors</strong></td>
+<td valign="top">[<a href="#producterror">ProductError</a>!]!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ProductVariantSetDefault
+
+Set default variant for a product. Mutation triggers PRODUCT_UPDATED webhook.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>product</strong></td>
+<td valign="top"><a href="#product">Product</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productErrors</strong></td>
+<td valign="top">[<a href="#producterror">ProductError</a>!]!</td>
 <td></td>
 </tr>
 </tbody>
@@ -25850,9 +27907,7 @@ A type of goods.
 
 ### RefreshToken
 
-Mutation that refresh user token.
-
-It overrides the default graphql_jwt.Refresh to update user's last_login field.
+Refresh JWT token. Mutation tries to take refreshToken from the input.If it fails it will try to take refreshToken from the http-only cookie -refreshToken. csrfToken is required when refreshToken is provided as a cookie.
 
 <table>
 <thead>
@@ -25865,13 +27920,41 @@ It overrides the default graphql_jwt.Refresh to update user's last_login field.
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>token</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>payload</strong></td>
-<td valign="top"><a href="#genericscalar">GenericScalar</a></td>
+<td colspan="2" valign="top"><strong>token</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+JWT token, required to authenticate.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#user">User</a></td>
+<td>
+
+A user instance.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]!</td>
 <td></td>
 </tr>
 </tbody>
@@ -27231,14 +29314,12 @@ Sets the user's password from the token sent by email using the RequestPasswordR
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>token</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
 <td valign="top">[<a href="#error">Error</a>!]!</td>
 <td>
+
+List of errors that occurred executing the mutation.
+
 <p>⚠️ <strong>DEPRECATED</strong></p>
 <blockquote>
 
@@ -27248,11 +29329,29 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>accountErrors</strong></td>
-<td valign="top">[<a href="#accounterror">AccountError</a>!]!</td>
+<td colspan="2" valign="top"><strong>token</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td>
 
-List of errors that occurred executing the mutation.
+JWT token, required to authenticate.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>refreshToken</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+JWT refresh token, required to re-generate access token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>csrfToken</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+CSRF token required to re-generate access token.
 
 </td>
 </tr>
@@ -27264,6 +29363,11 @@ List of errors that occurred executing the mutation.
 A user instance.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]!</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -27960,13 +30064,13 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>shippingZone</strong></td>
-<td valign="top"><a href="#shippingzone">ShippingZone</a></td>
+<td colspan="2" valign="top"><strong>shippingErrors</strong></td>
+<td valign="top">[<a href="#shippingerror">ShippingError</a>!]!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>shippingErrors</strong></td>
-<td valign="top">[<a href="#shippingerror">ShippingError</a>!]!</td>
+<td colspan="2" valign="top"><strong>shippingZone</strong></td>
+<td valign="top"><a href="#shippingzone">ShippingZone</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -28044,13 +30148,13 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>shippingZone</strong></td>
-<td valign="top"><a href="#shippingzone">ShippingZone</a></td>
+<td colspan="2" valign="top"><strong>shippingErrors</strong></td>
+<td valign="top">[<a href="#shippingerror">ShippingError</a>!]!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>shippingErrors</strong></td>
-<td valign="top">[<a href="#shippingerror">ShippingError</a>!]!</td>
+<td colspan="2" valign="top"><strong>shippingZone</strong></td>
+<td valign="top"><a href="#shippingzone">ShippingZone</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -28080,6 +30184,15 @@ List of available payment gateways.
 </td>
 </tr>
 <tr>
+<td colspan="2" align="right" valign="top">currency</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+A currency for which gateways will be returned.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>geolocalization</strong></td>
 <td valign="top"><a href="#geolocalization">Geolocalization</a></td>
 <td>
@@ -28099,7 +30212,7 @@ List of configured authorization keys. Authorization keys are used to enable thi
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>countries</strong></td>
-<td valign="top">[<a href="#countrydisplay">CountryDisplay</a>]!</td>
+<td valign="top">[<a href="#countrydisplay">CountryDisplay</a>!]!</td>
 <td>
 
 List of countries available in the shop.
@@ -29139,15 +31252,6 @@ The ID of the object.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>stockQuantity</strong></td>
-<td valign="top"><a href="#int">Int</a>!</td>
-<td>
-
-Quantity of a product available for sale.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>quantityAllocated</strong></td>
 <td valign="top"><a href="#int">Int</a>!</td>
 <td>
@@ -29446,11 +31550,6 @@ The ID of the object.
 <tr>
 <td colspan="2" valign="top"><strong>error</strong></td>
 <td valign="top"><a href="#transactionerror">TransactionError</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>gatewayResponse</strong></td>
-<td valign="top"><a href="#jsonstring">JSONString</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -30611,7 +32710,7 @@ The discounted price in the local currency.
 
 ### VerifyToken
 
-Mutation that confirms if token is valid and also returns user data.
+Verify JWT token.
 
 <table>
 <thead>
@@ -30624,13 +32723,50 @@ Mutation that confirms if token is valid and also returns user data.
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>payload</strong></td>
-<td valign="top"><a href="#genericscalar">GenericScalar</a></td>
-<td></td>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>user</strong></td>
 <td valign="top"><a href="#user">User</a></td>
+<td>
+
+User assigned to token.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isValid</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td>
+
+Determine if token is valid or not.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>payload</strong></td>
+<td valign="top"><a href="#genericscalar">GenericScalar</a></td>
+<td>
+
+JWT payload.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>accountErrors</strong></td>
+<td valign="top">[<a href="#accounterror">AccountError</a>!]!</td>
 <td></td>
 </tr>
 </tbody>
@@ -31671,13 +33807,13 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>warehouse</strong></td>
-<td valign="top"><a href="#warehouse">Warehouse</a></td>
+<td colspan="2" valign="top"><strong>warehouseErrors</strong></td>
+<td valign="top">[<a href="#warehouseerror">WarehouseError</a>!]!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>warehouseErrors</strong></td>
-<td valign="top">[<a href="#warehouseerror">WarehouseError</a>!]!</td>
+<td colspan="2" valign="top"><strong>warehouse</strong></td>
+<td valign="top"><a href="#warehouse">Warehouse</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -31713,13 +33849,13 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>warehouse</strong></td>
-<td valign="top"><a href="#warehouse">Warehouse</a></td>
+<td colspan="2" valign="top"><strong>warehouseErrors</strong></td>
+<td valign="top">[<a href="#warehouseerror">WarehouseError</a>!]!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>warehouseErrors</strong></td>
-<td valign="top">[<a href="#warehouseerror">WarehouseError</a>!]!</td>
+<td colspan="2" valign="top"><strong>warehouse</strong></td>
+<td valign="top"><a href="#warehouse">Warehouse</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -31982,13 +34118,13 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>webhook</strong></td>
-<td valign="top"><a href="#webhook">Webhook</a></td>
+<td colspan="2" valign="top"><strong>webhookErrors</strong></td>
+<td valign="top">[<a href="#webhookerror">WebhookError</a>!]!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>webhookErrors</strong></td>
-<td valign="top">[<a href="#webhookerror">WebhookError</a>!]!</td>
+<td colspan="2" valign="top"><strong>webhook</strong></td>
+<td valign="top"><a href="#webhook">Webhook</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -32101,13 +34237,13 @@ Use typed errors with error codes. This field will be removed after 2020-07-31.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>webhook</strong></td>
-<td valign="top"><a href="#webhook">Webhook</a></td>
+<td colspan="2" valign="top"><strong>webhookErrors</strong></td>
+<td valign="top">[<a href="#webhookerror">WebhookError</a>!]!</td>
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>webhookErrors</strong></td>
-<td valign="top">[<a href="#webhookerror">WebhookError</a>!]!</td>
+<td colspan="2" valign="top"><strong>webhook</strong></td>
+<td valign="top"><a href="#webhook">Webhook</a></td>
 <td></td>
 </tr>
 </tbody>
@@ -32129,7 +34265,7 @@ Represents weight value in a specific weight unit.
 <tbody>
 <tr>
 <td colspan="2" valign="top"><strong>unit</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
+<td valign="top"><a href="#weightunitsenum">WeightUnitsEnum</a>!</td>
 <td>
 
 Weight unit.
@@ -32395,6 +34531,11 @@ Phone number.
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>type</strong></td>
+<td valign="top"><a href="#apptypeenum">AppTypeEnum</a></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -32423,7 +34564,57 @@ Name of the app.
 <td valign="top"><a href="#boolean">Boolean</a></td>
 <td>
 
-Determine if this app should be enabled.
+DEPRECATED: Use the `appActivate` and `appDeactivate` mutations instead. This field will be removed after 2020-07-31.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>permissions</strong></td>
+<td valign="top">[<a href="#permissionenum">PermissionEnum</a>]</td>
+<td>
+
+List of permission code names to assign to this app.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### AppInstallInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>appName</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Name of the app to install.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>manifestUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Url to app's manifest in JSON format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>activateAfterInstallation</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Determine if app will be set active or not.
 
 </td>
 </tr>
@@ -33881,7 +36072,7 @@ Email address of the customer.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>discount</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Discount amount for the order.
@@ -33972,7 +36163,7 @@ Email address of the customer.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>discount</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Discount amount for the order.
@@ -34012,6 +36203,177 @@ ID of the voucher associated with the order.
 <td>
 
 A note from a customer. Visible by customers in the order summary.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ExportFileFilterInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>createdAt</strong></td>
+<td valign="top"><a href="#datetimerangeinput">DateTimeRangeInput</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updatedAt</strong></td>
+<td valign="top"><a href="#datetimerangeinput">DateTimeRangeInput</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>status</strong></td>
+<td valign="top"><a href="#jobstatusenum">JobStatusEnum</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>app</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ExportFileSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#exportfilesortfield">ExportFileSortField</a>!</td>
+<td>
+
+Sort export file by the selected field.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ExportInfoInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>attributes</strong></td>
+<td valign="top">[<a href="#id">ID</a>!]</td>
+<td>
+
+List of attribute ids witch should be exported.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouses</strong></td>
+<td valign="top">[<a href="#id">ID</a>!]</td>
+<td>
+
+List of warehouse ids witch should be exported.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fields</strong></td>
+<td valign="top">[<a href="#productfieldenum">ProductFieldEnum</a>!]</td>
+<td>
+
+List of product fields witch should be exported.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ExportProductsInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>scope</strong></td>
+<td valign="top"><a href="#exportscope">ExportScope</a>!</td>
+<td>
+
+Determine which products should be exported.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>filter</strong></td>
+<td valign="top"><a href="#productfilterinput">ProductFilterInput</a></td>
+<td>
+
+Filtering options for products.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>ids</strong></td>
+<td valign="top">[<a href="#id">ID</a>!]</td>
+<td>
+
+List of products IDS to export.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>exportInfo</strong></td>
+<td valign="top"><a href="#exportinfoinput">ExportInfoInput</a></td>
+<td>
+
+Input with info about fields which should be exported.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>fileType</strong></td>
+<td valign="top"><a href="#filetypesenum">FileTypesEnum</a>!</td>
+<td>
+
+Type of exported file.
 
 </td>
 </tr>
@@ -34104,7 +36466,7 @@ End date of the gift card in ISO 8601 format.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>balance</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Value of the gift card.
@@ -34163,7 +36525,7 @@ End date of the gift card in ISO 8601 format.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>balance</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Value of the gift card.
@@ -34208,6 +36570,38 @@ Value greater than or equal to.
 <td>
 
 Value less than or equal to.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### InvoiceCreateInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>number</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+Invoice number.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>url</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+URL of an invoice to download.
 
 </td>
 </tr>
@@ -34477,7 +36871,7 @@ ID of the parent menu. If empty, menu will be top level menu.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-Sorting position of the menu item (from 0 to x).
+The new relative sorting position of the item (from -inf to +inf). 1 moves the item one position forward, -1 moves the item one position backward, 0 leaves the item unchanged.
 
 </td>
 </tr>
@@ -34696,7 +37090,7 @@ The ID of the product to move.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-The relative sorting position of the product (from -inf to +inf) starting from the first given product's actual position.
+The relative sorting position of the product (from -inf to +inf) starting from the first given product's actual position.1 moves the item one position forward, -1 moves the item one position backward, 0 leaves the item unchanged.
 
 </td>
 </tr>
@@ -35249,7 +37643,7 @@ A gateway to use with that payment.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>token</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
+<td valign="top"><a href="#string">String</a></td>
 <td>
 
 Client-side generated payment token, representing customer's billing data in a secure manner.
@@ -35258,7 +37652,7 @@ Client-side generated payment token, representing customer's billing data in a s
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>amount</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Total amount of the transaction, including all taxes and discounts. If no amount is provided, the checkout total will be used.
@@ -35271,6 +37665,15 @@ Total amount of the transaction, including all taxes and discounts. If no amount
 <td>
 
 [Deprecated] Billing address. If empty, the billing address associated with the checkout instance will be used. Use `checkoutCreate` or `checkoutBillingAddressUpdate` mutations to set it. This field will be removed after 2020-07-31.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>returnUrl</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+URL of a storefront view where user should be redirected after requiring additional actions. Payment with additional actions will not be finished if this field is not provided.
 
 </td>
 </tr>
@@ -35650,15 +38053,6 @@ Product slug.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>basePrice</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
-<td>
-
-Product price.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>taxCode</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -35700,6 +38094,24 @@ Stock keeping unit of a product. Note: this field is only used if a product does
 <td>
 
 Determines if the inventory of this product should be tracked. If false, the quantity won't change when customers buy this item. Note: this field is only used if a product doesn't use variants.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>basePrice</strong></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
+<td>
+
+Default price for product variant. Note: this field is only used if a product doesn't use variants.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>visibleInListings</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Determines if product is visible in product listings (doesn't apply to product collections).
 
 </td>
 </tr>
@@ -35756,11 +38168,6 @@ Stocks of a product available for sale. Note: this field is only used if a produ
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>price</strong></td>
-<td valign="top"><a href="#pricerangeinput">PriceRangeInput</a></td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>attributes</strong></td>
 <td valign="top">[<a href="#attributeinput">AttributeInput</a>]</td>
 <td></td>
@@ -35783,6 +38190,11 @@ Stocks of a product available for sale. Note: this field is only used if a produ
 <tr>
 <td colspan="2" valign="top"><strong>search</strong></td>
 <td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>price</strong></td>
+<td valign="top"><a href="#pricerangeinput">PriceRangeInput</a></td>
 <td></td>
 </tr>
 <tr>
@@ -35964,15 +38376,6 @@ Product slug.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>basePrice</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
-<td>
-
-Product price.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>taxCode</strong></td>
 <td valign="top"><a href="#string">String</a></td>
 <td>
@@ -36014,6 +38417,24 @@ Stock keeping unit of a product. Note: this field is only used if a product does
 <td>
 
 Determines if the inventory of this product should be tracked. If false, the quantity won't change when customers buy this item. Note: this field is only used if a product doesn't use variants.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>basePrice</strong></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
+<td>
+
+Default price for product variant. Note: this field is only used if a product doesn't use variants.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>visibleInListings</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a></td>
+<td>
+
+Determines if product is visible in product listings (doesn't apply to product collections).
 
 </td>
 </tr>
@@ -36269,7 +38690,7 @@ List of attributes specific to this variant.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>costPrice</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Cost price of the variant.
@@ -36277,11 +38698,11 @@ Cost price of the variant.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>priceOverride</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td colspan="2" valign="top"><strong>price</strong></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
-Special price of the particular variant.
+Price of the particular variant.
 
 </td>
 </tr>
@@ -36346,7 +38767,7 @@ List of attributes specific to this variant.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>costPrice</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Cost price of the variant.
@@ -36354,11 +38775,11 @@ Cost price of the variant.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>priceOverride</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td colspan="2" valign="top"><strong>price</strong></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
-Special price of the particular variant.
+Price of the particular variant.
 
 </td>
 </tr>
@@ -36432,7 +38853,7 @@ List of attributes specific to this variant.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>costPrice</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Cost price of the variant.
@@ -36440,11 +38861,11 @@ Cost price of the variant.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>priceOverride</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td colspan="2" valign="top"><strong>price</strong></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
-Special price of the particular variant.
+Price of the particular variant.
 
 </td>
 </tr>
@@ -36503,7 +38924,7 @@ The ID of the item to move.
 <td valign="top"><a href="#int">Int</a></td>
 <td>
 
-The new relative sorting position of the item (from -inf to +inf).
+The new relative sorting position of the item (from -inf to +inf). 1 moves the item one position forward, -1 moves the item one position backward, 0 leaves the item unchanged.
 
 </td>
 </tr>
@@ -36575,7 +38996,7 @@ Fixed or percentage.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>value</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Value of the voucher.
@@ -36845,7 +39266,7 @@ Name of the shipping method.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>price</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Shipping price of the shipping method.
@@ -36854,7 +39275,7 @@ Shipping price of the shipping method.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>minimumOrderPrice</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Minimum order price to use this shipping method.
@@ -36863,7 +39284,7 @@ Minimum order price to use this shipping method.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>maximumOrderPrice</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Maximum order price to use this shipping method.
@@ -37519,6 +39940,38 @@ Quantity of items available for sell.
 </tbody>
 </table>
 
+### UpdateInvoiceInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>number</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Invoice number
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>url</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+URL of an invoice to download.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### UserCreateInput
 
 <table>
@@ -37743,7 +40196,7 @@ Choices: fixed or percentage.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>discountValue</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Value of the voucher.
@@ -37779,7 +40232,7 @@ Categories discounted by the voucher.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>minAmountSpent</strong></td>
-<td valign="top"><a href="#decimal">Decimal</a></td>
+<td valign="top"><a href="#positivedecimal">PositiveDecimal</a></td>
 <td>
 
 Min purchase amount required to apply the voucher.
@@ -38169,7 +40622,7 @@ The url to receive the payload.
 <td valign="top">[<a href="#webhookeventtypeenum">WebhookEventTypeEnum</a>]</td>
 <td>
 
-The events that webhook wants to subscribe.
+The events that webhook wants to subscribe. The CHECKOUT_QUANTITY_CHANGED is depreacted. It will be removed in Saleor 3.0
 
 </td>
 </tr>
@@ -38302,7 +40755,7 @@ The url to receive the payload.
 <td valign="top">[<a href="#webhookeventtypeenum">WebhookEventTypeEnum</a>]</td>
 <td>
 
-The events that webhook wants to subscribe.
+The events that webhook wants to subscribe. The CHECKOUT_QUANTITY_CHANGED is depreacted. It will be removed in Saleor 3.0
 
 </td>
 </tr>
@@ -38457,6 +40910,26 @@ An enumeration.
 <td valign="top"><strong>UNIQUE</strong></td>
 <td></td>
 </tr>
+<tr>
+<td valign="top"><strong>JWT_SIGNATURE_EXPIRED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>JWT_INVALID_TOKEN</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>JWT_DECODE_ERROR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>JWT_MISSING_TOKEN</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>JWT_INVALID_CSRF_TOKEN</strong></td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -38492,11 +40965,35 @@ An enumeration.
 </thead>
 <tbody>
 <tr>
+<td valign="top"><strong>FORBIDDEN</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>GRAPHQL_ERROR</strong></td>
 <td></td>
 </tr>
 <tr>
 <td valign="top"><strong>INVALID</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID_STATUS</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID_PERMISSION</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID_URL_FORMAT</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID_MANIFEST_FORMAT</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>MANIFEST_URL_CANT_CONNECT</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -38545,6 +41042,27 @@ Sort apps by name.
 Sort apps by creation date.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### AppTypeEnum
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>LOCAL</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>THIRDPARTY</strong></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -38775,6 +41293,14 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>GRAPHQL_ERROR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PRODUCT_NOT_PUBLISHED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PRODUCT_UNAVAILABLE_FOR_PURCHASE</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -40080,6 +42606,159 @@ An enumeration.
 </tbody>
 </table>
 
+### ExportErrorCode
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>INVALID</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>NOT_FOUND</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>REQUIRED</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ExportEventsEnum
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>EXPORT_PENDING</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>EXPORT_SUCCESS</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>EXPORT_FAILED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>EXPORT_DELETED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>EXPORTED_FILE_SENT</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>EXPORT_FAILED_INFO_SENT</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ExportFileSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>STATUS</strong></td>
+<td>
+
+Sort export file by status.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>CREATED_AT</strong></td>
+<td>
+
+Sort export file by created at.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>UPDATED_AT</strong></td>
+<td>
+
+Sort export file by updated at.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### ExportScope
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>ALL</strong></td>
+<td>
+
+Export all products.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>IDS</strong></td>
+<td>
+
+Export products with given ids.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>FILTER</strong></td>
+<td>
+
+Export the filtered products.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### FileTypesEnum
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>CSV</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>XLSX</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### FulfillmentStatus
 
 An enumeration.
@@ -40141,6 +42820,76 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>UNIQUE</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### InvoiceErrorCode
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>REQUIRED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>NOT_READY</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>URL_NOT_SET</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>EMAIL_NOT_SET</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>NUMBER_NOT_SET</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>NOT_FOUND</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID_STATUS</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### JobStatusEnum
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>PENDING</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>SUCCESS</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>FAILED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>DELETED</strong></td>
 <td></td>
 </tr>
 </tbody>
@@ -40213,6 +42962,10 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>FI</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>FR</strong></td>
 <td></td>
 </tr>
@@ -40245,6 +42998,10 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>KM</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>KO</strong></td>
 <td></td>
 </tr>
@@ -40254,6 +43011,10 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>MN</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>MY</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -40289,6 +43050,10 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>SL</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>SQ</strong></td>
 <td></td>
 </tr>
@@ -40297,11 +43062,15 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>SV</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>SW</strong></td>
 <td></td>
 </tr>
 <tr>
-<td valign="top"><strong>SV</strong></td>
+<td valign="top"><strong>TA</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -40599,6 +43368,14 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>PRODUCT_NOT_PUBLISHED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PRODUCT_UNAVAILABLE_FOR_PURCHASE</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>NOT_FOUND</strong></td>
 <td></td>
 </tr>
@@ -40624,6 +43401,10 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>SHIPPING_METHOD_REQUIRED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>TAX_ERROR</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -40673,6 +43454,14 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>ORDER_CONFIRMATION</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>ORDER_CANCEL</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>ORDER_REFUND</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -40741,7 +43530,15 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>PAYMENT_AUTHORIZED</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>PAYMENT_CAPTURED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>EXTERNAL_SERVICE_NOTIFICATION</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -40754,6 +43551,22 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>PAYMENT_FAILED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVOICE_REQUESTED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVOICE_GENERATED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVOICE_UPDATED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVOICE_SENT</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -41029,6 +43842,10 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>PENDING</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>PARTIALLY_CHARGED</strong></td>
 <td></td>
 </tr>
@@ -41042,6 +43859,14 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>FULLY_REFUNDED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>REFUSED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>CANCELLED</strong></td>
 <td></td>
 </tr>
 </tbody>
@@ -41074,7 +43899,27 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>REQUIRED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>UNIQUE</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>PARTIAL_PAYMENT_NOT_ALLOWED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>SHIPPING_ADDRESS_NOT_SET</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID_SHIPPING_METHOD</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>SHIPPING_METHOD_NOT_SET</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -41082,11 +43927,7 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
-<td valign="top"><strong>REQUIRED</strong></td>
-<td></td>
-</tr>
-<tr>
-<td valign="top"><strong>UNIQUE</strong></td>
+<td valign="top"><strong>NOT_SUPPORTED_GATEWAY</strong></td>
 <td></td>
 </tr>
 </tbody>
@@ -41328,6 +44169,10 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>NOT_PRODUCTS_VARIANT</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>NOT_FOUND</strong></td>
 <td></td>
 </tr>
@@ -41341,6 +44186,81 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>VARIANT_NO_DIGITAL_CONTENT</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ProductFieldEnum
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>DESCRIPTION</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PRODUCT_TYPE</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>CATEGORY</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>VISIBLE</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>AVAILABLE_FOR_PURCHASE</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>SEARCHABLE</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PRODUCT_WEIGHT</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>COLLECTIONS</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>CHARGE_TAXES</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PRODUCT_IMAGES</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>VARIANT_SKU</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>VARIANT_PRICE</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>COST_PRICE</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>VARIANT_WEIGHT</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>VARIANT_IMAGES</strong></td>
 <td></td>
 </tr>
 </tbody>
@@ -42011,10 +44931,34 @@ Authorization
 </td>
 </tr>
 <tr>
+<td valign="top"><strong>PENDING</strong></td>
+<td>
+
+Pending
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>ACTION_TO_CONFIRM</strong></td>
+<td>
+
+Action to confirm
+
+</td>
+</tr>
+<tr>
 <td valign="top"><strong>REFUND</strong></td>
 <td>
 
 Refund
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>REFUND_ONGOING</strong></td>
+<td>
+
+Refund in progress
 
 </td>
 </tr>
@@ -42039,6 +44983,14 @@ Void
 <td>
 
 Confirm
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>CANCEL</strong></td>
+<td>
+
+Cancel
 
 </td>
 </tr>
@@ -42405,11 +45357,31 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>INVOICE_REQUESTED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVOICE_DELETED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVOICE_SENT</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>CUSTOMER_CREATED</strong></td>
 <td></td>
 </tr>
 <tr>
 <td valign="top"><strong>PRODUCT_CREATED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PRODUCT_UPDATED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>CHECKOUT_QUANTITY_CHANGED</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -42458,11 +45430,31 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>INVOICE_REQUESTED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVOICE_DELETED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVOICE_SENT</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>CUSTOMER_CREATED</strong></td>
 <td></td>
 </tr>
 <tr>
 <td valign="top"><strong>PRODUCT_CREATED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PRODUCT_UPDATED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>CHECKOUT_QUANTITY_CHANGED</strong></td>
 <td></td>
 </tr>
 <tr>
@@ -42570,13 +45562,6 @@ The `DateTime` scalar type represents a DateTime
 value as specified by
 [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
 
-### Decimal
-
-Custom Decimal implementation.
-
-Returns Decimal as a float in the API,
-parses float to the Decimal on the way back.
-
 ### Float
 
 The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point). 
@@ -42602,14 +45587,17 @@ Allows use of a JSON String for input / output from the GraphQL schema.
 Use of this type is *not recommended* as you lose the benefits of having a defined, static
 schema (one of the key benefits of GraphQL).
 
+### PositiveDecimal
+
+Positive Decimal scalar implementation.
+
+Should be used in places where value must be positive.
+
 ### String
 
 The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
 
 ### UUID
-
-Leverages the internal Python implmeentation of UUID (uuid.UUID) to provide native UUID objects
-in fields, resolvers and input.
 
 ### Upload
 
@@ -42624,6 +45612,57 @@ Anything
 
 ## Interfaces
 
+
+### Job
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>status</strong></td>
+<td valign="top"><a href="#jobstatusenum">JobStatusEnum</a>!</td>
+<td>
+
+Job status.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createdAt</strong></td>
+<td valign="top"><a href="#datetime">DateTime</a>!</td>
+<td>
+
+Created date time of job in ISO 8601 format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updatedAt</strong></td>
+<td valign="top"><a href="#datetime">DateTime</a>!</td>
+<td>
+
+Date time of job last update in ISO 8601 format.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Job message.
+
+</td>
+</tr>
+</tbody>
+</table>
 
 ### Node
 
