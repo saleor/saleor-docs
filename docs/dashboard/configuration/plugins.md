@@ -85,3 +85,40 @@ Adyen uses a notification system. Enabling it is required for proper work of pay
     * Copy the username from _Authentication_ section and paste it to Saleor field **Notification user**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
     * Copy the password from _Authentication_ section and paste it to Saleor field **Notification password**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
 3. To test your configuration check [the Adyen docs about testing the configuration.](https://docs.adyen.com/development-resources/webhooks#test-your-notifications-server)
+
+## OpenID Connect
+
+### Enabling OpenID Connect plugin
+Go to Configuration -> Plugins -> OpenID Connect and fill in the fields:
+
+- **Client ID:** Your client ID, required to authenticate on the OAuth provider side.
+- **Client secret:** Your client secret, required to authenticate on the OAuth provider side.
+- **Enable refresh token:** Determine if the refresh token should be also fetched from the provider. By disabling it, users will need to re-login after the access token expired. By enabling it, frontend apps will be able to refresh the access token.
+- **OAuth authorization url:** Based on the authorization URL, Saleor will generate the redirect URL for the authorization request
+- **OAuth token url:** The URL used to exchange received OAuth code to the OAuth token
+- **JSON web key set url:** The JSON Web Key Set (JWKS) is a set of keys containing the public 
+keys used to verify any JSON Web Token (JWT) issued by the authorization server
+- **OAuth logout url:** The logout URL which Saleor will return for frontend's logout request
+- **Audience** The Oauth resource identifier. If provided, Saleor will define the audience for each authorization request.  Used to fetch user permissions from OAuth provider and map it to Saleor's permission
+
+
+:::note
+After the user finishes the authentication process, the OAuth provider redirects the user to Saleor to exchange code for the token. Make sure that your OAuth provider has whitelisted Saleor's redirect URL.
+
+`http(s)://<your-saleor-backend>/plugins/mirumee.authentication.openidconnect/callback`
+:::
+
+
+Below you can find an example configuration of the OpenID Connect plugin:
+![OpenID Connect](../screenshots/config-plugins-openid-connect.png)
+
+
+### Using OAuth permissions in Saleor
+
+Saleor will request his own permissions as OAuth scopes.  Each permission has the prefix `saleor:`.  If the user has assigned Saleor's permissions on the OAuth side, Saleor will grant them to the logged-in user.
+Your OAuth app needs to have an assigned audience with proper Saleor's permissions with prefix `saleor:`.
+
+>*UserA* has assigned permissions on the OAuth side - `saleor:manage_apps` and `saleor:manage_orders`, *UserB* has assigned 
+> permission - `saleor:manage_users`. When *UserA* logs in to the Saleor using *OpenID Connect* plugin, the plugin will grant the *UserA*
+> permissions to *MANAGE_APPS* and *MANAGE_ORDERS*. The *UserB* will have access to resources protected by *MANAGE_USERS*
+
