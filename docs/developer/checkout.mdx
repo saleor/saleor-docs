@@ -225,6 +225,7 @@ The `checkoutPaymentCreate` mutation requires the following input:
 - `gateway`: the ID of the selected payment gateway (list of the available payment gateways can be fetched from the `Checkout.availablePaymentGateways` field). The selected gateway must support the checkout currency.
 - `token`: a client-side generated payment token (if required).
 - `amount`: the total amount of this operation.
+- `returnUrl`: URL of a storefront view where user should be redirected after requiring additional actions. Payment with additional actions will not be finished if this field is not provided
 
 This mutation returns the following fields:
 
@@ -274,7 +275,7 @@ As a result, we get the payment object:
 
 ## Completing the checkout
 
-This operation requires only the checkout ID as an input. Its purpose is to ensure this checkout is correct. To do this, it verifies if:
+This operation purpose is to ensure this checkout is correct. To do this, it verifies if:
 
 1. The required addresses are valid.
 
@@ -282,15 +283,22 @@ This operation requires only the checkout ID as an input. Its purpose is to ensu
 
 3. The payment creation succeeded.
 
+4. No additional actions are required.
+
 If these are satisfied, the checkout is transformed into an order and the customer receives a confirmation email.
 
 The `checkoutComplete` mutation requires the following input:
 
 - `checkoutId`: the ID of the checkout to complete.
+- `storeSource`: determines whether to store the payment source for future usage.
+- `redirectUrl`: URL of a view where users should be redirected to see the order details. URL in RFC 1808 format
+- `paymentData`: Client-side generated data required to finalize the payment.
 
 It returns the following output:
 
 - `order`: an `Order` object created from the checkout object.
+- `confirmationNeeded`: set to true if payment needs to be confirmed before checkout is complete.
+- `confirmationData`: confirmation data used to process additional authorization steps.
 - `checkoutErrors`: a list of errors that occurred during mutation execution.
 
 Here is the example of a complete mutation:
@@ -322,6 +330,74 @@ A successful response would look like this:
         "id": "T3JkZXI6MjU=",
         "status": "UNFULFILLED"
       },
+      "checkoutErrors": []
+    }
+  }
+}
+```
+
+
+Here is the example of a `checkoutComplete` mutation where payment gateway requires additional data to finalize the payment:
+
+```graphql {2-4}
+mutation{
+  checkoutComplete(
+    checkoutId:"Q2hlY2tvdXQ6NWRiZmNmYjctMmFkYi00ZDU4LThmNTMtZjVmYjk0YjJmY2Ew",
+    paymentData:"{\"paymentMetodData\":\"some payment data\"}"){
+     confirmationNeeded
+     confirmationData
+     order
+     checkoutErrors{
+       field
+       message
+       code
+     }
+}
+```
+
+A response would look like this:
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6MjU=",
+        "status": "UNFULFILLED"
+      },
+      "confirmationNeeded": false,
+      "confirmationData": null,
+      "checkoutErrors": []
+    }
+  }
+}
+```
+
+The example of a complete mutation where payment gateway requires additional steps from the user:
+
+```graphql {2-4}
+mutation{
+  checkoutComplete(
+    checkoutId:"Q2hlY2tvdXQ6NWRiZmNmYjctMmFkYi00ZDU4LThmNTMtZjVmYjk0YjJmY2Ew",
+    paymentData:"{\"paymentMetodData\":\"some payment data\"}"){
+     confirmationNeeded
+     confirmationData
+     order
+     checkoutErrors{
+       field
+       message
+       code
+     }
+}
+```
+
+A response would look like this:
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": null,
+      "confirmationNeeded": true,
+      "confirmationData": "{\"confirm\":\"data returned by payment gateway\"}",
       "checkoutErrors": []
     }
   }
