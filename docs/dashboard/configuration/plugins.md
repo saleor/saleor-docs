@@ -66,8 +66,17 @@ Go to _Configuration_ -> _Plugins_ -> _Adyen_ and fill in the fields:
 
 - **Notification user:** In addition to checking request signatures, you can confirm received notification by checking the provided user in the notification. Provide a user in the _Authentication_ section of your Adyen customer area and copy it here. See [Adyen docs](https://docs.adyen.com/development-resources/webhooks#set-up-notifications-in-your-customer-area).
 
-- **Notification password:** In addition to checking request signatures, you can confirm received notification by checking the provided user’s password in the notification . Provide a password in the _Authentication_ section of your Adyen customer area and copy it here. See [`Adyen docs`](https://docs.adyen.com/development-resources/webhooks#set-up-notifications-in-your-customer-area).
+- **Notification password:** In addition to checking request signatures, you can confirm received notification by checking the provided user’s password in the notification . Provide a password in the _Authentication_ section of your Adyen customer area and copy it here. See [Adyen docs](https://docs.adyen.com/development-resources/webhooks#set-up-notifications-in-your-customer-area).
 
 Below you can find an example configuration of the Adyen plugin:
 
 ![Adyen](../screenshots/config-plugins-adyen.png)
+
+### Activating the Adyen notification
+
+Adyen uses a notification system that can be used to update the payment information on the Saleor side.  Enabling the notification requires some additional steps on the Adyen's customer area panel side. See [Adyen docs](https://docs.adyen.com/development-resources/webhooks#set-up-notifications-in-your-customer-area) for more details.
+
+The URL that you need provide on Adyen side is `https://<your-backend-url>/plugins/mirumee.payments.adyen/webhooks/`.
+
+
+To protect your notification endpoints make sure that you enabled the HMAC signature and basic authentication [Adyen docs about security]([https://docs.adyen.com/development-resources/webhooks/best-practices#security]). [See Saleor configuration fields](#enabling-the-adyen-integration)
