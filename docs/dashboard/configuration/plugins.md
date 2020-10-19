@@ -74,9 +74,14 @@ Below you can find an example configuration of the Adyen plugin:
 
 ### Activating the Adyen notification
 
-Adyen uses a notification system that can be used to update the payment information on the Saleor side.  Enabling the notification requires some additional steps on the Adyen's customer area panel side. See [Adyen docs](https://docs.adyen.com/development-resources/webhooks#set-up-notifications-in-your-customer-area) for more details.
 
-The URL that you need provide on Adyen side is `https://<your-backend-url>/plugins/mirumee.payments.adyen/webhooks/`.
-
-
-To protect your notification endpoints make sure that you enabled the HMAC signature and basic authentication [Adyen docs about security]([https://docs.adyen.com/development-resources/webhooks/best-practices#security]). [See Saleor configuration fields](#enabling-the-adyen-integration)
+Adyen uses a notification system. Enabling it is required for proper work of payment gateway.
+1. Follow [the Adyen docs about notifications.](https://docs.adyen.com/development-resources/webhooks#set-up-notifications-in-your-customer-area)
+    * for `URL` use `https://<your-backend-url>/plugins/mirumee.payments.adyen/webhooks/`.
+    * for `SSL Version` use the newest one.
+    * for `Method` use JSON.
+2. To protect your notification follow [the Adyen docs about security.](https://docs.adyen.com/development-resources/webhooks/best-practices#security)
+    * copy HMAC key and paste it to Saleor field **HMAC secret key**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
+    * copy the username from _Authentication_ section and paste it to Saleor field **Notification user**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
+    * copy the password from _Authentication_ section and paste it to Saleor field **Notification password**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
+3. To test your configuration check the [the Adyen docs about testing the configuration.](https://docs.adyen.com/development-resources/webhooks#test-your-notifications-server)
