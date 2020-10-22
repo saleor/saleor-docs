@@ -84,4 +84,4 @@ Adyen uses a notification system. Enabling it is required for proper work of pay
     * copy HMAC key and paste it to Saleor field **HMAC secret key**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
     * copy the username from _Authentication_ section and paste it to Saleor field **Notification user**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
     * copy the password from _Authentication_ section and paste it to Saleor field **Notification password**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
-3. To test your configuration check the [the Adyen docs about testing the configuration.](https://docs.adyen.com/development-resources/webhooks#test-your-notifications-server)
+3. To test your configuration check [the Adyen docs about testing the configuration.](https://docs.adyen.com/development-resources/webhooks#test-your-notifications-server)
