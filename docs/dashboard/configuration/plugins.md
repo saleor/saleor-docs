@@ -66,7 +66,7 @@ Go to _Configuration_ -> _Plugins_ -> _Adyen_ and fill in the fields:
 
 - **Notification password:** In addition to checking request signatures, you can confirm received notification by checking the provided user’s password in the notification . Provide a password in the _Authentication_ section of your Adyen customer area and copy it here. See [Adyen docs](https://docs.adyen.com/development-resources/webhooks#set-up-notifications-in-your-customer-area).
 
-- **Enable native 3d secure:** Saleor uses 3D Secure redirect authentication by default. If you want to use native 3D Secure authentication, enable this option. For more details see Adyen documentation: [native-3ds2](https://docs.adyen.com/checkout/3d-secure/native-3ds2), [redirect-3ds2-3ds1](https://docs.adyen.com/checkout/3d-secure/redirect-3ds2-3ds1)
+- **Enable native 3D secure:** Saleor uses 3D Secure redirect authentication by default. If you want to use native 3D Secure authentication, enable this option. For more details see Adyen documentation: [native 3D Secure 2](https://docs.adyen.com/checkout/3d-secure/native-3ds2), [redirect 3D Secure 1 and 2](https://docs.adyen.com/checkout/3d-secure/redirect-3ds2-3ds1)
 
 Below you can find an example configuration of the Adyen plugin:
 
@@ -77,11 +77,11 @@ Below you can find an example configuration of the Adyen plugin:
 
 Adyen uses a notification system. Enabling it is required for proper work of payment gateway.
 1. Follow [the Adyen docs about notifications.](https://docs.adyen.com/development-resources/webhooks#set-up-notifications-in-your-customer-area)
-    * for `URL` use `https://<your-backend-url>/plugins/mirumee.payments.adyen/webhooks/`.
-    * for `SSL Version` use the newest one.
-    * for `Method` use JSON.
+    * For `URL` use `https://<your-backend-url>/plugins/mirumee.payments.adyen/webhooks/`.
+    * For `SSL Version` use the newest one.
+    * For `Method` use JSON.
 2. To protect your notification follow [the Adyen docs about security.](https://docs.adyen.com/development-resources/webhooks/best-practices#security)
-    * copy HMAC key and paste it to Saleor field **HMAC secret key**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
-    * copy the username from _Authentication_ section and paste it to Saleor field **Notification user**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
-    * copy the password from _Authentication_ section and paste it to Saleor field **Notification password**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
+    * Copy the HMAC key into the Saleor's **HMAC secret key** field. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
+    * Copy the username from _Authentication_ section and paste it to Saleor field **Notification user**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
+    * Copy the password from _Authentication_ section and paste it to Saleor field **Notification password**. [(See Saleor configuration fields.)](#enabling-the-adyen-integration)
 3. To test your configuration check [the Adyen docs about testing the configuration.](https://docs.adyen.com/development-resources/webhooks#test-your-notifications-server)
