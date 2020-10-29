@@ -54,8 +54,6 @@ Go to _Configuration_ -> _Plugins_ -> _Adyen_ and fill in the fields:
 
 - **Client Key:** The client key is a public key that uniquely identifies a web service. See [Adyen docs](https://docs.adyen.com/user-management/client-side-authentication#get-your-client-key).
 
-- **Origin URL:** The origin URL of the page where you are rendering the Adyen Drop-in. The origin URL of the page where you are rendering the Drop-in. This should not include subdirectories or a trailing slash. For example, if you are rendering the Drop-in on `https://your-company.com/checkout/payment`, put in: `https://your-company.com` as the origin. See [Adyen docs](https://docs.adyen.com/checkout/drop-in-web).
-
 - **Live:** Leave it blank if you want to use the test environment. See [Adyen docs for production environments](https://docs.adyen.com/development-resources/live-endpoints).
 
 - **Assume all authorizations are automatically captured by Adyen:** All authorized payments will be marked as captured. This should only be enabled if Adyen is configured to auto-capture payments. Saleor doesn’t support the _delayed capture_ Adyen feature.
@@ -67,6 +65,8 @@ Go to _Configuration_ -> _Plugins_ -> _Adyen_ and fill in the fields:
 - **Notification user:** In addition to checking request signatures, you can confirm received notification by checking the provided user in the notification. Provide a user in the _Authentication_ section of your Adyen customer area and copy it here. See [Adyen docs](https://docs.adyen.com/development-resources/webhooks#set-up-notifications-in-your-customer-area).
 
 - **Notification password:** In addition to checking request signatures, you can confirm received notification by checking the provided user’s password in the notification . Provide a password in the _Authentication_ section of your Adyen customer area and copy it here. See [Adyen docs](https://docs.adyen.com/development-resources/webhooks#set-up-notifications-in-your-customer-area).
+
+- **Enable native 3d secure:** Saleor uses 3D Secure redirect authentication by default. If you want to use native 3D Secure authentication, enable this option. For more details see Adyen documentation: [native-3ds2](https://docs.adyen.com/checkout/3d-secure/native-3ds2), [redirect-3ds2-3ds1](https://docs.adyen.com/checkout/3d-secure/redirect-3ds2-3ds1)
 
 Below you can find an example configuration of the Adyen plugin:
 
