@@ -28,6 +28,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AddressSetDefault](#addresssetdefault)
     * [AddressUpdate](#addressupdate)
     * [AddressValidationData](#addressvalidationdata)
+    * [Allocation](#allocation)
     * [App](#app)
     * [AppActivate](#appactivate)
     * [AppCountableConnection](#appcountableconnection)
@@ -293,7 +294,6 @@ This document describes all queries, mutations, and types available in the Saleo
     * [PluginError](#pluginerror)
     * [PluginUpdate](#pluginupdate)
     * [Product](#product)
-    * [ProductAttributeError](#productattributeerror)
     * [ProductBulkDelete](#productbulkdelete)
     * [ProductBulkPublish](#productbulkpublish)
     * [ProductClearMeta](#productclearmeta)
@@ -569,6 +569,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [ProductTypeSortingInput](#producttypesortinginput)
     * [ProductVariantBulkCreateInput](#productvariantbulkcreateinput)
     * [ProductVariantCreateInput](#productvariantcreateinput)
+    * [ProductVariantFilterInput](#productvariantfilterinput)
     * [ProductVariantInput](#productvariantinput)
     * [ReorderInput](#reorderinput)
     * [SaleFilterInput](#salefilterinput)
@@ -1647,16 +1648,25 @@ Return the last n elements from the list.
 <td valign="top"><a href="#productvariant">ProductVariant</a></td>
 <td>
 
-Look up a product variant by ID.
+Look up a product variant by ID or SKU.
 
 </td>
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#id">ID</a>!</td>
+<td valign="top"><a href="#id">ID</a></td>
 <td>
 
 ID of the product variant.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sku</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Sku of the product variant.
 
 </td>
 </tr>
@@ -1675,6 +1685,15 @@ List of product variants.
 <td>
 
 Filter product variants by given IDs.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">filter</td>
+<td valign="top"><a href="#productvariantfilterinput">ProductVariantFilterInput</a></td>
+<td>
+
+Filtering options for product variant.
 
 </td>
 </tr>
@@ -2197,6 +2216,15 @@ ID of the menu.
 <td>
 
 The menu's name.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">slug</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The menu's slug.
 
 </td>
 </tr>
@@ -6638,7 +6666,7 @@ Updates a draft order.
 <td valign="top"><a href="#id">ID</a>!</td>
 <td>
 
-ID of an order to update.
+ID of a draft order to update.
 
 </td>
 </tr>
@@ -10917,6 +10945,50 @@ A user object for which the address was edited.
 </tbody>
 </table>
 
+### Allocation
+
+Represents allocation.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>quantity</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td>
+
+Quantity allocated for orders.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>warehouse</strong></td>
+<td valign="top"><a href="#warehouse">Warehouse</a>!</td>
+<td>
+
+The warehouse were items were allocated.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### App
 
 Represents app data.
@@ -12217,7 +12289,7 @@ The updated product type.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>productErrors</strong></td>
-<td valign="top">[<a href="#productattributeerror">ProductAttributeError</a>!]!</td>
+<td valign="top">[<a href="#producterror">ProductError</a>!]!</td>
 <td></td>
 </tr>
 </tbody>
@@ -13466,6 +13538,15 @@ The error code.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>attributes</strong></td>
+<td valign="top">[<a href="#id">ID</a>!]</td>
+<td>
+
+List of attributes IDs which causes the error.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>index</strong></td>
 <td valign="top"><a href="#int">Int</a></td>
 <td>
@@ -13522,6 +13603,15 @@ The error message.
 <td>
 
 The error code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>attributes</strong></td>
+<td valign="top">[<a href="#id">ID</a>!]</td>
+<td>
+
+List of attributes IDs which causes the error.
 
 </td>
 </tr>
@@ -15814,11 +15904,6 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>isPublished</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>slug</strong></td>
 <td valign="top"><a href="#string">String</a>!</td>
 <td></td>
@@ -15963,6 +16048,15 @@ Returns translated collection fields for the given language code.
 <td>
 
 A language code to return the translation for collection.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isPublished</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td>
+
+Whether the collection is published.
 
 </td>
 </tr>
@@ -20393,6 +20487,11 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>items</strong></td>
 <td valign="top">[<a href="#menuitem">MenuItem</a>]</td>
 <td></td>
@@ -22725,6 +22824,15 @@ Variant name in the customer's language
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>allocations</strong></td>
+<td valign="top">[<a href="#allocation">Allocation</a>!]</td>
+<td>
+
+List of allocations across warehouses.
+
+</td>
+</tr>
 </tbody>
 </table>
 
@@ -23082,11 +23190,6 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>isPublished</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>slug</strong></td>
 <td valign="top"><a href="#string">String</a>!</td>
 <td></td>
@@ -23095,6 +23198,54 @@ The ID of the object.
 <td colspan="2" valign="top"><strong>created</strong></td>
 <td valign="top"><a href="#datetime">DateTime</a>!</td>
 <td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMeta</strong> ⚠️</td>
+<td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
+<td>
+
+List of privately stored metadata namespaces.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use the `privetaMetadata` field. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>meta</strong> ⚠️</td>
+<td valign="top">[<a href="#metastore">MetaStore</a>]!</td>
+<td>
+
+List of publicly stored metadata namespaces.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use the `metadata` field. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>translation</strong></td>
@@ -23111,6 +23262,15 @@ Returns translated page fields for the given language code.
 <td>
 
 A language code to return the translation for page.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>isPublished</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td>
+
+Whether the page is published.
 
 </td>
 </tr>
@@ -24672,11 +24832,6 @@ The ID of the object.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>isPublished</strong></td>
-<td valign="top"><a href="#boolean">Boolean</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>productType</strong></td>
 <td valign="top"><a href="#producttype">ProductType</a>!</td>
 <td></td>
@@ -24929,54 +25084,12 @@ Whether the product is available for purchase.
 
 </td>
 </tr>
-</tbody>
-</table>
-
-### ProductAttributeError
-
-<table>
-<thead>
 <tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>field</strong></td>
-<td valign="top"><a href="#string">String</a></td>
+<td colspan="2" valign="top"><strong>isPublished</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
 <td>
 
-Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>message</strong></td>
-<td valign="top"><a href="#string">String</a></td>
-<td>
-
-The error message.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>code</strong></td>
-<td valign="top"><a href="#producterrorcode">ProductErrorCode</a>!</td>
-<td>
-
-The error code.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>attributes</strong></td>
-<td valign="top">[<a href="#id">ID</a>!]</td>
-<td>
-
-List of attributes IDs which causes the error.
+Whether the product is published.
 
 </td>
 </tr>
@@ -25350,6 +25463,15 @@ The error message.
 <td>
 
 The error code.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>attributes</strong></td>
+<td valign="top">[<a href="#id">ID</a>!]</td>
+<td>
+
+List of attributes IDs which causes the error.
 
 </td>
 </tr>
@@ -30229,21 +30351,33 @@ A language code to return the translation for.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>currencies</strong></td>
+<td colspan="2" valign="top"><strong>currencies</strong> ⚠️</td>
 <td valign="top">[<a href="#string">String</a>]!</td>
 <td>
 
 List of available currencies.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+This field will be removed in Saleor 3.0
+
+</blockquote>
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>defaultCurrency</strong></td>
+<td colspan="2" valign="top"><strong>defaultCurrency</strong> ⚠️</td>
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
 
 Shop's default currency.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+This field will be removed in Saleor 3.0
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -30292,12 +30426,18 @@ Shop's domain data.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>homepageCollection</strong></td>
+<td colspan="2" valign="top"><strong>homepageCollection</strong> ⚠️</td>
 <td valign="top"><a href="#collection">Collection</a></td>
 <td>
 
 Collection displayed on homepage.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use the `collection` query with the `slug` parameter. This field will be removed in Saleor 3.0
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -30319,12 +30459,18 @@ Shop's name.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>navigation</strong></td>
+<td colspan="2" valign="top"><strong>navigation</strong> ⚠️</td>
 <td valign="top"><a href="#navigation">Navigation</a></td>
 <td>
 
 Shop's navigation.
 
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Fetch menus using the `menu` query with `slug` parameter.
+
+</blockquote>
 </td>
 </tr>
 <tr>
@@ -36629,6 +36775,15 @@ Name of the menu.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Slug of the menu. Will be generated if not provided.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>items</strong></td>
 <td valign="top">[<a href="#menuiteminput">MenuItemInput</a>]</td>
 <td>
@@ -36656,6 +36811,11 @@ List of menu items.
 <td valign="top"><a href="#string">String</a></td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top">[<a href="#string">String</a>]</td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -36676,6 +36836,15 @@ List of menu items.
 <td>
 
 Name of the menu.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Slug of the menu.
 
 </td>
 </tr>
@@ -37284,7 +37453,7 @@ List of stock items to create.
 <tbody>
 <tr>
 <td colspan="2" valign="top"><strong>quantity</strong></td>
-<td valign="top"><a href="#int">Int</a></td>
+<td valign="top"><a href="#int">Int</a>!</td>
 <td>
 
 The number of line items to be fulfilled from given warehouse.
@@ -37293,7 +37462,7 @@ The number of line items to be fulfilled from given warehouse.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>warehouse</strong></td>
-<td valign="top"><a href="#id">ID</a></td>
+<td valign="top"><a href="#id">ID</a>!</td>
 <td>
 
 ID of the warehouse from which the item will be fulfilled.
@@ -38207,6 +38376,11 @@ Stocks of a product available for sale. Note: this field is only used if a produ
 <td valign="top">[<a href="#id">ID</a>]</td>
 <td></td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>ids</strong></td>
+<td valign="top">[<a href="#id">ID</a>]</td>
+<td></td>
+</tr>
 </tbody>
 </table>
 
@@ -38827,6 +39001,30 @@ Product ID of which type is the variant.
 Stocks of a product available for sale.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### ProductVariantFilterInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>search</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>sku</strong></td>
+<td valign="top">[<a href="#string">String</a>]</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -41417,6 +41615,14 @@ Sort collections by product count.
 
 </td>
 </tr>
+<tr>
+<td valign="top"><strong>PUBLICATION_DATE</strong></td>
+<td>
+
+Sort collections by publication date.
+
+</td>
+</tr>
 </tbody>
 </table>
 
@@ -42998,6 +43204,10 @@ An enumeration.
 <td></td>
 </tr>
 <tr>
+<td valign="top"><strong>KA</strong></td>
+<td></td>
+</tr>
+<tr>
 <td valign="top"><strong>KM</strong></td>
 <td></td>
 </tr>
@@ -43215,6 +43425,10 @@ An enumeration.
 </tr>
 <tr>
 <td valign="top"><strong>NOT_FOUND</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>REQUIRED</strong></td>
 <td></td>
 </tr>
 </tbody>
@@ -44323,6 +44537,14 @@ Sort products by type.
 <td>
 
 Sort products by publication status.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>PUBLICATION_DATE</strong></td>
+<td>
+
+Sort products by publication date.
 
 </td>
 </tr>
