@@ -1,0 +1,70 @@
+---
+title: Installation
+sidebar_label: Instructions
+---
+
+Saleor is a 12-factor application that is configured using environment variables. We recommend using Docker because it takes care of all of the necessary dependencies.
+
+## Prerequisites
+
+You will need to install [Docker Desktop](https://www.docker.com/products/docker-desktop) and [Docker Compose](https://docs.docker.com/compose/install/) before following the instructions below.
+
+:::caution
+At the time of this writing, Docker Desktop is not available for Windows Home. Please use the [manual installation instructions](installation/windows.mdx) if you can't install Docker.
+:::
+
+## Installation using Docker Compose
+
+The following steps need to be performed inside a terminal window (Windows user may prefer to use the [Windows Terminal](https://aka.ms/windowsterminal) but the Command Prompt will also work).
+
+Clone the repository and build Docker images:
+
+```shell
+git clone https://github.com/mirumee/saleor-platform.git --recursive --jobs 3
+cd saleor-platform
+docker-compose build
+```
+
+Saleor uses shared folders to enable live code reloading. If you're using **Windows** or **MacOS** you will need to:
+- Add the cloned `saleor-platform` directory to the list of shared directories in Docker (*Settings* -> *Shared Drives* or *Preferences* -> *Resources* -> *File sharing*).
+- Make sure that in Docker preferences you have dedicated at least 5 GB of memory (*Settings* -> *Advanced* or *Preferences* -> *Resources* -> *Advanced*).
+
+Apply database migrations, collect static assets:
+
+```shell
+docker-compose run --rm api python3 manage.py migrate
+docker-compose run --rm api python3 manage.py collectstatic --noinput
+```
+
+Optionally populate the database with sample data and create the admin user:
+
+```shell
+docker-compose run --rm api python3 manage.py populatedb
+```
+
+Finally, create yourself an admin account:
+
+```shell
+docker-compose run --rm api python3 manage.py createsuperuser
+```
+
+
+## Running the services
+
+Use the following command to run all Saleor containers (from within the `saleor-platform` directory):
+
+```shell
+docker-compose up
+```
+
+:::note
+Both storefront and dashboard are quite big frontend projects and it might take up to a few minutes for them to compile depending on your CPU. If nothing shows up on port 3000 or 9000 wait until `Compiled successfully` shows in the console output.
+:::
+
+## Troubleshooting
+
+Make sure Docker and Docker Compose work before attempting to run Saleor. We won't be able to assist with your Docker installation.
+
+Make sure you've read the warning about Windows 10 Home. Windows versions before Windows 10 are not officially supported.
+
+If you encounter other problems, see [Support](community/support.mdx).
