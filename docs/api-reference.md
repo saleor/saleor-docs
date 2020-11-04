@@ -49,7 +49,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AppUpdate](#appupdate)
     * [AssignNavigation](#assignnavigation)
     * [Attribute](#attribute)
-    * [AttributeAssign](#attributeassign)
+    * [AttributeError](#attributeerror)
     * [AttributeBulkDelete](#attributebulkdelete)
     * [AttributeClearMeta](#attributeclearmeta)
     * [AttributeClearPrivateMeta](#attributeclearprivatemeta)
@@ -61,7 +61,6 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AttributeTranslatableContent](#attributetranslatablecontent)
     * [AttributeTranslate](#attributetranslate)
     * [AttributeTranslation](#attributetranslation)
-    * [AttributeUnassign](#attributeunassign)
     * [AttributeUpdate](#attributeupdate)
     * [AttributeUpdateMeta](#attributeupdatemeta)
     * [AttributeUpdatePrivateMeta](#attributeupdateprivatemeta)
@@ -261,6 +260,8 @@ This document describes all queries, mutations, and types available in the Saleo
     * [OrderUpdateShipping](#orderupdateshipping)
     * [OrderVoid](#ordervoid)
     * [Page](#page)
+    * [PageAttributeAssign](#pageattributeassign)
+    * [PageAttributeUnassign](#pageattributeunassign)
     * [PageBulkDelete](#pagebulkdelete)
     * [PageBulkPublish](#pagebulkpublish)
     * [PageCountableConnection](#pagecountableconnection)
@@ -269,6 +270,9 @@ This document describes all queries, mutations, and types available in the Saleo
     * [PageDelete](#pagedelete)
     * [PageError](#pageerror)
     * [PageInfo](#pageinfo)
+    * [PageType](#pagetype)
+    * [PageTypeCountableConnection](#pagetypecountableconnection)
+    * [PageTypeCountableEdge](#pagetypecountableedge)
     * [PageTranslatableContent](#pagetranslatablecontent)
     * [PageTranslate](#pagetranslate)
     * [PageTranslation](#pagetranslation)
@@ -294,6 +298,8 @@ This document describes all queries, mutations, and types available in the Saleo
     * [PluginError](#pluginerror)
     * [PluginUpdate](#pluginupdate)
     * [Product](#product)
+    * [ProductAttributeAssign](#productattributeassign)
+    * [ProductAttributeUnassign](#productattributeunassign)
     * [ProductBulkDelete](#productbulkdelete)
     * [ProductBulkPublish](#productbulkpublish)
     * [ProductClearMeta](#productclearmeta)
@@ -480,7 +486,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AppInstallInput](#appinstallinput)
     * [AppSortingInput](#appsortinginput)
     * [AppTokenInput](#apptokeninput)
-    * [AttributeAssignInput](#attributeassigninput)
+    * [ProductAttributeAssignInput](#productattributeassigninput)
     * [AttributeCreateInput](#attributecreateinput)
     * [AttributeFilterInput](#attributefilterinput)
     * [AttributeInput](#attributeinput)
@@ -547,6 +553,8 @@ This document describes all queries, mutations, and types available in the Saleo
     * [PageFilterInput](#pagefilterinput)
     * [PageInput](#pageinput)
     * [PageSortingInput](#pagesortinginput)
+    * [PageTypeFilterInput](#pagetypefilterinput)
+    * [PageTypeSortingInput](#pagetypesortinginput)
     * [PageTranslationInput](#pagetranslationinput)
     * [PaymentInput](#paymentinput)
     * [PermissionGroupCreateInput](#permissiongroupcreateinput)
@@ -614,9 +622,11 @@ This document describes all queries, mutations, and types available in the Saleo
     * [AppErrorCode](#apperrorcode)
     * [AppSortField](#appsortfield)
     * [AppTypeEnum](#apptypeenum)
+    * [AttributeErrorCode](#attributeerrorcode)
     * [AttributeInputTypeEnum](#attributeinputtypeenum)
     * [AttributeSortField](#attributesortfield)
     * [AttributeTypeEnum](#attributetypeenum)
+    * [ProductAttributeType](#productattributetype)
     * [AttributeValueType](#attributevaluetype)
     * [AuthorizationKeyType](#authorizationkeytype)
     * [CategorySortField](#categorysortfield)
@@ -654,6 +664,7 @@ This document describes all queries, mutations, and types available in the Saleo
     * [OrderStatusFilter](#orderstatusfilter)
     * [PageErrorCode](#pageerrorcode)
     * [PageSortField](#pagesortfield)
+    * [PageTypeSortField](#ppagetypesortfield)
     * [PaymentChargeStatusEnum](#paymentchargestatusenum)
     * [PaymentErrorCode](#paymenterrorcode)
     * [PermissionEnum](#permissionenum)
@@ -1901,6 +1912,87 @@ Sort pages.
 <td>
 
 Filtering options for pages.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come before the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come after the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the first n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the last n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>pageType</strong></td>
+<td valign="top"><a href="#pagetype">PageType</a></td>
+<td>
+
+Look up a page type by ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the page type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>pageTypes</strong></td>
+<td valign="top"><a href="#pagetypecountableconnection">PageTypeCountableConnection</a></td>
+<td>
+
+List of the shop's page types.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">filter</td>
+<td valign="top"><a href="#pagetypefilterinput">PageTypeFilterInput</a></td>
+<td>
+
+Filtering options for page types.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sortBy</td>
+<td valign="top"><a href="#pagetypesortinginput">PageTypeSortingInput</a></td>
+<td>
+
+Sort page types.
 
 </td>
 </tr>
@@ -4066,60 +4158,6 @@ List of attribute IDs to delete.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>attributeAssign</strong></td>
-<td valign="top"><a href="#attributeassign">AttributeAssign</a></td>
-<td>
-
-Assign attributes to a given product type.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">operations</td>
-<td valign="top">[<a href="#attributeassigninput">AttributeAssignInput</a>]!</td>
-<td>
-
-The operations to perform.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">productTypeId</td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td>
-
-ID of the product type to assign the attributes into.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>attributeUnassign</strong></td>
-<td valign="top"><a href="#attributeunassign">AttributeUnassign</a></td>
-<td>
-
-Un-assign attributes from a given product type.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">attributeIds</td>
-<td valign="top">[<a href="#id">ID</a>]!</td>
-<td>
-
-The IDs of the attributes to assign.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">productTypeId</td>
-<td valign="top"><a href="#id">ID</a>!</td>
-<td>
-
-ID of the product type to assign the attributes into.
-
-</td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>attributeUpdate</strong></td>
 <td valign="top"><a href="#attributeupdate">AttributeUpdate</a></td>
 <td>
@@ -5063,6 +5101,60 @@ ID of a customer to update.
 <td>
 
 Fields required to identify stored metadata item.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productAttributeAssign</strong></td>
+<td valign="top"><a href="#productattributeassign">ProductAttributeAssign</a></td>
+<td>
+
+Assign attributes to a given product type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">operations</td>
+<td valign="top">[<a href="#productattributeassigninput">ProductAttributeAssignInput</a>]!</td>
+<td>
+
+The operations to perform.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">productTypeId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the product type to assign the attributes into.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productAttributeUnassign</strong></td>
+<td valign="top"><a href="#productattributeunassign">ProductAttributeUnassign</a></td>
+<td>
+
+Un-assign attributes from a given product type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">attributeIds</td>
+<td valign="top">[<a href="#id">ID</a>]!</td>
+<td>
+
+The IDs of the attributes to unassign.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">productTypeId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the product type to unassign attributes from.
 
 </td>
 </tr>
@@ -6347,6 +6439,60 @@ Voids the authorized payment.
 <td>
 
 Payment ID.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>pageAttributeAssign</strong></td>
+<td valign="top"><a href="#pageattributeassign">PageAttributeAssign</a></td>
+<td>
+
+Assign attributes to a given page type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">attributeIds</td>
+<td valign="top">[<a href="#id">ID</a>]!</td>
+<td>
+
+The IDs of the attributes to assign.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">pageTypeId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the page type to assign the attributes into.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>pageAttributeUnassign</strong></td>
+<td valign="top"><a href="#pageattributeunassign">PageAttributeUnassign</a></td>
+<td>
+
+Un-assign attributes from a given page type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">attributeIds</td>
+<td valign="top">[<a href="#id">ID</a>]!</td>
+<td>
+
+The IDs of the attributes to unassign.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">pageTypeId</td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+ID of the page type to unassign attributes from.
 
 </td>
 </tr>
@@ -12249,9 +12395,7 @@ The position of the attribute in the storefront navigation (0 by default).
 </tbody>
 </table>
 
-### AttributeAssign
-
-Assign attributes to a given product type.
+### AttributeError
 
 <table>
 <thead>
@@ -12264,33 +12408,31 @@ Assign attributes to a given product type.
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
-<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#string">String</a></td>
 <td>
 
-List of errors that occurred executing the mutation.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-Use typed errors with error codes. This field will be removed after 2020-07-31.
-
-</blockquote>
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>productType</strong></td>
-<td valign="top"><a href="#producttype">ProductType</a></td>
-<td>
-
-The updated product type.
+Name of a field that caused the error. A value of `null` indicates that the error isn't associated with a particular field.
 
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>productErrors</strong></td>
-<td valign="top">[<a href="#producterror">ProductError</a>!]!</td>
-<td></td>
+<td colspan="2" valign="top"><strong>message</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+The error message.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>code</strong></td>
+<td valign="top"><a href="#attributeerrorcode">AttributeErrorCode</a>!</td>
+<td>
+
+The error code.
+
+</td>
 </tr>
 </tbody>
 </table>
@@ -12758,52 +12900,6 @@ The ID of the object.
 Translation language.
 
 </td>
-</tr>
-</tbody>
-</table>
-
-### AttributeUnassign
-
-Un-assign attributes from a given product type.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
-<td valign="top">[<a href="#error">Error</a>!]!</td>
-<td>
-
-List of errors that occurred executing the mutation.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-Use typed errors with error codes. This field will be removed after 2020-07-31.
-
-</blockquote>
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>productType</strong></td>
-<td valign="top"><a href="#producttype">ProductType</a></td>
-<td>
-
-The updated product type.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>productErrors</strong></td>
-<td valign="top">[<a href="#producterror">ProductError</a>!]!</td>
-<td></td>
 </tr>
 </tbody>
 </table>
@@ -23277,6 +23373,98 @@ Whether the page is published.
 </tbody>
 </table>
 
+### PageAttributeAssign
+
+Assign attributes to a given page type.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>pageType</strong></td>
+<td valign="top"><a href="#pagetype">PageType</a></td>
+<td>
+
+The updated page type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>pageErrors</strong></td>
+<td valign="top">[<a href="#pageerror">PageError</a>!]!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### PageAttributeUnassign
+
+Un-assign attributes from a given page type.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>pageType</strong></td>
+<td valign="top"><a href="#pagetype">PageType</a></td>
+<td>
+
+The updated page type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>pageErrors</strong></td>
+<td valign="top">[<a href="#pageerror">PageError</a>!]!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### PageBulkDelete
 
 Deletes pages.
@@ -23563,6 +23751,15 @@ The error code.
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>attributes</strong></td>
+<td valign="top">[<a href="#id">ID</a>!]</td>
+<td>
+
+List of attributes IDs which causes the error.
+
+</td>
+</tr>
 </tbody>
 </table>
 
@@ -23689,6 +23886,196 @@ A language code to return the translation for page.
 <td>
 
 ('A static page that can be manually added by a shop operator ', 'through the dashboard.')
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### PageType
+
+Represents a type of page. It defines what attributes are available to pages of this type.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>id</strong></td>
+<td valign="top"><a href="#id">ID</a>!</td>
+<td>
+
+The ID of the object.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>name</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>slug</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>hasPages</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>privateMetadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of private metadata items.Requires proper staff permissions to access.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>metadata</strong></td>
+<td valign="top">[<a href="#metadataitem">MetadataItem</a>]!</td>
+<td>
+
+List of public metadata items. Can be accessed without permissions.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>attributes</strong></td>
+<td valign="top">[<a href="#attribute">Attribute</a>]</td>
+<td>
+
+Attributes of that page type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>availableAttributes</strong></td>
+<td valign="top"><a href="#attributecountableconnection">AttributeCountableConnection</a></td>
+<td>
+
+Attributes that can be assigned to the page type.
+
+</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">filter</td>
+<td valign="top"><a href="#attributefilterinput">AttributeFilterInput</a></td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">before</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come before the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">after</td>
+<td valign="top"><a href="#string">String</a></td>
+<td>
+
+Return the elements in the list that come after the specified cursor.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">first</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the first n elements from the list.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">last</td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+Return the last n elements from the list.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### PageTypeCountableConnection
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>pageInfo</strong></td>
+<td valign="top"><a href="#pageinfo">PageInfo</a>!</td>
+<td>
+
+Pagination data for this connection.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>edges</strong></td>
+<td valign="top">[<a href="#pagetypecountableedge">PageTypeCountableEdge</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>totalCount</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+A total count of items in the collection.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### PageTypeCountableEdge
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>node</strong></td>
+<td valign="top"><a href="#page">Page</a>!</td>
+<td>
+
+The item at the end of the edge.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>cursor</strong></td>
+<td valign="top"><a href="#string">String</a>!</td>
+<td>
+
+A cursor for use in pagination.
 
 </td>
 </tr>
@@ -25092,6 +25479,98 @@ Whether the product is available for purchase.
 Whether the product is published.
 
 </td>
+</tr>
+</tbody>
+</table>
+
+### ProductAttributeAssign
+
+Assign attributes to a given product type.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productType</strong></td>
+<td valign="top"><a href="#producttype">ProductType</a></td>
+<td>
+
+The updated product type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productErrors</strong></td>
+<td valign="top">[<a href="#producterror">ProductError</a>!]!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ProductAttributeUnassign
+
+Un-assign attributes from a given product type.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>errors</strong> ⚠️</td>
+<td valign="top">[<a href="#error">Error</a>!]!</td>
+<td>
+
+List of errors that occurred executing the mutation.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Use typed errors with error codes. This field will be removed after 2020-07-31.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productType</strong></td>
+<td valign="top"><a href="#producttype">ProductType</a></td>
+<td>
+
+The updated product type.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>productErrors</strong></td>
+<td valign="top">[<a href="#producterror">ProductError</a>!]!</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -34840,7 +35319,7 @@ ID of app.
 </tbody>
 </table>
 
-### AttributeAssignInput
+### ProductAttributeAssignInput
 
 <table>
 <thead>
@@ -34862,7 +35341,7 @@ The ID of the attribute to assign.
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>type</strong></td>
-<td valign="top"><a href="#attributetypeenum">AttributeTypeEnum</a>!</td>
+<td valign="top"><a href="#productattributetype">ProductAttributeType</a>!</td>
 <td>
 
 The attribute type to be assigned as.
@@ -37745,6 +38224,57 @@ Specifies the direction in which to sort products.
 <td>
 
 Sort pages by the selected field.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### PageTypeFilterInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>search</strong></td>
+<td valign="top"><a href="#string">String</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### PageTypeSortingInput
+
+<table>
+<thead>
+<tr>
+<th colspan="2" align="left">Field</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>direction</strong></td>
+<td valign="top"><a href="#orderdirection">OrderDirection</a>!</td>
+<td>
+
+Specifies the direction in which to sort page types.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>field</strong></td>
+<td valign="top"><a href="#producttypesortfield">PageTypeSortField</a>!</td>
+<td>
+
+Sort page types by the selected field.
 
 </td>
 </tr>
@@ -41265,6 +41795,43 @@ An enumeration.
 </tbody>
 </table>
 
+### AttributeErrorCode
+
+An enumeration.
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>ALREADY_EXISTS</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>GRAPHQL_ERROR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>INVALID</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>NOT_FOUND</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>REQUIRED</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>UNIQUE</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
 ### AttributeInputTypeEnum
 
 An enumeration.
@@ -41370,6 +41937,25 @@ Sort attributes based on whether they can be displayed or not in a product grid.
 </table>
 
 ### AttributeTypeEnum
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>PRODUCT_TYPE</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>PAGE_TYPE</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### ProductAttributeType
 
 <table>
 <thead>
@@ -44082,6 +44668,33 @@ An enumeration.
 <tr>
 <td valign="top"><strong>CANCELLED</strong></td>
 <td></td>
+</tr>
+</tbody>
+</table>
+
+### PageTypeSortField
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>NAME</strong></td>
+<td>
+
+Sort page types by name.
+
+</td>
+</tr>
+<tr>
+<td valign="top"><strong>SLUG</strong></td>
+<td>
+
+Sort products by slug.
+
+</td>
 </tr>
 </tbody>
 </table>
