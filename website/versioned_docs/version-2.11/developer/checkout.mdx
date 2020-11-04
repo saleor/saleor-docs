@@ -1,0 +1,405 @@
+---
+title: Working with Checkout
+sidebar_label: Checkout
+---
+
+## Introduction
+
+Below is a description of a checkout process. We assume that at this stage you have already completed the steps included in the [Getting Started](getting-started/graphql.mdx) section of this chapter and that you are familiar with the basic setup of the Saleor GraphQL API.
+
+The below process describes the key milestones in the checkout process flow in Saleor. There are also additional steps that may occur along the way; however, the purpose of this instruction is to deliver a base reference for the user to work with.
+
+The code snippets included in this section may be run in [Playground](getting-started/graphql) or your preferred HTTP client.
+
+## Creating a checkout session
+
+:::note
+A `Checkout` object can be created for logged in users and for anonymous (guest) users.
+
+- If you use the `checkoutCreate` mutation including the authentication token, this checkout is assigned to the user who is authenticated by this token. For more information on how to authenticate with our API, see the [Authentication](users.mdx#authentication) topic.
+
+- If no authentication token is provided, the checkout is created for an anonymous user, and an email address is used to identify such a `Checkout` object, linking it with the anonymous user. In this case, an email is required to create the checkout.
+:::
+
+To create a `Checkout` object, use the `checkoutCreate` mutation.
+
+This mutation takes the following input:
+
+- `email`: the user's email address.
+- `shippingAddress`: the shipping address (if needed).
+- `billingAddress`: the billing address.
+- `lines`: a list of checkout lines, each checkout line contains a product variant ID and its quantity.
+
+As a result, this mutation returns the following fields:
+
+The resulting `Checkout` object contains the following fields:
+
+- `id`: a unique checkout ID, required by most checkout operations.
+- `token`: similar to `id`, a unique identifier suitable for inclusion in emails and URLs.
+- `totalPrice`: the total price of the checkout lines and shipping costs.
+- `isShippingRequired`: denotes whether shipping is required for this checkout.
+- `availablePaymentGateways`: a list of payment gateways that are currently configured on your Saleor server and can be used to pay for the checkout. Only gateways which support the checkout currency are returned. For each gateway, API returns an ID, a name, and a config object, which for some gateways may return additional information required to process the payment in the frontend.
+- `availableShippingMethods`: a list of available shipping methods for this checkout. If the items in the cart require shipment, setting a shipping method is mandatory.
+
+In addition the following fields are available on the mutation results:
+
+- `created`: a boolean flag indicating whether a new checkout object was created, or an existing one was used.
+- `checkoutErrors`: a list of errors that occurred during mutation execution.
+
+The following example shows how the `checkoutCreate` mutation creates the `Checkout` object and returns the checkout information:
+
+```graphql {2-25}
+mutation {
+  checkoutCreate(
+    input: {
+      email: "customer@example.com"
+      lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjk3" }]
+      shippingAddress: {
+        firstName: "John"
+        lastName: "Doe"
+        streetAddress1: "1470  Pinewood Avenue"
+        city: "Michigan"
+        postalCode: "49855"
+        country: US
+        countryArea: "MI"
+      }
+      billingAddress: {
+        firstName: "John"
+        lastName: "Doe"
+        streetAddress1: "1470  Pinewood Avenue"
+        city: "Michigan"
+        postalCode: "49855"
+        country: US
+        countryArea: "MI"
+      }
+    }
+  ) {
+    checkout {
+      id
+      totalPrice {
+        gross {
+          amount
+          currency
+        }
+      }
+      isShippingRequired
+      availableShippingMethods {
+        id
+        name
+      }
+      availablePaymentGateways {
+        id
+        name
+        config {
+          field
+          value
+        }
+      }
+    }
+    checkoutErrors {
+      field
+      code
+    }
+  }
+}
+```
+
+We get a newly created checkout object for which we return the ID, total price, and list of available shipping and payment methods:
+
+```json
+{
+  "data": {
+    "checkoutCreate": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk",
+        "totalPrice": {
+          "gross": {
+            "amount": 20,
+            "currency": "USD"
+          }
+        },
+        "isShippingRequired": true,
+        "availableShippingMethods": [
+          {
+            "id": "U2hpcHBpbmdNZXRob2Q6MTM=",
+            "name": "UPS"
+          },
+          {
+            "id": "U2hpcHBpbmdNZXRob2Q6MTI=",
+            "name": "DHL"
+          }
+        ],
+        "availablePaymentGateways": [
+          {
+            "id": "mirumee.payments.braintree",
+            "name": "Braintree",
+            "config": [
+              {
+                "field": "store_customer_card",
+                "value": "false"
+              },
+              {
+                "field": "client_token",
+                "value": "example_token_value"
+              }
+            ]
+          }
+        ]
+      },
+      "checkoutErrors": []
+    }
+  }
+}
+```
+
+## Selecting a shipping method
+
+This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To signify whether shipping is required, use the `isShippingRequired` field in the `Checkout` object.
+
+Use the `checkoutShippingMethodUpdate` mutation to effectively pair the specific `Checkout` object with the specified shipping method selected by the user.
+
+This operation requires the following input:
+
+- `checkoutId`: the checkout ID (the `id` field of the `Checkout` object).
+- `shippingMethodId`: the shipping method ID (from the `availableShippingMethods` field of the `Checkout` object).
+
+In the following mutation, we assign a shipping method to the checkout using IDs from the previous example. Note that for the checkout object we want to get back the update `totalPrice` including shipping costs:
+
+```graphql {2-5}
+mutation {
+  checkoutShippingMethodUpdate(
+    checkoutId: "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk"
+    shippingMethodId: "U2hpcHBpbmdNZXRob2Q6MTM="
+  ) {
+    checkout {
+      id
+      shippingMethod {
+        name
+      }
+      totalPrice {
+        gross {
+          amount
+          currency
+        }
+      }
+    }
+    checkoutErrors {
+      field
+      message
+    }
+  }
+}
+```
+
+As a result, we get an updated checkout object with a shipping method set:
+
+```json
+{
+  "data": {
+    "checkoutShippingMethodUpdate": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk",
+        "shippingMethod": {
+          "name": "UPS"
+        },
+        "totalPrice": {
+          "gross": {
+            "amount": 25.99,
+            "currency": "USD"
+          }
+        }
+      },
+      "checkoutErrors": []
+    }
+  }
+}
+```
+
+## Selecting a payment method
+
+Depending on the selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway will direct you to an external payment page. The payment gateway sends information about if the payment is successful, along with tokenized credit card payment information. This token is then used to run the `checkoutPaymentCreate` mutation.
+
+The `checkoutPaymentCreate` mutation requires the following input:
+
+- `checkoutId`: the checkout ID.
+- `gateway`: the ID of the selected payment gateway (list of the available payment gateways can be fetched from the `Checkout.availablePaymentGateways` field). The selected gateway must support the checkout currency.
+- `token`: a client-side generated payment token (if required).
+- `amount`: the total amount of this operation.
+- `returnUrl`: URL of a storefront view where the user should be redirected after requiring additional actions. Payment with additional actions will not be finished if this field is not provided.
+
+This mutation returns the following fields:
+
+- `checkout`: the updated checkout object.
+- `payment`: the newly created payment object.
+- `checkoutErrors`: a list of errors that occurred during mutation execution.
+
+In the example below, we're creating a new Braintree payment for our checkout:
+
+```graphql {2-9}
+mutation {
+  checkoutPaymentCreate(
+    checkoutId: "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk"
+    input: {
+      gateway: "mirumee.payments.braintree"
+      token: "tokencc_bh_s3bjkh_24smq8_6c6zhq_w4v6b9_8vz"
+      amount: 25.99
+    }
+  ) {
+    payment {
+      id
+      chargeStatus
+    }
+    paymentErrors {
+      field
+      message
+    }
+  }
+}
+```
+
+As a result, we get the payment object:
+
+```json
+{
+  "data": {
+    "checkoutPaymentCreate": {
+      "payment": {
+        "id": "UGF5bWVudDox",
+        "chargeStatus": "NOT_CHARGED"
+      },
+      "checkoutErrors": []
+    }
+  }
+}
+```
+
+## Completing the checkout
+
+The purpose of the operation is to ensure this checkout is correct. To do this, it verifies if:
+
+1. The required addresses are valid.
+
+2. All selected products are in stock (while making the purchase, another user could already buy the last available item).
+
+3. The payment creation succeeded.
+
+4. No additional actions are required by the PSP.
+
+If these are satisfied, the checkout is transformed into an order and the customer receives a confirmation email.
+
+The `checkoutComplete` mutation requires the following input:
+
+- `checkoutId`: the ID of the checkout to complete.
+- `storeSource`: determines whether to store the payment source for future use.
+- `redirectUrl`: URL of a view where users should be redirected to see the order details. URL in RFC 1808 format.
+- `paymentData`: Client-side generated data required to finalize the payment.
+
+It returns the following output:
+
+- `order`: an `Order` object created from the checkout object.
+- `confirmationNeeded`: set to `true` if payment needs to be confirmed before checkout is complete.
+- `confirmationData`: confirmation data used to process additional authorization steps, required by the PSP.
+- `checkoutErrors`: a list of errors that occurred during mutation execution.
+
+Here is the example of a complete mutation:
+
+```graphql {2-4}
+mutation {
+  checkoutComplete(
+    checkoutId: "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk"
+  ) {
+    order {
+      id
+      status
+    }
+    checkoutErrors {
+      field
+      message
+    }
+  }
+}
+```
+
+A successful response would look like this:
+
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6MjU=",
+        "status": "UNFULFILLED"
+      },
+      "checkoutErrors": []
+    }
+  }
+}
+```
+
+
+Here is an example of the `checkoutComplete` mutation where the payment gateway requires additional data to finalize the payment using the Adyen payment gateway:
+
+```graphql {2-4}
+mutation{
+  checkoutComplete(
+    checkoutId:"Q2hlY2tvdXQ6NWRiZmNmYjctMmFkYi00ZDU4LThmNTMtZjVmYjk0YjJmY2Ew",
+    paymentData:"{\"paymentMethod\": {\"type\": \"scheme\", \"encryptedCardNumber\": \"ad...\", \"encryptedExpiryMonth\": \"18...\", \"encryptedExpiryYear\": \"18$C...\", \"encryptedSecurityCode\": \"18$...\", \"holderName\": \"S. Hopper\"}}"){
+     confirmationNeeded
+     confirmationData
+     order
+     checkoutErrors{
+       field
+       message
+       code
+     }
+}
+```
+
+A response would look like this:
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6MjU=",
+        "status": "UNFULFILLED"
+      },
+      "confirmationNeeded": false,
+      "confirmationData": null,
+      "checkoutErrors": []
+    }
+  }
+}
+```
+
+An example of a complete mutation where the payment gateway requires additional steps from the user:
+
+```graphql {2-4}
+mutation{
+  checkoutComplete(
+    checkoutId:"Q2hlY2tvdXQ6NWRiZmNmYjctMmFkYi00ZDU4LThmNTMtZjVmYjk0YjJmY2Ew",
+    paymentData:"{\"encryptedAdditionalAction\": \"eka...\"}"){
+     confirmationNeeded
+     confirmationData
+     order
+     checkoutErrors{
+       field
+       message
+       code
+     }
+}
+```
+
+A response would look like this:
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": null,
+      "confirmationNeeded": true,
+      "confirmationData": "{\"paymentData\":\"Ab02b4c...\", \"paymentMethodType\":\"scheme\", \"token\":\"eyJ0aHJlZURTTWV0aG9kTm9...\", \"type\":\"threeDS2Fingerprint\"}",
+      "checkoutErrors": []
+    }
+  }
+}
+```

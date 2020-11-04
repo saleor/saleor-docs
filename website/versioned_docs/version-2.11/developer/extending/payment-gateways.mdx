@@ -1,0 +1,155 @@
+---
+title: Payment Gateways
+---
+
+## Adding a new payment gateway
+
+Saleor uses a universal flow that each gateway should implement by providing a class that contains all the necessary methods.
+All of the plugin methods take `previous_value` as a second argument.
+More information about `previous_value` can be found [here](plugins#base-plugin-class).
+
+For a gateway to work correctly, you also need to specify `supported_currencies` in your gateway configuration.
+It determines in which currencies the gateway can be used.
+
+For more information on the plugin implementation methods and configurations of supported currencies,
+see the `plugin.py` file for an existing payment gateway.
+
+:::note
+You will also need to integrate your payment gateway into your storefront’s code.
+:::
+
+### Client token
+
+`get_client_token`: A client token is a signed data blob that includes configuration and authorization information required by the payment gateway.
+
+Client tokens should not be reused; a new client token should be generated for each payment request.
+
+:::note
+All the payment methods receive `payment_information` as a dataclass: `PaymentData`.
+
+You are in charge of configuring your gateway. Based on the existing implementations, you may use the `GatewayConfig` class to configure your plugin.
+
+For more information on how to configure your plugin, see the [Plugins](dashboard/configuration/plugins.md) topic.
+:::
+
+### Authorize payment
+
+`authorize(payment_information)`: Authorization is a process of reserving the amount of money against the customer’s funding source. The money does not change hands until the authorization is captured.
+
+### Refund
+
+`refund(payment_information)`: A refund is a full or partial return of captured funds to the customer.
+
+### Capture payment
+
+`capture(payment_information)`: A transfer of the money that was reserved during the authorization stage.
+
+### Void
+
+`void(payment_information)`: A cancellation of a pending authorization or capture.
+
+### Process payment
+
+`process_payment(payment_information)`: Used for the checkout process, it should perform all the necessary steps to process a payment. It should use already-defined functions, like authorize and capture.
+
+#### `PaymentData`
+
+| Name                  | Type          | Description                                                                                                                            |
+| --------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `amount`              | `Decimal`     | Amount to be authorized/captured/charged/refunded                                                                                      |
+| `payment_id`          | `int`         | The internal payment ID                                                                                                                |
+| `graphql_payment_id`  | `str`         | The graphql payment ID                                                                                                                 |
+| `currency`            | `str`         | The currency used in this transaction                                                                                                  |
+| `billing`             | `AddressData` | Billing information                                                                                                                    |
+| `shipping`            | `AddressData` | Shipping information                                                                                                                   |
+| `order_id`            | `int`         | Order ID                                                                                                                               |
+| `customer_ip_address` | `str`         | IP address of the customer                                                                                                             |
+| `customer_email`      | `str`         | Email address of the customer                                                                                                          |
+| `token`               | `str`         | Token used for transaction, provided by the gateway                                                                                    |
+| `customer_id`         | `str`         | Customer ID                                                                                                                            |
+| `reuse_source`        | `bool`        | Indicates that if a payment method for this user has already been stored in payment service, the system should use this payment method |
+| `data`                | `dict`        | Additional data used to provide gateway required data to process the payment                                                           |
+
+#### `AddressData`
+
+| Name               | Type  |
+| ------------------ | ----- |
+| `first_name`       | `str` |
+| `last_name`        | `str` |
+| `company_name`     | `str` |
+| `street_address_1` | `str` |
+| `street_address_2` | `str` |
+| `city`             | `str` |
+| `city_area`        | `str` |
+| `postal_code`      | `str` |
+| `country`          | `str` |
+| `country_area`     | `str` |
+| `phone`            | `str` |
+
+#### `GatewayConfig`
+
+| Name                   | Type   | Description                                                                                              |
+| ---------------------- | ------ | -------------------------------------------------------------------------------------------------------- |
+| `gateway_name`         | `str`  | Define gateway name                                                                                      |
+| `auto_capture`         | `bool` | Define if a gateway should also capture funds from the card. If false, payment should be only authorized |
+| `supported_currencies` | `str`  | Define currencies which are supported by the gateway                                                     |
+| `connection_params`    | `dict` | List of parameters used for connecting to the payment’s gateway                                          |
+| `store_customer`       | `bool` | If set to True, the system will save this payment method for this customer                               |
+| `require_3d_secure`    | `bool` | Determines if gateway should enforce 3D secure verification during payment                               |
+
+### Returns
+
+| Name               | Type              | Description                                                                                                      |
+| ------------------ | ----------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `gateway_response` | `GatewayResponse` | GatewayResponse containing details about every transaction, with `is_success` set to `True` if no error occurred |
+| `client_token`     | `str`             | Unique client token that will be used as an identifier in the payment process                                    |
+
+#### `GatewayResponse`
+
+| Name                            | Type             | Description                                                                                                                                                                             |
+| ------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `is_success`                    | `bool`           | Status showing whether the transaction was successful or not                                                                                                                            |
+| `action_required`               | `bool`           | Determines if additional action is required to complete the payment                                                                                                                     |
+| `kind`                          | `str`            | Transaction kind, one of: auth, capture, charge, refund, void                                                                                                                           |
+| `amount`                        | `Decimal`        | Amount that the gateway actually charged or authorized                                                                                                                                  |
+| `currency`                      | `str`            | Currency in which the gateway charged, needs to be an ISO 4217 code                                                                                                                     |
+| `transaction_id`                | `str`            | Transaction ID as returned by the gateway                                                                                                                                               |
+| `error`                         | `str`            | An error message, if one occurred. Should be `None` if no error occurred                                                                                                                |
+| `customer_id`                   | `str`            | Customer ID                                                                                                                                                                             |
+| `card_info`                     | `CreditCardInfo` | Credit Card information                                                                                                                                                                 |
+| `raw_response`                  | `dict`           | Raw gateway response as a dict object. By default, it is `None`                                                                                                                         |
+| `action_required_data`          | `dict`           | PSP additional data, required from the shopper, such as: to scan a QR code, to authenticate a payment with 3D Secure, or to log in to their bank's website to complete the payment.     |
+| `transaction_already_processed` | `dict`           | Determines if we should create new transaction based on this response                                                                                                                   |
+| `searchable_key`                | `str`            | The value which will be used in any filters over the transaction                                                                                                                        |
+
+
+#### `CreditCardInfo`
+
+| Name           | Type  | Description                     |
+| -------------- | ----- | ------------------------------- |
+| `last_4`       | `str` | Last four digits of card number |
+| `exp_year`     | `int` | Card expiration year            |
+| `exp_month`    | `int` | Card expiration month           |
+| `brand`        | `str` | Card brand                      |
+| `name_on_card` | `str` | Customer name on the card       |
+
+## Handling errors
+
+Gateway-specific errors should be parsed to Saleor’s universal format.
+
+### Transaction errors
+
+Saleor unifies error codes across all gateways.
+
+| Code                  | Graphql API Value     | Description                                        |
+| --------------------- | --------------------- | -------------------------------------------------- |
+| `incorrect_number`    | `INCORRECT_NUMBER`    | Incorrect card number                              |
+| `invalid_number`      | `INVALID_NUMBER`      | Invalid card number                                |
+| `incorrect_cvv`       | `INCORRECT_CVV`       | Incorrect CVV (or CVC)                             |
+| `invalid_cvv`         | `INVALID_CVV`         | Invalid CVV (or CVC)                               |
+| `incorrect_zip`       | `INCORRECT_ZIP`       | Incorrect postal code                              |
+| `incorrect_address`   | `INCORRECT_ADDRESS`   | Incorrect address (excluding postal code)          |
+| `invalid_expiry_date` | `INVALID_EXPIRY_DATE` | Incorrect card expiration date                     |
+| `expired`             | `EXPIRED`             | Expired payment method token                       |
+| `declined`            | `DECLINED`            | Transaction was declined by the gateway            |
+| `processing_error`    | `PROCESSING_ERROR`    | Default error used for all cases not covered above |
