@@ -15,10 +15,10 @@ This page allows you to configure the settings that are related to orders.
 
 3. Click on order settings to access the settings page
 
-## Confirgurable options
+## Configurable options
 
 ![Order settings page](../screenshots/order-settings-page.jpeg)
 
 | Option                                | Description                                                                                                                                                                                                             |
 | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Automatically confirm all new orders | When user finish checkout and this setting is enabled, order status will be _Unfulfilled_ without any need for staff confirmation. When disabled, all new orders created from checkouts will have status _Unconfirmed_ and these have to be [manually confirmed by staff](../orders.md#how-to-confirm-an-order) in order to become _Unfulfilled_.
+| Automatically confirm all new orders  | When enabled, newly placed orders will have their status set to _Unfulfilled_ without any need for staff confirmation. When disabled, all newly placed orders will have their status set to _Unconfirmed_ and will need to be [manually confirmed by staff](../orders.md#how-to-confirm-an-order) in order to become _Unfulfilled_.
