@@ -50,7 +50,9 @@ When creating a fulfillment, you will have the option to select which warehouse(
 
 #### Fulfillment statuses
 
-There are four possible order statuses (and a _Daft_ one), based on the stage of their fulfillment:
+There are five possible order statuses (and a _Draft_ one), based on the stage of their fulfillment:
+
+- **Unconfirmed** - Used when user finish checkout and order confirmation is required (can be changed in order settings). After order is confirmed by staff, order becomes _Unfulfilled_.
 
 - **Unfulfilled** - There are no fulfillments related to an order or each one is canceled. An action by a shop operator is required to continue order processing.
 
@@ -126,6 +128,18 @@ This is a function for store administrators to add orders, usually in cases wher
 Once you set up the order and finalize it using the button in the footer, it becomes a normal order and replacement goods can be sent to the customer.
 
 ![Create an order](screenshots/order-create-new.jpeg)
+
+### How to confirm an order
+
+When order confirmation is enabled, order needs to be confirmed by staff in order to become unfulfilled.
+
+1. Select an unconfirmed order from order list to open the order details
+
+2. Click _confirm&nbsp;order_ button on the bottom
+
+After operation is finished, order status should be _unfulfilled_.
+
+![Order confirm](screenshots/order-confirm.jpeg)
 
 ### How to process a refund
 
