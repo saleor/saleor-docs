@@ -180,9 +180,7 @@ Your product descriptions can be cool and fun, or just based on the facts. They 
 
 #### Step 2: Define pricing
 
-Type the price of your product manually or using the stepper by the currency indicator. If your product is tax-exempt, leave the _Charge&nbsp;taxes&nbsp;for&nbsp;this&nbsp;item_ checkbox empty. If you need to charge taxes, click on the box and a green check mark will appear.
-
-For more information on taxes, see the [Taxes](dashboard/configuration/taxes.md) topic.
+Enter the price of your product in the variant creator or on the variant page.
 
 :::note Displaying localized prices
 
@@ -202,7 +200,7 @@ Click _Edit&nbsp;Website&nbsp;SEO_ to add a description. If you do not add uniqu
 Increase traffic to your store by adding SEO-friendly descriptions for search engines. Write interesting, short content about each product, using keywords that people will use in web searches. Create a unique description for each product so search engines do not think it is duplicated content.
 :::
 
-![Editing product SEO](../screenshots/catalog-product-seo.jpeg)
+![Editing product SEO](../screenshots/catalog-product-seo.png)
 
 #### Step 4: Organize your product
 
@@ -221,11 +219,22 @@ You also have to choose the availability for purchasing your product. If you sel
 
 To show a product in the product listings, you have to enable the _Show in product listings_ checkbox.
 
-#### Step 6: Save your new product
+#### Step 6: Product taxes
+Under the *Taxes* section, you will find two options. Both of them are optional.
+
+![Changing product visibility](../screenshots/catalog-product-taxes.png)
+
+The first option allows you to override the product type's tax rate. Click the checkbox to enable the override.
+
+The second option allows you to charge taxes. If you want to charge taxes on your product, you have to enable it by clicking the checkbox. If your product is tax-exempt, leave the checkbox empty.
+
+For more information on taxes, see the [Taxes](dashboard/configuration/taxes.md) topic.
+
+#### Step 7: Save your new product
 
 Once you have input your minimum required product information, click _save_ in the footer to add it to your catalog and continue with further setup.
 
-#### Step 7: Add images
+#### Step 8: Add images
 
 Much the same as on social media or other platforms, there are two ways to add an image:
 
@@ -236,7 +245,7 @@ You can add an unlimited number of images per product. The main image will be th
 
 ![Uploading product images](../screenshots/catalog-product-image-upload.jpeg)
 
-#### Step 8: Add image descriptions
+#### Step 9: Add image descriptions
 
 You can also add descriptions of specific product features to your images. Hover over the image and click on the pencil to edit the information.
 
