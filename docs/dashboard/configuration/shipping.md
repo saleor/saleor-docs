@@ -53,6 +53,21 @@ These two methods cover most of the basic use cases, for example:
 * Increasing the shipping price for heavy orders.
 
 
+### ZIP Codes
+
+This section allows you to exclude shipping method for customers with certain ZIP codes.
+If customer shipping address ZIP Code is within any of specified ranges, that shipping method will be unavailable for that customer.
+
+For now the only supported mode for ZIP Codes is *exclude*, support for inclusion will be added in future.
+
+![Shipping zip codes](../screenshots/zip-codes.png)
+
+ZIP codes are being compared lexicographically (start range < customer zip code < end range) for any country unless it's one from the list:
+- Great Britain: lexicographical comparison while keeping area code in mind, for ex: when the range is *BH2 1AA* - *BH4 9ZZ* and the customer ZIP Code is *BH20 2BC*, it **won't** be in that range (so shipping method will still be available for that customer).
+- Ireland: lexicographical comparison while keeping routing key in mind.
+- Isle of Man, Jersey, Guernsey: same rules as for Great Britain.
+
+
 ### How to add a courier
 
 1. Click _Create&nbsp;Rate_ in the Price Based Rates card.
