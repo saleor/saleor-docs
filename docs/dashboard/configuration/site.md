@@ -20,21 +20,14 @@ The _URL&nbsp;of&nbsp;your&nbsp;online&nbsp;store_ should match that which you w
 
 The _Store&nbsp;Description_ is SEO information that will appear in browser results listing your site, so make sure it has clear, useful copy about your store and its products.
 
-## Company information
+## Mailing information
 
-This card allows you to enter basic information about your company (name, address, phone number).
+This card allows you to configure the email address from which automatic emails will be sent to your customers.
 
-## Authentication keys
+![Mailing configuration](../screenshots/config-site-mailing.jpg)
 
-You can allow dashboard users to enter your store through Google and Facebook and add additional security keys to ensure site security. 
+## Store information
 
-## How to
+This card allows you to enter basic information about your company (name, address, phone number). The address provided in this card will be used to generate invoices and calculate shipping rates.
 
-### How to add authentication keys
-
-1. Click _Add&nbsp;key_ at the top right of the Authentication Keys card 
-2. Select Facebook or Google in the Authentication Type field of the pop-up window 
-3. Create a key and password, which users will enter when accessing the dashboard through the chosen platform 
-4. Click _Add&nbsp;Authentication_ to confirm
-
-![Authorization keys](../screenshots/config-site-authentication.jpeg)
+![Store information](../screenshots/config-site-store.png)
