@@ -58,7 +58,7 @@ These two methods cover most of the basic use cases, for example:
 This section allows you to limit the shipping zone to shipping addresses within or outside of certain postal code ranges.
 In the *include* mode, only shipping addresses within the specified ranges are considered part of the shipping zone. In the *exclude* mode, shipping addresses within the specified ranges are considered outside of the shipping zone.
 
-Currently, the only supported mode for postal codes is the *exclude* mode, support for inclusion will be added in a future release.
+Currently, the only supported mode for postal codes is the *exclude* mode. Support for inclusion will be added in a future release.
 
 ![Shipping postal codes](../screenshots/postal-codes.png)
 
