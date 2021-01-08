@@ -55,17 +55,17 @@ These two methods cover most of the basic use cases, for example:
 
 ### Postal codes
 
-This section allows you to exclude shipping method for customers with certain postal codes.
-If customer shipping address postal code is within any of specified ranges, that shipping method will be unavailable for that customer.
+This section allows you to limit the shipping zone to shipping addresses within or outside of certain postal code ranges.
+In the *include* mode, only shipping addresses within the specified ranges are considered part of the shipping zone. In the *exclude* mode, shipping addresses within the specified ranges are considered outside of the shipping zone.
 
-For now the only supported mode for postal codes is *exclude*, support for inclusion will be added in future.
+Currently, the only supported mode for postal codes is the *exclude* mode, support for inclusion will be added in a future release.
 
 ![Shipping postal codes](../screenshots/postal-codes.png)
 
-Postal codes are being compared lexicographically (start range < customer postal code < end range) for any country unless it's one from the list:
-- Great Britain: lexicographical comparison while keeping area code in mind, for ex: when the range is *BH2 1AA* - *BH4 9ZZ* and the customer postal code is *BH20 2BC*, it **won't** be in that range (so shipping method will still be available for that customer).
-- Ireland: lexicographical comparison while keeping routing key in mind.
-- Isle of Man, Jersey, Guernsey: same rules as for Great Britain.
+Postal codes are compared using alphabetical sorting (start range ≤ customer postal code ≤ end range) with the following exceptions:
+- Great Britain: alphabetical order except for area codes that are sorted as numbers (for example, the range *BH1 1AA* - *BH3 9ZZ* does not include *BH21 2BC* even though alphabetical order would suggest otherwise).
+- Ireland: alphabetical order except for routing keys that are sorted as numbers.
+- Isle of Man, Jersey, Guernsey: same rules as Great Britain.
 
 
 ### How to add a courier
