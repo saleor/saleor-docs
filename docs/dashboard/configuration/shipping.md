@@ -53,6 +53,21 @@ These two methods cover most of the basic use cases, for example:
 * Increasing the shipping price for heavy orders.
 
 
+### Postal codes
+
+This section allows you to limit the shipping zone to shipping addresses within or outside of certain postal code ranges.
+In the *include* mode, only shipping addresses within the specified ranges are considered part of the shipping zone. In the *exclude* mode, shipping addresses within the specified ranges are considered outside of the shipping zone.
+
+Currently, the only supported mode for postal codes is the *exclude* mode. Support for inclusion will be added in a future release.
+
+![Shipping postal codes](../screenshots/postal-codes.png)
+
+Postal codes are compared using alphabetical sorting (start range ≤ customer postal code ≤ end range) with the following exceptions:
+- Great Britain: alphabetical order except for area codes that are sorted as numbers (for example, the range *BH1 1AA* - *BH3 9ZZ* does not include *BH21 2BC* even though alphabetical order would suggest otherwise).
+- Ireland: alphabetical order except for routing keys that are sorted as numbers.
+- Isle of Man, Jersey, Guernsey: same rules as Great Britain.
+
+
 ### How to add a courier
 
 1. Click _Create&nbsp;Rate_ in the Price Based Rates card.
