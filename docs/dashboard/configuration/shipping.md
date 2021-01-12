@@ -88,9 +88,9 @@ Postal codes are compared using alphabetical sorting (start range ≤ customer p
 
     * If there are limitations, input them into the fields as the value range. If you leave the minimum value empty, it means that there is no lower threshold. If you leave the maximum value empty, it means there is no maximum weight or price value.
 
-### How to manage metadata in the shipping zone page
+### How to manage metadata
 
-Once the shipping zone has been created, you can add private and public metadata for each shipping zone in the shipping zone page. Use the button _Add Field_ to add a new metadata field.
+Once the shipping zone has been created, you can add private and public metadata for each shipping zone in the shipping zone details page. Use the button _Add Field_ to add a new metadata field.
 
 ![](../screenshots/metadata.jpg)
 
