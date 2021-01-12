@@ -16,17 +16,23 @@ You can choose metric or imperial weight units as the default in which your stor
 
 ## How to
 
-### How to add a shipping zone and assigning countries
+### How to create a shipping zone and assign countries
 
 Shipping Zones define the cost of shipping in different areas of the world. Collecting countries together in zones allows you to assign the best shipping and delivery options for customers.
 
-Click _Add&nbsp;Shipping&nbsp;Zone_ in the top right corner of the Shipping by Zone card. Add the name of the shipping zone then click _Assign&nbsp;Countries_ and use one of the three options in the pop-up window that appears:
+To create a shipping zone, first you need to click _Create Shipping Zone_ in the top right corner of the Shipping by Zone card. The next step is to provide the name and description (optional) of the shipping zone. 
 
-1. In the Search Countries section at the top, you can search specific countries by name and assign them to the shipping zone
-2. The Quick Pick section is an option that allows you create a shipping for all unassigned countries. This is a useful option for defining a final ‘Rest Of The World’ shipping zone to guarantee global coverage 
-3. Scroll through the Countries A to Z list and assign countries using the checkboxes
+![Create Shipping Zone](../screenshots/config-shipping-zone-create-new.jpg)
 
-Click _Assign_ to confirm your selection.
+Then click _Assign Countries_ and use one of three options that appear in the pop-up window:
+
+1. In the Search Countries section at the top, you can search specific countries by name and assign them to the shipping zone.
+2. The Quick Pick section is an option that allows you to create a shipping for all unassigned countries. This is a useful option for defining a final ‘Rest Of The World’ shipping zone to guarantee global coverage.
+3. Scroll through the Countries A to Z list and assign countries using the checkboxes.
+
+Click _Assign Countries_ to confirm your selection.
+
+![Assign Countries](../screenshots/config-shipping-zone-assign-countries.jpg)
 
 ### How to remove shipping zones and countries
 
