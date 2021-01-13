@@ -94,7 +94,6 @@ When viewing orders with pre-authorized payments, Saleor offers options to eithe
 ![Order with an uncaptured payment](screenshots/order-payment.jpeg)
 
 #### Refunds
-
 Payments can be fully or partially refunded, if there is an issue with the goods or customer service.
 
 ### Order history
@@ -141,15 +140,18 @@ After operation is finished, order status should be _unfulfilled_.
 
 ![Order confirm](screenshots/order-confirm.jpeg)
 
-### How to process a refund
+### How to refund an order?
 
-1. In the selected order page, click the _Refund_ label in the bottom right corner of the payment status card
+Saleor allows you to refund payments. Click the _REFUND_ button in the _Fully paid_ card in the order details page. 
 
-2. Click _Confirm_ to refund the full amount
+There are two options to choose:
+1. _Refund Products_. This method allows you to choose the quantity of the refunded products. Click the _SET MAXIMAL QUANTITIES_ button to select all products from the order that will be refunded. 
 
-3. For partial refunds, input the amount manually or using the stepper, then confirm
+In the _Refunded Amount_ card, you can choose if you want to use an _Automatic Amount_ or _Manual Amount_. The first one is calculated based on the quantity of the products for the refund you selected earlier. You can also refund shipping costs (optional). _Manual Amount_ allows you to type any amount you have decided. 
 
-![Fully paid order](screenshots/order-payment-captured.jpeg)
+2. _Miscellaneous Refund_. This option allows you to type any amount for the refund you have decided.
+
+![Order refund](screenshots/order-refund.jpg)
 
 ### How to fulfill an order
 
