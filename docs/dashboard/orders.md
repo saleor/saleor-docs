@@ -140,7 +140,7 @@ After operation is finished, order status should be _unfulfilled_.
 
 ![Order confirm](screenshots/order-confirm.jpeg)
 
-### How to refund an order?
+### How to refund an order
 
 Saleor allows you to refund payments. Click the _REFUND_ button in the _Fully paid_ card in the order details page. 
 

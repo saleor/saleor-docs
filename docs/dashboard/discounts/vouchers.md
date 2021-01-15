@@ -33,30 +33,33 @@ Choose if your voucher is:
 
 **4. Input voucher value**
 
-Input the fixed amount or percentage discount value of the voucher.
+Input the fixed amount or percentage discount value of the voucher per channel.
 
-**5. Choose single or multiple products**
+**5. Voucher Specific Information**
 
-Decide whether the fixed-value or percentage-value voucher applies to all products in an order or only to the cheapest one.
+Once a voucher has been created, decide whether the fixed-value or percentage-value voucher applies to all products in the order or specific products. If you choose the second option, a new card will appear where you can assign specific categories, collections or products.
+
+You can also enable the only once per order option. If this option is disabled, a discount will be counted for every eligible product.
+
+![](../screenshots/discout-voucher-specific-information.jpg)
 
 **6. Apply discount to all products or only full price products**
 
-You can decide if your offer applies to products which are already discounted in other sales or if it only covers full price products. Check the slider to choose the right option. 
+You can decide if your offer applies to products which are already discounted in other sales or if it only covers full price products. Check the slider to choose the right option.
 
-**7. Set minimum requirements**
+**6. Set minimum requirements**
 
 Vouchers are a great upselling opportunity. You can choose a minimum order value or quantity of products that customers must reach before the voucher can be applied, or you can choose _None_ and apply the voucher to all products.
 
-**8. Set usage limit**
+**7. Set usage limit**
 
 Choose the total number of vouchers available to all customers. You can create single vouchers for specific customers, a wider offer in limited numbers, or an unlimited number of vouchers for a set period of time.
 
 Choose if each customer (defined by e-mail address) can use the voucher only once or multiple times.
 
-**9. Choose the dates**
+**8. Choose the dates**
 
-Leave the start date blank in Active Dates card if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
-
+Leave the start date blank in the _Active Dates_ card if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
 
 ### How to edit or remove vouchers
 
