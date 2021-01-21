@@ -24,9 +24,9 @@ To delete individual products, click on the trash can icon next to the product a
 
 ### How to manage availability
 
-Click the _MANAGE_ button in the right top corner of the availability card, and then assign a channel. You can select multiple channels.
+Click the _MANAGE_ button in the right top corner of the availability card, and then assign a [channel](dashboard/configuration/channels.md). You can select multiple channels.
 
-Once the channel has been assigned, the next step is to choose if the collection appears or remains hidden in your store. You can set a publication date. It allows you to hold some of your collections unavailable to your customers until the publication date. They are simply not listed in your storefront.
+Once the channel has been assigned, the next step is to choose if the collection appears or remains hidden in your store. You can set a publication date. It allows you to hold some of your collections unavailable to your customers until the publication date. They are not listed in your storefront.
 
 ![Collection availability](../screenshots/catalog-collection-availability.jpg)
 

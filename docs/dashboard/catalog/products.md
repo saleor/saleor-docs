@@ -210,9 +210,15 @@ Categorize your new product using the drop-down menus to assign a relevant Produ
 
 #### Step 5: Make your product available
 
-Once you have set up all your product details, you need to assign a [channel](dashboard/configuration/channels.md). that has been created. Click the _MANAGE_ button in the right top corner of the availability card, and then assign a channel. You can assign multiple channels to the product.
+Once you have set up all your product details, you need to assign a previously created [channel](dashboard/configuration/channels.md). Click the _MANAGE_ button in the top right corner of the availability card, and then assign a channel. You can assign as many channels as you need for each product.
 
-Once a channel has been created, you will be able to set the availability of items on specific channels while managing your products. You can set a publication date. It allows you to hold some of your products unavailable to your customers until the publication date. They are simply not listed in your storefront.
+Each channel gives you fine control over the availability of individual items. You can set a product's publication date on a per-channel basis.
+
+:::note Assign a category
+
+If you want to make a product public, you need to assign a category.
+
+:::
 
 ![Changing product visibility](../screenshots/catalog-product-availability.jpg)
 

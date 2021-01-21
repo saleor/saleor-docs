@@ -31,11 +31,15 @@ Choose if your voucher is:
 - Percentage: A percentage discount on all products in an order or only the least expensive one
 - Free Shipping: No shipping charge for all items in an order
 
-**4. Input voucher value**
+**4. Availability**
 
-Input the fixed amount or percentage discount value of the voucher per channel.
+Click the _MANAGE_ button in the right top corner of the availability card, and then assign a [channel](dashboard/configuration/channels.md).
 
-**5. Voucher Specific Information**
+**5. Input voucher value**
+
+Input the fixed amount or percentage discount value of the voucher per [channel](dashboard/configuration/channels.md).
+
+**6. Voucher Specific Information**
 
 Once a voucher has been created, decide whether the fixed-value or percentage-value voucher applies to all products in the order or specific products. If you choose the second option, a new card will appear where you can assign specific categories, collections or products.
 
@@ -43,21 +47,21 @@ You can also enable the only once per order option. If this option is disabled, 
 
 ![](../screenshots/discout-voucher-specific-information.jpg)
 
-**6. Apply discount to all products or only full price products**
+**7. Apply discount to all products or only full price products**
 
 You can decide if your offer applies to products which are already discounted in other sales or if it only covers full price products. Check the slider to choose the right option.
 
-**6. Set minimum requirements**
+**8. Set minimum requirements**
 
 Vouchers are a great upselling opportunity. You can choose a minimum order value or quantity of products that customers must reach before the voucher can be applied, or you can choose _None_ and apply the voucher to all products.
 
-**7. Set usage limit**
+**9. Set usage limit**
 
 Choose the total number of vouchers available to all customers. You can create single vouchers for specific customers, a wider offer in limited numbers, or an unlimited number of vouchers for a set period of time.
 
 Choose if each customer (defined by e-mail address) can use the voucher only once or multiple times.
 
-**8. Choose the dates**
+**10. Choose the dates**
 
 Leave the start date blank in the _Active Dates_ card if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
 

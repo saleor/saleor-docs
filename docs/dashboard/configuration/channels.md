@@ -21,12 +21,24 @@ This page allows you to define and manage your sales channels for your store. Yo
 
 ![New channel](../screenshots/channels-create-new.jpg)
 
+:::note Currency
+
+Once the channel has been created, you cannot change its currency.
+
+:::
+
 ### How to activate a channel
 
-Once a channel has been created, it will be inactive by default. Click the _ACTIVATE_ button to activate the channel. Once the channel has been activated, the status will be changed to _ACTIVE_. To deactive the channel, click the _DEACTIVE_ button.
+Newly created channels are inactive by default. Click the _ACTIVATE_ button to activate a channel. Likewise, to deactivate a channel, click the _DEACTIVATE_ button.
 
 ![New channel](../screenshots/channels-status.jpg)
 
 ### How to remove a channel
 
-You can remove an individual channel from the channels list using the trash icon next to the channel.
+You can remove a channel from the channel list view using the trash icon next to the channel's name.
+
+:::note Restrictions
+
+A channel can only be removed when it does not have any existing orders. If a channel has existing orders, you can only remove it once those orders have been migrated to another channel with the same currency.
+
+:::

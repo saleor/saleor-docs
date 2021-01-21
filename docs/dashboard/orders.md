@@ -116,13 +116,15 @@ This is a function for store administrators to add orders, usually in cases wher
 
 1. Click _Create&nbsp;Order_ on the main orders page or the draft orders section
 
-2. Click _Add&nbsp;Products_ in the Order Details card
+2. Choose a previously created [channel](dashboard/configuration/channels.md) 
 
-3. Select products from the drop-down menu or by typing the product name in the search field. Assign using the check boxes
+3. Click _Add&nbsp;Products_ in the Order Details card
 
-4. Choose the customer name. Other fields for customer information will then auto-complete. Make any required changes or input information for a new customer
+4. Select products from the drop-down menu or by typing the product name in the search field. Assign using the check boxes
 
-5. Choose the best shipping offer from the drop-down list of available couriers
+5. Choose the customer name. Other fields for customer information will then auto-complete. Make any required changes or input information for a new customer
+
+6. Choose the best shipping offer from the drop-down list of available couriers
 
 Once you set up the order and finalize it using the button in the footer, it becomes a normal order and replacement goods can be sent to the customer.
 

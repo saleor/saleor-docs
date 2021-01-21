@@ -13,9 +13,21 @@ The page consists of the following cards:
 
 Get a quick summary of the number of orders for the current day and the running total value of sales.
 
+## Channels
+
+Once multiple sales [channels](dashboard/configuration/channels.md) have been created, you can switch between the channels. To switch the channel, click the tab next to your user name in the top right corner of the dashboard page.
+
+![Dashboard channels](screenshots/dashboard-home-channels.jpg)
+
 ## Orders, payments, and out of stocks
 
 This card gives an overview of the total number of orders yet to be fulfilled and payments awaiting capture. Clicking each link gives you a breakdown of individual orders and payments. You can also see a total number of products that are out of stock and click the link to see a detailed list.
+
+:::note Displayed data
+
+The data displayed in this card are specific for each unique channel.
+
+:::
 
 ## Top products
 
@@ -26,12 +38,6 @@ Identify and understand the trends in your product sales through a handy overvie
 The activity card gives you a quick summary of all actions taken by your Saleor system; orders which have been placed, fulfilled and canceled, and details of payment processing.
 
 ## How to
-
-### How to switch a channel
-
-Once multiple sales [channels](dashboard/configuration/channels.md) have been created, you can switch between the channels. To switch the channel, click the tab next to your user name in the top right corner of the dashboard page.
-
-![Dashboard channels](screenshots/dashboard-home-channels.jpg)
 
 ### How to change basic information of the staff account
 

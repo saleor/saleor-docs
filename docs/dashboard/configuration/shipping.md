@@ -48,7 +48,7 @@ Find rates offered by couriers for the delivery of your goods and add them to yo
 
 There are two types of shipping:
 
-- Price-based shipping defines the cost based upon the value of orders and pricing per channel. Can be used when the order price falls within a certain range. For example, from $0 to $50 - shipping method A, over $50 - shipping method B, etc.
+- Price-based shipping defines the cost based upon the value of orders and pricing per [channel](dashboard/configuration/channels.md). Can be used when the order price falls within a certain range. For example, from $0 to $50 - shipping method A, over $50 - shipping method B, etc.
 - Weight-based shipping defines cost by weight. Similar to the price based example.
 
 These two methods cover most of the basic use cases, for example:
@@ -60,7 +60,7 @@ These two methods cover most of the basic use cases, for example:
 
 ### How to add a channel to the shipping rate type
 
-In both shipping rate types mentioned above, you can assign sales channels. Click the _MANAGE_ button in the right top corner of the availability card, and then assign a channel. You can select multiple channels. 
+In both shipping rate types mentioned above, you can assign sales [channels](dashboard/configuration/channels.md). Click the _MANAGE_ button in the right top corner of the availability card, and then assign a channel. You can select multiple channels. 
 
 ![Shipping rate channel](../screenshots/config-shipping-price-based-channel.jpg)
 
