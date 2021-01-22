@@ -39,6 +39,6 @@ You can remove a channel from the channel list view using the trash icon next to
 
 :::note Restrictions
 
-A channel can only be removed when it does not have any existing orders. If a channel has existing orders, you can only remove it once those orders have been migrated to another channel with the same currency.
+A channel can only be removed when it does not have any existing orders. If a channel has existing orders, you need to choose another channel with the same currency, where orders will be moved to.
 
 :::
