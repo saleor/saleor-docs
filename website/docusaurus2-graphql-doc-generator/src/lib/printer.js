@@ -197,7 +197,7 @@ module.exports = class Printer {
 
   printDeprecation(type) {
     if (type.isDeprecated) {
-      return `<sub><sup><Tag color="#ffba00">DEPRECATED</Tag> ${type.deprecationReason}</sup></sub>\n\n`;
+      return `<sub><sup><span className="deprecatedTag">DEPRECATED</span> ${type.deprecationReason}</sup></sub>\n\n`;
     }
     return "";
   }
