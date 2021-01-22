@@ -30,7 +30,7 @@ Add the content that the page will contain. This may be a simple description of 
 
 **3. Search engine preview**
 
-Click _Edit&nbsp;Website&nbsp;SEO_ to fill out the following fields that will appear in web searchers:
+Click _Edit&nbsp;Website&nbsp;SEO_ to fill out the following fields that will appear in web searches:
 
 - Slug
 - Search engine title
