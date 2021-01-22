@@ -1,4 +1,4 @@
-{
+module.exports = {
   "dashboard/before-you-start": {
     "Dashboard Manual": [
       "dashboard/index",
@@ -131,6 +131,11 @@
           "developer/community/support"
         ]
       }
+    ]
+  },
+  "api-reference": {
+    "Api Reference": [
+      ...require("../docs/api-reference/sidebar-schema.js").schemaSidebar
     ]
   }
 }
