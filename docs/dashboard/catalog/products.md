@@ -208,14 +208,19 @@ Increase traffic to your store by adding SEO-friendly descriptions for search en
 
 Categorize your new product using the drop-down menus to assign a relevant Product Type and Category. This is mandatory before you can save the product. You can also optionally assign your product to a Collection.
 
-#### Step 5: Make your product visible
+#### Step 5: Make your product available
 
-Once you have set up all your product details, you can choose if it appears for sale or remains hidden from view.
-If set, it allows you to hold some of your products unavailable to your customers until the publication date. They are simply not listed in your storefront.
+Once you have set up all your product details, you need to assign a previously created [channel](dashboard/configuration/channels.md). Click the _MANAGE_ button in the top right corner of the availability card, and then assign a channel. You can assign as many channels as you need for each product.
 
-![Changing product visibility](../screenshots/catalog-product-visibility.png)
+Each channel gives you fine control over the availability of individual items. You can set a product's publication date on a per-channel basis.
 
-If you want to push your product for sale, select the _Published_ option.
+:::note Assign a category
+
+If you want to make a product public, you need to assign a category.
+
+:::
+
+![Changing product visibility](../screenshots/catalog-product-availability.jpg)
 
 You also have to choose the availability for purchasing your product. If you select _unavailable for purchase_, you can set a date when your customers will next be able to buy your product.
 

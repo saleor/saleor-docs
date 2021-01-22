@@ -22,11 +22,25 @@ You can add and edit collections in the same way as categories, with a cover pho
 
 To delete individual products, click on the trash can icon next to the product and confirm removal from the collection.
 
+### How to manage availability
+
+Click the _MANAGE_ button in the right top corner of the availability card, and then assign a [channel](dashboard/configuration/channels.md). You can select multiple channels.
+
+Once the channel has been assigned, the next step is to choose if the collection appears or remains hidden in your store. You can set a publication date. It allows you to hold some of your collections unavailable to your customers until the publication date. They are not listed in your storefront.
+
+![Collection availability](../screenshots/catalog-collection-availability.jpg)
+
 ### How to add products to existing collection
 
 Once you have created a collection, you can easily add more products by choosing the _Assign&nbsp;Products_ option from the collection overview and selecting products from the list. To find other products, type the name, attribute or product type into the search bar and the list will automatically refresh.
 
 ![Assign product to collection](../screenshots/catalog-collection-assign.png)
+
+### How to add optional search engine preview content
+
+Click Edit Website SEO to add a SEO title, slug and description. If you do not add unique SEO content, details will be taken from the General Information card.
+
+![Collection availability](../screenshots/catalog-collection-seo.jpg)
 
 ### How to delete a collection
 

@@ -40,7 +40,6 @@ You can remove individual shipping zones by entering the zone from the list and 
 
 Remove countries from a shipping zone using the trash can icon next to the country name when you enter a specific zone from the main list.
 
-
 ### How to add shipping rates
 
 Find rates offered by couriers for the delivery of your goods and add them to your shipping zones. When your customers get to the checkout section of the store, they will be presented with these shipment options and prices.
@@ -49,8 +48,8 @@ Find rates offered by couriers for the delivery of your goods and add them to yo
 
 There are two types of shipping:
 
-- Price-based shipping defines the cost based upon the value of goods. Can be used when the order price falls within a certain range. For example, from $0 to $50 - shipping method A, over $50 - shipping method B, etc.
-- Weight-based shipping defines cost by weight. Similar to the price based example. 
+- Price-based shipping defines the cost based upon the value of orders and pricing per [channel](dashboard/configuration/channels.md). Can be used when the order price falls within a certain range. For example, from $0 to $50 - shipping method A, over $50 - shipping method B, etc.
+- Weight-based shipping defines cost by weight. Similar to the price based example.
 
 These two methods cover most of the basic use cases, for example:
 
@@ -58,6 +57,17 @@ These two methods cover most of the basic use cases, for example:
 * Offering a free (or discounted) shipping on orders above certain price threshold.
 * Increasing the shipping price for heavy orders.
 
+
+### How to add a channel to the shipping rate type
+
+In both shipping rate types mentioned above, you can assign sales [channels](dashboard/configuration/channels.md). Click the _MANAGE_ button in the right top corner of the availability card, and then assign a channel. You can select multiple channels. 
+
+![Shipping rate channel](../screenshots/config-shipping-price-based-channel.jpg)
+
+### How to exclude the products  
+Once the shipping rate has been created, you can exclude products from it. Click _ASSIGN PRODUCTS_ in the Excluded Products card of the shipping rate details page.
+
+![Exclude product](../screenshots/config-shipping-rate-exclude-products.jpg)
 
 ### Postal codes
 
@@ -93,7 +103,6 @@ Postal codes are compared using alphabetical sorting (start range ≤ customer p
 If you offer free shipping, select the _This is free shipping_ checkbox. 
 
 If shipping is charged, input the rate per weight unit in the currency field.
-
 
 ### How to remove couriers
 

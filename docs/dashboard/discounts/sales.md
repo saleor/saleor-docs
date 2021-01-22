@@ -24,31 +24,37 @@ Click _Create&nbsp;Sale_ above the main sales list and fill in the relevant sect
 Add the name of your sale. This can be edited later.
 
 
-### Step 3: Pricing
+### Step 3: Discount type
 
-**Discount Value:** Use the icon on the right side of the Discount Value field to toggle between percentage discount and price-per-item discount.
+Discount Value: Choose between _percentage discount_ or _fixed amount_ discount type.
 
-**Time Frame:** Use the pop-up calendar or stepper to choose the start and end dates of the sale. If you do not set a start date, the sale will start immediately; similarly, a sale without an end date will continue indefinitely.
+### Step 4: Availability
+
+Click the _MANAGE_ button in the right top corner of the availability card, and then assign a [channel](dashboard/configuration/channels.md).
+
+### Step 5: Discount Value
+
+Once you have assigned the channels and you have chosen a discount type, fill in the value of the discount. Channels that don’t have assigned discounts will use their parent channel to define the price. The price will be converted to the channel’s currency.
+
+### Step 6: Active dates
+
+Use the pop-up calendar or stepper to choose the start and end dates of the sale. If you do not set a start date, the sale will start immediately; similarly, a sale without an end date will continue indefinitely.
+
+![Active dates](../screenshots/discount-sale-active-dates.jpg)
+
+### Step 7: Save your changes
+
+Click Save on the footer bar to save the sale.
 
 
-### Step 4: Summary
+### Step 8: Assign categories, collections, or products
 
-Once you have set the basic parameters of your sale and saved them, the summary section on the right side of the page will show an overview of the event.
-
-
-### Step 5: Assign categories, collections, or products
-
-Select the items in your sale. The categories section allows you to select individual products, assign entire categories, or assign entire pre-created collections.   
-
-![Products in sale](../screenshots/discount-products.png)
-
-To assign any product, category or collection, click on the relevant tab and then make your selection using the checkboxes. You can search for specific products, attributes, and so on by typing in the Search Categories section.
+Once a sale has been created, to assign any product, category or collection, click on the relevant tab and then make your selection using the checkboxes. You can search for specific products, attributes, and so on by typing in the Search Categories section.
 
 ![Including categories in sale](../screenshots/discount-categories.jpeg)
 
-Once you have chosen the products, categories or collections you want to promote, click _Assign&nbsp;Categories_.
+Once you have chosen the products, categories or collections you want to promote, click _Assign_.
 
+### Step 9: Summary
 
-### Step 6: Save your changes
-
-Click _Save_ on the footer bar to save the sale.
+Once you have set the basic parameters of your sale and saved them, the summary section on the right side of the page will show an overview of the event.
