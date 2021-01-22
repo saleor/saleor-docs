@@ -23,19 +23,6 @@ const HEADER_SECTION_SUB_LEVEL = "####";
 const HEADER_SECTION_ITEM_LEVEL = "- #####";
 const NO_DESCRIPTION_TEXT = "No description";
 
-const TAG = `
-export const Tag = ({children, color}) => (
-  <span
-    style={{
-      backgroundColor: color,
-      borderRadius: '2px',
-      color: '#fff',
-      padding: '0.2rem',
-    }}>
-    {children}
-  </span>
-);`;
-
 module.exports = class Printer {
   constructor(schema, baseURL, linkRoot = "/") {
     this.schema = schema;
@@ -278,7 +265,7 @@ module.exports = class Printer {
     }
 
     return prettifyMarkdown(
-      `${header}\n\n${TAG}\n\n${description}\n\n${code}\n\n${metadata}\n\n`,
+      `${header}\n\n${description}\n\n${code}\n\n${metadata}\n\n`,
     );
   }
 };
