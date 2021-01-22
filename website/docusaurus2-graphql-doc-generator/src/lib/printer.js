@@ -76,8 +76,8 @@ module.exports = class Printer {
         this.linkRoot,
         this.baseURL,
         category,
-        toSlug(graphLQLNamedType),
-      )})`;
+        toSlug(graphLQLNamedType)
+      )}.mdx)`;
     } else {
       return `\`${name}\``;
     }
