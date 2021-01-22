@@ -6,7 +6,7 @@ const { toSlug, startCase, hasProperty } = require("./utils");
 const { prettifyJavascript } = require("./prettier");
 
 const SIDEBAR = "sidebar-schema.js";
-const HOMEPAGE_ID = "introduction.mdx";
+const HOMEPAGE_ID = "api-introduction";
 
 module.exports = class Renderer {
   constructor(printer, outputDir, baseURL) {
