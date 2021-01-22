@@ -32,7 +32,7 @@ This is very important, as it means you are legally charging the correct amount 
 
 1. Click _Create&nbsp;Product&nbsp;Type_ and fill out the General Information, Taxes, and Shipping cards.
 
-2. Click _Save_. An additional _Product Attributes_ card will appear. Assign attributes to your product type.
+2. Click _Save_. An additional _Product Attributes_ card will appear. Assign previously created [attributes](dashboard/configuration/attributes.md) to your product type.
 
 ![Adding product type](../screenshots/config-product-type-details.jpeg)
 

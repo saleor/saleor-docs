@@ -30,11 +30,19 @@ Add the content that the page will contain. This may be a simple description of 
 
 **3. Search engine preview**
 
-Click _Edit&nbsp;Website&nbsp;SEO_ to add a description that will appear in web searches.
+Click _Edit&nbsp;Website&nbsp;SEO_ to fill out the following fields that will appear in web searchers:
 
-**4. URL**
+- Slug
+- Search engine title
+- Search engine description
 
-If you leave the URL card empty, the title of the page will be added to your normal site URL after a slash. You can change the site address after the slash by typing it into the URL field.
+:::note
+If you leave the fields above empty, the preview will be auto-generated.
+:::
+
+**4. Organize content**
+
+Select a previously created [page type](dashboard/configuration/page-types).
 
 **5. Visibility**
 
@@ -43,6 +51,18 @@ You can choose if your page is published or not. Use the switch in the Visibilit
 :::tip
 You can set a future date when the page will be published. Use the _Publish on_ field to specify a publishing date.
 :::
+
+**6. Attributes**
+
+Once the page has been created, you can assign a previously created [content attribute](dashboard/configuration/attributes.md). 
+
+### How to manage metadata in the product type setup page
+
+You can add private and public metadata for each page in the page setup. Use the button _Add Field_ to add a new metadata field.
+
+![](../screenshots/metadata.jpg)
+
+To learn more about object metadata, see the [Developer's Guide](developer/metadata.mdx).
 
 ### How to delete a page
 

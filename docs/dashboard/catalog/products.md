@@ -281,7 +281,7 @@ Do not remove a product if you just want to temporarily take it away from your i
 
 ### How to use the variant creator
 
-When creating a new product, your attributes are assigned automatically once you select a Product Type.
+When creating a new product, your attributes are assigned automatically once you select a previously created [Product Type](dashboard/configuration/products.md).
 Based on these attributes, you can create variants of your product.
 
 Click the _Create Variants_ button in the Variants card to open the 3-step variant creator.

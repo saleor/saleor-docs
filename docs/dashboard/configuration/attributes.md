@@ -60,7 +60,12 @@ In the General Information card, provide the following data:
 
 - Attribute Code - This is used to distinguish between, for example, _shoe sizes_ (36, 37, etc.) and _t-shirt sizes_ (XS, S, etc.). Any value you enter in this field will only be used internally; your customers will not see it. The attribute code must be a unique value.
 
-- Catalog Input type for Store Owner - Here you can decide how the attribute values are displayed to the admin in the product management views. Available options are: Dropdown (if you can only display one option) and Multi Select (if you can select numerous attribute values).
+- Catalog Input type for Store Owner - Here you can decide how the attribute values are displayed to the admin in the product management views. Available options are: 
+
+1. _Dropdown_ (you can only display one option)
+2. _Multiple Select_ (you can select numerous attribute values)
+3. _File_ (you can select a specific file, e.g. a graphic file)
+4. _References_ (you can select products or pages)
 
 :::note
 Only the attributes with the input type (in the Attribute setup page) set to _Dropdown_ may be used as Variant Attributes.
@@ -70,9 +75,19 @@ In other words, when setting up your Product Type, if you select a Variant Attri
 
 - Value Required - If the toggle is active, this attribute is required on the Product setup page. When creating a Product using this attribute, you will be required to provide a value for this attribute.
 
-#### Step 3: Properties card
+![Attribute general information](../screenshots/config-attribute-new-general-info.jpg)
+
+#### Step 3: Organization card
+Choose one of the following attribute classes: _Product Attribute_ or _Content Attribute_. It defines where the attribute should be used in Saleor. 
+
+![Oefanization card](../screenshots/config-attribute-new-organization.jpg)
+
+#### Step 4: Properties card
 
 The Properties card is divided into three properties sections. These sections allow you to define how your attribute should behave from the Storefront and Dashboard perspective.
+
+![Properties card](../screenshots/config-attributes-properties.jpg)
+
 
 Use the following fields to complete the properties setup of your attribute:
 
@@ -82,9 +97,9 @@ Use the following fields to complete the properties setup of your attribute:
 
 - Position in Faceted Navigation - Use this field to indicate the order of attributes in the faceted navigation. Type in a number; the lower the number, the higher the position of your attribute.
 
-![Faceted Navigation](../screenshots/config-attributes-facets.jpeg)
+![Faceted Navigation](../screenshots/config-attributes-facets.jpg)
 
-- Visible on Product Page in Storefront - If the toggle is active, your attribute will be visible when viewing the product page.
+- Visible on Product Page in Storefront - If the _Public_ toggle is active, your attribute will be visible when viewing the product page.
 
 ##### Dashboard Properties section
 
@@ -92,11 +107,11 @@ Use the following fields to complete the properties setup of your attribute:
 
 - Add to Column Options - Allows to use this attribute as one of the column options on the product list page. See the [Product](dashboard/catalog/products.md#editing-columns) topic for more information on managing the product list view.
 
-#### Step 4: Add values
+#### Step 5: Add values
 
 To add specific values to your attribute, click _Assign&nbsp;Value_ in the Attribute Values card and type in the value. This is visible to your customers.
 
-#### Step 5: Save changes
+#### Step 6: Save changes
 
 Click _Save_ once finished.
 
