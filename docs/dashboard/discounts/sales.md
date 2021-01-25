@@ -16,7 +16,7 @@ Sales are an excellent way to encourage customers to use your store. Saleor offe
 
 Click _Create&nbsp;Sale_ above the main sales list and fill in the relevant sections.
 
-![Creating sale](../screenshots/discount-new.jpeg)
+![Creating sale](../screenshots/discount-sale-new.jpg)
 
 
 ### Step 2: General Information card

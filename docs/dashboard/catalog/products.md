@@ -6,7 +6,7 @@ title: Products
 
 This page contains an alphabetically sorted list of all your products with a picture for each (if set), the product name and type, information on its visibility on your site (if it is published or not), and the product's price.
 
-![](../screenshots/catalog-product-list.png)
+![](../screenshots/catalog-product-list.jpg)
 
 ### Managing the list view
 
@@ -120,7 +120,7 @@ Each variant also has a _cost price_ (the price that your store had to pay to pu
 
 Within a variant, stock information is split between warehouses. Use the _Inventory_ card to define which warehouses carry that particular SKU and what quantities they hold.
 
-![Inventory card](../screenshots/catalog-product-inventory.png)
+![Inventory card](../screenshots/catalog-product-inventory.jpg)
 
 :::note
 Even if your product is set to not track inventory, you need to assign it to some warehouses for the product to become available for purchase.
@@ -162,7 +162,7 @@ Once order lines are marked as shipped, each corresponding stock record will hav
 
 Click _Create&nbsp;Product_ above the main list to enter the product setup page.
 
-![](../screenshots/catalog-product-new.png)
+![](../screenshots/catalog-product-new.jpg)
 
 #### Step 1: Fill out the General Information card
 
@@ -253,7 +253,7 @@ The CSV export tool allows you to export products from your dashboard to a CSV f
 
 ![](../screenshots/catalog-product-export-list.png)
 
-![](../screenshots/catalog-product-export-information.png)
+![](../screenshots/catalog-product-export-information.jpg)
 
 ### How to manage metadata in the product setup page
 
@@ -286,47 +286,65 @@ Based on these attributes, you can create variants of your product.
 
 Click the _Create Variants_ button in the Variants card to open the 3-step variant creator.
 
+#### 1. Select Values tab
+
 In the Select Values tab, make your selection from the previously set up values assigned to each attribute. Once you make your choice, Saleor cross-matches selected values of attributes and creates appropriate product variants.
 
-Choose the variants of the product that you will stock and click _Next_ to move to the Price and SKU tab.
+Choose the variants of the product that you will stock and click _Next_ to move to the Prices and SKU tab.
 
-![Product Variant Creator](../screenshots/catalog-product-variant-attributes.jpeg)
+![Product Variant Creator](../screenshots/catalog-product-variant-attributes.jpg)
 
-#### Price Section
+:::note
 
-Specify how you want your prices to be applied to each variant:
+The variant creator page appears only when you create variants for the first time for a newly created product.
 
-- Apply single price to all SKUs - All attribute values of this product to have the same price.
+:::
+
+#### 2. Prices and SKU tab
+
+##### Price section
+The first step is to specify how you want your prices to be applied to each variant:
+
+- Apply single price to all SKUs for each channel - All attribute values of this product to have the same price.
 - Apply unique prices by attribute to each SKU - Search attribute has a different value differently which you must manually assign.
+- Skip pricing for now
 
-![Product Variant Creator](../screenshots/catalog-product-variant-pricing.jpeg)
+![Product Variant Creator](../screenshots/catalog-product-variant-pricing.jpg)
 
-#### Stock section
+##### Stock and Warehousing section 
+After filling out the price section, you need to assign a previously created [warehouse](dashboard/configuration/warehouses.mdx):
 
-How you want to manage your stock:
+:::note
+You can assign multiple warehouses.
+:::
+
+Once specific warehouses have been selected, you can manage your stock:
 
 - Apply single stock to all SKUs - Select this option if you have the same amount of each product.
 - Apply unique stock by attribute to each SKU - Use this option if your stock levels are different for each variant.
+- Skip stock for now
 
-Click _Next_ to progress to the Summary tab containing an overview of the variants you’ve just created. You can still edit inventory, price and SKU.
+#### 3. Summary tab
 
-![Product Variant Creator](../screenshots/catalog-product-variant-stock.jpeg)
+Click _Next_ to progress to the Summary tab containing an overview of the variants you’ve just created. You can still edit price per channel and SKU.
+
+![Product Variant Creator](../screenshots/catalog-product-variant-stock.jpg)
 
 Once saved, you can edit variants through the same steps as described above and then save changes.
 
-#### Checking inventory
+### Checking inventory
 
-In this example, you can see five types of t-shirt. Four have enough stock to cover future orders. The S size has a red mark and is unavailable. When we click on the product, we can see in the product variant details that the product is unavailable because there are fourteen items in stock (“Inventory”) and they have been ordered by a customer (“Allocated”).
+In this example, when you click on the product, we can see in the product variant details page that the product is still available because there are one hundred thirty eight (138) items in the stock (the _Quantity_ section) and they have been ordered sixty nine (69) times by the customers so far (the _Allocated_ section).
 
-![Checking inventory](../screenshots/catalog-product-stock.jpeg)
+![Checking inventory](../screenshots/catalog-product-checking-inventory.jpg)
 
-#### Managing variants of a product
+### Managing variants of a product
 
 Click on a specific product from the variants list to edit the size, images, pricing, shipping and inventory.
 
 To add a new variant, click the _Add variant_ button in the _variants_ list. While creating a new variant, you need to fill in all information required and assign to a specific warehouse by clicking the _+_ button in the _Inventory_ section.
 
-![Editing product variants](../screenshots/catalog-product-variant-details.png)
+![Editing product variants](../screenshots/catalog-product-variant-details.jpg)
 
 You can edit the cost and sale price of an item in the Pricing card.
 
@@ -336,7 +354,7 @@ To track inventory, you need to enable the _Track Inventory_ checkbox.
 
 You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) which is unique to specific variants.
 
-#### How to manage metadata in the variants page
+### How to manage metadata in the variants page
 
 Once the product is created, you can add private and public metadata for each variant in the variants page. Use the button _Add Field_ to add a new metadata field.
 
