@@ -7,6 +7,7 @@ const { prettifyJavascript } = require("./prettier");
 
 const SIDEBAR = "sidebar-schema.js";
 const HOMEPAGE_ID = "api-introduction";
+const HOMEPAGE_FILE = HOMEPAGE_ID + ".mdx";
 
 module.exports = class Renderer {
   constructor(printer, outputDir, baseURL) {
@@ -17,7 +18,10 @@ module.exports = class Renderer {
   }
 
   emptyOutputDir() {
-    fs.emptyDirSync(this.outputDir);
+    fs.ensureDirSync(this.outputDir);
+    fs.readdirSync(this.outputDir)
+      .filter(f => !f.endsWith(HOMEPAGE_FILE))
+      .map(f => fs.remove(path + f))
   }
 
   async renderRootTypes(name, type) {
@@ -96,12 +100,14 @@ module.exports = class Renderer {
   async renderHomepage(homepageLocation) {
     const homePage = path.basename(homepageLocation);
     const destLocation = path.join(this.outputDir, homePage);
-    fs.copySync(homepageLocation, destLocation);
+    if (destLocation != homepageLocation){
+      fs.copySync(homepageLocation, destLocation);
+    }
     const data = fs
       .readFileSync(destLocation, "utf8")
       .replace(
-        /##generated-date-time##/gm,
-        moment().format("MMMM DD, YYYY [at] h:mm:ss A"),
+        /\[comment\]: \# \(generated\-date\-time\)\n.*$/gm,
+        "[comment]: # (generated-date-time)\n" + moment().format("MMMM DD, YYYY [at] h:mm:ss A"),
       );
     await fs.outputFile(destLocation, data, "utf8");
   }
