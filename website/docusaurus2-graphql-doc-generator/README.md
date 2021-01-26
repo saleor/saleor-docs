@@ -22,7 +22,7 @@ npm install --save @edno/docusaurus2-graphql-doc-generator
 yarn add @edno/docusaurus2-graphql-doc-generator
 ```
 
-Then you add it in your site's `docusaurus.config.js`'s plugins option:
+Then you need to add it to the plugin options in  `docusaurus.config.js` of your site:
 
 ```js
 module.exports = {
@@ -53,7 +53,7 @@ module.exports = {
 };
 ```
 
-Each option is described in the section [Options](#options).
+All the options are described in the [Options](#options) section.
 
 #### Site Settings
 
