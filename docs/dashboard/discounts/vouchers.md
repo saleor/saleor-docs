@@ -33,7 +33,7 @@ Choose if your voucher is:
 
 **4. Availability**
 
-Click the _MANAGE_ button in the right top corner of the availability card, and then assign a [channel](dashboard/configuration/channels.md).
+Click the _MANAGE_ button in the right top corner of the availability card, and then assign a previously created [channel](dashboard/configuration/channels.md). You can assign multiple channels to one voucher.
 
 **5. Input voucher value**
 

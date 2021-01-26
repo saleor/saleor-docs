@@ -6,7 +6,7 @@ title: Products
 
 This page contains an alphabetically sorted list of all your products with a picture for each (if set), the product name and type, information on its visibility on your site (if it is published or not), and the product's price.
 
-![](../screenshots/catalog-product-list.jpg)
+![](../screenshots/catalog-product-list.png)
 
 ### Managing the list view
 
