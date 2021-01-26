@@ -62,10 +62,10 @@ In the General Information card, provide the following data:
 
 - Catalog Input type for Store Owner - Here you can decide how the attribute values are displayed to the admin in the product management views. Available options are: 
 
-1. _Dropdown_ (you can only display one option)
-2. _Multiple Select_ (you can select numerous attribute values)
-3. _File_ (you can select a specific file, e.g. a graphic file)
-4. _References_ (you can select products or pages)
+1. _Dropdown_ (select one of the available options)
+2. _Multiple Select_ (select more than one of the available options)
+3. _File_ (upload a file like a specification sheet or an image)
+4. _References_ (assign an ordered list of products or pages)
 
 :::note
 Only the attributes with the input type (in the Attribute setup page) set to _Dropdown_ may be used as Variant Attributes.
