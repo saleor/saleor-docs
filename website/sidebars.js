@@ -130,12 +130,14 @@ module.exports = {
           "developer/community/faq",
           "developer/community/support"
         ]
+      },
+      {
+        "type": "category",
+        "label": "Api Reference",
+        items: [
+          ...require("../docs/developer/api-reference/sidebar-schema.js").schemaSidebar
+        ]
       }
-    ]
-  },
-  "api-reference": {
-    "Api Reference": [
-      ...require("../docs/api-reference/sidebar-schema.js").schemaSidebar
-    ]
+    ],
   }
 }
