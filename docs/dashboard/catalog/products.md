@@ -296,7 +296,7 @@ Choose the variants of the product that you will stock and click _Next_ to move 
 
 :::note
 
-The variant creator page appears only when you create variants for the first time for a newly created product.
+The variant creator page appears when a product does not have any variants assigned.
 
 :::
 
