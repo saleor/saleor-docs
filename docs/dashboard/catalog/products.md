@@ -120,7 +120,7 @@ Each variant also has a _cost price_ (the price that your store had to pay to pu
 
 Within a variant, stock information is split between warehouses. Use the _Inventory_ card to define which warehouses carry that particular SKU and what quantities they hold.
 
-![Inventory card](../screenshots/catalog-product-inventory.jpg)
+![Inventory card](../screenshots/catalog-product-inventory.png)
 
 :::note
 Even if your product is set to not track inventory, you need to assign it to some warehouses for the product to become available for purchase.
@@ -162,7 +162,7 @@ Once order lines are marked as shipped, each corresponding stock record will hav
 
 Click _Create&nbsp;Product_ above the main list to enter the product setup page.
 
-![](../screenshots/catalog-product-new.jpg)
+![](../screenshots/catalog-product-new.png)
 
 #### Step 1: Fill out the General Information card
 
@@ -253,7 +253,7 @@ The CSV export tool allows you to export products from your dashboard to a CSV f
 
 ![](../screenshots/catalog-product-export-list.png)
 
-![](../screenshots/catalog-product-export-information.jpg)
+![](../screenshots/catalog-product-export-information.png)
 
 ### How to manage metadata in the product setup page
 
@@ -292,7 +292,7 @@ In the Select Values tab, make your selection from the previously set up values 
 
 Choose the variants of the product that you will stock and click _Next_ to move to the Prices and SKU tab.
 
-![Product Variant Creator](../screenshots/catalog-product-variant-attributes.jpg)
+![Product Variant Creator](../screenshots/catalog-product-variant-attributes.png)
 
 :::note
 
@@ -309,7 +309,7 @@ The first step is to specify how you want your prices to be applied to each vari
 - Apply unique prices by attribute to each SKU - Search attribute has a different value differently which you must manually assign.
 - Skip pricing for now
 
-![Product Variant Creator](../screenshots/catalog-product-variant-pricing.jpg)
+![Product Variant Creator](../screenshots/catalog-product-variant-pricing.png)
 
 ##### Stock and Warehousing section 
 After filling out the price section, you need to assign a previously created [warehouse](dashboard/configuration/warehouses.mdx):
@@ -328,7 +328,7 @@ Once specific warehouses have been selected, you can manage your stock:
 
 Click _Next_ to progress to the Summary tab containing an overview of the variants you’ve just created. You can still edit price per channel and SKU.
 
-![Product Variant Creator](../screenshots/catalog-product-variant-stock.jpg)
+![Product Variant Creator](../screenshots/catalog-product-variant-stock.png)
 
 Once saved, you can edit variants through the same steps as described above and then save changes.
 
@@ -344,7 +344,7 @@ Click on a specific product from the variants list to edit the size, images, pri
 
 To add a new variant, click the _Add variant_ button in the _variants_ list. While creating a new variant, you need to fill in all information required and assign to a specific warehouse by clicking the _+_ button in the _Inventory_ section.
 
-![Editing product variants](../screenshots/catalog-product-variant-details.jpg)
+![Editing product variants](../screenshots/catalog-product-variant-details.png)
 
 You can edit the cost and sale price of an item in the Pricing card.
 

@@ -6,7 +6,7 @@ title: Vouchers
 
 Vouchers allow you to give all your customers or selected shoppers a great deal on a specific product or order. Users get a voucher code via email, or on social media or your website, which they can they activate at the checkout when making a purchase.
 
-![Voucher page](../screenshots/discount-voucher-details.jpg)
+![Voucher page](../screenshots/discount-voucher-details.png)
 
 ## How to
 
