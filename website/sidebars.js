@@ -77,7 +77,7 @@ module.exports = {
       {
         "type": "category",
         "label": "API Conventions",
-        "items": ["developer/pagination", "developer/error-handling"]
+        "items": ["developer/pagination", "developer/error-handling", "developer/slug-fields"]
       },
       "developer/products",
       "developer/checkout",
