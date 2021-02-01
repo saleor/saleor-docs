@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   title: "Documentation – Saleor Commerce", // Title for your website.
   tagline:
@@ -10,6 +12,17 @@ module.exports = {
   organizationName: "mirumee",
 
   favicon: "img/saleor-icon.png",
+
+  plugins: [
+    [path.resolve(__dirname, 'docusaurus2-graphql-doc-generator'),
+      {
+        schema: "http://localhost:8000/graphql/",
+        rootPath: "../docs/",
+        baseURL: "developer/api-reference",
+        homepage: "../docs/developer/api-reference/api-introduction.mdx",
+      },
+    ],
+  ],
 
   themeConfig: {
     algolia: {
@@ -140,7 +153,7 @@ module.exports = {
           path: "../docs",
           editUrl: "https://github.com/mirumee/saleor-docs/edit/master/docs/",
           // sidebars file relative to website dir.
-          sidebarPath: require.resolve("./sidebars.json"),
+          sidebarPath: require.resolve("./sidebars.js"),
         },
       },
     ],
