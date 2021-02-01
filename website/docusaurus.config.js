@@ -18,8 +18,8 @@ module.exports = {
       {
         schema: "http://localhost:8000/graphql/",
         rootPath: "../docs/",
-        baseURL: "api-reference",
-        homepage: "../docs/api-reference/api-introduction.mdx",
+        baseURL: "developer/api-reference",
+        homepage: "../docs/developer/api-reference/api-introduction.mdx",
       },
     ],
   ],
