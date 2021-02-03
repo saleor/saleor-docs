@@ -6,7 +6,7 @@ title: Vouchers
 
 Vouchers allow you to give all your customers or selected shoppers a great deal on a specific product or order. Users get a voucher code via email, or on social media or your website, which they can they activate at the checkout when making a purchase.
 
-![Voucher page](../screenshots/discount-voucher-details.jpeg)
+![Voucher page](../screenshots/discount-voucher-details.png)
 
 ## How to
 
@@ -33,7 +33,7 @@ Choose if your voucher is:
 
 **4. Availability**
 
-Click the _MANAGE_ button in the right top corner of the availability card, and then assign a [channel](dashboard/configuration/channels.md).
+Click the _MANAGE_ button in the right top corner of the availability card, and then assign a previously created [channel](dashboard/configuration/channels.md). You can assign multiple channels to one voucher.
 
 **5. Input voucher value**
 

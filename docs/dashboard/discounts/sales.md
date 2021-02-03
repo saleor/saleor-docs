@@ -16,7 +16,7 @@ Sales are an excellent way to encourage customers to use your store. Saleor offe
 
 Click _Create&nbsp;Sale_ above the main sales list and fill in the relevant sections.
 
-![Creating sale](../screenshots/discount-new.jpeg)
+![Creating sale](../screenshots/discount-sale-new.png)
 
 
 ### Step 2: General Information card
@@ -30,7 +30,7 @@ Discount Value: Choose between _percentage discount_ or _fixed amount_ discount 
 
 ### Step 4: Availability
 
-Click the _MANAGE_ button in the right top corner of the availability card, and then assign a [channel](dashboard/configuration/channels.md).
+Click the _MANAGE_ button in the right top corner of the availability card, and then assign a previously created [channel](dashboard/configuration/channels.md). You can assign multiple channels to one sale discount.
 
 ### Step 5: Discount Value
 
