@@ -42,7 +42,7 @@ If you leave the fields above empty, the preview will be auto-generated.
 
 **4. Organize content**
 
-Select a previously created [page type](dashboard/configuration/page-types).
+Select a previously created [page type](dashboard/configuration/page-types.md).
 
 **5. Visibility**
 
