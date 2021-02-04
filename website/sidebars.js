@@ -99,7 +99,7 @@ module.exports = {
         "type": "category",
         "label": "Extending",
         "items": [
-          "developer/extending/extending",
+          "developer/extending",
           "developer/extending/apps",
           "developer/extending/plugins",
           "developer/extending/payment-gateways",
