@@ -80,6 +80,7 @@ module.exports = {
         "items": ["developer/pagination", "developer/error-handling", "developer/slug-fields"]
       },
       "developer/products",
+      "developer/attributes",
       "developer/checkout",
       "developer/users",
       "developer/metadata",
