@@ -1,0 +1,103 @@
+---
+title: Translations
+sidebar_label: Translations
+---
+
+## Introduction
+
+Translating shop consist of two steps:
+- translating storefront application
+- translating products and other data available in API
+
+Frontend part can be managed using extensions like [Format.JS](https://formatjs.io). Generated files can be later edited by hand or using external service, for example [Transifex](https://www.transifex.com) or [POEditor](https://poeditor.com). Besides text, also prices and dates should be localized using [`Intl.NumberFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat) and [date-fns](https://date-fns.org).
+
+For translating database data Saleor delivers specialized translation objects which can be modified in [dashboard](dashboard/translations.md) or via API.
+
+## Objects available for translation
+
+- [`ProductTranslation`](developer/api-reference/objects/product-translation.mdx)
+- [`CollectionTranslation`](developer/api-reference/objects/collection-translation.mdx)
+- [`CategoryTranslation`](developer/api-reference/objects/category-translation.mdx)
+- [`AttributeTranslation`](developer/api-reference/objects/attribute-translation.mdx)
+- [`AttributeValueTranslation`](developer/api-reference/objects/attribute-value-translation.mdx)
+- [`ProductVariantTranslation`](developer/api-reference/objects/product-variant-translation.mdx)
+- [`PageTranslation`](developer/api-reference/objects/page-translation.mdx)
+- [`ShippingMethodTranslation`](developer/api-reference/objects/shipping-method-translation.mdx)
+- [`SaleTranslation`](developer/api-reference/objects/sale-translation.mdx)
+- [`VoucherTranslation`](developer/api-reference/objects/voucher-translation.mdx)
+- [`MenuItemTranslation`](developer/api-reference/objects/menu-item-translation.mdx)
+
+## Permissions
+All users who have a `MANAGE_TRANSLATIONS` permission can create and modify translations. Additional permissions for managing objects are not required.
+
+## How to add translation
+
+As a example we will use [`categoryTranslate`](developer/api-reference/mutations/category-translate.mdx) mutation. Fields omitted in parameter [`input`](developer/api-reference/inputs/translation-input.mdx) will not be overwritten, so you can choose to only translate one field at a time:
+
+```graphql
+categoryTranslate(
+    id: "Q2F0ZWdvcnk6OQ==", 
+    input: {
+        "name": "Wyróżnione produkty"
+    }, 
+    languageCode: PL
+) {
+    category {
+        name
+    }
+    translation(languageCode: PL) {
+        name
+    }
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "categoryTranslate": {
+      "category": {
+        "name": "Apparel",
+        "translation": {
+          "name": "Wyróżnione produkty"
+        }
+      }
+    }
+  }
+}
+```
+
+## How to query translation
+
+Let's query the API for a previously created category translation. A `translation` field in the [`Category`](developer/api-reference/objects/category.mdx) model has a `languageCode` parameter which requires [`LanguageCodeEnum`](developer/api-reference/enums/language-code-enum.mdx).
+```graphql
+query {
+  category(id: "Q2F0ZWdvcnk6OQ==") {
+    name
+    seoDescription
+    translation(languageCode: PL) {
+      name
+      seoDescription
+    }
+  }
+}
+
+```
+
+Response:
+```json
+{
+  "data": {
+    "category": {
+      "name": "Apparel",
+      "seoDescription": "Short category description",
+      "translation": {
+        "name": "Wyróżnione produkty",
+        "seoDescription": null
+      }
+    }
+  }
+}
+```
+
+Fields which were not yet translated will be returned as `null` values.

@@ -77,7 +77,13 @@ module.exports = {
       {
         "type": "category",
         "label": "API Conventions",
-        "items": ["developer/pagination", "developer/error-handling", "developer/slug-fields"]
+        "items": [
+          "developer/api-conventions/error-handling",
+          "developer/api-conventions/pagination", 
+          "developer/api-conventions/prices", 
+          "developer/api-conventions/slug-fields",
+          "developer/api-conventions/translations"
+        ]
       },
       "developer/products",
       "developer/attributes",
@@ -93,7 +99,7 @@ module.exports = {
         "type": "category",
         "label": "Extending",
         "items": [
-          "developer/extending",
+          "developer/extending/extending",
           "developer/extending/apps",
           "developer/extending/plugins",
           "developer/extending/payment-gateways",
