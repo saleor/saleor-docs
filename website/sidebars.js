@@ -85,6 +85,7 @@ module.exports = {
           "developer/api-conventions/translations"
         ]
       },
+      "developer/channels",
       "developer/products",
       "developer/attributes",
       "developer/checkout",

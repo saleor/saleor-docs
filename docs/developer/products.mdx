@@ -3,25 +3,39 @@ title: Querying Product Information
 sidebar_label: Products
 ---
 
-import GraphQL from "@site/components/GraphQL";
-
 ## Introduction
 
 This guide describes how to obtain products from the Saleor GraphQL API.
 
 You can either retrieve a single product or a list of products. You may require a list of products in many situations, for example, when you need to simply display the catalog in your storefront, or to provide a third party service with a list of products available in your store.
 
+
+## Multichannel and products
+
+Customers can only fetch products from available channels. Because listing channels is only available for staff users, you will need to provide channel slugs to you storefront.
+Besides availability, you can define more parameters on channel basis using [ProductChannelListing](developer/api-reference/objects/product-channel-listing.mdx):
+- publicationDate
+- isPublished
+- visibleInListings
+- availableForPurchase
+- isAvailableForPurchase
+
+For variants theres analogue [ProductVariantChannelListing](developer/api-reference/objects/product-variant-channel-listing.mdx):
+- price
+- costPrice
+- margin
+
+[Learn more about multichannel](developer/channels.mdx).
+
 ## Retrieving a list of products
 
 To fetch a product list, you need to run the `products` query. The `products` field is a paginated collection, see [Pagination](api-conventions/pagination.mdx) for more information.
 
-
 Let's take a look at an example query to fetch a list of products:
 
-<GraphQL
-  height={20}
-  query={`{
-  products(first: 2) {
+```graphql
+{
+  products(first: 2, channel: "default-channel") {
     edges {
       node {
         id
@@ -29,17 +43,43 @@ Let's take a look at an example query to fetch a list of products:
       }
     }
   }
-}`}
-/>
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3Mg==",
+            "name": "Apple Juice"
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3NA==",
+            "name": "Banana Juice"
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 In this example, for each product, we want to return the following fields:
 
 - `id`: the unique product ID, most operations will require one.
 - `name`: the name of the product.
 
+`channel` argument can be skipped only if user has `is_staff` flag.
+
 ### Filtering
 
-The `products` query gives the ability to filter the results. Use the optional `filter` argument. Some of the filters that are available here are:
+The [`products`](developer/api-reference/queries/products.mdx) query gives the ability to filter the results. Use the optional [`filter`](developer/api-reference/inputs/product-filter-input.mdx) argument. Some of the filters that are available here are:
 
 - `search: String`: search by name or part of the description.
 - `price: ...`: filter by base price:
@@ -54,22 +94,48 @@ The `products` query gives the ability to filter the results. Use the optional `
 
 Here is an example query that looks for the first 3 products containing the term "juice" in the title or description:
 
-<GraphQL
-  height={20}
-  query={`{
-  products(first: 3, filter: { search: "juice" }) {
+```graphql
+{
+  products(first: 3, channel: "default-channel", filter: { search: "juice" }) {
     edges {
       node {
         name
       }
     }
   }
-}`}
-/>
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "name": "Apple Juice"
+          }
+        },
+        {
+          "node": {
+            "name": "Banana Juice"
+          }
+        },
+        {
+          "node": {
+            "name": "Bean Juice"
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 ### Sorting
 
-In `products` you can also sort the results using two `sortBy` arguments:
+In [`products`](developer/api-reference/queries/products.mdx) you can also sort the results using two [`sortBy`](developer/api-reference/inputs/product-order.mdx) arguments:
 
 - `field`: the field to use for sorting the results from several predefined choices:
   - `DATE`: sort products by last update.
@@ -86,11 +152,11 @@ In `products` you can also sort the results using two `sortBy` arguments:
 
 This example shows how to sort the products list by the minimal variant price, lowest to highest:
 
-<GraphQL
-  height={25}
-  query={`{
+```graphql
+{
   products(
     first: 2
+    channel: "default-channel"
     sortBy: { field: MINIMAL_PRICE, direction: ASC }
   ) {
     edges {
@@ -104,12 +170,41 @@ This example shows how to sort the products list by the minimal variant price, l
     }
   }
 }
-`}
-/>
+```
+
+Response:
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "name": "Blue Hoodie",
+            "minimalVariantPrice": {
+              "amount": 2.5,
+              "currency": "USD"
+            }
+          }
+        },
+        {
+          "node": {
+            "name": "Banana Juice",
+            "minimalVariantPrice": {
+              "amount": 3,
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 ## Retrieving a single product
 
-To get a single product, use the `product` query, which requires only one input field:
+To get a single product, use the [`product`](developer/api-reference/queries/product.mdx) query, which requires only one input field:
 
 - `id`: the unique product ID.
 
@@ -128,10 +223,9 @@ query {
 
 To obtain product variants, query the `variants` field on the `Product` type:
 
-<GraphQL
-  height={25}
-  query={`{
-  products(first: 1) {
+```graphql
+{
+  products(first: 1, channel: "default-channel") {
     edges {
       node {
         id
@@ -143,8 +237,40 @@ To obtain product variants, query the `variants` field on the `Product` type:
       }
     }
   }
-}`}
-/>
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3Mg==",
+            "name": "Apple Juice",
+            "variants": [
+              {
+                "id": "UHJvZHVjdFZhcmlhbnQ6MjAz",
+                "name": "1l"
+              },
+              {
+                "id": "UHJvZHVjdFZhcmlhbnQ6MjA0",
+                "name": "2l"
+              },
+              {
+                "id": "UHJvZHVjdFZhcmlhbnQ6MjAy",
+                "name": "500ml"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 Like products, here we're asking for two fields from each variant:
 
@@ -220,10 +346,9 @@ The `Product` type contains two fields that refer to its images:
 
 Here's a query that asks for both the thumbnail and all images of the first product, optimized for display at 100×100px:
 
-<GraphQL
-  height={30}
-  query={`{
-  products(first: 1) {
+```graphql
+{
+  products(first: 1, channel: "default-channel") {
     edges {
       node {
         id
@@ -239,8 +364,37 @@ Here's a query that asks for both the thumbnail and all images of the first prod
       }
     }
   }
-}`}
-/>
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3Mg==",
+            "name": "Apple Juice",
+            "thumbnail": {
+              "url": "https://demo.saleor.io/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "alt": ""
+            },
+            "images": [
+              {
+                "url": "https://demo.saleor.io/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "alt": ""
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 ## Examples
 
@@ -248,7 +402,7 @@ Here's a more complex GraphQL query that combines all of the above information:
 
 ```graphql
 {
-  products(first: 2, sortBy: {field: NAME}) {
+  products(first: 2, channel: "default-channel", sortBy: {field: NAME}) {
     edges {
       node {
         id

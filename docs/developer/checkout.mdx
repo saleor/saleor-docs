@@ -11,20 +11,31 @@ The below process describes the key milestones in the checkout process flow in S
 
 The code snippets included in this section may be run in [Playground](getting-started/graphql) or your preferred HTTP client.
 
+## Multichannel and Checkouts
+
+Depending on chosen channel, user will have access to different objects. This will impact available:
+- Products and Product Variants
+- Payment Methods
+- Shipping Methods
+- Discounts
+
+[Learn more about multichannel](developer/channels.mdx).
+
 ## Creating a checkout session
 
 :::note
-A `Checkout` object can be created for logged in users and for anonymous (guest) users.
+A [`Checkout`](developer/api-reference/objects/checkout.mdx) object can be created for logged in users and for anonymous (guest) users.
 
-- If you use the `checkoutCreate` mutation including the authentication token, this checkout is assigned to the user who is authenticated by this token. For more information on how to authenticate with our API, see the [Authentication](users.mdx#authentication) topic.
+- If you use the [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation including the authentication token, this checkout is assigned to the user who is authenticated by this token. For more information on how to authenticate with our API, see the [Authentication](users.mdx#authentication) topic.
 
-- If no authentication token is provided, the checkout is created for an anonymous user, and an email address is used to identify such a `Checkout` object, linking it with the anonymous user. In this case, an email is required to create the checkout.
+- If no authentication token is provided, the checkout is created for an anonymous user, and an email address is used to identify such a [`Checkout`](developer/api-reference/objects/checkout.mdx) object, linking it with the anonymous user. In this case, an email is required to create the checkout.
 :::
 
-To create a `Checkout` object, use the `checkoutCreate` mutation.
+To create a [`Checkout`](developer/api-reference/objects/checkout.mdx) object, use the [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation.
 
-This mutation takes the following input:
+This mutation takes the following [input](developer/api-reference/inputs/checkout-create-input.mdx):
 
+- `channel`: Slug of a channel in which to create checkout.
 - `email`: the user's email address.
 - `shippingAddress`: the shipping address (if needed).
 - `billingAddress`: the billing address.
@@ -32,7 +43,7 @@ This mutation takes the following input:
 
 As a result, this mutation returns the following fields:
 
-The resulting `Checkout` object contains the following fields:
+The resulting [`Checkout`](developer/api-reference/objects/checkout.mdx) object contains the following fields:
 
 - `id`: a unique checkout ID, required by most checkout operations.
 - `token`: similar to `id`, a unique identifier suitable for inclusion in emails and URLs.
@@ -46,12 +57,13 @@ In addition the following fields are available on the mutation results:
 - `created`: a boolean flag indicating whether a new checkout object was created, or an existing one was used.
 - `checkoutErrors`: a list of errors that occurred during mutation execution.
 
-The following example shows how the `checkoutCreate` mutation creates the `Checkout` object and returns the checkout information:
+The following example shows how the [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation creates the [`Checkout`](developer/api-reference/objects/checkout.mdx) object and returns the checkout information:
 
 ```graphql {2-25}
 mutation {
   checkoutCreate(
     input: {
+      channel: "default-channel",
       email: "customer@example.com"
       lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjk3" }]
       shippingAddress: {
@@ -154,14 +166,14 @@ We get a newly created checkout object for which we return the ID, total price, 
 
 ## Selecting a shipping method
 
-This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To signify whether shipping is required, use the `isShippingRequired` field in the `Checkout` object.
+This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To signify whether shipping is required, use the `isShippingRequired` field in the [`Checkout`](developer/api-reference/objects/checkout.mdx) object.
 
-Use the `checkoutShippingMethodUpdate` mutation to effectively pair the specific `Checkout` object with the specified shipping method selected by the user.
+Use the [`checkoutShippingMethodUpdate`](developer/api-reference/mutations/checkout-shipping-method-update.mdx) mutation to effectively pair the specific [`Checkout`](developer/api-reference/objects/checkout.mdx) object with the specified shipping method selected by the user.
 
 This operation requires the following input:
 
-- `checkoutId`: the checkout ID (the `id` field of the `Checkout` object).
-- `shippingMethodId`: the shipping method ID (from the `availableShippingMethods` field of the `Checkout` object).
+- `checkoutId`: the checkout ID (the `id` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
+- `shippingMethodId`: the shipping method ID (from the `availableShippingMethods` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
 
 In the following mutation, we assign a shipping method to the checkout using IDs from the previous example. Note that for the checkout object we want to get back the update `totalPrice` including shipping costs:
 
@@ -217,9 +229,9 @@ As a result, we get an updated checkout object with a shipping method set:
 
 ## Selecting a payment method
 
-Depending on the selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway will direct you to an external payment page. The payment gateway sends information about if the payment is successful, along with tokenized credit card payment information. This token is then used to run the `checkoutPaymentCreate` mutation.
+Depending on the selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway will direct you to an external payment page. The payment gateway sends information about if the payment is successful, along with tokenized credit card payment information. This token is then used to run the [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation.
 
-The `checkoutPaymentCreate` mutation requires the following input:
+The [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation requires the following input:
 
 - `checkoutId`: the checkout ID.
 - `gateway`: the ID of the selected payment gateway (list of the available payment gateways can be fetched from the `Checkout.availablePaymentGateways` field). The selected gateway must support the checkout currency.
@@ -287,7 +299,7 @@ The purpose of the operation is to ensure this checkout is correct. To do this, 
 
 If these are satisfied, the checkout is transformed into an order and the customer receives a confirmation email.
 
-The `checkoutComplete` mutation requires the following input:
+The [`checkoutComplete`](developer/api-reference/mutations/checkout-complete.mdx) mutation requires the following input:
 
 - `checkoutId`: the ID of the checkout to complete.
 - `storeSource`: determines whether to store the payment source for future use.
@@ -337,7 +349,7 @@ A successful response would look like this:
 ```
 
 
-Here is an example of the `checkoutComplete` mutation where the payment gateway requires additional data to finalize the payment using the Adyen payment gateway:
+Here is an example of the [`checkoutComplete`](developer/api-reference/mutations/checkout-complete.mdx) mutation where the payment gateway requires additional data to finalize the payment using the Adyen payment gateway:
 
 ```graphql {2-4}
 mutation{
