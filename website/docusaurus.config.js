@@ -55,12 +55,14 @@ module.exports = {
           position: "right",
         },
         {
-          to: "docs/dashboard/before-you-start",
+          type: "doc",
+          docId: "dashboard/before-you-start",
           label: "Dashboard Manual",
           position: "left",
         },
         {
-          to: "docs/developer",
+          type: "doc",
+          docId: "developer",
           label: "Developer's Guide",
           position: "left",
         },
