@@ -188,7 +188,6 @@ For more information on taxes, see the [Taxes](dashboard/configuration/taxes.md)
 
 Saleor operates and charges in the store’s default currency but is capable of displaying an estimated amount in the user’s local currency.
 
-- GeoIP is used to determine the user’s country
 - Locale database (Unicode CLDR) is used to determine the local currency
 - Open Exchange Rates is used to provide up-to-date exchange rates
 
