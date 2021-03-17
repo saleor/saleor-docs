@@ -145,6 +145,13 @@ module.exports = {
         items: [
           ...require("../docs/developer/api-reference/sidebar-schema.js").schemaSidebar
         ]
+      },
+      {
+        "type": "category",
+        "label": " Appendix: Available plugins",
+        "items": [
+          "developer/available-plugins/openid_connect"
+        ]
       }
     ],
   }
