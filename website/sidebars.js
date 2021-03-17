@@ -43,7 +43,15 @@ module.exports = {
           "dashboard/configuration/page-types",
           "dashboard/configuration/channels",
           "dashboard/configuration/pages",
-          "dashboard/configuration/plugins"
+          {
+            "type": "category",
+            "label": "Plugins",
+            "items": [
+              "dashboard/configuration/plugins/introduction",
+              "dashboard/configuration/plugins/adyen",
+              "dashboard/configuration/plugins/oidc",
+            ]
+          }
         ]
       },
       {
