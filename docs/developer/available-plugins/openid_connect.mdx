@@ -26,7 +26,7 @@ Saleor will require the scopes:
 
 The OIDC plugin supports two way of integration:
  - Saleor as a client for authorization server - Saleor follows Authorization Code Flow to authenticate the user.
- - Saleor as a resource server - Saleor just authenticates requests based on attached `Authorization` header.
+ - Saleor as a resource server - requests are authenticated with OAuth access token provided in `Authorization` header.
 
 ## Saleor as a client for authorization server
 
@@ -293,7 +293,10 @@ All values passed in field `input` will be added as GET parameters to the logout
 #### Mutation
 ```graphql
 mutation {
-  externalLogout(pluginId:"mirumee.authentication.openidconnect", input:"{\"returnTo\": \"http://localhost:3000\"}"){
+  externalLogout(
+    pluginId:"mirumee.authentication.openidconnect", 
+    input:"{\"returnTo\": \"http://localhost:3000\"}"
+  ){
     logoutData
     accountErrors{
       field
@@ -315,10 +318,19 @@ A successful response:
 }
 ```
 
-
 ## Saleor as a resource server
 
-### User authentication flow
+In resource server flow, Saleor API only verifies if token included in request is valid. Operations like login, logout or token refresh have to be handled directly by auth provider API.
+
+The authorization header has the following format:
+
+`Authorization: Bearer <your-OAuth-access-token>`
+
+### Configuration
+To use this flow you need to provide values for `JSON Web Key Set URL` and `User info URL` on 
+the Saleor Dashboard side. 
+
+## User authentication flow
 
 <Chart
   definition={`
@@ -332,17 +344,6 @@ A successful response:
     Saleor ->>- Web: requested resources
 `}
 />
-
-In resource server flow, Saleor API only verifies if token included in request is valid. Operations like login, logout or token refresh have to be handled directly by auth provider API.
-
-The authorization header has the following format:
-
-`Authorization: Bearer <your-OAuth-access-token>`
-
-
-### Configuration
-To use this flow you need to provide values for `JSON Web Key Set URL` and `User info URL` on 
-the Saleor Dashboard side. 
 
 ## OAuth permissions
 Saleor can use OAuth permissions assigned to a user. It maps internal permissions to OAuth scopes and attaches it to the authorization request.
