@@ -458,34 +458,35 @@ The `address` parameter behaves in the same way as in the `Product.isAvailable` 
 To avoid leaking precise stock information, the `quantityAvailable` field will not be greater than the maximum orderable threshold configured in the [MAX_CHECKOUT_LINE_QUANTITY](developer/running-saleor/configuration.mdx#max_checkout_line_quantity) server setting.
 :::
 
-## Images
+## Media
 
-The `Product` type contains two fields that refer to its images:
+Product media are images or videos that can be associated with products and used to render product galleries. The `Product` type contains two fields that refer to its media:
 
-- `thumbnail`: the product's main image. An optional `size` parameter specifies the desired size in pixels if given. The following fields are available:
-  - `url`: the image's URL.
-  - `alt`: the alternative text to include when displaying the image.
-- `images`: gives you access to the entire list of associated product images with the following fields available:
-  - `url`: the image's URL. An optional `size` parameter specifies the desired size in pixels if given.
-  - `alt`: the alternative text to include when displaying the image.
+- `thumbnail: Image`: the product's main image. If the first media file for a product is a video, a video thumbnail is returned. An optional `size` parameter specifies the desired size in pixels if given. The following fields are available:
+  - `url: String!`: the image's URL.
+  - `alt: String`: the alternative text to include when displaying the image.
 
-Here's a query that asks for both the thumbnail and all images of the first product, optimized for display at 100×100px:
+- `media: [ProductMedia!]`: gives you access to the entire list of associated product media with the following fields available:
+  - `type: ProductMediaType!`: the type of media file - `IMAGE` or `VIDEO`
+  - `url: String!`: the media URL. For images, an optional `size` parameter specifies the desired size in pixels if given.
+  - `alt: String`: the alternative text to include when displaying the media file.
+  - `oembedData: JSONString!`: embedded representation of a video URL, returned in the [oEmbed](https://oembed.com/) format.
+
+Here's a query that asks for both the thumbnail and all media of the first product, optimized for display at 100×100px:
 
 ```graphql
 {
-  products(
-    first: 1, channel: "default-channel") {
+  products(first: 1, channel: "default-channel") {
     edges {
       node {
         id
         name
         thumbnail(size: 100) {
           url
-          alt
         }
-        images {
+        media {
+          type
           url(size: 100)
-          alt
         }
       }
     }
@@ -505,13 +506,16 @@ Response:
             "id": "UHJvZHVjdDo3Mg==",
             "name": "Apple Juice",
             "thumbnail": {
-              "url": "https://demo.saleor.io/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
-              "alt": ""
+              "url": "https://demo.saleor.io/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png"
             },
-            "images": [
+            "media": [
               {
-                "url": "https://demo.saleor.io/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
-                "alt": ""
+                "type": "IMAGE",
+                "url": "https://demo.saleor.io/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png"
+              },
+              {
+                "type": "VIDEO",
+                "url": "https://youtu.be/yPYZpwSpKmA"
               }
             ]
           }
