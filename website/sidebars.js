@@ -150,7 +150,7 @@ module.exports = {
         "type": "category",
         "label": " Appendix: Available plugins",
         "items": [
-          "developer/available-plugins/openid_connect"
+          "developer/available-plugins/openid-connect"
         ]
       }
     ],
