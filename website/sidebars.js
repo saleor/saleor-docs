@@ -112,6 +112,7 @@ module.exports = {
           "developer/extending/apps",
           "developer/extending/plugins",
           "developer/extending/payment-gateways",
+          "developer/extending/communication-interface",
           {
             "type": "category",
             "label": "Internal APIs",
