@@ -127,7 +127,6 @@ module.exports = {
           "developer/running-saleor/gcs",
           "developer/running-saleor/emails",
           "developer/running-saleor/monitoring",
-          "developer/running-saleor/dummy-payment",
           "developer/running-saleor/background-tasks"
         ]
       },
@@ -151,7 +150,8 @@ module.exports = {
         "type": "category",
         "label": " Appendix: Available plugins",
         "items": [
-          "developer/available-plugins/openid-connect"
+          "developer/available-plugins/openid-connect",
+          "developer/available-plugins/dummy-credit-card",
         ]
       }
     ],
