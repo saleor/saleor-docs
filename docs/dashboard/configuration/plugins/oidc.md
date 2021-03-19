@@ -28,7 +28,7 @@ keys used to verify any JSON Web Token (JWT) issued by the authorization server 
 - **Use OAuth scope permissions:** Use OAuth scope permissions to grant a logged-in user access to protected resources. Your OAuth provider needs to have defined Saleor's permission scopes in format _saleor:<saleor-permission\> (Required for both integration flows).
 
 
-### Using OAuth permissions in Saloer
+### Using OAuth permissions in Saleor
 
 If `Use OAuth scope permissions` is enabled, Saleor will request his own permissions as OAuth scopes.  Each permission has the prefix `saleor:`.  If the user has assigned Saleor's permissions on the OAuth side, Saleor will grant them to the logged-in user.
 
@@ -41,4 +41,3 @@ Your OAuth provider needs to have an assigned audience with proper Saleor's perm
 >*UserA* has assigned permissions on the OAuth side - `saleor:manage_apps` and `saleor:manage_orders`, *UserB* has assigned 
 > permission - `saleor:manage_users`. When *UserA* logs in to the Saleor using *OpenID Connect* plugin, the plugin will grant the *UserA*
 > permissions to *MANAGE_APPS* and *MANAGE_ORDERS*. The *UserB* will have access to resources protected by *MANAGE_USERS*
-
