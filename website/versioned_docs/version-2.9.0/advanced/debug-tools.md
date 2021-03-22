@@ -16,7 +16,7 @@ You can control Silk’s presence via the environmental variable `ENABLE_SILK`. 
 #### Setting environment variable
 
 ```shell-session
-$ export ENABLE_SILK='True'
+export ENABLE_SILK='True'
 ```
 
 :::note

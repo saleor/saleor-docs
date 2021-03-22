@@ -24,5 +24,5 @@ Source emails use [MJML](https://mjml.io/) and must be compiled to HTML before u
 To compile emails, run:
 
 ```shell-session
-$ npm run build-emails
+npm run build-emails
 ```

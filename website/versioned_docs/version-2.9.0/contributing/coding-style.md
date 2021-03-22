@@ -7,13 +7,13 @@ Saleor uses various tools to maintain a common coding style and help with develo
 To install all the development tools, run the following commands:
 
 ```shell-session
-$ python -m pip install -r requirements_dev.txt
+python -m pip install -r requirements_dev.txt
 ```
 
 or if using `poetry`:
 
 ```shell-session
-$ poetry install
+poetry install
 ```
 
 Saleor uses the [pre-commit](https://pre-commit.com/#install) tool to check and automatically fix any formatting issue before creating a git commit.
@@ -21,7 +21,7 @@ Saleor uses the [pre-commit](https://pre-commit.com/#install) tool to check and 
 Run the following command to install pre-commit into your git hooks and have it run on every commit:
 
 ```shell-session
-$ pre-commit install
+pre-commit install
 ```
 
 For more information on how it works, see the `.pre-commit-config.yaml` configuration file.

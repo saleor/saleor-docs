@@ -14,7 +14,7 @@ In debug mode, thumbnails are generated on demand.
 Create missing thumbnails for all ProductImage instances:
 
 ```shell-session
-$ python manage.py create_thumbnails
+python manage.py create_thumbnails
 ```
 
 
