@@ -197,6 +197,11 @@ To update the API reference:
 1. Start Saleor API at `http://localhost:8000`
 1. Run `npm run update-api-reference`
 
+# Debugging
+
+In dev mode Docusaurus serve debug page with list of all available routes and config at http://localhost:3000/__docusaurus/debug.
+
+
 # Full Documentation
 
 Full documentation can be found on the [website](https://docusaurus.io/).
