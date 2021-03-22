@@ -6,7 +6,7 @@ title: Creating Administrator Account
 Saleor is an application built with Django so you can use the following command to create your master account:
 
 ```shell-session
-$ python manage.py createsuperuser
+python manage.py createsuperuser
 ```
 
 Follow the subsequent prompts providing your email address and creating a password.

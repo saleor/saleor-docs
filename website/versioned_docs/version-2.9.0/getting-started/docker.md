@@ -34,7 +34,7 @@ Additionally, if you wish to have the compiled email templates mounted, also rem
 **1. Clone the [Saleor Platform](https://github.com/mirumee/saleor-platform) repository**
 
 ```shell-session
-$ git clone git@github.com:mirumee/saleor-platform.git --recursive --jobs 3
+git clone git@github.com:mirumee/saleor-platform.git --recursive --jobs 3
 ```
 
 The repo includes:
@@ -62,21 +62,21 @@ Clone the repo: `git clone git@github.com:mirumee/saleor-platform.git --recursiv
 **3. Go to the cloned directory**
 
 ```shell-session
-$ cd saleor-platform
+cd saleor-platform
 ```
 
 **5. Build the containers using `docker-compose`**
 
 ```shell-session
-$ docker-compose build
+docker-compose build
 ```
 
 **6. Prepare the database**
 
 ```shell-session
-$ docker-compose run --rm api python3 manage.py migrate
-$ docker-compose run --rm api python3 manage.py collectstatic --no-input
-$ docker-compose run --rm api python3 manage.py populatedb --createsuperuser
+docker-compose run --rm api python3 manage.py migrate
+docker-compose run --rm api python3 manage.py collectstatic --no-input
+docker-compose run --rm api python3 manage.py populatedb --createsuperuser
 ```
 
 :::note
@@ -86,7 +86,7 @@ The `--createsuperuser` argument creates an admin account for `admin@example.com
 **7. Run the containers**
 
 ```shell-session
-$ docker-compose up
+docker-compose up
 ```
 
 :::note

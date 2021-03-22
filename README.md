@@ -14,13 +14,13 @@ This website was created with [Docusaurus](https://docusaurus.io/).
 
 ```sh
 # Install dependencies
-$ npm install
+npm install
 ```
 2. Run your dev server:
 
 ```sh
 # Start the site
-$ npm start
+npm start
 ```
 
 ## Directory Structure

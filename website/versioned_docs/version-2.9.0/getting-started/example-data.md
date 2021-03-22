@@ -8,7 +8,7 @@ title: Example Data
 Use the following command to populate the database and test your new storefront with example data (test products and orders):
 
 ```shell-session
-$ python manage.py populatedb --createsuperuser
+python manage.py populatedb --createsuperuser
 ```
 
 :::note
