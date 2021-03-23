@@ -219,7 +219,7 @@ To update the API reference:
 
 # Debugging
 
-In dev mode Docusaurus serve debug page with list of all available routes and config at http://localhost:3000/__docusaurus/debug.
+In dev mode, Docusaurus serves a debug page with a list of all available routes and config at http://localhost:3000/__docusaurus/debug.
 
 
 # Full Docusaurus Documentation
