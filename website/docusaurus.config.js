@@ -148,12 +148,22 @@ module.exports = {
       "@docusaurus/preset-classic",
       {
         theme: {
-          customCss: require.resolve("./src/css/theme.css"),
+          customCss: [require.resolve("./src/css/theme.css")],
         },
         docs: {
           // docs folder path relative to website dir.
           path: "../docs",
-          editUrl: "https://github.com/mirumee/saleor-docs/edit/master/docs/",
+          editUrl: function ({
+            version,
+            versionDocsDirPath,
+            docPath,
+          }) {
+            if(version==='current'){
+              return `https://github.com/mirumee/saleor-docs/edit/master/docs/${docPath}`;
+            }else{
+              return `https://github.com/mirumee/saleor-docs/edit/master/website/${versionDocsDirPath}/${docPath}`;
+            }
+          },
           // sidebars file relative to website dir.
           sidebarPath: require.resolve("./sidebars.js"),
         },

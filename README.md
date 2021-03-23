@@ -1,4 +1,10 @@
-This website was created with [Docusaurus](https://docusaurus.io/).
+# Saleor Documentation
+
+- https://docs.saleor.io
+- Project homepage: https://saleor.io
+- Saleor Core source code: https://github.com/mirumee/saleor
+- Saleor Dashboard source code: https://github.com/mirumee/saleor-dashboard
+- Saleor Storefront source code: https://github.com/mirumee/saleor-storefront
 
 # What's In This Document
 
@@ -10,45 +16,100 @@ This website was created with [Docusaurus](https://docusaurus.io/).
 
 # Get Started in 5 Minutes
 
-1. Make sure all the dependencies for the website are installed:
+1. Make sure you are using Node in version 12+:
+```sh
+node --version
+```
+
+2. Go to `/website` directory:
+```sh
+cd website
+```
+
+3. Install project dependencies:
 
 ```sh
-# Install dependencies
 npm install
 ```
-2. Run your dev server:
+
+4. Run your dev server:
 
 ```sh
-# Start the site
 npm start
 ```
+# Editing Content
 
 ## Directory Structure
 
-Your project file structure should look something like this
+- `/docs/dashboard` Current dashboard user documentation.
+- `/docs/developer` Current developer documentation.
+- `/docs/developer/api-reference` Automatically generated API reference.
+- `/website/versioned_docs` Previous versions of documentation.
+- `/website/static` Styling and other static files.
+- `/website/docusaurus2-graphql-doc-generator` GraphQL API Reference plugin code.
+- `/website/sidebars.js` Sidebar menu structure.
+- `/website/docusaurus.config.js` Docusaurus configuration file.
 
-```
-my-docusaurus/
-  docs/
-    doc-1.md
-    doc-2.md
-    doc-3.md
-  website/
-    blog/
-      2016-3-11-oldest-post.md
-      2017-10-24-newest-post.md
-    core/
-    node_modules/
-    pages/
-    static/
-      css/
-      img/
-    package.json
-    sidebar.json
-    siteConfig.js
+## Formatting
+
+### Code formatting
+Code and response examples should be inside code blocks with proper language:
+````md
+```graphql
+query{
+  id
+  name
+}
+``` 
+````
+
+````md
+```json
+{
+  "errorCode": 400
+}
+``` 
+````
+
+### Lining pages
+Use full path to the file to avoid linking to wrong page.
+
+- :white_check_mark: Example of good link: `[Attributes](/docs/developer/attributes.mdx)`
+- :stop_sign: Avoid: `[Attributes](/attributes)`
+
+### Using custom React components
+All documentation files use extension:
+- `.mdx` - Developer documentation
+- `.md` - Dashboard documentation
+
+If your page uses custom react components, you are required to use `.mdx` file extension. Import statement is also required:
+
+```mdx
+<!-- /docs/developer/export-products.mdx file -->
+---
+title: Exporting Products
+---
+
+import Chart from "@site/components/Chart";
+
+...
+
+<Chart
+  definition={`
+  graph TD
+    D[Export products data <br> Background Worker] -->|Success| E[Send email to user <br> with a link to <br> download file]
+    D -->|Success| X[Set SUCCESS <br>ExportFile status]
+    E -->Y[Create export file <br>sent event]
+    X -->F[Create data export <br>success event]
+    D -->|Failed| G[Set FAILED <br>ExportFile status]
+    G --> U[Create data export <br>failed event]
+    U --> J[Send email to the user<br>with information <br>about failing export]
+    J --> K[Create export failed <br>info sent event]
+`}
+/>
 ```
 
-# Editing Content
+For charts we are using [Mermaid](http://mermaid-js.github.io/mermaid/) package.
 
 ## Editing an existing docs page
 
@@ -66,22 +127,6 @@ Edit me...
 ```
 
 For more information about docs, click [here](https://docusaurus.io/docs/en/navigation)
-
-## Editing an existing blog post
-
-Edit blog posts by navigating to `website/blog` and editing the corresponding post:
-
-`website/blog/post-to-be-edited.md`
-```markdown
----
-id: post-needs-edit
-title: This Blog Post Needs To Be Edited
----
-
-Edit me...
-```
-
-For more information about blog posts, click [here](https://docusaurus.io/docs/en/adding-blog)
 
 # Adding Content
 
@@ -116,36 +161,6 @@ My new content here..
 
 For more information about adding new docs, click [here](https://docusaurus.io/docs/en/navigation)
 
-## Adding a new blog post
-
-1. Make sure there is a header link to your blog in `website/siteConfig.js`:
-
-`website/siteConfig.js`
-```javascript
-headerLinks: [
-    ...
-    { blog: true, label: 'Blog' },
-    ...
-]
-```
-
-2. Create the blog post with the format `YYYY-MM-DD-My-Blog-Post-Title.md` in `website/blog`:
-
-`website/blog/2018-05-21-New-Blog-Post.md`
-
-```markdown
----
-author: Frank Li
-authorURL: https://twitter.com/foobarbaz
-authorFBID: 503283835
-title: New Blog Post
----
-
-Lorem Ipsum...
-```
-
-For more information about blog posts, click [here](https://docusaurus.io/docs/en/adding-blog)
-
 ## Adding items to your site's top navigation bar
 
 1. Add links to docs, custom pages or external links by editing the headerLinks field of `website/siteConfig.js`:
@@ -156,7 +171,12 @@ For more information about blog posts, click [here](https://docusaurus.io/docs/e
   headerLinks: [
     ...
     /* you can add docs */
-    { doc: 'my-examples', label: 'Examples' },
+    {
+      type: "doc",
+      docId: "dashboard/before-you-start",
+      label: "Dashboard Manual",
+      position: "left",
+    },
     /* you can add custom pages */
     { page: 'help', label: 'Help' },
     /* you can add external links */
@@ -197,6 +217,11 @@ To update the API reference:
 1. Start Saleor API at `http://localhost:8000`
 1. Run `npm run update-api-reference`
 
-# Full Documentation
+# Debugging
+
+In dev mode, Docusaurus serves a debug page with a list of all available routes and config at http://localhost:3000/__docusaurus/debug.
+
+
+# Full Docusaurus Documentation
 
 Full documentation can be found on the [website](https://docusaurus.io/).
