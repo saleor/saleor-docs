@@ -1,0 +1,65 @@
+---
+title: Creating and installing Apps from the command line
+sidebar_label: Installing Apps
+---
+
+Saleor provides commands that can be used to create/install an App from the command line.
+
+## Creating local Apps
+
+To create a local App with explicitly provided permissions use the `create_app` command.
+
+
+Arguments:
+
+- `<name>`: the name of the App, required.
+- `--permission <PERM>`: assign permission `PERM` to the App. This argument can be repeated to specify multiple permissions.
+- `--activate`: immediately activate the new App.
+- `--target-url <URL>`: URL to send the API auth token to once installation is complete. [Optional]
+
+> **Example:** The following command will create an App named "Order App" that can access users and orders:
+>
+> ```shell
+> python manage.py create_app "Order App" \
+>    --permission MANAGE_USERS \
+>    --permission MANAGE_ORDERS \
+>    --target-url https://your-order-app/your-register-endpoint/
+> ```
+
+
+If the target URL is provided, Saleor will POST the API auth token, in the same JSON format, to the provided URL:
+
+<Chart
+  definition={`
+  sequenceDiagram
+    Saleor ->> App: POST /token/target/url/<br>{"auth_token": "new-app-token"}
+    App -->> Saleor: HTTP 200 OK
+`}
+/>
+
+
+If the target URL is not specified, the command will output an API auth token in the following format:
+
+```shell
+{"auth_token": "new-app-token"}
+```
+
+## Installing third-party Apps
+
+To install a `third-party` App based on its manifest URL use the `install_app` command.
+
+Arguments:
+
+- `<manifest URL>`: URL of the manifest file, required.
+- `--activate`: immediately activate the new App.
+
+
+> **Example:** The following command will download given manifest and install the app:
+>
+> ```shell
+> python manage.py install_app https://www.url.to.manifest
+> ```
+
+
+App installation is confirmed by sending an API token to the specified token target URL.
+To see workflow details check  - [install app workflow.](developer/extending/apps.mdx#install-an-app)

@@ -23,7 +23,7 @@ module.exports = {
         "label": "Discounts",
         "items": ["dashboard/discounts/sales", "dashboard/discounts/vouchers"]
       },
-      "dashboard/apps", 
+      "dashboard/apps",
       "dashboard/translations",
       {
         "type": "category",
@@ -109,10 +109,18 @@ module.exports = {
         "label": "Extending",
         "items": [
           "developer/extending",
-          "developer/extending/apps",
+          {
+            "type": "category",
+            "label": "Apps",
+            "items": [
+              "developer/extending/apps/key-concepts",
+              "developer/extending/apps/creating-and-installing-apps-from-the-command-line",
+              "developer/extending/apps/graphql-api",
+              "developer/extending/apps/sample-webhook-payloads"
+            ]
+          },
           "developer/extending/plugins",
           "developer/extending/payment-gateways",
-          "developer/extending/communication-interface",
           {
             "type": "category",
             "label": "Internal APIs",
@@ -161,6 +169,8 @@ module.exports = {
         "items": [
           "developer/available-plugins/openid-connect",
           "developer/available-plugins/dummy-credit-card",
+          "developer/available-plugins/user-emails",
+          "developer/available-plugins/admin-emails"
         ]
       }
     ],
