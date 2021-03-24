@@ -1,0 +1,158 @@
+---
+title: Key Concepts
+sidebar_label: Key Concepts
+---
+
+import Chart from "@site/components/Chart";
+
+## Architecture
+
+Saleor Apps are separate applications that use GraphQL to talk to a Saleor server and that can receive webhooks with event notifications from Saleor.
+
+## Authentication
+
+Unlike regular users, Saleor Apps use a bearer token. The token is assigned at App installation time and needs to be stored in a secure manner.
+
+The authorization header for Apps has the following format:
+
+```http
+Authorization: Bearer <app-token>
+```
+
+## The App manifest
+
+The App manifest is a JSON file that describes the application, including its name, version, required permissions, and how it handles the store's data.
+
+Saleor expects the manifest to use the following format:
+
+```json
+{
+  "id": "example.app.wonderful",
+  "version": "1.0.0",
+  "name": "My Wonderful App",
+  "about": "My Wonderful App is a wonderful App for Saleor.",
+
+  "permissions": ["MANAGE_USERS", "MANAGE_STAFF"],
+
+  "appUrl": "http://localhost:3000/app",
+  "configurationUrl": "htpp://localhost:3000/configuration",
+  "tokenTargetUrl": "http://localhost:3000/register",
+
+  "dataPrivacy": "Lorem ipsum",
+  "dataPrivacyUrl": "http://localhost:3000/app-data-privacy",
+  "homepageUrl": "http://localhost:3000/homepage",
+  "supportUrl": "http://localhost:3000/support"
+}
+```
+:::note
+During an installation of third-party App, Saleor will try to send an authentication token to provided `tokenTargetUrl`. 
+For more details, see [installing an app.](developer/extending/apps/creating-and-installing-apps-from-the-command-line.mdx#installing-an-app)
+:::
+
+## Permissions
+
+| Name                                | Description                                                                                                                      |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| MANAGE_APPS                         | Manage apps                                                                                                                      |
+| MANAGE_CHECKOUTS                    | Manage checkout                                                                                                                  |
+| MANAGE_DISCOUNTS                    | Manage discounts                                                                                                                 |
+| MANAGE_GIFT_CARD                    | Manage gift cards                                                                                                                |
+| MANAGE_MENUS                        | Manage the structure of menus                                                                                                    |
+| MANAGE_ORDERS                       | Access to orders data                                                                                                            |
+| MANAGE_PAGES                        | Manage pages                                                                                                                     |
+| MANAGE_PLUGINS                      | Manage plugins                                                                                                                   |
+| MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES | Manage product types and attributes                                                                                              |
+| MANAGE_PRODUCTS                     | Manage products                                                                                                                  |
+| MANAGE_SETTINGS                     | Manage shop settings                                                                                                             |
+| MANAGE_SHIPPING                     | Manage shipping                                                                                                                  |
+| MANAGE_STAFF                        | Access to staff users data                                                                                                       |
+| MANAGE_TRANSLATIONS                 | Manage translations                                                                                                              |
+| MANAGE_USERS                        | Access to customers data                                                                                                         |
+
+
+## Webhooks
+
+Webhooks can be used to receive data from Saleor when particular events happen. The available events are:
+
+| Name                        | Description                                                                                                                                                                                                             |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ANY_EVENTS`                | Receive webhooks when any of the available events is triggered (wildcard event).                                                                                                                                        |
+| `CHECKOUT_CREATED`          | A new checkout is created.                                                                                                                                                                                              |
+| `CHECKOUT_UPDATED`          | A checkout is updated. Also triggers for all updates related to a checkout.                                                                                                                                             |
+| `CUSTOMER_CREATED`          | A new customer account is created.                                                                                                                                                                                      |
+| `CUSTOMER_UPDATED`          | A customer account is updated.                                                                                                                                                                                          |
+| `FULFILLMENT_CREATED`       | A new fulfillment is created.                                                                                                                                                                                           |
+| `INVOICE_DELETED`           | An invoice is deleted.                                                                                                                                                                                                  |
+| `INVOICE_REQUESTED`         | An invoice for an order is requested.                                                                                                                                                                                   |
+| `INVOICE_SENT`              | An invoice is sent.                                                                                                                                                                                                     |
+| `ORDER_CANCELLED`           | An order is cancelled.                                                                                                                                                                                                  |
+| `ORDER_CONFIRMED`           | An order is confirmed (status change unconfirmed -> unfulfilled) by staff user using OrderConfirm mutation. Also triggers when user finish checkout and shop setting `automatically_confirm_all_new_orders` is enabled. |
+| `ORDER_CREATED`             | A new order is placed.                                                                                                                                                                                                  |
+| `ORDER_FULFILLED`           | An order is fulfilled.                                                                                                                                                                                                  |
+| `ORDER_FULLY_PAID`          | Payment is made and an order is fully paid.                                                                                                                                                                             |
+| `ORDER_UPDATED`             | An order is updated; triggered for all changes related to an order; covers all other order webhooks, except for `ORDER_CREATED`.                                                                                        |
+| `PAGE_CREATED`              | A new page is created.                                                                                                                                                                                                  |
+| `PAGE_DELETED`              | A page is deleted.                                                                                                                                                                                                      |
+| `PAGE_UPDATED`              | A page is updated.                                                                                                                                                                                                      |
+| `PRODUCT_CREATED`           | A new product is created.                                                                                                                                                                                               |
+| `PRODUCT_DELETED`           | A product is deleted.                                                                                                                                                                                                   |
+| `PRODUCT_UPDATED`           | A product is updated.                                                                                                                                                                                                   |
+| `PRODUCT_VARIANT_CREATED`   | A new product variant is created.                                                                                                                                                                                       |
+| `PRODUCT_VARIANT_DELETED`   | A product variant is deleted.                                                                                                                                                                                           |
+| `PRODUCT_VARIANT_UPDATED`   | A product variant is updated.                                                                                                                                                                                           |
+| `NOTIFY`                    | Trigger notification to user.                                                                                                                                                                                           |
+
+
+### Webhook protocols
+
+Webhooks support below protocols:
+
+- HTTP(S) 
+- Google Cloud Pub/Sub
+- AWS SQS
+
+#### HTTP(S)
+
+Webhook payloads are sent in POST requests.
+
+All webhooks with `targetUrl`, where the scheme is HTTP(S) will use this protocol.
+
+Saleor calculates the HMAC sha256 header - `X-Saleor-Signature` based on `secretKey` and the payload
+
+
+#### Google Cloud Pub/Sub
+
+All webhooks where scheme is `gcpubsub` will be treated as a Google Cloud Pub/Sub webhooks.
+The structure of `targetUrl` should be as below:
+```
+gcpubsub://cloud.google.com/projects/<yourproject>/topics/<yourtopic>
+```
+
+To proper use the Google Cloud Pub/Sub you need to set the [`GOOGLE_APPLICATION_CREDENTIALS` environment variable](https://cloud.google.com/pubsub/docs/quickstart-client-libraries) 
+
+
+#### AWS SQS
+
+All webhooks where scheme is `awssqs` will be treated as AWS SQS webhooks.
+
+The structure of `targetUrl` should be as below:
+```
+awssqs://<access_key_id>:<secret_access_key>@sqs.<region>.amazonaws.com/<account_id>/<queue_name>
+```
+
+
+## Type of Apps
+- `local`: create a custom App instance, assign explicitly provided permissions. 
+The app is fully manageable from dashboard. You can change assigned permissions, add webhooks, or authentication token. 
+`local` app can be useful for creating integration with some services which will parse the webhook payload.  
+:::note
+If you're building a single service dedicated only to your shop this solution will handle all your needs.
+:::
+
+- `third-party`: install App in Saleor and proceed with all required steps to prepare the communication channel for App.  
+Installation is fully automated.  Saleor uses a defined App manifest to gather all required information.  
+If there are no errors during the installation, App gets the possibility to attach to Saleor Dashboard over the iframe, 
+communicate with Saleor over API and use webhooks to subscribe for the given events.
+:::note
+If you're building an App that will be published in the marketplace, then this solution is dedicated to you. 
+:::
