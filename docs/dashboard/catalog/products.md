@@ -229,22 +229,29 @@ To show a product in the product listings, you have to enable the _Show in produ
 
 Once you have input your minimum required product information, click _save_ in the footer to add it to your catalog and continue with further setup.
 
-#### Step 7: Add images
+#### Step 7: Add media
 
 Much the same as on social media or other platforms, there are two ways to add an image:
 
 - Drag and drop a file from a folder on your computer
-- Click on _Upload&nbsp;Image_ in the top right corner and select an image
+- Click the _Upload_ button in the top right corner of the media section and choose _Upload Images_. The next step is to select images from your computer
 
-You can add an unlimited number of images per product. The main image will be the one that is first in line. You can drag and drop images to change the order. Hover over a specific image and click the trash can to delete an unwanted image.
+Saleor also allows users to upload videos through URL links. To upload a video, follow the steps below:
 
-![Uploading product images](../screenshots/catalog-product-image-upload.jpeg)
+- Publish a video on a service such as YouTube
+- Click the _Upload_ button in the top right corner of the media section and choose _Upload URL_
+- Copy and paste the URL link of your video
+- To confirm the URL link, click _Upload URL_
 
-#### Step 8: Add image descriptions
+You can add an unlimited number of media per product. The main image or video will be the one that is first in line. You can drag and drop media to change the order. Hover over a specific media and click the trash can to delete an unwanted media.
 
-You can also add descriptions of specific product features to your images. Hover over the image and click on the pencil to edit the information.
+![Uploading product images](../screenshots/catalog-product-media-upload.png)
 
-![Editing product images](../screenshots/catalog-product-images.jpeg)
+#### Step 8: Add media descriptions
+
+You can also add descriptions of specific product features to your media. Hover over the media and click on the pencil to edit the information.
+
+![Editing product images](../screenshots/catalog-product-media-description.png)
 
 ### How to export products
 
