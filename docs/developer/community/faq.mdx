@@ -123,3 +123,31 @@ To install the latest stable versions of Saleor, storefront, and dashboard, plea
 ## How can I contribute to the project?
 
 Saleor is an open-source e-commerce platform. We provide support and guidance for our community. You can contribute by creating pull requests on [GitHub](https://github.com/mirumee/saleor/pulls). We always welcome your ideas. If you have any questions or feedback, you can also reach us on [Spectrum](https://spectrum.chat/saleor).
+
+## Something went wrong with the payment, how can I check the gateway response?
+
+The easiest way is to use API for fetching checkout payments with transactions and check such fields as `error` and `gatewayResponse`.
+There is a possibility to provide checkout `id` in the payments filter, so firstly, you can fetch checkouts with ids and find the one you looking for. Then you can use this `id` in the payment filter like this:
+
+```graphql {4-6}
+query {
+  payments(
+      last:10,
+      filter: {
+          checkouts: ["Q2hlY2tvdXQ6ZjlkZjAwMmItYWJmZC00OTZkLTljZDItZmU1NDBmZTRiNjIw"]
+      }
+    ){
+    edges {
+      node{
+        id
+        transactions{
+          error
+          gatewayResponse
+        }
+      }
+    }
+  }
+}
+```
+
+Please, note that you need `MANAGE_ORDERS` permission to perform this action.
