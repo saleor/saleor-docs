@@ -14,6 +14,8 @@ There are essentially two order types in Saleor:
 
 - Draft orders - These are orders created by administrators, which have not yet been released to the system. For example, store operators can create orders during discussions with customers, then save them as drafts until approval is gained from management to send replacement goods. Draft orders can be edited in the same way that an order is created.
 
+- Unconfirmed orders - Orders placed by customers when order confirmation feature is turned on. The payment on such orders is being authorized when order is placed but captured later - when staff [confirms the order](#how-to-confirm-an-order).
+
 To process an order in the system, click _Finalize_ in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels.
 
 ## Order list page
@@ -136,9 +138,21 @@ When order confirmation is enabled, order needs to be confirmed by staff in orde
 
 1. Select an unconfirmed order from order list to open the order details
 
-2. Click _confirm&nbsp;order_ button on the bottom
+2. There is a possiblity to edit the order at this point. However there are a few things to be aware when doing so:
+
+- When order address gets changed, existing allocations remains untouched.
+- New allocations are created whenever staff increase order line amount or add a new order line.
+- Allocations will only get altered for variants with active inventory tracking set.
+- When order line is deleted, all existing allocations of that order line are deleted with it.
+- If staff tries to create / increase amount on an order line with greater amount of variant that is available, insufficient stock error will be displayed.
+- When manipulating order lines after order address gets changed, there might be a case that the items cannot be allocated for new address.
+
+3. Click _confirm&nbsp;order_ button on the bottom
 
 After operation is finished, order status should be _unfulfilled_.
+Keep in mind that staff might change the order value before it's confirmed by manipulating the order lines. If such case happens, then after the confirmation, charged amount can be:
+- higher than order total - staff should perform miscellaneous refund for the amount that was overpaid.
+- lower than order total - staff should create a separate payment in order to clear the ballance.
 
 ![Order confirm](screenshots/order-confirm.jpeg)
 
