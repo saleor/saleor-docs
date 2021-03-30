@@ -153,6 +153,12 @@ module.exports = {
         docs: {
           // docs folder path relative to website dir.
           path: "../docs",
+          versions: {
+            current: {
+              label: '3.0 (alpha)',
+              path: '3.0',
+            },
+          },
           editUrl: function ({
             version,
             versionDocsDirPath,
