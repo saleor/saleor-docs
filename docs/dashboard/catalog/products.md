@@ -234,16 +234,22 @@ Once you have input your minimum required product information, click _save_ in t
 Much the same as on social media or other platforms, there are two ways to add an image:
 
 - Drag and drop a file from a folder on your computer
-- Click the _Upload_ button in the top right corner of the media section and choose _Upload Images_. The next step is to select images from your computer
+- Click the _Upload_ button in the top right corner of the media section and choose _Upload Images_. The next step is to select images from your computer.
 
 Saleor also allows users to upload videos through URL links. To upload a video, follow the steps below:
 
-- Publish a video on a service such as YouTube
+- Publish a video on a service such as YouTube*
 - Click the _Upload_ button in the top right corner of the media section and choose _Upload URL_
 - Copy and paste the URL link of your video
 - To confirm the URL link, click _Upload URL_
 
 You can add an unlimited number of media per product. The main image or video will be the one that is first in line. You can drag and drop media to change the order. Hover over a specific media and click the trash can to delete an unwanted media.
+
+:::note *A full list of supported services
+
+The Saleor validation library supports the following services: Dailymotion, Flickr, Imgur, Instagram, MobyPicture, Photobucket, SmugMug, Scribd, TikTok, Twitter, Vimeo, WordPress.tv, YouTube.
+
+:::
 
 ![Uploading product images](../screenshots/catalog-product-media-upload.png)
 
