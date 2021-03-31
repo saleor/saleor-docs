@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  title: "Documentation – Saleor Commerce", // Title for your website.
+  title: "Documentation – Saleor Commerce",
   tagline:
     "A modular, high performance e-commerce storefront built with Python, GraphQL, Django, and ReactJS.",
   url: "https://docs.saleor.io",
@@ -71,7 +71,7 @@ module.exports = {
 
     footer: {
       // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
-      copyright: `Copyright © 2009–${new Date().getFullYear()} <a href="https://mirumee.com/">Mirumee Software</a>`,
+      copyright: `Copyright © 2018–${new Date().getFullYear()} <a href="https://saleor.io/">Saleor Commerce</a>`,
       links: [
         {
           title: "Saleor Commerce",
@@ -140,9 +140,6 @@ module.exports = {
   // Show documentation's last update time.
   // enableUpdateTime: true,
 
-  // You may provide arbitrary config keys to be used as needed by your
-  // template. For example, if you need your repo's URL...
-  //   repoUrl: 'https://github.com/facebook/test-site',
   presets: [
     [
       "@docusaurus/preset-classic",
