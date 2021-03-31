@@ -18,8 +18,15 @@ import versions from "../../versions.json";
 function Versions() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
-  const latestVersion = versions[0];
-  const pastVersions = versions.filter((version) => version !== latestVersion);
+  let currentLabel = 'Next' 
+  let currentPath = 'next' 
+  const configVersions = context.siteConfig.presets[0][1].docs.versions
+  if (configVersions.current){
+    currentLabel = configVersions.current.label;
+    currentPath = configVersions.current.path;
+  }
+  const latestStableVersion = versions[0];
+  const pastVersions = versions.filter((version) => version !== latestStableVersion);
   const repoUrl = `https://github.com/${siteConfig.organizationName}/${siteConfig.projectName}`;
   return (
     <Layout
@@ -30,12 +37,12 @@ function Versions() {
       <div className="container margin-vert--xl">
         <h1>Docusaurus documentation versions</h1>
         <div className="margin-bottom--lg">
-          <h3 id="latest">Latest version (Stable)</h3>
+          <h3 id="latest">Latest stable version</h3>
           <p>Here you can find the latest documentation.</p>
           <table>
             <tbody>
               <tr>
-                <th>{latestVersion}</th>
+                <th>{latestStableVersion}</th>
                 <td>
                   <Link to={useBaseUrl("/docs/")}>Documentation</Link>
                 </td>
@@ -44,14 +51,14 @@ function Versions() {
           </table>
         </div>
         <div className="margin-bottom--lg">
-          <h3 id="next">Next version (Unreleased)</h3>
-          <p>Here you can find the documentation for unreleased version.</p>
+          <h3 id="next">{currentLabel} version</h3>
+          <p>Here you can find the documentation for currently developed version.</p>
           <table>
             <tbody>
               <tr>
                 <th>master</th>
                 <td>
-                  <Link to={useBaseUrl("/docs/next/")}>Documentation</Link>
+                  <Link to={useBaseUrl(`/docs/${currentPath}/`)}>Documentation</Link>
                 </td>
                 <td>
                   <a href={repoUrl}>Source Code</a>
