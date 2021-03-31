@@ -78,11 +78,11 @@ module.exports = {
           items: [
             { href: "https://saleor.io", label: "Home" },
             {
-              href: "https://saleor.io/terms-and-conditions/",
+              href: "https://saleor.io/legal/terms/",
               label: "Terms of use",
             },
             {
-              href: "https://saleor.io/terms-and-conditions/#privacy",
+              href: "https://saleor.io/legal/privacy/",
               label: "Privacy policy",
             },
           ],
@@ -91,8 +91,8 @@ module.exports = {
           title: "Community",
           items: [
             {
-              href: "https://spectrum.chat/saleor",
-              label: "Spectrum",
+              href: "https://github.com/mirumee/saleor/discussions",
+              label: "GitHub Discussions",
             },
             {
               href: "https://stackoverflow.com/questions/tagged/saleor",
