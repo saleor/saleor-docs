@@ -395,7 +395,7 @@ The tax equals 1.15 which is 23% of the net price. Gross price is the sum of net
 The `address` parameter is optional. If it's not provided, Saleor will use the default country code configured in the backend settings (see [DEFAULT_COUNTRY](running-saleor/configuration.mdx#default_country)).
 :::
 
-## Stock availability
+## Stock availability for customers
 
 Stock availability of products is defined for each variant and warehouse (see [Warehouses](/dashboard/configuration/warehouses.mdx) and [Checking inventory](/dashboard/catalog/products.md#checking-inventory) sections to see how to configure it in the Dashboard). There are two fields that allows you to fetch the stock information in the public API.
 
@@ -452,11 +452,67 @@ Response:
 }
 ```
 
-The `address` parameter behaves in the same way as in the `Product.isAvailable` fields above.
+Warehouse is chosen based on argument `address`. If argument is ommited, API will return highest available quantity.
 
 :::note
-To avoid leaking precise stock information, the `quantityAvailable` field will not be greater than the maximum orderable threshold configured in the [MAX_CHECKOUT_LINE_QUANTITY](developer/running-saleor/configuration.mdx#max_checkout_line_quantity) server setting.
+To avoid leaking precise stock information, the `quantityAvailable` field will not be greater than the maximum orderable threshold configured in the [`MAX_CHECKOUT_LINE_QUANTITY`](developer/running-saleor/configuration.mdx#max_checkout_line_quantity) server setting.
 :::
+
+## Stock quantities
+
+For creating integrations with external stock management system, you will need stock values not restricted by `MAX_CHECKOUT_LINE_QUANTITY`. 
+
+:::note
+`stocks` field in the [`ProductVariant`](developer/api-reference/objects/product-variant.mdx) object require `MANAGE_PRODUCTS` permission.
+:::
+
+To clarify difference between `quantityAvailable` and stocks, we will query both for the product variant: 
+
+Request:
+```graphql{3,10}
+query {
+    productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
+    quantityAvaible
+    stocks {
+      warehouse {
+        slug
+      }
+      quantity
+      quantityAllocated
+    }
+  }
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "productVariant": {
+      "quantityAvailable": 50,
+      "stocks": [
+        {
+          "warehouse": {
+            "slug": "europe"
+          },
+          "quantity": 111,
+          "quantityAllocated": 0
+        },
+        {
+          "warehouse": {
+            "slug": "americas"
+          },
+          "quantity": 113,
+          "quantityAllocated": 0
+        }
+      ]
+    }
+  }
+}
+```
+
+- `"quantityAvailable": 50`: customers only see maximum of 50 pcs available to buy
+- `stocks` contain full list of stock quantities in every of the warehouses
 
 ## Media
 
