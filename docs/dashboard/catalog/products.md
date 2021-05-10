@@ -213,6 +213,8 @@ Once you have set up all your product details, you need to assign a previously c
 
 Each channel gives you fine control over the availability of individual items. You can choose all or specific variants that will be assigned to a channel. Then you can set a product's publication date on a per-channel basis.
 
+![](../screenshots/catalog-product-variant-availability.png)
+
 :::note Assign a category
 
 If you want to make a product public, you need to assign a category.
@@ -356,8 +358,6 @@ Click on a specific product from the variants list to edit the size, images, pri
 
 To add a new variant, click the _Add variant_ button in the _variants_ list. While creating a new variant, you need to fill in all information required and assign to a specific warehouse by clicking the _+_ button in the _Inventory_ section.
 
-![Editing product variants](../screenshots/catalog-product-variant-details.png)
-
 You can edit the cost and sale price of an item in the Pricing card.
 
 When you receive new stock, enter the amount in the _Quantity Available_ field in the _Inventory_ section to keep up to date and avoid false out-of-stock messages. Make sure to save your changes before exiting.
@@ -367,6 +367,8 @@ To track inventory, you need to enable the _Track Inventory_ checkbox.
 You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) which is unique to specific variants.
 
 Once the product availability is set on the main product page, you will also find information as to which channel a specific variant of a product is assigned to at the top of each variant page.
+
+![Editing product variants](../screenshots/catalog-product-variant-details.png)
 
 ### How to manage metadata in the variants page
 
