@@ -211,7 +211,7 @@ Categorize your new product using the drop-down menus to assign a relevant Produ
 
 Once you have set up all your product details, you need to assign a previously created [channel](dashboard/configuration/channels.md). Click the _MANAGE_ button in the top right corner of the availability card, and then assign a channel. You can assign as many channels as you need for each product.
 
-Each channel gives you fine control over the availability of individual items. You can set a product's publication date on a per-channel basis.
+Each channel gives you fine control over the availability of individual items. You can choose all or specific variants that will be assigned to a channel. Then you can set a product's publication date on a per-channel basis.
 
 :::note Assign a category
 
@@ -365,6 +365,8 @@ When you receive new stock, enter the amount in the _Quantity Available_ field i
 To track inventory, you need to enable the _Track Inventory_ checkbox.
 
 You can repeat this process for all sizes or types of the same product by clicking the Variants card on the left side. Each variant has a specific SKU code (Stock Keep Unit) which is unique to specific variants.
+
+Once the product availability is set on the main product page, you will also find information as to which channel a specific variant of a product is assigned to at the top of each variant page.
 
 ### How to manage metadata in the variants page
 
