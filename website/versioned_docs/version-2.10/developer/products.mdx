@@ -3,8 +3,6 @@ title: Querying Product Information
 sidebar_label: Products
 ---
 
-import GraphQL from "@site/components/GraphQL";
-
 ## Introduction
 
 This guide describes how to obtain products from the Saleor GraphQL API.
@@ -18,9 +16,8 @@ To fetch a product list, you need to run the `products` query. The `products` fi
 
 Let's take a look at an example query to fetch a list of products:
 
-<GraphQL
-  height={20}
-  query={`{
+```graphql
+{
   products(first: 2) {
     edges {
       node {
@@ -29,8 +26,32 @@ Let's take a look at an example query to fetch a list of products:
       }
     }
   }
-}`}
-/>
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3Mg==",
+            "name": "Apple Juice"
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3NA==",
+            "name": "Banana Juice"
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 In this example, for each product, we want to return the following fields:
 
@@ -54,9 +75,8 @@ The `products` query gives the ability to filter the results. Use the optional `
 
 Here is an example query that looks for the first 3 products containing the term "juice" in the title or description:
 
-<GraphQL
-  height={20}
-  query={`{
+```graphql
+{
   products(first: 3, filter: { search: "juice" }) {
     edges {
       node {
@@ -64,8 +84,35 @@ Here is an example query that looks for the first 3 products containing the term
       }
     }
   }
-}`}
-/>
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "name": "Apple Juice"
+          }
+        },
+        {
+          "node": {
+            "name": "Banana Juice"
+          }
+        },
+        {
+          "node": {
+            "name": "Bean Juice"
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 ### Sorting
 
@@ -82,9 +129,8 @@ In `products` you can also sort the results using two `sortBy` arguments:
 
 This example shows how to sort the products list by the minimal variant price, lowest to highest:
 
-<GraphQL
-  height={25}
-  query={`{
+```graphql
+{
   products(
     first: 2
     sortBy: { field: MINIMAL_PRICE, direction: ASC }
@@ -100,8 +146,37 @@ This example shows how to sort the products list by the minimal variant price, l
     }
   }
 }
-`}
-/>
+```
+
+Response:
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "name": "Blue Hoodie",
+            "minimalVariantPrice": {
+              "amount": 2.5,
+              "currency": "USD"
+            }
+          }
+        },
+        {
+          "node": {
+            "name": "Banana Juice",
+            "minimalVariantPrice": {
+              "amount": 3,
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 ## Retrieving a single product
 
@@ -124,9 +199,8 @@ query {
 
 To obtain product variants, query the `variants` field on the `Product` type:
 
-<GraphQL
-  height={25}
-  query={`{
+```graphql
+{
   products(first: 1) {
     edges {
       node {
@@ -139,8 +213,40 @@ To obtain product variants, query the `variants` field on the `Product` type:
       }
     }
   }
-}`}
-/>
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3Mg==",
+            "name": "Apple Juice",
+            "variants": [
+              {
+                "id": "UHJvZHVjdFZhcmlhbnQ6MjAz",
+                "name": "1l"
+              },
+              {
+                "id": "UHJvZHVjdFZhcmlhbnQ6MjA0",
+                "name": "2l"
+              },
+              {
+                "id": "UHJvZHVjdFZhcmlhbnQ6MjAy",
+                "name": "500ml"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 Like products, here we're asking for two fields from each variant:
 
@@ -216,9 +322,8 @@ The `Product` type contains two fields that refer to its images:
 
 Here's a query that asks for both the thumbnail and all images of the first product, optimized for display at 100×100px:
 
-<GraphQL
-  height={30}
-  query={`{
+```graphql
+{
   products(first: 1) {
     edges {
       node {
@@ -235,8 +340,36 @@ Here's a query that asks for both the thumbnail and all images of the first prod
       }
     }
   }
-}`}
-/>
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3Mg==",
+            "name": "Apple Juice",
+            "thumbnail": {
+              "url": "https://demo.saleor.io/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "alt": ""
+            },
+            "images": [
+              {
+                "url": "https://demo.saleor.io/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "alt": ""
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+```
 
 ## Examples
 
