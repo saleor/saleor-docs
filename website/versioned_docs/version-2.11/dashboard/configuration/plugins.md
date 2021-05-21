@@ -13,7 +13,7 @@ The plugin page is used to display general information about installed plugins, 
 
 If you choose to, you can use the plugin window to display the basic configuration to allow dashboard users to manage the elemental settings of existing plugins.
 
-For more detailed information about plugins and our Extension Manager, see the [Extending](../../developer/extending) topic in the chapter for developers.
+For more detailed information about plugins and our Extension Manager, see the [Extending](developer/extending.mdx) topic in the chapter for developers.
 
 Saleor arrives with the following plugins already integrated.
 
