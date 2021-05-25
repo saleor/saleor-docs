@@ -60,6 +60,7 @@ For more details, see [installing an app.](developer/extending/apps/creating-and
 | MANAGE_MENUS                        | Manage the structure of menus                                                                                                    |
 | MANAGE_ORDERS                       | Access to orders data                                                                                                            |
 | MANAGE_PAGES                        | Manage pages                                                                                                                     |
+| MANAGE_PAYMENTS                     | Manage payments                                                                                                                  |
 | MANAGE_PLUGINS                      | Manage plugins                                                                                                                   |
 | MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES | Manage product types and attributes                                                                                              |
 | MANAGE_PRODUCTS                     | Manage products                                                                                                                  |
@@ -144,6 +145,180 @@ awssqs://<access_key_id>:<secret_access_key>@sqs.<region>.amazonaws.com/<account
 FIFO queues (ending in `.fifo`) must be configured to have `ContentBasedDeduplication` enabled.
 `MessageGroupID` will be set to current [`Site`](https://docs.djangoproject.com/en/dev/ref/contrib/sites/)'s domain name.
 :::
+
+
+### Payment webhooks
+
+Payment webhooks are synchronous webhooks that allow delegating payment handling to Saleor Apps. Synchronous means that these webhooks expect a response of a particular shape to be returned from the app to continue processing in Saleor. Payment webhooks only support HTTP(S) protocol; they are sent as POST requests with `application/json` body and expect a response of the same content type.
+
+Available payment events are:
+
+| Name                        | Description                                                                                                                                                                                                             |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PAYMENT_AUTHORIZE`         | Authorize payment                                                                                                                                                                                                       |
+| `PAYMENT_CAPTURE`           | Capture payment                                                                                                                                                                                                         |
+| `PAYMENT_CONFIRM`           | Confirm payment                                                                                                                                                                                                          |
+| `PAYMENT_LIST_GATEWAYS`     | List payment gateways                                                                                                                                                                                                   |
+| `PAYMENT_PROCESS`           | Process payment                                                                                                                                                                                                         |
+| `PAYMENT_REFUND`            | Refund payment                                                                                                                                                                                                          |
+| `PAYMENT_VOID`              | Void payment                                                                                                                                                                                                            |
+
+To create an app that reacts to payment webhook, you need first to create a regular app, as described in [this dashboard manual](/dashboard/apps.md). Make sure to make the app active and grant it the `MANAGE_PAYMENTS` permission.
+
+#### Register `PAYMENT_LIST_GATEWAYS` webhook
+
+When enabling payment webhooks, you need to first subscribe to `PAYMENT_LIST_GATEWAYS` event. This event is called whenever Saleor is listing available payment gateways, either in API or internal use. This webhook needs to return information about payment methods that are defined in your app.
+
+Below are two example cases when `PAYMENT_LIST_GATEWAYS` is triggered:
+
+##### Listing all available payment gateways
+
+This query returns information about available payment gateways without any additional context:
+
+```graphql
+{
+  shop {
+    availablePaymentGateways(currency: "USD", channel: "default-channel") {
+      name
+      id
+      config {
+        field
+        value
+      }
+      currencies
+    }
+  }
+}
+```
+
+The `availablePaymentGateways` field accepts the optional `currency` argument; if provided, it will be passed in the webhook payload and can be used to return payment methods that support a particular currency.
+
+##### Listing available payment gateways for a checkout
+
+You can also query for available payment gateways in the context of a specific checkout. This is useful if payment methods depend on the current checkout (e.g. user’s shipping country etc.)
+
+```graphql
+{
+  checkout(token: "checkout-uuid-token") {
+    availablePaymentGateways {
+      name
+    }
+  }
+}
+```
+
+See the example payload sent from Saleor for this event: [List payment gateways payload](/developer/extending/apps/sample-webhook-payloads.mdx#list-payment-gateways-payload).
+
+##### Expected webhook response
+
+In the response, you should return a list of supported payment methods, for example:
+
+```json
+[
+   {
+      "id":"credit-card",
+      "name":"Credit Card",
+      "currencies":[
+         "EUR"
+      ],
+      "config":[]
+   },
+   {
+      "id":"apple-pay",
+      "name":"Apple Pay",
+      "currencies":[
+         "EUR",
+         "USD"
+      ],
+      "config":[
+         {
+            "field":"apple-pay-config-field",
+            "value":"value"
+         }
+      ]
+   }
+]
+```
+
+Each item on the list should have the following fields:
+- `id` - ID of a payment method; must be unique within your app.
+- `name` - the name of the payment method.
+- `currencies` - list of currencies supported by this payment method.
+- `config` - optional configuration, such as additional payment data that may be needed to proceed with the payment in the frontend.
+
+
+#### Register webhooks for payment actions
+
+To subscribe to particular payment events (such as capture or authorization), you can have multiple webhooks with separate URLs for each action, or a single webhook that handles all events (each webhook has `X-Saleor-Event` header which contains the type of event).
+
+List of payment events: 
+
+- `PAYMENT_AUTHORIZE`
+- `PAYMENT_CAPTURE`
+- `PAYMENT_CONFIRM`
+- `PAYMENT_PROCESS`
+- `PAYMENT_REFUND`
+- `PAYMENT_VOID`
+
+:::note
+If an app has more than one webhook that listens to the same payment event, Saleor will always pick the first webhook from the list.
+:::
+
+See the example payload sent from Saleor for these payment events: [Payment actions payload](/developer/extending/apps/sample-webhook-payloads.mdx#payment-actions-payload).
+
+##### Expected response
+
+In response for the above payment events, you should return the following transaction details:
+
+```json
+{
+   "action_required":false,
+   "action_required_data":{},
+   "amount": "29.26",
+   "currency": "USD",
+   "customer_id":"example-customer-id",
+   "error":"None",
+   "payment_method": {
+     "brand":"Visa",
+     "exp_month":"01",
+     "exp_year":"2025",
+     "last_4":"4242",
+     "name":"John Doe",
+     "type":"Credit card",
+   },
+   "psp_reference": "",
+   "transaction_id":"example-transaction-id",
+   "transaction_already_processed": "False"
+}
+```
+
+The response fields match with the `GatewayResponse` data class used in Saleor to represent a response from a payment gateway; you can read more about these fields [here](/developer/extending/payment-gateways.mdx#gatewayresponse).
+
+#### Use payment webhook's payment method in checkout
+
+If payment webhooks are configured properly, you can use their payment methods in checkout. To do this, you need to [list available payment methods for your checkout or shop](/developer/extending/apps/key-concepts.mdx#listing-all-available-payment-gateways). Each payment method from a payment webhook has an ID of this format: `app:<app-database-id>:<id-returned-by-webhook>`
+
+Example: `app:1:credit-card`
+
+To use this gateway in checkout, run `checkoutPaymentCreate` mutation and pass this ID as the `gateway` parameter:
+
+```graphql
+mutation {
+  checkoutPaymentCreate(
+    checkoutId: "example-checkout-id"
+    input: { gateway: "app:1:credit-card", amount: 22.36 }
+  ) {
+    payment {
+      id
+    }
+  }
+}
+```
+
+Running the `checkoutComplete` mutation afterward will use the payment method set above and trigger your payment webhook.
+
+See more about checkout mutations [here](developer/checkout.mdx).
+
 
 ## Type of Apps
 - `local`: create a custom App instance, assign explicitly provided permissions. 
