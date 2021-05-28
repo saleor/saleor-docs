@@ -60,4 +60,11 @@ If you prefer to work in dark mode, click on your account name in the top right 
 
 ### How to log out
 
-To log out, click your account name in the top right corner of the dashboard, and then click the _log out_ button. 
+To log out, click your account name in the top right corner of the dashboard, and then click the _log out_ button.
+
+### How to use the dashboard navigator
+
+Click the navigator button on top right corner of the dashboard or use the *CTRL* + *K* combination to open the dashboard navigator. Then type the location you would like to navigate to, for instance: products main page.
+
+You can type "?" to see all available navigation options.
+
