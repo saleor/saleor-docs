@@ -70,4 +70,12 @@ Click the navigator button on top right corner of the dashboard or use the *CTRL
 
 You can type "?" to see all available navigation options.
 
+Available navigation options:
+- *...* - Search Views and Actions
+- *>* - Search Command
+- *#* - Search Orders
+- *@* - Search Customers
+- *$* - Search in Catalog
+- *?* - Display Help
+
 ![Dashboard navigator options](screenshots/dashboard-home-navigator-options.png)
