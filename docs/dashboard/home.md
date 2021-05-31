@@ -66,5 +66,8 @@ To log out, click your account name in the top right corner of the dashboard, an
 
 Click the navigator button on top right corner of the dashboard or use the *CTRL* + *K* combination to open the dashboard navigator. Then type the location you would like to navigate to, for instance: products main page.
 
+![Dashboard navigator](screenshots/dashboard-home-navigator.png)
+
 You can type "?" to see all available navigation options.
 
+![Dashboard navigator options](screenshots/dashboard-home-navigator-options.png)
