@@ -177,13 +177,22 @@ Use the form to select how much of each product is being fulfilled from which wa
 
 ![Creating a fulfillment](screenshots/order-new-fulfillment.png)
 
-### How to cancel an order
+### How to cancel, return or replace an order
 
-Click the three dots in the top right corner of a Fulfilled order card. Select _Cancel&nbsp;order_ when the pop-up appears, then confirm. Items will be restocked into the Saleor system.
+#### How to cancel an order
 
-![Canceling shipment](screenshots/order-cancel.jpeg)
+![Canceling shipment](screenshots/order-cancel-return.png)
 
-For more information on Shipment configuration, see the [Shipping Methods](configuration/shipping.md).
+Click the three dots in the top right corner of a Fulfilled order card. Choose the *Cancel Order* option. Then click *Accept* when the pop-up appears. Items will be restocked into the Saleor system.
+
+![Canceling order](screenshots/order-cancel.png)
+
+#### How to return or replace an order
+Click the three dots in the top right corner of a Fulfilled order card. Choose the *Return/replace order* option. Then select the quantity of the items that need to be returned or replaced. Additionally, you can refund money while returning or replacing items.
+
+The last step is to click the *Return & Replace Products* button.
+
+![Canceling order](screenshots/order-return-replace.png)
 
 ### How to generate an invoice
 
