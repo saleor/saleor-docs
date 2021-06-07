@@ -266,18 +266,35 @@ If an app has more than one webhook that listens to the same payment event, Sale
 
 See the example payload sent from Saleor for these payment events: [Payment actions payload](/developer/extending/apps/sample-webhook-payloads.mdx#payment-actions-payload).
 
+For payments that require confirmation (such as 3D Secure) Saleor triggers two events:
+- `PAYMENT_PROCESS` - when the `checkoutComplete` mutation is run for the first time, payment is created and waiting for the user's confirmation.
+- `PAYMENT_CONFIRM` - when the `checkoutComplete` mutation is run for the second time, payment is confirmed.
+
+For payments without a confirmation step, Saleor triggers only the `PAYMENT_PROCESS` event.
+
 ##### Expected response
 
-In response for the above payment events, you should return the following transaction details:
+Below is the list of fields that webhook can return in the JSON response for a payment action. All fields are optional:
+
+- `action_required` - (boolean) determines if additional action (confirmation) is required.
+- `action_required_data` - (object) additional data that may be needed to confirm the payment, for example, URL to redirect the user to the confirmation page in the frontend.
+- `amount` - (number) transaction amount; use this field only if the charged amount is different than checkout's total.
+- `customer_id` - (string) gateway's customer ID.
+- `error` - (string) error message; if provided, the transaction will be marked as failed in Saleor and payment will have to be retried. Use this field if you need to return any errors.
+- `payment_method` - (object) information about payment method chosen by the user.
+- `psp_reference` - (string) reference which can be used to find a payment object in Saleor, once the order is created.
+- `transaction_id` - (string) gateway's transaction ID
+- `transaction_already_processed` - (boolean) use this field to mark a transaction as already processed in your gateway
+
+The response fields match with the `GatewayResponse` data class used in Saleor to represent a response from a payment gateway; you can read more about these fields [here](/developer/extending/payment-gateways.mdx#gatewayresponse).
+
+Example response for the `PAYMENT_PROCESS` event when confirmation is required:
 
 ```json
 {
-   "action_required":false,
-   "action_required_data":{},
-   "amount": "29.26",
-   "currency": "USD",
-   "customer_id":"example-customer-id",
-   "error":"None",
+   "action_required": true,
+   "action_required_data":{"confirmation_url": "https://www.example.com/3ds-confirmation/"},
+   "customer_id":"customer-1234",
    "payment_method": {
      "brand":"Visa",
      "exp_month":"01",
@@ -286,13 +303,9 @@ In response for the above payment events, you should return the following transa
      "name":"John Doe",
      "type":"Credit card",
    },
-   "psp_reference": "",
-   "transaction_id":"example-transaction-id",
-   "transaction_already_processed": "False"
+   "transaction_id":"transaction-1234"
 }
 ```
-
-The response fields match with the `GatewayResponse` data class used in Saleor to represent a response from a payment gateway; you can read more about these fields [here](/developer/extending/payment-gateways.mdx#gatewayresponse).
 
 #### Use payment webhook's payment method in checkout
 
