@@ -70,12 +70,18 @@ Click the navigator button on top right corner of the dashboard or use the *CTRL
 
 You can type "?" to see all available navigation options.
 
-Available navigation options:
-- *...* - Search Views and Actions
-- *>* - Search Command
-- *#* - Search Orders
-- *@* - Search Customers
-- *$* - Search in Catalog
-- *?* - Display Help
+#### Available navigation options:
+- _..._ - Search Views and Actions
+- _>_ - Search Command
+- _#_ - Search Orders
+- _@_ - Search Customers
+- _$_ - Search in Catalog
+- _?_ - Display Help
 
-![Dashboard navigator options](screenshots/dashboard-home-navigator-options.png)
+#### The examples of using the dashboard navigator
+
+1. You are looking for a specific order. Once the dashboard navigator is open, type *#* and then the number of the order. In the following example, the product order number is 2215. The dashboard navigator will show you the fulfillment status.
+
+You can open the order's detail page by clicking the order under the _Quick actions_ section.
+
+2. You are looking for a specific hoodie in your catalog. Once the dashboard navigator is open, type _$_ and then _hoodie_. The dashboard navigator will show you all options related to hoodies including products or categories.
