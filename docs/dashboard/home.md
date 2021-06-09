@@ -84,4 +84,8 @@ You can type "?" to see all available navigation options.
 
 You can open the order's detail page by clicking the order under the _Quick actions_ section.
 
+![Dashboard navigator](screenshots/dashboard-home-navigator-example.png)
+
 2. You are looking for a specific hoodie in your catalog. Once the dashboard navigator is open, type _$_ and then _hoodie_. The dashboard navigator will show you all options related to hoodies including products or categories.
+
+![Dashboard navigator](screenshots/dashboard-home-navigator-example-2.png)
