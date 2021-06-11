@@ -198,6 +198,10 @@ After choosing the replace option a new draft order will be created to replace t
 
 ![return and replace order](screenshots/order-return-replace.png)
 
+#### A return and replace use case
+
+A customer buys a pair of new shoes. It turns out that they are too big. The customer decides to return them and asks for a smaller size. In this case, the store manager uses the Return & Replace option from the order's details page to replace the shoes.
+
 ### How to generate an invoice
 
 To create an invoice for an order, click _generate_ on the right side of the order details page.
