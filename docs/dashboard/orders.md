@@ -177,7 +177,7 @@ Use the form to select how much of each product is being fulfilled from which wa
 
 ![Creating a fulfillment](screenshots/order-new-fulfillment.png)
 
-### How to cancel, return or replace an order
+### How to cancel, return and replace an order
 
 #### How to cancel an order
 
@@ -187,12 +187,16 @@ Click the three dots in the top right corner of a Fulfilled order card. Choose t
 
 ![Canceling order](screenshots/order-cancel.png)
 
-#### How to return or replace an order
-Click the three dots in the top right corner of a Fulfilled order card. Choose the *Return/replace order* option. Then select the quantity of the items that need to be returned or replaced. Additionally, you can refund money while returning or replacing items.
+#### How to return and replace an order
+Click the three dots in the top right corner of a Fulfilled order card. Choose the _Return/replace order_ option. Then select the quantity of the items that need to be returned or/and replaced. Additionally, you can refund money while returning items.
 
-The last step is to click the *Return & Replace Products* button.
+The last step is to click the _Return & Replace Products_ button.
 
-![Canceling order](screenshots/order-return-replace.png)
+If you select the return option only, the item will be found under the Returned section of the order details page. If you choose the return and replace options, the item will be under the Replaced section.
+
+After choosing the replace option a new draft order will be created to replace the item. If the original order hasn't been fulfilled, the product will be automatically restocked to your warehouse. If the order has been fulfilled and you haven't canceled the fulfillment, the item won't be restocked automatically; you will have to do that manually on the variant details page of the product.
+
+![return and replace order](screenshots/order-return-replace.png)
 
 ### How to generate an invoice
 
