@@ -64,7 +64,7 @@ To learn more about the webhook protocols, see the [Developer's Guide](developer
 
 ### Events
 
-In the _Events_ card, you can assign singular events that you want to be triggered by the webhook. Alternatively, you can grant the choose the _All events_ option to send notifications about all events, regardless of type. By choosing this option you will send payloads for all events currently assigned, in doing so your range will change as events are added or deleted by the Saleor team. If you want to assign a limited range of events, choose them from the menu of specific items.
+In the _Events_ card, you can assign singular events that you want to be triggered by the webhook. Alternatively, you can choose the _All events_ option to send notifications about all events, regardless of type. By choosing this option you will send payloads for all events currently assigned, in doing so your range will change as events are added or deleted by the Saleor team. If you want to assign a limited range of events, choose them from the menu of specific items.
 
 ### Activating a webhook
 
