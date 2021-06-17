@@ -170,7 +170,8 @@ module.exports = {
           "developer/available-plugins/openid-connect",
           "developer/available-plugins/dummy-credit-card",
           "developer/available-plugins/user-emails",
-          "developer/available-plugins/admin-emails"
+          "developer/available-plugins/admin-emails",
+          "developer/available-plugins/stripe"
         ]
       }
     ],
