@@ -8,30 +8,107 @@ sidebar_label: Attributes
 Properly configured attributes provide crucial information about your products and allow users to find the ones they are looking for quicker.
 
 Attributes can be used for
+
 - [Products](developer/api-reference/objects/product.mdx) and [ProductVariants](developer/api-reference/objects/product-variant.mdx)
 - [Pages](developer/api-reference/objects/page.mdx)
 
 ## Use cases
 
 1. Your store sells mugs in many colors and sizes. In this example, you can configure the following attributes:
+
 - Color attribute (red, black, etc.)
 - Size attribute (small, big)
 
-2. Your shop has many pages with different rendering styles. You can create an attribute called `Template` with a `PAGE_TYPE` type. You can set the following values: `Support`, `Blog`, `Promos`. Then you can upload a proper CSS template based on a `Template` value in the storefront code. 
+2. Your shop has many pages with different rendering styles. You can create an attribute called `Template` with a `PAGE_TYPE` type. You can set the following values: `Support`, `Blog`, `Promos`. Then you can upload a proper CSS template based on a `Template` value in the storefront code.
 
 ## Permissions
 
 To edit and create attributes, a user needs to have the following permissions:
+
 - `MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES`
 - `MANAGE_PAGE_TYPES_AND_ATTRIBUTES`
 
 To assign attributes to products and pages, a user needs only the following permissions: `MANAGE_PRODUCTS` and `MANAGE_PAGES`.
 
+## Input types
+
+Each attribute has an input type defined upon attribute creation. Input types determine the type of data that can be entered as attribute values in the dashboard. Available input types are defined in the [`AttributeInputTypeEnum`](developer/api-reference/enums/attribute-input-type-enum.mdx) enum. Below is the list of available input types:
+
+| Name          | Description                                                                                  | Example                                                                                  |
+| ------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `DROPDOWN`    | List of predefined choices; rendered as a single-select dropdown.                            | Store a color of a variant with predefined choices: orange, black, blue, etc.            |
+| `MULTISELECT` | List of predefined choices; rendered as a multi-select dropdown.                             | Add multiple tags to a product or a page.                                                |
+| `FILE`        | Allows to store a file as an attribute value; rendered as a file input.                      | Store a product manual as a PDF file; store a hero image for a page.                     |
+| `REFERENCE`   | Values are references to other entities such as products or pages.                           | Render a list of related products on a product page.                                     |
+| `NUMERIC`     | Values are numbers; optionally, a unit can be provided to represent measures and dimensions. | Dimensions of a product represented with three numeric attributes: length, width, depth. |
+| `RICH_TEXT`   | Value is stored as rich-text content; rendered as a rich-text editor.                        | Additional content blocks for a page or product.                                         |
+| `BOOLEAN`     | Allows storing boolean values.                                                               | Yes/no properties, e.g. "Product is fair trade certified: yes/no".                       |
+
+## Fetching all attributes
+
+To fetch the list of attributes, use the `attributes` query:
+
+```graphql
+{
+  attributes(first: 5) {
+    edges {
+      node {
+        name
+        slug
+        inputType
+        entityType
+        unit
+        choices(first: 5) {
+          edges {
+            node {
+              name
+              slug
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+The `attributes` field supports pagination and filtering, e.g. searching attributes by name. For each attribute, we fetch the following properties, some of which are used only with specific input types:
+
+- `name` - Name of the attribute, use it to render attribute in the frontend.
+- `slug` - A unique attribute handle that can be used to fetch an attribute or reference it in filters.
+- `inputType` - Represents the input type.
+- `entityType` - Used only with `REFERENCE` input types; represents the type of entities associated as references, e.g. `PAGE` or `PRODUCT`.
+- `unit` - Used only with `NUMERIC` input types; represents the optional measurement unit.
+- `choices` - Used only with `DROPDOWN` and `MULTISELECT`; list of predefined choices that can be used as values. The `choices` field supports pagination and filtering, e.g. searching choices by name.
+
+## Fetching assigned attributes
+
+Attributes that are assigned to an object are represented with the [`SelectedAttribute`](developer/api-reference/objects/selected-attribute.mdx) GraphQL type. Below is the example of fetching attributes assigned to a product:
+
+```graphql
+{
+  product(slug: "colored-parrot-cushion", channel: "default-channel") {
+    name
+    attributes {
+      attribute {
+        slug
+      }
+      values {
+        slug
+      }
+    }
+  }
+}
+```
+
+Similarly, you can fetch assigned attributes for `ProductVariant` and `Page` types.
+
 ## Filtering by attributes
 
-A user can use a `slug`  to filter products by attributes. The query parameters can be encoded in URL and they will be the same in all languages.
+A user can use a `slug` to filter products by attributes. The query parameters can be encoded in URL and they will be the same in all languages.
 
 An example of a [`products`](developer/api-reference/queries/products.mdx) query:
+
 ```graphql
 query {
   products(
@@ -46,7 +123,9 @@ query {
   }
 }
 ```
+
 Response:
+
 ```json
 {
   "data": {
