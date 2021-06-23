@@ -98,6 +98,7 @@ module.exports = {
       "developer/attributes",
       "developer/checkout",
       "developer/users",
+      "developer/permissions",
       "developer/metadata",
       {
         "type": "category",
