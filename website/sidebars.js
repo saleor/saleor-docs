@@ -144,6 +144,8 @@ module.exports = {
           "developer/running-saleor/s3",
           "developer/running-saleor/gcs",
           "developer/running-saleor/emails",
+          "developer/running-saleor/debugging-emails",
+          "developer/running-saleor/exposing-instance",
           "developer/running-saleor/monitoring",
           "developer/running-saleor/background-tasks"
         ]
