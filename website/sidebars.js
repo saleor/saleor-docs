@@ -115,8 +115,10 @@ module.exports = {
             "label": "Apps",
             "items": [
               "developer/extending/apps/key-concepts",
-              "developer/extending/apps/creating-and-installing-apps-from-the-command-line",
-              "developer/extending/apps/graphql-api",
+              "developer/extending/apps/manifest",
+              "developer/extending/apps/installing-apps",
+              "developer/extending/apps/asynchronous-webhooks",
+              "developer/extending/apps/synchronous-webhooks",
               "developer/extending/apps/sample-webhook-payloads"
             ]
           },

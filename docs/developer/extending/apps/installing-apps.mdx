@@ -1,11 +1,83 @@
 ---
-title: The GraphQL API
-sidebar_label: GraphQL API
+title: Installing and managing Apps
+sidebar_label: Installing and managing Apps
 ---
 
 import Chart from "@site/components/Chart";
 
-## Third-party Apps
+
+## Installation flow
+
+Apps can be installed in two ways:
+- from the command line
+- using GraphQL API
+
+The first option can be useful during app development and can only be used if you have access to the server CLI.
+The second option is a default flow which will be used during installation from Saleor Marketplace. 
+
+No matter which way of installing you choose, your app has to expose the registration endpoint. Saleor Core will contact such endpoint during registration and send tokens used for app auth. If your application return HTTP status 200, installation is marked as successful and staff users will be able to interact with it.
+
+## Installation using command line
+
+### Creating local Apps
+
+To create a local App with explicitly provided permissions, use the `create_app` command.
+
+Arguments:
+
+- `<name>`: the name of the App, required.
+- `--permission <PERM>`: assign permission `PERM` to the App. This argument can be repeated to specify multiple permissions.
+- `--activate`: immediately activate the new App.
+- `--target-url <URL>`: URL to send the API auth token to once installation is complete. [Optional]
+
+> **Example:** The following command will create an App named "Order App" that can access users and orders:
+>
+> ```shell
+> python manage.py create_app "Order App" \
+>    --permission MANAGE_USERS \
+>    --permission MANAGE_ORDERS \
+>    --target-url https://your-order-app/your-register-endpoint/
+> ```
+
+If the target URL is provided, Saleor will POST the API auth token, in the same JSON format, to the provided URL:
+
+<Chart
+  definition={`
+  sequenceDiagram
+    Saleor ->> App: POST /token/target/url/<br>{"auth_token": "new-app-token"}
+    App -->> Saleor: HTTP 200 OK
+`}
+/>
+
+
+If the target URL is not specified, the command will output an API auth token in the following format:
+
+```shell
+{"auth_token": "new-app-token"}
+```
+
+## Installing third-party Apps
+
+To install a `third-party` App based on its manifest URL, use the `install_app` command.
+
+Arguments:
+
+- `<manifest URL>`: URL of the manifest file, required.
+- `--activate`: immediately activate the new App.
+
+
+> **Example:** The following command will download given manifest and install the app:
+>
+> ```shell
+> python manage.py install_app https://www.url.to.manifest
+> ```
+
+
+App installation is confirmed by sending an API token to the specified token target URL.
+To see workflow details check - [install app workflow](developer/extending/apps/installing-apps.mdx#install-an-app).
+
+## Installation using GraphQL API
+
 ### Installing an App
 
 Installing an App with `appInstall` mutation creates an App based on its manifest URL. 
@@ -166,12 +238,9 @@ The `appDeleteFailedInstallation` mutation will delete failed installation.
 The mutation takes the following fields:
 - `id`: the id of the `AppInstallation`, required.
 
+### Local Apps
 
-
-## Local Apps
-
-
-### Creating an App
+#### Creating an App
 
 To create a new app, use the `appCreate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. Staff user can't grant app more permissions than he has for his own. The mutation takes the following input fields:
 
@@ -222,7 +291,7 @@ The response contains the `authToken` field - this is the token that the app nee
 The `authToken` field is only available in the mutation response and cannot be fetched later, except for the last four digits.
 :::
 
-### Creating authorization keys
+#### Creating authorization keys
 
 Creating an app with `appCreate` mutation creates the default authorization token (`authToken`). You can create more authorization keys with the `appTokenCreate`. The mutation takes the following fields:
 
@@ -244,7 +313,7 @@ mutation {
 }
 ```
 
-### Revoking authorization keys
+#### Revoking authorization keys
 
 To revoke an authorization key, use the `appTokenDelete`:
 
@@ -258,7 +327,9 @@ mutation {
 }
 ```
 
-## Retrieving all Apps
+## App management
+
+### Retrieving all Apps
 
 To fetch list of all apps, use `apps` query. This query is only available to staff users with the `MANAGE_APPS` permission.
 
@@ -310,7 +381,7 @@ The query returns a similar response:
 ```
 
 
-## Activating an App
+### Activating an App
 To activate an app, use the `appActivate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. 
 Staff user can't activate app which has more permissions than he has for his own. 
 
@@ -347,7 +418,7 @@ The query returns a similar response:
   }
 }
 ```
-## Deactivating an App
+### Deactivating an App
 
 To deactivate an app, use the `appDeactivate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. 
 Staff user can't deactivate an app which has more permissions than they have for their own. 
@@ -387,74 +458,6 @@ The query returns a similar response:
         "isActive": false
       },
       "appErrors": []
-    }
-  }
-}
-```
-
-## Subscribing to a webhook
-
-To subscribe to a webhook, we need to first create an app with proper permissions. Let's assume that we want to extend the order processing app that we've created in the example above. The app should receive notifications whenever new orders are created in Saleor. To do so, we'll create a new webhook using the `webhookCreate` mutation. The mutation takes the following input:
-
-- `name`: name of the webhook.
-- `targetUrl`: URL of a service that will receive webhooks requests.
-- `events`: list of the events to subscribe to.
-- `app`: ID of the app to which the webhook belongs.
-- `isActive`: whether to activate the webhook.
-
-```graphql {2-10}
-mutation {
-  webhookCreate(
-    input: {
-      name: "New orders notification"
-      targetUrl: "https://order-processing-service.example.com"
-      events: [ORDER_CREATED]
-      app: "QXBwOjk="
-      isActive: true
-      secretKey: "secret-key"
-    }
-  ) {
-    webhook {
-      id
-    }
-    webhookErrors {
-      field
-      code
-    }
-  }
-}
-```
-
-If there are no errors in the response, the webhook is successfully created. From now on, whenever a new order is placed, payload with order data will be sent to your `targetUrl`.
-
-## Updating a webhook
-
-To update a webhook (e.g. to deactivate it or change the permissions), use the `webhookUpdate` mutation. The mutation takes similar input fields as the `webhookCreate` mutation. The example below shows how to deactive a webhook:
-
-```graphql {2}
-mutation {
-  webhookUpdate(id: "V2ViaG9vazox", input: { isActive: false }) {
-    webhook {
-      isActive
-    }
-    webhookErrors {
-      field
-      code
-    }
-  }
-}
-```
-
-## Removing a webhook
-
-To fully remove a webhook, use the `webhookDelete` mutation:
-
-```graphql {2}
-mutation {
-  webhookDelete(id: "V2ViaG9vazox") {
-    webhookErrors {
-      field
-      code
     }
   }
 }
