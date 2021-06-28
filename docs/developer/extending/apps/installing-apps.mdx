@@ -16,6 +16,10 @@ The second option is a default flow which will be used during installation from 
 
 No matter which way of installing you choose, your app has to expose the registration endpoint. Saleor Core will contact such endpoint during registration and send tokens used for app auth. If your application return HTTP status 200, installation is marked as successful and staff users will be able to interact with it.
 
+## Permissions
+
+API calls for creating and managing the apps require MANAGE_APPS permission. Additionally, staff users cannot grant or retrieve permissions that they do not have access to. Staff user can't activate or deactivate app which has more permissions than he has for his own.
+
 ## Installation using command line
 
 ### Creating local Apps
@@ -80,8 +84,6 @@ To see workflow details check - [install app workflow](developer/extending/apps/
 ### Installing an App
 
 Installing an App with `appInstall` mutation creates an App based on its manifest URL. 
-
-This mutation is only available to staff users with the `MANAGE_APPS` permission. Staff user can't grant app more permissions than he has for his own.
 
 The mutation takes the following input fields:
 - `appName`: the name of the App, required.
@@ -204,7 +206,6 @@ The query returns a similar response:
 ### Retrying failed installation
 
 If the `appsInstallations` query returns App with failed status, there is a possibility to retry the installation process. 
-This mutation is only available to staff users with the `MANAGE_APPS` permission. 
 Staff user can't retry app installation if app requires more permissions than he has for his own.
 The `appRetryInstall` mutation will run the installation process for a given app.
 
@@ -231,7 +232,6 @@ Example of retrying installation of app with id `QXBwT25nb2luZ0luc3RhbGxhdGlvbjo
 
 ### Deleting failed installation
 If the `appsInstallations` query returns App with failed status, there is a possibility to delete failed installation. 
-This mutation is only available to staff users with the `MANAGE_APPS` permission.
 The `appDeleteFailedInstallation` mutation will delete failed installation.
 
 The mutation takes the following fields:
@@ -241,7 +241,7 @@ The mutation takes the following fields:
 
 #### Creating an App
 
-To create a new app, use the `appCreate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. Staff user can't grant app more permissions than he has for his own. The mutation takes the following input fields:
+To create a new app, use the `appCreate` mutation. The mutation takes the following input fields:
 
 - `name`: the name of the app.
 - `isActive`: whether to activate the app, defaults to `true`.
@@ -330,8 +330,7 @@ mutation {
 
 ### Retrieving all Apps
 
-To fetch list of all apps, use `apps` query. This query is only available to staff users with the `MANAGE_APPS` permission.
-
+To list apps, use `apps` query:
 ```graphql {2}
 {
   apps(first: 5){
@@ -381,10 +380,7 @@ The query returns a similar response:
 
 
 ### Activating an App
-To activate an app, use the `appActivate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. 
-Staff user can't activate app which has more permissions than he has for his own. 
-
-The mutation takes the following fields:
+To activate an app, use the `appActivate` mutation, which takes the following fields:
 - `id`: the id of the `App`, required.
 
 ```graphql {2}
@@ -418,9 +414,6 @@ The query returns a similar response:
 }
 ```
 ### Deactivating an App
-
-To deactivate an app, use the `appDeactivate` mutation. This mutation is only available to staff users with the `MANAGE_APPS` permission. 
-Staff user can't deactivate an app which has more permissions than they have for their own. 
 
 :::note
 Deactivating an app will disable all auth-tokens generated for an app. 
