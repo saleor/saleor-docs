@@ -9,6 +9,12 @@ import Chart from "@site/components/Chart";
 
 This guide describes how to use the Saleor GraphQL API to register a new account as a customer and do common account management operations.
 
+## Multiple channels and users
+
+Creating a new account requires specifying a channel. It is needed because you can use different communication strategies for each channel (means of contact, templates used, etc.).
+
+User accounts are not restricted to a single channel. So, for example, a user registered in the `europe` channel can still log in and place an order through the `usa` channel.
+
 ## Creating a new customer account
 
 Depending on the configuration of your Saleor backend instance, registering a new customer account may be a single-step operation or it may require email confirmation to activate the account (see [`ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL`](developer/running-saleor/configuration.mdx#enable_account_confirmation_by_email)).
@@ -34,11 +40,16 @@ To create a new customer account, use the `accountRegister` mutation. The mutati
 
 - `email`: user's email address.
 - `password`: user's password.
+- `channel`: the slug of the channel used to sign up.
 
 ```graphql {2-4}
 mutation {
   accountRegister(
-    input: { email: "customer@example.com", password: "secret" }
+    input: { 
+      email: "customer@example.com"
+      password: "secret"
+      channel: "default-channel"
+    }
   ) {
     accountErrors {
       field
@@ -96,7 +107,8 @@ The mutation takes the following input fields:
 
 - `email`: user's email address.
 - `password`: user's password.
-- `redirectUrl`: path to a view where the user should be redirected to confirm their email
+- `redirectUrl`: path to a view where the user should be redirected to confirm their email.
+- `channel`: the slug of the channel used to sign up.
 
 This example assumes that you're running the storefront locally with the default settings (running on port `3000`):
 
@@ -107,6 +119,7 @@ mutation {
       email: "customer@example.com"
       password: "secret"
       redirectUrl: "http://localhost:3000/account-confirm/"
+      channel: "default-channel"
     }
   ) {
     accountErrors {
