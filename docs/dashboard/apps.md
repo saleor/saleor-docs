@@ -32,6 +32,8 @@ In the _Create New App_ information card:
 
 Save your changes by clicking _Save_ in the footer.
 
+You can deactivate the app by clicking the _DEACTIVATE_ button on the top of the right corner of the app details page.
+
 ![](screenshots/apps-create-new.png)
 
 ## Tokens
@@ -46,9 +48,9 @@ Webhooks allow you to set up integrations which subscribe to events. They can th
 
 ### Creating a webhook
 
-The main webhook page has a standard list with options to edit and delete existing webhooks. You can also create a new webhook by clicking the _Create Webhook_ button above the list on the right. To create a webhook you first need to activate your app.
+ Once the app has been created, you can create a new webhook by clicking the _Create Webhook_ button in the _Webhooks_ section of the app details page. To create a webhook, you first need to activate your app.
 
-In the Webhook Information card:
+In the _Webhook Specific Information_ section:
 
 - Assign the name of your webhook.
 
@@ -62,7 +64,7 @@ To learn more about the webhook protocols, see the [Developer's Guide](developer
 
 ### Events
 
-In the Events card, you can assign singular events that you want to be triggered by the webhook. Alternatively, you can choose the _Register all events_ option to send notifications about all events, regardless of type. By choosing this option you will send payloads for all events currently assigned, in doing so your range will change as events are added or deleted by the Saleor team. If you want to assign a limited range of events, choose them from the menu of specific items.
+In the _Events_ card, you can assign singular events that you want to be triggered by the webhook. Alternatively, you can choose the _All events_ option to send notifications about all events, regardless of type. By choosing this option you will send payloads for all events currently assigned, in doing so your range will change as events are added or deleted by the Saleor team. If you want to assign a limited range of events, choose them from the menu of specific items.
 
 ### Activating a webhook
 

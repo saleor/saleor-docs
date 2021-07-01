@@ -177,13 +177,30 @@ Use the form to select how much of each product is being fulfilled from which wa
 
 ![Creating a fulfillment](screenshots/order-new-fulfillment.png)
 
-### How to cancel an order
+### How to cancel, return and replace an order
 
-Click the three dots in the top right corner of a Fulfilled order card. Select _Cancel&nbsp;order_ when the pop-up appears, then confirm. Items will be restocked into the Saleor system.
+#### How to cancel an order
 
-![Canceling shipment](screenshots/order-cancel.jpeg)
+![Canceling shipment](screenshots/order-cancel-return.png)
 
-For more information on Shipment configuration, see the [Shipping Methods](configuration/shipping.md).
+Click the three dots in the top right corner of a Fulfilled order card. Choose the *Cancel Order* option. Then click *Accept* when the pop-up appears. Items will be restocked into the Saleor system.
+
+![Canceling order](screenshots/order-cancel.png)
+
+#### How to return and replace an order
+Click the three dots in the top right corner of a Fulfilled order card. Choose the _Return/replace order_ option. Then select the quantity of the items that need to be returned or/and replaced. Additionally, you can refund money while returning items.
+
+The last step is to click the _Return & Replace Products_ button.
+
+If you select the return option only, the item will be found under the Returned section of the order details page. If you choose the return and replace options, the item will be under the Replaced section.
+
+After choosing the replace option a new draft order will be created to replace the item. If the original order hasn't been fulfilled, the product will be automatically restocked to your warehouse. If the order has been fulfilled and you haven't canceled the fulfillment, the item won't be restocked automatically; you will have to do that manually on the variant details page of the product.
+
+![return and replace order](screenshots/order-return-replace.png)
+
+#### A return and replace use case
+
+A customer buys a pair of new shoes. It turns out that they are too big. The customer decides to return them and asks for a smaller size. In this case, the store manager uses the Return & Replace option from the order's details page to replace the shoes.
 
 ### How to generate an invoice
 
