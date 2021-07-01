@@ -50,6 +50,7 @@ module.exports = {
               "dashboard/configuration/plugins/introduction",
               "dashboard/configuration/plugins/adyen",
               "dashboard/configuration/plugins/oidc",
+              "dashboard/configuration/plugins/stripe",
             ]
           }
         ]
