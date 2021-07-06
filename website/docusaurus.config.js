@@ -164,7 +164,7 @@ module.exports = {
           path: "../docs",
           versions: {
             current: {
-              label: '3.0 (alpha)',
+              label: '3.0 (beta)',
               path: '3.0',
             },
           },
