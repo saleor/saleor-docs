@@ -1,337 +1,10 @@
 ---
 title: Key Concepts
-sidebar_label: Key Concepts
 ---
-
-import Chart from "@site/components/Chart";
 
 ## Architecture
 
-Saleor Apps are separate applications that use GraphQL to talk to a Saleor server and that can receive webhooks with event notifications from Saleor.
-
-## Authentication
-
-Unlike regular users, Saleor Apps use a bearer token. The token is assigned at App installation time and needs to be stored in a secure manner.
-
-The authorization header for Apps has the following format:
-
-```http
-Authorization: Bearer <app-token>
-```
-
-## The App manifest
-
-The App manifest is a JSON file that describes the application, including its name, version, required permissions, and how it handles the store's data.
-
-Saleor expects the manifest to use the following format:
-
-```json
-{
-  "id": "example.app.wonderful",
-  "version": "1.0.0",
-  "name": "My Wonderful App",
-  "about": "My Wonderful App is a wonderful App for Saleor.",
-
-  "permissions": ["MANAGE_USERS", "MANAGE_STAFF"],
-
-  "appUrl": "http://localhost:3000/app",
-  "configurationUrl": "htpp://localhost:3000/configuration",
-  "tokenTargetUrl": "http://localhost:3000/register",
-
-  "dataPrivacy": "Lorem ipsum",
-  "dataPrivacyUrl": "http://localhost:3000/app-data-privacy",
-  "homepageUrl": "http://localhost:3000/homepage",
-  "supportUrl": "http://localhost:3000/support"
-}
-```
-:::note
-During an installation of third-party App, Saleor will try to send an authentication token to provided `tokenTargetUrl`. 
-For more details, see [installing an app.](developer/extending/apps/creating-and-installing-apps-from-the-command-line.mdx#installing-an-app)
-:::
-
-## Permissions
-
-| Name                                | Description                                                                                                                      |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| HANDLE_PAYMENTS                     | Handle payments                                                                                                                  |
-| MANAGE_APPS                         | Manage apps                                                                                                                      |
-| MANAGE_CHECKOUTS                    | Manage checkout                                                                                                                  |
-| MANAGE_DISCOUNTS                    | Manage discounts                                                                                                                 |
-| MANAGE_GIFT_CARD                    | Manage gift cards                                                                                                                |
-| MANAGE_MENUS                        | Manage the structure of menus                                                                                                    |
-| MANAGE_ORDERS                       | Access to orders data                                                                                                            |
-| MANAGE_PAGES                        | Manage pages                                                                                                                     |
-| MANAGE_PLUGINS                      | Manage plugins                                                                                                                   |
-| MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES | Manage product types and attributes                                                                                              |
-| MANAGE_PRODUCTS                     | Manage products                                                                                                                  |
-| MANAGE_SETTINGS                     | Manage shop settings                                                                                                             |
-| MANAGE_SHIPPING                     | Manage shipping                                                                                                                  |
-| MANAGE_STAFF                        | Access to staff users data                                                                                                       |
-| MANAGE_TRANSLATIONS                 | Manage translations                                                                                                              |
-| MANAGE_USERS                        | Access to customers data                                                                                                         |
-
-
-## Webhooks
-
-Webhooks can be used to receive data from Saleor when particular events happen. The available events are:
-
-| Name                        | Description                                                                                                                                                                                                             |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ANY_EVENTS`                | Receive webhooks when any of the available events is triggered (wildcard event).                                                                                                                                        |
-| `CHECKOUT_CREATED`          | A new checkout is created.                                                                                                                                                                                              |
-| `CHECKOUT_UPDATED`          | A checkout is updated. Also triggers for all updates related to a checkout.                                                                                                                                             |
-| `CUSTOMER_CREATED`          | A new customer account is created.                                                                                                                                                                                      |
-| `CUSTOMER_UPDATED`          | A customer account is updated.                                                                                                                                                                                          |
-| `FULFILLMENT_CREATED`       | A new fulfillment is created.                                                                                                                                                                                           |
-| `INVOICE_DELETED`           | An invoice is deleted.                                                                                                                                                                                                  |
-| `INVOICE_REQUESTED`         | An invoice for an order is requested.                                                                                                                                                                                   |
-| `INVOICE_SENT`              | An invoice is sent.                                                                                                                                                                                                     |
-| `ORDER_CANCELLED`           | An order is cancelled.                                                                                                                                                                                                  |
-| `ORDER_CONFIRMED`           | An order is confirmed (status change unconfirmed -> unfulfilled) by staff user using OrderConfirm mutation. Also triggers when user finish checkout and shop setting `automatically_confirm_all_new_orders` is enabled. |
-| `ORDER_CREATED`             | A new order is placed.                                                                                                                                                                                                  |
-| `ORDER_FULFILLED`           | An order is fulfilled.                                                                                                                                                                                                  |
-| `ORDER_FULLY_PAID`          | Payment is made and an order is fully paid.                                                                                                                                                                             |
-| `ORDER_UPDATED`             | An order is updated; triggered for all changes related to an order; covers all other order webhooks, except for `ORDER_CREATED`.                                                                                        |
-| `PAGE_CREATED`              | A new page is created.                                                                                                                                                                                                  |
-| `PAGE_DELETED`              | A page is deleted.                                                                                                                                                                                                      |
-| `PAGE_UPDATED`              | A page is updated.                                                                                                                                                                                                      |
-| `PRODUCT_CREATED`           | A new product is created.                                                                                                                                                                                               |
-| `PRODUCT_DELETED`           | A product is deleted.                                                                                                                                                                                                   |
-| `PRODUCT_UPDATED`           | A product is updated.                                                                                                                                                                                                   |
-| `PRODUCT_VARIANT_CREATED`   | A new product variant is created.                                                                                                                                                                                       |
-| `PRODUCT_VARIANT_DELETED`   | A product variant is deleted.                                                                                                                                                                                           |
-| `PRODUCT_VARIANT_UPDATED`   | A product variant is updated.                                                                                                                                                                                           |
-| `NOTIFY`                    | Trigger notification to user.                                                                                                                                                                                           |
-
-
-### Webhook protocols
-
-Webhooks support below protocols:
-
-- HTTP(S) 
-- Google Cloud Pub/Sub
-- AWS SQS
-
-#### HTTP(S)
-
-Webhook payloads are sent in POST requests.
-
-All webhooks with `targetUrl`, where the scheme is HTTP(S) will use this protocol.
-
-Saleor calculates the HMAC sha256 header - `X-Saleor-Signature` based on `secretKey` and the payload
-
-
-#### Google Cloud Pub/Sub
-
-All webhooks where scheme is `gcpubsub` will be treated as a Google Cloud Pub/Sub webhooks.
-The structure of `targetUrl` should be as below:
-```
-gcpubsub://cloud.google.com/projects/<yourproject>/topics/<yourtopic>
-```
-
-To proper use the Google Cloud Pub/Sub you need to set the [`GOOGLE_APPLICATION_CREDENTIALS` environment variable](https://cloud.google.com/pubsub/docs/quickstart-client-libraries) 
-
-
-#### AWS SQS
-
-All webhooks where scheme is `awssqs` will be treated as AWS SQS webhooks.
-
-The structure of `targetUrl` should be as below:
-```
-awssqs://<access_key_id>:<secret_access_key>@sqs.<region>.amazonaws.com/<account_id>/<queue_name>
-```
-
-:::note
-FIFO queues (ending in `.fifo`) must be configured to have `ContentBasedDeduplication` enabled.
-`MessageGroupID` will be set to current [`Site`](https://docs.djangoproject.com/en/dev/ref/contrib/sites/)'s domain name.
-:::
-
-
-### Payment webhooks
-
-Payment webhooks are synchronous webhooks that allow delegating payment handling to Saleor Apps. Synchronous means that these webhooks expect a response of a particular shape to be returned from the app to continue processing in Saleor. Payment webhooks only support HTTP(S) protocol; they are sent as POST requests with `application/json` body and expect a response of the same content type.
-
-Available payment events are:
-
-| Name                        | Description                                                                                                                                                                                                             |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PAYMENT_AUTHORIZE`         | Authorize payment                                                                                                                                                                                                       |
-| `PAYMENT_CAPTURE`           | Capture payment                                                                                                                                                                                                         |
-| `PAYMENT_CONFIRM`           | Confirm payment                                                                                                                                                                                                          |
-| `PAYMENT_LIST_GATEWAYS`     | List payment gateways                                                                                                                                                                                                   |
-| `PAYMENT_PROCESS`           | Process payment                                                                                                                                                                                                         |
-| `PAYMENT_REFUND`            | Refund payment                                                                                                                                                                                                          |
-| `PAYMENT_VOID`              | Void payment                                                                                                                                                                                                            |
-
-To create an app that reacts to payment webhook, first you need to create a regular app as described in [this dashboard manual](/dashboard/apps.md). Make sure to make the app active and grant it the `HANDLE_PAYMENTS` permission.
-
-#### Register `PAYMENT_LIST_GATEWAYS` webhook
-
-When enabling payment webhooks, first you need to subscribe to the `PAYMENT_LIST_GATEWAYS` event. This event is called whenever Saleor is listing available payment gateways, either in API or internal use. This webhook needs to return information about payment methods that are defined in your app.
-
-Below are two example cases when the `PAYMENT_LIST_GATEWAYS` event is triggered:
-
-##### Listing all available payment gateways
-
-This query returns information about available payment gateways without any additional context:
-
-```graphql
-{
-  shop {
-    availablePaymentGateways(currency: "USD", channel: "default-channel") {
-      name
-      id
-      config {
-        field
-        value
-      }
-      currencies
-    }
-  }
-}
-```
-
-The `availablePaymentGateways` field accepts the optional `currency` argument; if provided, it will be passed in the webhook payload and can be used to return payment methods that support a particular currency.
-
-##### Listing available payment gateways for a checkout
-
-You can also query for available payment gateways in the context of a specific checkout. This is useful if payment methods depend on the current checkout (e.g. user’s shipping country etc.)
-
-```graphql
-{
-  checkout(token: "checkout-uuid-token") {
-    availablePaymentGateways {
-      name
-    }
-  }
-}
-```
-
-See the example payload sent from Saleor for this event: [List payment gateways payload](/developer/extending/apps/sample-webhook-payloads.mdx#list-payment-gateways-payload).
-
-##### Expected webhook response
-
-In the response, you should return a list of supported payment methods, for example:
-
-```json
-[
-   {
-      "id":"credit-card",
-      "name":"Credit Card",
-      "currencies":[
-         "EUR"
-      ],
-      "config":[]
-   },
-   {
-      "id":"apple-pay",
-      "name":"Apple Pay",
-      "currencies":[
-         "EUR",
-         "USD"
-      ],
-      "config":[
-         {
-            "field":"apple-pay-config-field",
-            "value":"value"
-         }
-      ]
-   }
-]
-```
-
-Each item on the list should have the following fields:
-- `id` - ID of a payment method; must be unique within your app.
-- `name` - the name of the payment method.
-- `currencies` - list of currencies supported by this payment method.
-- `config` - optional configuration, such as additional payment data that may be needed to proceed with the payment in the frontend.
-
-
-#### Register webhooks for payment actions
-
-To subscribe to particular payment events (such as capture or authorization), you can have multiple webhooks with separate URLs for each action or a single webhook that handles all events (each webhook has an `X-Saleor-Event` header that contains the type of event).
-
-List of payment events: 
-
-- `PAYMENT_AUTHORIZE`
-- `PAYMENT_CAPTURE`
-- `PAYMENT_CONFIRM`
-- `PAYMENT_PROCESS`
-- `PAYMENT_REFUND`
-- `PAYMENT_VOID`
-
-:::note
-If an app has more than one webhook that listens to the same payment event, Saleor will always pick the first webhook from the list.
-:::
-
-See the example payload sent from Saleor for these payment events: [Payment actions payload](/developer/extending/apps/sample-webhook-payloads.mdx#payment-actions-payload).
-
-For payments that require confirmation (such as 3D Secure) Saleor triggers two events:
-- `PAYMENT_PROCESS` - when the `checkoutComplete` mutation is run for the first time, payment is created and waiting for the user's confirmation.
-- `PAYMENT_CONFIRM` - when the `checkoutComplete` mutation is run for the second time, payment is confirmed.
-
-For payments without a confirmation step, Saleor triggers only the `PAYMENT_PROCESS` event.
-
-##### Expected response
-
-Below is the list of fields that webhook can return in the JSON response for a payment action. All fields are optional:
-
-- `action_required` - (boolean) determines if additional action (confirmation) is required.
-- `action_required_data` - (object) additional data that may be needed to confirm the payment, for example, URL to redirect the user to the confirmation page in the frontend.
-- `amount` - (number) transaction amount; use this field only if the charged amount is different than checkout's total.
-- `customer_id` - (string) gateway's customer ID.
-- `error` - (string) error message; if provided, the transaction will be marked as failed in Saleor and payment will have to be retried. Use this field if you need to return any errors.
-- `payment_method` - (object) information about payment method chosen by the user.
-- `psp_reference` - (string) reference which can be used to find a payment object in Saleor, once the order is created.
-- `transaction_id` - (string) gateway's transaction ID.
-- `transaction_already_processed` - (boolean) use this field to mark a transaction as already processed in your gateway.
-
-The response fields match with the `GatewayResponse` data class used in Saleor to represent a response from a payment gateway; you can read more about these fields [here](/developer/extending/payment-gateways.mdx#gatewayresponse).
-
-Example response for the `PAYMENT_PROCESS` event when confirmation is required:
-
-```json
-{
-   "action_required": true,
-   "action_required_data":{"confirmation_url": "https://www.example.com/3ds-confirmation/"},
-   "customer_id":"customer-1234",
-   "payment_method": {
-     "brand":"Visa",
-     "exp_month":"01",
-     "exp_year":"2025",
-     "last_4":"4242",
-     "name":"John Doe",
-     "type":"Credit card",
-   },
-   "transaction_id":"transaction-1234"
-}
-```
-
-#### Use payment webhook's payment method in checkout
-
-If payment webhooks are configured properly, you can use their payment methods in checkout. To do this, you need to [list available payment methods for your checkout or shop](/developer/extending/apps/key-concepts.mdx#listing-all-available-payment-gateways). Each payment method from a payment webhook has an ID of this format: `app:<app-database-id>:<id-returned-by-webhook>`
-
-Example: `app:1:credit-card`
-
-To use this gateway in checkout, run `checkoutPaymentCreate` mutation and pass this ID as the `gateway` parameter:
-
-```graphql
-mutation {
-  checkoutPaymentCreate(
-    checkoutId: "example-checkout-id"
-    input: { gateway: "app:1:credit-card", amount: 22.36 }
-  ) {
-    payment {
-      id
-    }
-  }
-}
-```
-
-Running the `checkoutComplete` mutation afterward will use the payment method set above and trigger your payment webhook.
-
-See more about checkout mutations [here](developer/checkout.mdx).
-
+Saleor Apps are separate applications that use GraphQL to talk to a Saleor server and receive webhooks with event notifications from Saleor. If the event payload lacks any data essential for the app, additional data can be queried using GraphQL. In addition, Saleor's API has exposed all the actions available from the dashboard, so your app can fully extend your shop behavior.
 
 ## Type of Apps
 - `local`: create a custom App instance, assign explicitly provided permissions. 
@@ -348,3 +21,33 @@ communicate with Saleor over API and use webhooks to subscribe for the given eve
 :::note
 If you're building an App that will be published in the marketplace, then this solution is dedicated to you. 
 :::
+
+## Dashboard integration
+
+If your application needs additional configuration or presents data to the user, you can implement configuration and app view, which is being displayed as an iframe at the dashboard.
+
+## The App manifest
+
+The App manifest is a JSON file that describes the application, including its name, version, required permissions, and how it handles the store's data.
+
+To read more, see [App manifest](developer/extending/apps/manifest.mdx) section.
+
+## Permissions
+
+App access can be granularly assigned per-app basis. During installation, the user can choose which permissions are granted. Read [permissions guide](developer/permissions.mdx) to learn more.
+
+All requests from dashboard view have staff user JWT token, so additional permission checks can be done on the app side. The token contains permissions which are the common set of staff user and app permissions.
+
+## Authentication
+
+Unlike regular users, Saleor Apps use a bearer token. The token is assigned at App installation time and needs to be stored in a secure manner.
+
+The authorization header for Apps has the following format:
+
+```http
+Authorization: Bearer <app-token>
+```
+
+## Verifiyng incoming payload - the secret key
+
+To ensure that the incoming webhook payload is from the known host, Saleor adds `X-Saleor-Signature` header to the request. It's created using payload and `secretKey`, specified by the app during webhook registration. [Read more](developer/extending/apps/asynchronous-webhooks.mdx#https).

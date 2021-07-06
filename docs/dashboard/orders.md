@@ -151,8 +151,8 @@ When order confirmation is enabled, order needs to be confirmed by staff in orde
 
 After operation is finished, order status should be _unfulfilled_.
 Keep in mind that staff might change the order value before it's confirmed by manipulating the order lines. If such case happens, then after the confirmation, charged amount can be:
-- higher than order total - staff should perform [miscellaneous refund](#how-to-refund-an-order) for the amount that was overpaid.
-- lower than order total - staff should decide with the customer how to handle the outstanding balance.
+- Higher than order total - staff should perform [miscellaneous refund](#how-to-refund-an-order) for the amount that was overpaid.
+- Lower than order total - staff should decide with the customer how to handle the outstanding balance.
 
 ![Order confirm](screenshots/order-confirm.jpeg)
 
