@@ -175,7 +175,7 @@ Make sure that each product has a unique name so site users can find them easily
 :::tip Writing a good description
 Your product descriptions can be cool and fun, or just based on the facts. They represent the tone of your store. Be creative if you like, but be clear and make sure that you have all the information that a buyer needs.
 
-![Formatting product description](../screenshots/catalog-product-description.jpeg)
+![Formatting product description](../screenshots/catalog-product-description.png)
 :::
 
 #### Step 2: Define pricing
@@ -201,7 +201,7 @@ Click _Edit&nbsp;Website&nbsp;SEO_ to add a description. If you do not add uniqu
 Increase traffic to your store by adding SEO-friendly descriptions for search engines. Write interesting, short content about each product, using keywords that people will use in web searches. Create a unique description for each product so search engines do not think it is duplicated content.
 :::
 
-![Editing product SEO](../screenshots/catalog-product-seo.jpeg)
+![Editing product SEO](../screenshots/catalog-product-seo.png)
 
 #### Step 4: Organize your product
 
