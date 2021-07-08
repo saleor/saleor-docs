@@ -22,6 +22,8 @@ You can add and edit collections in the same way as categories, with a cover pho
 
 To delete individual products, click on the trash can icon next to the product and confirm removal from the collection.
 
+![Collection SEO](../screenshots/catalog-collection-new.png)
+
 ### How to manage availability
 
 Click the _MANAGE_ button in the right top corner of the availability card, and then assign a [channel](dashboard/configuration/channels.md). You can select multiple channels.
@@ -40,7 +42,7 @@ Once you have created a collection, you can easily add more products by choosing
 
 Click Edit Website SEO to add a SEO title, slug and description. If you do not add unique SEO content, details will be taken from the General Information card.
 
-![Collection availability](../screenshots/catalog-collection-seo.jpg)
+![Collection SEO](../screenshots/catalog-collection-seo.jpg)
 
 ### How to delete a collection
 
