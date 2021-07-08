@@ -24,7 +24,7 @@ Enter the category name, description, and SEO-optimized information the same way
 
 When finished, click _Save_ in the bottom right corner.
 
-![Adding category](../screenshots/catalog-category-new.jpeg)
+![Adding category](../screenshots/catalog-category-new.png)
 
 #### Step 2: Add a category photo and a subcategory
 

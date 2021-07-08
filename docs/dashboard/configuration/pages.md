@@ -18,7 +18,7 @@ These simple text pages enhance the image of your business and sometimes contain
 
 To add a page, click the _Pages_ tile in the Configuration section of the dashboard menu. Click _Create&nbsp;Page_ at the top right corner.
 
-![New page creation](../screenshots/config-page-new.jpeg)
+![New page creation](../screenshots/config-page-new.png)
 
 **2. Provide general information**
 
