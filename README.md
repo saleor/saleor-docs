@@ -236,6 +236,9 @@ To update the API reference:
 
 In dev mode, Docusaurus serves a debug page with a list of all available routes and config at http://localhost:3000/__docusaurus/debug.
 
+# Style
+
+Available visual components and text formatting can be found at http://localhost:3000/docs/3.0/style-guide.
 
 # Full Docusaurus Documentation
 
