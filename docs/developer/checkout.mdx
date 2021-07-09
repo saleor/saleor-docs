@@ -49,8 +49,8 @@ As a result, this mutation returns the following fields:
 
 The resulting [`Checkout`](developer/api-reference/objects/checkout.mdx) object contains the following fields:
 
-- `id`: a unique checkout ID, required by most checkout operations.
-- `token`: similar to `id`, a unique identifier suitable for inclusion in emails and URLs.
+- `id`: a unique checkout ID.
+- `token`: similar to `id`, a unique identifier suitable for inclusion in emails and URLs, required by most checkout operations.
 - `totalPrice`: the total price of the checkout lines and shipping costs.
 - `isShippingRequired`: denotes whether shipping is required for this checkout.
 - `availablePaymentGateways`: a list of payment gateways that are currently configured on your Saleor server and can be used to pay for the checkout. Only gateways which support the checkout currency are returned. For each gateway, API returns an ID, a name, and a config object, which for some gateways may return additional information required to process the payment in the frontend.
@@ -92,6 +92,7 @@ mutation {
   ) {
     checkout {
       id
+      token
       totalPrice {
         gross {
           amount
@@ -120,7 +121,7 @@ mutation {
 }
 ```
 
-We get a newly created checkout object for which we return the ID, total price, and list of available shipping and payment methods:
+We get a newly created checkout object for which we return the ID, token, total price, and list of available shipping and payment methods:
 
 ```json
 {
@@ -128,6 +129,7 @@ We get a newly created checkout object for which we return the ID, total price, 
     "checkoutCreate": {
       "checkout": {
         "id": "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk",
+        "token": "fd18c322-f816-406b-a71f-d9ce6a39c768",
         "totalPrice": {
           "gross": {
             "amount": 20,
@@ -176,7 +178,7 @@ Use the [`checkoutShippingMethodUpdate`](developer/api-reference/mutations/check
 
 This operation requires the following input:
 
-- `checkoutId`: the checkout ID (the `id` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
+- `token`: the checkout token (the `token` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
 - `shippingMethodId`: the shipping method ID (from the `availableShippingMethods` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
 
 In the following mutation, we assign a shipping method to the checkout using IDs from the previous example. Note that for the checkout object we want to get back the update `totalPrice` including shipping costs:
@@ -184,11 +186,11 @@ In the following mutation, we assign a shipping method to the checkout using IDs
 ```graphql {2-5}
 mutation {
   checkoutShippingMethodUpdate(
-    checkoutId: "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk"
+    token: "fd18c322-f816-406b-a71f-d9ce6a39c768"
     shippingMethodId: "U2hpcHBpbmdNZXRob2Q6MTM="
   ) {
     checkout {
-      id
+      token
       shippingMethod {
         name
       }
@@ -214,7 +216,7 @@ As a result, we get an updated checkout object with a shipping method set:
   "data": {
     "checkoutShippingMethodUpdate": {
       "checkout": {
-        "id": "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk",
+        "token": "fd18c322-f816-406b-a71f-d9ce6a39c768",
         "shippingMethod": {
           "name": "UPS"
         },
@@ -235,9 +237,11 @@ As a result, we get an updated checkout object with a shipping method set:
 
 Depending on the selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway will direct you to an external payment page. The payment gateway sends information about if the payment is successful, along with tokenized credit card payment information. This token is then used to run the [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation.
 
-The [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation requires the following input:
+The [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation requires
 
-- `checkoutId`: the checkout ID.
+- `token`: the checkout token
+
+and the following payment input:
 - `gateway`: the ID of the selected payment gateway (list of the available payment gateways can be fetched from the `Checkout.availablePaymentGateways` field). The selected gateway must support the checkout currency.
 - `token`: a client-side generated payment token (if required).
 - `amount`: the total amount of this operation.
@@ -254,7 +258,7 @@ In the example below, we're creating a new Braintree payment for our checkout:
 ```graphql {2-9}
 mutation {
   checkoutPaymentCreate(
-    checkoutId: "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk"
+    token: "fd18c322-f816-406b-a71f-d9ce6a39c768"
     input: {
       gateway: "mirumee.payments.braintree"
       token: "tokencc_bh_s3bjkh_24smq8_6c6zhq_w4v6b9_8vz"
@@ -305,7 +309,7 @@ If these are satisfied, the checkout is transformed into an order and the custom
 
 The [`checkoutComplete`](developer/api-reference/mutations/checkout-complete.mdx) mutation requires the following input:
 
-- `checkoutId`: the ID of the checkout to complete.
+- `token`: the token of the checkout to complete.
 - `storeSource`: determines whether to store the payment source for future use.
 - `redirectUrl`: URL of a view where users should be redirected to see the order details. URL in RFC 1808 format.
 - `paymentData`: Client-side generated data required to finalize the payment.
@@ -322,7 +326,7 @@ Here is the example of a complete mutation:
 ```graphql {2-4}
 mutation {
   checkoutComplete(
-    checkoutId: "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk"
+    token: "fd18c322-f816-406b-a71f-d9ce6a39c768"
   ) {
     order {
       id
@@ -358,8 +362,8 @@ Here is an example of the [`checkoutComplete`](developer/api-reference/mutations
 ```graphql {2-4}
 mutation{
   checkoutComplete(
-    checkoutId:"Q2hlY2tvdXQ6NWRiZmNmYjctMmFkYi00ZDU4LThmNTMtZjVmYjk0YjJmY2Ew",
-    paymentData:"{\"paymentMethod\": {\"type\": \"scheme\", \"encryptedCardNumber\": \"ad...\", \"encryptedExpiryMonth\": \"18...\", \"encryptedExpiryYear\": \"18$C...\", \"encryptedSecurityCode\": \"18$...\", \"holderName\": \"S. Hopper\"}}"){
+    token: "fd18c322-f816-406b-a71f-d9ce6a39c768",
+    paymentData: "{\"paymentMethod\": {\"type\": \"scheme\", \"encryptedCardNumber\": \"ad...\", \"encryptedExpiryMonth\": \"18...\", \"encryptedExpiryYear\": \"18$C...\", \"encryptedSecurityCode\": \"18$...\", \"holderName\": \"S. Hopper\"}}"){
      confirmationNeeded
      confirmationData
      order
@@ -393,8 +397,8 @@ An example of a complete mutation where the payment gateway requires additional 
 ```graphql {2-4}
 mutation{
   checkoutComplete(
-    checkoutId:"Q2hlY2tvdXQ6NWRiZmNmYjctMmFkYi00ZDU4LThmNTMtZjVmYjk0YjJmY2Ew",
-    paymentData:"{\"encryptedAdditionalAction\": \"eka...\"}"){
+    token: "fd18c322-f816-406b-a71f-d9ce6a39c768",
+    paymentData: "{\"encryptedAdditionalAction\": \"eka...\"}"){
      confirmationNeeded
      confirmationData
      order
