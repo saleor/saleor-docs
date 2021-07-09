@@ -22,7 +22,7 @@ You can add and edit collections in the same way as categories, with a cover pho
 
 To delete individual products, click on the trash can icon next to the product and confirm removal from the collection.
 
-![Collection SEO](../screenshots/catalog-collection-new.png)
+![Creating a collection](../screenshots/catalog-collection-new.png)
 
 ### How to manage availability
 
