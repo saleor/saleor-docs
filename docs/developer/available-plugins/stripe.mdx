@@ -27,21 +27,19 @@ Description of `checkoutPaymentCreate` mutation can be found [here](developer/ch
 mutation {
   checkoutPaymentCreate(
     checkoutId: "Q2hlY2tvdXQ6MWZiMmM1OGUtN2JhMy00YmY5LWI2ZDItNWY2ZWJiN2U3ZWJj"
-    input: {
-      gateway: "saleor.payments.stripe",
-      amount: 45.61
-    }
+    input: { gateway: "saleor.payments.stripe", amount: 45.61 }
   ) {
     payment {
       id
       chargeStatus
     }
-    paymentErrors {
+    errors {
       field
       message
     }
   }
 }
+
 ```
 
 ## Completing the checkout
@@ -63,16 +61,18 @@ Optionaly, `checkoutComplete` can accept additional parameters for Stripe as fie
 
 
  ```graphql
- mutation {
-  checkoutComplete(checkoutId: "Q2hlY2tvdXQ6YjBhYTUzMWItYjc3NS00MzM3LTkxNzEtYTgzOTYwYThjMmVk"){
-    order{
+mutation {
+  checkoutComplete(
+    checkoutId: "Q2hlY2tvdXQ6YjBhYTUzMWItYjc3NS00MzM3LTkxNzEtYTgzOTYwYThjMmVk"
+  ) {
+    order {
       id
       userEmail
       created
     }
     confirmationNeeded
     confirmationData
-    checkoutErrors{
+    errors {
       field
       message
       code
@@ -102,16 +102,20 @@ Steps required to finalize a payment transaction are described in [Stripe docume
 Use `paymentData.setup_future_usage` to store payment method for future payments
 
 ```graphql
-mutation{
-  checkoutComplete(checkoutId: "ID", storeSource:true, paymentData:"{\"setup_future_usage\": \"off_session\"}"){
-    order{
+mutation {
+  checkoutComplete(
+    checkoutId: "ID"
+    storeSource: true
+    paymentData: "{\"setup_future_usage\": \"off_session\"}"
+  ) {
+    order {
       id
       userEmail
       created
     }
     confirmationNeeded
     confirmationData
-    checkoutErrors{
+    errors {
       field
       message
       code
@@ -123,16 +127,20 @@ mutation{
 #### Using stored payment method
 Use `paymentData.payment_method_id` and `paymentData.off_session` to use stored payment method
 ```graphql
-mutation{
-  checkoutComplete(checkoutId: "ID", storeSource:true, paymentData:"{\"payment_method_id\": \"pm_id\", \"off_session\": false}"){
-    order{
+mutation {
+  checkoutComplete(
+    checkoutId: "ID"
+    storeSource: true
+    paymentData: "{\"payment_method_id\": \"pm_id\", \"off_session\": false}"
+  ) {
+    order {
       id
       userEmail
       created
     }
     confirmationNeeded
     confirmationData
-    checkoutErrors{
+    errors {
       field
       message
       code
@@ -144,7 +152,7 @@ mutation{
 
 
 ### Finalizing a payment
-When customer finalizes a payment. Stripe sends a webhook notification with all details 
+When the customer finalizes a payment, Stripe sends a webhook notification with all details 
 related to this payment. Saleor asynchronously receives the notification and 
 completes checkout process.
 
@@ -154,16 +162,18 @@ client-side can call  `checkoutComplete` one more time.
  Saleor confirms that the payment has success status and returns an order object.
 
  ```graphql
- mutation {
-  checkoutComplete(checkoutId: "Q2hlY2tvdXQ6YjBhYTUzMWItYjc3NS00MzM3LTkxNzEtYTgzOTYwYThjMmVk"){
-    order{
+mutation {
+  checkoutComplete(
+    checkoutId: "Q2hlY2tvdXQ6YjBhYTUzMWItYjc3NS00MzM3LTkxNzEtYTgzOTYwYThjMmVk"
+  ) {
+    order {
       id
       userEmail
       created
     }
     confirmationNeeded
     confirmationData
-    checkoutErrors{
+    errors {
       field
       message
       code
