@@ -17,7 +17,6 @@ module.exports = {
         "developer/api-reference/queries/channel",
         "developer/api-reference/queries/channels",
         "developer/api-reference/queries/checkout",
-        "developer/api-reference/queries/checkout-line",
         "developer/api-reference/queries/checkout-lines",
         "developer/api-reference/queries/checkouts",
         "developer/api-reference/queries/collection",
