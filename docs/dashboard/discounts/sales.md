@@ -58,3 +58,7 @@ Once you have chosen the products, categories or collections you want to promote
 ### Step 9: Summary
 
 Once you have set the basic parameters of your sale and saved them, the summary section on the right side of the page will show an overview of the event.
+
+### How to manage metadata in the sale setup page
+
+You can add private and public metadata for each sale in the sale setup page. Use the button _Add Field_ to add a new metadata field.

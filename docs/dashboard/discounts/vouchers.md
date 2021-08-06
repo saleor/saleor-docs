@@ -70,3 +70,7 @@ Leave the start date blank in the _Active Dates_ card if you want the offer to s
 Click on any voucher from the main list to edit it. 
 
 To remove vouchers, click the checkbox on the main list and then use the trash can icon, or enter the voucher and click _Delete_ in the footer.
+
+### How to manage metadata in the voucher setup page
+
+You can add private and public metadata for each voucher in the voucher setup page. Use the button _Add Field_ to add a new metadata field.
