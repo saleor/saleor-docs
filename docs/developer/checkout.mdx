@@ -1,15 +1,29 @@
 ---
 title: Working with Checkout
-sidebar_label: Checkout
+sidebar_label: Cart and Checkout
 ---
+
+import Chart from "@site/components/Chart";
 
 ## Introduction
 
-Below is a description of a checkout process. We assume that at this stage you have already completed the steps included in the [Getting Started](getting-started/graphql.mdx) section of this chapter and that you are familiar with the basic setup of the Saleor GraphQL API.
-
-The below process describes the key milestones in the checkout process flow in Saleor. There are also additional steps that may occur along the way; however, the purpose of this instruction is to deliver a base reference for the user to work with.
+The below process describes the key milestones in the checkout process flow in Saleor. There are also additional steps that may occur along the way; however, the purpose of this instruction is to deliver a base reference for the user to work with. We assume that at this stage, you have already completed the steps included in the [Getting Started](getting-started/graphql.mdx) section of this chapter and that you are familiar with the basic setup of the Saleor GraphQL API.
 
 The code snippets included in this section may be run in [Playground](getting-started/graphql) or your preferred HTTP client.
+
+### Why is there no cart model?
+
+Saleor has no separated object type for shopping carts and baskets. We wanted the same features—like discounts, vouchers, address-specific taxes, and shipping estimates—to be available in the cart and the checkout, so we've decided to use the same object type for both.
+Checkout provides the interface for usual cart operations like adding products or promo codes. It can also be completed in almost any order, for example, saving a billing address before adding any items. 
+
+### Glossary
+
+- **Checkout**: an object which groups all the data needed for the checkout process and creating an order.
+- **Checkout Line**: items added to the checkout with quantity data. Each added variant has a separate line.
+- **Checkout Completion**: during this step, payments are processed and stocks reserved. If requirements are met, the order is created.
+- **Payment Method**: a payment provider. E.g., Stripe, Adyen.
+- **Payments**: this object contains status and additional data about payment.
+- **Shipping Methods**: the way orders will be sent. E.g., DHL courier, postal service, self-pickup.
 
 ## Multiple channels and checkout
 
@@ -23,7 +37,7 @@ Depending on the chosen channel, the user will have access to different objects.
 
 ## Permissions
 
-If the checkout permission is assigned to the user, only this user and staff users with permission `MANAGE_CHECKOUTS` can query its data. Checkouts without assigned user can be queried modified using the token without additional permissions. 
+If the checkout permission is assigned to the user, only this user and staff users with permission `MANAGE_CHECKOUTS` can query its data. Checkouts without assigned users can be queried modified using the token without additional permissions.
 
 ## Creating a checkout session
 
@@ -129,7 +143,7 @@ We get a newly created checkout object for which we return the ID, token, total 
     "checkoutCreate": {
       "checkout": {
         "id": "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk",
-        "token": "fd18c322-f816-406b-a71f-d9ce6a39c768",
+        "token": "4b22fbc0-b095-4937-a08e-bd18d04c951a",
         "totalPrice": {
           "gross": {
             "amount": 20,
@@ -170,10 +184,311 @@ We get a newly created checkout object for which we return the ID, token, total 
 }
 ```
 
-## Selecting a shipping method
+## Managing items
 
+### Adding a product to checkout
+
+To add an item to the cart, use [`checkoutLinesAdd`](developer/api-reference/mutations/checkout-lines-add.mdx). Total prices will be updated automatically:
+
+```graphql {4}
+mutation {
+  checkoutLinesAdd(
+    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a",
+    lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0" }]
+  ) {
+    checkout {
+      lines{
+        id
+        variant{
+          name
+        }
+        quantity
+      }
+      totalPrice {
+        gross {
+          currency
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+The response contains the updated checkout object:
+```json {16-17}
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "lines": [
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1Mw=="
+            "variant": {
+              "name": "XL"
+            },
+            "quantity": 1
+          }
+        ],
+        "totalPrice": {
+          "gross": {
+            "currency": "USD",
+            "amount": 5
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+If the variant is already added to the checkout, Saleor will increase the corresponding line's quantity. Running the previous mutation twice will result in a checkout object with one line and the amount set to 2:
+```json {11}
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "lines": [
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1Mw=="
+            "variant": {
+              "name": "XL"
+            },
+            "quantity": 2
+          }
+        ],
+        "totalPrice": {
+          "gross": {
+            "currency": "USD",
+            "amount": 10
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Changing the line quantity
+
+To modify line quantity, use [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx):
+
+```graphql {4}
+mutation {
+  checkoutLinesUpdate(
+    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
+    lines: [{ quantity: 12, variantId: "UHJvZHVjdFZhcmlhbnQ6MTcy" }]
+  ){
+    checkout{
+      lines{
+        id
+        variant{
+          id
+        }
+        quantity
+      }
+    }
+    errors{
+      field
+      message
+    }
+  }
+}
+```
+
+```json {11}
+{
+  "data": {
+    "checkoutLinesUpdate": {
+      "checkout": {
+        "lines": [
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1NA==",
+            "variant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6MTcy"
+            },
+            "quantity": 12
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+If the quantity is changed to 0, API will remove this line from checkout.
+
+### Removing items from checkout
+
+Running the [checkoutLineDelete](developer/api-reference/mutations/checkout-line-delete.mdx) mutation will remove the whole line, no matter the quantity:
+
+```graphql
+mutation {
+  checkoutLineDelete(
+    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
+    lineId: "Q2hlY2tvdXRMaW5lOjI1Mw=="
+  ){
+    checkout{
+      lines{
+        id
+        variant{
+          id
+        }
+        quantity
+      }
+    }
+    errors{
+      field
+      message
+    }
+  }
+}
+```
+
+```json
+{
+  "data": {
+    "checkoutLineDelete": {
+      "checkout": {
+        "lines": []
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+## Shipping
 This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To signify whether shipping is required, use the `isShippingRequired` field in the [`Checkout`](developer/api-reference/objects/checkout.mdx) object.
 
+<Chart
+  definition={`
+  sequenceDiagram
+  Client ->> Saleor: checkoutCreate
+  alt customer exists and has default address
+    Saleor->>Saleor: Assign default shipping and billing address
+  end
+  Saleor -->> Client: Checkout
+  alt customer chenges address
+    Client ->> Saleor: new address
+    Saleor -->> Client: address set
+  end
+  Client ->> Saleor: getShippingMethods
+  Saleor -->> Client: available ShippingMethods
+  Client ->> Saleor: checkoutShippingAddressUpdate
+  Saleor -->> Client: updated Checkout
+`}
+/>
+
+### Adding address data
+
+Address can be assigned using the [`checkoutShippingAddressUpdate`](developer/api-reference/mutations/checkout-shipping-address-update.mdx) mutation:
+
+```graphql
+mutation {
+  checkoutShippingAddressUpdate(
+    billingAddress: {
+      country: PL
+      firstName: "John"
+      lastName: "Smith"
+      streetAddress1: "ul. Tęczowa 7"
+      postalCode: "53-030"
+      city: "Wroclaw"
+    }
+    token: "58f4ca17-9c6f-437b-8204-beb47bbee364"
+  ) {
+    checkout {
+      billingAddress {
+        firstName
+        lastName
+        streetAddress1
+        city
+        postalCode
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+Successful response: 
+```json
+{
+  "data": {
+    "checkoutShippingAddressUpdate": {
+      "checkout": {
+        "billingAddress": {
+          "firstName": "John",
+          "lastName": "Smith",
+          "streetAddress1": "ul. Tęczowa 7",
+          "city": "WROCLAW",
+          "postalCode": "53-030"
+        }
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+More information about address validation can be found on the [address validation](developer/address.mdx) page.
+
+#### Default address
+
+Customers with accounts can set up default addresses, which will be attached automatically during the checkout creation. More information on API reference page for [accountSetDefaultAddress](developer/api-reference/mutations/account-set-default-address.mdx).
+
+### Listing available shipping methods
+After choosing the shipping address, API can be queried for available methods in the user area:
+
+```graphql
+query {
+  checkout(token: "853ca234-b113-4021-8434-b37087d652a1"){
+    availableShippingMethods {
+      id
+      name
+      price {
+        currency
+        amount
+      }
+    }
+  }
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "checkout": {
+      "availableShippingMethods": [
+        {
+          "id": "U2hpcHBpbmdNZXRob2Q6MTY1Nw==",
+          "name": "DHL",
+          "price": {
+            "currency": "USD",
+            "amount": 10.00
+          }
+        },
+        {
+          "id": "U2hpcHBpbmdNZXRob2Q6MTM=",
+          "name": "UPS",
+          "price": {
+            "currency": "USD",
+            "amount": 8.00
+          }
+        },
+      ]
+    }
+  }
+}
+```
+
+### Selecting the shipping method
 Use the [`checkoutShippingMethodUpdate`](developer/api-reference/mutations/checkout-shipping-method-update.mdx) mutation to effectively pair the specific [`Checkout`](developer/api-reference/objects/checkout.mdx) object with the specified shipping method selected by the user.
 
 This operation requires the following input:
@@ -211,7 +526,7 @@ mutation {
 
 As a result, we get an updated checkout object with a shipping method set:
 
-```json
+```json {7}
 {
   "data": {
     "checkoutShippingMethodUpdate": {
@@ -233,19 +548,86 @@ As a result, we get an updated checkout object with a shipping method set:
 }
 ```
 
-## Selecting a payment method
+## Payment
 
-Depending on the selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway will direct you to an external payment page. The payment gateway sends information about if the payment is successful, along with tokenized credit card payment information. This token is then used to run the [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation.
+Depending on the selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway will direct you to an external payment page. The payment gateway sends information if the payment is successful, along with tokenized credit card payment information. This token is then used to run the [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation.
 
-The [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation requires
+<Chart
+  definition={`
+  sequenceDiagram
+  Client ->>+ Saleor: getPaymentMethods
+  Saleor -->>- Client: available PaymentMethods
+  Client ->>+ Saleor: checkoutPaymentCreate
+  Saleor -->>- Client: payment created
+`}
+/>
 
-- `token`: the checkout token
 
-and the following payment input:
-- `gateway`: the ID of the selected payment gateway (list of the available payment gateways can be fetched from the `Checkout.availablePaymentGateways` field). The selected gateway must support the checkout currency.
-- `token`: a client-side generated payment token (if required).
-- `amount`: the total amount of this operation.
-- `returnUrl`: URL of a storefront view where the user should be redirected after requiring additional actions. Payment with additional actions will not be finished if this field is not provided.
+### Listing available payment gateways
+
+Available payment gateways can be listed from the `Checkout.availablePaymentGateways` field. Depending on the chosen gateway, you may need additional configuration. For example, public `api_key` is used by the frontend payment library. To obtain that data, run:
+
+```graphql
+query {
+  checkout(token: "853ca234-b113-4021-8434-b37087d652a1"){
+    availablePaymentGateways {
+      id
+      name
+      config {
+        field
+        value
+      }
+    }
+  }
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "checkout": {
+      "availablePaymentGateways": [
+        {
+          "id": "mirumee.payments.stripe",
+          "name": "Stripe",
+          "config": [
+            {
+              "field": "api_key",
+              "value": "pk_test_SkWEusCNFdSgxGGmd23z7JC1FHh3uNufNuX"
+            },
+            {
+              "field": "store_customer_card",
+              "value": "false"
+            }
+          ]
+        },
+        {
+          "id": "mirumee.payments.dummy",
+          "name": "Dummy",
+          "config": [
+            {
+              "field": "store_customer_card",
+              "value": "false"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+### Creating payment
+The [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation takes the following arguments:
+
+- `token`: the checkout token (if required by payment gateway). 
+
+-  `input`: [PaymentInput](developer/api-reference/inputs/payment-input.mdx) object: 
+    - `gateway`: the ID of the selected payment gateway (list of the available payment gateways can be fetched from the `Checkout.availablePaymentGateways` field). The selected gateway must support the checkout currency.
+    - `token`: a client-side generated payment token (if required).
+    - `amount`: the total amount of this operation.
+    - `returnUrl`: URL of a storefront view where the user should be redirected after requiring additional actions. Payment with additional actions will not be finished if this field is not provided.
 
 This mutation returns the following fields:
 
@@ -295,7 +677,7 @@ As a result, we get the payment object:
 
 ## Completing the checkout
 
-The purpose of the operation is to ensure this checkout is correct. To do this, it verifies if:
+The purpose of the operation is to ensure this checkout is correct. The validation consists of checking:
 
 1. The required addresses are valid.
 
@@ -305,7 +687,19 @@ The purpose of the operation is to ensure this checkout is correct. To do this, 
 
 4. No additional actions are required by the PSP.
 
-If these are satisfied, the checkout is transformed into an order and the customer receives a confirmation email.
+If these are satisfied, the checkout is transformed into an order, and the customer receives a confirmation email.
+
+### Without additional payment action
+
+<Chart
+  definition={`
+  sequenceDiagram
+  Client ->>+ Saleor: checkoutComplete
+  Saleor ->>+ Payment Gateway: process payment
+  Payment Gateway -->>- Saleor: payment confirmed
+  Saleor -->>- Client: order data
+`}
+/>
 
 The [`checkoutComplete`](developer/api-reference/mutations/checkout-complete.mdx) mutation requires the following input:
 
@@ -391,6 +785,26 @@ A response would look like this:
   }
 }
 ```
+
+### Payment requiring additional action
+
+<Chart
+  definition={`
+  sequenceDiagram
+  Client ->>+ Saleor: checkoutComplete
+  Saleor ->>+ Payment Service Provider: process payment
+  Payment Service Provider -->>- Saleor: action needed
+  Saleor -->>- Client: action needed
+  Client ->>+ Payment Service Provider: perform confirmation
+  Payment Service Provider -->>- Client: confirmation data
+  Client ->>+ Saleor: checkoutComplete
+  Saleor ->>+ Payment Service Provider: confirm payment
+  Payment Service Provider -->>- Saleor: payment confirmed
+  Saleor -->>- Client: order data
+`}
+/>
+
+An example of additional action is 3D Secure confirmation required by payment providers.
 
 An example of a complete mutation where the payment gateway requires additional steps from the user:
 
