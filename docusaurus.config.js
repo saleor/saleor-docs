@@ -17,9 +17,9 @@ module.exports = {
     [path.resolve(__dirname, 'docusaurus2-graphql-doc-generator'),
       {
         schema: "http://localhost:8000/graphql/",
-        rootPath: "../docs/",
+        rootPath: "./docs/",
         baseURL: "developer/api-reference",
-        homepage: "../docs/developer/api-reference.mdx",
+        homepage: "./docs/developer/api-reference.mdx",
         homepageURL: "developer/api-reference",
       },
     ],
@@ -161,7 +161,7 @@ module.exports = {
         },
         docs: {
           // docs folder path relative to website dir.
-          path: "../docs",
+          path: "./docs",
           versions: {
             current: {
               label: '3.0 (beta)',
@@ -176,7 +176,7 @@ module.exports = {
             if(version==='current'){
               return `https://github.com/mirumee/saleor-docs/edit/master/docs/${docPath}`;
             }else{
-              return `https://github.com/mirumee/saleor-docs/edit/master/website/${versionDocsDirPath}/${docPath}`;
+              return `https://github.com/mirumee/saleor-docs/edit/master/${versionDocsDirPath}/${docPath}`;
             }
           },
           // sidebars file relative to website dir.

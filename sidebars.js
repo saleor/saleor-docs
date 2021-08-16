@@ -167,7 +167,7 @@ module.exports = {
         "type": "category",
         "label": "API reference",
         items: [
-          ...require("../docs/developer/api-reference/sidebar-schema.js").schemaSidebar
+          ...require("./docs/developer/api-reference/sidebar-schema.js").schemaSidebar
         ]
       },
       {
