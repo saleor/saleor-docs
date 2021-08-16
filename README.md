@@ -21,18 +21,13 @@
 node --version
 ```
 
-2. Go to `/website` directory:
-```sh
-cd website
-```
-
-3. Install project dependencies:
+2. Install project dependencies:
 
 ```sh
 npm install
 ```
 
-4. Run your dev server:
+3. Run your dev server:
 
 ```sh
 npm start
@@ -57,13 +52,13 @@ npm run serve
 ## Directory Structure
 
 - `/docs/dashboard` Current dashboard user documentation.
-- `/docs/developer` Current developer documentation.
 - `/docs/developer/api-reference` Automatically generated API reference.
-- `/website/versioned_docs` Previous versions of documentation.
-- `/website/static` Styling and other static files.
-- `/website/docusaurus2-graphql-doc-generator` GraphQL API Reference plugin code.
-- `/website/sidebars.js` Sidebar menu structure.
-- `/website/docusaurus.config.js` Docusaurus configuration file.
+- `/docs/developer` Current developer documentation.
+- `/docusaurus.config.js` Docusaurus configuration file.
+- `/docusaurus2-graphql-doc-generator` GraphQL API Reference plugin code.
+- `/sidebars.js` Sidebar menu structure.
+- `/static` Styling and other static files.
+- `/versioned_docs` Previous versions of documentation.
 
 ## Formatting
 
@@ -158,7 +153,7 @@ title: This Doc Needs To Be Edited
 My new content here..
 ```
 
-1. Refer to that doc's ID in an existing sidebar in `website/sidebar.js`:
+1. Refer to that doc's ID in an existing sidebar in `sidebar.js`:
 
 ```javascript
 // Add newly-created-doc to the Getting Started category of docs
@@ -178,9 +173,8 @@ For more information about adding new docs, click [here](https://docusaurus.io/d
 
 ## Adding items to your site's top navigation bar
 
-1. Add links to docs, custom pages or external links by editing the headerLinks field of `website/siteConfig.js`:
+1. Add links to docs, custom pages or external links by editing the headerLinks field of `siteConfig.js`:
 
-`website/siteConfig.js`
 ```javascript
 {
   headerLinks: [
@@ -206,10 +200,9 @@ For more information about the navigation bar, click [here](https://docusaurus.i
 
 ## Adding custom pages
 
-1. Docusaurus uses React components to build pages. The components are saved as .js files in `website/pages/en`:
-1. If you want your page to show up in your navigation header, you will need to update `website/siteConfig.js` to add to the `headerLinks` element:
+1. Docusaurus uses React components to build pages. The components are saved as .js files in `./pages/en`:
+1. If you want your page to show up in your navigation header, you will need to update `siteConfig.js` to add to the `headerLinks` element:
 
-`website/siteConfig.js`
 ```javascript
 {
   headerLinks: [
