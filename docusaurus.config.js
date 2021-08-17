@@ -146,12 +146,6 @@ module.exports = {
     },
   },
 
-  // Show documentation's last contributor's name.
-  // enableUpdateBy: true,
-
-  // Show documentation's last update time.
-  // enableUpdateTime: true,
-
   presets: [
     [
       "@docusaurus/preset-classic",
@@ -162,6 +156,7 @@ module.exports = {
         docs: {
           // docs folder path relative to website dir.
           path: "./docs",
+          lastVersion: "current",
           versions: {
             current: {
               label: '3.0 (beta)',
