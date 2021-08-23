@@ -44,7 +44,7 @@ function Versions() {
               <tr>
                 <th>{latestStableVersion}</th>
                 <td>
-                  <Link to={useBaseUrl("/docs/2.11/")}>Documentation</Link>
+                  <Link to={useBaseUrl(`/docs/${latestStableVersion}/`)}>Documentation</Link>
                 </td>
               </tr>
             </tbody>
