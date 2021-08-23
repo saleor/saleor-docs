@@ -23,6 +23,16 @@ module.exports = {
         homepageURL: "developer/api-reference",
       },
     ],
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        createRedirects: function (existingPath) {
+          if (existingPath.startsWith("/docs/2.11")) {
+            return existingPath.replace("/2.11", "");
+          }
+        },
+      },
+    ],
   ],
 
   webpack: {
