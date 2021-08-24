@@ -24,6 +24,12 @@ module.exports = {
       },
     ],
     [
+      // Before 3.0, last stable version of docs had no 
+      // version suffix in the URL.
+      // Since 3.0 we would like to add version number to
+      // the all URLs, so links always point to the same page. 
+      // Redirection handles legacy links posted in the
+      // community channels.
       '@docusaurus/plugin-client-redirects',
       {
         createRedirects: function (existingPath) {
