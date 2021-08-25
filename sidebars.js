@@ -119,6 +119,7 @@ module.exports = {
               "developer/extending/apps/key-concepts",
               "developer/extending/apps/manifest",
               "developer/extending/apps/installing-apps",
+              "developer/extending/apps/app-bridge",
               "developer/extending/apps/asynchronous-webhooks",
               "developer/extending/apps/synchronous-webhooks",
               "developer/extending/apps/sample-webhook-payloads"
