@@ -72,10 +72,7 @@ The resulting [`Checkout`](developer/api-reference/objects/checkout.mdx) object 
 - `isShippingRequired`: denotes whether shipping is required for this checkout.
 - `availablePaymentGateways`: a list of payment gateways that are currently configured on your Saleor server and can be used to pay for the checkout. Only gateways which support the checkout currency are returned. For each gateway, API returns an ID, a name, and a config object, which for some gateways may return additional information required to process the payment in the frontend.
 - `availableShippingMethods`: a list of available shipping methods for this checkout. If the items in the cart require shipment.
-- `availableCollectionPoints`: a list of available places of self-pickup. It is calculated based on given country and available Stocks (for local Warehouse).
-
-Please note, that selecting `collectionPoint` or `shippingMethod` is mandatory. In other words, setting `deliveryMethod` is mandatory.
-
+- `availableCollectionPoints`: a list of available places of self-pickup. It is calculated based on given country and available Stocks (for Warehouses which `clickAndCollectOption` field is not set to `DISABLED`).
 
 In addition the following fields are available on the mutation results:
 
@@ -177,12 +174,12 @@ We get a newly created checkout object for which we return the ID, token, total 
           {
             "id": "V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OQ==",
             "name": "Local Store"
-            "clickAndCollectOption": LOCAL
+            "clickAndCollectOption": "LOCAL"
           },
           {
             "id": "=V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OA==",
             "name": "Company HQ"
-            "clickAndCollectOption": ALL
+            "clickAndCollectOption": "ALL"
           }
         ],
         "availablePaymentGateways": [
@@ -513,7 +510,7 @@ Response:
             "amount": 8.00
           }
         },
-      ]
+      ],
       "availableCollectionPoints": [
         {
           "id": "V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OQ==",
@@ -540,6 +537,8 @@ This operation requires the following input:
 - `deliveryMethodId`: the shipping method ID or Warehouse ID (from the `availableShippingMethods` or `availableCollectionPoints` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
 
 In the following mutation, we assign a delivery method to the checkout using IDs from the previous example. Note that for the checkout object we want to get back the update `totalPrice` including shipping costs:
+
+Please note, that selecting `collectionPoint` or `shippingMethod` is mandatory for checkout flow. In other words, setting `deliveryMethod` is mandatory.
 
 ```graphql {2-5}
 mutation {
