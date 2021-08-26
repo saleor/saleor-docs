@@ -42,20 +42,22 @@ Available fields:
 - `isActive`: Flag which changes if the channel is available for shop customers.
 - `slug`: When using channel depending queries, the slug is used for selecting the right one (for example when requesting Product details)
 - `currencyCode`: Currency code used by the channel.
+- `defaultCountry`: Default country for the channel. Default country can be used in checkout to determine the stock quantities or calculate taxes when the country was not explicitly provided, either as a query parameter or through a shipping address.
 - `hasOrders`: Returns `true` when there are already created orders using that channel. If that's the only channel using this currency, you won't be able to remove it
 
 Request:
 ```graphql
 query {
-  query Channel($id: ID!) {
-    channel(id: "Q2hhbm5lbDo0MzM=") {
-      id
-      isActive
-      name
-      slug
-      currencyCode
-      hasOrders
+  channel(id: "Q2hhbm5lbDo3") {
+    id
+    isActive
+    name
+    slug
+    defaultCountry {
+      code
+      country
     }
+    hasOrders
   }
 }
 ```
@@ -70,7 +72,11 @@ Response:
       "isActive": false,
       "name": "Mobile",
       "slug": "mobile",
-      "currencyCode": "PLN",
+      "currencyCode": "USD",
+      "defaultCountry": {
+        "code": "US",
+        "country": "United States of America"
+      },
       "hasOrders": false
     }
   }
@@ -86,19 +92,24 @@ Request:
 mutation {
   channelCreate(
     input: {
-      "currencyCode":"PLN",
-      "name":"Mobile",
-      "slug":"mobile"
+      currencyCode: "USD"
+      defaultCountry: US
+      name: "Mobile"
+      slug: "mobile"
     }
-  ){
+  ) {
     channel {
       id
       isActive
       name
       slug
       currencyCode
+      defaultCountry {
+        code
+        country
+      }
     }
-    errors: channelErrors {
+    errors {
       code
       field
       message
@@ -117,7 +128,11 @@ Response:
         "isActive": false,
         "name": "Mobile",
         "slug": "mobile",
-        "currencyCode": "PLN"
+        "currencyCode": "USD",
+        "defaultCountry": {
+          "code": "US",
+          "country": "United States of America"
+        },
       },
       "errors": []
     }
@@ -159,13 +174,13 @@ Response:
 If you want to make the channel unavailable for customers, you can change it's status to deactivated using [`channelDeactivate`](developer/api-reference/mutations/channel-deactivate.mdx): 
 
 ```graphql
-mutation{
-   channelDeactivate(id: "Q2hhbm5lbDoxMQ=="){
+mutation {
+  channelDeactivate(id: "Q2hhbm5lbDoxMQ==") {
     channel {
       name
       isActive
     }
-    channelErrors {
+    errors {
       message
     }
   }
@@ -190,13 +205,13 @@ Response:
 And to reverse the previous operation use [`channelActivate`](developer/api-reference/mutations/channel-activate.mdx):
 
 ```graphql
-mutation{
-  channelActivate(id: "Q2hhbm5lbDoxMQ=="){
+mutation {
+  channelActivate(id: "Q2hhbm5lbDoxMQ==") {
     channel {
       name
       isActive
     }
-    channelErrors {
+    errors {
       message
     }
   }
@@ -231,8 +246,8 @@ Channels can be removed only when:
 
 ```graphql
 channelDelete(
-id: ID!
-input: ChannelDeleteInput
+  id: ID!
+  input: ChannelDeleteInput
 ): ChannelDelete
 
 input ChannelDeleteInput {
