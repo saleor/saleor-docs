@@ -23,7 +23,9 @@ Checkout provides the interface for usual cart operations like adding products o
 - **Checkout Completion**: during this step, payments are processed and stocks reserved. If requirements are met, the order is created.
 - **Payment Method**: a payment provider. E.g., Stripe, Adyen.
 - **Payments**: this object contains status and additional data about payment.
-- **Shipping Methods**: the way orders will be sent. E.g., DHL courier, postal service, self-pickup.
+- **Shipping Methods**: the way orders will be sent. E.g., DHL courier, postal service.
+- **Collection Points**: places, where orders can be self-picked.
+- **Delivery Methods**: set, which is an union of shipping methods and collection points.
 
 ## Multiple channels and checkout
 
@@ -31,6 +33,7 @@ Depending on the chosen channel, the user will have access to different objects.
 - Products and Product Variants
 - Payment Methods
 - Shipping Methods
+- Collection Points
 - Discounts
 
 [Learn more about using multiple channels](developer/channels.mdx).
@@ -68,7 +71,8 @@ The resulting [`Checkout`](developer/api-reference/objects/checkout.mdx) object 
 - `totalPrice`: the total price of the checkout lines and shipping costs.
 - `isShippingRequired`: denotes whether shipping is required for this checkout.
 - `availablePaymentGateways`: a list of payment gateways that are currently configured on your Saleor server and can be used to pay for the checkout. Only gateways which support the checkout currency are returned. For each gateway, API returns an ID, a name, and a config object, which for some gateways may return additional information required to process the payment in the frontend.
-- `availableShippingMethods`: a list of available shipping methods for this checkout. If the items in the cart require shipment, setting a shipping method is mandatory.
+- `availableShippingMethods`: a list of available shipping methods for this checkout. If the items in the cart require shipment.
+- `availableCollectionPoints`: a list of available places of self-pickup. It is calculated based on the given country and available Stocks (for Warehouses which `clickAndCollectOption` field is not set to `DISABLED`). For further Click & Collect feature explanation see [Warehouse settings](dashboard/configuration/warehouses.mdx#clickcollect-related-settings).
 
 In addition the following fields are available on the mutation results:
 
@@ -118,6 +122,11 @@ mutation {
         id
         name
       }
+      availableCollectionPoints {
+        id
+        name
+        clickAndCollectOption
+      }
       availablePaymentGateways {
         id
         name
@@ -159,6 +168,18 @@ We get a newly created checkout object for which we return the ID, token, total 
           {
             "id": "U2hpcHBpbmdNZXRob2Q6MTI=",
             "name": "DHL"
+          }
+        ],
+        "availableCollectionPoints": [
+          {
+            "id": "V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OQ==",
+            "name": "Local Store"
+            "clickAndCollectOption": "LOCAL"
+          },
+          {
+            "id": "=V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OA==",
+            "name": "Company HQ"
+            "clickAndCollectOption": "ALL"
           }
         ],
         "availablePaymentGateways": [
@@ -375,7 +396,9 @@ This step is only used if purchased items require shipping (if they are physical
     Saleor -->> Client: address set
   end
   Client ->> Saleor: getShippingMethods
+  Client ->> Saleor: getCollectionPoints
   Saleor -->> Client: available ShippingMethods
+  Saleor -->> Client: available CollectionPoints 
   Client ->> Saleor: checkoutShippingAddressUpdate
   Saleor -->> Client: updated Checkout
 `}
@@ -443,7 +466,7 @@ More information about address validation can be found on the [address validatio
 Customers with accounts can set up default addresses, which will be attached automatically during the checkout creation. More information on API reference page for [accountSetDefaultAddress](developer/api-reference/mutations/account-set-default-address.mdx).
 
 ### Listing available shipping methods
-After choosing the shipping address, API can be queried for available methods in the user area:
+After choosing the shipping address, API can be queried for available delivery methods in the user area:
 
 ```graphql
 query {
@@ -455,6 +478,11 @@ query {
         currency
         amount
       }
+    }
+    availableShippingMethods {
+      id
+      name
+      clickAndCollectOption
     }
   }
 }
@@ -482,32 +510,52 @@ Response:
             "amount": 8.00
           }
         },
+      ],
+      "availableCollectionPoints": [
+        {
+          "id": "V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OQ==",
+          "name": "Local Store",
+          "clickAndCollectOption": "LOCAL"
+        },
+        {
+          "id": "V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OA==",
+          "name": "Company HQ",
+          "clickAndCollectOption": "ALL"
+        },
       ]
     }
   }
 }
 ```
 
-### Selecting the shipping method
-Use the [`checkoutShippingMethodUpdate`](developer/api-reference/mutations/checkout-shipping-method-update.mdx) mutation to effectively pair the specific [`Checkout`](developer/api-reference/objects/checkout.mdx) object with the specified shipping method selected by the user.
+### Selecting the delivery method
+Use the [`checkoutDeliveryMethodUpdate`](developer/api-reference/mutations/checkout-delivery-method-update.mdx) mutation to effectively pair the specific [`Checkout`](developer/api-reference/objects/checkout.mdx) object with the specified delivery method selected by the user.
 
 This operation requires the following input:
 
 - `token`: the checkout token (the `token` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
-- `shippingMethodId`: the shipping method ID (from the `availableShippingMethods` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
+- `deliveryMethodId`: the shipping method ID or Warehouse ID (from the `availableShippingMethods` or `availableCollectionPoints` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
 
-In the following mutation, we assign a shipping method to the checkout using IDs from the previous example. Note that for the checkout object we want to get back the update `totalPrice` including shipping costs:
+In the following mutation, we assign a delivery method to the checkout using IDs from the previous example. Note that for the checkout object we want to get back the update `totalPrice` including shipping costs:
+
+Please note, that selecting `collectionPoint` or `shippingMethod` is mandatory for checkout flow. In other words, setting `deliveryMethod` is mandatory.
 
 ```graphql {2-5}
 mutation {
-  checkoutShippingMethodUpdate(
+  checkoutDeliveryMethodUpdate(
     token: "fd18c322-f816-406b-a71f-d9ce6a39c768"
-    shippingMethodId: "U2hpcHBpbmdNZXRob2Q6MTM="
+    deliveryMethodId: "U2hpcHBpbmdNZXRob2Q6MTM="
   ) {
     checkout {
       token
-      shippingMethod {
-        name
+      deliveryMethod {
+        __typename
+        ... on Warehouse {
+          name
+        }
+        ... on ShippingMethod {
+          name
+        }
       }
       totalPrice {
         gross {
@@ -524,15 +572,16 @@ mutation {
 }
 ```
 
-As a result, we get an updated checkout object with a shipping method set:
+As a result, we get an updated checkout object with a delivery method set:
 
 ```json {7}
 {
   "data": {
-    "checkoutShippingMethodUpdate": {
+    "checkoutDeliveryMethodUpdate": {
       "checkout": {
         "token": "fd18c322-f816-406b-a71f-d9ce6a39c768",
-        "shippingMethod": {
+        "deliveryMethod": {
+          __typename: "ShippingMethod"
           "name": "UPS"
         },
         "totalPrice": {
