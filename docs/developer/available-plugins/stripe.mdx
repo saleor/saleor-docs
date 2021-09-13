@@ -99,7 +99,18 @@ mutation {
 Steps required to finalize a payment transaction are described in [Stripe documentation](https://stripe.com/docs/payments/accept-a-payment?platform=web&ui=elements).
 
 #### Saving card in Stripe for future payments
-Use `paymentData.setup_future_usage` to store payment method for future payments
+
+:::note
+Saleor 3.1 changes the way of saving card in payment gateways.
+Instead of `checkoutComplete`, use `checkoutPaymentCreate` mutation.
+
+
+Description of the `checkoutPaymentCreate` mutation can be found [here](developer/checkout.mdx#selecting-a-payment-method).
+:::
+
+##### Saleor 3.0 (the old method)
+
+Use `paymentData.setup_future_usage` to store payment method for future payments with `checkoutComplete`
 
 ```graphql
 mutation {
@@ -119,6 +130,33 @@ mutation {
       field
       message
       code
+    }
+  }
+}
+```
+
+##### Saleor 3.1+ (the new method)
+
+Use `input.storePaymentMethod` to store payment method for future payments with `checkoutPaymentCreate`
+
+```graphql
+mutation {
+  checkoutPaymentCreate(
+    checkoutId: "ID"
+    input: {
+      gateway: "saleor.payments.stripe"
+      token: "tokencc_bh_s3bjkh_24smq8_6c6zhq_w4v6b9_8vz"
+      amount: 33.33
+      storePaymentMethod: OFF_SESSION
+    }
+  ) {
+    payment {
+      id
+      chargeStatus
+    }
+    errors {
+      field
+      message
     }
   }
 }
