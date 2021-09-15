@@ -182,5 +182,6 @@ module.exports = {
         ]
       }
     ],
-  }
+  },
+  ...require("./docs/developer/api-reference/sidebar-schema.js")
 }
