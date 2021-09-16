@@ -18,10 +18,10 @@ module.exports = {
       require.resolve("@edno/docusaurus2-graphql-doc-generator"),
       {
         schema: "https://master.staging.saleor.cloud/graphql/",
-        rootPath: "./", // docs will be generated under rootPath/baseURL
-        baseURL: "docs/developer/api-reference",
+        rootPath: "./docs", // docs will be generated under rootPath/baseURL
+        baseURL: "developer/api-reference",
         homepage: "./docs/api-reference.mdx",
-        linkRoot: "/",
+        linkRoot: "../../../",
       },
     ],
     [
