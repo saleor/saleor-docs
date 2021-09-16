@@ -14,13 +14,14 @@ module.exports = {
   favicon: "img/saleor-icon.png",
 
   plugins: [
-    [path.resolve(__dirname, 'docusaurus2-graphql-doc-generator'),
+    [
+      require.resolve("@edno/docusaurus2-graphql-doc-generator"),
       {
-        schema: "http://localhost:8000/graphql/",
-        rootPath: "./docs/",
+        schema: "https://master.staging.saleor.cloud/graphql/",
+        rootPath: "./docs", // docs will be generated under rootPath/baseURL
         baseURL: "developer/api-reference",
-        homepage: "./docs/developer/api-reference.mdx",
-        homepageURL: "developer/api-reference",
+        homepage: "./docs/api-reference.mdx",
+        linkRoot: "../../../",
       },
     ],
     [
