@@ -33,11 +33,26 @@ Webhook payloads are sent in POST requests.
 
 All webhooks with `targetUrl`, where the scheme is HTTP(S) will use this protocol.
 
-Saleor calculates the HMAC sha256 header - `X-Saleor-Signature` based on `secretKey` and the payload.
+Saleor calculates the HMAC sha256 header - `Saleor-Signature` based on `secretKey` and the payload.
 
 If a successful response has not been received in the case of temporary service unavailability, it will retry its request after a delay in time.
 
 While HTTPS webhooks are a familiar concept and may seem easy to implement, make sure your endpoint can handle the same level of concurrency that you expect from the monitored events. Saleor Cloud will do its best to deliver webhooks in real-time, which could mean more traffic than your servers can handle. Because of this and the possibility of losing events when the destination server is down, we recommend using a queue like Google Cloud Pub/Sub or AWS SQS (see below).
+
+### Headers
+During HTTPS requests there are several headers included:
+- Saleor-Event - defines event which is assigned to the webhook
+- Saleor-Domain - defines saleor domain
+- Saleor-Signature - defines signature to indicate that the request is authorized
+
+:::warning
+In Saleor 4.0 all `X-Saleor-` headers will be removed and replaced with headers without `X-` prefix.
+
+Deprecated headers list:
+- X-Saleor-Event -> Saleor-Event
+- X-Saleor-Domain -> Saleor-Domain
+- X-Saleor-Signature -> Saleor-Signature
+:::
 
 ### Google Cloud Pub/Sub
 
