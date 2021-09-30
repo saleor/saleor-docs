@@ -18,9 +18,7 @@ The next step is to choose Stripe as a payment gateway that we want to use to pr
 For the Stripe payment gateway, we need to provide: `checkoutId`, and `input` with `gateway` and `amount`.
 
 :::note
-
 Description of the `checkoutPaymentCreate` mutation can be found [here](developer/checkout.mdx#selecting-a-payment-method).
-
 :::
 
 ```graphql
@@ -49,7 +47,7 @@ we can call the `checkoutComplete` mutation.  The first call of `checkoutComplet
 
 Optionaly, `checkoutComplete` can accept additional parameters for Stripe as fields in `paymentData` input:
 
-- `paymentData.setup_future_usage` - Store payment method in Stripe for [future usage](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-setup_future_usage).
+- `paymentData.setup_future_usage` - Store payment method in Stripe for [future usage](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-setup_future_usage). **DEPRECATED**: This field will be removed in Saleor 4.0.
 - `paymentData.off_session` - When [off_session](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-off_session) is set to True, [confirm](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-confirm)=True will be also attached to request.
 - `paymentData.payment_method_id` - [ID of the payment method](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-payment_method) which should be used for this payment.
 - `paymentData.payment_method_type` - [List of payment method types that should be supported by this payment](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-payment_method_types). Default: `["card"]`
@@ -98,58 +96,6 @@ mutation {
 `client_secret` is required to process a customer payment.
 Steps required to finalize a payment transaction are described in [Stripe documentation](https://stripe.com/docs/payments/accept-a-payment?platform=web&ui=elements).
 
-#### Saving card in Stripe for future payments
-Use `paymentData.setup_future_usage` to store payment method for future payments
-
-```graphql
-mutation {
-  checkoutComplete(
-    checkoutId: "ID"
-    storeSource: true
-    paymentData: "{\"setup_future_usage\": \"off_session\"}"
-  ) {
-    order {
-      id
-      userEmail
-      created
-    }
-    confirmationNeeded
-    confirmationData
-    errors {
-      field
-      message
-      code
-    }
-  }
-}
-```
-
-#### Using stored payment method
-Use `paymentData.payment_method_id` and `paymentData.off_session` to use stored payment method
-```graphql
-mutation {
-  checkoutComplete(
-    checkoutId: "ID"
-    storeSource: true
-    paymentData: "{\"payment_method_id\": \"pm_id\", \"off_session\": false}"
-  ) {
-    order {
-      id
-      userEmail
-      created
-    }
-    confirmationNeeded
-    confirmationData
-    errors {
-      field
-      message
-      code
-    }
-  }
-}
-```
-
-
 
 ### Finalizing a payment
 When the customer finalizes a payment, Stripe sends a webhook notification with all details 
@@ -195,6 +141,96 @@ As a result we get order object.
       "confirmationNeeded": false,
       "confirmationData": "{}",
       "checkoutErrors": []
+    }
+  }
+}
+```
+
+## Saving card in Stripe for future payments
+
+### Saleor 3.0 (deprecated)
+
+Use `paymentData.setup_future_usage` to store payment method for future payments with `checkoutComplete`
+
+```graphql
+mutation {
+  checkoutComplete(
+    checkoutId: "ID"
+    storeSource: true
+    paymentData: "{\"setup_future_usage\": \"off_session\"}"
+  ) {
+    order {
+      id
+      userEmail
+      created
+    }
+    confirmationNeeded
+    confirmationData
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+### Saleor 3.1+
+
+Use `input.storePaymentMethod` to store payment method for future payments with `checkoutPaymentCreate`.
+Metadata in `input.metadata` will be stored with the payment
+
+```graphql
+mutation {
+  checkoutPaymentCreate(
+    checkoutId: "ID"
+    input: {
+      gateway: "saleor.payments.stripe"
+      token: "tokencc_bh_s3bjkh_24smq8_6c6zhq_w4v6b9_8vz"
+      amount: 33.33
+      storePaymentMethod: OFF_SESSION
+      metadata: [
+        {
+          key: "key"
+          value: "value"
+        }
+      ]
+    }
+  ) {
+    payment {
+      id
+      chargeStatus
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+## Using stored payment method
+Use `paymentData.payment_method_id` and `paymentData.off_session` to use stored payment method.
+You can retrieve
+
+```graphql
+mutation {
+  checkoutComplete(
+    checkoutId: "ID"
+    storeSource: true
+    paymentData: "{\"payment_method_id\": \"pm_id\", \"off_session\": false}"
+  ) {
+    order {
+      id
+      userEmail
+      created
+    }
+    confirmationNeeded
+    confirmationData
+    errors {
+      field
+      message
+      code
     }
   }
 }

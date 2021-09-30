@@ -677,6 +677,8 @@ The [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment
     - `token`: a client-side generated payment token (if required).
     - `amount`: the total amount of this operation.
     - `returnUrl`: URL of a storefront view where the user should be redirected after requiring additional actions. Payment with additional actions will not be finished if this field is not provided.
+    - `storePaymentMethod`: the type of payment storage in a gateway. [StorePaymentMethod](developer/api-reference/enums/store-payment-method-enum.mdx) value. If not provided, defaults to `NONE` (added in Saleor 3.1).
+    - `metadata`: a list of [MetadataInput](developer/api-reference/inputs/metadata-input.mdx) (added in Saleor 3.1).
 
 This mutation returns the following fields:
 
@@ -686,7 +688,7 @@ This mutation returns the following fields:
 
 In the example below, we're creating a new Braintree payment for our checkout:
 
-```graphql {2-9}
+```graphql {2-15}
 mutation {
   checkoutPaymentCreate(
     token: "fd18c322-f816-406b-a71f-d9ce6a39c768"
@@ -694,11 +696,22 @@ mutation {
       gateway: "mirumee.payments.braintree"
       token: "tokencc_bh_s3bjkh_24smq8_6c6zhq_w4v6b9_8vz"
       amount: 25.99
+      storePaymentMethod: ON_SESSION
+      metadata: [
+        {
+          key: "user_id"
+          value: "#1234"
+        }
+      ]
     }
   ) {
     payment {
       id
       chargeStatus
+      metadata {
+        key
+        value
+      }
     }
     paymentErrors {
       field
@@ -716,7 +729,13 @@ As a result, we get the payment object:
     "checkoutPaymentCreate": {
       "payment": {
         "id": "UGF5bWVudDox",
-        "chargeStatus": "NOT_CHARGED"
+        "chargeStatus": "NOT_CHARGED",
+        "metadata": [
+          {
+            "key": "user_id",
+            "value": "#1234"
+          }
+        ]
       },
       "checkoutErrors": []
     }
@@ -753,7 +772,6 @@ If these are satisfied, the checkout is transformed into an order, and the custo
 The [`checkoutComplete`](developer/api-reference/mutations/checkout-complete.mdx) mutation requires the following input:
 
 - `token`: the token of the checkout to complete.
-- `storeSource`: determines whether to store the payment source for future use.
 - `redirectUrl`: URL of a view where users should be redirected to see the order details. URL in RFC 1808 format.
 - `paymentData`: Client-side generated data required to finalize the payment.
 
@@ -802,11 +820,12 @@ A successful response would look like this:
 
 Here is an example of the [`checkoutComplete`](developer/api-reference/mutations/checkout-complete.mdx) mutation where the payment gateway requires additional data to finalize the payment using the Adyen payment gateway:
 
-```graphql {2-4}
+```graphql {2-5}
 mutation{
   checkoutComplete(
     token: "fd18c322-f816-406b-a71f-d9ce6a39c768",
-    paymentData: "{\"paymentMethod\": {\"type\": \"scheme\", \"encryptedCardNumber\": \"ad...\", \"encryptedExpiryMonth\": \"18...\", \"encryptedExpiryYear\": \"18$C...\", \"encryptedSecurityCode\": \"18$...\", \"holderName\": \"S. Hopper\"}}"){
+    paymentData: "{\"paymentMethod\": {\"type\": \"scheme\", \"encryptedCardNumber\": \"ad...\", \"encryptedExpiryMonth\": \"18...\", \"encryptedExpiryYear\": \"18$C...\", \"encryptedSecurityCode\": \"18$...\", \"holderName\": \"S. Hopper\"}}"
+){
      confirmationNeeded
      confirmationData
      order
@@ -857,11 +876,12 @@ An example of additional action is 3D Secure confirmation required by payment pr
 
 An example of a complete mutation where the payment gateway requires additional steps from the user:
 
-```graphql {2-4}
+```graphql {2-5}
 mutation{
   checkoutComplete(
     token: "fd18c322-f816-406b-a71f-d9ce6a39c768",
-    paymentData: "{\"encryptedAdditionalAction\": \"eka...\"}"){
+    paymentData: "{\"encryptedAdditionalAction\": \"eka...\"}"
+){
      confirmationNeeded
      confirmationData
      order
