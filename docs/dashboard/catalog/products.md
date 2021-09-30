@@ -174,6 +174,13 @@ Make sure that each product has a unique name so site users can find them easily
 
 :::tip Writing a good description
 Your product descriptions can be cool and fun, or just based on the facts. They represent the tone of your store. Be creative if you like, but be clear and make sure that you have all the information that a buyer needs.
+:::
+
+:::tip How to use the CMS editor
+In the description tab, click the + button to open the CMS editor. You can edit your description by adding a heading, text, list and quote.
+
+When you click the button with four dots on the right side of the description tab, you will be able to edit, move up, move down or delete a tuned part of the description.
+:::
 
 ![Formatting product description](../screenshots/catalog-product-description.png)
 :::

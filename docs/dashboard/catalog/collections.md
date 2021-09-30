@@ -22,6 +22,12 @@ You can add and edit collections in the same way as categories, with a cover pho
 
 To delete individual products, click on the trash can icon next to the product and confirm removal from the collection.
 
+:::tip How to use the CMS editor
+In the description tab, click the + button to open the CMS editor. You can edit your description by adding a heading, text, list and quote.
+
+When you click the button with four dots on the right side of the description tab, you will be able to edit, move up, move down or delete a tuned part of the description.
+:::
+
 ![Creating a collection](../screenshots/catalog-collection-new.png)
 
 ### How to manage availability

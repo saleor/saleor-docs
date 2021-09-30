@@ -24,6 +24,12 @@ Enter the category name, description, and SEO-optimized information the same way
 
 When finished, click _Save_ in the bottom right corner.
 
+:::tip How to use the CMS editor
+In the description tab, click the + button to open the CMS editor. You can edit your description by adding a heading, text, list and quote.
+
+When you click the button with four dots on the right side of the description tab, you will be able to edit, move up, move down or delete a tuned part of the description.
+:::
+
 ![Adding category](../screenshots/catalog-category-new.png)
 
 #### Step 2: Add a category photo and a subcategory
