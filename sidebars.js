@@ -138,6 +138,7 @@ module.exports = {
           }
         ]
       },
+      "developer/apollo-federation",
       {
         "type": "category",
         "label": "Running Saleor",
