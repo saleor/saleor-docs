@@ -50,7 +50,7 @@ All commands need to be performed in either PowerShell or a Command Shell.
 ### 1. Clone the repository (replace the URL with your own fork where needed)
 
 ```shell-session
-git clone https://github.com/mirumee/saleor.git
+git clone https://github.com/saleor/saleor.git
 ```
 
 ### 2. Enter the directory

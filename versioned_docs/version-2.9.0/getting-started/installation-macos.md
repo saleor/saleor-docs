@@ -64,7 +64,7 @@ Once you have installed or updated the pre-requisite software, you are ready for
 ### 1. Clone the repository (or use your own fork)
 
 ```shell-session
-git clone https://github.com/mirumee/saleor.git
+git clone https://github.com/saleor/saleor.git
 ```
 
 ### 2. Enter the directory

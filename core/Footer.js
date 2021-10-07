@@ -132,7 +132,7 @@ class Footer extends React.Component {
               </a>
               <a
                 className="github-icon"
-                href="https://github.com/mirumee/saleor"
+                href="https://github.com/saleor/saleor"
                 target="_blank"
               >
                 <img
@@ -253,10 +253,10 @@ class Footer extends React.Component {
           </div> */}
           <div className="dosc-footer-copyrights">
             <div className="copyrights">
-              <span>{`Copyright © 2009 - ${new Date().getFullYear()}`}</span>
+              <span>{`Copyright © 2018 - ${new Date().getFullYear()}`}</span>
               <span>
-                <a href="https://mirumee.com" target="_blank">
-                  Mirumee Software
+                <a href="https://saleor.io" target="_blank">
+                  Saleor Commerce
                 </a>
               </span>
             </div>

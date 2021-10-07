@@ -2,9 +2,9 @@
 
 - https://docs.saleor.io
 - Project homepage: https://saleor.io
-- Saleor Core source code: https://github.com/mirumee/saleor
-- Saleor Dashboard source code: https://github.com/mirumee/saleor-dashboard
-- Saleor Storefront source code: https://github.com/mirumee/saleor-storefront
+- Saleor Core source code: https://github.com/saleor/saleor
+- Saleor Dashboard source code: https://github.com/saleor/saleor-dashboard
+- Saleor Storefront source code: https://github.com/saleor/saleor-storefront
 
 # What's In This Document
 

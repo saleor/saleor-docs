@@ -9,7 +9,7 @@ module.exports = {
 
   // Used for publishing and more
   projectName: "saleor-docs",
-  organizationName: "mirumee",
+  organizationName: "saleor",
 
   favicon: "img/saleor-icon.png",
 
@@ -120,7 +120,7 @@ module.exports = {
           title: "Community",
           items: [
             {
-              href: "https://github.com/mirumee/saleor/discussions",
+              href: "https://github.com/saleor/saleor/discussions",
               label: "GitHub Discussions",
             },
             {
@@ -137,7 +137,7 @@ module.exports = {
               label: "Blog",
             },
             {
-              href: "https://github.com/mirumee/saleor/",
+              href: "https://github.com/saleor/saleor/",
               label: "GitHub",
             },
             {
@@ -186,9 +186,9 @@ module.exports = {
             docPath,
           }) {
             if(version==='current'){
-              return `https://github.com/mirumee/saleor-docs/edit/master/docs/${docPath}`;
+              return `https://github.com/saleor/saleor-docs/edit/master/docs/${docPath}`;
             }else{
-              return `https://github.com/mirumee/saleor-docs/edit/master/${versionDocsDirPath}/${docPath}`;
+              return `https://github.com/saleor/saleor-docs/edit/master/${versionDocsDirPath}/${docPath}`;
             }
           },
           // sidebars file relative to website dir.

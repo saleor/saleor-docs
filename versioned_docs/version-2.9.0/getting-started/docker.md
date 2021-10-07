@@ -31,16 +31,16 @@ Additionally, if you wish to have the compiled email templates mounted, also rem
 
 ## How to use Docker
 
-**1. Clone the [Saleor Platform](https://github.com/mirumee/saleor-platform) repository**
+**1. Clone the [Saleor Platform](https://github.com/saleor/saleor-platform) repository**
 
 ```shell-session
-git clone git@github.com:mirumee/saleor-platform.git --recursive --jobs 3
+git clone git@github.com:saleor/saleor-platform.git --recursive --jobs 3
 ```
 
 The repo includes:
-* [Saleor Core (API)](https://github.com/mirumee/saleor)
-* [Saleor Dashboard](https://github.com/mirumee/saleor-dashboard)
-* [Saleor Storefront](https://github.com/mirumee/saleor-storefront)
+* [Saleor Core (API)](https://github.com/saleor/saleor)
+* [Saleor Dashboard](https://github.com/saleor/saleor-dashboard)
+* [Saleor Storefront](https://github.com/saleor/saleor-storefront)
 
 :::note
 To successfully clone the repo using SSH, make sure to add the SSH key to your ssh-agent (refer to this [guide](https://help.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh) for more information).
@@ -49,7 +49,7 @@ Start the SSH agent: `eval $(ssh-agent -s)`
 
 Add the key: `ssh-add /path/to/private/key`  
 
-Clone the repo: `git clone git@github.com:mirumee/saleor-platform.git --recursive --jobs 3`
+Clone the repo: `git clone git@github.com:saleor/saleor-platform.git --recursive --jobs 3`
 :::
 
 **2. Setup shared folders to enable live code reloading. Without this, Docker Compose will not start:**
@@ -103,7 +103,7 @@ By default, the application starts in a debug mode and is configured to listen o
 
 
 If you're using Docker Toolbox, you must use the IP of your default machine instead of localhost. 
-Run `docker-machine url` to get the IP address. Then modify `ALLOWED_HOSTS` in [settings.py](https://github.com/mirumee/saleor/blob/master/saleor/settings.py) to allow the new ip to connect to the saleor api by adding a `*` like so: _("ALLOWED_HOSTS", "localhost,127.0.0.1,`*`"))_
+Run `docker-machine url` to get the IP address. Then modify `ALLOWED_HOSTS` in [settings.py](https://github.com/saleor/saleor/blob/master/saleor/settings.py) to allow the new ip to connect to the saleor api by adding a `*` like so: _("ALLOWED_HOSTS", "localhost,127.0.0.1,`*`"))_
 
 :::note
 Both storefront and dashboard are quite big frontend projects and it might take up to few minutes for them to compile depending on your CPU. If nothing shows up on port 3000 or 9000 wait until Compiled successfully shows in the console output.
