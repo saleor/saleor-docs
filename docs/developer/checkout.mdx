@@ -14,7 +14,7 @@ The code snippets included in this section may be run in [Playground](getting-st
 ### Why is there no cart model?
 
 Saleor has no separated object type for shopping carts and baskets. We wanted the same features—like discounts, vouchers, address-specific taxes, and shipping estimates—to be available in the cart and the checkout, so we've decided to use the same object type for both.
-Checkout provides the interface for usual cart operations like adding products or promo codes. It can also be completed in almost any order, for example, saving a billing address before adding any items. 
+Checkout provides the interface for usual cart operations like adding products or promo codes. It can also be completed in almost any order, for example, saving a billing address before adding any items.
 
 ### Glossary
 
@@ -30,6 +30,7 @@ Checkout provides the interface for usual cart operations like adding products o
 ## Multiple channels and checkout
 
 Depending on the chosen channel, the user will have access to different objects. This will impact available:
+
 - Products and Product Variants
 - Payment Methods
 - Shipping Methods
@@ -50,7 +51,7 @@ A [`Checkout`](developer/api-reference/objects/checkout.mdx) object can be creat
 - If you use the [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation including the authentication token, this checkout is assigned to the user who is authenticated by this token. For more information on how to authenticate with our API, see the [Authentication](users.mdx#authentication) topic.
 
 - If no authentication token is provided, the checkout is created for an anonymous user, and an email address is used to identify such a [`Checkout`](developer/api-reference/objects/checkout.mdx) object, linking it with the anonymous user. In this case, an email is required to create the checkout.
-:::
+  :::
 
 To create a [`Checkout`](developer/api-reference/objects/checkout.mdx) object, use the [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation.
 
@@ -85,7 +86,7 @@ The following example shows how the [`checkoutCreate`](developer/api-reference/m
 mutation {
   checkoutCreate(
     input: {
-      channel: "default-channel",
+      channel: "default-channel"
       email: "customer@example.com"
       lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjk3" }]
       shippingAddress: {
@@ -214,13 +215,13 @@ To add an item to the cart, use [`checkoutLinesAdd`](developer/api-reference/mut
 ```graphql {4}
 mutation {
   checkoutLinesAdd(
-    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a",
+    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
     lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0" }]
   ) {
     checkout {
-      lines{
+      lines {
         id
-        variant{
+        variant {
           name
         }
         quantity
@@ -237,6 +238,7 @@ mutation {
 ```
 
 The response contains the updated checkout object:
+
 ```json {16-17}
 {
   "data": {
@@ -264,6 +266,7 @@ The response contains the updated checkout object:
 ```
 
 If the variant is already added to the checkout, Saleor will increase the corresponding line's quantity. Running the previous mutation twice will result in a checkout object with one line and the amount set to 2:
+
 ```json {11}
 {
   "data": {
@@ -299,17 +302,17 @@ mutation {
   checkoutLinesUpdate(
     token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
     lines: [{ quantity: 12, variantId: "UHJvZHVjdFZhcmlhbnQ6MTcy" }]
-  ){
-    checkout{
-      lines{
+  ) {
+    checkout {
+      lines {
         id
-        variant{
+        variant {
           id
         }
         quantity
       }
     }
-    errors{
+    errors {
       field
       message
     }
@@ -349,17 +352,17 @@ mutation {
   checkoutLineDelete(
     token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
     lineId: "Q2hlY2tvdXRMaW5lOjI1Mw=="
-  ){
-    checkout{
-      lines{
+  ) {
+    checkout {
+      lines {
         id
-        variant{
+        variant {
           id
         }
         quantity
       }
     }
-    errors{
+    errors {
       field
       message
     }
@@ -381,6 +384,7 @@ mutation {
 ```
 
 ## Shipping
+
 This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To signify whether shipping is required, use the `isShippingRequired` field in the [`Checkout`](developer/api-reference/objects/checkout.mdx) object.
 
 <Chart
@@ -439,7 +443,8 @@ mutation {
 }
 ```
 
-Successful response: 
+Successful response:
+
 ```json
 {
   "data": {
@@ -466,11 +471,12 @@ More information about address validation can be found on the [address validatio
 Customers with accounts can set up default addresses, which will be attached automatically during the checkout creation. More information on API reference page for [accountSetDefaultAddress](developer/api-reference/mutations/account-set-default-address.mdx).
 
 ### Listing available shipping methods
+
 After choosing the shipping address, API can be queried for available delivery methods in the user area:
 
 ```graphql
 query {
-  checkout(token: "853ca234-b113-4021-8434-b37087d652a1"){
+  checkout(token: "853ca234-b113-4021-8434-b37087d652a1") {
     availableShippingMethods {
       id
       name
@@ -489,6 +495,7 @@ query {
 ```
 
 Response:
+
 ```json
 {
   "data": {
@@ -499,7 +506,7 @@ Response:
           "name": "DHL",
           "price": {
             "currency": "USD",
-            "amount": 10.00
+            "amount": 10.0
           }
         },
         {
@@ -507,9 +514,9 @@ Response:
           "name": "UPS",
           "price": {
             "currency": "USD",
-            "amount": 8.00
+            "amount": 8.0
           }
-        },
+        }
       ],
       "availableCollectionPoints": [
         {
@@ -521,7 +528,7 @@ Response:
           "id": "V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OA==",
           "name": "Company HQ",
           "clickAndCollectOption": "ALL"
-        },
+        }
       ]
     }
   }
@@ -529,6 +536,7 @@ Response:
 ```
 
 ### Selecting the delivery method
+
 Use the [`checkoutDeliveryMethodUpdate`](developer/api-reference/mutations/checkout-delivery-method-update.mdx) mutation to effectively pair the specific [`Checkout`](developer/api-reference/objects/checkout.mdx) object with the specified delivery method selected by the user.
 
 This operation requires the following input:
@@ -611,14 +619,13 @@ Depending on the selected payment gateway, you will either use the JavaScript fo
 `}
 />
 
-
 ### Listing available payment gateways
 
 Available payment gateways can be listed from the `Checkout.availablePaymentGateways` field. Depending on the chosen gateway, you may need additional configuration. For example, public `api_key` is used by the frontend payment library. To obtain that data, run:
 
 ```graphql
 query {
-  checkout(token: "853ca234-b113-4021-8434-b37087d652a1"){
+  checkout(token: "853ca234-b113-4021-8434-b37087d652a1") {
     availablePaymentGateways {
       id
       name
@@ -632,6 +639,7 @@ query {
 ```
 
 Response:
+
 ```json
 {
   "data": {
@@ -668,23 +676,34 @@ Response:
 ```
 
 ### Creating payment
+
 The [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation takes the following arguments:
 
-- `token`: the checkout token (if required by payment gateway). 
-
--  `input`: [PaymentInput](developer/api-reference/inputs/payment-input.mdx) object: 
-    - `gateway`: the ID of the selected payment gateway (list of the available payment gateways can be fetched from the `Checkout.availablePaymentGateways` field). The selected gateway must support the checkout currency.
-    - `token`: a client-side generated payment token (if required).
-    - `amount`: the total amount of this operation.
-    - `returnUrl`: URL of a storefront view where the user should be redirected after requiring additional actions. Payment with additional actions will not be finished if this field is not provided.
-    - `storePaymentMethod`: the type of payment storage in a gateway. [StorePaymentMethod](developer/api-reference/enums/store-payment-method-enum.mdx) value. If not provided, defaults to `NONE` (added in Saleor 3.1).
-    - `metadata`: a list of [MetadataInput](developer/api-reference/inputs/metadata-input.mdx) (added in Saleor 3.1).
+- `token`: the checkout token (if required by payment gateway).
+- `input`: [PaymentInput](developer/api-reference/inputs/payment-input.mdx) object:
+  - `gateway`: the ID of the selected payment gateway (list of the available payment gateways can be fetched from the `Checkout.availablePaymentGateways` field). The selected gateway must support the checkout currency.
+  - `token`: a client-side generated payment token (if required).
+  - `amount`: the total amount of this operation.
+  - `returnUrl`: URL of a storefront view where the user should be redirected after requiring additional actions. Payment with additional actions will not be finished if this field is not provided.
+  - `partial`: when set to True, multiple payments can be attached to a single checkout. Creating a payment with partial=False will cancel all previous payments.
+  - `storePaymentMethod`: the type of payment storage in a gateway. [StorePaymentMethod](developer/api-reference/enums/store-payment-method-enum.mdx) value. If not provided, defaults to `NONE` (added in Saleor 3.1).
+  - `metadata`: a list of [MetadataInput](developer/api-reference/inputs/metadata-input.mdx) (added in Saleor 3.1).
 
 This mutation returns the following fields:
 
 - `checkout`: the updated checkout object.
 - `payment`: the newly created payment object.
 - `checkoutErrors`: a list of errors that occurred during mutation execution.
+
+There are two kind of payments:
+
+- `Full payments`: only one payment per checkout is needed and it must cover the whole amount. The argument `partial` must be `False`.
+- `Partial payments`: multiple payments are allowed per checkout, each can cover a fraction of the total amount. All payments together must cover the total amount. The argument `partial` must be `True`.
+
+Here is a couple of notes related to the flow:
+
+- If some of the partial payments are already processed and then subsequentely was created a full one, the partial payments will get refunded.
+- If there is a full payment that is being processed (e.g. during 3DS) and a new partial payment has been created, then the full payment will be abandoned.
 
 In the example below, we're creating a new Braintree payment for our checkout:
 
@@ -696,13 +715,9 @@ mutation {
       gateway: "mirumee.payments.braintree"
       token: "tokencc_bh_s3bjkh_24smq8_6c6zhq_w4v6b9_8vz"
       amount: 25.99
+      partial: false
       storePaymentMethod: ON_SESSION
-      metadata: [
-        {
-          key: "user_id"
-          value: "#1234"
-        }
-      ]
+      metadata: [{ key: "user_id", value: "#1234" }]
     }
   ) {
     payment {
@@ -743,6 +758,72 @@ As a result, we get the payment object:
 }
 ```
 
+### Completing payment
+
+This mutation allows to process an individual payment.
+It can be useful with multiple payments and should be called between
+[`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) and [`checkoutComplete`](developer/api-reference/mutations/checkout-complete.mdx).
+Unlike the [`checkoutComplete`](developer/api-reference/mutations/checkout-complete.mdx), this operation doesn't create an order.
+
+The [`checkoutPaymentComplete`](developer/api-reference/mutations/checkout-payment-complete.mdx) mutation requires the following input:
+
+- `token`: the token of the checkout to complete.
+- `paymentId`: The ID of a payment that need to be processed.
+- `paymentData`: client-side generated data required to finalize the payment.
+
+It returns the following output:
+
+- `checkout`: related `Checkout` object.
+- `payment`: a `Payment` object that has been processed.
+- `confirmationNeeded`: Set to true if payment needs to be confirmed before checkout is complete.
+- `confirmationData`: confirmation data used to process additional authorization steps.
+- `checkoutErrors`: a list of errors that occurred during mutation execution.
+
+Here is the example of a complete mutation:
+
+```graphql {2-4}
+mutation {
+  checkoutPaymentComplete(
+    token: "fd18c322-f816-406b-a71f-d9ce6a39c768"
+    paymentId: "UGF5bWVudDox"
+    redirectUrl: "https://www.example.com"
+  ) {
+    checkout {
+      id
+      token
+    }
+    payment {
+      id
+    }
+    confirmationNeeded
+    checkoutErrors {
+      field
+      message
+    }
+  }
+}
+```
+
+A successful response would look like this:
+
+```json
+{
+  "data": {
+    "checkoutPaymentComplete": {
+      "checkout": {
+        "id": "T3JkZXI6MjU=",
+        "token": "fd18c322-f816-406b-a71f-d9ce6a39c768"
+      },
+      "payment": {
+        "id": "UGF5bWVudDox"
+      },
+      "confirmationNeeded": false,
+      "checkoutErrors": []
+    }
+  }
+}
+```
+
 ## Completing the checkout
 
 The purpose of the operation is to ensure this checkout is correct. The validation consists of checking:
@@ -773,7 +854,7 @@ The [`checkoutComplete`](developer/api-reference/mutations/checkout-complete.mdx
 
 - `token`: the token of the checkout to complete.
 - `redirectUrl`: URL of a view where users should be redirected to see the order details. URL in RFC 1808 format.
-- `paymentData`: Client-side generated data required to finalize the payment.
+- `paymentData`: client-side generated data required to finalize the payment.
 
 It returns the following output:
 
@@ -786,9 +867,7 @@ Here is the example of a complete mutation:
 
 ```graphql {2-4}
 mutation {
-  checkoutComplete(
-    token: "fd18c322-f816-406b-a71f-d9ce6a39c768"
-  ) {
+  checkoutComplete(token: "fd18c322-f816-406b-a71f-d9ce6a39c768") {
     order {
       id
       status
@@ -817,7 +896,6 @@ A successful response would look like this:
 }
 ```
 
-
 Here is an example of the [`checkoutComplete`](developer/api-reference/mutations/checkout-complete.mdx) mutation where the payment gateway requires additional data to finalize the payment using the Adyen payment gateway:
 
 ```graphql {2-5}
@@ -838,6 +916,7 @@ mutation{
 ```
 
 A response would look like this:
+
 ```json
 {
   "data": {
@@ -894,6 +973,7 @@ mutation{
 ```
 
 A response would look like this:
+
 ```json
 {
   "data": {
