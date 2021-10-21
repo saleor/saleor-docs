@@ -58,7 +58,7 @@ emerge pip cairo pango gdk-pixbuf cffi
 ### 1. Clone the repository (or use your own fork)
 
 ```shell-session
-git clone https://github.com/mirumee/saleor.git
+git clone https://github.com/saleor/saleor.git
 ```
 
 ### 2. Enter the directory

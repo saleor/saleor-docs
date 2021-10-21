@@ -49,8 +49,8 @@ Search backends use [Elasticsearch DSL](https://github.com/elastic/elasticsearch
 
 There are two backends defined for Elasticsearch integration:
 
-- [storefront](https://github.com/mirumee/saleor/blob/master/saleor/search/backends/elasticsearch_storefront.py) - Storefront search uses only the storefront index for a product-only search.
-- [dashboard](https://github.com/mirumee/saleor/blob/master/saleor/search/backends/elasticsearch_dashboard.py) - The dashboard backend performs additional searches in user and order indexes.
+- [storefront](https://github.com/saleor/saleor/blob/master/saleor/search/backends/elasticsearch_storefront.py) - Storefront search uses only the storefront index for a product-only search.
+- [dashboard](https://github.com/saleor/saleor/blob/master/saleor/search/backends/elasticsearch_dashboard.py) - The dashboard backend performs additional searches in user and order indexes.
 
 ## Testing
 
