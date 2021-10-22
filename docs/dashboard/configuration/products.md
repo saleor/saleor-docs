@@ -36,11 +36,11 @@ This is very important, as it means you are legally charging the correct amount 
 
 3. Click _Save_. An additional _Product Attributes_ card will appear. Assign previously created [attributes](dashboard/configuration/attributes.md) to your product type.
 
+4. If the product type you are setting up requires variants, click the _Product&nbsp;type&nbsp;uses&nbsp;Variant&nbsp;Attributes_ switch. This opens an additional card where you can assign or remove variant attributes.
+
+5. Click _Save_ to keep your changes. Your new product type appears on the main list of existing product types.
+
 ![Adding product type](../screenshots/config-product-type-details.png)
-
-3. If the product type you are setting up requires variants, click the _Product&nbsp;type&nbsp;uses&nbsp;Variant&nbsp;Attributes_ switch. This opens an additional card where you can assign or remove variant attributes.
-
-4. Click _Save_ to keep your changes. Your new product type appears on the main list of existing product types.
 
 :::note
 Only the attributes with the input type (in the Attribute setup page) set to _Dropdown_ may be used as Variant Attributes.
