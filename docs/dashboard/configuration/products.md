@@ -32,9 +32,11 @@ This is very important, as it means you are legally charging the correct amount 
 
 1. Click _Create&nbsp;Product&nbsp;Type_ and fill out the General Information, Taxes, and Shipping cards.
 
-2. Click _Save_. An additional _Product Attributes_ card will appear. Assign previously created [attributes](dashboard/configuration/attributes.md) to your product type.
+2. Choose if the product type can be used to create shipping passes for your customers or can be used to create voucher/gift card type products that user will be able to pay with during checkout process.
 
-![Adding product type](../screenshots/config-product-type-details.jpeg)
+3. Click _Save_. An additional _Product Attributes_ card will appear. Assign previously created [attributes](dashboard/configuration/attributes.md) to your product type.
+
+![Adding product type](../screenshots/config-product-type-details.png)
 
 3. If the product type you are setting up requires variants, click the _Product&nbsp;type&nbsp;uses&nbsp;Variant&nbsp;Attributes_ switch. This opens an additional card where you can assign or remove variant attributes.
 

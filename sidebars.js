@@ -13,7 +13,8 @@ module.exports = {
           "dashboard/catalog/intro",
           "dashboard/catalog/products",
           "dashboard/catalog/categories",
-          "dashboard/catalog/collections"
+          "dashboard/catalog/collections",
+          "dashboard/catalog/gift-cards"
         ]
       },
       "dashboard/orders",
