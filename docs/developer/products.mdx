@@ -455,12 +455,15 @@ Response:
 A warehouse is chosen based on the argument `address`. If the argument is omitted, API will return the highest available quantity.
 
 :::note
-To avoid leaking precise stock information, the `quantityAvailable` field will not be greater than the maximum orderable threshold configured in the [`MAX_CHECKOUT_LINE_QUANTITY`](developer/running-saleor/configuration.mdx#max_checkout_line_quantity) server setting.
+To avoid leaking precise stock information, the `quantityAvailable` field will not be greater than the maximum orderable threshold configured in the site settings.
 :::
 
+:::note
+If `checkoutLineLimit` in the site settings is set to `null`, precise stock information will be exposed in the `quantityAvailable` field. What is more, if for given productVariant `trackInventory` is set to `false` and `checkoutLineLimit` is set to `null`, `quantityAvailable` field will also be `null`.
+:::
 ## Stock quantities
 
-For creating integrations with an external stock management system, you will need to use stock values not restricted by `MAX_CHECKOUT_LINE_QUANTITY`. 
+For creating integrations with an external stock management system, you will need to use stock values not restricted by checkout line limit (can be set in Site Settings in dashboard or via `settingsUpdate` mutation).
 
 :::note
 `stocks` field in the [`ProductVariant`](developer/api-reference/objects/product-variant.mdx) object require `MANAGE_PRODUCTS` permission.
@@ -472,7 +475,7 @@ Request:
 ```graphql {3,8-9}
 query {
     productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
-    quantityAvaible
+    quantityAvailable
     stocks {
       warehouse {
         slug
