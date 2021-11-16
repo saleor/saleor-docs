@@ -22,15 +22,38 @@ To process an order in the system, click _Finalize_ in the footer. Once the orde
 
 The main page shows a list of all orders in the system, regardless of their status.
 
-![](screenshots/order-list.jpg)
+![](screenshots/order-list.png)
 
 ### Order filters
 
-To automatically filter orders, click _Filters_ and view orders by date, customer or fulfillment status. Sorting by _status_ brings up a second menu from which you can choose _Cancelled_, _Fulfilled_, _Partially Fulfilled_, _Unfulfilled_, _Ready to capture_, _Ready to fulfill_.
+To automatically filter orders, click _Filters_ and view orders by channel, date, customer or fulfillment status. Sorting by _status_ brings up a second menu from which you can choose _Cancelled_, _Fulfilled_, _Partially Fulfilled_, _Unfulfilled_, _Ready to capture_, _Ready to fulfill_.
 
 You can also manually search specific information, such as key words or names, using the Search Orders field. The filter is dynamically applied as you type.
 
 ![](screenshots/order-filters.png)
+
+## Order settings
+
+:::note These options are available in Saleor 3.1 (alpha version). We recommend using the latest Saleor 3.0 beta version for production.
+:::
+
+You can manage your order and fulfillment settings in the order settings page. Click the three dot icon on top of the right corner of the main order list page. Then click _Order Settings_.
+
+### Settings
+Under the settings section, you can set automatic confirmation for all orders and fulfillment of non-shippable gift cards.
+
+- **Automatically confirm all orders** - If you select automatic confirmation, all orders will be automatically confirmed and all payments will be captured.
+
+- **Automatically fulfill non shippable gift cards** - If you select automatically fulfill non-shippable gift cards, activated non-shippable gift cards will be automatically set as fulfilled and sent to the customer.
+
+### Fulfillment settings
+Under the fulfillment settings section, you can set automatic approval for all fulfillments and the ability to fulfill products without capturing payment for the order.
+
+- **Automatically approve all fulfillments** - If you select this option, after choosing a warehouse for an order, click the fulfill button in the fulfillment card and the order will be automatically fulfilled. Not selecting automatic approval for all fulfillments will require additional approval. After choosing a warehouse for an order, you need to click the `prepare fulfillment` button in the fulfillment card. Then you need to manually approve the order by clicking the approve button in the order details page.
+
+- **Fulfillment wihout payment** - If you select this option, you will be able to fulfill products without capturing payment for the order. Not selecting this option will require capturing payment for the order before fulfillment.
+
+![Order settings](screenshots/order-fulfillment-settings.png)
 
 ## Order details page
 
@@ -44,11 +67,9 @@ The fulfillment represents a group of shipped items with a corresponding trackin
 
 Fulfillment means whether an order has been sent to the customer or not. Some orders will only have a single _Unfulfilled_ or _Fulfilled_ card. Others, as in the example below, will have both cards if parts of the order have been sent to the customer but other products are yet to be dispatched.
 
-![Order fulfillment options](screenshots/order-fulfillments.png)
-
 When creating a fulfillment, you will have the option to select which warehouse(s) to use. If multiple warehouses are used, a separate fulfillment will be created for each warehouse.
 
-![Creating a fulfillment](screenshots/order-new-fulfillment.png)
+![Order fulfillment options](screenshots/order-fulfillments.png)
 
 #### Fulfillment statuses
 
