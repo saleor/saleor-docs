@@ -62,10 +62,18 @@ In the General Information card, provide the following data:
 
 - Catalog Input type for Store Owner - Here you can decide how the attribute values are displayed to the admin in the product management views. Available options are: 
 
-1. _Dropdown_ (select one of the available options)
-2. _Multiple Select_ (select more than one of the available options)
-3. _File_ (upload a file like a specification sheet or an image)
-4. _References_ (assign an ordered list of products or pages)
+1. _Dropdown_ - select one of the available options
+2. _Multiple Select_ - select more than one of the available options
+3. _File_ - upload a file like a specification sheet or an image
+4. _References_ - assign an ordered list of products or pages
+5. _Text_ - assign value via the rich-text editor
+6. _Numeric_ - assign numbers as values for attributes
+7. _Boolean_ - define whether a value is true or false for an attribute
+8. _Date/Date time_ - define a date or date and time as a value for the attribute
+9. _Swatch_ - define color values or images for an attribute
+
+![Attribute general information](../screenshots/config-attributes-input-types.png)
+
 
 :::note
 Only the attributes with the input type (in the Attribute setup page) set to _Dropdown_ may be used as Variant Attributes.
