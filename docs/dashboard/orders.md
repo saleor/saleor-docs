@@ -14,7 +14,7 @@ There are essentially two order types in Saleor:
 
 - Draft orders - These are orders created by administrators, which have not yet been released to the system. For example, store operators can create orders during discussions with customers, then save them as drafts until approval is gained from management to send replacement goods. Draft orders can be edited in the same way that an order is created.
 
-- Unconfirmed orders - Orders placed by customers [when order confirmation feature is turned on](dashboard/configuration/order-settings.md). The payment on such orders is being authorized when order is placed but captured later - when staff [confirms the order](#how-to-confirm-an-order).
+- Unconfirmed orders - Orders placed by customers [when order confirmation feature is turned on](#settings). The payment on such orders is being authorized when order is placed but captured later - when staff [confirms the order](#how-to-confirm-an-order).
 
 To process an order in the system, click _Finalize_ in the footer. Once the order is finalized, stock inventory will be affected. Unreleased draft orders do not influence actual or predicted stock levels.
 
@@ -37,7 +37,12 @@ You can also manually search specific information, such as key words or names, u
 :::note These options are available in Saleor 3.1 (alpha version). We recommend using the latest Saleor 3.0 beta version for production.
 :::
 
-You can manage your order and fulfillment settings in the order settings page. Click the three dot icon on top of the right corner of the main order list page. Then click _Order Settings_.
+The order settings page allows you to manage your order and fulfillment settings.
+
+### How to access the order settings page
+Click the three dot icon on top of the right corner of the main order list page. Then click _Order Settings_.
+
+![](screenshots/order-settings.png)
 
 ### Settings
 Under the settings section, you can set automatic confirmation for all orders and fulfillment of non-shippable gift cards.
