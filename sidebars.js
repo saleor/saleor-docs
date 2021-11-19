@@ -39,7 +39,6 @@ module.exports = {
           "dashboard/configuration/permission-groups",
           "dashboard/configuration/navigation",
           "dashboard/configuration/site",
-          "dashboard/configuration/order-settings",
           "dashboard/configuration/page-types",
           "dashboard/configuration/channels",
           "dashboard/configuration/pages",
