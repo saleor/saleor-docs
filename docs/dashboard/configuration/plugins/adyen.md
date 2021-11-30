@@ -47,7 +47,7 @@ Adyen uses a notification system. Enabling it is required for proper work of pay
 
 ## Activating ApplePay
 
-* Follow the docs for enabling apple pay - https://docs.adyen.com/payment-methods/apple-pay/enable-apple-pay.
+* Follow the [Adyen docs](https://docs.adyen.com/payment-methods/apple-pay/enable-apple-pay) for enabling apple pay.
     * For enabling apple pay on `web` channel follow all steps as described [here](https://docs.adyen.com/payment-methods/apple-pay/enable-apple-pay#process-overview).
     * For enabling apple pay only for `iOS` app follow steps described as required for app [here](https://docs.adyen.com/payment-methods/apple-pay/enable-apple-pay#process-overview).
 * In section [register merchant domain](https://docs.adyen.com/payment-methods/apple-pay/enable-apple-pay#register-merchant-domain), for register and verification the domain use your storefront domain.
