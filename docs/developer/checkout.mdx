@@ -49,7 +49,10 @@ A [`Checkout`](developer/api-reference/objects/checkout.mdx) object can be creat
 
 - If you use the [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation including the authentication token, this checkout is assigned to the user who is authenticated by this token. For more information on how to authenticate with our API, see the [Authentication](users.mdx#authentication) topic.
 
-- If no authentication token is provided, the checkout is created for an anonymous user, and an email address is used to identify such a [`Checkout`](developer/api-reference/objects/checkout.mdx) object, linking it with the anonymous user. In this case, an email is required to create the checkout.
+- If no authentication token is provided, the checkout is created for an anonymous user,
+and an email address is used to identify such a [`Checkout`](developer/api-reference/objects/checkout.mdx) object,
+linking it with the anonymous user.
+User email is not required at this stage but must be set before adding promo code, creating a payment, and checkout completing.
 :::
 
 To create a [`Checkout`](developer/api-reference/objects/checkout.mdx) object, use the [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation.
@@ -77,7 +80,7 @@ The resulting [`Checkout`](developer/api-reference/objects/checkout.mdx) object 
 In addition the following fields are available on the mutation results:
 
 - `created`: a boolean flag indicating whether a new checkout object was created, or an existing one was used.
-- `checkoutErrors`: a list of errors that occurred during mutation execution.
+- `errors`: a list of errors that occurred during mutation execution.
 
 The following example shows how the [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation creates the [`Checkout`](developer/api-reference/objects/checkout.mdx) object and returns the checkout information:
 
@@ -136,7 +139,7 @@ mutation {
         }
       }
     }
-    checkoutErrors {
+    errors {
       field
       code
     }
@@ -199,7 +202,7 @@ We get a newly created checkout object for which we return the ID, token, total 
           }
         ]
       },
-      "checkoutErrors": []
+      "errors": []
     }
   }
 }
@@ -591,7 +594,7 @@ mutation {
         }
       }
     }
-    checkoutErrors {
+    errors {
       field
       message
     }
@@ -618,7 +621,50 @@ As a result, we get an updated checkout object with a delivery method set:
           }
         }
       },
-      "checkoutErrors": []
+      "errors": []
+    }
+  }
+}
+```
+
+## Updating checkout email
+When anonymous checkout without user email has been created, the email must be set before creating payment and completing checkout.
+Use the [`CheckoutEmailUpdate`](developer/api-reference/mutations/checkout-email-update.mdx) mutation to update checkout `email`.
+
+The operation requires the following inputs:
+- `token`: the checkout token (the `token` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object),
+- `email`: the user email.
+
+
+```graphql {2-4}
+mutation {
+  checkoutEmailUpdate(
+    token: "fd18c322-f816-406b-a71f-d9ce6a39c768"
+    email: "test_customer@example.com"
+  ) {
+    checkout {
+      token
+      email
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+As a result, we get an updated checkout object with new checkout email set:
+
+```json {6}
+{
+  "data": {
+    "checkoutDeliveryMethodUpdate": {
+      "checkout": {
+        "token": "fd18c322-f816-406b-a71f-d9ce6a39c768",
+        "email": "test_customer@example.com",
+      },
+      "errors": []
     }
   }
 }
@@ -711,7 +757,7 @@ This mutation returns the following fields:
 
 - `checkout`: the updated checkout object.
 - `payment`: the newly created payment object.
-- `checkoutErrors`: a list of errors that occurred during mutation execution.
+- `errors`: a list of errors that occurred during mutation execution.
 
 In the example below, we're creating a new Braintree payment for our checkout:
 
@@ -764,7 +810,7 @@ As a result, we get the payment object:
           }
         ]
       },
-      "checkoutErrors": []
+      "errors": []
     }
   }
 }
@@ -807,7 +853,7 @@ It returns the following output:
 - `order`: an `Order` object created from the checkout object.
 - `confirmationNeeded`: set to `true` if payment needs to be confirmed before checkout is complete.
 - `confirmationData`: confirmation data used to process additional authorization steps, required by the PSP.
-- `checkoutErrors`: a list of errors that occurred during mutation execution.
+- `errors`: a list of errors that occurred during mutation execution.
 
 Here is the example of a complete mutation:
 
@@ -820,7 +866,7 @@ mutation {
       id
       status
     }
-    checkoutErrors {
+    errors {
       field
       message
     }
@@ -838,7 +884,7 @@ A successful response would look like this:
         "id": "T3JkZXI6MjU=",
         "status": "UNFULFILLED"
       },
-      "checkoutErrors": []
+      "errors": []
     }
   }
 }
@@ -856,7 +902,7 @@ mutation{
      confirmationNeeded
      confirmationData
      order
-     checkoutErrors{
+     errors{
        field
        message
        code
@@ -875,7 +921,7 @@ A response would look like this:
       },
       "confirmationNeeded": false,
       "confirmationData": null,
-      "checkoutErrors": []
+      "errors": []
     }
   }
 }
@@ -912,7 +958,7 @@ mutation{
      confirmationNeeded
      confirmationData
      order
-     checkoutErrors{
+     errors{
        field
        message
        code
@@ -928,8 +974,15 @@ A response would look like this:
       "order": null,
       "confirmationNeeded": true,
       "confirmationData": "{\"paymentData\":\"Ab02b4c...\", \"paymentMethodType\":\"scheme\", \"token\":\"eyJ0aHJlZURTTWV0aG9kTm9...\", \"type\":\"threeDS2Fingerprint\"}",
-      "checkoutErrors": []
+      "errors": []
     }
   }
 }
 ```
+
+## Removing old checkouts
+In order not to overflow the database, unfinished checkouts are deleted.
+Anonymous and unfinished checkouts are deleted after a specified period of time from the last modification:
+- anonymous checkouts (neither user and email are set) after 30 days,
+- user checkouts (user or email set) after 90 days,
+- checkouts without lines after 6 hours.
