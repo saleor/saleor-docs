@@ -2,8 +2,6 @@
 title: Exporting Products
 ---
 
-import Chart from "@site/components/Chart";
-
 ## Introduction
 This guide describes how to export products from the Saleor GraphQL API.
 Exporting products can be useful for creating backups of your data or for easy
@@ -44,37 +42,6 @@ each row will contain only product fields:
 | 65  | Apple Juice  | No additives, great taste      | juices      | 1000 g         |
 | 101 | Polo Shirt   | Nice and comfortable           | polo-shirts | 200 g          |
 
-### Workflow
-
-The charts below explains workflow of the exporting products:
-
-#### Schedule export products
-<Chart
-  definition={`
-  sequenceDiagram
-  Client ->>+ Saleor: mutation exportProducts
-  Saleor ->> Saleor: Validate input data
-  Saleor ->>+ Background Worker: Schedule export products
-  Background Worker -->>- Saleor: Scheduled
-  Saleor -->>- Client: return ExportFile instance
-`}
-/>
-
-#### Handling background worker result
-<Chart
-  definition={`
-  graph TD
-    D[Export products data <br> Background Worker] -->|Success| E[Send email to user <br> with a link to <br> download file]
-    D -->|Success| X[Set SUCCESS <br>ExportFile status]
-    E -->Y[Create export file <br>sent event]
-    X -->F[Create data export <br>success event]
-    D -->|Failed| G[Set FAILED <br>ExportFile status]
-    G --> U[Create data export <br>failed event]
-    U --> J[Send email to the user<br>with information <br>about failing export]
-    J --> K[Create export failed <br>info sent event]
-`}
-/>
-
 ## Exporting products
 :::note
 Products can be exported only by logged users with `MANAGE_PRODUCTS` permission.
@@ -98,21 +65,7 @@ if `IDS` in `scope` is chosen.
     (optional, `ID` field is exported by default).
 
 As a result, this mutation returns `ExportFile` object which is a `Job` instance.
-It corresponds to running export background worker, keeps task status, and created file.
-`ExportFile` object contains the following fields:
-- `id`: a unique export file ID. Could be use to check export status.
-- `status`: status of running job.
-- `user`: instance of `User` who requested exporting products.
-Set to `null` if export requested by `App`.
-- `app`: instance of `App` which requested exporting products.
-Set to `null` if export requested by `User`.
-- `createdAt`: the date and time when the export was started.
-- `updatedAt`: the date and time when the job was last time updated.
-- `url`: URL to the exported file. Set to `null` when the file doesn't exist yet.
-- `events`: a list of events associated with the export.
-
-In addition the following field is available on the mutation results:
-- `exportErrors`: a list of errors that occurred during mutation execution.
+For details look at [export mutations descriptions](export-overview#mutations).
 
 ### Exporting all products
 The following example shows how to export all products with all available fields
@@ -157,7 +110,7 @@ mutation {
       updatedAt
       url
     }
-    exportErrors {
+    errors {
       field
       code
       message
@@ -178,7 +131,7 @@ In response we get workers information:
         "updatedAt": "2020-06-05T09:16:27.691838+00:00",
         "url": ""
       },
-      "exportErrors": []
+      "errors": []
     }
   }
 }
@@ -187,36 +140,7 @@ In response we get workers information:
 Once the task is finished, the `url` field will contain the URL address of the
 exported file. If export was triggered by `User` the link to the file will be sent by email
 to the requestor.
-To check if URL is ready you can just fetch `ExportFile` by `ID` with use of `exportFile` query:
-```graphql {2}
-  query {
-    exportFile(id: "RXhwb3J0RmlsZToxMA==") {
-      id
-      status
-      createdAt
-      updatedAt
-      url
-    }
-  }
-```
-
-Example response with URL address to the file.
-```json
-{
-  "data": {
-    "exportProducts": {
-      "exportFile": {
-        "id": "RXhwb3J0RmlsZToxMA==",
-        "status": "SUCCESS",
-        "createdAt": "2020-06-05T09:15:42.924676+00:00",
-        "updatedAt": "2020-06-05T09:16:27.691838+00:00",
-        "url": "http://localhost:8000/media/export_files/product_data_05_06_2020.csv"
-      },
-      "exportErrors": []
-    }
-  }
-}
-```
+To check if URL is ready you can just fetch [ExportFile](export-overview#fetching-exportfile-instance).
 
 ### Exporting filtered products
 To export only filtered products you need to define `FILTER` `scope` and `filter`
@@ -250,7 +174,7 @@ mutation {
       updatedAt
       url
     }
-    exportErrors {
+    errors {
       field
       code
       message
@@ -288,7 +212,7 @@ mutation {
       updatedAt
       url
     }
-    exportErrors {
+    errors {
       field
       code
       message
@@ -343,7 +267,7 @@ mutation {
       updatedAt
       url
     }
-    exportErrors {
+    errors {
       field
       code
       message

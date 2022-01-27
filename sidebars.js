@@ -97,6 +97,7 @@ module.exports = {
       "developer/products",
       "developer/attributes",
       "developer/checkout",
+      "developer/gift-cards",
       "developer/address",
       "developer/users",
       "developer/permissions",
@@ -104,7 +105,11 @@ module.exports = {
       {
         type: "category",
         label: "Exporting data",
-        items: ["developer/export-products"],
+        items: [
+          "developer/export/export-overview",
+          "developer/export/export-products",
+          "developer/export/export-gift-cards",
+        ]
       },
       {
         type: "category",
