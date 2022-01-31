@@ -4,23 +4,22 @@ title: Extensions
 
 ## Key concepts
 
-App extension allows extending different dashboard views by mounting extension iframe or by redirecting user on main App's iframe. 
-This is a way for customizing and extending dashboard solutions.
+App extensions allow extending different dashboard views by mounting the extension app inside a popup or redirecting users to the main app's page. 
+The app is created as a secure iframe that protects against XSS attacks. 
+It provides a way for customizing and extending the dashboard while keeping the code separate.
 
 ## Manifest
-App can have multiple extensions. The extension is added by specifying it in app's manifest. 
-Below sample manifest, defines two extensions that will be attached to dashboard.
+Apps can have multiple extensions. The extension is added by specifying it in the app's manifest. 
+The below sample manifest defines two extensions that will be attached to the dashboard:
 
 ```json
 {
-  ...  
+  ...
   "extensions": [
       {
         "label": "Create with Sample app",
-        "view": "PRODUCT",
-        "type": "OVERVIEW",
-        "target": "CREATE",
-        "openAs": "POPUP",
+        "mount": "PRODUCT_DETAILS_MORE_ACTIONS",
+        "target": "POPUP",
         "permissions": [
             "MANAGE_PRODUCTS"
         ],
@@ -28,10 +27,8 @@ Below sample manifest, defines two extensions that will be attached to dashboard
       },
       {
         "label": "Create with App and redirect",
-        "view": "PRODUCT",
-        "type": "OVERVIEW",
-        "target": "CREATE",
-        "openAs": "APP_PAGE",
+        "mount": "PRODUCT_OVERVIEW_CREATE",
+        "target": "APP_PAGE",
         "permissions": [
             "MANAGE_PRODUCTS"
         ],
@@ -41,28 +38,28 @@ Below sample manifest, defines two extensions that will be attached to dashboard
 }
 ```
 
-- `label` - Name which will be displayed in dashboard
-- `view` - View where the given extension will be attached
-- `type` - Place where the given extension will be attached
-- `target` - Direct target on given view&type where extension will be attached
-- `openAs` - Way of opening an extension's url. Default to `POPUP`. 
-`POPUP` will mount extension in iframe view. `APP_PAGE` will redirect user to app page on dashboard side.
-- `url` - iframe url that will be used. Url can start with `/` when `openAS` is set to `APP_PAGE` or manifest has defined `appUrl`. 
+- `label` - Name which will be displayed in the dashboard
+- `mount` - Place, where extension will be mounted
+- `target` - Way of opening an extension's url. Default to `POPUP`.
+`POPUP` will mount extension in an iframe view. `APP_PAGE` will redirect users to the dashboard's app page
+- `url` - Extension url. Url can start with `/` when `target` is set to `APP_PAGE` or manifest has defined `appUrl`. 
+When `target` is set to `POPUP`, `url` will be used to render an iframe
+
+
 
 ## Possible mounting places
 
-Saleor requires that extension will define a proper combination of `view`, `type`, and `target`. The below table explains all possible combinations of mounting places.
+Saleor requires that extension will define place of mounting. The below table explains all mounting places available in Saleor.
 
 
-|   View  |   Type     | Target       | Description                                                                 |
-|:-------:|:----------:|:------------:|:---------------------------------------------------------------------------:|
-| PRODUCT | DETAILS    | CREATE       | Mount extension on product's detail page under a create button.             |
-| PRODUCT | DETAILS    | MORE_ACTIONS | Mount extension on product's detail page under a more action button.        |
-| PRODUCT | OVERVIEW   | CREATE       | Mount extension on product's list page under a create button.               |
-| PRODUCT | OVERVIEW   | MORE_ACTIONS | Mount extension on product's list page under a more action button.          |
-| ALL     | NAVIGATION | CATALOG      | Mount extension in `Catalogs` section on navigation bar for all views.      |
-| ALL     | NAVIGATION | ORDERS       | Mount extension in `Orders` section on navigation bar for all views.        |
-| ALL     | NAVIGATION | CUSTOMERS    | Mount extension in `Customers` section on navigation bar for all views.     |
-| ALL     | NAVIGATION | DISCOUNTS    | Mount extension in `Discounts` section on navigation bar for all views.     |
-| ALL     | NAVIGATION | TRANSLATIONS | Mount extension in `Translations` section on navigation bar for all views.  |
-| ALL     | NAVIGATION | PAGES        | Mount extension in `Pages` section on navigation bar for all views.         |
+|   Mount                        | Description                                                           |
+|:------------------------------:|:---------------------------------------------------------------------:|
+| PRODUCT_DETAILS_MORE_ACTIONS   | Mount extension on product's detail page under a more action button.  |
+| PRODUCT_OVERVIEW_CREATE        | Mount extension on product's list page under a create button.         |
+| PRODUCT_OVERVIEW_MORE_ACTIONS  | Mount extension on product's list page under a more action button.    |
+| NAVIGATION_CATALOG             | Mount extension in `Catalogs` section on navigation bar.              |
+| NAVIGATION_ORDERS              | Mount extension in `Orders` section on navigation bar.                |
+| NAVIGATION_CUSTOMERS           | Mount extension in `Customers` section on navigation bar.             |
+| NAVIGATION_DISCOUNTS           | Mount extension in `Discounts` section on navigation bar.             |
+| NAVIGATION_TRANSLATIONS        | Mount extension in `Translations` section on navigation bar.          |
+| NAVIGATION_PAGES               | Mount extension in `Pages` section on navigation bar.                 |
