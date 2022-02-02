@@ -1,0 +1,213 @@
+---
+title: Saleor 3.0
+---
+
+## Preparation
+
+New version introduces breaking changes and many new features. API clients like Apps and storefronts will require changes. 
+
+Before you start the process, create the backup of your data. Also let your Celery worker to process task queue before starting API migration.
+
+Due to scope of the upgrade, downtime will be required.
+
+## Multichannel
+
+Existing data will be assigned to the `"default-channel"` created during the database migration. As long, as shop has the only one channel defined, you are not required to specify the `channel` argument. Thanks to that you'll be able to migrate storefront to 3.0 granually.
+
+After adding more channels, argument will become required. Because of that, we recommend always adding the channel argument, even if you have only one channel:
+
+```graphql
+{
+  products(first: 5, channel: "default-channel") {
+    edges {
+      node {
+        id
+        name
+        description
+      }
+    }
+  }
+}
+```
+
+Besides impact on fetching the data, you'll may be required to specify channel during creating the checkouts. You'll find updated guide at [Checkout](developer/checkout.mdx) page.
+
+To read more about multichannel, check out [developer](developer/channels.mdx) and [dashboard](dashboard/channels.md) docs.
+
+### Editing channel related fields
+
+If you use API to modify objects (for example with custom App), please note that channel depending fields have dedicated mutations: updating product price require using [productChannelListingUpdate](developer/api-reference/mutations/product-channel-listing-update.mdx) mutation.
+
+Object attributes which can be defined on channel basis can be reference
+- [Collection Channel Listing](developer/api-reference/objects/collection-channel-listing.mdx)
+- [Product Channel Listing](developer/api-reference/objects/product-channel-listing.mdx)
+- [ProductVariant Channel Listing](developer/api-reference/objects/product-variant-channel-listing.mdx)
+- [Sale Channel Listing](developer/api-reference/objects/sale-channel-listing.mdx)
+- [ShippingMethod Channel Listing](developer/api-reference/objects/shipping-method-channel-listing.mdx)
+- [Voucher Channel Listing](developer/api-reference/objects/voucher-channel-listing.mdx)
+
+## Email templates
+
+New emails implementation brings easier configuration at dashboard and support for Sendgrid. If you modified default emails, you will need to migrate them to the Handlebars templates.
+
+Read documentation about user and admin email plugins:
+- [User emails](developer/available-plugins/user-emails.mdx)
+- [Admin emails plugin](developer/available-plugins/admin-emails.mdx)
+
+## Editor.js rich text editor and description fields
+
+All rich text fields now use Editor.js instead of Draft.js. Our database migration should convert old format to the new one, but visual inspection is recommended.
+
+To render rich text on your storefront you can use Editor.js in `read-only` mode, or use [one of libraries](https://github.com/editor-js/awesome-editorjs) recommended by its authors.
+
+Additionally, `description` fields in the API changed type from `String` to `JSONString` in following objects:
+- `Category`
+- `Collection`
+- `Product`
+- `Translation` for objects listed above 
+
+`Pages` changed `content` field type in the same way.
+
+## Product and Variant Images
+
+3.0 extends possiblities for presenting your products to the customers. Now you can not only use photos, but also the videos. Old `image` attribute and `ProductImage` objects are left for backward compability, but are marked as deprecated. If you want to leverage all new features, use `ProductMedia` objects.
+
+Read documentation for the [ProductMedia](developer/products.mdx#media).
+
+## Removed fields from the Shop object
+
+`Shop.homepageCollection` field has been removed. Recommended way of getting Collection data in such situation would be creating a new Collection and using `collection` query with desired slug, for example:
+
+```graphql
+query FeaturedProducts {
+  collection(slug: "featured", channel: "default-channel") {
+    products(first: 10) {
+      edges {
+        node {
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+`Shop.navigation` has been dropped in favor of querying desired menu by slug:
+```graphql
+query MainMenu {
+  menu(slug: "main-menu", channel: "default-channel") {
+    name
+    items {
+      name
+    }
+  }
+}
+```
+
+`Shop.geolocalization` has been removed.
+
+## Error handling
+New version unifies error handling across the API. All mutation responses have `errors` field, which contains issues information. For example:
+
+```graphql
+mutation {
+  checkoutCreate(input: { lines: [] }) {
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+Server response:
+```json
+{
+  "data": {
+    "checkoutCreate": {
+      "errors": [
+        {
+          "field": "channel",
+          "message": "You need to provide channel slug.",
+          "code": "MISSING_CHANNEL_SLUG"
+        }
+      ]
+    }
+  }
+}
+```
+
+Error codes can be used for indentifing the issue and displaying custom message for the customers.
+
+## Product filters
+
+API for searching and filtering the Products has changed.
+
+Read documentation for the [product filters and sorting](developer/products.mdx#retrieving-a-list-of-products).
+
+## Attributes
+
+`Attribute`:
+- `Attribute.values` dropped in favor of paginated list called [`choices`](developer/attributes.mdx#fetching-all-attributes).
+AttributeValue type:
+- `Attribute.type: AttributeValueType` dropped. Use the `inputType` field to determine the type of attribute's value.
+
+`AttributeValueInput`:
+- `value: String` changed to `values` with type `[String!]`
+
+
+## Invoice
+
+- invoiceSendEmail renamed to invoiceSendNotification
+
+## Permissions
+
+- `MANAGE_SERVICE_ACCOUNTS` removed. Use `MANAGE_APPS` for managing external apps.
+- `MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES` added. Staff users managing the accounts may need adding this permission
+- `MANAGE_PAGE_TYPES_AND_ATTRIBUTES` added. Staff users managing pages may need adding this permission
+
+## Apps
+
+Service Accounts have been renamed to Apps.
+
+### AuthorizationKey dropped
+
+Dropped mutations
+- `authorizationKeyAdd`
+- `authorizationKeyDelete`
+
+If you want to create access tokens, you can do that by creating [App](developer/extending/apps/key-concepts.mdx). 
+
+### Webhooks
+
+Webhook payloads have changed. You can reference examples at our [documentation](https://docs.saleor.io/docs/3.0/developer/extending/apps/sample-webhook-payloads).
+
+Added events:
+
+- `DRAFT_CREATED_FROM_REPLACE`
+- `ADDED_PRODUCTS`
+- `REMOVED_PRODUCTS`
+- `ORDER_REPLACEMENT_CREATED`
+- `ORDER_DISCOUNT_ADDED`
+- `ORDER_DISCOUNT_AUTOMATICALLY_UPDATED`
+- `ORDER_DISCOUNT_UPDATED`
+- `ORDER_DISCOUNT_DELETED`
+- `ORDER_LINE_DISCOUNT_UPDATED`
+- `ORDER_LINE_DISCOUNT_REMOVED`
+- `ORDER_LINE_PRODUCT_DELETED`
+- `ORDER_LINE_VARIANT_DELETED`
+- `CONFIRMED`
+- `FULFILLMENT_REFUNDED`
+- `FULFILLMENT_RETURNED`
+- `FULFILLMENT_REPLACED`
+
+Removed:
+- `DRAFT_ADDED_PRODUCTS` in favor of `ADDED_PRODUCTS`
+- `DRAFT_REMOVED_PRODUCTS` in favor of `REMOVED_PRODUCTS`
+
+Full list of available events can bee found [here](developer/extending/apps/asynchronous-webhooks.mdx#available-webhook-events).
+
+## Metadata 
+
+`privateMeta` and `meta` fields has been renamed to `privateMetadata` and `metadata` instead.
