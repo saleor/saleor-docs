@@ -34,7 +34,7 @@ You can also manually search specific information, such as key words or names, u
 
 ## Order settings
 
-:::note These options are available in Saleor 3.1 (alpha version). We recommend using the latest Saleor 3.0 beta version for production.
+:::note These options are available in Saleor 3.1 (alpha version). We recommend using the latest Saleor 3.0 version for production.
 :::
 
 The order settings page allows you to manage your order and fulfillment settings.
