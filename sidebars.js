@@ -178,16 +178,17 @@ module.exports = {
         ],
       },
       {
-        type: "category",
-        label: " Appendix: Available plugins",
-        items: [
-          "developer/available-plugins/openid-connect",
-          "developer/available-plugins/dummy-credit-card",
-          "developer/available-plugins/user-emails",
+        "type": "category",
+        "label": " Appendix: Available plugins",
+        "items": [
           "developer/available-plugins/admin-emails",
+          "developer/available-plugins/adyen",
+          "developer/available-plugins/dummy-credit-card",
+          "developer/available-plugins/openid-connect",
           "developer/available-plugins/stripe",
-        ],
-      },
+          "developer/available-plugins/user-emails",
+        ]
+      }
     ],
   },
   ...require("./docs/developer/api-reference/sidebar-schema.js"),
