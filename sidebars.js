@@ -60,7 +60,6 @@ module.exports = {
         items: [
           "dashboard/systemwide/introduction",
           "dashboard/systemwide/gdpr",
-          "dashboard/systemwide/seo-smo",
         ],
       },
     ],
