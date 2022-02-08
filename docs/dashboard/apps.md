@@ -65,7 +65,7 @@ To learn more about the webhook protocols, see the [Developer's Guide](developer
 ### Events
 
 :::note
-Asynchronous and synchronous webhook events are available in Saleor 3.1 (alpha stage).
+Asynchronous and synchronous webhook events are available in Saleor 3.1.
 :::
 
 In the *Events* card, you can assign singular events that you want to be triggered by the webhook.
