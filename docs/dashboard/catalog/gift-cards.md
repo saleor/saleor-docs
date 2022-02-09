@@ -72,7 +72,7 @@ Click the three dots button on the top right corner of the page, near the Issue 
 Click the three dots button on the top right corner of the page, near the Issue Card button. Click *Export card codes* to export information for specific, or all, gift cards as a spreadsheet or a CSV file.
 
 :::note
-Only active or non used cards can be exported.
+Only active and unused cards can be exported.
 :::
 
 ![Gift cards](../screenshots/catalog-giftcards-export.png)
