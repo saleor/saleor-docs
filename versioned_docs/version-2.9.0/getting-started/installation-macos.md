@@ -64,7 +64,7 @@ Once you have installed or updated the pre-requisite software, you are ready for
 ### 1. Clone the repository (or use your own fork)
 
 ```shell-session
-git clone https://github.com/mirumee/saleor.git
+git clone https://github.com/saleor/saleor.git
 ```
 
 ### 2. Enter the directory
@@ -100,7 +100,7 @@ The secret key should be a unique string that only your team knows. Running the 
 Unless configured otherwise, the store will use `saleor` as both the username and password. Remember to assign your user the `SUPERUSER` privilege. This will allow you to create databases and database extensions.
 
 ```shell-session
-createuser --superuser --pwprompt saleor
+sudo -u postgres createuser --superuser --pwprompt saleor
 ```
 
 Enter `saleor` when prompted for password.
@@ -112,7 +112,7 @@ The database name is extracted from the `DATABASE_URL` environment variable. If 
 :::
 
 ```shell-session
-createdb saleor
+sudo -u postgres createdb saleor
 ```
 
 ### 7. Prepare the database

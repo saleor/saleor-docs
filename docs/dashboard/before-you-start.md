@@ -22,7 +22,7 @@ Experience the PWA version of the store: https://demo.saleor.io
 
 Once you know that Saleor is a great solution for you, the easiest way to get a full open source version is to fork Saleor from our GitHub page 
 
-Fork Saleor: https://github.com/mirumee/saleor
+Fork Saleor: https://github.com/saleor/saleor
 
 We are also currently working on a tool to help migrate to Saleor from other platforms. Keep an eye on our Twitter feed and GitHub activity for progress reports.
 
