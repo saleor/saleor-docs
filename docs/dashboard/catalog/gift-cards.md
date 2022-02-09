@@ -6,7 +6,7 @@ title: Gift Cards
 Gift cards are available in Saleor 3.1.
 :::
 
-This page contains information on how to manage gift cards by selecting a specific currency, sending them to customers, or setting expiring dates.
+This page contains information on how to manage gift cards by selecting a specific currency, sending them to customers, or setting expiry dates.
 
 ## Introduction
 Gift cards are timeless and universal gifts. They are suitable for customers, employees, CEOs, business partners, or family members. Issuing gift cards can increase your sales and provide a better customer experience.
