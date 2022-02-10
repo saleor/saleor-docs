@@ -160,9 +160,9 @@ module.exports = {
         ],
       },
       {
-        type: "category",
-        label: "Community",
-        items: [
+        "type": "category",
+        "label": "Community",
+        "items": [
           "developer/community/contributing",
           "developer/community/faq",
           "developer/community/support",
@@ -178,7 +178,7 @@ module.exports = {
       },
       {
         "type": "category",
-        "label": " Appendix: Available plugins",
+        "label": "Appendix: Available plugins",
         "items": [
           "developer/available-plugins/admin-emails",
           "developer/available-plugins/adyen",
@@ -186,6 +186,13 @@ module.exports = {
           "developer/available-plugins/openid-connect",
           "developer/available-plugins/stripe",
           "developer/available-plugins/user-emails",
+        ]
+      },
+      {
+        "type": "category",
+        "label": "Appendix: Upgrade guide",
+        "items": [
+          "developer/upgrade-guide/2-11-to-3-0",
         ]
       }
     ],
