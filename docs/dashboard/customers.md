@@ -63,6 +63,11 @@ In the General Information card, there is a checkbox next to the text _User&nbsp
 
 If you have implemented a backend protocol that requires users to confirm account activation from an e-mail, which is not a default feature, this may also be useful if a user has issues with replying to the e-mail and asks for a manual activation.
 
+### How to issue a gift card
+Once the customer has been created in the dashboard, users can issue a gift card. Click the *Issue new card* button of the Gift Cards section in the Customer Overview card. Then fill in all the information required for a specific gift card and click the *Issue* button. You can issue multiple gift cards to the customer.
+
+![Customer gift cards](screenshots/customer-giftcards.png)
+
 ### How to remove a customer
 
 Select the specific customer record from the main list. Click _Delete_ in the footer then confirm the action.

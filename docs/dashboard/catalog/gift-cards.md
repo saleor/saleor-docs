@@ -13,7 +13,11 @@ Gift cards are timeless and universal gifts. They are suitable for customers, em
 
 ## How to
 ### How to create gift cards?
-Once you have created a product type that can be used as a gift card or voucher, you can issue a gift card. Go to the Gift Card page of the Catalog section. 
+Go to the Gift Card page of the Catalog section.
+
+:::note
+If you would like a gift card to act as a payment method, first you need to create a gift card [product type](dashboard/configuration/products.md).
+:::
 
 ![Gift cards](../screenshots/catalog-giftcards-main.png)
 
@@ -64,7 +68,11 @@ Select a single or multiple previously created gift cards from the gift cards li
 ![Gift cards](../screenshots/catalog-giftcards-deactivate.png)
 
 ### How to set an automatic expiration for gift cards
-Click the three dots button on the top right corner of the page, near the Issue Card button. Click *Settings* and then you can set gift cards to expire after a certain time after their purchase. Remember that in some countries, gift cards expiry is prohibited by law.
+Click the three dots button on the top right corner of the page, near the Issue Card button. Click *Settings* and then you can set gift cards to expire after a certain time after their purchase.  Please bear in mind that once you've set an automatic expiration for gift cards, it will affect only the newly created gift cards after applying that setting.
+
+:::note
+Remember that in some countries, gift cards expiry is prohibited by law.
+:::
 
 ![Gift cards](../screenshots/catalog-giftcards-expiration.png)
 
