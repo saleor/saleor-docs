@@ -63,18 +63,17 @@ To learn more about the webhook protocols, see the [Developer's Guide](developer
 ![](screenshots/apps-webhook-new.png)
 
 ### Events
-
-:::note
-Asynchronous and synchronous webhook events are available in Saleor 3.1.
-:::
-
 In the *Events* card, you can assign singular events that you want to be triggered by the webhook.
 
-There are two types of events that can be assigned to a webhook: [synchronous](https://docs.saleor.io/docs/3.0/developer/extending/apps/synchronous-webhooks) and [asynchronous](https://docs.saleor.io/docs/3.0/developer/extending/apps/asynchronous-webhooks). 
+There are two types of events that can be assigned to a webhook: [synchronous](https://docs.saleor.io/docs/3.0/developer/extending/apps/synchronous-webhooks) and [asynchronous](https://docs.saleor.io/docs/3.0/developer/extending/apps/asynchronous-webhooks).
 
-Payment webhooks are synchronous webhooks that allow delegating payment handling to Saleor Apps. You can select multiple synchronous events.
+Synchronous webhooks can be used for extending Saleor without the need to deploy plugins on the API server. You can select multiple synchronous events.
 
 Asynchronous webhook events can be used to receive data from Saleor when particular events happen. Alternatively, you can choose the Any events option. By choosing this option you will receive webhooks when any of the available events are triggered.
+
+Saleor 3.0 introduces synchronous payment webhooks that allow delegating payment handling to Saleor Apps. It also introduces asynchronous webhooks dedicated to filtering shipping methods in checkout and order.
+
+Saleor 3.1 introduces two synchronous webhooks: `SHIPPING_LIST_METHODS_FOR_CHECKOUT` and  `SHIPPING_LIST_METHODS_FOR_ORDER`.
 
 ### Activating a webhook
 
