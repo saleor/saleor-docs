@@ -1,0 +1,25 @@
+---
+title: Saleor 3.1
+---
+
+## Preparation
+
+The 3.1 version introduces some breaking changes that were necessary to ensure highest quality of our API and security. There were no changes in public APIs, so your storefronts do not need any changes to be compatible.
+
+## Saleor Apps inside Dashboard
+
+### Authentication
+
+This change improves the security of embedding Saleor Apps inside Saleor Dashboard. They no longer share the same context and are now completely isolated from each other.
+
+In 3.0 we introduced the Apps tab inside Dashboard which allowed to display custom UI. This was meant to be used for internal Apps where you had complete control of the code.
+
+For 3.1, Apps inside Dashboard are sandboxed and can only communicate with Dashboard via new JS/TS package called [@saleor/app-bridge](https://www.npmjs.com/package/@saleor/app-bridge) which exposes an easy to use, fully typed, Promise-based API that uses native `Window.postMessage()` under the hood. This package is **required if you intend to authenticate the App based on the Dashboard user**. Authentication is now handled fully on the client side, so **Saleor Apps no longer need their own backend** - they can be SPAs (Single Page Applications) as long as your App can send all it's requests from user's browser. If your App is more complex and talks to multiple services, it might require it's own backend - in that case it's your duty to pass the necessary authentication/token information from your Apps frontend to backend. For documentation on how to use `@saleor/app-bridge` and authenticate, [see package README section](https://github.com/saleor/app-bridge#readme).
+
+### Manifest
+
+There are no breaking manifest changes, but Dashboard now uses `appUrl` for default App view. `configurationUrl` view can still be accessed from within Dashboard, but it's reserved for App's _configuration_ changes as the name suggests.
+
+### Extensions
+
+You can now use your Apps as extensions throughout the Dashboard. For more information and mounting points, see the the [documentation](https://docs.saleor.io/docs/3.0/developer/extending/apps/extensions).
