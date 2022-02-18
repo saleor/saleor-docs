@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 
 module.exports = {
   title: "Documentation – Saleor Commerce",
@@ -25,13 +25,13 @@ module.exports = {
       },
     ],
     [
-      // Before 3.0, last stable version of docs had no 
+      // Before 3.0, last stable version of docs had no
       // version suffix in the URL.
       // Since 3.0 we would like to add version number to
-      // the all URLs, so links always point to the same page. 
+      // the all URLs, so links always point to the same page.
       // Redirection handles legacy links posted in the
       // community channels.
-      '@docusaurus/plugin-client-redirects',
+      "@docusaurus/plugin-client-redirects",
       {
         createRedirects: function (existingPath) {
           if (existingPath.startsWith("/docs/2.11")) {
@@ -44,11 +44,11 @@ module.exports = {
 
   webpack: {
     jsLoader: (isServer) => ({
-      loader: require.resolve('esbuild-loader'),
+      loader: require.resolve("esbuild-loader"),
       options: {
-        loader: 'tsx',
-        format: isServer ? 'cjs' : undefined,
-        target: isServer ? 'node12' : 'es2017',
+        loader: "tsx",
+        format: isServer ? "cjs" : undefined,
+        target: isServer ? "node12" : "es2017",
       },
     }),
   },
@@ -176,19 +176,15 @@ module.exports = {
           lastVersion: "current",
           versions: {
             current: {
-              label: '3.0',
-              path: '3.0',
+              label: "3.0",
+              path: "3.0",
             },
           },
-          editUrl: function ({
-            version,
-            versionDocsDirPath,
-            docPath,
-          }) {
-            if(version==='current'){
-              return `https://github.com/saleor/saleor-docs/edit/master/docs/${docPath}`;
-            }else{
-              return `https://github.com/saleor/saleor-docs/edit/master/${versionDocsDirPath}/${docPath}`;
+          editUrl: function ({ version, versionDocsDirPath, docPath }) {
+            if (version === "current") {
+              return `https://github.com/saleor/saleor-docs/edit/main/docs/${docPath}`;
+            } else {
+              return `https://github.com/saleor/saleor-docs/edit/main/${versionDocsDirPath}/${docPath}`;
             }
           },
           // sidebars file relative to website dir.
