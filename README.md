@@ -95,7 +95,7 @@ All documentation files use extension:
 If your page uses custom react components, you are required to use `.mdx` file extension. Import statement is also required:
 
 ```mdx
-<!-- /docs/developer/export-products.mdx file -->
+<!-- /docs/developer/export/export-overview.mdx file -->
 ---
 title: Exporting Products
 ---
@@ -107,7 +107,7 @@ import Chart from "@site/components/Chart";
 <Chart
   definition={`
   graph TD
-    D[Export products data <br> Background Worker] -->|Success| E[Send email to user <br> with a link to <br> download file]
+    D[Export data <br> Background Worker] -->|Success| E[Send email to user <br> with a link to <br> download file]
     D -->|Success| X[Set SUCCESS <br>ExportFile status]
     E -->Y[Create export file <br>sent event]
     X -->F[Create data export <br>success event]

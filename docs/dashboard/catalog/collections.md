@@ -8,14 +8,7 @@ Collections are a great way to increase sales and give your customers better exp
 
 Unlike the categories, creating collections is not required.
 
-## Featured collection
-
-- Collections can be easily published and unpublished by clicking on the switch in the Visibility card when viewing a specific collection
-- Featuring a collection will make it appear on the front page of your website
-- You can only feature one collection at a time. Turning the _Feature&nbsp;on&nbsp;Homepage_ option on for one collection will automatically turn it off for all others
-
 ## How to
-
 ### How to create and edit a collection
 
 You can add and edit collections in the same way as categories, with a cover photo and SEO content tailored to your collection.
