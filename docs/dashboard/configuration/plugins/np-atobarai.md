@@ -40,4 +40,4 @@ There are several limitations:
 
 - NP Atobarai payments are processed in full, even for partial fulfillments.
   
-- NP Atobarai are marked as fully charged once they receive a successful credit check. The actual transfer of funds, happens later and is indicated in the order events section.
+- NP Atobarai are marked as fully charged once they receive a successful credit check. The actual transfer of funds happens later and is indicated in the order events section.
