@@ -18,15 +18,17 @@ import versions from "../../versions.json";
 function Versions() {
   const context = useDocusaurusContext();
   const { siteConfig = {} } = context;
-  let currentLabel = 'Next' 
-  let currentPath = 'next' 
-  const configVersions = context.siteConfig.presets[0][1].docs.versions
-  if (configVersions.current){
+  let currentLabel = "Next";
+  let currentPath = "next";
+  const configVersions = context.siteConfig.presets[0][1].docs.versions;
+  if (configVersions.current) {
     currentLabel = configVersions.current.label;
     currentPath = configVersions.current.path;
   }
   const latestStableVersion = versions[0];
-  const pastVersions = versions.filter((version) => version !== latestStableVersion);
+  const pastVersions = versions.filter(
+    (version) => version !== latestStableVersion
+  );
   const repoUrl = `https://github.com/${siteConfig.organizationName}/${siteConfig.projectName}`;
   return (
     <Layout
@@ -35,7 +37,7 @@ function Versions() {
       description="List of all documented versions of Saleor"
     >
       <div className="container margin-vert--xl">
-        <h1>Docusaurus documentation versions</h1>
+        <h1>Saleor documentation versions</h1>
         <div className="margin-bottom--lg">
           <h3 id="latest">Latest stable version</h3>
           <p>Here you can find the latest documentation.</p>
@@ -44,7 +46,9 @@ function Versions() {
               <tr>
                 <th>{latestStableVersion}</th>
                 <td>
-                  <Link to={useBaseUrl(`/docs/${latestStableVersion}/`)}>Documentation</Link>
+                  <Link to={useBaseUrl(`/docs/${latestStableVersion}/`)}>
+                    Documentation
+                  </Link>
                 </td>
               </tr>
             </tbody>
@@ -52,13 +56,17 @@ function Versions() {
         </div>
         <div className="margin-bottom--lg">
           <h3 id="next">{currentLabel} version</h3>
-          <p>Here you can find the documentation for currently developed version.</p>
+          <p>
+            Here you can find the documentation for currently developed version.
+          </p>
           <table>
             <tbody>
               <tr>
-                <th>master</th>
+                <th>main</th>
                 <td>
-                  <Link to={useBaseUrl(`/docs/${currentPath}/`)}>Documentation</Link>
+                  <Link to={useBaseUrl(`/docs/${currentPath}/`)}>
+                    Documentation
+                  </Link>
                 </td>
                 <td>
                   <a href={repoUrl}>Source Code</a>
@@ -71,8 +79,7 @@ function Versions() {
           <div className="margin-bottom--lg">
             <h3 id="archive">Past Versions</h3>
             <p>
-              Here you can find documentation for previous versions of
-              Docusaurus.
+              Here you can find documentation for previous versions of Saleor.
             </p>
             <table>
               <tbody>
