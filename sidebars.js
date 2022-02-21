@@ -125,7 +125,7 @@ module.exports = {
               "developer/extending/apps/installing-apps",
               "developer/extending/apps/asynchronous-webhooks",
               "developer/extending/apps/synchronous-webhooks",
-              "developer/extending/apps/extensions",
+              "developer/extending/apps/extending-dashboard-with-apps",
               "developer/extending/apps/sample-webhook-payloads",
             ],
           },
