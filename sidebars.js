@@ -50,6 +50,7 @@ module.exports = {
               "dashboard/configuration/plugins/adyen",
               "dashboard/configuration/plugins/oidc",
               "dashboard/configuration/plugins/stripe",
+              "dashboard/configuration/plugins/np-atobarai",
             ],
           },
         ],
@@ -185,6 +186,7 @@ module.exports = {
           "developer/available-plugins/dummy-credit-card",
           "developer/available-plugins/openid-connect",
           "developer/available-plugins/stripe",
+          "developer/available-plugins/np-atobarai",
           "developer/available-plugins/user-emails",
         ]
       },
