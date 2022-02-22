@@ -2,6 +2,19 @@
 title: Gift cards
 ---
 
+:::info
+
+This feature was introduced in **Saleor 3.1**.
+
+:::
+
+:::caution
+
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+
+:::
+
 ## Introduction
 
 Gift cards can be created by staff users or bought by customers as a standard product.
@@ -11,34 +24,31 @@ whose currency is the same as the currency of the gift card.
 During the first gift card usage, the customer user is assigned to the gift card and
 then the card can be used only by this user.
 
-## Creating gift cards by staff
+## Creating gift cards
 
-The staff user with `MANAGE_GIFT_CARD` permission can create a single gift card
-or a bunch of gift cards at once.
+Any staff user with the `MANAGE_GIFT_CARD` permission can create gift cards either one at a time or in bulk.
 
-The following example shows how the single gift card can be created.
-If `userEmail` is provided and the email plugin is configured for provided channel, 
+The following example shows how a single gift card can be created.
+If `userEmail` is provided and the email plugin is configured for provided channel,
 the gift card is sent to the customer and the `SENT_TO_CUSTOMER` event is created.
 In this example expiry date will be set, as `expiryDate` value is provided,
 If you want to create never expired card, do not provide `expiryDate` value.
 
-```graphql {2-12}
+```graphql {2-10}
 mutation {
   giftCardCreate(
     input: {
-      balance: {
-        amount: 100,
-        currency: "USD",
-      },
-      userEmail: "test@example.com",
-      channel: "channel-USD",
-      expiryDate: "2050-10-10",
-      isActive: true,
+      balance: { amount: 100, currency: "USD" }
+      userEmail: "test@example.com"
+      channel: "channel-USD"
+      expiryDate: "2050-10-10"
+      isActive: true
     }
   ) {
     giftCard {
       id
-      displayCode
+      code
+      last4CodeChars
       isActive
       expiryDate
       initialBalance {
@@ -49,47 +59,9 @@ mutation {
         currency
         amount
       }
-      createdBy {
-        email
-      }
-      usedBy {
-        email
-      }
-      createdByEmail
-      usedByEmail
       events {
         type
-        user {
-          email
-        }
-        app {
-          name
-        }
-        expiryDate
-        balance {
-          initialBalance {
-            amount
-            currency
-          }
-          oldInitialBalance {
-            amount
-            currency
-          }
-          currentBalance {
-            amount
-            currency
-          }
-          oldCurrentBalance {
-            amount
-            currency
-          }
-        }
       }
-    }
-    errors {
-      field
-      message
-      code
     }
   }
 }
@@ -97,10 +69,11 @@ mutation {
 
 As a response, we get a newly created active gift card with initial and current balance,
 generated code, and two events:
+
 - `ISSUED` which informs that gift card has been created by staff,
 - `SENT_TO_CUSTOMER` as the `userEmail` has been provided and gift card has been sent.
-Also the staff user that run mutation has been assigned as `createdBy` user.
-As the card hasn't been used yet, the field `usedByUser` is empty.
+  Also the staff user that run mutation has been assigned as `createdBy` user.
+  As the card hasn't been used yet, the field `usedByUser` is empty.
 
 ```graphql
 {
@@ -109,9 +82,9 @@ As the card hasn't been used yet, the field `usedByUser` is empty.
       "giftCard": {
         "id": "R2lmdENhcmQ6MTE=",
         "code": "ABCD-EFGH-IJKL",
-        "displayCode": "****IJKL",
+        "last4CodeChars": "IJKL",
         "isActive": true,
-        "expiryDate": null,
+        "expiryDate": "2050-10-10",
         "initialBalance": {
           "currency": "USD",
           "amount": 100.0
@@ -120,44 +93,15 @@ As the card hasn't been used yet, the field `usedByUser` is empty.
           "currency": "USD",
           "amount": 100.0
         },
-        "createdBy": {
-          "email": "admin@example.com"
-        },
-        "usedBy": null,
-        "createdByEmail": "admin@example.com",
-        "usedByEmail": null,
         "events": [
           {
-            "type": "ISSUED",
-            "user": {
-              "email": "admin@example.com"
-            },
-            "app": null,
-            "expiryDate": "2050-10-10",
-            "balance": {
-              "initialBalance": {
-                "amount": 100.0,
-                "currency": "USD"
-              },
-              "oldInitialBalance": null,
-              "currentBalance": {
-                "amount": 100.0,
-                "currency": "USD"
-              },
-              "oldCurrentBalance": null
-            }
+            "type": "ISSUED"
           }
           {
-            "type": "SENT_TO_CUSTOMER",
-            "user": {
-              "email": "admin@example.com"
-            },
-            "app": null,
-            "balance": null
+            "type": "SENT_TO_CUSTOMER"
           }
         ]
-      },
-      "errors": []
+      }
     }
   }
 }
@@ -166,74 +110,65 @@ As the card hasn't been used yet, the field `usedByUser` is empty.
 Creating gift cards in bulk is similar, but you need to specify the number of gift cards
 to create and the tag value, that will be assigned to all created gift cards.
 
-```graphql {2-10}
+```graphql {2-9}
 mutation {
   giftCardBulkCreate(
     input: {
-      count: 5,
-      tag: "example-tag",
-      isActive: true,
-      balance: {
-        amount: 200.0,
-        currency: "USD",
-      }
+      count: 5
+      tag: "example-tag"
+      isActive: true
+      balance: { amount: 200.0, currency: "USD" }
     }
   ) {
-    count
     giftCards {
       id
-      displayCode
+      code
       isActive
       tag
-    }
-    errors {
-      code
-      field
-      message
     }
   }
 }
 ```
 
 We get five new gift cards:
+
 ```graphql
 
+{
   "data": {
     "giftCardBulkCreate": {
-      "count": 5,
       "giftCards": [
         {
           "id": "R2lmdENhcmQ6MjU=",
-          "displayCode": "****A18F",
+          "code": "B13F-5C78-A18F",
           "isActive": true,
           "tag": "example-tag"
         },
         {
           "id": "R2lmdENhcmQ6MjY=",
-          "displayCode": "****1A5E",
+          "code": "2CF4-BA56-1A5E",
           "isActive": true,
           "tag": "example-tag"
         },
         {
           "id": "R2lmdENhcmQ6Mjc=",
-          "displayCode": "****943C",
+          "code": "BA14-A867-943C",
           "isActive": true,
           "tag": "example-tag"
         },
         {
           "id": "R2lmdENhcmQ6Mjg=",
-          "displayCode": "****F21A",
+          "code": "FC4A-DD96-F21A",
           "isActive": true,
           "tag": "example-tag"
         },
         {
           "id": "R2lmdENhcmQ6Mjk=",
-          "displayCode": "****7F5A",
+          "code": "413A-2ECE-7F5A",
           "isActive": true,
           "tag": "example-tag"
         }
-      ],
-      "errors": []
+      ]
     }
   }
 }
@@ -243,43 +178,40 @@ After creation, you can export gift card codes to CSV,
 you can find more information about that here.
 
 ## Gift card resending
+
 At any time after creation, you can resend the gift card to the customer.
 If the `userEmail` is not provided, the card is sent to the customer who already used the card,
 or if the card hasn't been used yet, to the customer that created the card.
 Channel is required to choose the correct email plugin to send the gift card.
 
-```graphql {2-7}
+```graphql {2-8}
 mutation {
   giftCardResend(
     input: {
-      id: "R2lmdENhcmQ6MjU=",
-      channel: "default-channel",
+      id: "R2lmdENhcmQ6MjU="
+      channel: "default-channel"
       email: "saleor@example.com"
     }
   ) {
-      giftCard {
-        id
-        code
-        events {
-          type
-          user {
-            email
-          }
-          app {
-            name
-          }
+    giftCard {
+      id
+      code
+      events {
+        type
+        user {
+          email
+        }
+        app {
+          name
         }
       }
-      errors {
-        field
-        message
-        code
-      }
+    }
   }
 }
 ```
 
 ## Updating gift card
+
 After creation, the tag, expiry date, and balance amount can be updated.
 
 :::note
@@ -290,20 +222,19 @@ if the card was already used or not.
 :::
 
 The following example shows updating the expiry date, tag, and balance amount reset.
-```graphql {2-7}
+
+```graphql {2-9}
 mutation {
   giftCardUpdate(
     id: "R2lmdENhcmQ6MjU=",
     input: {
-      balanceAmount:  70,
+      balanceAmount: 70,
       expiryDate: "2040-10-10",
       tag: "new-tag",
     }
   ) {
   giftCard {
     id
-    displayCode
-    isActive
     expiryDate
     initialBalance {
       currency
@@ -315,12 +246,6 @@ mutation {
     }
     events {
       type
-      user {
-        email
-      }
-      app {
-        name
-      }
       expiryDate
       oldExpiryDate
       oldTag
@@ -344,11 +269,6 @@ mutation {
         }
       }
     }
-    errors {
-      field
-      message
-      code
-    }
   }
 }
 ```
@@ -356,14 +276,13 @@ mutation {
 As a result we get the updated gift card with new events
 `BALANCE_RESET`, `EXPIRY_DATE_UPDATED` and `TAG_UPDATED`
 as balance, expiry date and tag has been changed.
+
 ```graphql
 {
   "data": {
     "giftCardUpdate": {
       "giftCard": {
         "id": "R2lmdENhcmQ6MjU=",
-        "displayCode": "****A18F",
-        "isActive": true,
         "expiryDate": "2040-10-10",
         "initialBalance": {
           "currency": "USD",
@@ -376,10 +295,6 @@ as balance, expiry date and tag has been changed.
         "events": [
           {
             "type": "ISSUED",
-            "user": {
-              "email": "admin@example.com"
-            },
-            "app": null,
             "expiryDate": null,
             "oldExpiryDate": null,
             "oldTag": null,
@@ -399,10 +314,6 @@ as balance, expiry date and tag has been changed.
           },
           {
             "type": "BALANCE_RESET",
-            "user": {
-              "email": "admin@example.com"
-            },
-            "app": null,
             "expiryDate": null,
             "oldExpiryDate": null,
             "oldTag": null,
@@ -428,10 +339,6 @@ as balance, expiry date and tag has been changed.
           },
           {
             "type": "EXPIRY_DATE_UPDATED",
-            "user": {
-              "email": "admin@example.com"
-            },
-            "app": null,
             "expiryDate": "2040-10-10",
             "oldExpiryDate": null,
             "oldTag": null,
@@ -440,10 +347,6 @@ as balance, expiry date and tag has been changed.
           }
           {
             "type": "TAG_UPDATED",
-            "user": {
-              "email": "admin@example.com"
-            },
-            "app": null,
             "expiryDate": null,
             "oldExpiryDate": null,
             "oldTag": "example-tag",
@@ -451,36 +354,27 @@ as balance, expiry date and tag has been changed.
             "balance": null
           }
         ]
-      },
-      "errors": []
+      }
     }
   }
 }
 ```
 
 ## Activation and deactivation
+
 Cards could be activated and deactivated at any time.
 You can activate and deactivate a single card or a bunch of cards.
 
 To deactivate gift card just provide `id` of the card to deactivate.
+
 ```graphql {2}
 mutation {
   giftCardDeactivate(id: "R2lmdENhcmQ6MjY=") {
-    errors {
-      field
-      message
-    }
     giftCard {
       id
       isActive
       events {
         type
-        user {
-          email
-        }
-        app {
-          name
-        }
       }
     }
   }
@@ -493,24 +387,15 @@ The deactivated gift card has been return with `DEACTIVATED` event.
 {
   "data": {
     "giftCardDeactivate": {
-      "errors": [],
       "giftCard": {
         "id": "R2lmdENhcmQ6MjY=",
         "isActive": false,
         "events": [
           {
-            "type": "ISSUED",
-            "user": {
-              "email": "admin@example.com"
-            },
-            "app": null
+            "type": "ISSUED"
           },
           {
-            "type": "DEACTIVATED",
-            "user": {
-              "email": "admin@example.com"
-            },
-            "app": null
+            "type": "DEACTIVATED"
           }
         ]
       }
@@ -520,59 +405,39 @@ The deactivated gift card has been return with `DEACTIVATED` event.
 ```
 
 And similar for activation:
+
 ```graphql {2}
 mutation {
   giftCardActivate(id: "R2lmdENhcmQ6MjY=") {
-    errors {
-      field
-      message
-    }
     giftCard {
       id
       isActive
       events {
         type
-        user {
-            email
-        }
-        app {
-            name
-        }
       }
     }
   }
 }
 ```
+
 And we get active gift card with new `ACTIVATED` event:
+
 ```graphql
 {
   "data": {
     "giftCardActivate": {
-      "errors": [],
       "giftCard": {
         "id": "R2lmdENhcmQ6MjY=",
         "isActive": true,
         "events": [
           {
-            "type": "ISSUED",
-            "user": {
-              "email": "admin@example.com"
-            },
-            "app": null
+            "type": "ISSUED"
           },
           {
-            "type": "DEACTIVATED",
-            "user": {
-              "email": "admin@example.com"
-            },
-            "app": null
+            "type": "DEACTIVATED"
           },
           {
-            "type": "ACTIVATED",
-            "user": {
-              "email": "admin@example.com"
-            },
-            "app": null
+            "type": "ACTIVATED"
           }
         ]
       }
@@ -585,18 +450,20 @@ For bulk activation use [giftCardBulkActivate](/developer/api-reference/mutation
 and for bulk deactivation use [giftCardBulkDeactivate](developer/api-reference/mutations/gift-card-bulk-deactivate.mdx) mutation.
 
 ## Creating gift card products
+
 Allowing customers to buy gift cards in your shop is pretty simple,
 you just need to create gift card products.
-Firstly you have to create a product type with  `GIFT_CARD` kind (use [productTypeCreate](/developer/api-reference/mutations/product-type-create.mdx) for that)
+Firstly you have to create a product type with `GIFT_CARD` kind (use [productTypeCreate](/developer/api-reference/mutations/product-type-create.mdx) for that)
 and then create a product (use [productCreate](/developer/api-reference/mutations/product-create.mdx) mutation)
 with this product type and that's it.
 
 :::note
-If you want to have an unlimited number of gift cards in your shop you should create stock 
+If you want to have an unlimited number of gift cards in your shop you should create stock
 n a chosen channel with at least one quantity and unset track inventory flag.
 :::
 
 # Buying gift cards
+
 Order setting `automaticallyFulfillNonShippableGiftCard` defines when the bought gift cards
 will be created. If this flag is set to `True`, a gift card will be created during checkout completing.
 The fulfillment will be created automatically, a gift card will be generated and sent to the customer.
@@ -609,15 +476,12 @@ Gift card settings can be set to never expiry or expiry period, based on which t
 The gift card settings are set as never expiry by default and can be changed with use of [giftCardSettingsUpdate](/developer/api-reference/mutations/gift-card-settings-update.mdx).
 In the following example the gif card settings are set to 12 months.
 
-```graphql {2-9}
+```graphql {2-7}
 mutation {
   giftCardSettingsUpdate(
     input: {
-      expiryType: EXPIRY_PERIOD,
-      expiryPeriod: {
-        type: YEAR,
-        amount: 12
-      }
+      expiryType: EXPIRY_PERIOD
+      expiryPeriod: { type: YEAR, amount: 12 }
     }
   ) {
     giftCardSettings {
@@ -627,15 +491,12 @@ mutation {
         amount
       }
     }
-    errors {
-      code
-      field
-    }
   }
 }
 ```
 
 As a result we get updated expiry settings.
+
 ```graphql
 {
   "data": {
@@ -646,18 +507,17 @@ As a result we get updated expiry settings.
           "type": "YEAR",
           "amount": 12
         }
-      },
-      "errors": []
+      }
     }
   }
 }
 ```
 
-
 ## Using gift card in checkout
+
 To use gift card in checkout just run [checkoutAddPromoCode](/developer/api-reference/mutations/checkout-add-promo-code.mdx)
 mutation with gift card code.
-When the gift card is used for the first time, the checkout user will be assigned to this gift card. 
+When the gift card is used for the first time, the checkout user will be assigned to this gift card.
 If the card was already used, the checkout user will be compared with the gift card user,
 when the users differ, a validation error is raised.
 Also, remember that the channel currency must be the same as the card currency.

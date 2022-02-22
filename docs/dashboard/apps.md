@@ -63,8 +63,17 @@ To learn more about the webhook protocols, see the [Developer's Guide](developer
 ![](screenshots/apps-webhook-new.png)
 
 ### Events
+In the *Events* card, you can assign singular events that you want to be triggered by the webhook.
 
-In the _Events_ card, you can assign singular events that you want to be triggered by the webhook. Alternatively, you can choose the _All events_ option to send notifications about all events, regardless of type. By choosing this option you will send payloads for all events currently assigned, in doing so your range will change as events are added or deleted by the Saleor team. If you want to assign a limited range of events, choose them from the menu of specific items.
+There are two types of events that can be assigned to a webhook: [synchronous](https://docs.saleor.io/docs/3.0/developer/extending/apps/synchronous-webhooks) and [asynchronous](https://docs.saleor.io/docs/3.0/developer/extending/apps/asynchronous-webhooks).
+
+Synchronous webhooks can be used for extending Saleor without the need to deploy plugins on the API server. You can select multiple synchronous events.
+
+Asynchronous webhook events can be used to receive data from Saleor when particular events happen. Alternatively, you can choose the Any events option. By choosing this option you will receive webhooks when any of the available events are triggered.
+
+Saleor 3.0 introduces synchronous payment webhooks that allow delegating payment handling to Saleor Apps. It also introduces synchronous webhooks dedicated to filtering shipping methods in checkout and order: `Filter shipping methods for checkout` and `Filter shipping methods for order`.
+
+Saleor 3.1 introduces two synchronous webhooks: `SHIPPING_LIST_METHODS_FOR_CHECKOUT` and  `SHIPPING_LIST_METHODS_FOR_ORDER`.
 
 ### Activating a webhook
 

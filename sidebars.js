@@ -51,6 +51,7 @@ module.exports = {
               "dashboard/configuration/plugins/adyen",
               "dashboard/configuration/plugins/oidc",
               "dashboard/configuration/plugins/stripe",
+              "dashboard/configuration/plugins/np-atobarai",
             ],
           },
         ],
@@ -161,9 +162,9 @@ module.exports = {
         ],
       },
       {
-        type: "category",
-        label: "Community",
-        items: [
+        "type": "category",
+        "label": "Community",
+        "items": [
           "developer/community/contributing",
           "developer/community/faq",
           "developer/community/support",
@@ -179,14 +180,22 @@ module.exports = {
       },
       {
         "type": "category",
-        "label": " Appendix: Available plugins",
+        "label": "Appendix: Available plugins",
         "items": [
           "developer/available-plugins/admin-emails",
           "developer/available-plugins/adyen",
           "developer/available-plugins/dummy-credit-card",
           "developer/available-plugins/openid-connect",
           "developer/available-plugins/stripe",
+          "developer/available-plugins/np-atobarai",
           "developer/available-plugins/user-emails",
+        ]
+      },
+      {
+        "type": "category",
+        "label": "Appendix: Upgrade guide",
+        "items": [
+          "developer/upgrade-guide/2-11-to-3-0",
         ]
       }
     ],

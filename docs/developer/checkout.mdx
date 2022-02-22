@@ -74,7 +74,7 @@ The resulting [`Checkout`](developer/api-reference/objects/checkout.mdx) object 
 - `totalPrice`: the total price of the checkout lines and shipping costs.
 - `isShippingRequired`: denotes whether shipping is required for this checkout.
 - `availablePaymentGateways`: a list of payment gateways that are currently configured on your Saleor server and can be used to pay for the checkout. Only gateways which support the checkout currency are returned. For each gateway, API returns an ID, a name, and a config object, which for some gateways may return additional information required to process the payment in the frontend.
-- `availableShippingMethods`: a list of available shipping methods for this checkout. If the items in the cart require shipment.
+- `shippingMethods`: a list of all shipping methods for this checkout. If the items in the cart require shipment.
 - `availableCollectionPoints`: a list of available places of self-pickup. It is calculated based on the given country and available Stocks (for Warehouses which `clickAndCollectOption` field is not set to `DISABLED`). For further Click & Collect feature explanation see [Warehouse settings](dashboard/configuration/warehouses.mdx#clickcollect-related-settings).
 
 In addition the following fields are available on the mutation results:
@@ -121,9 +121,11 @@ mutation {
         }
       }
       isShippingRequired
-      availableShippingMethods {
+      shippingMethods {
         id
         name
+        active
+        message
       }
       availableCollectionPoints {
         id
@@ -163,14 +165,18 @@ We get a newly created checkout object for which we return the ID, token, total 
           }
         },
         "isShippingRequired": true,
-        "availableShippingMethods": [
+        "shippingMethods": [
           {
             "id": "U2hpcHBpbmdNZXRob2Q6MTM=",
-            "name": "UPS"
+            "name": "UPS",
+            "active": true,
+            "message": ""
           },
           {
             "id": "U2hpcHBpbmdNZXRob2Q6MTI=",
-            "name": "DHL"
+            "name": "DHL",
+            "active": false,
+            "message": "Not available."
           }
         ],
         "availableCollectionPoints": [
@@ -501,15 +507,16 @@ After choosing the shipping address, API can be queried for available delivery m
 ```graphql
 query {
   checkout(token: "853ca234-b113-4021-8434-b37087d652a1"){
-    availableShippingMethods {
+    shippingMethods {
       id
       name
+      active
       price {
         currency
         amount
       }
     }
-    availableShippingMethods {
+    availableCollectionPoints {
       id
       name
       clickAndCollectOption
@@ -523,14 +530,16 @@ Response:
 {
   "data": {
     "checkout": {
-      "availableShippingMethods": [
+      "shippingMethods": [
         {
           "id": "U2hpcHBpbmdNZXRob2Q6MTY1Nw==",
           "name": "DHL",
           "price": {
             "currency": "USD",
             "amount": 10.00
-          }
+          },
+          "active": true,
+          "message": ""
         },
         {
           "id": "U2hpcHBpbmdNZXRob2Q6MTM=",
@@ -538,7 +547,9 @@ Response:
           "price": {
             "currency": "USD",
             "amount": 8.00
-          }
+          },
+          "active": false,
+          "message": "Not available."
         },
       ],
       "availableCollectionPoints": [
@@ -564,7 +575,7 @@ Use the [`checkoutDeliveryMethodUpdate`](developer/api-reference/mutations/check
 This operation requires the following input:
 
 - `token`: the checkout token (the `token` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
-- `deliveryMethodId`: the shipping method ID or Warehouse ID (from the `availableShippingMethods` or `availableCollectionPoints` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
+- `deliveryMethodId`: the shipping method ID or Warehouse ID (from the `shippingMethods` or `availableCollectionPoints` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
 
 In the following mutation, we assign a delivery method to the checkout using IDs from the previous example. Note that for the checkout object we want to get back the update `totalPrice` including shipping costs:
 
