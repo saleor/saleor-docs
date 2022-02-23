@@ -1,4 +1,4 @@
-import useThemeContext from "@theme/hooks/useThemeContext";
+import { useColorMode } from "@docusaurus/theme-common";
 import React, { useEffect, useState } from "react";
 import { mermaidAPI } from "mermaid";
 
@@ -6,7 +6,7 @@ import "./styles.css";
 
 const Chart = ({ definition }) => {
   const [svg, setSvg] = useState("");
-  const { isDarkTheme } = useThemeContext();
+  const { isDarkTheme } = useColorMode();
 
   useEffect(() => {
     mermaidAPI.initialize({
