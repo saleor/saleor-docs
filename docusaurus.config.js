@@ -20,7 +20,7 @@ module.exports = {
         schema: "http://localhost:8000/graphql/",
         rootPath: "./docs", // docs will be generated under rootPath/baseURL
         baseURL: "developer/api-reference",
-        homepage: "./docs/api-reference.mdx",
+        homepage: "./template/api-reference.mdx",
         linkRoot: "../../../",
       },
     ],
@@ -84,14 +84,14 @@ module.exports = {
           position: "right",
         },
         {
-          type: "doc",
-          docId: "dashboard/before-you-start",
+          type: "docSidebar",
+          sidebarId: "dashboard",
           label: "Dashboard Manual",
           position: "left",
         },
         {
-          type: "doc",
-          docId: "developer",
+          type: "docSidebar",
+          sidebarId: "developer",
           label: "Developer's Guide",
           position: "left",
         },
@@ -152,11 +152,6 @@ module.exports = {
     // Open Graph and Twitter card images.
     image: "img/og-image.png",
 
-    // Google Analytics tracking ID to track page views.
-    googleAnalytics: {
-      trackingID: "UA-10159761-25",
-    },
-
     prism: {
       theme: require("prism-react-renderer/themes/github"),
       darkTheme: require("prism-react-renderer/themes/dracula"),
@@ -189,6 +184,10 @@ module.exports = {
           },
           // sidebars file relative to website dir.
           sidebarPath: require.resolve("./sidebars.js"),
+        },
+        // Google Analytics tracking ID to track page views.
+        googleAnalytics: {
+          trackingID: "UA-10159761-25",
         },
       },
     ],

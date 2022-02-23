@@ -1,5 +1,5 @@
 module.exports = {
-  "dashboard/before-you-start": {
+  dashboard: {
     "Dashboard Manual": [
       "dashboard/index",
       "dashboard/before-you-start",
@@ -109,7 +109,7 @@ module.exports = {
           "developer/export/export-overview",
           "developer/export/export-products",
           "developer/export/export-gift-cards",
-        ]
+        ],
       },
       {
         type: "category",
@@ -161,9 +161,9 @@ module.exports = {
         ],
       },
       {
-        "type": "category",
-        "label": "Community",
-        "items": [
+        type: "category",
+        label: "Community",
+        items: [
           "developer/community/contributing",
           "developer/community/faq",
           "developer/community/support",
@@ -178,9 +178,9 @@ module.exports = {
         ],
       },
       {
-        "type": "category",
-        "label": "Appendix: Available plugins",
-        "items": [
+        type: "category",
+        label: "Appendix: Available plugins",
+        items: [
           "developer/available-plugins/admin-emails",
           "developer/available-plugins/adyen",
           "developer/available-plugins/dummy-credit-card",
@@ -188,16 +188,13 @@ module.exports = {
           "developer/available-plugins/stripe",
           "developer/available-plugins/np-atobarai",
           "developer/available-plugins/user-emails",
-        ]
+        ],
       },
       {
-        "type": "category",
-        "label": "Appendix: Upgrade guide",
-        "items": [
-          "developer/upgrade-guide/2-11-to-3-0",
-        ]
-      }
+        type: "category",
+        label: "Appendix: Upgrade guide",
+        items: ["developer/upgrade-guide/2-11-to-3-0"],
+      },
     ],
   },
-  ...require("./docs/developer/api-reference/sidebar-schema.js"),
 };
