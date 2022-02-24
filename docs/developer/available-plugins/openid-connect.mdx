@@ -2,8 +2,6 @@
 title: OpenID Connect (OIDC)
 ---
 
-import Chart from "@site/components/Chart";
-
 :::note
 
 The OIDC plugin is available only on Saleor Cloud. 
@@ -37,17 +35,16 @@ To use this flow you, need to configure the plugin by providing values for `JSON
 ### Generating authentication URL
 
 #### Workflow
-<Chart
-  definition={`
-  sequenceDiagram
-    Web ->>+ Saleor: ExternalAuthenticationUrl mutation with<br> redirectUri as input (http://localhost:3000/)
-    Saleor ->>+ OpenIDConnectPlugin: call<br>external_authentication_url
-    OpenIDConnectPlugin -->>- Saleor: return redirect URL to <br>Oauth provider
-    Saleor -->>- Web: Response from plugin
-    Web ->>+ OAuthProvider: Redirect to the authorizantion page
-    OAuthProvider -->>- Web: GET<br> <redirectUri>?state=XXX&code=YYY
-`}
-/>
+
+```mermaid
+sequenceDiagram
+  Web ->>+ Saleor: ExternalAuthenticationUrl mutation with<br> redirectUri as input (http://localhost:3000/)
+  Saleor ->>+ OpenIDConnectPlugin: call<br>external_authentication_url
+  OpenIDConnectPlugin -->>- Saleor: return redirect URL to <br>Oauth provider
+  Saleor -->>- Web: Response from plugin
+  Web ->>+ OAuthProvider: Redirect to the authorizantion page
+  OAuthProvider -->>- Web: GET<br> <redirectUri>?state=XXX&code=YYY
+```
 
 Executing [`externalAuthenticationUrl`](developer/api-reference/mutations/external-authentication-url.mdx) mutation will prepare special URL which will redirect user to requested page after successfull authentication. After redirection `state` and `code` fields will be added to the URL. [`externalObtainAccessTokens`](developer/api-reference/mutations/external-obtain-access-tokens.mdx) will require both.
 
@@ -89,19 +86,17 @@ A successful response:
 
 #### Workflow
 
-<Chart
-  definition={`
-  sequenceDiagram
-    Web ->>+ Saleor: ExternalObtainAccessTokens mutation<br>with recieved code and state as an input
-    Saleor ->>+ OpenIDConnectPlugin: call<br>external_obtain_access_tokens
-    OpenIDConnectPlugin ->>+ OAuthProvider: fetch tokens
-    OAuthProvider -->>- OpenIDConnectPlugin: tokens
-    OpenIDConnectPlugin ->> OpenIDConnectPlugin: validate tokens
-    OpenIDConnectPlugin ->> OpenIDConnectPlugin: create internal<br>tokens with granted permissions
-    OpenIDConnectPlugin -->>- Saleor: return tokens
-    Saleor -->>- Web: set cookie refreshToken with <br>refresh token<br>return tokens in mutation response
-`}
-/>
+```mermaid
+sequenceDiagram
+  Web ->>+ Saleor: ExternalObtainAccessTokens mutation<br>with recieved code and state as an input
+  Saleor ->>+ OpenIDConnectPlugin: call<br>external_obtain_access_tokens
+  OpenIDConnectPlugin ->>+ OAuthProvider: fetch tokens
+  OAuthProvider -->>- OpenIDConnectPlugin: tokens
+  OpenIDConnectPlugin ->> OpenIDConnectPlugin: validate tokens
+  OpenIDConnectPlugin ->> OpenIDConnectPlugin: create internal<br>tokens with granted permissions
+  OpenIDConnectPlugin -->>- Saleor: return tokens
+  Saleor -->>- Web: set cookie refreshToken with <br>refresh token<br>return tokens in mutation response
+```
 
 #### Mutation
 The [`externalObtainAccessTokens`](developer/api-reference/mutations/external-obtain-access-tokens.mdx) mutation will generate requested access tokens. The mutation takes the following input fields:
@@ -152,20 +147,20 @@ A successful response:
 ```
 
 ### Refreshing token
+
 #### Workflow
-<Chart
-  definition={`
-  sequenceDiagram
-    Web ->>+ Saleor: ExternalRefresh mutation with<br> refreshToken and CSRF token as input ¹
-    Saleor ->>+ OpenIDConnectPlugin: call <br>PluginManager.external_refresh
-    OpenIDConnectPlugin ->> OpenIDConnectPlugin: validate CSRF and <br>refresh token structure
-    OpenIDConnectPlugin ->>+ OAuthProvider: refresh tokens
-    OAuthProvider -->>- OpenIDConnectPlugin: new tokens
-    OpenIDConnectPlugin ->> OpenIDConnectPlugin: create new internal tokens
-    OpenIDConnectPlugin -->>- Saleor: new tokens
-    Saleor ->>- Web: return access_token<br> and refresh_token
-`}
-/>
+
+```mermaid
+sequenceDiagram
+  Web ->>+ Saleor: ExternalRefresh mutation with<br> refreshToken and CSRF token as input ¹
+  Saleor ->>+ OpenIDConnectPlugin: call <br>PluginManager.external_refresh
+  OpenIDConnectPlugin ->> OpenIDConnectPlugin: validate CSRF and <br>refresh token structure
+  OpenIDConnectPlugin ->>+ OAuthProvider: refresh tokens
+  OAuthProvider -->>- OpenIDConnectPlugin: new tokens
+  OpenIDConnectPlugin ->> OpenIDConnectPlugin: create new internal tokens
+  OpenIDConnectPlugin -->>- Saleor: new tokens
+  Saleor ->>- Web: return access_token<br> and refresh_token
+```
 
 > ¹ refresh token can also be passed as a cookie named `refreshToken`
 
@@ -258,30 +253,28 @@ A successful response:
 }
 ```
 #### Workflow
-<Chart
-  definition={`
-  sequenceDiagram
-    Web ->>+ Saleor: ExternalVerify mutation with<br> token as input
-    Saleor ->>+ OpenIDConnectPlugin: call <br>PluginManager.external_verify
-    OpenIDConnectPlugin ->> OpenIDConnectPlugin: decode token
-    OpenIDConnectPlugin -->>- Saleor: return assigned user<br> and payload data
-    Saleor ->>- Web: return token data
-`}
-/>
+
+```mermaid
+sequenceDiagram
+  Web ->>+ Saleor: ExternalVerify mutation with<br> token as input
+  Saleor ->>+ OpenIDConnectPlugin: call <br>PluginManager.external_verify
+  OpenIDConnectPlugin ->> OpenIDConnectPlugin: decode token
+  OpenIDConnectPlugin -->>- Saleor: return assigned user<br> and payload data
+  Saleor ->>- Web: return token data
+```
 
 ### Logout
 
 #### Workflow
-<Chart
-  definition={`
-  sequenceDiagram
-    Web ->>+ Saleor: ExternalLogout mutation with<br> data required to logout
-    Saleor ->>+ OpenIDConnectPlugin: call <br>PluginManager.external_logout
-    OpenIDConnectPlugin ->>OpenIDConnectPlugin: prepare logout URL:<br> logoutUrl + input data as GET params
-    OpenIDConnectPlugin -->>- Saleor: return logoutData
-    Saleor ->>- Web: return logoutData
-`}
-/>
+
+```mermaid
+sequenceDiagram
+  Web ->>+ Saleor: ExternalLogout mutation with<br> data required to logout
+  Saleor ->>+ OpenIDConnectPlugin: call <br>PluginManager.external_logout
+  OpenIDConnectPlugin ->>OpenIDConnectPlugin: prepare logout URL:<br> logoutUrl + input data as GET params
+  OpenIDConnectPlugin -->>- Saleor: return logoutData
+  Saleor ->>- Web: return logoutData
+```
 
 You can prepare the logout URL by calling [`externalLogout`](developer/api-reference/mutations/external-logout.mdx) mutation. 
 All values passed in field `input` will be added as GET parameters to the logout request.
@@ -337,18 +330,16 @@ it will try to find permissions in `access_token.permissions`.
 
 ## User authentication flow
 
-<Chart
-  definition={`
-  sequenceDiagram
-    Web ->>+ Saleor: request to protected resources with token
-    Saleor ->>+ OpenIDConnectPlugin: authentication backend calls <br>Plugin.authenticate_user
-    OpenIDConnectPlugin ->> OpenIDConnectPlugin: decode and validate token
-    OpenIDConnectPlugin ->> OpenIDConnectPlugin: get user
-    OpenIDConnectPlugin ->> OpenIDConnectPlugin: assign permissions <br>from token
-    OpenIDConnectPlugin ->>- Saleor: user authenticated
-    Saleor ->>- Web: requested resources
-`}
-/>
+```mermaid
+sequenceDiagram
+  Web ->>+ Saleor: request to protected resources with token
+  Saleor ->>+ OpenIDConnectPlugin: authentication backend calls <br>Plugin.authenticate_user
+  OpenIDConnectPlugin ->> OpenIDConnectPlugin: decode and validate token
+  OpenIDConnectPlugin ->> OpenIDConnectPlugin: get user
+  OpenIDConnectPlugin ->> OpenIDConnectPlugin: assign permissions <br>from token
+  OpenIDConnectPlugin ->>- Saleor: user authenticated
+  Saleor ->>- Web: requested resources
+```
 
 ## OAuth permissions
 Saleor can use OAuth permissions assigned to a user. It maps internal permissions to OAuth scopes and attaches it to the authorization request.
