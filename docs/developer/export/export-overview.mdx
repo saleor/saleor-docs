@@ -2,8 +2,6 @@
 title: Export overview
 ---
 
-import Chart from "@site/components/Chart";
-
 ## Introduction
 This guide describes information common to all exports.
 At this time only products and gift cards export is available.
@@ -14,34 +12,30 @@ At this time only products and gift cards export is available.
 The chart below describes how the workflow looks like for each export.
 What changes for each export is a mutation and background worker that is adapted to the data type.
 
-<Chart
-  definition={`
-  sequenceDiagram
-  Client ->>+ Saleor: mutation
-  Saleor ->> Saleor: Validate input data
-  Saleor ->>+ Background Worker: Schedule export
-  Background Worker -->>- Saleor: Scheduled
-  Saleor -->>- Client: return ExportFile instance
-`}
-/>
+```mermaid
+sequenceDiagram
+  Client ->>+ Saleor: mutation
+  Saleor ->> Saleor: Validate input data
+  Saleor ->>+ Background Worker: Schedule export
+  Background Worker -->>- Saleor: Scheduled
+  Saleor -->>- Client: return ExportFile instance
+```
 
 #### Handling background worker result
 Background worker result is also handling in the same way for all workers.
 The below chart shows what happens in the case of success and failed worker results.
 
-<Chart
-  definition={`
-  graph TD
-    D[Export data <br> Background Worker] -->|Success| E[Send email to user <br> with a link to <br> download file]
-    D -->|Success| X[Set SUCCESS <br>ExportFile status]
-    E -->Y[Create export file <br>sent event]
-    X -->F[Create data export <br>success event]
-    D -->|Failed| G[Set FAILED <br>ExportFile status]
-    G --> U[Create data export <br>failed event]
-    U --> J[Send email to the user<br>with information <br>about failing export]
-    J --> K[Create export failed <br>info sent event]
-`}
-/>
+```mermaid
+graph TD
+  D[Export data <br> Background Worker] -->|Success| E[Send email to user <br> with a link to <br> download file]
+  D -->|Success| X[Set SUCCESS <br>ExportFile status]
+  E -->Y[Create export file <br>sent event]
+  X -->F[Create data export <br>success event]
+  D -->|Failed| G[Set FAILED <br>ExportFile status]
+  G --> U[Create data export <br>failed event]
+  U --> J[Send email to the user<br>with information <br>about failing export]
+  J --> K[Create export failed <br>info sent event]
+```
 
 ### Mutations
 The input data for the mutations may differ a little, but all of them return the same
@@ -67,6 +61,7 @@ In addition the following field is available on the eery mutation results:
 Export is doing in asynchronously worker so as a result you might get export file instance
 with `PENDING` status. To check if task status has changed you can fetch `ExportFile` 
 by `ID` with use of `exportFile` query:
+
 ```graphql {2}
   query {
     exportFile(id: "RXhwb3J0RmlsZToxMA==") {

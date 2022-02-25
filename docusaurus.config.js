@@ -168,6 +168,7 @@ module.exports = {
         docs: {
           // docs folder path relative to website dir.
           path: "./docs",
+          remarkPlugins: [require("mdx-mermaid")],
           lastVersion: "current",
           versions: {
             current: {

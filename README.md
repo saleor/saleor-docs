@@ -100,23 +100,11 @@ If your page uses custom react components, you are required to use `.mdx` file e
 title: Exporting Products
 ---
 
-import Chart from "@site/components/Chart";
+import Foo from "@site/components/Foo";
 
 ...
 
-<Chart
-  definition={`
-  graph TD
-    D[Export data <br> Background Worker] -->|Success| E[Send email to user <br> with a link to <br> download file]
-    D -->|Success| X[Set SUCCESS <br>ExportFile status]
-    E -->Y[Create export file <br>sent event]
-    X -->F[Create data export <br>success event]
-    D -->|Failed| G[Set FAILED <br>ExportFile status]
-    G --> U[Create data export <br>failed event]
-    U --> J[Send email to the user<br>with information <br>about failing export]
-    J --> K[Create export failed <br>info sent event]
-`}
-/>
+<Foo />
 ```
 
 For charts we are using [Mermaid](http://mermaid-js.github.io/mermaid/) package.

@@ -3,8 +3,6 @@ title: Working with Checkout
 sidebar_label: Cart and Checkout
 ---
 
-import Chart from "@site/components/Chart";
-
 ## Introduction
 
 The below process describes the key milestones in the checkout process flow in Saleor. There are also additional steps that may occur along the way; however, the purpose of this instruction is to deliver a base reference for the user to work with. We assume that at this stage, you have already completed the steps included in the [Getting Started](getting-started/graphql.mdx) section of this chapter and that you are familiar with the basic setup of the Saleor GraphQL API.
@@ -419,26 +417,24 @@ If no other user will add this item to their checkout user A will still be able 
 ## Shipping
 This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To signify whether shipping is required, use the `isShippingRequired` field in the [`Checkout`](developer/api-reference/objects/checkout.mdx) object.
 
-<Chart
-  definition={`
-  sequenceDiagram
-  Client ->> Saleor: checkoutCreate
-  alt customer exists and has default address
+```mermaid
+sequenceDiagram
+  Client ->> Saleor: checkoutCreate
+  alt customer has a default address
     Saleor->>Saleor: Assign default shipping and billing address
   end
-  Saleor -->> Client: Checkout
-  alt customer chenges address
-    Client ->> Saleor: new address
+  Saleor -->> Client: Checkout
+  alt customer changes address
+    Client ->> Saleor: new address
     Saleor -->> Client: address set
   end
-  Client ->> Saleor: getShippingMethods
-  Client ->> Saleor: getCollectionPoints
+  Client ->> Saleor: getShippingMethods
+  Client ->> Saleor: getCollectionPoints
   Saleor -->> Client: available ShippingMethods
   Saleor -->> Client: available CollectionPoints 
-  Client ->> Saleor: checkoutShippingAddressUpdate
+  Client ->> Saleor: checkoutShippingAddressUpdate
   Saleor -->> Client: updated Checkout
-`}
-/>
+```
 
 ### Adding address data
 
@@ -685,16 +681,13 @@ As a result, we get an updated checkout object with new checkout email set:
 
 Depending on the selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway will direct you to an external payment page. The payment gateway sends information if the payment is successful, along with tokenized credit card payment information. This token is then used to run the [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation.
 
-<Chart
-  definition={`
-  sequenceDiagram
-  Client ->>+ Saleor: getPaymentMethods
+```mermaid
+sequenceDiagram
+  Client ->>+ Saleor: getPaymentMethods
   Saleor -->>- Client: available PaymentMethods
-  Client ->>+ Saleor: checkoutPaymentCreate
+  Client ->>+ Saleor: checkoutPaymentCreate
   Saleor -->>- Client: payment created
-`}
-/>
-
+```
 
 ### Listing available payment gateways
 
@@ -843,15 +836,13 @@ If these are satisfied, the checkout is transformed into an order, and the custo
 
 ### Without additional payment action
 
-<Chart
-  definition={`
-  sequenceDiagram
-  Client ->>+ Saleor: checkoutComplete
-  Saleor ->>+ Payment Gateway: process payment
+```mermaid
+sequenceDiagram
+  Client ->>+ Saleor: checkoutComplete
+  Saleor ->>+ Payment Gateway: process payment
   Payment Gateway -->>- Saleor: payment confirmed
   Saleor -->>- Client: order data
-`}
-/>
+```
 
 The [`checkoutComplete`](developer/api-reference/mutations/checkout-complete.mdx) mutation requires the following input:
 
@@ -940,21 +931,19 @@ A response would look like this:
 
 ### Payment requiring additional action
 
-<Chart
-  definition={`
-  sequenceDiagram
-  Client ->>+ Saleor: checkoutComplete
-  Saleor ->>+ Payment Service Provider: process payment
+```mermaid
+sequenceDiagram
+  Client ->>+ Saleor: checkoutComplete
+  Saleor ->>+ Payment Service Provider: process payment
   Payment Service Provider -->>- Saleor: action needed
   Saleor -->>- Client: action needed
-  Client ->>+ Payment Service Provider: perform confirmation
+  Client ->>+ Payment Service Provider: perform confirmation
   Payment Service Provider -->>- Client: confirmation data
-  Client ->>+ Saleor: checkoutComplete
-  Saleor ->>+ Payment Service Provider: confirm payment
+  Client ->>+ Saleor: checkoutComplete
+  Saleor ->>+ Payment Service Provider: confirm payment
   Payment Service Provider -->>- Saleor: payment confirmed
   Saleor -->>- Client: order data
-`}
-/>
+```
 
 An example of additional action is 3D Secure confirmation required by payment providers.
 
