@@ -158,6 +158,7 @@ module.exports = {
           "developer/running-saleor/exposing-instance",
           "developer/running-saleor/monitoring",
           "developer/running-saleor/background-tasks",
+          "developer/running-saleor/read-replicas",
         ],
       },
       {
