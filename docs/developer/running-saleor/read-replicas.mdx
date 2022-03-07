@@ -1,0 +1,111 @@
+---
+title: Database read replicas
+---
+
+Database read replica is a read-only copy of the primary database. Replica should reflect changes in the primary database as fast as possible. This feature allows Saleor to offload the primary database by moving the read-only traffic to a separate database.
+:::note
+Asynchronous replication is not part of Saleor Core. It should be configured separately depending on the environment.
+:::
+```mermaid
+graph LR
+  C((Saleor Core)) ---|Read/Write| P[(Primary database)]
+  C ---|Read| R[(Read replica)]
+  P --->|Asynchronous replication| R
+```
+
+## How to configure
+Django allows using [multiple databases.](https://docs.djangoproject.com/en/4.0/topics/db/multi-db/)
+To start using read replica in Saleor, set `DATABASE_CONNECTION_REPLICA_NAME` in `settings.py` and specify this connection in `DATABASES`.
+
+#### Example config:
+```python
+# settings.py
+
+PRIMARY_DB_URL = "postgres://saleor:saleor@localhost:5432/saleor"
+REPLICA_DB_URL = "postgres://saleor:saleor@localhost-replica:5433/saleor"
+
+DATABASE_CONNECTION_DEFAULT_NAME = "default"
+DATABASE_CONNECTION_REPLICA_NAME = "replica"
+
+DATABASES = {
+    DATABASE_CONNECTION_DEFAULT_NAME: dj_database_url.config(
+        default=PRIMARY_DB_URL conn_max_age=600
+    ),
+    DATABASE_CONNECTION_REPLICA_NAME: dj_database_url.config(
+        default=REPLICA_DB_URL, conn_max_age=600,
+    ),
+}
+```
+
+
+## How to use replica in code
+
+Saleor always uses the primary database by default. To specify which connection to use in ORM, use [the `using` queryset method](https://docs.djangoproject.com/en/4.0/topics/db/multi-db/#manually-selecting-a-database).
+
+#### Example
+```python
+# To fetch all products from the primary database use:
+
+from django.conf import settings
+
+Products.objects.all()
+
+Products.objects.using(settings.DATABASE_CONNECTION_DEFAULT_NAME).all()
+
+# To fetch all products from the read replica use:
+
+from django.conf import settings
+
+Products.objects.using(settings.DATABASE_CONNECTION_REPLICA_NAME).all()
+```
+
+
+## How to use read replicas in dataloaders
+
+Dataloaders are used to efficiently load data from the database in GraphQL query resolvers. To enable using read replicas in dataloaders, use the
+`database_connection_name` property, which is included in subclasses of the base `DataLoader` class:
+
+```python
+ Product.objects.using(self.database_connection_name).in_bulk(keys)
+```
+
+:::note
+Mutations should always use data from the primary database to ensure that they operate on the newest data.
+:::
+
+## How to test it in a local machine
+
+To simulate a read replica on a local machine, use a second connection to the primary database with the read-only user.
+
+#### 1. Add a read-only user in your database:
+```sql
+CREATE USER saleor_read_only WITH PASSWORD 'saleor';
+GRANT CONNECT ON DATABASE saleor TO saleor_read_only;
+GRANT USAGE ON SCHEMA public TO saleor_read_only;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO saleor_read_only;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO saleor_read_only;
+```
+:::note
+Saleor-platform creates a read-only user by default.
+:::
+
+#### 2. Add the following configuration in settings.py:
+
+```python
+# settings.py
+
+PRIMARY_DB_URL = "postgres://saleor:saleor@localhost:5432/saleor"
+REPLICA_DB_URL = "postgres://saleor_read_only:saleor@localhost:5433/saleor"
+
+DATABASE_CONNECTION_DEFAULT_NAME = "default"
+DATABASE_CONNECTION_REPLICA_NAME = "replica"
+
+DATABASES = {
+    DATABASE_CONNECTION_DEFAULT_NAME: dj_database_url.config(
+        default=PRIMARY_DB_URL conn_max_age=600
+    ),
+    DATABASE_CONNECTION_REPLICA_NAME: dj_database_url.config(
+        default=REPLICA_DB_URL, conn_max_age=600,
+    ),
+}
+```
