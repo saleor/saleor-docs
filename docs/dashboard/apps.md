@@ -58,14 +58,14 @@ In the _Webhook Specific Information_ section:
 
 - Optionally, if the service to which you are sending the webhook wants additional validation of the content that is being sent, you need to set a _Secret Key_. After generating the secret key value, you need to pass it to the third-party service so that they can use it to validate content sent from Saleor via webhooks.
 
-To learn more about the webhook protocols, see the [Developer's Guide](developer/extending/apps/key-concepts.mdx#webhook-protocols).
+To learn more about the webhook protocols, see the [Developer's Guide](../developer/extending/apps/key-concepts.mdx#webhook-protocols).
 
 ![](screenshots/apps-webhook-new.png)
 
 ### Events
 In the *Events* card, you can assign singular events that you want to be triggered by the webhook.
 
-There are two types of events that can be assigned to a webhook: [synchronous](https://docs.saleor.io/docs/3.0/developer/extending/apps/synchronous-webhooks) and [asynchronous](https://docs.saleor.io/docs/3.0/developer/extending/apps/asynchronous-webhooks).
+There are two types of events that can be assigned to a webhook: [synchronous](../developer/extending/apps/synchronous-webhooks) and [asynchronous](../developer/extending/apps/asynchronous-webhooks).
 
 Synchronous webhooks can be used for extending Saleor without the need to deploy plugins on the API server. You can select multiple synchronous events.
 

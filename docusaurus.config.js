@@ -37,6 +37,9 @@ module.exports = {
           if (existingPath.startsWith("/docs/2.11")) {
             return existingPath.replace("/2.11", "");
           }
+          if (existingPath.startsWith("/docs/3.x")) {
+            return existingPath.replace("/3.x", "/3.0");
+          }
         },
       },
     ],
@@ -173,7 +176,7 @@ module.exports = {
           versions: {
             current: {
               label: "3.x",
-              path: "3.0",
+              path: "3.x",
             },
           },
           editUrl: function ({ version, versionDocsDirPath, docPath }) {

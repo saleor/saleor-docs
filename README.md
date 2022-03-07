@@ -219,7 +219,7 @@ In dev mode, Docusaurus serves a debug page with a list of all available routes 
 
 # Style
 
-Available visual components and text formatting can be found at http://localhost:3000/docs/3.0/style-guide.
+Available visual components and text formatting can be found at http://localhost:3000/docs/3.x/style-guide.
 
 # Full Docusaurus Documentation
 
