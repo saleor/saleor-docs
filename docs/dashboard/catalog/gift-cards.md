@@ -6,6 +6,11 @@ title: Gift Cards
 Gift cards are available in Saleor 3.1.
 :::
 
+:::caution
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+:::
+
 This page contains information on how to manage gift cards by selecting a specific currency, sending them to customers, or setting expiry dates.
 
 ## Introduction
