@@ -14,7 +14,7 @@ module.exports = {
           "dashboard/catalog/products",
           "dashboard/catalog/categories",
           "dashboard/catalog/collections",
-          "dashboard/catalog/gift-cards"
+          "dashboard/catalog/gift-cards",
         ],
       },
       "dashboard/orders",
