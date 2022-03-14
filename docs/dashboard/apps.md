@@ -71,9 +71,9 @@ Synchronous webhooks can be used for extending Saleor without the need to deploy
 
 Asynchronous webhook events can be used to receive data from Saleor when particular events happen. Alternatively, you can choose the Any events option. By choosing this option you will receive webhooks when any of the available events are triggered.
 
-Saleor 3.0 introduces synchronous payment webhooks that allow delegating payment handling to Saleor Apps. It also introduces synchronous webhooks dedicated to filtering shipping methods in checkout and order: `Filter shipping methods for checkout` and `Filter shipping methods for order`.
+**Saleor 3.0** introduces synchronous payment webhooks that allow delegating payment handling to Saleor Apps. It also introduces synchronous webhooks dedicated to filtering shipping methods in checkout and order: `Filter shipping methods for checkout` and `Filter shipping methods for order`.
 
-Saleor 3.1 introduces two synchronous webhooks: `SHIPPING_LIST_METHODS_FOR_CHECKOUT` and  `SHIPPING_LIST_METHODS_FOR_ORDER`.
+**Saleor 3.1** introduces a synchronous webbook dedicated to handling shipping methods in checkout: `SHIPPING_LIST_METHODS_FOR_CHECKOUT`.
 
 ### Activating a webhook
 
