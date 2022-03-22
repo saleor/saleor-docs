@@ -4,7 +4,7 @@ title: Translations
 
 ## Introduction
 
-The Saleor dashboard is in English as a default language but all elements can be translated to local languages. Your developer or a subcontractor can localize language strings of general or static elements, such as the menus and system information, on the Saleor page on [Transifex](https://www.transifex.com/mirumee/saleor-1/).
+The Saleor dashboard is in English as a default language but all elements can be translated to local languages. Your developer or a subcontractor can localize language strings of general or static elements, such as the menus and system information, on the Saleor page on [Transifex](https://www.transifex.com/saleorcommerce/saleor-1/).
 
 For all dynamic content, such as categories, products, and descriptions, you can make changes directly in the Translations section of the dashboard.
 
