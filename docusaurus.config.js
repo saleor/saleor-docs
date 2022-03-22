@@ -86,11 +86,6 @@ module.exports = {
           position: "right",
         },
         {
-          to: "/versions",
-          label: "All versions",
-          position: "right",
-        },
-        {
           type: "docSidebar",
           sidebarId: "dashboard",
           label: "Dashboard Manual",
