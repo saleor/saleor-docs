@@ -16,11 +16,10 @@ import useBaseUrl from "@docusaurus/useBaseUrl";
 import versions from "../../versions.json";
 
 function Versions() {
-  const context = useDocusaurusContext();
-  const { siteConfig = {} } = context;
+  const { siteConfig } = useDocusaurusContext();
   let currentLabel = "Next";
   let currentPath = "next";
-  const configVersions = context.siteConfig.presets[0][1].docs.versions;
+  const configVersions = siteConfig.presets[0][1].docs.versions;
   if (configVersions.current) {
     currentLabel = configVersions.current.label;
     currentPath = configVersions.current.path;

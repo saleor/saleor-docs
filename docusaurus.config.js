@@ -33,6 +33,10 @@ module.exports = {
       // community channels.
       "@docusaurus/plugin-client-redirects",
       {
+        /**
+         * @param {string} existingPath
+         * @returns string
+         */
         createRedirects: function (existingPath) {
           if (existingPath.startsWith("/docs/2.11")) {
             return existingPath.replace("/2.11", "");
@@ -50,7 +54,6 @@ module.exports = {
       loader: require.resolve("esbuild-loader"),
       options: {
         loader: "tsx",
-        format: isServer ? "cjs" : undefined,
         target: isServer ? "node12" : "es2017",
       },
     }),
@@ -58,7 +61,8 @@ module.exports = {
 
   themeConfig: {
     algolia: {
-      apiKey: "33843c1b27663cc760ddc60811ba51d7",
+      appId: "P1Y4DTZUZN",
+      apiKey: "e4b2fbb46f8e998981100702d37da551",
       indexName: "saleor",
       placeholder: "Search Saleor Documentation",
     },
