@@ -17,7 +17,7 @@ Get a quick summary of the number of orders for the current day and the running 
 
 Once multiple sales [channels](dashboard/configuration/channels.md) have been created, you can switch between the channels. To switch the channel, click the tab next to your user name in the top right corner of the dashboard page.
 
-![Dashboard channels](screenshots/dashboard-home-channels.jpg)
+![Dashboard channels](screenshots/dashboard-home-channels.png)
 
 ## Orders, payments, and out of stocks
 
@@ -50,13 +50,13 @@ Saleor allows you to change the following information of the staff account:
 
 Once you are logged in to your dashboard staff account, to change the information above, go to the _Account Settings_ by clicking on your account name in the top right corner of the dashboard.
 
-![Account Settings](screenshots/dashboard-home-account-settings.jpg)
+![Account Settings](screenshots/dashboard-home-account-settings.png)
 
 ### How to enable dark mode
 
 If you prefer to work in dark mode, click on your account name in the top right corner of the dashboard and then click the _Enable Dark Mode_ button.
 
-![Dark Mode](screenshots/dashboard-home-dark-mode.jpg)
+![Dark Mode](screenshots/dashboard-home-dark-mode.png)
 
 ### How to log out
 
@@ -80,7 +80,7 @@ You can type "?" to see all available navigation options.
 
 #### The examples of using the dashboard navigator
 
-1. You are looking for a specific order. Once the dashboard navigator is open, type *#* and then the number of the order. In the following example, the product order number is 2215. The dashboard navigator will show you the fulfillment status.
+1. You are looking for a specific order. Once the dashboard navigator is open, type *#* and then the number of the order. In the following example, the product order number is 3967. The dashboard navigator will show you the fulfillment status.
 
 You can open the order's detail page by clicking the order under the _Quick actions_ section.
 
