@@ -29,7 +29,7 @@ Click the _MANAGE_ button in the right top corner of the availability card, and 
 
 Once the channel has been assigned, the next step is to choose if the collection appears or remains hidden in your store. You can set a publication date. It allows you to hold some of your collections unavailable to your customers until the publication date. They are not listed in your storefront.
 
-![Collection availability](../screenshots/catalog-collection-availability.jpg)
+![Collection availability](../screenshots/catalog-collection-availability.png)
 
 ### How to add products to existing collection
 
@@ -41,7 +41,7 @@ Once you have created a collection, you can easily add more products by choosing
 
 Click Edit Website SEO to add a SEO title, slug and description. If you do not add unique SEO content, details will be taken from the General Information card.
 
-![Collection SEO](../screenshots/catalog-collection-seo.jpg)
+![Collection SEO](../screenshots/catalog-collection-seo.png)
 
 ### How to delete a collection
 
@@ -58,6 +58,6 @@ Removing a collection will not delete all products from the site; it only disabl
 
 You can add private and public metadata for each collection in the collection setup page. Use the button _Add Field_ to add a new metadata field.
 
-![](../screenshots/metadata.jpg)
+![](../screenshots/metadata.png)
 
 To learn more about object metadata, see the [Developer's Guide](developer/metadata.mdx).
