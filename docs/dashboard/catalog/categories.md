@@ -43,6 +43,8 @@ Click on each tab to either add a subcategory or assign products.
 
 When finished, click _Save_.
 
+![Adding category](../screenshots/catalog-category-subcategory.png)
+
 ### How to edit categories
 
 Once you have your categories set up, you can edit them at any time by clicking on a category from the list and changing information. When viewing a category, you have a card at the bottom of the page with tabs for viewing and editing products and subcategories.
@@ -62,7 +64,5 @@ Click _Create&nbsp;Subcategory_ in the top right corner of the Subcategories car
 ### How to manage metadata in the category setup page
 
 You can add private and public metadata for each category in the category setup page. Use the button _Add Field_ to add a new metadata field.
-
-![](../screenshots/metadata.jpg)
 
 To learn more about object metadata, see the [Developer's Guide](developer/metadata.mdx).
