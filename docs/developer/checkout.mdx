@@ -980,6 +980,88 @@ A response would look like this:
 }
 ```
 
+
+## Creating order from checkout
+
+:::info
+
+This feature was introduced in **Saleor 3.2**.
+
+:::
+
+:::caution
+
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+
+:::
+
+The purpose of the operation is to ensure this checkout is correct. The validation consists of checking:
+- The required addresses are valid.
+- The shipping method is valid (if required). 
+- All selected products are in stock.
+
+
+If these are satisfied, the checkout is transformed into an order, and the customer receives a confirmation email.
+The operation requires permission `HANDLE_CHECKOUTS` and can be called only by App. Calling `checkoutPaymentCreate` and `checkoutComplete` is not needed for this approach. 
+The created order can be marked as a paid by staff customer/app with `MANAGE_ORDERS` permission.
+
+The below chart shows a proposed flow where this operation can be used.
+```mermaid
+sequenceDiagram
+    Customer->>+Checkout App: Finalize an order
+    Checkout App ->>+ Saleor: Create order from checkout
+    Saleor -->>- Checkout App: Unpaid order
+    Checkout App-->>-Customer: Order
+    Checkout App -->> Checkout App: Process payment
+    Checkout App ->>+ Saleor: Mark order as paid
+    Saleor -->>- Checkout App: Paid order
+```
+
+The [orderCreateFromCheckout](developer/api-reference/mutations/order-create-from-checkout.mdx) mutation takes the following arguments:
+- `id`: The id of the checkout that should be used to create a new order.
+- `removeCheckout`: Determines if checkout should be removed after creating an order. Default `true`.
+
+The following example shows how the [orderCreateFromCheckout](developer/api-reference/mutations/order-create-from-checkout.mdx) mutation creates a new order and removes the checkout.
+
+```graphql{2-5}
+mutation{
+	orderCreateFromCheckout(
+    id:"Q2hlY2tvdXQ6YTcxYjRjZDQtNzI1NS00ZjAyLWEzOTEtMDQxYWQ0MmNjZWNk", 
+    removeCheckout: true
+  ){
+		order{
+			id
+		}
+		errors{
+			field
+			message
+			code
+		}
+	}
+}
+```
+
+As a result, we get an order object:
+```json
+{
+	"data": {
+		"orderFromCheckoutCreate": {
+			"order": {
+				"id": "T3JkZXI6MjI="
+			},
+			"errors": []
+		}
+	},
+	"extensions": {
+		"cost": {
+			"requestedQueryCost": 0,
+			"maximumAvailable": 50000
+		}
+	}
+}
+```
+
 ## Removing old checkouts
 In order not to overflow the database, unfinished checkouts are deleted.
 Anonymous and unfinished checkouts are deleted after a specified period of time from the last modification:
