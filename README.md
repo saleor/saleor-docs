@@ -4,7 +4,7 @@
 - Project homepage: https://saleor.io
 - Saleor Core source code: https://github.com/saleor/saleor
 - Saleor Dashboard source code: https://github.com/saleor/saleor-dashboard
-- Saleor Storefront source code: https://github.com/saleor/saleor-storefront
+- Saleor React Storefront source code: https://github.com/saleor/react-storefront
 
 # What's In This Document
 
