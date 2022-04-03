@@ -7,7 +7,7 @@ title: Synchronous webhooks
 Synchronous webhooks can be used for extending Saleor without the need to deploy plugins on the API server.
 
 :::warning
-Adding synchronous webhooks will affect Saleor API response time. Make sure that the App server can keep up with customer's requests.
+Adding synchronous webhooks will affect Saleor API response time. Make sure that the App server can keep up with customer"s requests.
 :::
 
 These webhooks are run from the Saleor Core instance during GraphQL requests and response data will be passed to the client.
@@ -133,7 +133,7 @@ If an app has more than one webhook that listens to the same payment event, Sale
 See the example payload sent from Saleor for these payment events: [Payment actions payload](/developer/extending/apps/sample-webhook-payloads.mdx#payment-actions-payload).
 
 For payments that require confirmation (such as 3D Secure) Saleor triggers events:
-- `PAYMENT_PROCESS` - when the `checkoutComplete` mutation is run for the first time, payment is created and waiting for the user's confirmation.
+- `PAYMENT_PROCESS` - when the `checkoutComplete` mutation is run for the first time, payment is created and waiting for the user"s confirmation.
 - `PAYMENT_CONFIRM` - when the `checkoutComplete` mutation is run for the second time, payment is confirmed.
 Depending on payment gateway, multiple events can be triggered.
 
@@ -145,12 +145,12 @@ Below is the list of fields that webhook can return in the JSON response for a p
 
 - `action_required` - (boolean) determines if additional action (confirmation) is required.
 - `action_required_data` - (object) additional data that may be needed to confirm the payment, for example, URL to redirect the user to the confirmation page in the frontend.
-- `amount` - (number) transaction amount; use this field only if the charged amount is different than checkout's total.
-- `customer_id` - (string) gateway's customer ID.
+- `amount` - (number) transaction amount; use this field only if the charged amount is different than checkout"s total.
+- `customer_id` - (string) gateway"s customer ID.
 - `error` - (string) error message; if provided, the transaction will be marked as failed in Saleor and payment will have to be retried. Use this field if you need to return any errors.
 - `payment_method` - (object) information about payment method chosen by the user.
 - `psp_reference` - (string) external payment reference id. Can be used for finding transaction in payment provider dashboard or relevant order in Saleor dashboard.
-- `transaction_id` - (string) gateway's transaction ID.
+- `transaction_id` - (string) gateway"s transaction ID.
 - `transaction_already_processed` - (boolean) use this field to mark a transaction as already processed in your gateway.
 
 The response fields match with the `GatewayResponse` data class used in Saleor to represent a response from a payment gateway; you can read more about these fields [here](/developer/extending/payment-gateways.mdx#gatewayresponse).
@@ -174,7 +174,7 @@ Example response for the `PAYMENT_PROCESS` event when confirmation is required:
 }
 ```
 
-### Use payment webhook's payment method in checkout
+### Use payment webhook"s payment method in checkout
 
 If payment webhooks are configured properly, you can use their payment methods in checkout. To do this, you need to [list available payment methods for your checkout or shop](/developer/extending/apps/key-concepts.mdx#listing-all-available-payment-gateways). Each payment method from a payment webhook has an ID of this format: `app:<app-database-id>:<id-returned-by-webhook>`
 
@@ -379,7 +379,7 @@ mutation {
 }
 ```
 
-Information about an external shipping method is stored in order's private metadata. This entry should be kept
+Information about an external shipping method is stored in order"s private metadata. This entry should be kept
 in order to allow the shipping method to be correctly displayed in the dashboard.
 
 ### Filter shipping methods
@@ -580,3 +580,201 @@ Even though external methods are also subject to filtering, we recommend to inte
 as every single synchronous webhook affects the response time of your Saleor API.
 :::
 
+
+## Tax webhooks
+
+Synchronous webhooks for taxes allow Saleor Apps to control tax calculation for both checkouts and orders. Tax apps can also influence how checkout/order-level discounts are distributed among individual lines.
+
+### Configure tax codes
+
+Saleor Apps can subscribe to the `FETCH_TAX_CODES` synchronous webhook. The response from the webhook will populate the list of available tax codes in the Saleor Dashboard.
+
+Tax codes can be configured for products and product types. The app-specific tax code is stored in the metadata of the corresponding object. In order to avoid collisions, Saleor stores it under keys of the format `{app.identifier}.code` and `{app.identifier}.description`.
+
+The easiest way is to edit those tax codes using your Saleor Dashboard, although apps can use metadata mutations to build their own interface for configuring tax codes.
+
+#### Example response
+
+This is an example response from the application:
+
+```json
+[
+  {
+    "code": "81100",
+    "description": "Books"
+  },
+  {
+    "code": "81310",
+    "description": "Magazine"
+  },
+  {
+    "code": "81110",
+    "description": "Textbook"
+  }
+]
+```
+
+### Calculate taxes
+
+Taxes are calculated based on the discounted base prices. The sync webhooks are called once shipping methods are resolved (including shipping webhooks described above) and once discounts are calculated.
+
+Please note that Saleor does not push checkout/order-level discounts onto individual lines. It is a responsibility of the app to decide how the discount should affect individual lines/
+
+For checkouts, calculated taxes are cached for 1 hour or until invalidated by a mutation that might affects base prices, discounts or the billing/shipping address.
+
+For orders, calculated taxes are cached until invalidated by triggering a mutation.
+
+#### Subscribe to the webhook
+
+ Saleor Apps can subscribe to the synchronous webhooks:
+ - `CHECKOUT_FILTER_SHIPPING_METHODS` is called whenever shipping methods are listed for a checkout
+ - `ORDER_FILTER_SHIPPING_METHODS` is called whenever shipping methods are listed for an order
+
+#### Request format
+
+Example request for `CHECKOUT_CALCULATE_TAXES`:
+
+```json
+```
+
+Example request for `ORDER_CALCULATE_TAXES`:
+
+```json
+[
+  {
+    "type": "Order",
+    "id": "T3JkZXI6MDVhNzI2ODktMDFkMS00YTRhLTkyZjYtODE5MWJmOGY1YjFh",
+    "channel": {
+      "type": "Channel",
+      "id": "Q2hhbm5lbDox",
+      "slug": "default-channel",
+      "currency_code": "USD"
+    },
+    "shipping_method": {
+      "type": "price",
+      "id": "U2hpcHBpbmdNZXRob2Q6MTQ=",
+      "name": "FedEx"
+    },
+    "payments": null,
+    "shipping_address": {
+      "type": "Address",
+      "id": "QWRkcmVzczo3Mw==",
+      "first_name": "",
+      "last_name": "",
+      "company_name": "",
+      "street_address_1": "Manhattan Lane",
+      "street_address_2": "",
+      "city": "NEW YORK",
+      "city_area": "",
+      "postal_code": "10001",
+      "country": "US",
+      "country_area": "NY",
+      "phone": ""
+    },
+    "billing_address": {
+      "type": "Address",
+      "id": "QWRkcmVzczo3NQ==",
+      "first_name": "",
+      "last_name": "",
+      "company_name": "",
+      "street_address_1": "Manhattan Lane",
+      "street_address_2": "",
+      "city": "NEW YORK",
+      "city_area": "",
+      "postal_code": "10001",
+      "country": "US",
+      "country_area": "NY",
+      "phone": ""
+    },
+    "discounts": null,
+    "token": "05a72689-01d1-4a4a-92f6-8191bf8f5b1a",
+    "original": "T3JkZXI6Tm9uZQ==",
+    "lines": [
+      {
+        "type": "OrderLine",
+        "id": "T3JkZXJMaW5lOjQ5",
+        "product_variant_id": "UHJvZHVjdFZhcmlhbnQ6MjAz",
+        "allocations": [],
+        "charge_taxes": true,
+        "product_metadata": {
+          "vatlayer.code": "standard",
+          "vatlayer.description": "standard",
+          "io.saleor.taxjar.code": "50202306A0002",
+          "io.saleor.taxjar.description": "Soft Drinks - Carbonated - 10-19% fruit juice"
+        },
+        "product_type_metadata": {
+          "vatlayer.code": "standard",
+          "vatlayer.description": "standard",
+          "io.saleor.taxjar.code": "50202306A0001",
+          "io.saleor.taxjar.description": "Soft Drinks - Carbonated - 1-9% fruit juice"
+        },
+        "unit_price_base_amount": "3.50",
+        "total_price_base_amount": "3.50",
+        "undiscounted_unit_price_base_amount": "5.00",
+        "undiscounted_total_price_base_amount": "5.00",
+        "product_name": "Apple Juice Drink",
+        "variant_name": "1l",
+        "translated_product_name": "",
+        "translated_variant_name": "",
+        "product_sku": "43226647",
+        "quantity": 1,
+        "currency": "USD",
+        "unit_discount_amount": "1.50",
+        "unit_discount_type": "fixed",
+        "unit_discount_reason": "Sale: U2FsZTo1",
+        "voucher_code": null,
+        "sale_id": "U2FsZTo1"
+      }
+    ],
+    "included_taxes_in_prices": false,
+    "shipping_price_base_amount": "59.17",
+    "total_base_amount": "62.67",
+    "undiscounted_total_base_amount": "66.17",
+    "fulfillments": [],
+    "collection_point": null,
+    "meta": {
+      "issued_at": "2022-04-03T20:26:21.430220+00:00",
+      "version": "dev",
+      "issuing_principal": {
+        "id": "VXNlcjox",
+        "type": "user"
+      }
+    },
+    "private_metadata": {},
+    "metadata": {},
+    "created": "2022-04-03T20:21:25.805Z",
+    "status": "draft",
+    "user_email": "",
+    "origin": "draft",
+    "shipping_method_name": "FedEx",
+    "collection_point_name": null,
+    "weight": "1.0:kg"
+  }
+]
+```
+
+#### Response format
+
+```json
+{
+  "currency": "USD",
+  "total_net_amount": "62.67",
+  "total_gross_amount": "67.92",
+  "subtotal_net_amount": "3.50",
+  "subtotal_gross_amount": "3.50",
+  "shipping_price_net_amount": "59.17",
+  "shipping_price_gross_amount": "64.42",
+  "shipping_tax_rate": "0.08875",
+  "lines": [
+    {
+      "id": 49,
+      "currency": "USD",
+      "tax_rate": "0.08875",
+      "unit_net_amount": "3.50",
+      "unit_gross_amount": "3.50",
+      "total_net_amount": "3.50",
+      "total_gross_amount": "3.50"
+    }
+  ]
+}
+```
