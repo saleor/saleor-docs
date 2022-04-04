@@ -387,6 +387,98 @@ mutation {
 }
 ```
 
+### Setting custom prices for checkout items
+
+The variant price of the item in checkout can be overridden with any value.
+The overridden price is treated as the base price of a variant.
+If the voucher or sale is applied on checkout, the price will be reduced.
+
+:::note
+This feature is only available for apps with `HANDLE_CHECKOUTS` permission.
+:::
+
+The custom price can be set with the use of field `price` in the
+[CheckoutLineInput](developer/api-reference/inputs/checkout-line-input.mdx)
+in the following mutations:
+- [checkoutCreate](developer/api-reference/mutations/checkout-create.mdx),
+- [checkoutLinesAdd](developer/api-reference/mutations/checkout-lines-add.mdx) - when adding
+a variant that is already added to checkout, the already existing line is overridden - the quantity is incremented and the price is updated.,
+- [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx) - overrides
+the existing line with the price provided in the mutation.
+
+The following example shows how to set a custom price with the use of `checkoutLinesAdd` mutation:
+
+```graphql {7}
+mutation {
+  checkoutLinesAdd(
+    token: "d6d68835-6776-4caf-8db7-72e18d04d9a4"
+    lines: [{
+      quantity: 1,
+      variantId: "UHJvZHVjdFZhcmlhbnQ6MzA2",
+      price: 16.22
+    }]
+  ){
+    checkout{
+      token
+      lines{
+        variant{
+          id
+        }
+        quantity
+        totalPrice{
+          gross{
+            amount
+            currency
+          }
+          net{
+            amount
+            currency
+          }
+        }
+      }
+    }
+    errors{
+      field
+      message
+    }
+  }
+}
+```
+As a response, we get an updated checkout with the new price. As the given variant
+already was in the checkout, the quantity was incremented and the price was overridden.
+
+```json
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "token": "d6d68835-6776-4caf-8db7-72e18d04d9a4",
+        "lines": [
+          {
+            "variant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6MzA2"
+            },
+            "quantity": 2,
+            "totalPrice": {
+              "gross": {
+                "amount": 32.44,
+                "currency": "USD"
+              },
+              "net": {
+                "amount": 32.44,
+                "currency": "USD"
+              }
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+
 ## Stock reservations
 
 While stock availability is checked on every step of the checkout process no guarantee is made to the client that stock will not be sold out before checkout completion. In case when item with limited stock was added to multiple checkouts, it will be allocated to first completed checkout causing remaining checkouts to fail to advance to the next step even if they were created before the completed one, with the `INSUFFICIENT_STOCK` error being returned by the API.
