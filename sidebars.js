@@ -198,6 +198,7 @@ module.exports = {
         items: [
           "developer/upgrade-guide/2-11-to-3-0",
           "developer/upgrade-guide/3-0-to-3-1",
+          "developer/upgrade-guide/3-1-to-3-2",
         ],
       },
     ],
