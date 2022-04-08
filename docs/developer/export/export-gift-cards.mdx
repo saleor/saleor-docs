@@ -1,26 +1,29 @@
 ---
-title: Exporting Gift cards
+title: Exporting Gift Cards
 ---
 
 ## Introduction
+
 Exporting gift cards allow downloading list of gift cards' codes to CSV or XLSX file.
 You can export all gift cards, filtered gift cards, or gift cards with specific IDs,
 but only unused cards will be exported.
 Link to download file is sent by email to the requestor. If any error occurs then
 email with information about problems is sent.
 
-### Export file structure
+### Export File Structure
+
 The exported file contains one column with `code` header in the first row
 and gift cards codes in the following rows, like it's showed below.
 
 | code           |
-|----------------|
+| -------------- |
 | ABCD-EFGH-IJKL |
 | IJKL-ABCD-EFGH |
 | EFGH-ABCD-IJKL |
 | IJKL-EFGH-ABCD |
 
-## Exporting gift cards
+## Exporting Gift Cards
+
 :::note
 Gift cards can be exported only by logged users with `MANAGE_GIFT_CARD` permission.
 Only unused gift cards' codes are exported.
@@ -29,30 +32,27 @@ Only unused gift cards' codes are exported.
 To export gift cards, use `exportGiftCards` mutation.
 
 This mutation takes the following input:
+
 - `scope`: determine which gift cards should be exported. You can choose between exporting
-all unused gift cards (`ALL`), filtered gift cards (`FILTER`) or selected IDs (`IDS`).
-You can find more details in the next sections.
+  all unused gift cards (`ALL`), filtered gift cards (`FILTER`) or selected IDs (`IDS`).
+  You can find more details in the next sections.
 - `filter`: defines filtering option. This field is optional but must be specified if your
-choose `FILTER` scope option.
+  choose `FILTER` scope option.
 - `ids`: a list of products IDs to export. This field is optional but must be specified
-if `IDS` in `scope` is chosen.
+  if `IDS` in `scope` is chosen.
 - `fileType`: defines exported file type. You can choose between `CSV` and `XLSX` file.
 
 As a result, this mutation returns `ExportFile` object which is a `Job` instance.
 For details look at [export mutations descriptions](export-overview#mutations).
 
-### Exporting all gift cards
-The following example shows how to export all gift cards with all available fields
-to CSV file. (For exporting to XLSX just replace `CSV` with `XLSX` in `fileType` field.)
+### Exporting All Gift Cards
 
-```graphql {2-6}
+The following example shows how to export all gift cards with all available fields
+to CSV file.
+
+```graphql {2}
 mutation {
-  exportGiftCards(
-    input: {
-        scope: ALL,
-        fileType: CSV,
-    }
- ){
+  exportGiftCards(input: { scope: ALL, fileType: CSV }) {
     exportFile {
       id
       status
@@ -70,6 +70,7 @@ mutation {
 ```
 
 In response we get workers information:
+
 ```json
 {
   "data": {
@@ -92,21 +93,18 @@ exported file. If export was triggered by `User` the link to the file will be se
 to the requestor.
 To check if URL is ready you can just fetch [ExportFile](export-overview#fetching-exportfile-instance).
 
-### Exporting filtered gift cards
-To export only filtered gift cards you need to define `FILTER` `scope` and `filter`
-field. Lets see an example for exporting only gift cards with `birthday` tag value.
+### Applying Filters
 
-```graphql {2-9}
+To export only filtered gift cards you need to set the `scope` to `FILTER` and include the `filter`
+parameter.
+
+The following example only includes gift cards that have a `birthday` tag.
+
+```graphql {3}
 mutation {
   exportGiftCards(
-    input: {
-        scope: FILTER,
-        fileType: XLSX,
-        filter: {
-            tags: ["birthday"],
-        }
-    }
- ){
+    input: { scope: FILTER, fileType: XLSX, filter: { tags: ["birthday"] } }
+  ) {
     exportFile {
       id
       status
@@ -123,20 +121,20 @@ mutation {
 }
 ```
 
-### Exporting gift cards with specified IDs
-To export only gift cards with provided ids you need to define `IDS` `scope` and `ids`
-field. Lets see an example:
-```graphql {2-9}
+### Exporting Gift Cards With Specified IDs
+
+To export only gift cards with provided ids you need to set the `scope` to `IDS` and include the `ids`
+parameter. Lets see an example:
+
+```graphql {4,6}
 mutation {
   exportGiftCards(
     input: {
-        scope: IDS,
-        fileType: CSV,
-        ids: [
-          "R2lmdENhcmQ6MjU=", "R2lmdENhcmQ6MjY=", "R2lmdENhcmQ6Mjc="
-        ]
+      scope: IDS
+      fileType: CSV
+      ids: ["R2lmdENhcmQ6MjU=", "R2lmdENhcmQ6MjY=", "R2lmdENhcmQ6Mjc="]
     }
- ){
+  ) {
     exportFile {
       id
       status

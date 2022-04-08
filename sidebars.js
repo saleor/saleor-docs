@@ -66,141 +66,169 @@ module.exports = {
       },
     ],
   },
-  developer: {
-    "Developer's Guide": [
-      "developer",
-      {
-        type: "category",
-        label: "Getting Started with Saleor",
-        items: [
-          "developer/getting-started/architecture",
-          "developer/getting-started/graphql",
-          "developer/getting-started/extensibility",
-        ],
-      },
-      {
-        type: "category",
-        label: "Installation",
-        items: ["developer/installation", "developer/installation/windows"],
-      },
-      {
-        type: "category",
-        label: "API Conventions",
-        items: [
-          "developer/api-conventions/error-handling",
-          "developer/api-conventions/pagination",
-          "developer/api-conventions/prices",
-          "developer/api-conventions/slug-fields",
-          "developer/api-conventions/translations",
-        ],
-      },
-      "developer/channels",
-      "developer/products",
-      "developer/attributes",
-      "developer/checkout",
-      "developer/gift-cards",
-      "developer/address",
-      "developer/users",
-      "developer/permissions",
-      "developer/metadata",
-      {
-        type: "category",
-        label: "Exporting data",
-        items: [
-          "developer/export/export-overview",
-          "developer/export/export-products",
-          "developer/export/export-gift-cards",
-        ],
-      },
-      {
-        type: "category",
-        label: "Extending",
-        items: [
-          "developer/extending",
-          {
-            type: "category",
-            label: "Apps",
-            items: [
-              "developer/extending/apps/key-concepts",
-              "developer/extending/apps/manifest",
-              "developer/extending/apps/installing-apps",
-              "developer/extending/apps/asynchronous-webhooks",
-              "developer/extending/apps/synchronous-webhooks",
-              "developer/extending/apps/extending-dashboard-with-apps",
-              "developer/extending/apps/sample-webhook-payloads",
-            ],
+  developer: [
+    "developer",
+    "developer/getting-started/architecture",
+    {
+      type: "category",
+      label: "Guides",
+      items: [
+        {
+          type: "category",
+          label: "GraphQL",
+          link: {
+            type: "doc",
+            id: "developer/getting-started/graphql",
           },
-          "developer/extending/plugins",
-          "developer/extending/payment-gateways",
-          {
-            type: "category",
-            label: "Internal APIs",
-            items: [
-              "developer/extending/api/errors",
-              "developer/extending/api/events",
-              "developer/extending/api/sorters",
-              "developer/extending/api/i18n",
-            ],
+          items: [
+            "developer/getting-started/playground",
+            "developer/api-conventions/error-handling",
+            "developer/api-conventions/pagination",
+            "developer/api-conventions/prices",
+            "developer/api-conventions/slug-fields",
+          ],
+        },
+        "developer/channels",
+        "developer/products",
+        "developer/attributes",
+        "developer/checkout",
+        "developer/gift-cards",
+        "developer/address",
+        "developer/users",
+        "developer/permissions",
+        "developer/metadata",
+        "developer/api-conventions/translations",
+        {
+          type: "category",
+          label: "Exporting Data",
+          link: {
+            type: "doc",
+            id: "developer/export/export-overview",
           },
-          "developer/extending/apollo-federation",
-        ],
+          items: [
+            "developer/export/export-products",
+            "developer/export/export-gift-cards",
+          ],
+        },
+      ],
+    },
+    {
+      type: "category",
+      label: "Extending Saleor",
+      link: {
+        type: "doc",
+        id: "developer/extending",
       },
-      {
-        type: "category",
-        label: "Running Saleor",
-        items: [
-          "developer/running-saleor/configuration",
-          "developer/running-saleor/docker",
-          "developer/running-saleor/heroku",
-          "developer/running-saleor/s3",
-          "developer/running-saleor/gcs",
-          "developer/running-saleor/emails",
-          "developer/running-saleor/debugging-emails",
-          "developer/running-saleor/exposing-instance",
-          "developer/running-saleor/monitoring",
-          "developer/running-saleor/background-tasks",
-          "developer/running-saleor/read-replicas",
-        ],
-      },
-      {
-        type: "category",
-        label: "Community",
-        items: [
-          "developer/community/contributing",
-          "developer/community/faq",
-          "developer/community/support",
-        ],
-      },
-      {
-        type: "category",
-        label: "API reference",
-        items: [
-          ...require("./docs/developer/api-reference/sidebar-schema.js")
-            .schemaSidebar,
-        ],
-      },
-      {
-        type: "category",
-        label: "Appendix: Available plugins",
-        items: [
-          "developer/available-plugins/admin-emails",
-          "developer/available-plugins/adyen",
-          "developer/available-plugins/dummy-credit-card",
-          "developer/available-plugins/openid-connect",
-          "developer/available-plugins/stripe",
-          "developer/available-plugins/np-atobarai",
-          "developer/available-plugins/user-emails",
-        ],
-      },
-      {
-        type: "category",
-        label: "Appendix: Upgrade guide",
-        items: [
-          "developer/upgrade-guide/2-11-to-3-0",
-          "developer/upgrade-guide/3-0-to-3-1",
-          "developer/upgrade-guide/3-1-to-3-2",
-        ],
-      },
-    ],
-  },
+      items: [
+        {
+          type: "category",
+          label: "Apps",
+          link: {
+            type: "doc",
+            id: "developer/extending/apps/key-concepts",
+          },
+          items: [
+            "developer/extending/apps/manifest",
+            "developer/extending/apps/installing-apps",
+            "developer/extending/apps/asynchronous-webhooks",
+            "developer/extending/apps/synchronous-webhooks",
+            "developer/extending/apps/extending-dashboard-with-apps",
+            "developer/extending/apps/sample-webhook-payloads",
+          ],
+        },
+        {
+          type: "category",
+          label: "Plugins",
+          link: {
+            type: "doc",
+            id: "developer/extending/plugins",
+          },
+          items: [
+            "developer/extending/payment-gateways",
+            {
+              type: "category",
+              label: "Internal APIs",
+              items: [
+                "developer/extending/api/errors",
+                "developer/extending/api/events",
+                "developer/extending/api/sorters",
+                "developer/extending/api/i18n",
+              ],
+            },
+            {
+              type: "category",
+              label: "Available Plugins",
+              items: [
+                "developer/available-plugins/admin-emails",
+                "developer/available-plugins/adyen",
+                "developer/available-plugins/dummy-credit-card",
+                "developer/available-plugins/openid-connect",
+                "developer/available-plugins/stripe",
+                "developer/available-plugins/np-atobarai",
+                "developer/available-plugins/user-emails",
+              ],
+            },
+          ],
+        },
+        "developer/extending/apollo-federation",
+      ],
+    },
+    {
+      type: "category",
+      label: "Running Saleor",
+      items: [
+        {
+          type: "category",
+          label: "Installation",
+          link: {
+            type: "doc",
+            id: "developer/installation",
+          },
+          items: ["developer/installation/windows"],
+        },
+        "developer/running-saleor/configuration",
+        {
+          type: "category",
+          label: "Deployment",
+          items: [
+            "developer/running-saleor/docker",
+            "developer/running-saleor/heroku",
+            "developer/running-saleor/s3",
+            "developer/running-saleor/gcs",
+          ],
+        },
+        "developer/running-saleor/debugging-emails",
+        "developer/running-saleor/exposing-instance",
+        "developer/running-saleor/monitoring",
+        "developer/running-saleor/background-tasks",
+        "developer/running-saleor/read-replicas",
+        {
+          type: "category",
+          label: "Upgrade Guide",
+          items: [
+            "developer/upgrade-guide/3-1-to-3-2",
+            "developer/upgrade-guide/3-0-to-3-1",
+            "developer/upgrade-guide/2-11-to-3-0",
+          ],
+        },
+      ],
+    },
+    {
+      type: "category",
+      label: "Community",
+      items: [
+        "developer/community/contributing",
+        "developer/community/faq",
+        "developer/community/support",
+      ],
+    },
+    {
+      type: "category",
+      label: "API Reference",
+      items: [
+        ...require("./docs/developer/api-reference/sidebar-schema.js")
+          .schemaSidebar,
+      ],
+    },
+  ],
 };

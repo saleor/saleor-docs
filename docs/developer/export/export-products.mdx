@@ -3,11 +3,12 @@ title: Exporting Products
 ---
 
 ## Introduction
+
 This guide describes how to export products from the Saleor GraphQL API.
 Exporting products can be useful for creating backups of your data or for easy
 and quick bulk editing.
 
-You can export all products, filtered products, or products with specific IDs. 
+You can export all products, filtered products, or products with specific IDs.
 Products data can be exported to CSV or XLSX file, but CSV file is recommended because
 it is much less time-consuming to generate. You can also define which fields will be exported.
 If any product variants fields are specified then products and variants data are exported.
@@ -19,30 +20,32 @@ When the export is made by the `App` email is not sent. You can get the file by 
 `ExportFile` with ID returned from `exportProducts` mutation.
 :::
 
-### Export file structure
+### Export File Structure
+
 Each row in the exported file represents a single product variant, but it also contains
 general product fields.
 For example, if a product has three variants, there will be three lines in total.
 Each line will contain common product fields such as name or description,
 and fields specific to given variant:
 
-| id | name         | description                    | variant sku | variant weight |
-|----|--------------|--------------------------------|-------------|----------------|
-| 61 | Orange Juice | No additives, no preservatives | 12345       | 500 g          |
-| 61 | Orange Juice | No additives, no preservatives | 32145       | 1000 g         |
-| 61 | Orange Juice | No additives, no preservatives | 45123       | 1500 g         |
+| id  | name         | description                    | variant sku | variant weight |
+| --- | ------------ | ------------------------------ | ----------- | -------------- |
+| 61  | Orange Juice | No additives, no preservatives | 12345       | 500 g          |
+| 61  | Orange Juice | No additives, no preservatives | 32145       | 1000 g         |
+| 61  | Orange Juice | No additives, no preservatives | 45123       | 1500 g         |
 
 The exact shape of the file depends on the fields selected for export
 (see the `exportInfo` input fields). If no variant fields are provided,
 each row will contain only product fields:
 
 | id  | name         | description                    | category    | product weight |
-|-----|--------------|--------------------------------|-------------|----------------|
+| --- | ------------ | ------------------------------ | ----------- | -------------- |
 | 61  | Orange Juice | No additives, no preservatives | juices      | 500 g          |
 | 65  | Apple Juice  | No additives, great taste      | juices      | 1000 g         |
 | 101 | Polo Shirt   | Nice and comfortable           | polo-shirts | 200 g          |
 
-## Exporting products
+## Exporting Products
+
 :::note
 Products can be exported only by logged users with `MANAGE_PRODUCTS` permission.
 :::
@@ -50,59 +53,58 @@ Products can be exported only by logged users with `MANAGE_PRODUCTS` permission.
 To export products, use `exportProducts` mutation.
 
 This mutation takes the following input:
+
 - `scope`: determine which products should be exported. You can choose between exporting
-all products (`ALL`), filtered products (`FILTER`) or selected IDs (`IDS`).
-You can find more details in the next sections.
+  all products (`ALL`), filtered products (`FILTER`) or selected IDs (`IDS`).
+  You can find more details in the next sections.
 - `filter`: defines filtering option. This field is optional but must be specified if your
-choose `FILTER` scope option.
+  choose `FILTER` scope option.
 - `ids`: a list of products IDs to export. This field is optional but must be specified
-if `IDS` in `scope` is chosen.
+  if `IDS` in `scope` is chosen.
 - `fileType`: defines exported file type. You can choose between `CSV` and `XLSX` file.
 - `exportInfo`: determine exported fields. It takes the following input:
-    - `attributes`: list of attribute IDs to export (optional).
-    - `warehouses`: list of warehouse IDs to export (optional).
-    - `fields`: list of product and variants fields to export
+  - `attributes`: list of attribute IDs to export (optional).
+  - `warehouses`: list of warehouse IDs to export (optional).
+  - `fields`: list of product and variants fields to export
     (optional, `ID` field is exported by default).
 
 As a result, this mutation returns `ExportFile` object which is a `Job` instance.
 For details look at [export mutations descriptions](export-overview#mutations).
 
-### Exporting all products
+### Selecting Fields to Include
+
 The following example shows how to export all products with all available fields
-to CSV file. (For exporting to XLSX just replace `CSV` with `XLSX` in `fileType` field.)
+to CSV file.
 
-:::note
-Fields order defines order of headers in exported file. Exporting any of `price` fields
-adds a `currency` field by default.
-:::
+The order of fields that you pass defines the order of headers in the exported file.
+Exporting any of `price` fields adds a `currency` field by default.
 
-
-```graphql {2-26}
+```graphql {7-22}
 mutation {
   exportProducts(
     input: {
-        scope: ALL,
-        fileType: CSV,
-        exportInfo: {
-            fields: [
-                NAME
-                DESCRIPTION
-                PRODUCT_TYPE
-                CATEGORY
-                VISIBLE
-                COLLECTIONS
-                CHARGE_TAXES
-                PRODUCT_IMAGES
-                VARIANT_SKU
-                VARIANT_PRICE
-                COST_PRICE
-                VARIANT_IMAGES
-                PRODUCT_WEIGHT
-                VARIANT_WEIGHT
-            ]
-        }
+      scope: ALL
+      fileType: CSV
+      exportInfo: {
+        fields: [
+          NAME
+          DESCRIPTION
+          PRODUCT_TYPE
+          CATEGORY
+          VISIBLE
+          COLLECTIONS
+          CHARGE_TAXES
+          PRODUCT_IMAGES
+          VARIANT_SKU
+          VARIANT_PRICE
+          COST_PRICE
+          VARIANT_IMAGES
+          PRODUCT_WEIGHT
+          VARIANT_WEIGHT
+        ]
+      }
     }
- ){
+  ) {
     exportFile {
       id
       status
@@ -120,6 +122,7 @@ mutation {
 ```
 
 In response we get workers information:
+
 ```json
 {
   "data": {
@@ -142,31 +145,26 @@ exported file. If export was triggered by `User` the link to the file will be se
 to the requestor.
 To check if URL is ready you can just fetch [ExportFile](export-overview#fetching-exportfile-instance).
 
-### Exporting filtered products
-To export only filtered products you need to define `FILTER` `scope` and `filter`
-field. Lets see an example for exporting only published products from two specific
-categories:
+### Applying Filters
 
-```graphql {2-19}
+To export only filtered products you need to set the `scope` to `FILTER` and include the `filter`
+paramter.
+
+The following example will only export published products from two specific categories:
+
+```graphql {4,7-10}
 mutation {
   exportProducts(
     input: {
-        scope: FILTER,
-        fileType: CSV,
-        exportInfo: {
-            fields: [
-                NAME
-                DESCRIPTION
-                PRODUCT_TYPE
-                VARIANT_SKU
-            ]
-        },
-        filter: {
-            isPublished: true,
-            categories: ["Q2F0ZWdvcnk6Nw==", "Q2F0ZWdvcnk6MjI="]
-        }
+      scope: FILTER
+      fileType: CSV
+      exportInfo: { fields: [NAME, DESCRIPTION, PRODUCT_TYPE, VARIANT_SKU] }
+      filter: {
+        isPublished: true
+        categories: ["Q2F0ZWdvcnk6Nw==", "Q2F0ZWdvcnk6MjI="]
+      }
     }
- ){
+  ) {
     exportFile {
       id
       status
@@ -183,28 +181,21 @@ mutation {
 }
 ```
 
-### Exporting products with specified IDs
-To export only products with provided ids you need to define `IDS` `scope` and `ids`
-field. Lets see an example:
-```graphql {2-19}
+### Exporting Products With Specified IDs
+
+To export only products with provided ids you need to set the `scope` to `IDS` and include the `ids`
+parameter.
+
+```graphql {4,7}
 mutation {
   exportProducts(
     input: {
-        scope: IDS,
-        fileType: CSV,
-        exportInfo: {
-            fields: [
-                NAME
-                DESCRIPTION
-                PRODUCT_TYPE
-                VARIANT_SKU
-            ]
-        },
-        ids: [
-          "UHJvZHVjdDo3Mg==", "UHJvZHVjdDo4Nw==", "UHJvZHVjdDoxMTU="
-        ]
+      scope: IDS
+      fileType: CSV
+      exportInfo: { fields: [NAME, DESCRIPTION, PRODUCT_TYPE, VARIANT_SKU] }
+      ids: ["UHJvZHVjdDo3Mg==", "UHJvZHVjdDo4Nw==", "UHJvZHVjdDoxMTU="]
     }
- ){
+  ) {
     exportFile {
       id
       status
@@ -221,7 +212,8 @@ mutation {
 }
 ```
 
-### Define warehouses and attributes to export
+### Selecting Warehouses and Attributes
+
 To export data about specified warehouses and attributes you need to provide list of
 warehouses or attributes IDs.
 
@@ -238,28 +230,22 @@ Attributes value will be visible in column:
 Below you can find example of exporting warehouses and
 attributes data.
 
-```graphql {2-19}
+```graphql {8-12}
 mutation {
   exportProducts(
     input: {
-        scope: ALL,
-        fileType: CSV,
-        exportInfo: {
-            fields: [
-                NAME
-                VARIANT_SKU
-            ],
-            warehouses: [
-                "V2FyZWhvdXNlOjA1ZmFmZjRmLTViYWItNDIzNC04MTBhLTM5NjI5MDMyMWFkMg==",
-                "V2FyZWhvdXNlOjQ3Mjc3NjM2LTQ1MWItNGNmZi04OWJkLWM5MTA4OWNiNTdkYQ==",
-            ],
-            attributes: [
-                "QXR0cmlidXRlOjE1",
-                "QXR0cmlidXRlOjE4",
-            ],
-        },
+      scope: ALL
+      fileType: CSV
+      exportInfo: {
+        fields: [NAME, VARIANT_SKU]
+        warehouses: [
+          "V2FyZWhvdXNlOjA1ZmFmZjRmLTViYWItNDIzNC04MTBhLTM5NjI5MDMyMWFkMg=="
+          "V2FyZWhvdXNlOjQ3Mjc3NjM2LTQ1MWItNGNmZi04OWJkLWM5MTA4OWNiNTdkYQ=="
+        ]
+        attributes: ["QXR0cmlidXRlOjE1", "QXR0cmlidXRlOjE4"]
+      }
     }
- ){
+  ) {
     exportFile {
       id
       status
