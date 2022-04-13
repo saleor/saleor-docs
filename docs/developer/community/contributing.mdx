@@ -93,6 +93,84 @@ After joining it with the previous example, it would look like this:
 ```
 
 
+## Testing
+Testing are really important part of every project.
+In Saleor we're using the `pytest` library and we mostly have unit tests.
+
+The test file structure was introduced in the [tests file structure](contributing#tests-file-structure) part.
+The main rule is not overloading test files. Always smaller files are preferable over big ones
+where lots of logic is tested and it's hard to extend.
+In the case of testing `API` we would like to split all tests into `mutations` and `queries`
+section and test every query and mutation in a separate file.
+
+### How to run tests?
+To run tests just enter `pytest` in your terminal.
+```bash
+pytest
+```
+
+To speed time testing time, we recommend using the `reuse-db` flag.
+```bash
+pytest --reuse-db
+```
+
+### How to run particular tests?
+As running all tests is quite time-consuming, sometimes you would like to run
+only tests from one dictionary or even just a particular test.
+You can use for that the following commands. In the case of a particular directory or file, 
+just provide the path after the `pytest` command, like:
+```bash
+pytest --reuse-db saleor/graphql/app/tests
+```
+
+If you would like to run a particular test, you need to provide the path to the file
+where the test is, and the file name after the `::` sign. In the case of running a single test
+it's also worth using `-n0` flag to run the test only in one thread. It will significantly decrease time.
+See an example below:
+
+```bash
+pytest --reuse-db saleor/graphql/app/tests/mutations/test_app_create.py::test_app_create_mutation -n0
+```
+
+### Using pdb when testing
+If you would like to use `pdb` in code when running a test, you need to use a few flags
+`-n0` to one tests in a single thread, `-s` to disable capturing standard output by pytest, and
+`--allow-hosts` with default port, as we disabled sockets by default.
+So the previous example will look like this:
+
+```bash
+pytest --reuse-db saleor/graphql/app/tests/mutations/test_app_create.py::test_app_create_mutation -n0 -s --allow-hosts=127.0.0.1
+```
+
+### Writing benchmark tests
+The benchmark tests allow us to keep track of a number of database queries 
+for mutations and queries. Tests should be added for every new
+mutation or query for objects.
+The benchmark tests are in `benchmark` directory, every test must be marked with 
+`pytest.mark.django_db` and `pytest.mark.count_queries(autouse=False)` decorators
+and must have `count_queries` argument. See, the following example:
+...
+
+
+To check the number of queries, just run the benchmark test, and after that call following command in your terminal:
+```bash
+django-queries show
+```
+You will see the number of queries that were performed for each test
+in every file.
+
+
+### Given, when, then
+It's recommended to use `given`, `when`, `then` to distinguish between different parts of the test.
+It significantly improves test readability and makes clear want you are testing at all.
+
+### Don't be scared of docstrings
+Use docstring, especially for more complicated tests. Usually, the test name describes
+exactly what we are testing, but often the name is not enough to explain all
+expected behaviour. Also, it will help to see that the test should be split into two,
+as it tests too much logic at once. In addition it's really helpful in test maintaining.
+
+
 ## Coding style
 
 Saleor uses various tools to maintain a common coding style and help with development.
