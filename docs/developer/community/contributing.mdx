@@ -142,14 +142,33 @@ So the previous example will look like this:
 pytest --reuse-db saleor/graphql/app/tests/mutations/test_app_create.py::test_app_create_mutation -n0 -s --allow-hosts=127.0.0.1
 ```
 
+### Recording cassettes
+Some of our tests using `VCR.py` cassettes to recording request and response
+from external API. To record one you need to use `vcr-record` flag and specified
+`allow-hosts`:
+```bash
+pytest --vcr-record=once saleor/app/tests/test_app_commands.py --allow-hosts=127.0.0.1
+```
+
 ### Writing benchmark tests
 The benchmark tests allow us to keep track of a number of database queries 
 for mutations and queries. Tests should be added for every new
 mutation or query for objects.
 The benchmark tests are in `benchmark` directory, every test must be marked with 
 `pytest.mark.django_db` and `pytest.mark.count_queries(autouse=False)` decorators
-and must have `count_queries` argument. See, the following example:
-...
+and must have `count_queries` argument.
+
+```python
+@pytest.mark.django_db
+@pytest.mark.count_queries(autouse=False)
+def test_apps_for_federation_query_count(
+    staff_api_client,
+    permission_manage_apps,
+    django_assert_num_queries,
+    count_queries,
+):
+    ...
+```
 
 
 To check the number of queries, just run the benchmark test, and after that call following command in your terminal:
@@ -222,6 +241,160 @@ Saleor’s repository contains [an `.editorconfig` file](https://github.com/sale
 Most editors and IDEs support this file either directly or via plugins. See the [list of supported editors and IDEs](http://editorconfig.org/#download) for detailed instructions.
 
 If you make sure that your programming environment respects the contents of this file, you will automatically get correct indentation, encoding, and line endings.
+
+
+## Tips and recommendation
+Here we go with some tips and recommendation that limits the number of comments to your PR.
+If you will follow those rules both sites will be happy. 
+
+### Imports
+Use relative imports.
+
+### Models
+The `UUID` is the preferred type of `PK` for the main models. Especially for models that
+keeps sensitive data.
+
+### Migrations
+Try to combine multiple migrations into one, but remember to not mix changes on the database
+with updating rows in migrations - in other words, operations that alter tables
+and that which uses RunPython to run methods on existing data should be in separate files.
+
+### Utility functions
+Utility function specific for API should go to `graphql` directory,
+otherwise to main module directory, usually to `utils.py` file.
+When writing such a method try to find a descriptive name as possible.
+Also, do not forget about the docstring, especially when the function is complicated
+
+### Searching
+Right now, we are mainly using the `GinIndex` and `ilike` operator for searching but currently,
+we are testing a new solution with the use of `SearchVector` and `SearchRank`.
+You can find it in this PR [#9344](https://github.com/saleor/saleor/pull/9344).
+
+### API
+- Use `id` for mutation inputs instead od `model_name_id`
+
+#### API field descriptions
+Every mutation, mutation field, and type field should have a short, meaningful description,
+ending with a dot. Also, we labeled every new field with info in which version it was
+introduced, and when it's a new feature we added the preview feature label:
+`ADDED_IN_X` at the beginning of the description and `PREVIEW_FEATURE` label at the end.
+All labels can be found in `saleor/graphql/core/descriptions.py`.
+
+When we would like to remove the API field, we marked it first as `DEPRECATED`.
+In a field definition, there is a dedicated argument for that: `deprecation_reason`,
+but in the case of arguments, we are using `DEPRECATED_IN_X_INPUT` label in the description.
+
+
+#### How to define permissions in queries/mutations?
+To define permission in queries use the `permission_required` decorator, to provide
+one or multiple permissions that are required or `one_of_permissions_required`
+decorator that allows a user with at least one permission to perform the action.
+
+In the case of mutations, the permissions are defined in the `Meta` arguments in the `permissions` field.
+To represent all permissions, in the same way, we introduced `AuthorizationFilters`
+enum that represents permission checks that are based on functions instead of named admin permission scopes.
+When raising `PermissionDenied`, the error should mention which permissions are required
+to perform the given action.
+
+:::note
+Required permissions should be mentioned in the GraphQL description.
+:::
+
+#### Error codes
+New mutations should always have their own error class.
+Example: So instead of using generic PaymentErrorCode, for PaymentCreate mutation
+we could have PaymentCreateErrorCode. The frontend will get a list of error codes that
+could be triggered by this mutation instead of the list of all errors that could be raised
+by ALL payment mutations.
+
+The error classes are defined in `saleor/graphql/core/types/common.py` file.
+To create the new one, you will also need the graphql enum with error codes.
+First, create a new enum in the `error_codes.py` file in the main app directory.
+Then use it to create graphql enum in `saleor/graphql/core/enums.py` file.
+Now you are ready to define the error class. The class must inherit from `Error` and
+must have a `code` field. Any other are optional but could be useful to specify
+what inputs raised an error. Here is an example:
+```python
+class AppError(Error):
+    code = AppErrorCode(description="The error code.", required=True)
+    permissions = NonNullList(
+        PermissionEnum,
+        description="List of permissions which causes the error.",
+        required=False,
+    )
+```
+
+
+
+
+#### Sorting and filtering
+To allow sorting the queryset you must create the `SortInputObjectType` and 
+corresponding sorting enum, and it should go to the dedicated `sorters.py` file in
+the given app module in `API`.
+
+```python
+class AppSortField(graphene.Enum):
+    NAME = ["name", "pk"]
+    CREATION_DATE = ["created", "name", "pk"]
+
+    @property
+    def description(self):
+        if self.name in AppSortField.__enum__._member_names_:
+            sort_name = self.name.lower().replace("_", " ")
+            return f"Sort apps by {sort_name}."
+        raise ValueError("Unsupported enum value: %s" % self.value)
+
+
+class AppSortingInput(SortInputObjectType):
+    class Meta:
+        sort_enum = AppSortField
+        type_name = "apps"
+```
+:::tip
+Remember, the list with sorting order must have a unique field.
+:::
+
+
+Similar situation is for filtering, you need to create `FilterInputObjectType`
+and django `FilterSet` in dedicated `filters.py` file.
+```python
+class AppFilterInput(FilterInputObjectType):
+    class Meta:
+        filterset_class = AppFilter
+
+
+class AppFilter(django_filters.FilterSet):
+    type = EnumFilter(input_class=AppTypeEnum, method=filter_app_type)
+    search = django_filters.CharFilter(method=filter_app_search)
+    is_active = django_filters.BooleanFilter()
+
+    class Meta:
+        model = models.App
+        fields = ["search", "is_active"]
+```
+
+Next, you need to create `CountableConnection` for given query:
+```python
+class AppCountableConnection(CountableConnection):
+    class Meta:
+        node = App
+```
+
+Then in the `schema.py` file, you need to change the corresponding query.
+It must be a `FilterConnectionField` with created connection field, 
+sorting input must be used in `sort_by` argument, and filter input in `filter`
+the argument of the query:
+
+```python
+class AppQueries(graphene.ObjectType):
+    apps = FilterConnectionField(
+        AppCountableConnection,
+        filter=AppFilterInput(description="Filtering options for apps."),
+        sort_by=AppSortingInput(description="Sort apps."),
+        description="List of the apps.",
+    )
+```
+
 
 ## Git commit messages
 
