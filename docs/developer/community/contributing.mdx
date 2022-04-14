@@ -257,13 +257,13 @@ keeps sensitive data.
 ### Migrations
 Try to combine multiple migrations into one, but remember to not mix changes on the database
 with updating rows in migrations - in other words, operations that alter tables
-and that which uses RunPython to run methods on existing data should be in separate files.
+and that which uses `RunPython` to run methods on existing data should be in separate files.
 
 ### Utility functions
 Utility function specific for API should go to `graphql` directory,
 otherwise to main module directory, usually to `utils.py` file.
 When writing such a method try to find a descriptive name as possible.
-Also, do not forget about the docstring, especially when the function is complicated
+Also, do not forget about the docstring, especially when the function is complicated.
 
 ### Searching
 Right now, we are mainly using the `GinIndex` and `ilike` operator for searching but currently,
@@ -271,18 +271,18 @@ we are testing a new solution with the use of `SearchVector` and `SearchRank`.
 You can find it in this PR [#9344](https://github.com/saleor/saleor/pull/9344).
 
 ### API
-- Use `id` for mutation inputs instead od `model_name_id`
+Use `id` for mutation inputs instead od `model_name_id`
 
 #### API field descriptions
 Every mutation, mutation field, and type field should have a short, meaningful description,
 ending with a dot. Also, we labeled every new field with info in which version it was
-introduced, and when it's a new feature we added the preview feature label:
-`ADDED_IN_X` at the beginning of the description and `PREVIEW_FEATURE` label at the end.
+introduced, and when it's a new feature we added the preview feature label.
+The `ADDED_IN_X` at the beginning of the description and `PREVIEW_FEATURE` label at the end.
 All labels can be found in `saleor/graphql/core/descriptions.py`.
 
 When we would like to remove the API field, we marked it first as `DEPRECATED`.
 In a field definition, there is a dedicated argument for that: `deprecation_reason`,
-but in the case of arguments, we are using `DEPRECATED_IN_X_INPUT` label in the description.
+but in the case of mutation arguments, we are using `DEPRECATED_IN_X_INPUT` label in the description.
 
 
 #### How to define permissions in queries/mutations?
@@ -302,8 +302,8 @@ Required permissions should be mentioned in the GraphQL description.
 
 #### Error codes
 New mutations should always have their own error class.
-Example: So instead of using generic PaymentErrorCode, for PaymentCreate mutation
-we could have PaymentCreateErrorCode. The frontend will get a list of error codes that
+Example: instead of using generic `PaymentErrorCode`, for `PaymentCreate` mutation
+we could have `PaymentCreateErrorCode`. The frontend will get a list of error codes that
 could be triggered by this mutation instead of the list of all errors that could be raised
 by ALL payment mutations.
 
@@ -350,7 +350,7 @@ class AppSortingInput(SortInputObjectType):
         sort_enum = AppSortField
         type_name = "apps"
 ```
-:::tip
+:::warning
 Remember, the list with sorting order must have a unique field.
 :::
 
@@ -382,8 +382,8 @@ class AppCountableConnection(CountableConnection):
 
 Then in the `schema.py` file, you need to change the corresponding query.
 It must be a `FilterConnectionField` with created connection field, 
-sorting input must be used in `sort_by` argument, and filter input in `filter`
-the argument of the query:
+sorting input must be used in `sort_by` argument, and filter input in the `filter`
+argument of the query:
 
 ```python
 class AppQueries(graphene.ObjectType):
@@ -394,6 +394,10 @@ class AppQueries(graphene.ObjectType):
         description="List of the apps.",
     )
 ```
+
+#### How to handle breaking changes?
+- provide compatibility layer by supporting two solutions for a specified time period and removing it in next major version
+- deprecate API fields instead of removing them
 
 
 ## Git commit messages
@@ -435,11 +439,7 @@ it may also contain an additional explanation. Here is an example:
 - Add multichannel - #6242 by @exampleUser
 ```
 
-So, the question is, when should I add entry in a breaking changes section? 
-You will find the answer in the next section.
-Any change that is not specified there should go to `Other changes` section.
-
-## What is considered as breaking changes?
+### What is considered as breaking changes?
 Here we go with the full list of changes that are considered by us as breaking:
 - deleting field from graphql schema / renaming the field name
 - deleting the field from webhook payload / changing the name of returned field
@@ -447,7 +447,4 @@ Here we go with the full list of changes that are considered by us as breaking:
 - adding new validation in mutations logic - it might breaks storefronts and apps
 - changing of API behavior even if the schema doesn't change - e.g. the type of field hasn't changed but the requirements for value has
 
-
-## How to handle breaking changes?
-- provide compatibility layer by supporting two solutions for a specified time period and removing it in next major version
-- deprecate API fields instead of removing them
+Any change that is not specified there should go to `Other changes` section.
