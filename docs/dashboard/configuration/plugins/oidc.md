@@ -1,11 +1,6 @@
 ---
 title: OpenID Connect
 ---
-:::note
-
- The OIDC plugin is available only on Saleor Cloud. 
-
-:::
 
 ### Enabling OpenID Connect plugin
 
