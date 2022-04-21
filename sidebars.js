@@ -134,6 +134,7 @@ module.exports = {
             "developer/extending/apps/synchronous-webhooks",
             "developer/extending/apps/extending-dashboard-with-apps",
             "developer/extending/apps/sample-webhook-payloads",
+            "developer/extending/apps/subscription-webhook-payloads",
           ],
         },
         {

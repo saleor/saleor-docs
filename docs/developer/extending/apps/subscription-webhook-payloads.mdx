@@ -1,0 +1,91 @@
+---
+title: Subscription Webhook Payloads
+---
+
+## Custom payloads
+
+The whole idea behind subscription payloads for webhooks is simple. We want to be able to generate custom payloads for all webhooks using our GraphQL API. With subscriptions we are able to do that.
+Our Webhook objects have a `query` field that can hold subscription query converted to string. That query will be used to build a custom webhook payload.
+
+## Building subscription query
+
+To build subscription query you can use any GraphQL interface (like e.g. Saleor playground). Just like with
+building a GraphQL query you will be able to use prompts from our API.
+Inside the query you must define event type for which payload will be generated. Event type must be supported by our subscription mechanism (must be subscribable).
+
+Subscription query example:
+
+```graphql
+subscription{
+  event{
+    ...on ProductUpdated{
+      product{
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+Events that are currently subscribable:
+LINK
+:::warning
+Only asynchronous webhooks are able to use subscriptions at the moment. Synchronous webhooks will be supported in the future.
+:::
+
+
+## Creating webhook with subscription query
+
+To create a webhook that will have its payload generated using subscription you need to use the same mutation as with standard webhooks. The only difference is passing `query` field as an input with subscription query converted to string.
+Webhook with `query` field defined will be treated as a subscription webhook and its payload will be generated from subscription query.
+
+Example webhook create mutation for subscription payload:
+
+```graphql
+mutation {
+  webhookCreate(
+    input: {
+      app: "<app_id>"
+      name: "test_product_updated_subscription"
+      targetUrl: "<webhook_url>"
+      asyncEvents: [PRODUCT_UPDATED]
+      query: "subscription{event{...on ProductUpdated{product{id name}}}}"
+    }
+  ) {
+    errors {
+      field
+      message
+    }
+    webhook {
+      id
+    }
+  }
+}
+```
+
+
+Payload generated from subscription will have all the fields that you asked for, plus some meta fields.
+
+Example payload:
+
+```graphql
+{
+    "product": {
+      "id": "UHJvZHVjdDo3Ng==",
+      "name": "Coconut Juice"
+    },
+    "meta": {
+      "issuedAt": "2022-03-23T14:37:27.084275+00:00",
+      "version": "dev",
+      "issuingPrincipal": {
+        "id": "<id>",
+        "type": "user"
+      }
+    }
+  }
+```
+
+## Permissions
+
+Since subscriptions uses Saleor API to define webhook payload, the App that has the webhook subscribed needs all the permissions that would normally be required when querying for specified data.
