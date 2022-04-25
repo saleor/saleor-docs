@@ -98,6 +98,13 @@ After joining it with the previous example, it would look like this:
 Testing is a really important part of every project.
 In Saleor we're using the `pytest` library and we mostly have unit tests.
 
+To reduce tests execution time, we are using [pytest-xdist](https://pypi.org/project/pytest-xdist/)
+that allows running tests on more than one CPU. By default, we are using `-n=auto`
+which creates a separate process equal to the number of available CPUs.
+
+We are also using [pytest-socket](https://pypi.org/project/pytest-socket/)
+to ensure that our tests do not hit any external API without explicitly allowing this.
+
 The test file structure was introduced in the [tests file structure](contributing#tests-file-structure) part.
 The main rule is not overloading test files. Always smaller files are preferable over big ones
 where lots of logic is tested and it's hard to extend.
@@ -110,7 +117,7 @@ To run tests just enter `pytest` in your terminal.
 pytest
 ```
 
-To speed time testing time, we recommend using the `reuse-db` flag.
+To speed testing time, we recommend using the `reuse-db` flag.
 ```bash
 pytest --reuse-db
 ```
@@ -366,6 +373,31 @@ class AppSortingInput(SortInputObjectType):
 Remember, the list with sorting order must have a unique field.
 :::
 
+:::tip
+Sometimes you would like to sort the data by some field that should be calculated
+and it isn't the model field. There is an option for that, you need to create the method
+whose name starts with `qs_with` followed by a sort field name in lowercase.
+The method should annotate the queryset to contain the new value. Look at the example:
+
+
+```python
+class CollectionSortField(graphene.Enum):
+    NAME = ["name", "slug"]
+    PRODUCT_COUNT = ["product_count", "slug"]
+
+    @property
+    def description(self):
+        if self.name in CollectionSortField.__enum__._member_names_:
+            sort_name = self.name.lower().replace("_", " ")
+            return f"Sort collections by {sort_name}."
+        raise ValueError("Unsupported enum value: %s" % self.value)
+
+    @staticmethod
+    def qs_with_product_count(queryset: QuerySet, **_kwargs) -> QuerySet:
+        return queryset.annotate(product_count=Count("collectionproduct__id"))
+
+```
+:::
 
 Similar situation is for filtering, you need to create `FilterInputObjectType`
 and django `FilterSet` in dedicated `filters.py` file.
