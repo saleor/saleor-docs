@@ -767,8 +767,9 @@ As a result, we get an updated checkout object with new checkout email set:
   }
 }
 ```
-
-## Payment
+## Finalizing checkout with Saleor's payment gateways
+The payment flow that uses a Saleor's payment gateway or payment synchronous webhooks to process a payment.
+### Payment
 
 Depending on the selected payment gateway, you will either use the JavaScript form which can be integrated to Saleor, or the payment gateway will direct you to an external payment page. The payment gateway sends information if the payment is successful, along with tokenized credit card payment information. This token is then used to run the [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation.
 
@@ -780,7 +781,7 @@ sequenceDiagram
   Saleor -->>- Client: payment created
 ```
 
-### Listing available payment gateways
+#### Listing available payment gateways
 
 Available payment gateways can be listed from the `Checkout.availablePaymentGateways` field. Depending on the chosen gateway, you may need additional configuration. For example, public `api_key` is used by the frontend payment library. To obtain that data, run:
 
@@ -835,7 +836,7 @@ Response:
 }
 ```
 
-### Creating payment
+#### Creating payment
 The [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation takes the following arguments:
 
 - `token`: the checkout token (if required by payment gateway). 
@@ -911,7 +912,7 @@ As a result, we get the payment object:
 }
 ```
 
-## Completing the checkout
+### Completing the checkout
 
 The purpose of the operation is to ensure this checkout is correct. The validation consists of checking:
 
@@ -925,7 +926,7 @@ The purpose of the operation is to ensure this checkout is correct. The validati
 
 If these are satisfied, the checkout is transformed into an order, and the customer receives a confirmation email.
 
-### Without additional payment action
+#### Without additional payment action
 
 ```mermaid
 sequenceDiagram
@@ -1020,7 +1021,7 @@ A response would look like this:
 }
 ```
 
-### Payment requiring additional action
+#### Payment requiring additional action
 
 ```mermaid
 sequenceDiagram
@@ -1071,8 +1072,53 @@ A response would look like this:
 }
 ```
 
+## Finalizing checkout with Saleor App
+:::caution
 
-## Creating order from checkout
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+
+:::
+
+
+The flow where the payment process is handled by an external Saleor App. 
+Saleor expects to receive a result of the payment transaction processed by Saleor App.
+
+The below charts show the workflow of a checkout process.
+
+#### Case: Creating order before processing payment
+```mermaid
+sequenceDiagram
+    Customer->>+Checkout App: Finalize an order
+    Checkout App ->>+ Saleor: Create order from checkout
+    Saleor -->>- Checkout App: Unpaid order
+    Checkout App-->>-Customer: Order
+    Customer ->>+ Checkout App: Process payment
+    Checkout App ->>+ Payment provider: Process payment for order
+    Payment provider -->>- Checkout App: Payment with proper status
+    Checkout App ->>+ Saleor: Create transaction for order
+    Saleor -->>- Checkout App: Transaction created and <br>attached to order
+    Checkout App -->>- Customer: Order paid
+```
+
+#### Case: Processing payment before creating an order
+```mermaid
+sequenceDiagram
+    Customer ->>+ Checkout App: Process payment
+    Checkout App ->>+ Payment provider: Process payment for checkout
+    Payment provider -->>- Checkout App: Payment with proper status
+    Checkout App ->>+ Saleor: Create transaction for checkout
+    Saleor -->>- Checkout App: Transaction created and <br>attached to checkout
+    Checkout App -->>- Customer: Payment paid
+    Customer->>+Checkout App: Conver checkout into an order
+    Checkout App ->>+ Saleor: Create order from checkout
+    Saleor ->> Saleor: Attach checkout's transactions to order
+    Saleor -->>- Checkout App: Paid order
+    Checkout App-->>-Customer: Order
+```
+
+
+### Creating order from checkout
 
 :::info
 
@@ -1082,35 +1128,32 @@ This feature was introduced in **Saleor 3.2**.
 
 :::caution
 
-This feature is currently in **Feature Preview**. That means this part of Saleor is not complete
-but is available to experiment with and provide feedback, and is subject to change.
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
 
 :::
 
-Pre-requirements for creating an order from checkout:
+The pre-requirements for creating an order from checkout:
 - The required addresses are valid.
 - The shipping method is valid (if required). 
 - All selected products are in stock.
 
 
 If these are satisfied, the checkout is transformed into an order, and the customer receives a confirmation email.
-The operation requires the `HANDLE_CHECKOUTS` permission and can be called only by the App. Calling `checkoutPaymentCreate` and `checkoutComplete` is not needed for this approach. 
-The created order can be marked as a paid by staff customer/app with the `MANAGE_ORDERS` permission.
+The operation requires permission `HANDLE_CHECKOUTS` and can be called only by App. Calling `checkoutPaymentCreate` and `checkoutComplete` is not needed for this approach. 
+The created order can be marked as a paid by staff customer/app with `MANAGE_ORDERS` permission.
 
-The chart below shows a proposed flow where this operation can be used.
+The below chart shows a proposed flow where this operation can be used.
 ```mermaid
 sequenceDiagram
     Customer->>+Checkout App: Finalize an order
     Checkout App ->>+ Saleor: Create order from checkout
     Saleor -->>- Checkout App: Unpaid order
     Checkout App-->>-Customer: Order
-    Checkout App -->> Checkout App: Process payment
-    Checkout App ->>+ Saleor: Mark order as paid
-    Saleor -->>- Checkout App: Paid order
 ```
 
 The [orderCreateFromCheckout](developer/api-reference/mutations/order-create-from-checkout.mdx) mutation takes the following arguments:
-- `id`: The ID of the checkout that should be used to create a new order.
+- `id`: The id of the checkout that should be used to create a new order.
 - `removeCheckout`: Determines if checkout should be removed after creating an order. Default `true`.
 
 The following example shows how the [orderCreateFromCheckout](developer/api-reference/mutations/order-create-from-checkout.mdx) mutation creates a new order and removes the checkout.
@@ -1147,9 +1190,146 @@ As a result, we get an order object:
 }
 ```
 
+### Creating transaction
+:::info
+
+This feature was introduced in **Saleor 3.3**.
+
+:::
+
+:::caution
+
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+
+:::
+
+Transaction stores details of payment transaction attached to order or checkout.
+
+
+The [transactionCreate](developer/api-reference/mutations/transaction-create.mdx) mutation takes the following arguments:
+- `id`: The ID of the checkout or order.
+- `transaction`: Input data required to create a new transaction object.
+- `transactionEvent`: Data that defines a transaction event.
+
+
+The following example shows how the [transactionCreate](developer/api-reference/mutations/transaction-create.mdx) mutation 
+is used to create a new transaction.
+The transaction has status authorized, payment was made with a credit card. The actions that can be called from Saleor are: `VOID` and `CAPTURE`. 
+The authorized amount is $99.
+
+```graphql
+mutation {
+  transactionCreate(
+    id: "Q2hlY2tvdXQ6MWQzNmU5YzctYWEwYS00NzM5LTk0MGQtNzdjNmU4Mjc5YmQ0"
+    transaction: {
+      status: "Authorized"
+      type: "Credit card"
+      reference: "PSP-ref123"
+      availableActions: [VOID, CAPTURE]
+      amountAuthorized: { currency: "USD", amount: 99 }
+    }
+    transactionEvent: {
+      status: SUCCESS
+      name: "Authorized credit card"
+      reference: "PSP-ref123"
+    }
+  ) {
+    transaction {
+      id
+    }
+  }
+}
+```
+
+A response would look like this:
+```json
+{
+  "data": {
+    "transactionCreate": {
+      "transaction": {
+        "id": "VHJhbnNhY3Rpb25JdGVtOjE="
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+### Updating transaction
+:::info
+
+This feature was introduced in **Saleor 3.3**.
+
+:::
+
+:::caution
+
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+
+:::
+The [transactionUpdate](developer/api-reference/mutations/transaction-update.mdx) mutation allows to update a details of transaction.
+It takes the following arguments:
+- `id`: The ID of the transaction.
+- `transaction`: Input data that will be used to update transaction object.
+- `transactionEvent`: Data that defines a transaction event.
+
+
+The following example shows how the [transactionUpdate](developer/api-reference/mutations/transaction-create.mdx) mutation 
+is used to update the transaction.
+The updated status of the transaction is `Captured`. The available action is REFUND. 
+The authorized funds are captured, so amountAuthorized is 0. amountCaptured is 99USD
+
+```graphql
+mutation {
+  transactionUpdate(
+    id: "VHJhbnNhY3Rpb25JdGVtOjE="
+    transaction: {
+      status: "Captured"
+      availableActions: [REFUND]
+      amountAuthorized: { currency: "USD", amount: 0 },
+      amountCaptured: { currency: "USD", amount: 99 },
+    }
+    transactionEvent: {
+      status: SUCCESS
+      name: "Captured credit card"
+      reference: "PSP-ref123.capture"
+    }
+  ) {
+    transaction {
+      id
+    }
+  }
+}
+```
+
+A response would look like this:
+```json
+{
+  "data": {
+    "transactionUpdate": {
+      "transaction": {
+        "id": "VHJhbnNhY3Rpb25JdGVtOjE="
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
 ## Removing old checkouts
 In order not to overflow the database, unfinished checkouts are deleted.
-Anonymous and unfinished checkouts are deleted after a specified period of time from its last modification:
+Anonymous and unfinished checkouts are deleted after a specified period of time from the last modification:
 - anonymous checkouts (neither user and email are set) after 30 days,
 - user checkouts (user or email set) after 90 days,
 - checkouts without lines after 6 hours.
