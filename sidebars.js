@@ -231,4 +231,7 @@ module.exports = {
       ],
     },
   ],
+  cli: [
+    "cli"
+  ]
 };
