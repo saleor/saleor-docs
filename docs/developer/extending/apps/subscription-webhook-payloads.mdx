@@ -2,24 +2,31 @@
 title: Subscription Webhook Payloads
 ---
 
+:::note
+Subscription Webhook Payloads are available in Saleor 3.2.
+:::
+
+:::caution
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+:::
+
+
 ## Custom payloads
 
-The whole idea behind subscription payloads for webhooks is simple. We want to be able to generate custom payloads for all webhooks using our GraphQL API. With subscriptions we are able to do that.
-Our Webhook objects have a `query` field that can hold subscription query converted to string. That query will be used to build a custom webhook payload.
+Webhook payloads in Saleor can be defined with GraphQL subscriptions. Subscription queries allow you to subscribe to different events, and for each one, define what fields should be returned in the payload.
 
 ## Building subscription query
 
 To build subscription query you can use any GraphQL interface (like e.g. Saleor playground). Just like with
 building a GraphQL query you will be able to use prompts and build the whole subscription from our API. Payload generation will use resolvers/permissions that are normally used in our API.
-Inside the query you must define event type for which payload will be generated. Event type must be supported by our subscription mechanism (must be subscribable).
-
-Events that are currently subscribable can be found in the [List of Events](developer/api-reference/unions/event.mdx)
+Inside the query, you must define the event type for which the payload will be generated. The event type must be supported by our subscription mechanism (see the [list of supported events](developer/api-reference/unions/event.mdx)
 
 :::warning
 Only asynchronous webhooks are able to use subscriptions at the moment. Synchronous webhooks will be supported in the future.
 :::
 
-Subscription query example:
+The example below is a subscription query that would enable listening to the `PRODUCT_UPDATED` event and requesting the products id and name in the webhook payload:
 
 ```graphql
 subscription{
@@ -70,7 +77,7 @@ Payload generated from subscription will have all the fields that you asked for,
 
 Example payload:
 
-```graphql
+```json
 {
     "product": {
       "id": "UHJvZHVjdDo3Ng==",
@@ -89,4 +96,4 @@ Example payload:
 
 ## Permissions
 
-Since subscriptions uses Saleor API to define webhook payload, the App that has the webhook subscribed needs all the permissions that would normally be required when querying for specified data. Otherwise payload will not be resolved correctly.
+Since subscriptions use Saleor API to define webhook payload, the App that has the webhook subscribed needs all the permissions that would normally be required when querying for specified data. Otherwise, payload will not be resolved correctly.
