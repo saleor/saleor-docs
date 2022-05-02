@@ -10,7 +10,19 @@ Represents an order in the shop.
 type Order implements Node, ObjectWithMetadata {
   id: ID!
   privateMetadata: [MetadataItem!]!
+  privateMetafield(
+  key: String!
+): String
+  privateMetafields(
+  keys: [String!]
+): Metadata
   metadata: [MetadataItem!]!
+  metafield(
+  key: String!
+): String
+  metafields(
+  keys: [String!]
+): Metadata
   created: DateTime!
   updatedAt: DateTime!
   status: OrderStatus!
@@ -25,16 +37,16 @@ type Order implements Node, ObjectWithMetadata {
   lines: [OrderLine!]!
   actions: [OrderAction!]!
   availableShippingMethods: [ShippingMethod!]
-  shippingMethods: [ShippingMethod!]
+  shippingMethods: [ShippingMethod!]!
   availableCollectionPoints: [Warehouse!]!
-  invoices: [Invoice!]
-  number: String
+  invoices: [Invoice!]!
+  number: String!
   original: ID
   origin: OrderOriginEnum!
   isPaid: Boolean!
   paymentStatus: PaymentChargeStatusEnum!
   paymentStatusDisplay: String!
-  payments: [Payment!]
+  payments: [Payment!]!
   total: TaxedMoney!
   undiscountedTotal: TaxedMoney!
   shippingMethod: ShippingMethod
@@ -42,17 +54,17 @@ type Order implements Node, ObjectWithMetadata {
   shippingTaxRate: Float!
   token: String!
   voucher: Voucher
-  giftCards: [GiftCard!]
+  giftCards: [GiftCard!]!
   displayGrossPrices: Boolean!
   customerNote: String!
-  weight: Weight
+  weight: Weight!
   redirectUrl: String
   subtotal: TaxedMoney!
-  statusDisplay: String
+  statusDisplay: String!
   canFinalize: Boolean!
   totalAuthorized: Money!
   totalCaptured: Money!
-  events: [OrderEvent!]
+  events: [OrderEvent!]!
   totalBalance: Money!
   userEmail: String
   isShippingRequired: Boolean!
@@ -62,7 +74,7 @@ type Order implements Node, ObjectWithMetadata {
   discount: Money
   discountName: String
   translatedDiscountName: String
-  discounts: [OrderDiscount!]
+  discounts: [OrderDiscount!]!
   errors: [OrderError!]!
 }
 ```
@@ -77,12 +89,64 @@ type Order implements Node, ObjectWithMetadata {
 
 #### `privateMetadata` ([`MetadataItem`](../../../developer/api-reference/objects/metadata-item))
 
-List of private metadata items.Requires proper staff permissions to access.
+List of private metadata items. Requires staff permissions to access.
+
+
+#### `privateMetafield` ([`String`](../../../developer/api-reference/scalars/string))
+
+A single key from private metadata. Requires staff permissions to access.
+
+Tip: Use GraphQL aliases to fetch multiple keys.
+
+Added in Saleor 3.3.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
+- ##### `key` ([`String`](../../../developer/api-reference/scalars/string))
+
+
+
+
+#### `privateMetafields` ([`Metadata`](../../../developer/api-reference/scalars/metadata))
+
+Private metadata. Requires staff permissions to access. Use `keys` to control which fields you want to include. The default is to include everything.
+
+Added in Saleor 3.3.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
+- ##### `keys` ([`String`](../../../developer/api-reference/scalars/string))
+
+
 
 
 #### `metadata` ([`MetadataItem`](../../../developer/api-reference/objects/metadata-item))
 
 List of public metadata items. Can be accessed without permissions.
+
+
+#### `metafield` ([`String`](../../../developer/api-reference/scalars/string))
+
+A single key from public metadata.
+
+Tip: Use GraphQL aliases to fetch multiple keys.
+
+Added in Saleor 3.3.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
+- ##### `key` ([`String`](../../../developer/api-reference/scalars/string))
+
+
+
+
+#### `metafields` ([`Metadata`](../../../developer/api-reference/scalars/metadata))
+
+Public metadata. Use `keys` to control which fields you want to include. The default is to include everything.
+
+Added in Saleor 3.3.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
+- ##### `keys` ([`String`](../../../developer/api-reference/scalars/string))
+
+
 
 
 #### `created` ([`DateTime`](../../../developer/api-reference/scalars/date-time))
@@ -102,7 +166,7 @@ List of public metadata items. Can be accessed without permissions.
 
 #### `user` ([`User`](../../../developer/api-reference/objects/user))
 
-
+User who placed the order. This field is set only for orders placed by authenticated users. Requires one of the following permissions: AccountPermissions.MANAGE_USERS, OrderPermissions.MANAGE_ORDERS, AuthorizationFilters.OWNER.
 
 
 #### `trackingClientId` ([`String`](../../../developer/api-reference/scalars/string))
@@ -112,12 +176,12 @@ List of public metadata items. Can be accessed without permissions.
 
 #### `billingAddress` ([`Address`](../../../developer/api-reference/objects/address))
 
-
+Billing address. Requires one of the following permissions to view the full data: OrderPermissions.MANAGE_ORDERS, AuthorizationFilters.OWNER.
 
 
 #### `shippingAddress` ([`Address`](../../../developer/api-reference/objects/address))
 
-
+Shipping address. Requires one of the following permissions to view the full data: OrderPermissions.MANAGE_ORDERS, AuthorizationFilters.OWNER.
 
 
 #### `shippingMethodName` ([`String`](../../../developer/api-reference/scalars/string))
@@ -162,12 +226,16 @@ Shipping methods related to this order.
 
 #### `availableCollectionPoints` ([`Warehouse`](../../../developer/api-reference/objects/warehouse))
 
-New in Saleor 3.1. Collection points that can be used for this order. Note: this feature is in a preview state and can be subject to changes at later point.
+Collection points that can be used for this order.
+
+Added in Saleor 3.1.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
 
 
 #### `invoices` ([`Invoice`](../../../developer/api-reference/objects/invoice))
 
-List of order invoices.
+List of order invoices. Requires one of the following permissions: OrderPermissions.MANAGE_ORDERS, AuthorizationFilters.OWNER.
 
 
 #### `number` ([`String`](../../../developer/api-reference/scalars/string))
@@ -294,6 +362,8 @@ Amount captured by payment.
 
 List of events associated with the order.
 
+Requires one of the following permissions: MANAGE_ORDERS.
+
 
 #### `totalBalance` ([`Money`](../../../developer/api-reference/objects/money))
 
@@ -302,7 +372,7 @@ The difference between the paid and the order total amount.
 
 #### `userEmail` ([`String`](../../../developer/api-reference/scalars/string))
 
-Email address of the customer.
+Email address of the customer. Requires the following permissions to access the full data: OrderPermissions.MANAGE_ORDERS, AuthorizationFilters.OWNER
 
 
 #### `isShippingRequired` ([`Boolean`](../../../developer/api-reference/scalars/boolean))
@@ -312,7 +382,11 @@ Returns True, if order requires shipping.
 
 #### `deliveryMethod` ([`DeliveryMethod`](../../../developer/api-reference/unions/delivery-method))
 
-New in Saleor 3.1. The delivery method selected for this checkout. Note: this feature is in a preview state and can be subject to changes at later point.
+The delivery method selected for this checkout.
+
+Added in Saleor 3.1.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
 
 
 #### `languageCode` ([`String`](../../../developer/api-reference/scalars/string))
