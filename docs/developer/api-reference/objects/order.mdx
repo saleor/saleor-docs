@@ -3,14 +3,17 @@ id: order
 title: Order
 ---
 
-
 Represents an order in the shop.
 
 ```graphql
 type Order implements Node, ObjectWithMetadata {
   id: ID!
   privateMetadata: [MetadataItem!]!
+  privateMetafield(key: String!): String
+  privateMetafields(keys: [String!]): Metadata
   metadata: [MetadataItem!]!
+  metafield(key: String!): String
+  metafields(keys: [String!]): Metadata
   created: DateTime!
   updatedAt: DateTime!
   status: OrderStatus!
@@ -25,16 +28,16 @@ type Order implements Node, ObjectWithMetadata {
   lines: [OrderLine!]!
   actions: [OrderAction!]!
   availableShippingMethods: [ShippingMethod!]
-  shippingMethods: [ShippingMethod!]
+  shippingMethods: [ShippingMethod!]!
   availableCollectionPoints: [Warehouse!]!
-  invoices: [Invoice!]
-  number: String
+  invoices: [Invoice!]!
+  number: String!
   original: ID
   origin: OrderOriginEnum!
   isPaid: Boolean!
   paymentStatus: PaymentChargeStatusEnum!
   paymentStatusDisplay: String!
-  payments: [Payment!]
+  payments: [Payment!]!
   total: TaxedMoney!
   undiscountedTotal: TaxedMoney!
   shippingMethod: ShippingMethod
@@ -42,17 +45,17 @@ type Order implements Node, ObjectWithMetadata {
   shippingTaxRate: Float!
   token: String!
   voucher: Voucher
-  giftCards: [GiftCard!]
+  giftCards: [GiftCard!]!
   displayGrossPrices: Boolean!
   customerNote: String!
-  weight: Weight
+  weight: Weight!
   redirectUrl: String
   subtotal: TaxedMoney!
-  statusDisplay: String
+  statusDisplay: String!
   canFinalize: Boolean!
   totalAuthorized: Money!
   totalCaptured: Money!
-  events: [OrderEvent!]
+  events: [OrderEvent!]!
   totalBalance: Money!
   userEmail: String
   isShippingRequired: Boolean!
@@ -62,305 +65,263 @@ type Order implements Node, ObjectWithMetadata {
   discount: Money
   discountName: String
   translatedDiscountName: String
-  discounts: [OrderDiscount!]
+  discounts: [OrderDiscount!]!
   errors: [OrderError!]!
 }
 ```
-
 
 ### Fields
 
 #### `id` ([`ID`](../../../developer/api-reference/scalars/id))
 
-
-
-
 #### `privateMetadata` ([`MetadataItem`](../../../developer/api-reference/objects/metadata-item))
 
-List of private metadata items.Requires proper staff permissions to access.
+List of private metadata items. Requires staff permissions to access.
 
+#### `privateMetafield` ([`String`](../../../developer/api-reference/scalars/string))
+
+A single key from private metadata. Requires staff permissions to access.
+
+Tip: Use GraphQL aliases to fetch multiple keys.
+
+Added in Saleor 3.3.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
+
+- ##### `key` ([`String`](../../../developer/api-reference/scalars/string))
+
+#### `privateMetafields` ([`Metadata`](../../../developer/api-reference/scalars/metadata))
+
+Private metadata. Requires staff permissions to access. Use `keys` to control which fields you want to include. The default is to include everything.
+
+Added in Saleor 3.3.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
+
+- ##### `keys` ([`String`](../../../developer/api-reference/scalars/string))
 
 #### `metadata` ([`MetadataItem`](../../../developer/api-reference/objects/metadata-item))
 
 List of public metadata items. Can be accessed without permissions.
 
+#### `metafield` ([`String`](../../../developer/api-reference/scalars/string))
+
+A single key from public metadata.
+
+Tip: Use GraphQL aliases to fetch multiple keys.
+
+Added in Saleor 3.3.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
+
+- ##### `key` ([`String`](../../../developer/api-reference/scalars/string))
+
+#### `metafields` ([`Metadata`](../../../developer/api-reference/scalars/metadata))
+
+Public metadata. Use `keys` to control which fields you want to include. The default is to include everything.
+
+Added in Saleor 3.3.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
+
+- ##### `keys` ([`String`](../../../developer/api-reference/scalars/string))
 
 #### `created` ([`DateTime`](../../../developer/api-reference/scalars/date-time))
 
-
-
-
 #### `updatedAt` ([`DateTime`](../../../developer/api-reference/scalars/date-time))
-
-
-
 
 #### `status` ([`OrderStatus`](../../../developer/api-reference/enums/order-status))
 
-
-
-
 #### `user` ([`User`](../../../developer/api-reference/objects/user))
 
-
-
+User who placed the order. This field is set only for orders placed by authenticated users. Requires one of the following permissions: AccountPermissions.MANAGE_USERS, OrderPermissions.MANAGE_ORDERS, AuthorizationFilters.OWNER.
 
 #### `trackingClientId` ([`String`](../../../developer/api-reference/scalars/string))
 
-
-
-
 #### `billingAddress` ([`Address`](../../../developer/api-reference/objects/address))
 
-
-
+Billing address. Requires one of the following permissions to view the full data: OrderPermissions.MANAGE_ORDERS, AuthorizationFilters.OWNER.
 
 #### `shippingAddress` ([`Address`](../../../developer/api-reference/objects/address))
 
-
-
+Shipping address. Requires one of the following permissions to view the full data: OrderPermissions.MANAGE_ORDERS, AuthorizationFilters.OWNER.
 
 #### `shippingMethodName` ([`String`](../../../developer/api-reference/scalars/string))
 
-
-
-
 #### `collectionPointName` ([`String`](../../../developer/api-reference/scalars/string))
 
-
-
-
 #### `channel` ([`Channel`](../../../developer/api-reference/objects/channel))
-
-
-
 
 #### `fulfillments` ([`Fulfillment`](../../../developer/api-reference/objects/fulfillment))
 
 List of shipments for the order.
 
-
 #### `lines` ([`OrderLine`](../../../developer/api-reference/objects/order-line))
 
 List of order lines.
-
 
 #### `actions` ([`OrderAction`](../../../developer/api-reference/enums/order-action))
 
 List of actions that can be performed in the current state of an order.
 
-
 #### `availableShippingMethods` ([`ShippingMethod`](../../../developer/api-reference/objects/shipping-method))
 
 Shipping methods that can be used with this order.
-
 
 #### `shippingMethods` ([`ShippingMethod`](../../../developer/api-reference/objects/shipping-method))
 
 Shipping methods related to this order.
 
-
 #### `availableCollectionPoints` ([`Warehouse`](../../../developer/api-reference/objects/warehouse))
 
-New in Saleor 3.1. Collection points that can be used for this order. Note: this feature is in a preview state and can be subject to changes at later point.
+Collection points that can be used for this order.
 
+Added in Saleor 3.1.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
 
 #### `invoices` ([`Invoice`](../../../developer/api-reference/objects/invoice))
 
-List of order invoices.
-
+List of order invoices. Requires one of the following permissions: OrderPermissions.MANAGE_ORDERS, AuthorizationFilters.OWNER.
 
 #### `number` ([`String`](../../../developer/api-reference/scalars/string))
 
 User-friendly number of an order.
 
-
 #### `original` ([`ID`](../../../developer/api-reference/scalars/id))
 
 The ID of the order that was the base for this order.
-
 
 #### `origin` ([`OrderOriginEnum`](../../../developer/api-reference/enums/order-origin-enum))
 
 The order origin.
 
-
 #### `isPaid` ([`Boolean`](../../../developer/api-reference/scalars/boolean))
 
 Informs if an order is fully paid.
-
 
 #### `paymentStatus` ([`PaymentChargeStatusEnum`](../../../developer/api-reference/enums/payment-charge-status-enum))
 
 Internal payment status.
 
-
 #### `paymentStatusDisplay` ([`String`](../../../developer/api-reference/scalars/string))
 
 User-friendly payment status.
-
 
 #### `payments` ([`Payment`](../../../developer/api-reference/objects/payment))
 
 List of payments for the order.
 
-
 #### `total` ([`TaxedMoney`](../../../developer/api-reference/objects/taxed-money))
 
 Total amount of the order.
-
 
 #### `undiscountedTotal` ([`TaxedMoney`](../../../developer/api-reference/objects/taxed-money))
 
 Undiscounted total amount of the order.
 
-
 #### `shippingMethod` ([`ShippingMethod`](../../../developer/api-reference/objects/shipping-method))
 
 Shipping method for this order.
-
 
 #### `shippingPrice` ([`TaxedMoney`](../../../developer/api-reference/objects/taxed-money))
 
 Total price of shipping.
 
-
 #### `shippingTaxRate` ([`Float`](../../../developer/api-reference/scalars/float))
-
-
-
 
 #### `token` ([`String`](../../../developer/api-reference/scalars/string))
 
-
-
-
 #### `voucher` ([`Voucher`](../../../developer/api-reference/objects/voucher))
-
-
-
 
 #### `giftCards` ([`GiftCard`](../../../developer/api-reference/objects/gift-card))
 
 List of user gift cards.
 
-
 #### `displayGrossPrices` ([`Boolean`](../../../developer/api-reference/scalars/boolean))
-
-
-
 
 #### `customerNote` ([`String`](../../../developer/api-reference/scalars/string))
 
-
-
-
 #### `weight` ([`Weight`](../../../developer/api-reference/objects/weight))
 
-
-
-
 #### `redirectUrl` ([`String`](../../../developer/api-reference/scalars/string))
-
-
-
 
 #### `subtotal` ([`TaxedMoney`](../../../developer/api-reference/objects/taxed-money))
 
 The sum of line prices not including shipping.
 
-
 #### `statusDisplay` ([`String`](../../../developer/api-reference/scalars/string))
 
 User-friendly order status.
-
 
 #### `canFinalize` ([`Boolean`](../../../developer/api-reference/scalars/boolean))
 
 Informs whether a draft order can be finalized(turned into a regular order).
 
-
 #### `totalAuthorized` ([`Money`](../../../developer/api-reference/objects/money))
 
 Amount authorized for the order.
-
 
 #### `totalCaptured` ([`Money`](../../../developer/api-reference/objects/money))
 
 Amount captured by payment.
 
-
 #### `events` ([`OrderEvent`](../../../developer/api-reference/objects/order-event))
 
 List of events associated with the order.
 
+Requires one of the following permissions: MANAGE_ORDERS.
 
 #### `totalBalance` ([`Money`](../../../developer/api-reference/objects/money))
 
 The difference between the paid and the order total amount.
 
-
 #### `userEmail` ([`String`](../../../developer/api-reference/scalars/string))
 
-Email address of the customer.
-
+Email address of the customer. Requires the following permissions to access the full data: OrderPermissions.MANAGE_ORDERS, AuthorizationFilters.OWNER
 
 #### `isShippingRequired` ([`Boolean`](../../../developer/api-reference/scalars/boolean))
 
 Returns True, if order requires shipping.
 
-
 #### `deliveryMethod` ([`DeliveryMethod`](../../../developer/api-reference/unions/delivery-method))
 
-New in Saleor 3.1. The delivery method selected for this checkout. Note: this feature is in a preview state and can be subject to changes at later point.
+The delivery method selected for this checkout.
 
+Added in Saleor 3.1.
+
+Note: this API is currently in Feature Preview and can be subject to changes at later point.
 
 #### `languageCode` ([`String`](../../../developer/api-reference/scalars/string))
-
-
-
 
 #### `languageCodeEnum` ([`LanguageCodeEnum`](../../../developer/api-reference/enums/language-code-enum))
 
 Order language code.
 
-
 #### `discount` ([`Money`](../../../developer/api-reference/objects/money))
 
 Returns applied discount.
-
 
 #### `discountName` ([`String`](../../../developer/api-reference/scalars/string))
 
 Discount name.
 
-
 #### `translatedDiscountName` ([`String`](../../../developer/api-reference/scalars/string))
 
 Translated discount name.
-
 
 #### `discounts` ([`OrderDiscount`](../../../developer/api-reference/objects/order-discount))
 
 List of all discounts assigned to the order.
 
-
 #### `errors` ([`OrderError`](../../../developer/api-reference/objects/order-error))
 
 List of errors that occurred during order validation.
 
-
 ### Interfaces
 
-#### [`Node`](../../../developer/api-reference/interfaces/node) 
+#### [`Node`](../../../developer/api-reference/interfaces/node)
 
 An object with an ID
 
-
-#### [`ObjectWithMetadata`](../../../developer/api-reference/interfaces/object-with-metadata) 
-
-
-
-
-
-
+#### [`ObjectWithMetadata`](../../../developer/api-reference/interfaces/object-with-metadata)
