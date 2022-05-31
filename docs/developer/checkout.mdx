@@ -1355,12 +1355,27 @@ Assuming that we have a transaction with `authorizedAmount` equal to 100 USD. Mo
   ```
 :::
 
-
-:::note
+### Handling an action request for transaction
+Action request is called when a staff user or an app triggers a request of action that should be called for a given transaction.
 If your app should also process payment request actions (like charge, refund, or void) triggered by staff users on 
 Saleor dashboard side or by app, make sure that your app is subscribed to 
 [transaction-action-request](developer/extending/apps/sample-webhook-payloads.mdx#transaction-action-request) webhook.
-:::
+
+
+The below chart shows a workflow for handling  `refund` request.
+```mermaid
+sequenceDiagram
+    Staff->>+Dashboard: Click refund button<br> for single transaction
+    Dashboard->>+Saleor: Call transactionActionRequest<br> with action - refund
+    Saleor -->>- Dashboard: OK
+    Dashboard -->>- Staff: Triggered
+    Saleor ->>+ App: Send webhook<br>transaction-action-request<br> with all details related<br> to action and transaction
+    App -->>- Saleor: OK
+    App ->>+ PaymentProvider: Execute refund <br>action
+    PaymentProvider -->>- App: Refunded
+    App ->>+ Saleor: Call transactionUpdate <br>to update transaction with<br> a result recieved after <br>requested action
+    Saleor -->>- App: Updated transaction
+```
 
 
 ## Removing old checkouts
