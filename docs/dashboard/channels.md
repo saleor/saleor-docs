@@ -22,15 +22,16 @@ Multiple channels can be managed through a single dashboard. Users can assign an
 
 The multi-channel feature can be used in many ways. Let’s take a look at examples of multichannel use cases:
 
-1. A user has two online shops. The first one focuses on premium clothes and operates in Germany. The shop offers products in EUR currency and it’s translated to German language. 
+1. A user has two online shops. The first one focuses on premium clothes and operates in Germany. The shop offers products in EUR currency and it’s translated to German language.
 
    The second shop sells toys in the US. Products are offered in USD and the shop uses English language.
 
    In both cases, the user selects specific shipping rates for each shop and market. Both of the shops are managed from a single dashboard.
 
-2. A user has one shop but created two channels. The first channel is called _web-channel_ which refers to the desktop website version of the shop and the second is _mobile-channel_ which is the mobile app version. 
+2. A user has one shop but created two channels. The first channel is called _web-channel_ which refers to the desktop website version of the shop and the second is _mobile-channel_ which is the mobile app version.
 
-   The owner of the shop set different prices and availability for the same products for each channel. Both channels operate using the same currency and shipping rates. Everything is managed through a single dashboard.  
+   The owner of the shop set different prices and availability for the same products for each channel. Both channels operate using the same currency and shipping rates. Everything is managed through a single dashboard.
 
 ## How to create a channel
+
 To create a channel in the dashboard, please read [the following instructions](dashboard/configuration/channels.md).

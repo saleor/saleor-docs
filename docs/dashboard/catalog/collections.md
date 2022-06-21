@@ -9,6 +9,7 @@ Collections are a great way to increase sales and give your customers better exp
 Unlike the categories, creating collections is not required.
 
 ## How to
+
 ### How to create and edit a collection
 
 You can add and edit collections in the same way as categories, with a cover photo and SEO content tailored to your collection.

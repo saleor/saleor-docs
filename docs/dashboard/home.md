@@ -42,6 +42,7 @@ The activity card gives you a quick summary of all actions taken by your Saleor 
 ### How to change basic information of the staff account
 
 Saleor allows you to change the following information of the staff account:
+
 - First name
 - Last name
 - E-mail address
@@ -64,13 +65,14 @@ To log out, click your account name in the top right corner of the dashboard, an
 
 ### How to use the dashboard navigator
 
-Click the navigator button on top right corner of the dashboard or use the *CTRL* + *K* combination to open the dashboard navigator. Then type the location you would like to navigate to, for instance: products main page.
+Click the navigator button on top right corner of the dashboard or use the _CTRL_ + _K_ combination to open the dashboard navigator. Then type the location you would like to navigate to, for instance: products main page.
 
 ![Dashboard navigator](screenshots/dashboard-home-navigator.png)
 
 You can type "?" to see all available navigation options.
 
 #### Available navigation options:
+
 - _..._ - Search Views and Actions
 - _>_ - Search Command
 - _#_ - Search Orders
@@ -80,7 +82,7 @@ You can type "?" to see all available navigation options.
 
 #### The examples of using the dashboard navigator
 
-1. You are looking for a specific order. Once the dashboard navigator is open, type *#* and then the number of the order. In the following example, the product order number is 3967. The dashboard navigator will show you the fulfillment status.
+1. You are looking for a specific order. Once the dashboard navigator is open, type _#_ and then the number of the order. In the following example, the product order number is 3967. The dashboard navigator will show you the fulfillment status.
 
 You can open the order's detail page by clicking the order under the _Quick actions_ section.
 

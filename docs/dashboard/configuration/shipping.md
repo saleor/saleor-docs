@@ -3,12 +3,11 @@ id: shipping
 title: Shipping Methods
 ---
 
-## Defining shipping zones 
+## Defining shipping zones
 
 On this page you can manage how you ship out orders. The Shipping Methods section contains two main cards: Shipping By Zone and Configuration.
 
 ![Shipping zones](../screenshots/config-shipping-zone-list.jpeg)
-
 
 ## Weight configuration
 
@@ -20,7 +19,7 @@ You can choose metric or imperial weight units as the default in which your stor
 
 Shipping Zones define the cost of shipping in different areas of the world. Collecting countries together in zones allows you to assign the best shipping and delivery options for customers.
 
-To create a shipping zone, first you need to click _Create Shipping Zone_ in the top right corner of the Shipping by Zone card. The next step is to provide the name and description (optional) of the shipping zone. 
+To create a shipping zone, first you need to click _Create Shipping Zone_ in the top right corner of the Shipping by Zone card. The next step is to provide the name and description (optional) of the shipping zone.
 
 ![Create Shipping Zone](../screenshots/config-shipping-zone-create-new.jpg)
 
@@ -53,18 +52,18 @@ There are two types of shipping:
 
 These two methods cover most of the basic use cases, for example:
 
-* Listing several methods with different prices and shipping time for different countries.
-* Offering a free (or discounted) shipping on orders above certain price threshold.
-* Increasing the shipping price for heavy orders.
-
+- Listing several methods with different prices and shipping time for different countries.
+- Offering a free (or discounted) shipping on orders above certain price threshold.
+- Increasing the shipping price for heavy orders.
 
 ### How to add a channel to the shipping rate type
 
-In both shipping rate types mentioned above, you can assign sales [channels](dashboard/configuration/channels.md). Click the _MANAGE_ button in the right top corner of the availability card, and then assign a channel. You can select multiple channels. 
+In both shipping rate types mentioned above, you can assign sales [channels](dashboard/configuration/channels.md). Click the _MANAGE_ button in the right top corner of the availability card, and then assign a channel. You can select multiple channels.
 
 ![Shipping rate channel](../screenshots/config-shipping-price-based-channel.jpg)
 
-### How to exclude the products  
+### How to exclude the products
+
 Once the shipping rate has been created, you can exclude products from it. Click _ASSIGN PRODUCTS_ in the Excluded Products card of the shipping rate details page.
 
 ![Exclude product](../screenshots/config-shipping-rate-exclude-products.jpg)
@@ -72,17 +71,17 @@ Once the shipping rate has been created, you can exclude products from it. Click
 ### Postal codes
 
 This section allows you to limit the shipping zone to shipping addresses within or outside of certain postal code ranges.
-In the *include* mode, only shipping addresses within the specified ranges are considered part of the shipping zone. In the *exclude* mode, shipping addresses within the specified ranges are considered outside of the shipping zone.
+In the _include_ mode, only shipping addresses within the specified ranges are considered part of the shipping zone. In the _exclude_ mode, shipping addresses within the specified ranges are considered outside of the shipping zone.
 
-Currently, the only supported mode for postal codes is the *exclude* mode. Support for inclusion will be added in a future release.
+Currently, the only supported mode for postal codes is the _exclude_ mode. Support for inclusion will be added in a future release.
 
 ![Shipping postal codes](../screenshots/postal-codes.png)
 
 Postal codes are compared using alphabetical sorting (start range ≤ customer postal code ≤ end range) with the following exceptions:
-- Great Britain: alphabetical order except for area codes that are sorted as numbers (for example, the range *BH1 1AA* - *BH3 9ZZ* does not include *BH21 2BC* even though alphabetical order would suggest otherwise).
+
+- Great Britain: alphabetical order except for area codes that are sorted as numbers (for example, the range _BH1 1AA_ - _BH3 9ZZ_ does not include _BH21 2BC_ even though alphabetical order would suggest otherwise).
 - Ireland: alphabetical order except for routing keys that are sorted as numbers.
 - Isle of Man, Jersey, Guernsey: same rules as Great Britain.
-
 
 ### How to add a courier
 
@@ -92,15 +91,15 @@ Postal codes are compared using alphabetical sorting (start range ≤ customer p
 
 2. Put the name of the courier in the Rate Name field.
 
-3. Define if there are minimum and/or maximum weight or price values put in place by couriers. 
+3. Define if there are minimum and/or maximum weight or price values put in place by couriers.
 
-    * If there are no limitations, select the There are no value limits checkbox. 
+   - If there are no limitations, select the There are no value limits checkbox.
 
-    * If there are limitations, input them into the fields as the value range. If you leave the minimum value empty, it means that there is no lower threshold. If you leave the maximum value empty, it means there is no maximum weight or price value.
+   - If there are limitations, input them into the fields as the value range. If you leave the minimum value empty, it means that there is no lower threshold. If you leave the maximum value empty, it means there is no maximum weight or price value.
 
 #### Free or paid shipping
 
-If you offer free shipping, select the _This is free shipping_ checkbox. 
+If you offer free shipping, select the _This is free shipping_ checkbox.
 
 If shipping is charged, input the rate per weight unit in the currency field.
 

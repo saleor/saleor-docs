@@ -5,6 +5,6 @@ const CLOSING = "[/card-grid]";
 
 const block = require("./block");
 
-module.exports = function(md) {
+module.exports = function (md) {
   block(md, "card_grid", OPENING, CLOSING, "card-grid");
 };

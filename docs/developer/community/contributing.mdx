@@ -9,10 +9,10 @@ We welcome all contributions to Saleor, including issues, new features, docs, di
 Use Github Issues to report a bug or a problem that you found in Saleor. Use the "Bug report" issue template to provide information that will help us confirm the bug, such as steps to reproduce, expected behavior, Saleor version, and any additional context. When our team confirms a bug, it will be added to the internal backlog and picked up as soon as possible. When willing to fix a bug, let us know in the issue comment, and we will try to assist you on the way.
 
 ## New features
+
 When willing to propose or add a new feature, we encourage you first to open a [discussion](https://github.com/saleor/saleor/discussions) or an issue (using "Feature request" template) to discuss it with the core team. This process helps us decide if a feature is suitable for Saleor or design it before any implementation starts.
 
 Before merging, any new pull requests submitted to Saleor have to be reviewed and approved by the core team. We review pull requests daily, but if a pull request requires more time or feedback from the team, it will be marked as "queued for review".
-
 
 ## Managing dependencies
 
@@ -35,7 +35,9 @@ For compatibility, Saleor also provides `requirements.txt` and `requirements_dev
 These files should be updated by running `poetry export --without-hashes -f requirements.txt -o requirements.txt` and `poetry export --without-hashes -f requirements.txt -o requirements_dev.txt --dev`, respectively.
 
 ## File structure
+
 We are using a standard Django structure - every app has its own directory, where you can find:
+
 - migrations directory
 - management directory
 - models
@@ -45,8 +47,10 @@ We are using a standard Django structure - every app has its own directory, wher
 - etc.
 
 ### API file structure
-The `API` files are in `saleor/graphql/` directory. Every app has its own directory 
+
+The `API` files are in `saleor/graphql/` directory. Every app has its own directory
 inside with:
+
 - `schema.py` - with definitions of queries and mutations
 - `sorters.py` - with definitions of sorters
 - `filters.py` - with definitions of filters
@@ -71,8 +75,9 @@ how it's done in the `checkout` directory. See an example below:
 ```
 
 ### Tests file structure
+
 We are keeping tests in `tests` directory. We are aiming to keep queries and mutations
-in separate directories with a single file for every query and mutation. 
+in separate directories with a single file for every query and mutation.
 After joining it with the previous example, it would look like this:
 
 ```bash
@@ -93,8 +98,8 @@ After joining it with the previous example, it would look like this:
                     └── test_checkouts.py
 ```
 
-
 ## Testing
+
 Testing is a really important part of every project.
 In Saleor we're using the `pytest` library and we mostly have unit tests.
 
@@ -112,21 +117,26 @@ In the case of testing `API` we would like to split all tests into `mutations` a
 section and test every query and mutation in a separate file.
 
 ### How to run tests?
+
 To run tests just enter `pytest` in your terminal.
+
 ```bash
 pytest
 ```
 
 To speed testing time, we recommend using the `reuse-db` flag.
+
 ```bash
 pytest --reuse-db
 ```
 
 ### How to run particular tests?
+
 As running all tests is quite time-consuming, sometimes you would like to run
 only tests from one dictionary or even just a particular test.
-You can use for that the following commands. In the case of a particular directory or file, 
+You can use for that the following commands. In the case of a particular directory or file,
 just provide the path after the `pytest` command, like:
+
 ```bash
 pytest --reuse-db saleor/graphql/app/tests
 ```
@@ -141,6 +151,7 @@ pytest --reuse-db saleor/graphql/app/tests/mutations/test_app_create.py::test_ap
 ```
 
 ### Using pdb when testing
+
 If you would like to use `pdb` in code when running a test, you need to use a few flags
 `-n0` to one tests in a single thread, `-s` to disable capturing standard output by pytest, and
 `--allow-hosts` with default port, as we disabled sockets by default.
@@ -151,18 +162,21 @@ pytest --reuse-db saleor/graphql/app/tests/mutations/test_app_create.py::test_ap
 ```
 
 ### Recording cassettes
+
 Some of our tests using `VCR.py` cassettes to recording request and response
 from external API. To record one you need to use `vcr-record` flag and specified
 `allow-hosts`:
+
 ```bash
 pytest --vcr-record=once saleor/app/tests/test_app_commands.py --allow-hosts=127.0.0.1
 ```
 
 ### Writing benchmark tests
-The benchmark tests allow us to keep track of a number of database queries 
+
+The benchmark tests allow us to keep track of a number of database queries
 for mutations and queries. Tests should be added for every new
 mutation or query for objects.
-The benchmark tests are in `benchmark` directory, every test must be marked with 
+The benchmark tests are in `benchmark` directory, every test must be marked with
 `pytest.mark.django_db` and `pytest.mark.count_queries(autouse=False)` decorators
 and must have `count_queries` argument. For more details check
 [pytest-django-queries](https://pypi.org/project/pytest-django-queries/) package.
@@ -179,26 +193,27 @@ def test_apps_for_federation_query_count(
     ...
 ```
 
-
 To check the number of queries, just run the benchmark test, and after that call following command in your terminal:
+
 ```bash
 django-queries show
 ```
+
 You will see the number of queries that were performed for each test
 in every file.
 
-
 ### Given, when, then
+
 It's recommended to use `given`, `when`, `then` to distinguish between different parts of the test.
 It significantly improves test readability and makes clear what you are testing at all.
 
 ### Don't be afraid of docstrings
+
 Use docstring, especially for more complicated tests.
 Describe what is tested, and what is the expected behavior. Usually, the test name describes
 exactly what we are testing, but often the name is not enough to explain all
 expected behavior. Also, it will help to see that the test should be split into two,
 as it tests too much logic at once. In addition it's really helpful in test maintaining.
-
 
 ## Coding style
 
@@ -251,42 +266,49 @@ Most editors and IDEs support this file either directly or via plugins. See the 
 
 If you make sure that your programming environment respects the contents of this file, you will automatically get correct indentation, encoding, and line endings.
 
-
 ## Tips and recommendation
+
 Here we go with some tips and recommendation that limits the number of comments to your PR.
-If you will follow those rules both sites will be happy. 
+If you will follow those rules both sites will be happy.
 
 ### Imports
+
 Use relative imports.
 
 ### Models
+
 - The `UUID` is the preferred type of `PK` for the main models. Especially for models that
-keeps sensitive data.
+  keeps sensitive data.
 - Use `created_at` field name for creation date time and `updated_at` for update date time.
 - The new models should have a default sorting value set. It ensures that data are always returned
-in the same order and prevent flaky tests.
+  in the same order and prevent flaky tests.
 
 ### Migrations
+
 Try to combine multiple migrations into one, but remember to not mix changes on the database
 with updating rows in migrations - in other words, operations that alter tables
 and that which uses `RunPython` to run methods on existing data should be in separate files.
 
 ### Utility functions
+
 Utility function specific for API should go to `graphql` directory,
 otherwise to main module directory, usually to `utils.py` file.
 When writing such a method try to find a descriptive name as possible.
 Also, do not forget about the docstring, especially when the function is complicated.
 
 ### Searching
+
 Right now, we are mainly using the `GinIndex` and `ilike` operator for searching but currently,
 we are testing a new solution with the use of `SearchVector` and `SearchRank`.
 You can find it in this PR [#9344](https://github.com/saleor/saleor/pull/9344).
 
 ### API
+
 - Use `id` for mutation inputs instead of `model_name_id`.
 - Use `created_at` field name for creation date time and `updated_at` for update date time.
 
 #### API field descriptions
+
 Every mutation, mutation field, and type field should have a short, meaningful description,
 ending with a dot. Also, we labeled every new field with info in which version it was
 introduced, and when it's a new feature we added the preview feature label.
@@ -298,6 +320,7 @@ In a field definition, there is a dedicated argument for that: `deprecation_reas
 but in the case of mutation arguments, we are using `DEPRECATED_IN_X_INPUT` label in the description.
 
 #### How to define permissions in queries/mutations?
+
 To define permission in queries use the `permission_required` decorator, to provide
 one or multiple permissions that are required or `one_of_permissions_required`
 decorator that allows a user with at least one permission to perform the action.
@@ -313,6 +336,7 @@ Required permissions should be mentioned in the GraphQL description.
 :::
 
 #### Error codes
+
 New mutations should always have their own error class.
 Example: instead of using generic `PaymentErrorCode`, for `PaymentCreate` mutation
 we could have `PaymentCreateErrorCode`. The frontend will get a list of error codes that
@@ -325,6 +349,7 @@ First, create a new enum in the `error_codes.py` file in the main app directory.
 Then use it to create graphql enum in `saleor/graphql/core/enums.py` file.
 When defining a graphql enum you could specify the enum type name and attach
 the description for example the enum docstring as is shown below.
+
 ```python
 AppTypeEnum = to_enum(
     AppType,
@@ -336,6 +361,7 @@ AppTypeEnum = to_enum(
 Now you are ready to define the error class. The class must inherit from `Error` and
 must have a `code` field. Any other are optional but could be useful to specify
 what inputs raised an error. Here is an example:
+
 ```python
 class AppError(Error):
     code = AppErrorCode(description="The error code.", required=True)
@@ -347,7 +373,8 @@ class AppError(Error):
 ```
 
 #### Sorting and filtering
-To allow sorting the queryset you must create the `SortInputObjectType` and 
+
+To allow sorting the queryset you must create the `SortInputObjectType` and
 corresponding sorting enum, and it should go to the dedicated `sorters.py` file in
 the given app module in `API`.
 
@@ -369,6 +396,7 @@ class AppSortingInput(SortInputObjectType):
         sort_enum = AppSortField
         type_name = "apps"
 ```
+
 :::warning
 Remember, the list with sorting order must have a unique field.
 :::
@@ -378,7 +406,6 @@ Sometimes you would like to sort the data by some field that should be calculate
 and it isn't the model field. There is an option for that, you need to create the method
 whose name starts with `qs_with` followed by a sort field name in lowercase.
 The method should annotate the queryset to contain the new value. Look at the example:
-
 
 ```python
 class CollectionSortField(graphene.Enum):
@@ -397,10 +424,12 @@ class CollectionSortField(graphene.Enum):
         return queryset.annotate(product_count=Count("collectionproduct__id"))
 
 ```
+
 :::
 
 Similar situation is for filtering, you need to create `FilterInputObjectType`
 and django `FilterSet` in dedicated `filters.py` file.
+
 ```python
 class AppFilterInput(FilterInputObjectType):
     class Meta:
@@ -418,6 +447,7 @@ class AppFilter(django_filters.FilterSet):
 ```
 
 Next, you need to create `CountableConnection` for given query:
+
 ```python
 class AppCountableConnection(CountableConnection):
     class Meta:
@@ -425,7 +455,7 @@ class AppCountableConnection(CountableConnection):
 ```
 
 Then in the `schema.py` file, you need to change the corresponding query.
-It must be a `FilterConnectionField` with created connection field, 
+It must be a `FilterConnectionField` with created connection field,
 sorting input must be used in `sort_by` argument, and filter input in the `filter`
 argument of the query:
 
@@ -440,9 +470,9 @@ class AppQueries(graphene.ObjectType):
 ```
 
 #### How to handle breaking changes?
+
 - provide compatibility layer by supporting two solutions for a specified time period and removing it in next major version
 - deprecate API fields instead of removing them
-
 
 ## Git commit messages
 
@@ -466,23 +496,28 @@ To ease review, try to limit your commits to a single, self-contained issue. Thi
 For more information and tips on how to write good commit messages, see the GitHub [guide](https://github.com/erlang/otp/wiki/writing-good-commit-messages).
 
 ## Pull requests
+
 When you open the pull request remember to add a meaningful title and a good description.
 Describe what is changing, and what is the reason for doing that or what problem it fixes.
 If it resolves some GitHub issue, please link it. Wait for all actions to be performed,
 and if all is green, request `saleor/core` group for review.
 
 ## Changelog
+
 We have a `CHANGELOG.md` file where we are keeping the info about the changes that were introduced.
 The file contains separate parts for every release, the new items should be put under the section `Unreleased`.
 This section in split into `Breaking changes` and `Other changes`.
 The changelog entry should consist the name of the PR, the PR number and name of the author,
 it may also contain an additional explanation. Here is an example:
+
 ```
 - Add multichannel - #6242 by @exampleUser
 ```
 
 ### What is considered as breaking changes?
+
 Here we go with the full list of changes that are considered by us as breaking:
+
 - deleting field from graphql schema / renaming the field name
 - deleting the field from webhook payload / changing the name of returned field
 - changing signatures of plugins functions (PluginsManager) - breaking only for existing plugins
@@ -492,13 +527,16 @@ Here we go with the full list of changes that are considered by us as breaking:
 Any change that is not specified there should go to `Other changes` section.
 
 ### I'm adding the fix to just merged feature, should I add a changelog record for that?
+
 The changelog shouldn't reflect the history of building a feature, but it should provide
 the information for other developers that the actual feature was added.
 If the feature wasn't released, and you believe the PR number of the fix is really worth mentioning,
 the existing changelog entry should be extended:
+
 ```
 - Add multichannel - #6242, #6250 by @exampleUser
 ```
+
 If the fix is not so crucial, it shouldn't be mentioned separately.
 
 If a feature was already released, you can add a separate changelog entry just to mention a regular bugfix.

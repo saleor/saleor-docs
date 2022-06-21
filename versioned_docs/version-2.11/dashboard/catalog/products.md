@@ -220,7 +220,8 @@ You also have to choose the availability for purchasing your product. If you sel
 To show a product in the product listings, you have to enable the _Show in product listings_ checkbox.
 
 #### Step 6: Product taxes
-Under the *Taxes* section, you will find two options. Both of them are optional.
+
+Under the _Taxes_ section, you will find two options. Both of them are optional.
 
 ![Changing product visibility](../screenshots/catalog-product-taxes.png)
 

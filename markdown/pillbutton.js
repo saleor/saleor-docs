@@ -2,7 +2,7 @@
 
 "use strict";
 
-module.exports = function(md) {
+module.exports = function (md) {
   md.inline.ruler.push("pillbutton", pillbutton);
   md.renderer.rules.pillbutton_open = openPillbutton;
   md.renderer.rules.pillbutton_close = closePillbutton;

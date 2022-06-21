@@ -4,7 +4,7 @@ title: Site Settings
 
 ## Introduction
 
-This page allows you to enter the basic information about your store. Some of the information will be visible to your customers. 
+This page allows you to enter the basic information about your store. Some of the information will be visible to your customers.
 
 ## General information
 
@@ -26,15 +26,15 @@ This card allows you to enter basic information about your company (name, addres
 
 ## Authentication keys
 
-You can allow dashboard users to enter your store through Google and Facebook and add additional security keys to ensure site security. 
+You can allow dashboard users to enter your store through Google and Facebook and add additional security keys to ensure site security.
 
 ## How to
 
 ### How to add authentication keys
 
-1. Click _Add&nbsp;key_ at the top right of the Authentication Keys card 
-2. Select Facebook or Google in the Authentication Type field of the pop-up window 
-3. Create a key and password, which users will enter when accessing the dashboard through the chosen platform 
+1. Click _Add&nbsp;key_ at the top right of the Authentication Keys card
+2. Select Facebook or Google in the Authentication Type field of the pop-up window
+3. Create a key and password, which users will enter when accessing the dashboard through the chosen platform
 4. Click _Add&nbsp;Authentication_ to confirm
 
 ![Authorization keys](../screenshots/config-site-authentication.jpeg)

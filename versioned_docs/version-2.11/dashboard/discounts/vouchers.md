@@ -2,6 +2,7 @@
 id: vouchers
 title: Vouchers
 ---
+
 ## Using vouchers in Saleor
 
 Vouchers allow you to give all your customers or selected shoppers a great deal on a specific product or order. Users get a voucher code via email, or on social media or your website, which they can they activate at the checkout when making a purchase.
@@ -21,7 +22,7 @@ Click _Create&nbsp;Voucher_ above the main list on the vouchers page to get star
 There are two options to give your voucher a name:
 
 - Type a name, for example, ‘BlackFridayVoucher’ into the Discount Code field
-- Click _Generate&nbsp;Code_ to create a randomized voucher code 
+- Click _Generate&nbsp;Code_ to create a randomized voucher code
 
 **3. Choose discount type**
 
@@ -41,7 +42,7 @@ Decide whether the fixed-value or percentage-value voucher applies to all produc
 
 **6. Apply discount to all products or only full price products**
 
-You can decide if your offer applies to products which are already discounted in other sales or if it only covers full price products. Check the slider to choose the right option. 
+You can decide if your offer applies to products which are already discounted in other sales or if it only covers full price products. Check the slider to choose the right option.
 
 **7. Set minimum requirements**
 
@@ -57,9 +58,8 @@ Choose if each customer (defined by e-mail address) can use the voucher only onc
 
 Leave the start date blank in Active Dates card if you want the offer to start immediately. Similarly, leave the end date blank if the voucher will remain valid indefinitely. If the offer is for a specific time, input the start and/or end dates and times.
 
-
 ### How to edit or remove vouchers
 
-Click on any voucher from the main list to edit it. 
+Click on any voucher from the main list to edit it.
 
 To remove vouchers, click the checkbox on the main list and then use the trash can icon, or enter the voucher and click _Delete_ in the footer.

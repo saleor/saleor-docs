@@ -2,9 +2,10 @@
 id: navigation
 title: Navigation
 ---
+
 ## Introduction
 
-The navigation section allows you to configure what information is visible on the header and footer navigation bars of your website. 
+The navigation section allows you to configure what information is visible on the header and footer navigation bars of your website.
 
 ![Navigation displayed on the site](../screenshots/config-navigation-example.jpeg)
 
@@ -26,4 +27,4 @@ How it will appear on your storefront:
 
 ### How to manage navigation items
 
-You can easily view, edit, or remove menu items using the icons on the right side of the sliders. 
+You can easily view, edit, or remove menu items using the icons on the right side of the sliders.

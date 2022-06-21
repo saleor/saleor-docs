@@ -2,7 +2,6 @@
 title: Introduction
 ---
 
-
 This page gives you a convenient overview of currently installed plugins in Saleor.
 Saleor provides the possibility to add various extensions to it so you can create your own configuration.
 
@@ -37,6 +36,5 @@ Saleor arrives with the following plugins already integrated.
   - Invoicing
 
   - Webhooks
-
 
 In all cases of plugin configuration, you need to provide your credentials. Depending on the gate you are configuring, there might be additional setup required.

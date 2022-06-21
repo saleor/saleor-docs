@@ -247,14 +247,14 @@ Much the same as on social media or other platforms, there are two ways to add a
 
 Saleor also allows users to upload videos through URL links. To upload a video, follow the steps below:
 
-- Publish a video on a service such as YouTube*
+- Publish a video on a service such as YouTube\*
 - Click the _Upload_ button in the top right corner of the media section and choose _Upload URL_
 - Copy and paste the URL link of your video
 - To confirm the URL link, click _Upload URL_
 
 You can add an unlimited number of media per product. The main image or video will be the one that is first in line. You can drag and drop media to change the order. Hover over a specific media and click the trash can to delete an unwanted media.
 
-:::note *A full list of supported services
+:::note \*A full list of supported services
 
 The Saleor validation library supports the following services: Dailymotion, Flickr, Imgur, Instagram, MobyPicture, Photobucket, SmugMug, Scribd, TikTok, Twitter, Vimeo, WordPress.tv, YouTube.
 
@@ -324,6 +324,7 @@ The variant creator page appears when a product does not have any variants assig
 #### 2. Prices and SKU tab
 
 ##### Price section
+
 The first step is to specify how you want your prices to be applied to each variant:
 
 - Apply single price to all SKUs for each channel - All attribute values of this product to have the same price.
@@ -332,7 +333,8 @@ The first step is to specify how you want your prices to be applied to each vari
 
 ![Product Variant Creator](../screenshots/catalog-product-variant-pricing.png)
 
-##### Stock and Warehousing section 
+##### Stock and Warehousing section
+
 After filling out the price section, you need to assign a previously created [warehouse](dashboard/configuration/warehouses.mdx):
 
 :::note

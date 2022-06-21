@@ -1,6 +1,6 @@
 "use strict";
 
-module.exports = function(md, name, opening, closing, cssClass) {
+module.exports = function (md, name, opening, closing, cssClass) {
   function block(state, startLine, endLine) {
     let pos = state.bMarks[startLine] + state.tShift[startLine];
     if (state.src.substr(pos, opening.length).toLowerCase() !== opening) {
@@ -28,7 +28,7 @@ module.exports = function(md, name, opening, closing, cssClass) {
     state.tokens.push({
       type: `${name}_open`,
       lines: [startLine, state.line],
-      level: state.level
+      level: state.level,
     });
 
     state.tokens.push({
@@ -36,11 +36,11 @@ module.exports = function(md, name, opening, closing, cssClass) {
       content: content,
       level: state.level + 1,
       lines: [startLine + 1, lastLine],
-      children: []
+      children: [],
     });
     state.tokens.push({
       type: `${name}_close`,
-      level: state.level
+      level: state.level,
     });
     state.line = lastLine + 1;
 

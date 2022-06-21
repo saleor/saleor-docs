@@ -12,8 +12,7 @@ Go to _Configuration_ -> _Plugins_ -> _Stripe_ and fill in the fields:
 
 - **Automatic payment capture:** If enabled, Saleor will automatically capture funds. If disabled, the funds are blocked but need to be captured manually.
 
-- **Secret API key:**  your Stripe secret API key. See [Stripe's docs](https://stripe.com/docs/keys#obtain-api-keys)
-
+- **Secret API key:** your Stripe secret API key. See [Stripe's docs](https://stripe.com/docs/keys#obtain-api-keys)
 
 ## Activating Stripe webhooks
 

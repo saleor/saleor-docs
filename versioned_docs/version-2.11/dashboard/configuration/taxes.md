@@ -2,9 +2,10 @@
 id: taxes
 title: Taxes
 ---
+
 ## Introduction
 
-Saleor uses an API to help automate taxes. There are very few actions that you need to take, apart from assigning the correct tax band to any Product Type that you create. 
+Saleor uses an API to help automate taxes. There are very few actions that you need to take, apart from assigning the correct tax band to any Product Type that you create.
 
 ## How to manage taxes
 

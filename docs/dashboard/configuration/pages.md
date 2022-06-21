@@ -54,7 +54,7 @@ You can set a future date when the page will be published. Use the _Publish on_ 
 
 **6. Attributes**
 
-Once the page has been created, you can assign a previously created [content attribute](dashboard/configuration/attributes.md). 
+Once the page has been created, you can assign a previously created [content attribute](dashboard/configuration/attributes.md).
 
 ### How to manage metadata in the product type setup page
 

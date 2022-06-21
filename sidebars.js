@@ -232,7 +232,5 @@ module.exports = {
       ],
     },
   ],
-  cli: [
-    "cli"
-  ]
+  cli: ["cli"],
 };

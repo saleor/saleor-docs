@@ -18,15 +18,15 @@ Payment webhooks are synchronous webhooks that allow delegating payment handling
 
 Available payment events are:
 
-| Name                        | Description                                                                                                                                                                                                             |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PAYMENT_AUTHORIZE`         | Authorize payment                                                                                                                                                                                                       |
-| `PAYMENT_CAPTURE`           | Capture payment                                                                                                                                                                                                         |
-| `PAYMENT_CONFIRM`           | Confirm payment                                                                                                                                                                                                          |
-| `PAYMENT_LIST_GATEWAYS`     | List payment gateways                                                                                                                                                                                                   |
-| `PAYMENT_PROCESS`           | Process payment                                                                                                                                                                                                         |
-| `PAYMENT_REFUND`            | Refund payment                                                                                                                                                                                                          |
-| `PAYMENT_VOID`              | Void payment                                                                                                                                                                                                            |
+| Name                    | Description           |
+| ----------------------- | --------------------- |
+| `PAYMENT_AUTHORIZE`     | Authorize payment     |
+| `PAYMENT_CAPTURE`       | Capture payment       |
+| `PAYMENT_CONFIRM`       | Confirm payment       |
+| `PAYMENT_LIST_GATEWAYS` | List payment gateways |
+| `PAYMENT_PROCESS`       | Process payment       |
+| `PAYMENT_REFUND`        | Refund payment        |
+| `PAYMENT_VOID`          | Void payment          |
 
 To react to payment webhooks, first you need to create an app. You can follow as described in [this dashboard manual](/dashboard/apps.md) for regular app, or [read more](developer/extending/apps/key-concepts.mdx) about different app types.
 Make sure to make the app active and grant it the `HANDLE_PAYMENTS` permission.
@@ -81,37 +81,32 @@ In the response, you should return a list of supported payment methods, for exam
 
 ```json
 [
-   {
-      "id":"credit-card",
-      "name":"Credit Card",
-      "currencies":[
-         "EUR"
-      ],
-      "config":[]
-   },
-   {
-      "id":"apple-pay",
-      "name":"Apple Pay",
-      "currencies":[
-         "EUR",
-         "USD"
-      ],
-      "config":[
-         {
-            "field":"apple-pay-config-field",
-            "value":"value"
-         }
-      ]
-   }
+  {
+    "id": "credit-card",
+    "name": "Credit Card",
+    "currencies": ["EUR"],
+    "config": []
+  },
+  {
+    "id": "apple-pay",
+    "name": "Apple Pay",
+    "currencies": ["EUR", "USD"],
+    "config": [
+      {
+        "field": "apple-pay-config-field",
+        "value": "value"
+      }
+    ]
+  }
 ]
 ```
 
 Each item on the list should have the following fields:
+
 - `id` - ID of a payment method; must be unique within your app.
 - `name` - the name of the payment method.
 - `currencies` - list of currencies supported by this payment method.
 - `config` - optional configuration, such as additional payment data that may be needed to proceed with the payment in the frontend.
-
 
 ### Register webhooks for payment actions
 
@@ -133,9 +128,10 @@ If an app has more than one webhook that listens to the same payment event, Sale
 See the example payload sent from Saleor for these payment events: [Payment actions payload](/developer/extending/apps/sample-webhook-payloads.mdx#payment-actions-payload).
 
 For payments that require confirmation (such as 3D Secure) Saleor triggers events:
+
 - `PAYMENT_PROCESS` - when the `checkoutComplete` mutation is run for the first time, payment is created and waiting for the user's confirmation.
 - `PAYMENT_CONFIRM` - when the `checkoutComplete` mutation is run for the second time, payment is confirmed.
-Depending on payment gateway, multiple events can be triggered.
+  Depending on payment gateway, multiple events can be triggered.
 
 For payments without a confirmation step, Saleor triggers only the `PAYMENT_PROCESS` event.
 
@@ -159,18 +155,20 @@ Example response for the `PAYMENT_PROCESS` event when confirmation is required:
 
 ```json
 {
-   "action_required": true,
-   "action_required_data":{"confirmation_url": "https://www.example.com/3ds-confirmation/"},
-   "customer_id":"customer-1234",
-   "payment_method": {
-     "brand":"Visa",
-     "exp_month":"01",
-     "exp_year":"2025",
-     "last_4":"4242",
-     "name":"John Doe",
-     "type":"Credit card",
-   },
-   "transaction_id":"transaction-1234"
+  "action_required": true,
+  "action_required_data": {
+    "confirmation_url": "https://www.example.com/3ds-confirmation/"
+  },
+  "customer_id": "customer-1234",
+  "payment_method": {
+    "brand": "Visa",
+    "exp_month": "01",
+    "exp_year": "2025",
+    "last_4": "4242",
+    "name": "John Doe",
+    "type": "Credit card"
+  },
+  "transaction_id": "transaction-1234"
 }
 ```
 
@@ -198,7 +196,6 @@ mutation {
 Running the `checkoutComplete` mutation afterward will use the payment method set above and trigger your payment webhook.
 
 See more about checkout mutations [here](developer/checkout.mdx).
-
 
 ## Shipping webhooks
 
@@ -249,9 +246,9 @@ This is an example response from the application:
     "type": "Checkout",
     "token": "Q2hlY2tvdXQ6ZGU1N2Q2M2UtNWVkZS00MmE2LWFmOTEtZDE2NmE1ZTE4MmE5",
     "channel": {
-      "type": "Channel", 
-      "id": "Q2hhbm5lbDox", 
-      "slug": "default-channel", 
+      "type": "Channel",
+      "id": "Q2hhbm5lbDox",
+      "slug": "default-channel",
       "currency_code": "USD"
     },
     "user": {
@@ -359,9 +356,9 @@ They are be selected using the same mutations as internal shipping methods, e.g.
 
 ```graphql
 mutation {
-  checkoutDeliveryMethodUpdate (
-    token: "915d9405-629f-4ef2-98f4-8480d5cf827f",
-    deliveryMethodId: "YXBwOjEyMzQ6c29tZS1pZA==",
+  checkoutDeliveryMethodUpdate(
+    token: "915d9405-629f-4ef2-98f4-8480d5cf827f"
+    deliveryMethodId: "YXBwOjEyMzQ6c29tZS1pZA=="
   ) {
     checkout {
       deliveryMethod {
@@ -384,11 +381,10 @@ in order to allow the shipping method to be correctly displayed in the dashboard
 
 ### Filter shipping methods
 
-
-
 #### Subscribe to the webhook
 
 Saleor Apps can subscribe to the synchronous webhooks:
+
 - `CHECKOUT_FILTER_SHIPPING_METHODS` is called whenever shipping methods are listed for a checkout
 - `ORDER_FILTER_SHIPPING_METHODS` is called whenever shipping methods are listed for an order
 
@@ -402,9 +398,9 @@ Example request for `CHECKOUT_FILTER_SHIPPING_METHODS`:
     "type": "Checkout",
     "token": "Q2hlY2tvdXQ6YzczOGEyYzUtMDliMy00MTE3LWFiYmEtY2ZhYzJiNDBhZWRl",
     "channel": {
-      "type": "Channel", 
-      "id": "Q2hhbm5lbDox", 
-      "slug": "default-channel", 
+      "type": "Channel",
+      "id": "Q2hhbm5lbDox",
+      "slug": "default-channel",
       "currency_code": "USD"
     },
     "user": null,
@@ -546,11 +542,11 @@ This is an example response from the application:
   "excluded_methods": [
     {
       "id": "U2hpcHBpbmdNZXRob2Q6MQ==",
-      "reason": "Same Day Delivery is no longer available.",
+      "reason": "Same Day Delivery is no longer available."
     },
     {
       "id": "U2hpcHBpbmdNZXRob2Q6MTQ=",
-      "reason": "Bulky items are not allowed for standard shipping.",
+      "reason": "Bulky items are not allowed for standard shipping."
     }
   ]
 }
@@ -559,6 +555,7 @@ This is an example response from the application:
 #### Implementation guide
 
 `ShippingMethod` objects returned by `Checkout.shippingMethods` and `Order.shippingMethods` will have 2 attributes:
+
 - `active` which is set to `false` when at least one of the Saleor Apps excludes the methods
 - `message` which concatenates the exclusion reason coming from each of the apps
 
@@ -579,4 +576,3 @@ This is an example response from the application:
 Even though external methods are also subject to filtering, we recommend to integrate only one of the two approaches,
 as every single synchronous webhook affects the response time of your Saleor API.
 :::
-

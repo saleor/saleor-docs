@@ -1,6 +1,7 @@
 ---
 title: Sales
 ---
+
 ## Using sales in Saleor
 
 Sales are an excellent way to encourage customers to use your store. Saleor offers you a range of sale options:
@@ -8,7 +9,6 @@ Sales are an excellent way to encourage customers to use your store. Saleor offe
 - Specific price reductions or percentage discounts
 - Sales on single or grouped products, categories, and collections
 - Flexible time periods for sales events, which can be deactivated and reactivated at any time.
-
 
 ## How to create a sale
 
@@ -18,11 +18,9 @@ Click _Create&nbsp;Sale_ above the main sales list and fill in the relevant sect
 
 ![Creating sale](../screenshots/discount-sale-new.png)
 
-
 ### Step 2: General Information card
 
 Add the name of your sale. This can be edited later.
-
 
 ### Step 3: Discount type
 
@@ -45,7 +43,6 @@ Use the pop-up calendar or stepper to choose the start and end dates of the sale
 ### Step 7: Save your changes
 
 Click Save on the footer bar to save the sale.
-
 
 ### Step 8: Assign categories, collections, or products
 

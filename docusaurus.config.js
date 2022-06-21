@@ -23,8 +23,8 @@ module.exports = {
         homepage: "./template/api-reference.mdx",
         linkRoot: "../../../",
         loaders: {
-	  UrlLoader: "@graphql-tools/url-loader"
-	}
+          UrlLoader: "@graphql-tools/url-loader",
+        },
       },
     ],
     [

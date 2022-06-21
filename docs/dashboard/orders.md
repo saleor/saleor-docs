@@ -40,11 +40,13 @@ You can also manually search specific information, such as key words or names, u
 The order settings page allows you to manage your order and fulfillment settings.
 
 ### How to access the order settings page
+
 Click the three dot icon on top of the right corner of the main order list page. Then click _Order Settings_.
 
 ![](screenshots/order-settings.png)
 
 ### Settings
+
 Under the settings section, you can set automatic confirmation for all orders and fulfillment of non-shippable gift cards.
 
 - **Automatically confirm all orders** - If you select automatic confirmation, all orders will be automatically confirmed and all payments will be captured.
@@ -52,6 +54,7 @@ Under the settings section, you can set automatic confirmation for all orders an
 - **Automatically fulfill non shippable gift cards** - If you select automatically fulfill non-shippable gift cards, activated non-shippable gift cards will be automatically set as fulfilled and sent to the customer.
 
 ### Fulfillment settings
+
 Under the fulfillment settings section, you can set automatic approval for all fulfillments and the ability to fulfill products without capturing payment for the order.
 
 - **Automatically approve all fulfillments** - If you select this option, after choosing a warehouse for an order, click the fulfill button in the fulfillment card and the order will be automatically fulfilled. Not selecting automatic approval for all fulfillments will require additional approval. After choosing a warehouse for an order, you need to click the `prepare fulfillment` button in the fulfillment card. Then you need to manually approve the order by clicking the approve button in the order details page.
@@ -122,6 +125,7 @@ When viewing orders with pre-authorized payments, Saleor offers options to eithe
 ![Order with an uncaptured payment](screenshots/order-payment.jpeg)
 
 #### Refunds
+
 Payments can be fully or partially refunded, if there is an issue with the goods or customer service.
 
 ### Order history
@@ -144,7 +148,7 @@ This is a function for store administrators to add orders, usually in cases wher
 
 1. Click _Create&nbsp;Order_ on the main orders page or the draft orders section
 
-2. Choose a previously created [channel](dashboard/configuration/channels.md) 
+2. Choose a previously created [channel](dashboard/configuration/channels.md)
 
 3. Click _Add&nbsp;Products_ in the Order Details card
 
@@ -177,6 +181,7 @@ When order confirmation is enabled, order needs to be confirmed by staff in orde
 
 After operation is finished, order status should be _unfulfilled_.
 Keep in mind that staff might change the order value before it's confirmed by manipulating the order lines. If such case happens, then after the confirmation, charged amount can be:
+
 - Higher than order total - staff should perform [miscellaneous refund](#how-to-refund-an-order) for the amount that was overpaid.
 - Lower than order total - staff should decide with the customer how to handle the outstanding balance.
 
@@ -184,12 +189,13 @@ Keep in mind that staff might change the order value before it's confirmed by ma
 
 ### How to refund an order
 
-Saleor allows you to refund payments. Click the _REFUND_ button in the _Fully paid_ card in the order details page. 
+Saleor allows you to refund payments. Click the _REFUND_ button in the _Fully paid_ card in the order details page.
 
 There are two options to choose:
-1. _Refund Products_. This method allows you to choose the quantity of the refunded products. Click the _SET MAXIMAL QUANTITIES_ button to select all products from the order that will be refunded. 
 
-In the _Refunded Amount_ card, you can choose if you want to use an _Automatic Amount_ or _Manual Amount_. The first one is calculated based on the quantity of the products for the refund you selected earlier. You can also refund shipping costs (optional). _Manual Amount_ allows you to type any amount you have decided. 
+1. _Refund Products_. This method allows you to choose the quantity of the refunded products. Click the _SET MAXIMAL QUANTITIES_ button to select all products from the order that will be refunded.
+
+In the _Refunded Amount_ card, you can choose if you want to use an _Automatic Amount_ or _Manual Amount_. The first one is calculated based on the quantity of the products for the refund you selected earlier. You can also refund shipping costs (optional). _Manual Amount_ allows you to type any amount you have decided.
 
 2. _Miscellaneous Refund_. This option allows you to type any amount for the refund you have decided.
 
@@ -209,11 +215,12 @@ Use the form to select how much of each product is being fulfilled from which wa
 
 ![Canceling shipment](screenshots/order-cancel-return.png)
 
-Click the three dots in the top right corner of a Fulfilled order card. Choose the *Cancel Order* option. Then click *Accept* when the pop-up appears. Items will be restocked into the Saleor system.
+Click the three dots in the top right corner of a Fulfilled order card. Choose the _Cancel Order_ option. Then click _Accept_ when the pop-up appears. Items will be restocked into the Saleor system.
 
 ![Canceling order](screenshots/order-cancel.png)
 
 #### How to return and replace an order
+
 Click the three dots in the top right corner of a Fulfilled order card. Choose the _Return/replace order_ option. Then select the quantity of the items that need to be returned or/and replaced. Additionally, you can refund money while returning items.
 
 The last step is to click the _Return & Replace Products_ button.

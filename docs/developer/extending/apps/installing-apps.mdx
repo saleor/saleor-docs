@@ -5,12 +5,13 @@ title: Installing and Managing Apps
 ## Installation flow
 
 Apps can be installed in three ways:
+
 - From the command line.
 - Using GraphQL API.
 - Using Saleor Dashboard.
 
 The first option can be useful during app development and can only be used if you have access to the server CLI.
-The second option is a default flow which will be used during installation from Saleor Marketplace. 
+The second option is a default flow which will be used during installation from Saleor Marketplace.
 The third use the same GraphQL mutations as the previous one, but can be done using UI. The process is described in the [dashboard](dashboard/apps.md#creating-new-app) section.
 
 No matter which way of installing you choose, your app has to expose the registration endpoint. Saleor Core will contact such endpoint during registration and send tokens used for app auth. If your application return HTTP status 200, installation is marked as successful and staff users will be able to interact with it.
@@ -49,7 +50,6 @@ sequenceDiagram
   App -->> Saleor: HTTP 200 OK
 ```
 
-
 If the target URL is not specified, the command will output an API auth token in the following format:
 
 ```
@@ -65,13 +65,11 @@ Arguments:
 - `<manifest URL>`: URL of the manifest file, required.
 - `--activate`: immediately activate the new App.
 
-
 > **Example:** The following command will download given manifest and install the app:
 >
 > ```shell
 > python manage.py install_app https://www.url.to.manifest
 > ```
-
 
 App installation is confirmed by sending an API token to the specified token target URL.
 To see workflow details check - [install app workflow](developer/extending/apps/installing-apps.mdx#install-an-app).
@@ -80,9 +78,10 @@ To see workflow details check - [install app workflow](developer/extending/apps/
 
 ### Installing an App
 
-Installing an App with `appInstall` mutation creates an App based on its manifest URL. 
+Installing an App with `appInstall` mutation creates an App based on its manifest URL.
 
 The mutation takes the following input fields:
+
 - `appName`: the name of the App, required.
 - `manifestUrl`: URL of the manifest file, required.
 - `permissions`: list of permissions the app should be granted.
@@ -91,21 +90,21 @@ The mutation takes the following input fields:
 The response of the mutation contains the `appInstallation` which contains all information about installation process.
 
 ```graphql {2-8}
-mutation{
+mutation {
   appInstall(
-      input: {
-        appName: "External Order App", 
-        manifestUrl: "http://localhost:3001/manifest", 
-        permissions:[MANAGE_ORDERS]
-      }
+    input: {
+      appName: "External Order App"
+      manifestUrl: "http://localhost:3001/manifest"
+      permissions: [MANAGE_ORDERS]
+    }
   ) {
-    appInstallation{
+    appInstallation {
       id
       status
       appName
       manifestUrl
     }
-    appErrors{
+    appErrors {
       field
       message
       code
@@ -114,6 +113,7 @@ mutation{
   }
 }
 ```
+
 If there are no errors in the response, a new app installation process is created:
 
 ```json
@@ -155,7 +155,7 @@ sequenceDiagram
   Saleor ->>+ App: GET /path/to/manifest.json
   App -->>- Saleor: App manifest
   Saleor ->> Saleor: Validate manifest
-  Saleor ->>+ DB: Create App 
+  Saleor ->>+ DB: Create App
   DB -->>- Saleor: App object
   Saleor ->> Saleor: Generate new auth token for app
   Saleor ->>+ App: POST /token/target/url/<br>{"auth_token": "new-app-token"}
@@ -164,20 +164,22 @@ sequenceDiagram
 
 ### Retrieving ongoing installations
 
-To fetch all ongoing and failed installations, use the `appsInstallations` query. 
-This query is only available to staff users with the `MANAGE_APPS` permission. 
+To fetch all ongoing and failed installations, use the `appsInstallations` query.
+This query is only available to staff users with the `MANAGE_APPS` permission.
 The query returns list of `AppInstallation` objects.
 
 ```graphql {2}
 {
-  appsInstallations{
+  appsInstallations {
     id
     status
     appName
   }
 }
 ```
+
 The query returns a similar response:
+
 ```json
 {
   "data": {
@@ -196,26 +198,29 @@ The query returns a similar response:
   }
 }
 ```
+
 ### Retrying failed installation
 
-If the `appsInstallations` query returns App with failed status, there is a possibility to retry the installation process. 
+If the `appsInstallations` query returns App with failed status, there is a possibility to retry the installation process.
 Staff user can't retry app installation if app requires more permissions than he has for his own.
 The `appRetryInstall` mutation will run the installation process for a given app.
 
 The mutation takes the following fields:
+
 - `id`: the id of the `AppInstallation`, required.
 - `activateAfterInstallation`: immediately activate the new App. Default true.
 
 Example of retrying installation of app with id `QXBwT25nb2luZ0luc3RhbGxhdGlvbjoy`:
+
 ```graphql {2}
- mutation{
-  appRetryInstall(id:"QXBwT25nb2luZ0luc3RhbGxhdGlvbjoy"){
-    appErrors{
+mutation {
+  appRetryInstall(id: "QXBwT25nb2luZ0luc3RhbGxhdGlvbjoy") {
+    appErrors {
       field
       message
       code
     }
-    appInstallation{
+    appInstallation {
       id
       status
     }
@@ -224,10 +229,12 @@ Example of retrying installation of app with id `QXBwT25nb2luZ0luc3RhbGxhdGlvbjo
 ```
 
 ### Deleting failed installation
-If the `appsInstallations` query returns App with failed status, there is a possibility to delete failed installation. 
+
+If the `appsInstallations` query returns App with failed status, there is a possibility to delete failed installation.
 The `appDeleteFailedInstallation` mutation will delete failed installation.
 
 The mutation takes the following fields:
+
 - `id`: the id of the `AppInstallation`, required.
 
 ### Local Apps
@@ -324,29 +331,29 @@ mutation {
 ### Retrieving all Apps
 
 To list apps, use `apps` query:
+
 ```graphql {2}
 {
-  apps(first: 5){
-    edges{
-      node{
+  apps(first: 5) {
+    edges {
+      node {
         id
-        permissions{
+        permissions {
           code
         }
         name
         isActive
-        webhooks{
+        webhooks {
           name
         }
-        
       }
     }
   }
 }
 ```
 
-
 The query returns a similar response:
+
 ```json
 {
   "data": {
@@ -371,19 +378,20 @@ The query returns a similar response:
 }
 ```
 
-
 ### Activating an App
+
 To activate an app, use the `appActivate` mutation, which takes the following fields:
+
 - `id`: the id of the `App`, required.
 
 ```graphql {2}
 mutation {
-  appActivate(id:"QXBwOjE="){
-    app{
+  appActivate(id: "QXBwOjE=") {
+    app {
       id
       isActive
     }
-    appErrors{
+    appErrors {
       field
       message
       code
@@ -393,6 +401,7 @@ mutation {
 ```
 
 The query returns a similar response:
+
 ```json
 {
   "data": {
@@ -406,24 +415,26 @@ The query returns a similar response:
   }
 }
 ```
+
 ### Deactivating an App
 
 :::note
-Deactivating an app will disable all auth-tokens generated for an app. 
+Deactivating an app will disable all auth-tokens generated for an app.
 The app won't receive a webhook payload.
 :::
 
 The mutation takes the following fields:
+
 - `id`: the id of the `App`, required.
 
 ```graphql {2}
 mutation {
-  appDeactivate(id:"QXBwOjE="){
-    app{
+  appDeactivate(id: "QXBwOjE=") {
+    app {
       id
       isActive
     }
-    appErrors{
+    appErrors {
       field
       message
       code
@@ -432,8 +443,8 @@ mutation {
 }
 ```
 
-
 The query returns a similar response:
+
 ```json
 {
   "data": {

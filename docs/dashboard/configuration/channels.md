@@ -13,6 +13,7 @@ This page allows you to define and manage your sales channels for your store. Yo
 1. The first step is to click the _CREATE CHANNEL_ button to create a channel in the _Channels_ section of dashboard configuration.
 
 2. The second step is to fill out the following information:
+
    - Channel name
    - Slug
    - Channel currency
