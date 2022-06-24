@@ -19,7 +19,7 @@ Managing webhooks is available for users with the `MANAGE_APPS` permission. The 
 
 ## Webhook protocols
 
-Webhooks support the following protocols:
+Asynchronous webhooks support the following protocols:
 
 - HTTP(S)
 - Google Cloud Pub/Sub
@@ -33,26 +33,31 @@ Webhook payloads are sent in POST requests.
 
 All webhooks with `targetUrl`, where the scheme is HTTP(S) will use this protocol.
 
-Saleor calculates the HMAC sha256 header - `Saleor-Signature` based on `secretKey` and the payload.
-
 If a successful response has not been received in the case of temporary service unavailability, it will retry its request after a delay in time.
 
 While HTTPS webhooks are a familiar concept and may seem easy to implement, make sure your endpoint can handle the same level of concurrency that you expect from the monitored events. Saleor Cloud will do its best to deliver webhooks in real-time, which could mean more traffic than your servers can handle. Because of this and the possibility of losing events when the destination server is down, we recommend using a queue like Google Cloud Pub/Sub or AWS SQS (see below).
 
-### Headers
+#### Headers
+
 During HTTPS requests there are several headers included:
-- Saleor-Event - defines event which is assigned to the webhook
-- Saleor-Domain - defines saleor domain
-- Saleor-Signature - defines signature to indicate that the request is authorized
+- `Saleor-Event` - defines event which is assigned to the webhook
+- `Saleor-Domain` - defines saleor domain
+- `Saleor-Signature` - defines signature to indicate that the request is verifiable
 
 :::warning
 In Saleor 4.0 all `X-Saleor-` headers will be removed and replaced with headers without `X-` prefix.
 
 Deprecated headers list:
-- X-Saleor-Event -> Saleor-Event
-- X-Saleor-Domain -> Saleor-Domain
-- X-Saleor-Signature -> Saleor-Signature
+- `X-Saleor-Event` -> `Saleor-Event`
+- `X-Saleor-Domain` -> `Saleor-Domain`
+- `X-Saleor-Signature` -> `Saleor-Signature`
 :::
+
+#### Payload signature
+
+Saleor calculates a payload signature under `Saleor-Signature`:
+- if `secretKey` was set for a webhook - the HMAC SHA-256 header based on it and the payload
+- if `secretKey` wasn't set for a webhook - the RS256 signature based on our private key used also to sign JWT tokens and the payload, to verify signature you can use public key, which can be fetched from `http(s)://<your-backend-domain>/.well-known/jwks.json` (available since Saleor 3.5, before 3.5 payload from webhooks without `secretKey` set were not signed)
 
 ### Google Cloud Pub/Sub
 
