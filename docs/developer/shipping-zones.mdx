@@ -1,0 +1,116 @@
+---
+title: Shipping Zones
+---
+
+## Introduction
+Shipping zones allow defining the cost of shipping in different areas of the world.
+Shipping zones contains shipping method that are available in given countries and
+channels.
+
+Specifying shipping zones is required to allow the selling of products to given countries.
+
+### Shipping zone creation and update
+To create the shipping zone use [`shippingZoneCreate`](developer/api-reference/mutations/shipping-zone-create.mdx) mutation.
+You can specify such fields as `name`, `description`, `countries`, `warehouses`, `channels` and
+decide if the shipping zone should be used as default one for all countries
+that are not covered be other zones.
+
+#### Assigning warehouses to the shipping zone
+Warehouses that are assignable to shipping zones are the subset of warehouses assigned to the channel.
+So, to assign a warehouse to the shipping zone, the warehouse must be available
+in at least one channel that the zone is assigned to.
+This means that to assign warehouses to the shipping zone, you must first specify
+the channels. You can do this during shipping zone creation be providing the
+channels and warehouses together.
+
+Below is the example for shipping zone creation with channels and warehouses.
+In this case, the defined warehouse is available in the channel defined in `addChannels` field,
+so it can be added to this shipping zone.
+
+```graphql {2-12}
+mutation {
+	shippingZoneCreate(
+		input: {
+			name: "Zone A"
+			description: "Description for shipping zone A."
+			countries: ["USD"]
+			default: False
+			addWarehouses: [
+				"V2FyZWhvdXNlOjA4N2I2MzhlLWIxYzYtNDk5Mi1hMWQ1LTZiOWI5N2FjODU1Zg=="
+			]
+			addChannels: ["Q2hhbm5lbDoxMA=="]
+		}
+	) {
+		shippingZone {
+			id
+			name
+			description
+			countries {
+				code
+			}
+			default
+			warehouses {
+				name
+			}
+			channels {
+				id
+			}
+		}
+		errors {
+			field
+			code
+			message
+			channels
+			warehouses
+		}
+	}
+}
+```
+
+:::note
+When adding warehouses to the shipping zone, make sure that all warehouses will have
+the common channel with the shipping zone, otherwise you will get the error.
+:::
+
+As a result we get the newly created shipping zone.
+```json
+"data": {
+    "shippingZoneCreate": {
+        "errors": [],
+        "shippingZone": {
+            "id": "U2hpcHBpbmdab25lOjEx",
+            "name": "Zone A",
+            "description": "Description for shipping zone A.",
+            "countries": [
+                {
+                    "code": "USD"
+                }
+            ],
+            "default": False,
+            "warehouses": [
+                {
+                    "name": "ExampleWarehouse"
+                }
+            ],
+            "channels": [
+                {
+                    "id": "Q2hhbm5lbDoxMg=="
+                }
+            ]
+        }
+    }
+}
+```
+
+To update the shipping zone use [`shippingZoneUpdate`](developer/api-reference/mutations/shipping-zone-update.mdx) mutation.
+You can change all fields that you defined during the creation process and also unlink
+the channels and warehouses. Be aware that removing the channel may cause unlinking 
+warehouses if it was only one common channel between zone and warehouse. 
+When adding warehouses, as before, there must be a common channel with the shipping zone.
+
+:::warning
+Keep in mind that when the only common channel of warehouse and shipping zone
+is deleted (for example after channel deletion or unlinking the warehouse or shipping zone from the channel),
+the connection between the warehouse and shipping zone is deleted.
+The common channel condition is mandatory. 
+:::
