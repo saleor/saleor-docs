@@ -49,10 +49,10 @@ The mutation takes the following input fields:
     - `redirectUrl`: the URL where the user should be redirected after successful authentication
 
 ```graphql
-mutation{
+mutation ($input: JSONString!) {
   externalAuthenticationUrl(
-    pluginId:"mirumee.authentication.openidconnect", 
-    input:"{\"redirectUri\":\"http://127.0.0.1:3001/callback\"}"
+    pluginId:"mirumee.authentication.openidconnect",
+    input: $input
   ){
     authenticationData
     accountErrors{
@@ -63,7 +63,14 @@ mutation{
 }
 ```
 
-A successful response:
+Query variables:
+```json
+{
+    "input": "{\"redirectUri\":\"http://127.0.0.1:3001/callback\"}"
+}
+```
+
+Successful response:
 
 ```json
 {
@@ -101,10 +108,10 @@ The [`externalObtainAccessTokens`](developer/api-reference/mutations/external-ob
 
 
 ```graphql
-mutation{
+mutation ($input: JSONString!) {
   externalObtainAccessTokens(
-    pluginId:"mirumee.authentication.openidconnect", 
-    input:"{\"code\": \"uLBlqQwnmKTIDLJ3\", \"state\": \"eyJyZWRpcmVjdFVyaSI6Imh0dHA6Ly8xMjcuMC4wLjE6MzAwMC9jYWxsYmFjayJ9:1l1lXU:93CE6SScisZNX4T93_7VM-JGlUDZa_EflH4RSUAtc-E\"}"
+    pluginId:"mirumee.authentication.openidconnect",
+    input: $input
   ){
     token
     refreshToken
@@ -122,7 +129,14 @@ mutation{
 }
 ```
 
-A successful response:
+Query variables:
+```json
+{
+    "input": "{\"code\": \"uLBlqQwnmKTIDLJ3\", \"state\": \"eyJyZWRpcmVjdFVyaSI6Imh0dHA6Ly8xMjcuMC4wLjE6MzAwMC9jYWxsYmFjayJ9:1l1lXU:93CE6SScisZNX4T93_7VM-JGlUDZa_EflH4RSUAtc-E\"}"
+}
+```
+
+Successful response:
 ```json
 {
   "data": {
@@ -160,7 +174,7 @@ sequenceDiagram
 
 #### Mutation
 
-The [`externalRefresh`](developer/api-reference/mutations/external-refresh.mdx) mutation will generate new access tokens when provided with a valid refresh token. 
+The [`externalRefresh`](developer/api-reference/mutations/external-refresh.mdx) mutation will generate new access tokens when provided with a valid refresh token.
 If the refresh token is not provided as an argument, the plugin will try to read it from a cookie set by the [`tokenCreate`](developer/api-reference/mutations/token-create.mdx) mutation. In that case, a matching CSRF token is required.
 
 The mutation takes the following input fields:
@@ -171,10 +185,10 @@ The mutation takes the following input fields:
 
 
 ```graphql
-mutation{
+mutation ($input: JSONString!) {
   externalRefresh(
-    pluginId:"mirumee.authentication.openidconnect", 
-    input:"{\"refreshToken\": \"ABCDE\"}"
+    pluginId:"mirumee.authentication.openidconnect",
+    input: $input
   ){
     token
     refreshToken
@@ -188,7 +202,14 @@ mutation{
 }
 ```
 
-A successful response:
+Query variables:
+```json
+{
+    "input": "{\"refreshToken\": \"ABCDE\"}"
+}
+```
+
+Successful response:
 ```json
 {
   "data": {
@@ -213,10 +234,10 @@ The mutation takes the following input fields:
     - `csrfToken`: required when `refreshToken` is not provided as an input
 
 ```graphql
-mutation{
+mutation ($input: JSONString!) {
   externalVerify(
-    pluginId:"mirumee.authentication.openidconnect", 
-    input:"{\"token\": \"eyJ0eXAiOiJK...J1M7tqSzP0\"}"
+    pluginId:"mirumee.authentication.openidconnect",
+    input: $input
   ){
     isValid
     verifyData
@@ -230,7 +251,15 @@ mutation{
 }
 ```
 
-A successful response:
+Query variables:
+
+```json
+{
+    "input": "{\"token\": \"eyJ0eXAiOiJK...J1M7tqSzP0\"}"
+}
+```
+
+Successful response:
 ```json
 {
   "data": {
@@ -270,7 +299,7 @@ sequenceDiagram
   Saleor ->>- Web: return logoutData
 ```
 
-You can prepare the logout URL by calling [`externalLogout`](developer/api-reference/mutations/external-logout.mdx) mutation. 
+You can prepare the logout URL by calling [`externalLogout`](developer/api-reference/mutations/external-logout.mdx) mutation.
 All values passed in field `input` will be added as GET parameters to the logout request.
 
 - `pluginId`: the ID of the authentication plugin
@@ -279,10 +308,10 @@ All values passed in field `input` will be added as GET parameters to the logout
 
 #### Mutation
 ```graphql
-mutation {
+mutation ($input: JSONString!) {
   externalLogout(
-    pluginId:"mirumee.authentication.openidconnect", 
-    input:"{\"returnTo\": \"http://localhost:3001\"}"
+    pluginId:"mirumee.authentication.openidconnect",
+    input: $input
   ){
     logoutData
     accountErrors{
@@ -293,7 +322,15 @@ mutation {
   }
 }
 ```
-A successful response:
+
+Query variables:
+```json
+{
+    "input": "{\"returnTo\": \"http://localhost:3001\"}"
+}
+```
+
+Successful response:
 ```json
 {
   "data": {
@@ -342,23 +379,23 @@ Saleor can use OAuth permissions assigned to a user. It maps internal permission
 ### OAuth permission scopes
 | OAuth scope name                                | Saleor Name                          | Description                                                                                                                      |
 | ----------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| saleor:manage_channels                          | MANAGE_CHANNELS                      | Manage Saleor's channels                                                                                                         |
-| saleor:manage_staff                             | MANAGE_STAFF                         | Access to staff users data                                                                                                       |
 | saleor:manage_apps                              | MANAGE_APPS                          | Manage apps                                                                                                                      |
-| saleor:manage_users                             | MANAGE_USERS                         | Access to customers data                                                                                                         |
+| saleor:manage_channels                          | MANAGE_CHANNELS                      | Manage Saleor's channels                                                                                                         |
+| saleor:manage_checkouts                         | MANAGE_CHECKOUTS                     | Manage checkout                                                                                                                  |
 | saleor:manage_discounts                         | MANAGE_DISCOUNTS                     | Manage discounts                                                                                                                 |
-| saleor:manage_plugins                           | MANAGE_PLUGINS                       | Manage plugins                                                                                                                   |
 | saleor:manage_gift_card                         | MANAGE_GIFT_CARD                     | Manage gift cards                                                                                                                |
 | saleor:manage_menus                             | MANAGE_MENUS                         | Manage the structure of menus                                                                                                    |
 | saleor:manage_orders                            | MANAGE_ORDERS                        | Access to orders data                                                                                                            |
 | saleor:manage_pages                             | MANAGE_PAGES                         | Manage pages                                                                                                                     |
+| saleor:manage_page_types_and_attributes         | MANAGE_PAGE_TYPES_AND_ATTRIBUTES     | Manage page types and attributes                                                                                              |
+| saleor:manage_plugins                           | MANAGE_PLUGINS                       | Manage plugins                                                                                                                   |
 | saleor:manage_products                           | MANAGE_PRODUCTS                      | Manage products                                                                                                                  |
 | saleor:manage_product_types_and_attributes      | MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES  | Manage products and attributes                                                                                              |
-| saleor:manage_page_types_and_attributes         | MANAGE_PAGE_TYPES_AND_ATTRIBUTES     | Manage page types and attributes                                                                                              |
-| saleor:manage_shipping                          | MANAGE_SHIPPING                      | Manage shipping                                                                                                                  |
 | saleor:manage_settings                          | MANAGE_SETTINGS                      | Manage shop settings                                                                                                             |
+| saleor:manage_shipping                          | MANAGE_SHIPPING                      | Manage shipping                                                                                                                  |
+| saleor:manage_staff                             | MANAGE_STAFF                         | Access to staff users data                                                                                                       |
 | saleor:manage_translations                      | MANAGE_TRANSLATIONS                  | Manage tranlsations                                                                                                              |
-| saleor:manage_checkouts                         | MANAGE_CHECKOUTS                     | Manage checkout                                                                                                                  |
+| saleor:manage_users                             | MANAGE_USERS                         | Access to customers data                                                                                                         |
 | saleor:staff                                    |   -                                  | User is marked as a staff user                                                                                                   |
 
 

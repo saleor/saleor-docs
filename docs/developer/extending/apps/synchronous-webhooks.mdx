@@ -12,6 +12,25 @@ Adding synchronous webhooks will affect Saleor API response time. Make sure that
 
 These webhooks are run from the Saleor Core instance during GraphQL requests and response data will be passed to the client.
 
+## Webhook protocol
+
+Synchronous webhooks supports only HTTP(S).
+
+Webhook payloads are sent in POST requests.
+
+### Headers
+
+During HTTPS requests there are several headers included:
+- `Saleor-Event` - defines event which is assigned to the webhook
+- `Saleor-Domain` - defines saleor domain
+- `Saleor-Signature` - defines signature to indicate that the request is verifiable
+
+### Payload signature
+
+Saleor calculates a payload signature under `Saleor-Signature`:
+- if `secretKey` was set for a webhook - the HMAC SHA-256 header based on it and the payload
+- if `secretKey` wasn't set for a webhook - the JWS signature using RS256 with payload detached, to verify signature you can use public key, which can be fetched from `http(s)://<your-backend-domain>/.well-known/jwks.json` (available since Saleor 3.5, before 3.5 payload from webhooks without `secretKey` set were not signed)
+
 ## Payment webhooks
 
 Payment webhooks are synchronous webhooks that allow delegating payment handling to Saleor Apps. Synchronous means that these webhooks expect a response of a particular shape to be returned from the app to continue processing in Saleor. Payment webhooks only support HTTP(S) protocol; they are sent as POST requests with `application/json` body and expect a response of the same content type.
