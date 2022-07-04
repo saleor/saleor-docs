@@ -1087,13 +1087,13 @@ but is available to experiment with and provide feedback, and is subject to chan
 
 :::
 
-The flow where the payment process is handled by an external Saleor App.
-Saleor expects to receive a result of the payment transaction processed by the Saleor App.
 
-The charts below show the workflow of a checkout process.
+The flow where the payment process is handled by an external Saleor App such as [saleor-checkout](https://github.com/saleor/saleor-checkout). 
+Saleor expects to receive a result of the payment transaction processed by Saleor App.
+
+The below charts show the workflow of a checkout process.
 
 #### Case: Creating order before processing payment
-
 ```mermaid
 sequenceDiagram
     Customer->>+Checkout App: Finalize an order
@@ -1124,6 +1124,7 @@ sequenceDiagram
     Saleor -->>- Checkout App: Paid order
     Checkout App-->>-Customer: Order
 ```
+
 
 ### Creating order from checkout
 
@@ -1201,7 +1202,6 @@ As a result, we get an order object:
 ```
 
 ### Creating transaction
-
 :::info
 
 This feature was introduced in **Saleor 3.4**.
@@ -1210,22 +1210,23 @@ This feature was introduced in **Saleor 3.4**.
 
 :::caution
 
-This feature is currently in a **Feature Preview** state. This part of Saleor is not yet complete
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
 and subject to change but is available to experiment and provide feedback.
 
 :::
 
-Transaction stores details of payment transactions attached to an order or checkout.
+Transaction stores details of payment transaction attached to order or checkout.
+
 
 The [transactionCreate](developer/api-reference/mutations/transaction-create.mdx) mutation takes the following arguments:
-
 - `id`: The ID of the checkout or order.
 - `transaction`: Input data required to create a new transaction object.
 - `transactionEvent`: Data that defines a transaction event. Can be used to provide more context about the current state of the transaction.
 
-The following example shows how the [transactionCreate](developer/api-reference/mutations/transaction-create.mdx) mutation
+
+The following example shows how the [transactionCreate](developer/api-reference/mutations/transaction-create.mdx) mutation 
 is used to create a new transaction.
-The transaction has status authorized, payment was made with a credit card. The actions that can be called from Saleor are: `VOID` and `CHARGE`.
+The transaction has status authorized, payment was made with a credit card. The actions that can be called from Saleor are: `VOID` and `CHARGE`. 
 The authorized amount is $99.
 
 ```graphql
@@ -1253,7 +1254,6 @@ mutation {
 ```
 
 A response would look like this:
-
 ```json
 {
   "data": {
@@ -1271,9 +1271,7 @@ A response would look like this:
   }
 }
 ```
-
 ### Updating transaction
-
 :::info
 
 This feature was introduced in **Saleor 3.4**.
@@ -1282,20 +1280,20 @@ This feature was introduced in **Saleor 3.4**.
 
 :::caution
 
-This feature is currently in a **Feature Preview** state. This part of Saleor is not yet complete
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
 and subject to change but is available to experiment and provide feedback.
 
 :::
-The [transactionUpdate](developer/api-reference/mutations/transaction-update.mdx) mutation allows to update the details of a transaction.
+The [transactionUpdate](developer/api-reference/mutations/transaction-update.mdx) mutation allows to update a details of transaction.
 It takes the following arguments:
-
 - `id`: The ID of the transaction.
 - `transaction`: Input data that will be used to update transaction object.
 - `transactionEvent`: Data that defines a transaction event. Can be used to provide more context about the current state of the transaction.
 
-The following example shows how the [transactionUpdate](developer/api-reference/mutations/transaction-create.mdx) mutation
+
+The following example shows how the [transactionUpdate](developer/api-reference/mutations/transaction-create.mdx) mutation 
 is used to update the transaction.
-The updated status of the transaction is `CHARGED`. The available action is `REFUND`.
+The updated status of the transaction is `CHARGED`. The available action is `REFUND`. 
 The authorized funds are charged, so `amountAuthorized` is 0. `amountCharged` is equal 99USD.
 
 ```graphql
@@ -1322,7 +1320,6 @@ mutation {
 ```
 
 A response would look like this:
-
 ```json
 {
   "data": {
@@ -1342,33 +1339,32 @@ A response would look like this:
 ```
 
 :::note
-During an update of transactions, all funds that go to a new state should be subtracted from the previous state.
+During an update of transactions, all funds that go to a new state should be subtracted from the previous state. 
 Assuming that we have a transaction with `authorizedAmount` equal to 100 USD. Moving the `authorizedAmount` to `chargedAmount` requires setting `authorizedAmount` to 0.
-
-```graphql
-mutation {
-  transactionUpdate(
-    id: "VHJhbnNhY3Rpb25JdGVtOjE="
-    transaction: {
-      status: "Charged"
-      availableActions: [REFUND]
-      amountAuthorized: { currency: "USD", amount: 0 }
-      amountCharged: { currency: "USD", amount: 100 }
-    }
-    transactionEvent: {
-      status: SUCCESS
-      name: "Charged credit card"
-      reference: "PSP-ref123.charge"
-    }
-  ) {
-    transaction {
-      id
+  ```graphql
+  mutation {
+    transactionUpdate(
+      id: "VHJhbnNhY3Rpb25JdGVtOjE="
+      transaction: {
+        status: "Charged"
+        availableActions: [REFUND]
+        amountAuthorized: { currency: "USD", amount: 0 },
+        amountCharged: { currency: "USD", amount: 100 },
+      }
+      transactionEvent: {
+        status: SUCCESS
+        name: "Charged credit card"
+        reference: "PSP-ref123.charge"
+      }
+    ) {
+      transaction {
+        id
+      }
     }
   }
-}
-```
-
+  ```
 :::
+
 
 ### Handling an action request for a transaction
 
@@ -1392,6 +1388,7 @@ sequenceDiagram
     App ->>+ Saleor: Call transactionUpdate <br>to update transaction with<br> a result recieved after <br>requested action
     Saleor -->>- App: Updated transaction
 ```
+
 
 ## Removing old checkouts
 
