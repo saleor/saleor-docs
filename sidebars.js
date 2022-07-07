@@ -162,6 +162,7 @@ module.exports = {
   },
   references: {
     References: [
+      "reference/index",
       {
         type: "category",
         label: "API Reference",
@@ -170,6 +171,22 @@ module.exports = {
             .schemaSidebar,
         ],
       },
+      {
+        type: "category",
+        label: "Webhooks Reference",
+        items: [
+          "reference/webhooks/async-hooks",
+          "reference/webhooks/sync-hooks",
+          "reference/webhooks/payloads",
+        ],
+      },
+      "reference/cli",
+      "reference/app-manifest",
+      "reference/attributes",
+      "reference/events",
+      "reference/permissions",
+      "reference/settings",
+      "reference/signals",
     ],
   },
   ecosystem: {
@@ -182,12 +199,8 @@ module.exports = {
         items: [
           "ecosystem/extending",
           "ecosystem/apps/key-concepts",
-          "ecosystem/apps/manifest",
           "ecosystem/apps/installing-apps",
           "ecosystem/apps/extending-dashboard-with-apps",
-          "ecosystem/apps/asynchronous-webhooks",
-          "ecosystem/apps/synchronous-webhooks",
-          "ecosystem/apps/sample-webhook-payloads",
           "ecosystem/apps/subscription-webhook-payloads",
         ],
       },
