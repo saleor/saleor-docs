@@ -1,238 +1,202 @@
 module.exports = {
-  dashboard: {
-    "Dashboard Manual": [
-      "dashboard/index",
-      "dashboard/before-you-start",
-      "dashboard/using-saleor",
-      "dashboard/home",
-      "dashboard/channels",
+  tutorials: {
+    Tutorials: [
+      "tutorial/index",
+      "tutorial/install-backend",
+      "tutorial/dashboard-overview",
+      "tutorial/custom-frontend",
+      "tutorial/custom-apps",
+    ],
+  },
+  cookbook: {
+    Cookbook: [
+      "cookbook/index",
       {
         type: "category",
-        label: "Catalog",
+        label: "For Merchants",
         items: [
-          "dashboard/catalog/intro",
-          "dashboard/catalog/products",
-          "dashboard/catalog/categories",
-          "dashboard/catalog/collections",
-          "dashboard/catalog/gift-cards",
-        ],
-      },
-      "dashboard/orders",
-      "dashboard/customers",
-      {
-        type: "category",
-        label: "Discounts",
-        items: ["dashboard/discounts/sales", "dashboard/discounts/vouchers"],
-      },
-      "dashboard/apps",
-      "dashboard/translations",
-      {
-        type: "category",
-        label: "Configuration",
-        items: [
-          "dashboard/configuration/intro",
-          "dashboard/configuration/attributes",
-          "dashboard/configuration/products",
-          "dashboard/configuration/shipping",
-          "dashboard/configuration/warehouses",
-          "dashboard/configuration/taxes",
-          "dashboard/configuration/staff",
-          "dashboard/configuration/permission-groups",
-          "dashboard/configuration/navigation",
-          "dashboard/configuration/site",
-          "dashboard/configuration/page-types",
-          "dashboard/configuration/channels",
-          "dashboard/configuration/pages",
           {
             type: "category",
-            label: "Plugins",
+            label: "Dashboard Manual",
             items: [
-              "dashboard/configuration/plugins/introduction",
-              "dashboard/configuration/plugins/adyen",
-              "dashboard/configuration/plugins/oidc",
-              "dashboard/configuration/plugins/stripe",
-              "dashboard/configuration/plugins/np-atobarai",
+              "cookbook/merchant/dashboard/index",
+              "cookbook/merchant/dashboard/before-you-start",
+              "cookbook/merchant/dashboard/home",
+              "cookbook/merchant/dashboard/channels",
+              {
+                type: "category",
+                label: "Catalog",
+                items: [
+                  "cookbook/merchant/dashboard/catalog/intro",
+                  "cookbook/merchant/dashboard/catalog/products",
+                  "cookbook/merchant/dashboard/catalog/categories",
+                  "cookbook/merchant/dashboard/catalog/collections",
+                  "cookbook/merchant/dashboard/catalog/gift-cards",
+                ],
+              },
+              "cookbook/merchant/dashboard/orders",
+              "cookbook/merchant/dashboard/customers",
+              {
+                type: "category",
+                label: "Discounts",
+                items: [
+                  "cookbook/merchant/dashboard/discounts/sales",
+                  "cookbook/merchant/dashboard/discounts/vouchers",
+                ],
+              },
+              "cookbook/merchant/dashboard/apps",
+              "cookbook/merchant/dashboard/translations",
+              {
+                type: "category",
+                label: "Configuration",
+                items: [
+                  "cookbook/merchant/dashboard/configuration/intro",
+                  "cookbook/merchant/dashboard/configuration/attributes",
+                  "cookbook/merchant/dashboard/configuration/products",
+                  "cookbook/merchant/dashboard/configuration/shipping",
+                  "cookbook/merchant/dashboard/configuration/warehouses",
+                  "cookbook/merchant/dashboard/configuration/taxes",
+                  "cookbook/merchant/dashboard/configuration/staff",
+                  "cookbook/merchant/dashboard/configuration/permission-groups",
+                  "cookbook/merchant/dashboard/configuration/navigation",
+                  "cookbook/merchant/dashboard/configuration/site",
+                  "cookbook/merchant/dashboard/configuration/page-types",
+                  "cookbook/merchant/dashboard/configuration/channels",
+                  "cookbook/merchant/dashboard/configuration/pages",
+                  {
+                    type: "category",
+                    label: "Plugins",
+                    items: [
+                      "cookbook/merchant/dashboard/configuration/plugins/introduction",
+                      "cookbook/merchant/dashboard/configuration/plugins/adyen",
+                      "cookbook/merchant/dashboard/configuration/plugins/oidc",
+                      "cookbook/merchant/dashboard/configuration/plugins/stripe",
+                      "cookbook/merchant/dashboard/configuration/plugins/np-atobarai",
+                    ],
+                  },
+                ],
+              },
+              {
+                type: "category",
+                label: "Systemwide features",
+                items: [
+                  "cookbook/merchant/dashboard/systemwide/introduction",
+                  "cookbook/merchant/dashboard/systemwide/gdpr",
+                ],
+              },
             ],
           },
         ],
       },
       {
         type: "category",
-        label: "Systemwide features",
+        label: "For Developers",
         items: [
-          "dashboard/systemwide/introduction",
-          "dashboard/systemwide/gdpr",
+          "cookbook/developer/architecture",
+          {
+            type: "category",
+            label: "API Conventions",
+            items: [
+              "cookbook/developer/api-conventions/error-handling",
+              "cookbook/developer/api-conventions/pagination",
+              "cookbook/developer/api-conventions/prices",
+              "cookbook/developer/api-conventions/slug-fields",
+              "cookbook/developer/api-conventions/translations",
+            ],
+          },
+          {
+            type: "category",
+            label: "Exporting data",
+            items: [
+              "cookbook/developer/export/export-overview",
+              "cookbook/developer/export/export-gift-cards",
+              "cookbook/developer/export/export-products",
+            ],
+          },
+          "cookbook/developer/channels",
+          "cookbook/developer/checkout",
+          "cookbook/developer/errors",
+          "cookbook/developer/gift-cards",
+          "cookbook/developer/i18n",
+          "cookbook/developer/installing-apps",
+          "cookbook/developer/metadata",
+          "cookbook/developer/products",
+          "cookbook/developer/sorters",
+          "cookbook/developer/users",
+          "cookbook/developer/address",
+        ],
+      },
+      {
+        type: "category",
+        label: "For SysAdmins",
+        items: [
+          "cookbook/devops/deployment",
+          "cookbook/devops/managing-cloud",
+          "cookbook/devops/security",
+          "cookbook/devops/migrating-from",
+          {
+            type: "category",
+            label: "Running Saleor",
+            items: [
+              "cookbook/devops/running-saleor/background-tasks",
+              "cookbook/devops/running-saleor/debugging-emails",
+              "cookbook/devops/running-saleor/docker",
+              "cookbook/devops/running-saleor/emails",
+              "cookbook/devops/running-saleor/exposing-instance",
+              "cookbook/devops/running-saleor/gcs",
+              "cookbook/devops/running-saleor/heroku",
+              "cookbook/devops/running-saleor/monitoring",
+              "cookbook/devops/running-saleor/read-replicas",
+              "cookbook/devops/running-saleor/s3",
+              "cookbook/devops/running-saleor/sentry",
+            ],
+          },
+        ],
+      },
+      {
+        type: "category",
+        label: "Saleor CLI",
+        items: ["cookbook/cli/getting-started"],
+      },
+    ],
+  },
+  references: {
+    References: [
+      {
+        type: "category",
+        label: "API Reference",
+        items: [
+          ...require("./docs/reference/api-reference/sidebar-schema.js")
+            .schemaSidebar,
         ],
       },
     ],
   },
-  developer: [
-    "developer",
-    "developer/getting-started/architecture",
-    {
-      type: "category",
-      label: "Guides",
-      items: [
-        {
-          type: "category",
-          label: "GraphQL",
-          link: {
-            type: "doc",
-            id: "developer/getting-started/graphql",
-          },
-          items: [
-            "developer/getting-started/playground",
-            "developer/api-conventions/error-handling",
-            "developer/api-conventions/pagination",
-            "developer/api-conventions/prices",
-            "developer/api-conventions/slug-fields",
-          ],
-        },
-        "developer/channels",
-        "developer/products",
-        "developer/attributes",
-        "developer/checkout",
-        "developer/gift-cards",
-        "developer/address",
-        "developer/users",
-        "developer/permissions",
-        "developer/metadata",
-        "developer/api-conventions/translations",
-        {
-          type: "category",
-          label: "Exporting Data",
-          link: {
-            type: "doc",
-            id: "developer/export/export-overview",
-          },
-          items: [
-            "developer/export/export-products",
-            "developer/export/export-gift-cards",
-          ],
-        },
-      ],
-    },
-    {
-      type: "category",
-      label: "Extending Saleor",
-      link: {
-        type: "doc",
-        id: "developer/extending",
+  ecosystem: {
+    Ecosystem: [
+      "ecosystem/index",
+      "ecosystem/style-guide",
+      {
+        type: "category",
+        label: "Extending Saleor",
+        items: [
+          "ecosystem/extending",
+          "ecosystem/apps/key-concepts",
+          "ecosystem/apps/manifest",
+          "ecosystem/apps/installing-apps",
+          "ecosystem/apps/extending-dashboard-with-apps",
+          "ecosystem/apps/asynchronous-webhooks",
+          "ecosystem/apps/synchronous-webhooks",
+          "ecosystem/apps/sample-webhook-payloads",
+          "ecosystem/apps/subscription-webhook-payloads",
+        ],
       },
-      items: [
-        {
-          type: "category",
-          label: "Apps",
-          link: {
-            type: "doc",
-            id: "developer/extending/apps/key-concepts",
-          },
-          items: [
-            "developer/extending/apps/manifest",
-            "developer/extending/apps/installing-apps",
-            "developer/extending/apps/asynchronous-webhooks",
-            "developer/extending/apps/synchronous-webhooks",
-            "developer/extending/apps/subscription-webhook-payloads",
-            "developer/extending/apps/extending-dashboard-with-apps",
-            "developer/extending/apps/sample-webhook-payloads",
-          ],
-        },
-        {
-          type: "category",
-          label: "Plugins",
-          link: {
-            type: "doc",
-            id: "developer/extending/plugins",
-          },
-          items: [
-            "developer/extending/payment-gateways",
-            {
-              type: "category",
-              label: "Internal APIs",
-              items: [
-                "developer/extending/api/errors",
-                "developer/extending/api/events",
-                "developer/extending/api/sorters",
-                "developer/extending/api/i18n",
-              ],
-            },
-            {
-              type: "category",
-              label: "Available Plugins",
-              items: [
-                "developer/available-plugins/admin-emails",
-                "developer/available-plugins/adyen",
-                "developer/available-plugins/dummy-credit-card",
-                "developer/available-plugins/openid-connect",
-                "developer/available-plugins/stripe",
-                "developer/available-plugins/np-atobarai",
-                "developer/available-plugins/user-emails",
-              ],
-            },
-          ],
-        },
-        "developer/extending/apollo-federation",
-      ],
-    },
-    {
-      type: "category",
-      label: "Running Saleor",
-      items: [
-        {
-          type: "category",
-          label: "Installation",
-          link: {
-            type: "doc",
-            id: "developer/installation",
-          },
-          items: ["developer/installation/windows"],
-        },
-        "developer/running-saleor/configuration",
-        {
-          type: "category",
-          label: "Deployment",
-          items: [
-            "developer/running-saleor/docker",
-            "developer/running-saleor/heroku",
-            "developer/running-saleor/s3",
-            "developer/running-saleor/gcs",
-          ],
-        },
-        "developer/running-saleor/debugging-emails",
-        "developer/running-saleor/exposing-instance",
-        "developer/running-saleor/monitoring",
-        "developer/running-saleor/background-tasks",
-        "developer/running-saleor/read-replicas",
-        {
-          type: "category",
-          label: "Upgrade Guide",
-          items: [
-            "developer/upgrade-guide/3-1-to-3-2",
-            "developer/upgrade-guide/3-0-to-3-1",
-            "developer/upgrade-guide/2-11-to-3-0",
-          ],
-        },
-      ],
-    },
-    {
-      type: "category",
-      label: "Community",
-      items: [
-        "developer/community/contributing",
-        "developer/community/faq",
-        "developer/community/support",
-      ],
-    },
-    {
-      type: "category",
-      label: "API Reference",
-      items: [
-        ...require("./docs/developer/api-reference/sidebar-schema.js")
-          .schemaSidebar,
-      ],
-    },
-  ],
-  cli: [
-    "cli"
-  ]
+
+      "ecosystem/payment-gateways",
+      "ecosystem/apollo-federation",
+    ],
+  },
+  contributing: {
+    Contributing: ["contributing/index"],
+  },
 };

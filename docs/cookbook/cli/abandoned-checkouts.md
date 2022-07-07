@@ -1,7 +1,6 @@
 ---
 pos: 3
 title: Building Abandoned Checkouts App using Saleor CLI
-description:
 prev:
   path: /cli/creating-apps/
 next:

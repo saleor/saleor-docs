@@ -1,7 +1,6 @@
 ---
 pos: 2
 title: Creating Apps with Saleor CLI
-description:
 prev:
   path: /cli/getting-started/
 next:
@@ -95,4 +94,4 @@ Installing your App in the Dashboard using CLI is pretty straightforward. Go to 
 
 After a successful install, you can go to your Admin Dashboard and inspect your new App in the Apps tab and inside the Orders tab.
 
-![Admin Dashboard with App installed](./app-installed.jpg)
+![Admin Dashboard with App installed](./app-installed.png)

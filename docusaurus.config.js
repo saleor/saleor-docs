@@ -19,12 +19,12 @@ module.exports = {
       {
         schema: "http://localhost:8000/graphql/",
         rootPath: "./docs", // docs will be generated under rootPath/baseURL
-        baseURL: "developer/api-reference",
+        baseURL: "reference/api-reference",
         homepage: "./template/api-reference.mdx",
         linkRoot: "../../../",
         loaders: {
-	  UrlLoader: "@graphql-tools/url-loader"
-	}
+          UrlLoader: "@graphql-tools/url-loader",
+        },
       },
     ],
     [
@@ -90,14 +90,32 @@ module.exports = {
         },
         {
           type: "docSidebar",
-          sidebarId: "dashboard",
-          label: "Dashboard Manual",
+          sidebarId: "tutorials",
+          label: "Tutorials",
           position: "left",
         },
         {
           type: "docSidebar",
-          sidebarId: "developer",
-          label: "Developer's Guide",
+          sidebarId: "cookbook",
+          label: "Cookbook",
+          position: "left",
+        },
+        {
+          type: "docSidebar",
+          sidebarId: "references",
+          label: "References",
+          position: "left",
+        },
+        {
+          type: "docSidebar",
+          sidebarId: "ecosystem",
+          label: "Ecosystem",
+          position: "left",
+        },
+        {
+          type: "docSidebar",
+          sidebarId: "contributing",
+          label: "Contributing",
           position: "left",
         },
       ],
