@@ -91,7 +91,7 @@ module.exports = {
         {
           type: "docSidebar",
           sidebarId: "tutorials",
-          label: "Tutorials",
+          label: "Getting Started",
           position: "left",
         },
         {
@@ -109,7 +109,7 @@ module.exports = {
         {
           type: "docSidebar",
           sidebarId: "ecosystem",
-          label: "Ecosystem",
+          label: "Extensibility",
           position: "left",
         },
         {

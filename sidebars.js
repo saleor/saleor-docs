@@ -165,7 +165,7 @@ module.exports = {
       "reference/index",
       {
         type: "category",
-        label: "API Reference",
+        label: "GraphQL Schema",
         items: [
           ...require("./docs/reference/api-reference/sidebar-schema.js")
             .schemaSidebar,
@@ -186,7 +186,6 @@ module.exports = {
       "reference/events",
       "reference/permissions",
       "reference/settings",
-      "reference/signals",
     ],
   },
   ecosystem: {
