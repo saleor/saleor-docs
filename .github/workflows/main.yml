@@ -2,29 +2,31 @@ name: Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    
-    - uses: actions/setup-node@v2
+      - uses: actions/checkout@v2
 
-    - uses: bahmutov/npm-install@v1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
 
-    - run: npm run build
+      - uses: bahmutov/npm-install@v1
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+      - run: npm run build
 
-    - name: Push to S3
-      run: |
-        aws s3 sync build s3://${{ secrets.AWS_S3_BUCKET }} --cache-control "public,max-age=86400,s-maxage=86400" --delete
-        aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION }} --paths "/*"
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Push to S3
+        run: |
+          aws s3 sync build s3://${{ secrets.AWS_S3_BUCKET }} --cache-control "public,max-age=86400,s-maxage=86400" --delete
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CF_DISTRIBUTION }} --paths "/*"

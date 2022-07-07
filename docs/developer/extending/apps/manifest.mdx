@@ -38,11 +38,27 @@ Saleor expects the manifest to use the following format:
       "permissions": ["MANAGE_PRODUCTS"],
       "url": "/extension/redirect"
     }
+  ],
+  "webhooks": [
+    {
+      "name": "Order created",
+      "events": ["ORDER_CREATED"],
+      "query": "subscription { event { ... on OrderCreated { order { id }}}}",
+      "targetUrl": "https://example.com/api/webhooks/order-created",
+      "isActive": false
+    },
+    {
+      "name": "Multiple order's events",
+      "events": ["ORDER_CREATED", "ORDER_FULLY_PAID"],
+      "query": "subscription { event { ... on OrderCreated { order { id }} ... on OrderFullyPaid { order { id }}}}",
+      "targetUrl": "https://example.com/api/webhooks/order-event",
+      "isActive": true
+    }
   ]
 }
 ```
 
-- `id`: id of application used internally by saleor
+- `id`: id of application used internally by Saleor
 - `version`: App version
 - `name`: App name displayed in the dashboard
 - `about`: Description of the app displayed in the dashboard
@@ -55,3 +71,4 @@ Saleor expects the manifest to use the following format:
 - `homepageUrl`: External URL to the app homepage
 - `supportUrl`: External URL to the page where app users can find support
 - `extensions`: List of extensions that will be mounted in Saleor's dashboard. For details, please see the [extension section](developer/extending/apps/extending-dashboard-with-apps.mdx#key-concepts)
+- `webhooks`: List of webhooks that will be set. For details, please see [asynchronous webhooks](developer/extending/apps/asynchronous-webhooks.mdx), [synchronous-webhooks](developer/extending/apps/synchronous-webhooks.mdx) and [webhooks' subscription](developer/extending/apps/subscription-webhook-payloads.mdx) (be aware that subscription queries are required in manifest) sections.
