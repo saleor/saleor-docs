@@ -59,6 +59,72 @@ Saleor calculates a payload signature under `Saleor-Signature`:
 - if `secretKey` was set for a webhook - the HMAC SHA-256 header based on it and the payload
 - if `secretKey` wasn't set for a webhook - the JWS signature using RS256 with payload detached, to verify signature you can use public key, which can be fetched from `http(s)://<your-backend-domain>/.well-known/jwks.json` (available since Saleor 3.5, before 3.5 payload from webhooks without `secretKey` set were not signed)
 
+##### Validating signature
+
+To validate signatures in Saleor Apps use [`withWebhookSignatureVerified`](https://github.com/saleor/saleor-app-sdk/blob/main/src/middleware.ts#L62) middleware provided by [`saleor-app-sdk`](https://github.com/saleor/saleor-app-sdk)
+
+```js
+import type { Handler } from "retes";
+import { Response } from "retes/response";
+import { toNextHandler } from "retes/adapter";
+import {
+  withSaleorEventMatch,
+  withWebhookSignatureVerified,
+} from "@saleor/app-sdk/middleware";
+
+const handler: Handler = async (request) => {
+  // ...
+
+  return Response.OK({ success: true });
+};
+
+export default toNextHandler([
+  withSaleorDomainMatch,
+  withWebhookSignatureVerified(),
+  handler,
+]);
+```
+
+> Example taken from [`saleor-app-template`](https://github.com/saleor/saleor-app-template/blob/main/pages/api/webhooks/order-created.ts)
+
+You can also manually validate the JWS signature in Javascript with [`jose` package](https://github.com/panva/jose). Remember that you need to get raw body string, not parsed by some middleware
+
+```js
+import getRawBody from "raw-body";
+
+const JWKS = jose.createRemoteJWKSet(
+  new URL("https://master.staging.saleor.cloud" + "/.well-known/jwks.json")
+);
+
+// In Next.js you need to disable `bodyParser` in order to get raw body string
+// https://github.com/vercel/next.js/discussions/12517
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export default function(req, res) {
+  const jws = req.headers["saleor-signature"];
+  const buffer = getRawBody(req, {
+    length: req.headers["content-length"],
+    limit: "1mb",
+  });
+  const [header, _, signature] = jws.split(".");
+  try {
+    await jose.flattenedVerify({
+      protected: header,
+      payload: buffer.toString("utf-8"),
+      signature
+    }, JWKS);
+  } catch (e) {
+    // return error
+  }
+
+  // handle your request
+}
+```
+
 ### Google Cloud Pub/Sub
 
 All webhooks with the `gcpubsub` scheme will be treated as Google Cloud Pub/Sub webhooks.
