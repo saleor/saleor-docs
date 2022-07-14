@@ -97,6 +97,7 @@ module.exports = {
         "developer/users",
         "developer/permissions",
         "developer/metadata",
+        "developer/thumbnails",
         "developer/api-conventions/translations",
         {
           type: "category",
