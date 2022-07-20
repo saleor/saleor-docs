@@ -91,6 +91,7 @@ module.exports = {
         "developer/channels",
         "developer/products",
         "developer/attributes",
+        "developer/shipping-zones",
         "developer/checkout",
         "developer/gift-cards",
         "developer/address",
