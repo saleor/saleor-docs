@@ -91,8 +91,8 @@ module.exports = {
         "developer/channels",
         "developer/products",
         "developer/attributes",
-        "developer/shipping-zones",
         "developer/checkout",
+        "developer/stock-allocation",
         "developer/gift-cards",
         "developer/address",
         "developer/users",
@@ -233,7 +233,5 @@ module.exports = {
       ],
     },
   ],
-  cli: [
-    "cli"
-  ]
+  cli: ["cli"],
 };
