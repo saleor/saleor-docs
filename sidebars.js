@@ -98,6 +98,7 @@ module.exports = {
         "developer/users",
         "developer/permissions",
         "developer/metadata",
+        "developer/thumbnails",
         "developer/api-conventions/translations",
         {
           type: "category",
@@ -208,6 +209,7 @@ module.exports = {
           type: "category",
           label: "Upgrade Guide",
           items: [
+            "developer/upgrade-guide/3-5-to-3-6",
             "developer/upgrade-guide/3-1-to-3-2",
             "developer/upgrade-guide/3-0-to-3-1",
             "developer/upgrade-guide/2-11-to-3-0",
