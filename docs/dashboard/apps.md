@@ -64,9 +64,9 @@ To learn more about the webhook protocols, see the [Developer's Guide](../develo
 
 ### Events
 
-In the _Events_ card, you can assign singular events that you want to be triggered by the webhook.
+In the _Events_ card, you can assign singular events that you want the webhook to trigger.
 
-There are two types of events that can be assigned to a webhook: [synchronous](../developer/extending/apps/synchronous-webhooks/key-concepts) and [asynchronous](../developer/extending/apps/asynchronous-webhooks).
+There are two types of events you can assign to a webhook: [synchronous](../developer/extending/apps/synchronous-webhooks/key-concepts) and [asynchronous](../developer/extending/apps/asynchronous-webhooks).
 
 Synchronous webhooks can be used for extending Saleor without the need to deploy plugins on the API server. You can select multiple synchronous events.
 

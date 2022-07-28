@@ -17,14 +17,14 @@ Tax webhooks are synchronous webhooks that allow delegating tax calculations to 
 
 ## Key concepts
 
-`HANDLE_TAXES` permission is required for app to be able to calculate taxes.
-When there are more than one app subscribed to `CHECKOUT_CALCULATE_TAXES` or `ORDER_CALCULATE_TAXES` we iterate over them until we get a proper response
+`HANDLE_TAXES` permission is required for the app to be able to calculate taxes.
+When there is more than one app subscribed to `CHECKOUT_CALCULATE_TAXES` or `ORDER_CALCULATE_TAXES` we iterate over them until we get a proper response
 Prices on checkout and order are denormalized.
 
 - Order prices
-  Prices for order never expired, but could be invalidated only in `draft order` or `unconfirmed order`. Prices are invalidated automatically for any address, user, line and shipping change in order.
+  Prices for orders never expire, but can be invalidated only in `draft order` or `unconfirmed order`. Prices are invalidated automatically for any address, user, line, and shipping change in orders.
 - Checkout prices
-  Prices for checkout could expired. Expiration time is set automatically when new taxes are fetched(regardless of source tax). Expiration time could be set in setting by `CHECKOUT_PRICES_TTL` variable. Prices for checkout also could be invalidated by any change in checkout. This process is also automatically for any address, user, line and shipping change in checkout.
+  Prices for checkout can expire. The expiration time is set automatically when new taxes are fetched (regardless of source tax). Expiration time could be set in the settings by the `CHECKOUT_PRICES_TTL` variable. Prices for checkouts can also be invalidated by any change in checkouts. This process is also automatic for any address, user, line, and shipping change in checkouts.
 
 ## General tax flow
 
@@ -63,11 +63,11 @@ sequenceDiagram
 
 # Checkout taxes
 
-Saleor Apps can subscribe to the `CHECKOUT_CALCULATE_TAXES` synchronous webhook. It is called whenever any user fetch checkout prices which are expired or not calculated yet. Response is processed and saved on checkout and checkout lines. Prices could expired or be invalidated by any change in checkout. Any tax app is treated as source of true about pricing.
+Saleor Apps can subscribe to the `CHECKOUT_CALCULATE_TAXES` synchronous webhook. It is called whenever any user fetches checkout prices that are expired or not calculated yet. The response is processed and saved on checkout and checkout lines. Prices can expire or be invalidated by any change in checkout. Any tax app is treated as the source of truth about pricing.
 
 :::note
-For amount fields, we use the same format as in the rest of the API.
-For example amount of 12,34 USD will be sent as `"total_amount": "12.34"`
+For the amount fields, we use the same format as in the rest of the API.
+For example, the amount of 12,34 USD will be sent as `"total_amount": "12.34"`
 :::
 
 :::warning
@@ -155,31 +155,31 @@ For example amount of 12,34 USD will be sent as `"total_amount": "12.34"`
 
 ### Fields:
 
-1. `id` - Id of checkout for which app should calculate taxes.
+1. `id` - Id of the checkout for which the app should calculate taxes.
 2. `included_taxes_in_prices` - Flag that shows whether taxes should be included in prices.
-3. `shipping_name` - Name of shipping method assigned to checkout.
-4. `shipping_amount` - Price of shipping method assigned to checkout.
+3. `shipping_name` - Name of the shipping method assigned to checkout.
+4. `shipping_amount` - Price of the shipping method assigned to checkout.
 5. `currency` - Checkout currency.
 6. `metadata` - Public metadata of checkout.
-7. `user_id` - Id of the user assigned do checkout. (In case of anonymous customer this field return `null`)
-8. `user_public_metadata` - Public metadata of user assigned to checkout.
+7. `user_id` - Id of the user assigned to checkout. (In case of anonymous customer this field returns `null`)
+8. `user_public_metadata` - Public metadata of the user assigned to checkout.
 9. `address` - Shipping address assigned to checkout. (In case of checkout without required shipping this field contains the billing address.)
-10. `channel` - Data of channel to which checkout is assigned.
+10. `channel` - Data of the channel to which checkout is assigned.
 11. `discounts` - List of discounts assigned to checkout. (Those discounts should be applied by tax app.)
     1. `name` - Name of discount.
     2. `amount` - Amount of assigned discount.
 12. `lines` - List of items inside checkout.
-    1. `id` - Id of line
+    1. `id` - Id of the line.
     2. `charge_taxes` - Flag that shows whether taxes should be calculated for the line.
-    3. `sku` - SKU of product from the line.
-    4. `variant_id` - Id of variant from the line.
-    5. `full_name` - Full name of item from the line.
-    6. `product_name` - Name of product from the line.
-    7. `variant_name` - Name of variant from the line.
-    8. `product_metadata` - Public metadata assigned to product from the line.
-    9. `product_type_metadata` - Public metadata assigned for product type form the line.
+    3. `sku` - SKU of the product from the line.
+    4. `variant_id` - Id of the variant from the line.
+    5. `full_name` - Full name of the item from the line.
+    6. `product_name` - Name of the product from the line.
+    7. `variant_name` - Name of the variant from the line.
+    8. `product_metadata` - Public metadata assigned to the product from the line.
+    9. `product_type_metadata` - Public metadata assigned for the product type from the line.
     10. `unit_amount` - Price of the single item in the line.
-    11. `quantity` - Quantity of item in the line.
+    11. `quantity` - Quantity of the item in the line.
     12. `total_amount` - Total price of the line.
 
 ## Response format
@@ -210,18 +210,18 @@ For example amount of 12,34 USD will be sent as `"total_amount": "12.34"`
 2. `shipping_price_gross_amount` - The gross price of shipping.
 
 3. `shipping_price_net_amount` - Net price of shipping.
-4. `lines` - List of lines tax assigned do checkout. Lines should be returned in the same order in which they were sent to the app.
-   1. `tax_rate` - Tax rate of line.
-   2. `total_gross_amount` - Gross price of line.
-   3. `total_net_amount` - Net price of line.
+4. `lines` - List of lines tax assigned to checkout. Lines should be returned in the same order in which they were sent to the app.
+   1. `tax_rate` - Tax rate of the line.
+   2. `total_gross_amount` - Gross price of the line.
+   3. `total_net_amount` - Net price of the line.
 
 # Order taxes
 
-Saleor Apps can subscribe to the `ORDER_CALCULATE_TAXES` synchronous webhook. It is called whenever any user fetch order prices which are expired or not calculated yet. Response form app is processed ans saved on order and order liens. Prices could expired or be invalidated by any change in order. Any tax app is treated as source of true about pricing.
+Saleor Apps can subscribe to the `ORDER_CALCULATE_TAXES` synchronous webhook. It is called whenever any user fetches order prices that are expired or not calculated yet. The response from the app is processed and saved on order and order lines. Prices can expire or be invalidated by any change in order. Any tax app is treated as the source of truth about pricing.
 
 :::note
-For amount fields, we use the same format as in the rest of the API.
-For example amount of 12,34 USD will be sent as `"total_amount": "12.34"`
+For the amount fields, we use the same format as in the rest of the API.
+For example, the amount of 12,34 USD will be sent as `"total_amount": "12.34"`
 :::
 
 :::warning
@@ -296,31 +296,31 @@ For example amount of 12,34 USD will be sent as `"total_amount": "12.34"`
 
 ### Fields:
 
-1. `id` - Id of order for which app should calculate taxes.
+1. `id` - Id of the order for which the app should calculate taxes.
 2. `included_taxes_in_prices` - Flag that shows whether taxes should be included in prices.
-3. `shipping_name` - Name of shipping method assigned to order.
-4. `shipping_amount` - Price of shipping method assigned to order.
+3. `shipping_name` - Name of the shipping method assigned to the order.
+4. `shipping_amount` - Price of the shipping method assigned to the order.
 5. `currency` - Order currency.
-6. `metadata` - Public metadata of order.
-7. `user_id` - Id of the user assigned to order. (In case of anonymous customer this field return `null`)
-8. `user_public_metadata` - Public metadata of user assigned to order.
-9. `address` - Shipping address assigned to order. (In case of order without required shipping this field contains billing address.)
-10. `channel` - Data of channel to which order is assigned.
-11. `discounts` - List of discounts assigned to order. (Those discounts should be applied by tax app.)
-    1. `name` - Name of discount.
-    2. `amount` - Amount of assigned discount.
-12. `lines` - List of items inside order.
-    1. `id` - Id of the line
+6. `metadata` - Public metadata of the order.
+7. `user_id` - Id of the user assigned to the order. (In case of anonymous customer this field return `null`)
+8. `user_public_metadata` - Public metadata of the user assigned to the order.
+9. `address` - Shipping address assigned to the order. (In case of the order without required shipping this field contains billing address.)
+10. `channel` - Data of the channel to which the order is assigned.
+11. `discounts` - List of the discounts assigned to the order. (These discounts should be applied by the tax app.)
+    1. `name` - Name of the discount.
+    2. `amount` - Amount of the assigned discount.
+12. `lines` - List of the items inside the order.
+    1. `id` - Id of the line.
     2. `charge_taxes` - Flag that shows whether taxes should be calculated for the line.
-    3. `sku` - SKU of product from the line.
-    4. `variant_id` - Id of variant from the line.
-    5. `full_name` - Full name of item from the line.
-    6. `product_name` - Name of product from the line.
-    7. `variant_name` - Name of variant from the line.
-    8. `product_metadata` - Public metadata assigned to product from the line.
-    9. `product_type_metadata` - Public metadata assigned for product type form the line.
+    3. `sku` - SKU of the product from the line.
+    4. `variant_id` - Id of the variant from the line.
+    5. `full_name` - Full name of the item from the line.
+    6. `product_name` - Name of the product from the line.
+    7. `variant_name` - Name of the variant from the line.
+    8. `product_metadata` - Public metadata assigned to the product from the line.
+    9. `product_type_metadata` - Public metadata assigned for the product type from the line.
     10. `unit_amount` - Price of the single item in the line.
-    11. `quantity` - Quantity of item in the line.
+    11. `quantity` - Quantity of the item in the line.
     12. `total_amount` - Total price of the line.
 
 ## Response format
@@ -351,7 +351,7 @@ For example amount of 12,34 USD will be sent as `"total_amount": "12.34"`
 2. `shipping_price_gross_amount` - Gross price of shipping.
 
 3. `shipping_price_net_amount` - Net price of shipping.
-4. `lines` - List of lines tax assigned do order. Lines should be returned in same order in which they were sent to the app.
-   1. `tax_rate` - Tax rate of line.
-   2. `total_gross_amount` - Gross price of line.
-   3. `total_net_amount` - Net price of line.
+4. `lines` - List of line taxes assigned to order. Lines should be returned in the same order in which they were sent to the app.
+   1. `tax_rate` - Tax rate of the line.
+   2. `total_gross_amount` - Gross price of the line.
+   3. `total_net_amount` - Net price of the line.
