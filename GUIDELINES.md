@@ -1,4 +1,5 @@
-# Writing
+## Writing
+- avoid using passive voice
 
 ## Language
 You can use Polish 🇵🇱, English 🇬🇧, or mix of both.
