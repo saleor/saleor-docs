@@ -133,7 +133,19 @@ module.exports = {
             "developer/extending/apps/manifest",
             "developer/extending/apps/installing-apps",
             "developer/extending/apps/asynchronous-webhooks",
-            "developer/extending/apps/synchronous-webhooks",
+            {
+              type: "category",
+              label: "Synchronous webhooks",
+              link: {
+                type: "doc",
+                id: "developer/extending/apps/synchronous-webhooks/key-concepts",
+              },
+              items: [
+                "developer/extending/apps/synchronous-webhooks/payment-webhooks",
+                "developer/extending/apps/synchronous-webhooks/shipping-webhooks",
+                "developer/extending/apps/synchronous-webhooks/tax-webhooks",
+              ],
+            },
             "developer/extending/apps/subscription-webhook-payloads",
             "developer/extending/apps/extending-dashboard-with-apps",
             "developer/extending/apps/sample-webhook-payloads",
