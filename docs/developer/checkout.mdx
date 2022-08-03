@@ -43,7 +43,7 @@ If the checkout permission is assigned to the user, only this user and staff use
 ## Address Validation
 The checkout's mutations that accept an address as an input have a field that can turn off the address validation. This allows assigning a partial or not fully valid address to the checkout. Providing country code is mandatory for all addresses regardless of the rules provided in this input.
 
-The address [validation](developer/api-reference/inputs/checkout-address-validation-rules.mdx) input has two boolean fields: 
+The address [validation](developer/api-reference/inputs/checkout-address-validation-rules.mdx) input has two boolean fields:
 - `checkRequiredFields` - Determines if an error should be raised when the provided address doesn't have all the required fields. Set to `true` by default.
 - `checkFieldsFormat` - Determines if an error should be raised when the provided address doesn't match the expected format. Set to `true` by default.
 - `enableFieldsNormalization` - Determines if Saleor should apply normalization on address fields. Example: converting city field to uppercase letters. Set to `true` by default.
@@ -442,7 +442,119 @@ The response contains the updated checkout object:
 }
 ```
 
-If the variant is already added to the checkout, Saleor will increase the corresponding line's quantity. Running the previous mutation twice will result in a checkout object with one line and the amount set to 2:
+### Adding same product to multiple lines
+
+:::info
+
+This feature was introduced in **Saleor 3.6**.
+
+:::
+:::caution
+
+This feature is currently in **Feature Preview**. That means this part of Saleor is not complete
+but is available to experiment with and provide feedback, and is subject to change.
+
+:::
+Saleor allows to force new line using `forceNewLine` flag. This allows to create multiple lines with same variant.
+The `forceNewLine` can be used in the:
+[CheckoutLineInput](developer/api-reference/inputs/checkout-line-input.mdx)
+in the following mutations:
+
+- [checkoutCreate](developer/api-reference/mutations/checkout-create.mdx)
+- [checkoutLinesAdd](developer/api-reference/mutations/checkout-lines-add.mdx)
+
+```graphql {5}
+mutation {
+  checkoutLinesAdd(
+    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
+    lines: [
+      { quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0", forceNewLine: true }
+      { quantity: 2, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0" }
+    ]
+  ) {
+    checkout {
+      lines {
+        id
+        variant {
+          name
+        }
+        quantity
+      }
+      totalPrice {
+        gross {
+          currency
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+The response contains the updated checkout object:
+
+```json
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "lines": [
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1Mw==",
+            "variant": {
+              "name": "XL"
+            },
+            "quantity": 1
+          },
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1Mw==",
+            "variant": {
+              "name": "XL"
+            },
+            "quantity": 2
+          }
+        ],
+        "totalPrice": {
+          "gross": {
+            "currency": "USD",
+            "amount": 15
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+If the variant is already added to the checkout and exist only in one line, Saleor will increase the corresponding line's quantity.
+Running mutation twice will result in a checkout object with one line and the amount set to 2:
+
+```graphql {4}
+mutation {
+  checkoutLinesAdd(
+    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
+    lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0" }]
+  ) {
+    checkout {
+      lines {
+        id
+        variant {
+          name
+        }
+        quantity
+      }
+      totalPrice {
+        gross {
+          currency
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+Response after second run:
 
 ```json {11}
 {
@@ -470,15 +582,34 @@ If the variant is already added to the checkout, Saleor will increase the corres
 }
 ```
 
-### Changing the line quantity
+:::caution
 
-To modify line quantity, use [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx):
+If the variant is already added to the checkout and exist in more than one line, Saleor will create new line with provided quantity.
+
+:::
+
+### Updating line
+
+To modify line, use [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx).
+
+Currently, [CheckoutLineUpdateInput](developer/api-reference/inputs/checkout-line-update-input) supports `variantId` and `lineId` parameters to operate on selected line object.
+Since version `3.6` where [adding same product to multiple lines](checkout#adding-same-product-to-multiple-lines) feature was added we recommend use `lineId` parameter, `variantId` will be deprecated in the future.
+
+:::caution
+
+Is not allowed to use **variantId** and **lineId** in same line input.
+
+If **variantId** parameter is used in line input and variant exists in multiple lines [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx) will return error - **lineId** should be used in that case.
+
+:::
+
+#### Changing the line quantity
 
 ```graphql {4}
 mutation {
   checkoutLinesUpdate(
     token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
-    lines: [{ quantity: 12, variantId: "UHJvZHVjdFZhcmlhbnQ6MTcy" }]
+    lines: [{ quantity: 12, lineId: "Q2hlY2tvdXRMaW5lOjI1NA==" }]
   ) {
     checkout {
       lines {
@@ -1258,13 +1389,13 @@ but is available to experiment with and provide feedback, and is subject to chan
 
 :::
 
-
-The flow where the payment process is handled by an external Saleor App such as [saleor-checkout](https://github.com/saleor/saleor-checkout). 
+The flow where the payment process is handled by an external Saleor App such as [saleor-checkout](https://github.com/saleor/saleor-checkout).
 Saleor expects to receive a result of the payment transaction processed by Saleor App.
 
 The below charts show the workflow of a checkout process.
 
 #### Case: Creating order before processing payment
+
 ```mermaid
 sequenceDiagram
     Customer->>+Checkout App: Finalize an order
@@ -1295,7 +1426,6 @@ sequenceDiagram
     Saleor -->>- Checkout App: Paid order
     Checkout App-->>-Customer: Order
 ```
-
 
 ### Creating order from checkout
 
@@ -1552,7 +1682,7 @@ and subject to change but is available to experiment and provide feedback.
 :::
 
 An action request is called when a staff user or an app triggers a request of an action that should be called for a given transaction.
-If your app should also process payment request actions (like charge, refund, or void) triggered by staff users on the 
+If your app should also process payment request actions (like charge, refund, or void) triggered by staff users on the
 Saleor dashboard side or by the app, make sure that your app is subscribed to the
 [transaction-action-request](developer/extending/apps/sample-webhook-payloads.mdx#transaction-action-request) webhook.
 
@@ -1577,7 +1707,6 @@ sequenceDiagram
 
 In order not to overload the database, unfinished checkouts are deleted.
 Anonymous and unfinished checkouts are deleted after a specified period of time from its last modification:
-
 - anonymous checkouts (neither user and email are set) after 30 days,
 - user checkouts (user or email set) after 90 days,
 - checkouts without lines after 6 hours.
