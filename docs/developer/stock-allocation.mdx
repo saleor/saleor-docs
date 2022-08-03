@@ -128,6 +128,37 @@ the [`updateWarehouse`](developer/api-reference/mutations/update-warehouse.mdx) 
 There is an option to change the following warehouse fields: `name`, `slug`, `email`, `address` and
 also define privacy and `click and collect` options.
 
+The warehouse could be defined as private or public. When the warehouse is public, the stock
+information can be queried publicly in API. Otherwise, it requires permission.
+
+### Click-and-collect warehouses
+
+You can define the warehouse as a collection point with the `click and collect` option.
+There are three options you can use:
+
+- `local stock` - the stock from the current warehouse is used during the fulfillment process.
+  This option is only available for public warehouses.
+- `all warehouses` - the total stock of a given product from all warehouses is used
+  during the fulfillment process. The available quantity is not restricted by the quantity
+  of this warehouse, and ordered products can be shipped from any other warehouse that
+  is available in the channel.
+- `disabled` - the current warehouse cannot be used as the collection point
+
+In the case of click-and-collect, the warehouse availability does not depend on the shipping zones.
+It is limited only by the given channel.
+The warehouse is available as a collection point for the given order under two conditions:
+
+- there is a stock with available quantity for a given product,
+- the warehouse is available in the channel in which the order is created.
+
+#### Allocation
+
+In the case of the checkout with the local collection point, the stock allocation can be made
+only from the current warehouse. If there is not enough quantity, the `InsufficientStock` error
+is raised. In the case of the checkout with the global collection point, the stocks
+are allocated from the chosen warehouse first. If there is insufficient quantity,
+the stocks are allocated from the next warehouse with the highest available quantity value.
+
 ### Assign warehouses to the channels
 
 To allow assigning the warehouse to the shipping zone we need to have at least one common
