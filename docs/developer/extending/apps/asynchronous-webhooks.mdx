@@ -4,7 +4,7 @@ title: Asynchronous Webhooks
 
 ## Architecture
 
-Asynchronous webhooks can be used for reacting to the events emitted by the Saleor. Worker instance will send event payload via the chosen protocol. Your app should acknowledge that payload was received. The result of app operations is not sent back to the Saleor. If you need to send data back to the user (for example, calculated shipping cost), you should use [synchronous webhook](developer/extending/apps/synchronous-webhooks.mdx).
+Asynchronous webhooks can be used for reacting to the events emitted by the Saleor. Worker instance will send event payload via the chosen protocol. Your app should acknowledge that payload was received. The result of app operations is not sent back to the Saleor. If you need to send data back to the user (for example, calculated shipping cost), you should use [synchronous webhook](developer/extending/apps/synchronous-webhooks/key-concepts.mdx).
 
 ## Examples of the use cases
 
@@ -40,6 +40,7 @@ While HTTPS webhooks are a familiar concept and may seem easy to implement, make
 #### Headers
 
 During HTTPS requests there are several headers included:
+
 - `Saleor-Event` - defines event which is assigned to the webhook
 - `Saleor-Domain` - defines saleor domain
 - `Saleor-Signature` - defines signature to indicate that the request is verifiable
@@ -48,16 +49,84 @@ During HTTPS requests there are several headers included:
 In Saleor 4.0 all `X-Saleor-` headers will be removed and replaced with headers without `X-` prefix.
 
 Deprecated headers list:
+
 - `X-Saleor-Event` -> `Saleor-Event`
 - `X-Saleor-Domain` -> `Saleor-Domain`
 - `X-Saleor-Signature` -> `Saleor-Signature`
-:::
+  :::
 
 #### Payload signature
 
 Saleor calculates a payload signature under `Saleor-Signature`:
+
 - if `secretKey` was set for a webhook - the HMAC SHA-256 header based on it and the payload
 - if `secretKey` wasn't set for a webhook - the JWS signature using RS256 with payload detached, to verify signature you can use public key, which can be fetched from `http(s)://<your-backend-domain>/.well-known/jwks.json` (available since Saleor 3.5, before 3.5 payload from webhooks without `secretKey` set were not signed)
+
+##### Validating signature
+
+To validate signatures in Saleor Apps use [`withWebhookSignatureVerified`](https://github.com/saleor/saleor-app-sdk/blob/main/src/middleware.ts#L62) middleware provided by [`saleor-app-sdk`](https://github.com/saleor/saleor-app-sdk)
+
+```js
+import type { Handler } from "retes";
+import { Response } from "retes/response";
+import { toNextHandler } from "retes/adapter";
+import {
+  withSaleorEventMatch,
+  withWebhookSignatureVerified,
+} from "@saleor/app-sdk/middleware";
+
+const handler: Handler = async (request) => {
+  // ...
+
+  return Response.OK({ success: true });
+};
+
+export default toNextHandler([
+  withSaleorDomainMatch,
+  withWebhookSignatureVerified(),
+  handler,
+]);
+```
+
+> Example taken from [`saleor-app-template`](https://github.com/saleor/saleor-app-template/blob/main/pages/api/webhooks/order-created.ts)
+
+You can also manually validate the JWS signature in JavaScript with [`jose` package](https://github.com/panva/jose). Remember that you need to supply it with a raw body string, not a parsed object.
+
+```js
+import getRawBody from "raw-body";
+
+const JWKS = jose.createRemoteJWKSet(
+  new URL("https://master.staging.saleor.cloud" + "/.well-known/jwks.json")
+);
+
+// In Next.js you need to disable `bodyParser` in order to get raw body string
+// https://github.com/vercel/next.js/discussions/12517
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export default function(req, res) {
+  const jws = req.headers["saleor-signature"];
+  const buffer = getRawBody(req, {
+    length: req.headers["content-length"],
+    limit: "1mb",
+  });
+  const [header, _, signature] = jws.split(".");
+  try {
+    await jose.flattenedVerify({
+      protected: header,
+      payload: buffer.toString("utf-8"),
+      signature
+    }, JWKS);
+  } catch (e) {
+    // return error
+  }
+
+  // handle your request
+}
+```
 
 ### Google Cloud Pub/Sub
 
@@ -89,89 +158,90 @@ FIFO queues (ending in `.fifo`) must be configured to have `ContentBasedDeduplic
 
 Webhooks can be used to receive data from Saleor when particular events happen. The available events are:
 
-| Name                           | Description                                                                                                                                                                                                             |
-| -------------------------------| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ANY_EVENTS`                   | Receive webhooks when any of the available events is triggered (wildcard event).                                                                                                                                        |
-| `ADDRESS_CREATED`              | A new address is created.                                                                                                                                                                                               |
-| `ADDRESS_UPDATED`              | An address is updated.                                                                                                                                                                                                  |
-| `ADDRESS_DELETED`              | An address is deleted.                                                                                                                                                                                                  |
-| `APP_INSTALLED`                | A new app installed.                                                                                                                                                                                                    |
-| `APP_UPDATED`                  | An app is updated.                                                                                                                                                                                                      |
-| `APP_DELETED`                  | An app is deleted.                                                                                                                                                                                                      |
-| `APP_STATUS_CHANGED`           | An app status is changed.                                                                                                                                                                                               |
-| `ATTRIBUTE_CREATED`            | A new attribute created.                                                                                                                                                                                                |
-| `ATTRIBUTE_UPDATED`            | An attribute updated.                                                                                                                                                                                                   |
-| `ATTRIBUTE_DELETED`            | An attribute deleted.                                                                                                                                                                                                   |
-| `CATEGORY_CREATED`             | A new category created.                                                                                                                                                                                                 |
-| `CATEGORY_UPDATED`             | A category is updated.                                                                                                                                                                                                  |
-| `CATEGORY_DELETED`             | A category is deleted.                                                                                                                                                                                                  |
-| `CHANNEL_CREATED`              | A new channel is created.                                                                                                                                                                                               |
-| `CHANNEL_UPDATED`              | A channel is updated.                                                                                                                                                                                                   |
-| `CHANNEL_DELETED`              | A channel is deleted.                                                                                                                                                                                                   |
-| `CHANNEL_STATUS_CHANGED`       | A channel status is changed.                                                                                                                                                                                            |
-| `GIFT_CARD_CREATED`            | A new gift card is created.                                                                                                                                                                                             |
-| `GIFT_CARD_UPDATED`            | A gift card is updated.                                                                                                                                                                                                 |
-| `GIFT_CARD_DELETED`            | A gift card is deleted.                                                                                                                                                                                                 |
-| `GIFT_CARD_STATUS_CHANGED`     | A gift card status is changed.                                                                                                                                                                                          |
-| `CHECKOUT_CREATED`             | A new checkout is created.                                                                                                                                                                                              |
-| `CHECKOUT_UPDATED`             | A checkout is updated. Also triggers for all updates related to a checkout.                                                                                                                                             |
-| `CUSTOMER_CREATED`             | A new customer account is created.                                                                                                                                                                                      |
-| `CUSTOMER_UPDATED`             | A customer account is updated.                                                                                                                                                                                          |
-| `CUSTOMER_DELETED`             | A customer account is deleted.                                                                                                                                                                                          |
-| `FULFILLMENT_CREATED`          | A new fulfillment is created.                                                                                                                                                                                           |
-| `INVOICE_DELETED`              | An invoice is deleted.                                                                                                                                                                                                  |
-| `INVOICE_REQUESTED`            | An invoice for an order is requested.  At this stage `number`, `created` and `external_url` fields are nulls.                                                                                                           |
-| `INVOICE_SENT`                 | An invoice is sent.                                                                                                                                                                                                     |
-| `MENU_CREATED`                 | A new menu is created.                                                                                                                                                                                                  |
-| `MENU_UPDATED`                 | A menu is updated.                                                                                                                                                                                                      |
-| `MENU_DELETED`                 | A menu is deleted.                                                                                                                                                                                                      |
-| `MENU_ITEM_CREATED`            | A new menu item is created.                                                                                                                                                                                             |
-| `MENU_ITEM_UPDATED`            | A menu item is updated                                                                                                                                                                                             |
-| `MENU_ITEM_DELETED`            | A menu item is deleted.                                                                                                                                                                                                 |
-| `ORDER_CANCELLED`              | An order is cancelled.                                                                                                                                                                                                  |
-| `ORDER_CONFIRMED`              | An order is confirmed (status change unconfirmed -> unfulfilled) by staff user using OrderConfirm mutation. Also triggers when user finish checkout and shop setting `automatically_confirm_all_new_orders` is enabled. |
-| `ORDER_CREATED`                | A new order is placed.                                                                                                                                                                                                  |
-| `ORDER_FULFILLED`              | An order is fulfilled.                                                                                                                                                                                                  |
-| `ORDER_FULLY_PAID`             | Payment is made and an order is fully paid.                                                                                                                                                                             |
-| `ORDER_UPDATED`                | An order is updated; triggered for all changes related to an order; covers all other order webhooks, except for `ORDER_CREATED`.                                                                                        |
-| `SALE_CREATED`                 | A new sale is created.                                                                                                                                                                                                  |
-| `SALE_UPDATED`                 | A sale is updated.                                                                                                                                                                                                      |
-| `SALE_DELETED`                 | A sale is deleted.                                                                                                                                                                                                      |
-| `PAGE_CREATED`                 | A new page is created.                                                                                                                                                                                                  |
-| `PAGE_DELETED`                 | A page is deleted.                                                                                                                                                                                                      |
-| `PAGE_UPDATED`                 | A page is updated.                                                                                                                                                                                                      |
-| `PAGE_TYPE_CREATED`            | A new page type is created.                                                                                                                                                                                             |
-| `PAGE_TYPE_UPDATED`            | A page type is updated.                                                                                                                                                                                                 |
-| `PAGE_TYPE_DELETED`            | A page type is deleted.                                                                                                                                                                                                 |
-| `COLLECTION_CREATED`           | A new collection is created.                                                                                                                                                                                            |
-| `COLLECTION_DELETED`           | A collection is deleted.                                                                                                                                                                                                |
-| `COLLECTION_UPDATED`           | A collection is updated.                                                                                                                                                                                                |
-| `PRODUCT_CREATED`              | A new product is created.                                                                                                                                                                                               |
-| `PRODUCT_DELETED`              | A product is deleted.                                                                                                                                                                                                   |
-| `PRODUCT_UPDATED`              | A product is updated.                                                                                                                                                                                                   |
-| `PRODUCT_VARIANT_CREATED`      | A new product variant is created.                                                                                                                                                                                       |
-| `PRODUCT_VARIANT_DELETED`      | A product variant is deleted.                                                                                                                                                                                           |
-| `PRODUCT_VARIANT_UPDATED`      | A product variant is updated.                                                                                                                                                                                           |
-| `NOTIFY`                       | Trigger notification to user.                                                                                                                                                                                           |
-| `TRANSLATION_CREATED`          | A new translation is created.                                                                                                                                                                                           |
-| `TRANSLATION_UPDATED`          | A translation is updated.                                                                                                                                                                                               |
-| `PRODUCT_VARIANT_OUT_OF_STOCK` | A product variant is out of stock.                                                                                                                                                                                      |
-| `PRODUCT_VARIANT_BACK_IN_STOCK`| A product variant is back in stock.                                                                                                                                                                                     |
-| `SHIPPING_PRICE_CREATED`       | A new shipping price created.                                                                                                                                                                                           |
-| `SHIPPING_PRICE_UPDATED`       | A shipping price is updated.                                                                                                                                                                                            |
-| `SHIPPING_PRICE_DELETED`       | A shipping price is deleted.                                                                                                                                                                                            |
-| `SHIPPING_ZONE_CREATED`        | A new shipping zone created.                                                                                                                                                                                            |
-| `SHIPPING_ZONE_UPDATED`        | A shipping zone is updated.                                                                                                                                                                                             |
-| `SHIPPING_ZONE_DELETED`        | A shipping zone is deleted.                                                                                                                                                                                             |
-| `STAFF_CREATED`                | A new staff user is created.                                                                                                                                                                                            |
-| `STAFF_UPDATED`                | A staff user is updated.                                                                                                                                                                                                |
-| `STAFF_DELETED`                | A staff user is deleted.                                                                                                                                                                                                |
-| `VOUCHER_CREATED`              | A new voucher is created.                                                                                                                                                                                               |
-| `VOUCHER_UPDATED`              | A voucher is updated.                                                                                                                                                                                                   |
-| `VOUCHER_DELETED`              | A voucher is deleted.                                                                                                                                                                                                   |
-| `WAREHOUSE_CRATED`             | A new warehouse is created.                                                                                                                                                                                             |
-| `WAREHOUSE_UPDATED`            | A warehouse is updated.                                                                                                                                                                                                 |
-| `WAREHOUSE_DELETED`            | A warehouse is deleted.                                                                                                                                                                                                 |
+| Name                            | Description                                                                                                                                                                                                             |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ANY_EVENTS`                    | Receive webhooks when any of the available events is triggered (wildcard event).                                                                                                                                        |
+| `ADDRESS_CREATED`               | A new address is created.                                                                                                                                                                                               |
+| `ADDRESS_UPDATED`               | An address is updated.                                                                                                                                                                                                  |
+| `ADDRESS_DELETED`               | An address is deleted.                                                                                                                                                                                                  |
+| `APP_INSTALLED`                 | A new app installed.                                                                                                                                                                                                    |
+| `APP_UPDATED`                   | An app is updated.                                                                                                                                                                                                      |
+| `APP_DELETED`                   | An app is deleted.                                                                                                                                                                                                      |
+| `APP_STATUS_CHANGED`            | An app status is changed.                                                                                                                                                                                               |
+| `ATTRIBUTE_CREATED`             | A new attribute created.                                                                                                                                                                                                |
+| `ATTRIBUTE_UPDATED`             | An attribute updated.                                                                                                                                                                                                   |
+| `ATTRIBUTE_DELETED`             | An attribute deleted.                                                                                                                                                                                                   |
+| `CATEGORY_CREATED`              | A new category created.                                                                                                                                                                                                 |
+| `CATEGORY_UPDATED`              | A category is updated.                                                                                                                                                                                                  |
+| `CATEGORY_DELETED`              | A category is deleted.                                                                                                                                                                                                  |
+| `CHANNEL_CREATED`               | A new channel is created.                                                                                                                                                                                               |
+| `CHANNEL_UPDATED`               | A channel is updated.                                                                                                                                                                                                   |
+| `CHANNEL_DELETED`               | A channel is deleted.                                                                                                                                                                                                   |
+| `CHANNEL_STATUS_CHANGED`        | A channel status is changed.                                                                                                                                                                                            |
+| `GIFT_CARD_CREATED`             | A new gift card is created.                                                                                                                                                                                             |
+| `GIFT_CARD_UPDATED`             | A gift card is updated.                                                                                                                                                                                                 |
+| `GIFT_CARD_DELETED`             | A gift card is deleted.                                                                                                                                                                                                 |
+| `GIFT_CARD_STATUS_CHANGED`      | A gift card status is changed.                                                                                                                                                                                          |
+| `CHECKOUT_CREATED`              | A new checkout is created.                                                                                                                                                                                              |
+| `CHECKOUT_UPDATED`              | A checkout is updated. Also triggers for all updates related to a checkout.                                                                                                                                             |
+| `CUSTOMER_CREATED`              | A new customer account is created.                                                                                                                                                                                      |
+| `CUSTOMER_UPDATED`              | A customer account is updated.                                                                                                                                                                                          |
+| `CUSTOMER_DELETED`              | A customer account is deleted.                                                                                                                                                                                          |
+| `FULFILLMENT_CREATED`           | A new fulfillment is created.                                                                                                                                                                                           |
+| `INVOICE_DELETED`               | An invoice is deleted.                                                                                                                                                                                                  |
+| `INVOICE_REQUESTED`             | An invoice for an order is requested. At this stage `number`, `created` and `external_url` fields are nulls.                                                                                                            |
+| `INVOICE_SENT`                  | An invoice is sent.                                                                                                                                                                                                     |
+| `MENU_CREATED`                  | A new menu is created.                                                                                                                                                                                                  |
+| `MENU_UPDATED`                  | A menu is updated.                                                                                                                                                                                                      |
+| `MENU_DELETED`                  | A menu is deleted.                                                                                                                                                                                                      |
+| `MENU_ITEM_CREATED`             | A new menu item is created.                                                                                                                                                                                             |
+| `MENU_ITEM_UPDATED`             | A menu item is updated                                                                                                                                                                                                  |
+| `MENU_ITEM_DELETED`             | A menu item is deleted.                                                                                                                                                                                                 |
+| `ORDER_CANCELLED`               | An order is cancelled.                                                                                                                                                                                                  |
+| `ORDER_CONFIRMED`               | An order is confirmed (status change unconfirmed -> unfulfilled) by staff user using OrderConfirm mutation. Also triggers when user finish checkout and shop setting `automatically_confirm_all_new_orders` is enabled. |
+| `ORDER_CREATED`                 | A new order is placed.                                                                                                                                                                                                  |
+| `ORDER_FULFILLED`               | An order is fulfilled.                                                                                                                                                                                                  |
+| `ORDER_FULLY_PAID`              | Payment is made and an order is fully paid.                                                                                                                                                                             |
+| `ORDER_UPDATED`                 | An order is updated; triggered for all changes related to an order; covers all other order webhooks, except for `ORDER_CREATED`.                                                                                        |
+| `SALE_CREATED`                  | A new sale is created.                                                                                                                                                                                                  |
+| `SALE_UPDATED`                  | A sale is updated.                                                                                                                                                                                                      |
+| `SALE_DELETED`                  | A sale is deleted.                                                                                                                                                                                                      |
+| `SALE_TOGGLE`                   | A sale is starting or ending.                                                                                                                                                                                           |
+| `PAGE_CREATED`                  | A new page is created.                                                                                                                                                                                                  |
+| `PAGE_DELETED`                  | A page is deleted.                                                                                                                                                                                                      |
+| `PAGE_UPDATED`                  | A page is updated.                                                                                                                                                                                                      |
+| `PAGE_TYPE_CREATED`             | A new page type is created.                                                                                                                                                                                             |
+| `PAGE_TYPE_UPDATED`             | A page type is updated.                                                                                                                                                                                                 |
+| `PAGE_TYPE_DELETED`             | A page type is deleted.                                                                                                                                                                                                 |
+| `COLLECTION_CREATED`            | A new collection is created.                                                                                                                                                                                            |
+| `COLLECTION_DELETED`            | A collection is deleted.                                                                                                                                                                                                |
+| `COLLECTION_UPDATED`            | A collection is updated.                                                                                                                                                                                                |
+| `PRODUCT_CREATED`               | A new product is created.                                                                                                                                                                                               |
+| `PRODUCT_DELETED`               | A product is deleted.                                                                                                                                                                                                   |
+| `PRODUCT_UPDATED`               | A product is updated.                                                                                                                                                                                                   |
+| `PRODUCT_VARIANT_CREATED`       | A new product variant is created.                                                                                                                                                                                       |
+| `PRODUCT_VARIANT_DELETED`       | A product variant is deleted.                                                                                                                                                                                           |
+| `PRODUCT_VARIANT_UPDATED`       | A product variant is updated.                                                                                                                                                                                           |
+| `NOTIFY`                        | Trigger notification to user.                                                                                                                                                                                           |
+| `TRANSLATION_CREATED`           | A new translation is created.                                                                                                                                                                                           |
+| `TRANSLATION_UPDATED`           | A translation is updated.                                                                                                                                                                                               |
+| `PRODUCT_VARIANT_OUT_OF_STOCK`  | A product variant is out of stock.                                                                                                                                                                                      |
+| `PRODUCT_VARIANT_BACK_IN_STOCK` | A product variant is back in stock.                                                                                                                                                                                     |
+| `SHIPPING_PRICE_CREATED`        | A new shipping price created.                                                                                                                                                                                           |
+| `SHIPPING_PRICE_UPDATED`        | A shipping price is updated.                                                                                                                                                                                            |
+| `SHIPPING_PRICE_DELETED`        | A shipping price is deleted.                                                                                                                                                                                            |
+| `SHIPPING_ZONE_CREATED`         | A new shipping zone created.                                                                                                                                                                                            |
+| `SHIPPING_ZONE_UPDATED`         | A shipping zone is updated.                                                                                                                                                                                             |
+| `SHIPPING_ZONE_DELETED`         | A shipping zone is deleted.                                                                                                                                                                                             |
+| `STAFF_CREATED`                 | A new staff user is created.                                                                                                                                                                                            |
+| `STAFF_UPDATED`                 | A staff user is updated.                                                                                                                                                                                                |
+| `STAFF_DELETED`                 | A staff user is deleted.                                                                                                                                                                                                |
+| `VOUCHER_CREATED`               | A new voucher is created.                                                                                                                                                                                               |
+| `VOUCHER_UPDATED`               | A voucher is updated.                                                                                                                                                                                                   |
+| `VOUCHER_DELETED`               | A voucher is deleted.                                                                                                                                                                                                   |
+| `WAREHOUSE_CRATED`              | A new warehouse is created.                                                                                                                                                                                             |
+| `WAREHOUSE_UPDATED`             | A warehouse is updated.                                                                                                                                                                                                 |
+| `WAREHOUSE_DELETED`             | A warehouse is deleted.                                                                                                                                                                                                 |
 
 ## Managing app webhooks
 

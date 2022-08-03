@@ -48,7 +48,7 @@ Webhooks allow you to set up integrations which subscribe to events. They can th
 
 ### Creating a webhook
 
- Once the app has been created, you can create a new webhook by clicking the _Create Webhook_ button in the _Webhooks_ section of the app details page. To create a webhook, you first need to activate your app.
+Once the app has been created, you can create a new webhook by clicking the _Create Webhook_ button in the _Webhooks_ section of the app details page. To create a webhook, you first need to activate your app.
 
 In the _Webhook Specific Information_ section:
 
@@ -63,9 +63,10 @@ To learn more about the webhook protocols, see the [Developer's Guide](../develo
 ![](screenshots/apps-webhook-new.png)
 
 ### Events
-In the *Events* card, you can assign singular events that you want to be triggered by the webhook.
 
-There are two types of events that can be assigned to a webhook: [synchronous](../developer/extending/apps/synchronous-webhooks) and [asynchronous](../developer/extending/apps/asynchronous-webhooks).
+In the _Events_ card, you can assign singular events that you want the webhook to trigger.
+
+There are two types of events you can assign to a webhook: [synchronous](../developer/extending/apps/synchronous-webhooks/key-concepts) and [asynchronous](../developer/extending/apps/asynchronous-webhooks).
 
 Synchronous webhooks can be used for extending Saleor without the need to deploy plugins on the API server. You can select multiple synchronous events.
 

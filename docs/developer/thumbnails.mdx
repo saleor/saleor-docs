@@ -1,0 +1,100 @@
+---
+title: Thumbnails
+---
+
+## Introduction
+
+This guide describes how to request for a thumbnail and how the thumbnails are generated.
+
+### Thumbnails sizes and formats
+
+Thumbnails are available on the following models and fields:
+
+- `User.avatar`
+- `OrderLine.thumbnail`
+- `Product.thumbnail`
+- `Collection.background_image`
+- `Category.background_image`
+- `ProductMedia.url`
+- `ProductImage.url`
+
+You can specify the `size` and `format` of a thumbnail. You may pass any integer as `size`,
+but we will resolve it to the closest value from the following list:
+[32, 64, 128, 256, 512, 1024, 2048, 4096].
+For example: when you pass "55", we resolve it to "64".
+
+Currently, `WebP` is the only supported value for `format`.
+Both `size` and `format` fields are optional, but when you decide to provide `format`,
+the `size` becomes required as well. If you don't specify these or pass only one,
+the original image attributes will be used.
+
+### Generating the thumbnails
+
+The thumbnails are generated on-demand. When the user requests the thumbnail with the
+given size and format for the first time, the proxy URL is returned. When the proxy URL
+is opened, the requested thumbnail is created and the user gets the requested image.
+In case of a second and further request for the same thumbnail, the previously created
+thumbnail's URL is returned.
+
+### Example
+
+Here is an example query for the category's background image of `size` = "100" and `format` = "WebP":
+
+```graphql
+query {
+  category(id: "Q2F0ZWdvcnk6MjU=") {
+    name
+    backgroundImage(size: 100, format: WEBP) {
+      url
+      alt
+    }
+  }
+}
+```
+
+The query runs for the first time and as a result the response contains proxy URL:
+
+```json
+{
+  "data": {
+    "category": {
+      "name": "Accessories",
+      "backgroundImage": {
+        "url": "http://localhost:8000/thumbnail/Q2F0ZWdvcnk6MjU=/128/webp/",
+        "alt": ""
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 1,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+After opening the link, the thumbnail with the `size` of "128", and the `format` of "WebP" is generated.
+The resolution is equal to 128 as this is the closest available size to the provided value.
+
+The next time we run the query, we receive the URL to the actual thumbnail.
+
+```json
+{
+  "data": {
+    "category": {
+      "name": "Accessories",
+      "backgroundImage": {
+        "url": "http://localhost:8000/media/thumbnails/category-backgrounds/20210809_181533_2240b122_thumbnail_128.webp",
+        "alt": ""
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 1,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
