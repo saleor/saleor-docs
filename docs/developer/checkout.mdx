@@ -220,8 +220,7 @@ A [`Checkout`](developer/api-reference/objects/checkout.mdx) object can be creat
 - If no authentication token is provided, the checkout is created for an anonymous user,
   and an email address is used to identify such a [`Checkout`](developer/api-reference/objects/checkout.mdx) object,
   linking it with the anonymous user.
-  User email is not required at this stage but must be set before adding promo code, creating a payment, and checkout completing.
-  :::
+  User email is not required at this stage but must be provided before adding a promo code, creating a payment, and completing checkout. :::
 
 To create a [`Checkout`](developer/api-reference/objects/checkout.mdx) object, use the [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation.
 
@@ -442,7 +441,7 @@ The response contains the updated checkout object:
 }
 ```
 
-### Adding same product to multiple lines
+### Adding the same product to multiple lines
 
 :::info
 
@@ -455,8 +454,9 @@ This feature is currently in **Feature Preview**. That means this part of Saleor
 but is available to experiment with and provide feedback, and is subject to change.
 
 :::
-Saleor allows to force new line using `forceNewLine` flag. This allows to create multiple lines with same variant.
+The creation of multiple lines with the same variant is possible upon using the `forceNewLine` flag.
 The `forceNewLine` can be used in the:
+
 [CheckoutLineInput](developer/api-reference/inputs/checkout-line-input.mdx)
 in the following mutations:
 
@@ -526,7 +526,7 @@ The response contains the updated checkout object:
 }
 ```
 
-If the variant is already added to the checkout and exist only in one line, Saleor will increase the corresponding line's quantity.
+If the variant is already added to the checkout and exists only in one line, Saleor will increase the corresponding line's quantity.
 Running mutation twice will result in a checkout object with one line and the amount set to 2:
 
 ```graphql {4}
@@ -584,7 +584,7 @@ Response after second run:
 
 :::caution
 
-If the variant is already added to the checkout and exist in more than one line, Saleor will create new line with provided quantity.
+If the variant is already added to the checkout and exists in more than one line, Saleor will create a new line with provided quantity.
 
 :::
 
@@ -593,13 +593,13 @@ If the variant is already added to the checkout and exist in more than one line,
 To modify line, use [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx).
 
 Currently, [CheckoutLineUpdateInput](developer/api-reference/inputs/checkout-line-update-input) supports `variantId` and `lineId` parameters to operate on selected line object.
-Since version `3.6` where [adding same product to multiple lines](checkout#adding-same-product-to-multiple-lines) feature was added we recommend use `lineId` parameter, `variantId` will be deprecated in the future.
+The version `3.6` featured [adding the same product to multiple lines](checkout#adding-same-product-to-multiple-lines). Since then, we recommend using the `lineId` parameter, as `variantId` will be deprecated in the future.
 
 :::caution
 
-Is not allowed to use **variantId** and **lineId** in same line input.
+Is not allowed to use `variantId` and `lineId` in the same line input.
 
-If **variantId** parameter is used in line input and variant exists in multiple lines [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx) will return error - **lineId** should be used in that case.
+If the `variantId` parameter is used in line input and the variant exists in multiple lines, [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx) will return an error. In that case, it is required to use `lineId`.
 
 :::
 
@@ -707,7 +707,7 @@ in the following mutations:
 
 - [checkoutCreate](developer/api-reference/mutations/checkout-create.mdx),
 - [checkoutLinesAdd](developer/api-reference/mutations/checkout-lines-add.mdx) - when adding
-  a variant that has already been added to checkout, the previously existing line is overridden - the quantity is incremented and the price is updated.,
+  a variant that already exists in the checkout, the corresponding line gets overridden - the quantity is incremented and the price is updated.
 - [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx) - overrides
   the existing line with the price provided in the mutation.
 
@@ -800,7 +800,7 @@ If user A adds last two items to their checkout, those two items will become pur
 
 Those two items will also be subtracted from the available quantity displayed to other users on store, giving them immediate feedback that item they are interested in is currently not available, preventing them from adding this item to their own checkouts.
 
-If user A completes their checkout within the given time, temporary allocation will be converted into a permanent one. However, if they don't complete their order within the time limit, their stock reservation will expire and the two items in their checkout will become available for other users to add to their own checkouts.
+If user A completes their checkout within the given time, temporary allocation will be converted into a permanent one. But if they don't complete their stock within the time limit, their stock reservation will expire and the two items in their checkout will become available for other users to add to their own checkouts.
 
 If no other user will add this item to their checkout user A will still be able to complete their checkout. But if other user adds one or two items to their checkout, new reservation will be created for them, reducing quantity available to other users and preventing user A from completing their checkout.
 
@@ -1525,9 +1525,9 @@ The [transactionCreate](developer/api-reference/mutations/transaction-create.mdx
 - `transactionEvent`: Data that defines a transaction event. Can be used to provide more context about the current state of the transaction.
 
 
-The following example shows how the [transactionCreate](developer/api-reference/mutations/transaction-create.mdx) mutation 
+The following example shows how the [transactionCreate](developer/api-reference/mutations/transaction-create.mdx) mutation
 is used to create a new transaction.
-The transaction has status authorized, payment was made with a credit card. The actions that can be called from Saleor are: `VOID` and `CHARGE`. 
+The transaction has status authorized, payment was made with a credit card. The actions that can be called from Saleor are: `VOID` and `CHARGE`.
 The authorized amount is $99.
 
 ```graphql
@@ -1592,9 +1592,9 @@ It takes the following arguments:
 - `transactionEvent`: Data that defines a transaction event. Can be used to provide more context about the current state of the transaction.
 
 
-The following example shows how the [transactionUpdate](developer/api-reference/mutations/transaction-create.mdx) mutation 
+The following example shows how the [transactionUpdate](developer/api-reference/mutations/transaction-create.mdx) mutation
 is used to update the transaction.
-The updated status of the transaction is `CHARGED`. The available action is `REFUND`. 
+The updated status of the transaction is `CHARGED`. The available action is `REFUND`.
 The authorized funds are charged, so `amountAuthorized` is 0. `amountCharged` is equal 99USD.
 
 ```graphql
@@ -1640,7 +1640,7 @@ A response would look like this:
 ```
 
 :::note
-During an update of transactions, all funds that go to a new state should be subtracted from the previous state. 
+During an update of transactions, all funds that go to a new state should be subtracted from the previous state.
 Assuming that we have a transaction with `authorizedAmount` equal to 100 USD. Moving the `authorizedAmount` to `chargedAmount` requires setting `authorizedAmount` to 0.
   ```graphql
   mutation {
