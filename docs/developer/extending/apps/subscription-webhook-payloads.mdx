@@ -3,14 +3,15 @@ title: Subscription Webhook Payloads
 ---
 
 :::note
-Subscription Webhook Payloads are available in Saleor 3.2.
+Subscription Webhook Payloads for **asynchronous** events are available in Saleor **3.2**.
+
+Subscription Webhook payloads for **synchronous** events are available in Saleor **3.6**.
 :::
 
 :::caution
 This feature is currently in **Feature Preview**. This part of Saleor is not complete
 and subject to change but is available to experiment and provide feedback.
 :::
-
 
 ## Custom payloads
 
@@ -23,16 +24,17 @@ building a GraphQL query you will be able to use prompts and build the whole sub
 Inside the query, you must define the event type for which the payload will be generated. The event type must be supported by our subscription mechanism (see the [list of supported events](developer/api-reference/unions/event.mdx)).
 
 :::warning
-Only asynchronous webhooks are able to use subscriptions at the moment. Synchronous webhooks will be supported in the future.
+When defining subscription payload for synchronous webhooks some fields are blocked to prevent circular calls.
+More info on which fields are not allowed can be found in Synchro0nous
 :::
 
 The example below is a subscription query that would enable listening to the `PRODUCT_UPDATED` event and requesting the products id and name in the webhook payload:
 
 ```graphql
-subscription{
-  event{
-    ...on ProductUpdated{
-      product{
+subscription {
+  event {
+    ... on ProductUpdated {
+      product {
         id
         name
       }
@@ -41,14 +43,12 @@ subscription{
 }
 ```
 
-
-
 ## Creating webhook with subscription query
 
 To create a webhook that will have its payload generated using subscription you need to use the same mutation as with standard webhooks. The only difference is passing `query` field as an input with subscription query converted to string.
 Webhook with `query` field defined will be treated as a subscription webhook and its payload will be generated from subscription query.
 
-Example webhook create mutation for subscription payload:
+Example **asynchronous** webhook create mutation for subscription payload:
 
 ```graphql
 mutation {
@@ -72,27 +72,66 @@ mutation {
 }
 ```
 
-
-Payload generated from subscription will have all the fields that you asked for, plus some meta fields.
-
-Example payload:
+Example **asynchronous** webhook payload:
 
 ```json
 {
-    "product": {
-      "id": "UHJvZHVjdDo3Ng==",
-      "name": "Coconut Juice"
-    },
-    "meta": {
-      "issuedAt": "2022-03-23T14:37:27.084275+00:00",
-      "version": "dev",
-      "issuingPrincipal": {
-        "id": "<id>",
-        "type": "user"
-      }
+  "product": {
+    "id": "UHJvZHVjdDo3Ng==",
+    "name": "Coconut Juice"
+  }
+}
+```
+
+Example **synchronous** webhook create mutation for subscription payload:
+
+```graphql
+mutation {
+  webhookCreate(
+    input: {
+      app: "<app_id>"
+      name: "test_payment_capture_subscription"
+      targetUrl: "<webhook_url>"
+      syncEvents: [PAYMENT_CAPTURE]
+      query: "subscription{event{...on PaymentCaptureEvent{payment{id created}}}}"
+    }
+  ) {
+    errors {
+      field
+      message
+    }
+    webhook {
+      id
     }
   }
+}
 ```
+
+Example **synchronous** webhook payload:
+
+```json
+{
+  "payment": {
+    "id": "UGF5bWVudDoyNDE=",
+    "created": "2022-08-03T08:52:04.202449+00:00"
+  }
+}
+```
+
+## Synchronous webhooks payload
+
+Defining synchronous webhooks payloads using subscriptions is also supported. Each event subscription type has access to its specific objects fields.
+Keep in mind that some fields that are using synchronous event to be resolved are not allowed to be called in synchronous webhook payload subscriptions.
+
+# Blocked fields for subscription payloads
+
+Synchronous events are not allowed to request fields that are resolved using other synchronous events, which would lead to circular calls of the webhook.
+Fields that are currently unallowed:
+
+| Object     | Fields                                                                    |
+| ---------- | ------------------------------------------------------------------------- |
+| `Checkout` | `shippingMethods`, `availableShippingMethods`, `availablePaymentGateways` |
+| `Order`    | `shippingMethods`, `availableShippingMethods`                             |
 
 ## Permissions
 
