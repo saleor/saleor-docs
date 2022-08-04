@@ -40,6 +40,176 @@ Depending on the chosen channel, the user will have access to different objects.
 
 If the checkout permission is assigned to the user, only this user and staff users with permission `MANAGE_CHECKOUTS` can query its data. Checkouts without assigned users can be queried modified using the token without additional permissions.
 
+## Address Validation
+The checkout's mutations that accept an address as an input have a field that can turn off the address validation. This allows assigning a partial or not fully valid address to the checkout. Providing country code is mandatory for all addresses regardless of the rules provided in this input.
+
+The address [validation](developer/api-reference/inputs/checkout-address-validation-rules.mdx) input has two boolean fields: 
+- `checkRequiredFields` - Determines if an error should be raised when the provided address doesn't have all the required fields. Set to `true` by default.
+- `checkFieldsFormat` - Determines if an error should be raised when the provided address doesn't match the expected format. Set to `true` by default.
+- `enableFieldsNormalization` - Determines if Saleor should apply normalization on address fields. Example: converting city field to uppercase letters. Set to `true` by default.
+
+#### checkoutCreate
+The [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation has an optional input for providing shipping and billing addresses. If you want to provide only a part of the address, you can disable the address validation.
+
+The mutation accepts [validationRules](developer/api-reference/inputs/checkout-validation-rules.mdx) as an [input](developer/api-reference/inputs/checkout-create-input.mdx) field.
+
+```graphql
+mutation {
+  checkoutCreate(
+    input: {
+      channel: "default-channel"
+      email: "customer@example.com"
+      lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjk3" }]
+      shippingAddress: { country: US }
+      billingAddress: { postalCode: "XX-YYY", country: US }
+      validationRules: {
+        shippingAddress: { checkRequiredFields: false }
+        billingAddress: { checkRequiredFields: false, checkFieldsFormat: false }
+      }
+    }
+  ) {
+    checkout {
+      id
+    }
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+The response contains the created checkout object:
+```json
+{
+  "data": {
+    "checkoutCreate": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6NGY1NjI1MDQtOWE2ZS00YjRjLWJiZWYtYmNjNDhkNWMwNDVj"
+      },
+      "errors": []
+    }
+  },
+}
+```
+
+
+#### CheckoutShippingAddressUpdate
+The [`checkoutShippingAddressUpdate`](developer/api-reference/mutations/checkout-shipping-address-update.mdx) mutation has an optional field for controlling the shipping address validation: [validationRules](developer/api-reference/inputs/checkout-address-validation-rules.mdx).
+
+```graphql
+mutation {
+  checkoutShippingAddressUpdate(
+    id: "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk"
+    shippingAddress: { postalCode: "12-333", country: PL }
+    validationRules: { checkRequiredFields: false }
+  ) {
+    errors {
+      field
+      message
+      code
+    }
+    checkout {
+      id
+      shippingAddress {
+        id
+        postalCode
+        firstName
+        lastName
+        country {
+          code
+        }
+      }
+    }
+  }
+}
+```
+
+The response contains the updated checkout object:
+```json
+{
+  "data": {
+    "checkoutShippingAddressUpdate": {
+      "errors": [],
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk",
+        "shippingAddress": {
+          "id": "QWRkcmVzczo4Mg==",
+          "postalCode": "12-333",
+          "firstName": "",
+          "lastName": "",
+          "country": {
+            "code": "PL"
+          }
+        }
+      }
+    }
+  },
+}
+```
+
+#### CheckoutBillingAddressUpdate
+The [`checkoutBillingAddressUpdate`](developer/api-reference/mutations/checkout-billing-address-update.mdx) mutation has an optional field for controlling the billing address validation: [validationRules](developer/api-reference/inputs/checkout-address-validation-rules.mdx).
+
+```graphql
+mutation {
+  checkoutBillingAddressUpdate(
+    id: "Q2hlY2tvdXQ6ZTM4NjMyYzItZTg5NS00ZjE4LTg3YTMtNjIwNGU0NzlmYjUw"
+    validationRules: { checkFieldsFormat: false, checkRequiredFields: false }
+    billingAddress: { country: GB, postalCode: "XX YYY" }
+  ) {
+    checkout {
+      id
+      billingAddress{
+        streetAddress1
+        city
+        cityArea
+        postalCode
+        country{
+          code
+        }
+        countryArea
+      }
+    }
+  }
+}
+```
+
+The response contains the updated checkout object:
+```json
+{
+  "data": {
+    "checkoutBillingAddressUpdate": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6ZTM4NjMyYzItZTg5NS00ZjE4LTg3YTMtNjIwNGU0NzlmYjUw",
+        "billingAddress": {
+          "streetAddress1": "",
+          "city": "",
+          "cityArea": "",
+          "postalCode": "XX YYY",
+          "country": {
+            "code": "GB"
+          },
+          "countryArea": ""
+        }
+      }
+    }
+  },
+}
+```
+
+:::note
+The information about address validation can be found on the [address validation](developer/address.mdx) page.
+:::
+
+:::note
+The shipping and billing addresses need to be valid, when finalizing checkout by calling [checkoutComplete](developer/api-reference/mutations/checkout-complete.mdx) mutation.
+:::
+
+:::note
+The fields of shipping and billing addresses will be normalized (if needed) when completing the checkout by calling [checkoutComplete](developer/api-reference/mutations/checkout-complete.mdx) mutation.
+:::
+
+
 ## Creating a checkout session
 
 :::note
@@ -62,6 +232,7 @@ This mutation takes the following [input](developer/api-reference/inputs/checkou
 - `shippingAddress`: the shipping address (if needed).
 - `billingAddress`: the billing address.
 - `lines`: a list of checkout lines, each checkout line contains a product variant ID and its quantity.
+- `validationRules`: the checkout validation rules that can be changed.
 
 As a result, this mutation returns the following fields:
 
