@@ -131,6 +131,7 @@ Below is the list of fields that webhook can return in the JSON response for a p
 
 - `action_required` - (boolean) determines if additional action (confirmation) is required.
 - `action_required_data` - (object) additional data that may be needed to confirm the payment. An example would be a URL to redirect the user to the confirmation page in the frontend.
+- `kind` - (string) Transaction kind, one of: action_to_confirm, auth, cancel, capture, capture_failed, confirm, external, pending, refund, refund_failed, refund_ongoing, refund_reversed, void.
 - `amount` - (number) transaction amount; use this field only if the charged amount is different than the checkout's total.
 - `customer_id` - (string) gateway's customer ID.
 - `error` - (string) error message; if provided, the transaction will be marked as failed in Saleor and payment will have to be retried. Use this field if you need to return any errors.
@@ -149,6 +150,25 @@ Example response for the `PAYMENT_PROCESS` event when confirmation is required:
   "action_required_data": {
     "confirmation_url": "https://www.example.com/3ds-confirmation/"
   },
+  "customer_id": "customer-1234",
+  "payment_method": {
+    "brand": "Visa",
+    "exp_month": "01",
+    "exp_year": "2025",
+    "last_4": "4242",
+    "name": "John Doe",
+    "type": "Credit card"
+  },
+  "transaction_id": "transaction-1234"
+}
+```
+
+Example response for the `PAYMENT_PROCESS` event when the payment should be authorized, but unpaid (e.g. to be captured in the dashboard):
+
+```json
+{
+  "action_required": false,
+  "kind": "auth",
   "customer_id": "customer-1234",
   "payment_method": {
     "brand": "Visa",
