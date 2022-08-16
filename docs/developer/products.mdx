@@ -473,7 +473,7 @@ Request:
 ```graphql {3,8-9}
 query {
   productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
-    quantityAvaible
+    quantityAvailable
     stocks {
       warehouse {
         slug
@@ -513,8 +513,87 @@ Response:
 }
 ```
 
-- `"quantityAvailable": 50`: customers only see maximum of 50 pcs available to buy
-- `stocks` contain full list of stock quantities in every of the warehouses
+- the `quantityAvailable` is a sum of stock quantities from all available stocks,
+  in this case, the sum is bigger than the `MAX_CHECKOUT_LINE_QUANTITY` so the maximum
+  value is returned - 50 pcs available to buy
+- `stocks` contain a full list of stock quantities in every of the warehouses
+
+:::note
+When the product has a track inventory turned off, the `quantityAvaible` will be always
+equal to `MAX_CHECKOUT_LINE_QUANTITY` value.
+:::
+
+### Getting the available quantity for the particular address
+
+The quantity available can be fetched for the given address. The returned quantity
+is the sum of the quantity from all stocks that are available in the shipping zone that
+support provided address. When the address is not provided the highest quantity
+from available shipping zones is returned.
+
+To get the `quantityAvailable` for a particular address use the `address` parameter:
+Request:
+
+```graphql {3-5}
+query {
+    productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
+    quantityAvailable(
+      address: {"country": "US"}
+    )
+    stocks {
+      warehouse {
+        slug
+      }
+      quantity
+      quantityAllocated
+    }
+  }
+}
+```
+
+Response:
+
+```json {4,10-11,17-18}
+{
+  "data": {
+    "productVariant": {
+      "quantityAvailable": 20,
+      "stocks": [
+        {
+          "warehouse": {
+            "slug": "europe"
+          },
+          "quantity": 30,
+          "quantityAllocated": 0
+        },
+        {
+          "warehouse": {
+            "slug": "americas"
+          },
+          "quantity": 20,
+          "quantityAllocated": 0
+        }
+      ]
+    }
+  }
+}
+```
+
+As a response we get the quantity 20 as the `americas` is the only warehouse that is
+available in the `US`.
+
+In the case when the address is not provided, the quantity for the shipping zone with
+the highest available quantity is returned.
+
+### Handling collection point warehouses in the quantity calculations
+
+The collection point warehouses are treated as a magic single-warehouse shipping zone.
+
+- In the case of a local collection point warehouse, the calculated quantity will be equal
+  to the quantity of this local warehouse.
+- In the case of a global collection point warehouse the quantity will be equal to the sum
+  of available quantity from all stocks that are available in the provided country code
+  and channel. When the country is not provided the quantity will be the sum of quantities
+  from all stocks that are available in the given channel, regardless of the shipping zone.
 
 ## Media
 
