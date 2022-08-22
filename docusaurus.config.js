@@ -23,8 +23,8 @@ module.exports = {
         homepage: "./template/api-reference.mdx",
         linkRoot: "../../../",
         loaders: {
-	  UrlLoader: "@graphql-tools/url-loader"
-	}
+          UrlLoader: "@graphql-tools/url-loader",
+        },
       },
     ],
     [
@@ -90,14 +90,8 @@ module.exports = {
         },
         {
           type: "docSidebar",
-          sidebarId: "dashboard",
-          label: "Dashboard Manual",
-          position: "left",
-        },
-        {
-          type: "docSidebar",
           sidebarId: "developer",
-          label: "Developer's Guide",
+          label: "Docs",
           position: "left",
         },
       ],
