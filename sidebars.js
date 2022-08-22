@@ -154,7 +154,6 @@ module.exports = {
     "developer/address",
     "developer/users",
     "developer/permissions",
-    "developer/metadata",
     "developer/thumbnails",
     "developer/api-conventions/translations",
     {
@@ -241,6 +240,7 @@ module.exports = {
           ],
         },
         "developer/extending/apollo-federation",
+        "developer/metadata",
       ],
     },
     {
