@@ -68,7 +68,11 @@ module.exports = {
   },
   developer: [
     "developer",
-    "developer/getting-started/architecture",
+    {
+      type: "category",
+      label: "Overview",
+      items: ["developer/getting-started/architecture"],
+    },
     {
       type: "category",
       label: "Guides",
