@@ -79,7 +79,7 @@ module.exports = {
       items: [
         {
           type: "category",
-          label: "Running Saleor",
+          label: "Local development",
           items: [
             {
               type: "category",
@@ -114,6 +114,15 @@ module.exports = {
                 "developer/upgrade-guide/3-1-to-3-2",
                 "developer/upgrade-guide/3-0-to-3-1",
                 "developer/upgrade-guide/2-11-to-3-0",
+              ],
+            },
+            {
+              type: "category",
+              label: "Community",
+              items: [
+                "developer/community/contributing",
+                "developer/community/faq",
+                "developer/community/support",
               ],
             },
           ],
@@ -237,16 +246,6 @@ module.exports = {
           ],
         },
         "developer/extending/apollo-federation",
-      ],
-    },
-
-    {
-      type: "category",
-      label: "Community",
-      items: [
-        "developer/community/contributing",
-        "developer/community/faq",
-        "developer/community/support",
       ],
     },
     {
