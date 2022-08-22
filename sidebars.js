@@ -1,71 +1,4 @@
 module.exports = {
-  dashboard: {
-    "Dashboard Manual": [
-      "dashboard/index",
-      "dashboard/before-you-start",
-      "dashboard/using-saleor",
-      "dashboard/home",
-      "dashboard/channels",
-      {
-        type: "category",
-        label: "Catalog",
-        items: [
-          "dashboard/catalog/intro",
-          "dashboard/catalog/products",
-          "dashboard/catalog/categories",
-          "dashboard/catalog/collections",
-          "dashboard/catalog/gift-cards",
-        ],
-      },
-      "dashboard/orders",
-      "dashboard/customers",
-      {
-        type: "category",
-        label: "Discounts",
-        items: ["dashboard/discounts/sales", "dashboard/discounts/vouchers"],
-      },
-      "dashboard/apps",
-      "dashboard/translations",
-      {
-        type: "category",
-        label: "Configuration",
-        items: [
-          "dashboard/configuration/intro",
-          "dashboard/configuration/attributes",
-          "dashboard/configuration/products",
-          "dashboard/configuration/shipping",
-          "dashboard/configuration/warehouses",
-          "dashboard/configuration/taxes",
-          "dashboard/configuration/staff",
-          "dashboard/configuration/permission-groups",
-          "dashboard/configuration/navigation",
-          "dashboard/configuration/site",
-          "dashboard/configuration/page-types",
-          "dashboard/configuration/channels",
-          "dashboard/configuration/pages",
-          {
-            type: "category",
-            label: "Plugins",
-            items: [
-              "dashboard/configuration/plugins/introduction",
-              "dashboard/configuration/plugins/adyen",
-              "dashboard/configuration/plugins/oidc",
-              "dashboard/configuration/plugins/stripe",
-              "dashboard/configuration/plugins/np-atobarai",
-            ],
-          },
-        ],
-      },
-      {
-        type: "category",
-        label: "Systemwide features",
-        items: [
-          "dashboard/systemwide/introduction",
-          "dashboard/systemwide/gdpr",
-        ],
-      },
-    ],
-  },
   developer: [
     "developer",
     {
@@ -130,6 +63,83 @@ module.exports = {
       ],
     },
 
+    {
+      type: "category",
+      label: "Dashboard Manual",
+      link: {
+        type: "doc",
+        id: "dashboard/index",
+      },
+      items: [
+        [
+          "dashboard/before-you-start",
+          "dashboard/using-saleor",
+          "dashboard/home",
+          "dashboard/channels",
+          {
+            type: "category",
+            label: "Catalog",
+            items: [
+              "dashboard/catalog/intro",
+              "dashboard/catalog/products",
+              "dashboard/catalog/categories",
+              "dashboard/catalog/collections",
+              "dashboard/catalog/gift-cards",
+            ],
+          },
+          "dashboard/orders",
+          "dashboard/customers",
+          {
+            type: "category",
+            label: "Discounts",
+            items: [
+              "dashboard/discounts/sales",
+              "dashboard/discounts/vouchers",
+            ],
+          },
+          "dashboard/apps",
+          "dashboard/translations",
+          {
+            type: "category",
+            label: "Configuration",
+            items: [
+              "dashboard/configuration/intro",
+              "dashboard/configuration/attributes",
+              "dashboard/configuration/products",
+              "dashboard/configuration/shipping",
+              "dashboard/configuration/warehouses",
+              "dashboard/configuration/taxes",
+              "dashboard/configuration/staff",
+              "dashboard/configuration/permission-groups",
+              "dashboard/configuration/navigation",
+              "dashboard/configuration/site",
+              "dashboard/configuration/page-types",
+              "dashboard/configuration/channels",
+              "dashboard/configuration/pages",
+              {
+                type: "category",
+                label: "Plugins",
+                items: [
+                  "dashboard/configuration/plugins/introduction",
+                  "dashboard/configuration/plugins/adyen",
+                  "dashboard/configuration/plugins/oidc",
+                  "dashboard/configuration/plugins/stripe",
+                  "dashboard/configuration/plugins/np-atobarai",
+                ],
+              },
+            ],
+          },
+          {
+            type: "category",
+            label: "Systemwide features",
+            items: [
+              "dashboard/systemwide/introduction",
+              "dashboard/systemwide/gdpr",
+            ],
+          },
+        ],
+      ],
+    },
     {
       type: "category",
       label: "GraphQL",
