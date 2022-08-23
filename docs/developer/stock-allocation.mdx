@@ -18,6 +18,8 @@ to provide the expected allocation. Below you can find the explanation of the te
   can be defined as the collection point
 - stock - corresponds to resources of specific product variant in the given warehouse
 - allocation - corresponds to the currently allocated stocks for a given order line
+- allocation strategy - defines the preferences of warehouses for stock allocation
+  and reservations
 
 The relations between the mentioned entities are shown in the chart below:
 
@@ -41,13 +43,34 @@ classDiagram
     class Warehouse{
       click_and_collect_option: String
     }
+    class Channel{
+      allocationStrategy: String
+    }
 ```
+
+### Allocation strategies
+
+The allocation strategies allow defining the rule that is used during the stock
+allocation. At this moment two possible options are available:
+
+- Prioritize warehouses by sorting order (`PRIORITIZE_SORTING_ORDER`) - allocate stocks
+  according to the warehouses' order within the channel. If stock is insufficient,
+  the remaining quantity is allocated in the next warehouse on the list
+  and repeated if necessary.
+  To change the warehouses' order within the channel, use `channelReorderWarehouses` mutation.
+- Prioritize warehouses with highest stock (`PRIORITIZE_HIGH_STOCK`) - allocate stock
+  in a warehouse with the most stock. If not enough stock is available in a single
+  warehouse, the remaining quantity is allocated in the next warehouse on the list
+  and repeated if necessary.
+  In this scenario, the warehouses' order within the channel is ignored.
 
 ## Allocation flow
 
-Stocks are allocated in the checkout completion process for all lines
-with track inventory turned on. The allocation is made for every line
-on stocks with the highest quantity available value. Multiple allocations are created when there is insufficient available quantity in one stock. Insufficient quantity in all product stocks raises the `InsufficientStock` error.
+Stocks are allocated in the checkout completion process, for all lines
+that have track inventory turned on. The allocation is made for every line
+according to the allocation strategy in the given channel.
+Multiple allocations are created when there is insufficient available quantity in one stock.
+Insufficient quantity in all product stocks raises the `InsufficientStock` error.
 
 The line can be allocated only in the stocks that fulfill the following conditions:
 
