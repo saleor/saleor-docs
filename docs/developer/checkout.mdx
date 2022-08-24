@@ -4,13 +4,13 @@ title: Cart and Checkout
 
 ## Introduction
 
-The below process describes the key milestones in the checkout process flow in Saleor. There are also additional steps that may occur along the way; however, the purpose of this instruction is to deliver a base reference for the user to work with. We assume that at this stage, you have already completed the steps included in the [Getting Started](getting-started/graphql.mdx) section of this chapter and that you are familiar with the basic setup of the Saleor GraphQL API.
+The below process describes the key milestones in the checkout process flow in Saleor. Additional steps may also occur along the way; however, the purpose of this instruction is to deliver a base reference for the user to work with. We assume that at this stage, you have already completed the steps included in the [GraphQL](getting-started/graphql.mdx) section of this chapter and that you are familiar with the basic setup of the Saleor GraphQL API.
 
-The code snippets included in this section may be run in [Playground](getting-started/graphql) or your preferred HTTP client.
+You can run the code snippets in this section in the [Playground](getting-started/graphql) or your preferred HTTP client.
 
 ### Why is there no cart model?
 
-Saleor has no separated object type for shopping carts and checkouts. We wanted the same features—like discounts, vouchers, address-specific taxes, and shipping estimates—to be available in the cart and the checkout, so we've decided to use the same object type for both.
+Saleor has no distinct object type for shopping carts and checkouts. We wanted the same features—like discounts, vouchers, address-specific taxes, and shipping estimates—to be available in the cart and the checkout, so we've decided to use the same object type for both.
 Checkout provides the interface for standard cart operations like adding products or promo codes. It can also be completed in almost any order, for example, saving a billing address before adding any items.
 
 ### Glossary
@@ -38,17 +38,20 @@ Depending on the chosen channel, the user will have access to different objects.
 
 ## Permissions
 
-If the checkout permission is assigned to the user, only this user and staff users with permission `MANAGE_CHECKOUTS` can query its data. Checkouts without assigned users can be queried modified using the token without additional permissions.
+If the user is assigned the checkout permission, only this user and staff users with permission `MANAGE_CHECKOUTS` can query its data. Checkouts without assigned users can be queried and modified using the token without additional permissions.
 
 ## Address Validation
-The checkout's mutations that accept an address as an input have a field that can turn off the address validation. This allows assigning a partial or not fully valid address to the checkout. Providing country code is mandatory for all addresses regardless of the rules provided in this input.
+
+The checkout's mutations that accept an address as an input have a field that can turn off the address validation. It allows assigning a partial or not fully valid address to the checkout. Providing country code is mandatory for all addresses regardless of the rules provided in this input.
 
 The address [validation](developer/api-reference/inputs/checkout-address-validation-rules.mdx) input has two boolean fields:
+
 - `checkRequiredFields` - Determines if an error should be raised when the provided address doesn't have all the required fields. Set to `true` by default.
 - `checkFieldsFormat` - Determines if an error should be raised when the provided address doesn't match the expected format. Set to `true` by default.
 - `enableFieldsNormalization` - Determines if Saleor should apply normalization on address fields. Example: converting city field to uppercase letters. Set to `true` by default.
 
 #### checkoutCreate
+
 The [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation has an optional input for providing shipping and billing addresses. If you want to provide only a part of the address, you can disable the address validation.
 
 The mutation accepts [validationRules](developer/api-reference/inputs/checkout-validation-rules.mdx) as an [input](developer/api-reference/inputs/checkout-create-input.mdx) field.
@@ -78,7 +81,9 @@ mutation {
   }
 }
 ```
+
 The response contains the created checkout object:
+
 ```json
 {
   "data": {
@@ -88,12 +93,12 @@ The response contains the created checkout object:
       },
       "errors": []
     }
-  },
+  }
 }
 ```
 
-
 #### CheckoutShippingAddressUpdate
+
 The [`checkoutShippingAddressUpdate`](developer/api-reference/mutations/checkout-shipping-address-update.mdx) mutation has an optional field for controlling the shipping address validation: [validationRules](developer/api-reference/inputs/checkout-address-validation-rules.mdx).
 
 ```graphql
@@ -125,6 +130,7 @@ mutation {
 ```
 
 The response contains the updated checkout object:
+
 ```json
 {
   "data": {
@@ -143,11 +149,12 @@ The response contains the updated checkout object:
         }
       }
     }
-  },
+  }
 }
 ```
 
 #### CheckoutBillingAddressUpdate
+
 The [`checkoutBillingAddressUpdate`](developer/api-reference/mutations/checkout-billing-address-update.mdx) mutation has an optional field for controlling the billing address validation: [validationRules](developer/api-reference/inputs/checkout-address-validation-rules.mdx).
 
 ```graphql
@@ -159,12 +166,12 @@ mutation {
   ) {
     checkout {
       id
-      billingAddress{
+      billingAddress {
         streetAddress1
         city
         cityArea
         postalCode
-        country{
+        country {
           code
         }
         countryArea
@@ -175,6 +182,7 @@ mutation {
 ```
 
 The response contains the updated checkout object:
+
 ```json
 {
   "data": {
@@ -193,7 +201,7 @@ The response contains the updated checkout object:
         }
       }
     }
-  },
+  }
 }
 ```
 
@@ -202,13 +210,12 @@ The information about address validation can be found on the [address validation
 :::
 
 :::note
-The shipping and billing addresses need to be valid, when finalizing checkout by calling [checkoutComplete](developer/api-reference/mutations/checkout-complete.mdx) mutation.
+The shipping and billing addresses need to be valid when finalizing checkout by calling [checkoutComplete](developer/api-reference/mutations/checkout-complete.mdx) mutation.
 :::
 
 :::note
 The fields of shipping and billing addresses will be normalized (if needed) when completing the checkout by calling [checkoutComplete](developer/api-reference/mutations/checkout-complete.mdx) mutation.
 :::
-
 
 ## Creating a checkout session
 
@@ -220,7 +227,9 @@ A [`Checkout`](developer/api-reference/objects/checkout.mdx) object can be creat
 - If no authentication token is provided, the checkout is created for an anonymous user,
   and an email address is used to identify such a [`Checkout`](developer/api-reference/objects/checkout.mdx) object,
   linking it with the anonymous user.
-  User email is not required at this stage but must be provided before adding a promo code, creating a payment, and completing checkout. :::
+  User email is not required at this stage but must be provided before adding a promo code, creating a payment, and completing checkout.
+
+:::
 
 To create a [`Checkout`](developer/api-reference/objects/checkout.mdx) object, use the [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation.
 
@@ -233,8 +242,6 @@ This mutation takes the following [input](developer/api-reference/inputs/checkou
 - `lines`: a list of checkout lines, each checkout line contains a product variant ID and its quantity.
 - `validationRules`: the checkout validation rules that can be changed.
 
-As a result, this mutation returns the following fields:
-
 The resulting [`Checkout`](developer/api-reference/objects/checkout.mdx) object contains the following fields:
 
 - `id`: a unique checkout ID.
@@ -245,7 +252,7 @@ The resulting [`Checkout`](developer/api-reference/objects/checkout.mdx) object 
 - `shippingMethods`: a list of all shipping methods for this checkout. If the items in the cart require shipment.
 - `availableCollectionPoints`: a list of available places of self-pickup. It is calculated based on the given country and available Stocks (for Warehouses which `clickAndCollectOption` field is not set to `DISABLED`). For further Click & Collect feature explanation see [Warehouse settings](dashboard/configuration/warehouses.mdx#clickcollect-related-settings).
 
-In addition the following fields are available on the mutation results:
+In addition, the following fields are available in the mutation results:
 
 - `created`: a boolean flag indicating whether a new checkout object was created, or an existing one was used.
 - `errors`: a list of errors that occurred during mutation execution.
@@ -588,18 +595,18 @@ If the variant is already added to the checkout and exists in more than one line
 
 :::
 
-### Updating line
+### Updating a line
 
-To modify line, use [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx).
+To modify a line, use [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx).
 
-Currently, [CheckoutLineUpdateInput](api-reference/inputs/checkout-line-update-input) supports `variantId` and `lineId` parameters to operate on selected line object.
+Currently, [CheckoutLineUpdateInput](api-reference/inputs/checkout-line-update-input) supports `variantId` and `lineId` parameters to operate on the selected line object.
 The version `3.6` featured [adding the same product to multiple lines](checkout#adding-same-product-to-multiple-lines). Since then, we recommend using the `lineId` parameter, as `variantId` will be deprecated in the future.
 
 :::caution
 
 Is not allowed to use `variantId` and `lineId` in the same line input.
 
-If the `variantId` parameter is used in line input and the variant exists in multiple lines, [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx) will return an error. In that case, it is required to use `lineId`.
+If the `variantId` parameter is used in line input and the variant exists in multiple lines, [checkoutLinesUpdate](developer/api-reference/mutations/checkout-lines-update.mdx) will return an error. In that case, you are required to use `lineId`.
 
 :::
 
@@ -693,9 +700,9 @@ mutation {
 
 ### Setting custom prices for checkout items
 
-The variant price of the item in checkout can be overridden with any value.
-The overridden price is treated as the base price of a variant.
-If the voucher or sale is applied on checkout, the price will be reduced.
+You can override the variant price of the item in checkout with any value.
+The overridden price will be treated as the base price of a variant.
+If you apply a voucher or sale in checkout, it will reduce the price.
 
 :::note
 This feature is only available for apps with `HANDLE_CHECKOUTS` permission.
@@ -748,8 +755,7 @@ mutation {
 }
 ```
 
-As a response, we get an updated checkout with the new price. As the given variant
-already was in the checkout, the quantity was incremented and the price was overridden.
+As a response, we get an updated checkout with the new price. As the given variant was already in the checkout, the quantity was incremented, and the price was overridden.
 
 ```json
 {
@@ -784,7 +790,7 @@ already was in the checkout, the quantity was incremented and the price was over
 
 ## Stock reservations
 
-While stock availability is checked on every step of the checkout process no guarantee is made to the client that stock will not be sold out before checkout completion. In case when item with limited stock was added to multiple checkouts, it will be allocated to first completed checkout causing remaining checkouts to fail to advance to the next step even if they were created before the completed one, with the `INSUFFICIENT_STOCK` error being returned by the API.
+While stock availability is checked at every step of the checkout process, no guarantee is made to the client that stock will not be sold out before checkout completion. In case an item with limited stock was added to multiple checkouts, it will be allocated to the first completed checkout. As a result, it will cause remaining checkouts to fail to advance to the next step even if they had been created before the completed one. The API will return the `INSUFFICIENT_STOCK` error.
 
 Saleor implements optional stock reservations feature where stock will be eagerly allocated to the checkout for configured time.
 
@@ -796,13 +802,13 @@ To disable stock reservations, clear both controls.
 
 ### Mechanism of action
 
-If user A adds last two items to their checkout, those two items will become purchaseable only by them for given time.
+If user A adds the last two items to their checkout, those two items will become purchasable only by them for a given time.
 
-Those two items will also be subtracted from the available quantity displayed to other users on store, giving them immediate feedback that item they are interested in is currently not available, preventing them from adding this item to their own checkouts.
+Those two items will also be subtracted from the available quantity displayed to other users in the store, giving them immediate feedback that the item they are interested in is currently unavailable, preventing them from adding this item to their checkouts.
 
-If user A completes their checkout within the given time, temporary allocation will be converted into a permanent one. But if they don't complete their stock within the time limit, their stock reservation will expire and the two items in their checkout will become available for other users to add to their own checkouts.
+If user A completes their checkout within the given time, the temporary allocation will be converted into a permanent one. But if they don't complete their stock within the time limit, their stock reservation will expire, and the two items in their checkout will become available for other users to add to their checkouts.
 
-If no other user will add this item to their checkout user A will still be able to complete their checkout. But if other user adds one or two items to their checkout, new reservation will be created for them, reducing quantity available to other users and preventing user A from completing their checkout.
+If no other user adds this item to their checkout, user A will still be able to complete their checkout. But suppose another user adds one or two items to their checkout. In that case, a new reservation will be created for them, reducing the quantity available to other users and preventing user A from completing their checkout.
 
 ### Testing checkout for reservations
 
@@ -972,9 +978,9 @@ This operation requires the following input:
 - `token`: the checkout token (the `token` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
 - `deliveryMethodId`: the shipping method ID or Warehouse ID (from the `shippingMethods` or `availableCollectionPoints` field of the [`Checkout`](developer/api-reference/objects/checkout.mdx) object).
 
-In the following mutation, we assign a delivery method to the checkout using IDs from the previous example. Note that for the checkout object we want to get back the update `totalPrice` including shipping costs:
+In the following mutation, we assign a delivery method to the checkout using IDs from the previous example. Note that for the checkout object, we want to get back the update `totalPrice` including shipping costs:
 
-Please note, that selecting `collectionPoint` or `shippingMethod` is mandatory for checkout flow. In other words, setting `deliveryMethod` is mandatory.
+Please note, that selecting `collectionPoint` or `shippingMethod` is mandatory for the checkout flow. In other words, setting `deliveryMethod` is mandatory.
 
 ```graphql {2-5}
 mutation {
@@ -1061,7 +1067,7 @@ mutation {
 }
 ```
 
-As a result, we get an updated checkout object with new checkout email set:
+As a result, we get an updated checkout object with the new checkout email set:
 
 ```json {6}
 {
@@ -1079,11 +1085,11 @@ As a result, we get an updated checkout object with new checkout email set:
 
 ## Finalizing checkout with Saleor's payment gateways
 
-The payment flow uses a Saleor's payment gateway or payment synchronous webhooks to process a payment.
+The payment flow uses the Saleor's payment gateway or payment synchronous webhooks to process a payment.
 
 ### Payment
 
-Depending on the selected payment gateway, you will either use the payment provider's form which can be integrated with Saleor, or the payment gateway will direct you to an external payment page. The payment gateway returns information if the payment is successful, along with tokenized credit card payment information. This token is then used to run the [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation.
+Depending on the selected payment gateway, you will use the payment provider's form, which can be integrated with Saleor or be redirected to an external payment page. The payment gateway returns information if the payment is successful, along with tokenized credit card payment information. This token is then used to run the [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation.
 
 ```mermaid
 sequenceDiagram
@@ -1153,7 +1159,7 @@ Response:
 
 The [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation takes the following arguments:
 
-- `token`: the checkout token (if required by payment gateway).
+- `token`: the checkout token (if required by a payment gateway).
 
 - `input`: [PaymentInput](developer/api-reference/inputs/payment-input.mdx) object:
   - `gateway`: the ID of the selected payment gateway (list of the available payment gateways can be fetched from the `Checkout.availablePaymentGateways` field). The selected gateway must support the checkout currency.
@@ -1503,6 +1509,7 @@ As a result, we get an order object:
 ```
 
 ### Creating transaction
+
 :::info
 
 This feature was introduced in **Saleor 3.4**.
@@ -1518,16 +1525,15 @@ and subject to change but is available to experiment and provide feedback.
 
 Transaction stores details of payment transaction attached to order or checkout.
 
-
 The [transactionCreate](developer/api-reference/mutations/transaction-create.mdx) mutation takes the following arguments:
+
 - `id`: The ID of the checkout or order.
 - `transaction`: Input data required to create a new transaction object.
 - `transactionEvent`: Data that defines a transaction event. Can be used to provide more context about the current state of the transaction.
 
-
 The following example shows how the [transactionCreate](developer/api-reference/mutations/transaction-create.mdx) mutation
 is used to create a new transaction.
-The transaction has status authorized, payment was made with a credit card. The actions that can be called from Saleor are: `VOID` and `CHARGE`.
+The transaction has status authorized, and payment was made with a credit card. The actions that can be called from Saleor are: `VOID` and `CHARGE`.
 The authorized amount is $99.
 
 ```graphql
@@ -1555,6 +1561,7 @@ mutation {
 ```
 
 A response would look like this:
+
 ```json
 {
   "data": {
@@ -1572,7 +1579,9 @@ A response would look like this:
   }
 }
 ```
+
 ### Updating transaction
+
 :::info
 
 This feature was introduced in **Saleor 3.4**.
@@ -1585,12 +1594,12 @@ This feature is currently in **Feature Preview**. This part of Saleor is not com
 and subject to change but is available to experiment and provide feedback.
 
 :::
-The [transactionUpdate](developer/api-reference/mutations/transaction-update.mdx) mutation allows to update a details of transaction.
+The [transactionUpdate](developer/api-reference/mutations/transaction-update.mdx) mutation allows to update the details of the transaction.
 It takes the following arguments:
+
 - `id`: The ID of the transaction.
 - `transaction`: Input data that will be used to update transaction object.
 - `transactionEvent`: Data that defines a transaction event. Can be used to provide more context about the current state of the transaction.
-
 
 The following example shows how the [transactionUpdate](developer/api-reference/mutations/transaction-create.mdx) mutation
 is used to update the transaction.
@@ -1621,6 +1630,7 @@ mutation {
 ```
 
 A response would look like this:
+
 ```json
 {
   "data": {
@@ -1640,34 +1650,36 @@ A response would look like this:
 ```
 
 :::note
-During an update of transactions, all funds that go to a new state should be subtracted from the previous state.
+During the update of transactions, all funds that go to a new state should be subtracted from the previous state.
 Assuming that we have a transaction with `authorizedAmount` equal to 100 USD. Moving the `authorizedAmount` to `chargedAmount` requires setting `authorizedAmount` to 0.
-  ```graphql
-  mutation {
-    transactionUpdate(
-      id: "VHJhbnNhY3Rpb25JdGVtOjE="
-      transaction: {
-        status: "Charged"
-        availableActions: [REFUND]
-        amountAuthorized: { currency: "USD", amount: 0 },
-        amountCharged: { currency: "USD", amount: 100 },
-      }
-      transactionEvent: {
-        status: SUCCESS
-        name: "Charged credit card"
-        reference: "PSP-ref123.charge"
-      }
-    ) {
-      transaction {
-        id
-      }
+
+```graphql
+mutation {
+  transactionUpdate(
+    id: "VHJhbnNhY3Rpb25JdGVtOjE="
+    transaction: {
+      status: "Charged"
+      availableActions: [REFUND]
+      amountAuthorized: { currency: "USD", amount: 0 }
+      amountCharged: { currency: "USD", amount: 100 }
+    }
+    transactionEvent: {
+      status: SUCCESS
+      name: "Charged credit card"
+      reference: "PSP-ref123.charge"
+    }
+  ) {
+    transaction {
+      id
     }
   }
-  ```
+}
+```
+
 :::
 
-
 ### Handling an action request for a transaction
+
 :::info
 
 This feature was introduced in **Saleor 3.4**.
@@ -1681,7 +1693,7 @@ and subject to change but is available to experiment and provide feedback.
 
 :::
 
-An action request is called when a staff user or an app triggers a request of an action that should be called for a given transaction.
+An action request is called when a staff user or an app triggers a request for an action that should be called for a given transaction.
 If your app should also process payment request actions (like charge, refund, or void) triggered by staff users on the
 Saleor dashboard side or by the app, make sure that your app is subscribed to the
 [transaction-action-request](developer/extending/apps/sample-webhook-payloads.mdx#transaction-action-request) webhook.
@@ -1702,11 +1714,11 @@ sequenceDiagram
     Saleor -->>- App: Updated transaction
 ```
 
-
 ## Removing old checkouts
 
 In order not to overload the database, unfinished checkouts are deleted.
-Anonymous and unfinished checkouts are deleted after a specified period of time from its last modification:
+Anonymous and unfinished checkouts are deleted after a specified time from their last modification:
+
 - anonymous checkouts (neither user and email are set) after 30 days,
 - user checkouts (user or email set) after 90 days,
 - checkouts without lines after 6 hours.
