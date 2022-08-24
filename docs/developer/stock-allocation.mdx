@@ -48,6 +48,22 @@ classDiagram
     }
 ```
 
+## Allocation flow
+
+Stocks are allocated in the checkout completion process, for all lines
+that have track inventory turned on. The allocation is made for every line
+according to the [allocation strategy](#allocation-strategies) in the given channel.
+Multiple allocations are created when there is insufficient available quantity in one stock.
+Insufficient quantity in all product stocks raises the `InsufficientStock` error.
+
+The line can be allocated only in the stocks that fulfill the following conditions:
+
+- the stock's warehouse is available in the channel in which the order is created
+- the stock's warehouse has a shipping zone that includes the shipping address
+  (or billing address if the shipping address is not set) country code
+  and this shipping zone is available in the channel in which the order is created
+- the stock has available quantities
+
 ### Allocation strategies
 
 The allocation strategies allow defining the rule that is used during the stock
@@ -62,7 +78,7 @@ allocation. At this moment two possible options are available:
 - Prioritize warehouses with highest stock (`PRIORITIZE_HIGH_STOCK`) - allocate stock
   in a warehouse with the most stock. If not enough stock is available in a single
   warehouse, the remaining quantity is allocated in the next warehouse on the list
-  and repeated if necessary.
+  and continues to the next one if necessary.
   In this scenario, the warehouses' order within the channel is ignored.
 
 ## Allocation flow
