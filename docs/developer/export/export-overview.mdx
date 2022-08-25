@@ -3,14 +3,16 @@ title: Exporting Data
 ---
 
 ## Introduction
-This guide describes information common to all exports.
-At this time only products and gift cards export is available.
+
+This guide gives information common to all exports.
+At this time, only the export of products and gift cards is available.
 
 ### Workflow
 
 #### Schedule export
-The chart below describes how the workflow looks like for each export.
-What changes for each export is a mutation and background worker that is adapted to the data type.
+
+The chart below describes what the workflow looks like for each export.
+The changes for each export involve the mutation and the background worker adapted to the data type.
 
 ```mermaid
 sequenceDiagram
@@ -22,8 +24,9 @@ sequenceDiagram
 ```
 
 #### Handling background worker result
-Background worker result is also handling in the same way for all workers.
-The below chart shows what happens in the case of success and failed worker results.
+
+Background worker result is also handled in the same way for all workers.
+The chart below shows what happens in case of the successful and failed worker results.
 
 ```mermaid
 graph TD
@@ -38,43 +41,44 @@ graph TD
 ```
 
 ### Mutations
-The input data for the mutations may differ a little, but all of them return the same
-data type: `ExportFile` object which is a `Job` instance.
-It corresponds to running export background worker, keeps task status, and created file.
+
+The input data for the mutations may differ insignificantly, but all of them return the same data type: the `ExportFile` object, being a `Job` instance.
+It corresponds to running the export background worker, keeping task status, and creating a file.
 `ExportFile` object contains the following fields:
+
 - `id`: a unique export file ID. Could be use to check export status.
-- `status`: status of running job.
+- `status`: status of running the job.
 - `user`: instance of `User` who requested exporting products.
-Set to `null` if export requested by `App`.
+  Set to `null` if export requested by `App`.
 - `app`: instance of `App` which requested exporting products.
-Set to `null` if export requested by `User`.
+  Set to `null` if export requested by `User`.
 - `createdAt`: the date and time when the export was started.
 - `updatedAt`: the date and time when the job was last time updated.
 - `url`: URL to the exported file. Set to `null` when the file doesn't exist yet.
 - `events`: a list of events associated with the export.
 
-In addition the following field is available on the eery mutation results:
+In addition, the following field is available on every mutation result:
+
 - `errors`: a list of errors that occurred during mutation execution.
 
-
 ### Fetching `ExportFile` instance
-Export is doing in asynchronously worker so as a result you might get export file instance
-with `PENDING` status. To check if task status has changed you can fetch `ExportFile` 
-by `ID` with use of `exportFile` query:
+
+Export is done in the asynchronous worker, so as a result, you might get an export file instance with a `PENDING` status. To check if the task status has changed, you can fetch `ExportFile` by `ID` with the use of `exportFile` query:
 
 ```graphql {2}
-  query {
-    exportFile(id: "RXhwb3J0RmlsZToxMA==") {
-      id
-      status
-      createdAt
-      updatedAt
-      url
-    }
+query {
+  exportFile(id: "RXhwb3J0RmlsZToxMA==") {
+    id
+    status
+    createdAt
+    updatedAt
+    url
   }
+}
 ```
 
-Example response with URL address to the file.
+Example response with the URL address to the file.
+
 ```json
 {
   "data": {
