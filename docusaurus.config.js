@@ -1,3 +1,4 @@
+require("dotenv").config();
 const path = require("path");
 
 module.exports = {
@@ -23,8 +24,8 @@ module.exports = {
         homepage: "./template/api-reference.mdx",
         linkRoot: "../../../",
         loaders: {
-	  UrlLoader: "@graphql-tools/url-loader"
-	}
+          UrlLoader: "@graphql-tools/url-loader",
+        },
       },
     ],
     [
@@ -198,4 +199,7 @@ module.exports = {
       },
     ],
   ],
+  customFields: {
+    sentryDSN: process.env.SENTRY_DSN,
+  },
 };
