@@ -4,7 +4,7 @@ title: Address Validation
 
 ## Introduction
 
-Address format varies between each country. Saleor has a backend side validation library that helps you to gather data required by postal services.
+Address format varies between each country. Saleor has a backend validation library that helps you gather data required by postal services.
 
 :::note
 
@@ -13,6 +13,7 @@ Validation is only performed on the format of address data. To check if the addr
 :::
 
 ## Validation rules
+
 Using the [addressValidationRules](developer/api-reference/queries/address-validation-rules.mdx) query, API clients can fetch validation rules depending on the selected country. Based on the ruleset, some address fields can be hidden (e.g. `countryArea`).
 Saleor Core uses [Google i18n address](https://github.com/mirumee/google-i18n-address) under the hood, with a ruleset from [Google Address Data](https://chromium-i18n.appspot.com/ssl-address).
 
@@ -42,22 +43,18 @@ Response:
         "companyName",
         "name"
       ],
-      "requiredFields": [
-        "streetAddress1",
-        "city",
-        "postalCode"
-      ],
+      "requiredFields": ["streetAddress1", "city", "postalCode"],
       "countryAreaType": "province"
     }
   }
 }
 ```
 
-Depending on the country, not all `allowedFields` fields are necessary. Nevertheless, additional info could be helpful for postal services.
+Depending on the country, not all `allowedFields` fields are necessary. Nevertheless, additional info can be helpful for postal services.
 
-## Setting up an address using API
+## Setting up the address using the API
 
-As example of address validation API, we are going to set the billing address in the checkout. An operation can be made with [checkoutBillingAddressUpdate](developer/api-reference/mutations/checkout-billing-address-update.mdx):
+As an example of the address validation API, we will set the billing address in the checkout. The operation can be made with [checkoutBillingAddressUpdate](developer/api-reference/mutations/checkout-billing-address-update.mdx):
 
 ```graphql
 mutation {
@@ -90,7 +87,8 @@ mutation {
 }
 ```
 
-Successful response: 
+Successful response:
+
 ```json
 {
   "data": {
@@ -116,12 +114,15 @@ Let's create an example of address validation errors. The address below is missi
 
 ```graphql
 mutation {
-  checkoutBillingAddressUpdate(billingAddress:{
-    country:PL,
-    firstName: "John",
-    lastName: "Smith",
-    postalCode: "Wrong Code"
-  }, token: "58f4ca17-9c6f-437b-8204-beb47bbee364"){
+  checkoutBillingAddressUpdate(
+    billingAddress: {
+      country: PL
+      firstName: "John"
+      lastName: "Smith"
+      postalCode: "Wrong Code"
+    }
+    token: "58f4ca17-9c6f-437b-8204-beb47bbee364"
+  ) {
     errors {
       field
       message
@@ -166,5 +167,5 @@ Response:
 
 Each field is validated separately, and each issue has a corresponding error code:
 
-- `postalCode` with a wrong format throws the `INVALID` error 
-- missing fields mentioned in `requiredFields` throws the `REQUIRED` error
+- `postalCode` with the wrong format throws the `INVALID` error
+- missing fields mentioned in `requiredFields` throw the `REQUIRED` error
