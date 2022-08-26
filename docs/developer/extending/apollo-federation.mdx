@@ -2,34 +2,34 @@
 title: Apollo Federation
 ---
 
-[Apollo Federation](https://www.apollographql.com/docs/federation/) is a specification for GraphQL servers to implement to enable combining multiple services into single GraphQL API. It is also an extension for [Apollo Server](https://www.apollographql.com/docs/apollo-server/) that performs this combining. GraphQL server combining multiple services into one is called "gateway" in GraphQL world.
+[Apollo Federation](https://www.apollographql.com/docs/federation/) is a specification for GraphQL servers to implement combining multiple services into a single GraphQL API. It is also an extension for [Apollo Server](https://www.apollographql.com/docs/apollo-server/) that performs this combining. The GraphQL server combining multiple services into one is called a "gateway" in the GraphQL world.
 
 ## Federation support in Saleor
 
 Saleor supports Apollo Federation. Types that can be used in federated relations are part of the [`_Entity` union](/developer/api-reference/unions/entity.mdx).
 
-Most types in schema use their ID attribute for key, but the `User` type supports both `id` and `email` which `Product`, `ProductVariant` and `Collection` use composite keys made of `id` and `channel` slug:
+Most types in the schema use their ID attribute as a key, but the `User` type supports both `id` and `email` while `Product`, `ProductVariant`, and `Collection` use composite keys made of `id` and `channel` slug:
 
-| type              | key           | alternative key   |
-|-------------------|---------------|-------------------|
-| `Address`         | `id`          |                   |
-| `App`             | `id`          |                   |
-| `Category`        | `id`          |                   |
-| `Collection`      | `id channel`  |                   |
-| `Group`           | `id`          |                   |
-| `PageType`        | `id`          |                   |
-| `Product`         | `id channel`  |                   |
-| `ProductMedia`    | `id`          |                   |
-| `ProductType`     | `id`          |                   |
-| `ProductVariant`  | `id channel`  |                   |
-| `User`            | `id`          | `email`           |
+| type             | key          | alternative key |
+| ---------------- | ------------ | --------------- |
+| `Address`        | `id`         |                 |
+| `App`            | `id`         |                 |
+| `Category`       | `id`         |                 |
+| `Collection`     | `id channel` |                 |
+| `Group`          | `id`         |                 |
+| `PageType`       | `id`         |                 |
+| `Product`        | `id channel` |                 |
+| `ProductMedia`   | `id`         |                 |
+| `ProductType`    | `id`         |                 |
+| `ProductVariant` | `id channel` |                 |
+| `User`           | `id`         | `email`         |
 
 ## Known issues and limitations
 
-Apollo Federation doesn't handle the scenario when federated server didn't return the requested object [too well](https://github.com/apollographql/federation/issues/376). GraphQL gateway will report an error when Saleor fails to return requested entity, either because it was deleted, request is missing authorization required to retrieve it or it's ID was incorrect.
+Apollo Federation doesn't handle the scenario when the federated server doesn't return the requested object [too well](https://github.com/apollographql/federation/issues/376). The GraphQL gateway will report an error when Saleor fails to return the requested entity, either because it was deleted, the request is missing authorization required, or its ID was incorrect.
 
 Rely on webhooks to update or clear relations stored in your service's database when objects are deleted in Saleor.
 
-Different types can require different permissions to retrieve by federation and two users may don't have access to same objects of same type. Resolvers implemented by your service that return keys for federation may require implementation additional checks. Likewise some data (eg. review's authors names) is better duplicated across services and kept in sync with webhooks instead being queried over the federation.
+Different types can require different permissions to retrieve by the federation, and two users may not have access to the objects of the same type. Resolvers implemented by your service that return keys for federation may require additional implementation checks. Likewise, some data (e.g., review author's names) is better duplicated across services and kept in sync with webhooks instead of being queried over the federation.
 
-In some cases it may be required to setup an application account in your store's dashboard, and configure your gateway server to use application credentials when communicating with Saleor GraphQL API.
+In some cases, it may be required to set up an application account in your store's dashboard and to configure your gateway server to use application credentials when communicating with Saleor GraphQL API.
