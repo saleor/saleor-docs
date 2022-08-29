@@ -4,7 +4,7 @@ title: Payment webhooks
 
 ## Introduction
 
-Payment webhooks are synchronous webhooks that allow delegating payment handling to Saleor Apps. Synchronous means that these webhooks expect a response of a particular shape to be returned from the app to continue processing in Saleor. Payment webhooks only support HTTP(S) protocol; they are sent as POST requests with `application/json` body and expect a response of the same content type.
+Payment webhooks are synchronous webhooks that allow delegating payment handling to Saleor Apps. Synchronous means that these webhooks expect a response of a particular shape to be returned from the App to continue processing in Saleor. Payment webhooks only support the HTTP(S) protocol; they are sent as POST requests with the `application/json` body and expect a response of the same content type.
 
 Available payment events are:
 
@@ -18,12 +18,12 @@ Available payment events are:
 | `PAYMENT_REFUND`        | Refund payment        |
 | `PAYMENT_VOID`          | Void payment          |
 
-To react to payment webhooks, first you need to create an app. You can follow as described in [this dashboard manual](/dashboard/apps.md) for regular app, or [read more](developer/extending/apps/key-concepts.mdx) about different app types.
-Make sure to make the app active and grant it the `HANDLE_PAYMENTS` permission.
+First, you need to create an App to react to payment webhooks. You can follow the description in [this dashboard manual](/dashboard/apps.md) for a regular App, or [read more](developer/extending/apps/key-concepts.mdx) about different App types.
+Remember to make the App active and grant it the `HANDLE_PAYMENTS` permission.
 
 ### Register `PAYMENT_LIST_GATEWAYS` webhook
 
-When enabling payment webhooks, first you need to subscribe to the `PAYMENT_LIST_GATEWAYS` event. This event is called whenever Saleor lists available payment gateways, either in the API or internal use. This webhook needs to return information about payment methods that are defined in your app.
+When enabling payment webhooks, first, you need to subscribe to the `PAYMENT_LIST_GATEWAYS` event. This event is called whenever Saleor lists available payment gateways in the API or internal use. This webhook needs to return information about payment methods defined in your App.
 
 Below are two example cases when the `PAYMENT_LIST_GATEWAYS` event is triggered:
 
@@ -51,7 +51,7 @@ The `availablePaymentGateways` field accepts the optional `currency` argument; i
 
 #### Listing available payment gateways for a checkout
 
-You can also query for the available payment gateways in the context of a specific checkout. This is useful if payment methods depend on the current checkout (e.g. user’s shipping country etc.)
+You can also query for the available payment gateways in the context of a specific checkout. It is helpful if payment methods depend on the current checkout (e.g. user’s shipping country etc.)
 
 ```graphql
 {
@@ -67,7 +67,7 @@ See the example payload sent from Saleor for this event: [List payment gateways 
 
 #### Expected webhook response
 
-In the response, you should return a list of supported payment methods, for example:
+In the response, you should return a list of the supported payment methods, for example:
 
 ```json
 [
@@ -93,9 +93,9 @@ In the response, you should return a list of supported payment methods, for exam
 
 Each item on the list should have the following fields:
 
-- `id` - ID of a payment method; must be unique within your app.
+- `id` - the ID of a payment method; must be unique within your App.
 - `name` - the name of the payment method.
-- `currencies` - list of currencies supported by this payment method.
+- `currencies` - a list of currencies supported by this payment method.
 - `config` - optional configuration, such as additional payment data that may be needed to proceed with the payment in the frontend.
 
 ### Register webhooks for payment actions
@@ -112,22 +112,22 @@ List of payment events:
 - `PAYMENT_VOID`
 
 :::note
-If an app has more than one webhook that listens to the same payment event, Saleor will always pick the first webhook from the list.
+If an App has more than one webhook that listens to the same payment event, Saleor will always pick the first webhook from the list.
 :::
 
 See the example payload sent from Saleor for these payment events: [Payment actions payload](/developer/extending/apps/sample-webhook-payloads.mdx#payment-actions-payload).
 
 For payments that require confirmation (such as 3D Secure) Saleor triggers the following events:
 
-- `PAYMENT_PROCESS` - when the `checkoutComplete` mutation is run for the first time, payment is created and waits for the user's confirmation.
-- `PAYMENT_CONFIRM` - when the `checkoutComplete` mutation is run for the second time, payment is confirmed.
-  Depending on a payment gateway, multiple events can be triggered.
+- `PAYMENT_PROCESS` - when the `checkoutComplete` mutation is run for the first time, a payment is created and waits for the user's confirmation.
+- `PAYMENT_CONFIRM` - when the `checkoutComplete` mutation is run for the second time, the payment is confirmed.
+  Depending on the payment gateway, multiple events can be triggered.
 
 For payments without a confirmation step, Saleor triggers only the `PAYMENT_PROCESS` event.
 
 #### Expected response
 
-Below is the list of fields that webhook can return in the JSON response for a payment action. All fields are optional:
+Below is the list of fields that a webhook can return in the JSON response for a payment action. All fields are optional:
 
 - `action_required` - (boolean) determines if additional action (confirmation) is required.
 - `action_required_data` - (object) additional data that may be needed to confirm the payment. An example would be a URL to redirect the user to the confirmation page in the frontend.
@@ -135,12 +135,12 @@ Below is the list of fields that webhook can return in the JSON response for a p
 - `amount` - (number) transaction amount; use this field only if the charged amount is different than the checkout's total.
 - `customer_id` - (string) gateway's customer ID.
 - `error` - (string) error message; if provided, the transaction will be marked as failed in Saleor and payment will have to be retried. Use this field if you need to return any errors.
-- `payment_method` - (object) information about payment method chosen by the user.
+- `payment_method` - (object) information about the payment method chosen by the user.
 - `psp_reference` - (string) external payment reference id. Can be used for finding transactions in the payment provider dashboard or relevant orders in the Saleor dashboard.
 - `transaction_id` - (string) gateway's transaction ID.
 - `transaction_already_processed` - (boolean) use this field to mark a transaction as already processed in your gateway.
 
-The response fields match with the `GatewayResponse` data class used in Saleor to represent a response from a payment gateway; you can read more about these fields [here](/developer/extending/payment-gateways.mdx#gatewayresponse).
+The response fields match the `GatewayResponse` data class used in Saleor to represent a response from a payment gateway; you can read more about these fields [here](/developer/extending/payment-gateways.mdx#gatewayresponse).
 
 Example response for the `PAYMENT_PROCESS` event when confirmation is required:
 
