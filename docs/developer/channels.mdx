@@ -47,6 +47,8 @@ Available fields:
 - `defaultCountry`: Default country for the channel. The default country will be used in checkout to determine the stock quantities or calculate taxes when the country was not explicitly provided, either as a query parameter or through a shipping address.
 - `hasOrders`: Returns `true` when there are already created orders using that channel. If that's the only channel using this currency, you won't be able to remove it.
 - `warehouses`: Warehouses that are available in the given channel.
+- `stockSettings`: contains all stock-related settings,
+  f.e. the [allocation strategy](developer/stock-allocation.mdx#allocation-strategies) for the channel.
 
 Request:
 
@@ -64,6 +66,9 @@ query {
     hasOrders
     warehouses {
       slug
+    }
+    stockSettings {
+      allocationStrategy
     }
   }
 }
@@ -93,6 +98,9 @@ Response:
           "slug": "europe"
         }
       ]
+      "stockSettings": {
+        "allocationStrategy": "PRIORITIZE_HIGH_STOCK"
+      }
     }
   }
 ```
@@ -100,6 +108,10 @@ Response:
 ## Creating a new channel
 
 You can create a new channel using [`channelCreate`](developer/api-reference/mutations/channel-create.mdx) mutation.
+During checkout creation, you can define the allocation strategy. Right now the
+two possible options are available: `PRIORITIZE_HIGH_STOCK` and `PRIORITIZE_SORTING_ORDER`,
+the `PRIORITIZE_SORTING_ORDER` strategy is used as default.
+You can read more about the allocation strategies [`here`](developer/stock-allocation.mdx#allocation-strategies).
 
 Request:
 
@@ -111,6 +123,7 @@ mutation {
       defaultCountry: US
       name: "Mobile"
       slug: "mobile"
+      stockSettings: { allocationStrategy: PRIORITIZE_HIGH_STOCK }
     }
   ) {
     channel {
@@ -122,6 +135,9 @@ mutation {
       defaultCountry {
         code
         country
+      }
+      stockSettings {
+        allocationStrategy
       }
     }
     errors {
@@ -148,6 +164,9 @@ Response:
         "defaultCountry": {
           "code": "US",
           "country": "United States of America"
+        },
+        "stockSettings": {
+          "allocationStrategy": "PRIORITIZE_HIGH_STOCK"
         }
       },
       "errors": []
@@ -248,6 +267,107 @@ Response:
         "isActive": true
       },
       "channelErrors": []
+    }
+  }
+}
+```
+
+## Reorder warehouses within channels
+
+The warehouses assigned to the channel can be sorted. The provided order defines the
+warehouses' order used in `PRIORITIZE_SORTING_ORDER`
+[allocation strategy](developer/stock-allocation.mdx#allocation-strategies).
+The `sort_order` in `moves` input represents the new relative position of the item.
+So when 1 is provided, the item will be moved one position forward; when -1 - one
+position backward.
+
+Let's assume that we have a `channel` with three channels in the following order.
+
+```json
+{
+  "data": {
+    "channel": {
+      "id": "Q2hhbm5lbDox",
+      "warehouses": [
+        {
+          "id": "V2FyZWhvdXNlOjU1NTZiOWI0LTc1ZTItNGI3YS1hZWM1LTQxOTY4NDA2OGE4OA==",
+          "slug": "europe"
+        },
+        {
+          "id": "V2FyZWhvdXNlOjQwZWY1MTQwLWQ5OTYtNDVlNy04NzUzLTlkZThkMTdhMjg1Yw==",
+          "slug": "oceania"
+        },
+        {
+          "id": "V2FyZWhvdXNlOjY4M2FkMzZhLTRmNjktNDI2ZS1iYzUyLTMyZGJiZTQ2NjUyZA==",
+          "slug": "americas"
+        }
+      ]
+    }
+  }
+}
+```
+
+To move the `americas` warehouse to the first place and the `europe` warehouse to
+third, we can run the following mutation.
+
+```graphql
+mutation {
+  channelReorderWarehouses(
+    channelId: "Q2hhbm5lbDox"
+    moves: [
+      {
+        # move for `americas` warehouse
+        id: "V2FyZWhvdXNlOjY4M2FkMzZhLTRmNjktNDI2ZS1iYzUyLTMyZGJiZTQ2NjUyZA=="
+        sortOrder: -2
+      }
+      {
+        # move for `europe` warehouse
+        id: "V2FyZWhvdXNlOjU1NTZiOWI0LTc1ZTItNGI3YS1hZWM1LTQxOTY4NDA2OGE4OA=="
+        sortOrder: 1
+      }
+    ]
+  ) {
+    channel {
+      id
+      warehouses {
+        id
+        slug
+      }
+    }
+    errors {
+      field
+      code
+      message
+      warehouses
+    }
+  }
+}
+```
+
+And as a response, we get:
+
+```json
+{
+  "data": {
+    "channelReorderWarehouses": {
+      "channel": {
+        "id": "Q2hhbm5lbDox",
+        "warehouses": [
+          {
+            "id": "V2FyZWhvdXNlOjY4M2FkMzZhLTRmNjktNDI2ZS1iYzUyLTMyZGJiZTQ2NjUyZA==",
+            "slug": "americas"
+          },
+          {
+            "id": "V2FyZWhvdXNlOjQwZWY1MTQwLWQ5OTYtNDVlNy04NzUzLTlkZThkMTdhMjg1Yw==",
+            "slug": "oceania"
+          },
+          {
+            "id": "V2FyZWhvdXNlOjU1NTZiOWI0LTc1ZTItNGI3YS1hZWM1LTQxOTY4NDA2OGE4OA==",
+            "slug": "europe"
+          }
+        ]
+      },
+      "errors": []
     }
   }
 }
