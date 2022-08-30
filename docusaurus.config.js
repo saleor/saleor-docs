@@ -91,14 +91,8 @@ module.exports = {
         },
         {
           type: "docSidebar",
-          sidebarId: "dashboard",
-          label: "Dashboard Manual",
-          position: "left",
-        },
-        {
-          type: "docSidebar",
           sidebarId: "developer",
-          label: "Developer's Guide",
+          label: "Docs",
           position: "left",
         },
       ],
