@@ -21,11 +21,11 @@ Once multiple sales [channels](dashboard/configuration/channels.md) have been cr
 
 ## Orders, payments, and out of stocks
 
-This card gives an overview of the total number of orders yet to be fulfilled and payments awaiting capture. Clicking each link gives you a breakdown of individual orders and payments. You can also see a total number of products that are out of stock and click the link to see a detailed list.
+This card overviews the total number of orders yet to be fulfilled and payments awaiting capture. Clicking each link gives you a breakdown of individual orders and payments. You can also see the total number of products that are out of stock and click the link to see a detailed list.
 
 :::note Displayed data
 
-The data displayed in this card are specific for each unique channel.
+The data displayed in this card are specific to each unique channel.
 
 :::
 
@@ -35,13 +35,14 @@ Identify and understand the trends in your product sales through a handy overvie
 
 ## Activity
 
-The activity card gives you a quick summary of all actions taken by your Saleor system; orders which have been placed, fulfilled and canceled, and details of payment processing.
+The activity card summarizes all actions taken by your Saleor system, orders that have been placed, fulfilled and canceled, and payment processing details.
 
 ## How to
 
 ### How to change basic information of the staff account
 
 Saleor allows you to change the following information of the staff account:
+
 - First name
 - Last name
 - E-mail address
@@ -54,7 +55,7 @@ Once you are logged in to your dashboard staff account, to change the informatio
 
 ### How to enable dark mode
 
-If you prefer to work in dark mode, click on your account name in the top right corner of the dashboard and then click the _Enable Dark Mode_ button.
+If you prefer to work in dark mode, click on your account name in the top right corner of the dashboard, and then click the _Enable Dark Mode_ button.
 
 ![Dark Mode](screenshots/dashboard-home-dark-mode.png)
 
@@ -64,13 +65,14 @@ To log out, click your account name in the top right corner of the dashboard, an
 
 ### How to use the dashboard navigator
 
-Click the navigator button on top right corner of the dashboard or use the *CTRL* + *K* combination to open the dashboard navigator. Then type the location you would like to navigate to, for instance: products main page.
+Click the navigator button on the top right corner of the dashboard or use the _CTRL_ + _K_ combination to open the dashboard navigator. Then type the location you would like to navigate to, for instance: the products main page.
 
 ![Dashboard navigator](screenshots/dashboard-home-navigator.png)
 
 You can type "?" to see all available navigation options.
 
 #### Available navigation options:
+
 - _..._ - Search Views and Actions
 - _>_ - Search Command
 - _#_ - Search Orders
@@ -80,12 +82,12 @@ You can type "?" to see all available navigation options.
 
 #### The examples of using the dashboard navigator
 
-1. You are looking for a specific order. Once the dashboard navigator is open, type *#* and then the number of the order. In the following example, the product order number is 3967. The dashboard navigator will show you the fulfillment status.
+1. You are looking for a specific order. Once the dashboard navigator is open, type _#_ and then the number of the order. In the following example, the product order number is 3967. The dashboard navigator will show you the fulfillment status.
 
 You can open the order's detail page by clicking the order under the _Quick actions_ section.
 
 ![Dashboard navigator](screenshots/dashboard-home-navigator-example.png)
 
-2. You are looking for a specific hoodie in your catalog. Once the dashboard navigator is open, type _$_ and then _hoodie_. The dashboard navigator will show you all options related to hoodies including products or categories.
+2. You are looking for a specific hoodie in your catalog. Once the dashboard navigator is open, type _$_ and then _hoodie_. The dashboard navigator will show you all the options related to hoodies, including products or categories.
 
 ![Dashboard navigator](screenshots/dashboard-home-navigator-example-2.png)
