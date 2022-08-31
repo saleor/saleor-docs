@@ -173,7 +173,7 @@ Make sure each product has a unique name so site users can find them quickly and
 :::
 
 :::tip Writing a good description
-Your product descriptions can be cool, fun, or just based on facts. They represent the tone of your store. Be creative if you like, but be clear and ensure you have all the information a buyer needs.
+Your product descriptions can be cool, fun, or just based on facts. They represent the tone of your store. Be creative if you like, but be clear and ensure you provide all the information a buyer needs.
 :::
 
 :::tip How to use the CMS editor
