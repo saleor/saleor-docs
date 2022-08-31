@@ -46,9 +46,9 @@ The checkout's mutations that accept an address as an input have a field that ca
 
 The address [validation](developer/api-reference/inputs/checkout-address-validation-rules.mdx) input has two boolean fields:
 
-- `checkRequiredFields` - Determines if an error should be raised when the provided address doesn't have all the required fields. Set to `true` by default.
-- `checkFieldsFormat` - Determines if an error should be raised when the provided address doesn't match the expected format. Set to `true` by default.
-- `enableFieldsNormalization` - Determines if Saleor should apply normalization on address fields. Example: converting city field to uppercase letters. Set to `true` by default.
+- `checkRequiredFields` - signals Saleor to raise an error when the provided address doesn't have all the required fields. Set to `true` by default.
+- `checkFieldsFormat` - signals Saleor to raise an error when the provided address doesn't match the expected format. Set to `true` by default.
+- `enableFieldsNormalization` - determines if Saleor should apply normalization on address fields. Example: converting city field to uppercase letters. Set to `true` by default.
 
 #### checkoutCreate
 
@@ -214,7 +214,7 @@ The shipping and billing addresses need to be valid when finalizing checkout by 
 :::
 
 :::note
-The fields of shipping and billing addresses will be normalized (if needed) when completing the checkout by calling [checkoutComplete](developer/api-reference/mutations/checkout-complete.mdx) mutation.
+The fields for shipping and billing addresses will be normalized (if needed) on completing the checkout by calling [checkoutComplete](developer/api-reference/mutations/checkout-complete.mdx) mutation.
 :::
 
 ## Creating a checkout session
@@ -228,7 +228,6 @@ A [`Checkout`](developer/api-reference/objects/checkout.mdx) object can be creat
   and an email address is used to identify such a [`Checkout`](developer/api-reference/objects/checkout.mdx) object,
   linking it with the anonymous user.
   User email is not required at this stage but must be provided before adding a promo code, creating a payment, and completing checkout.
-
 :::
 
 To create a [`Checkout`](developer/api-reference/objects/checkout.mdx) object, use the [`checkoutCreate`](developer/api-reference/mutations/checkout-create.mdx) mutation.
@@ -1523,7 +1522,7 @@ and subject to change but is available to experiment and provide feedback.
 
 :::
 
-Transaction stores details of payment transaction attached to order or checkout.
+Transaction stores details of a payment transaction attached to order or checkout.
 
 The [transactionCreate](developer/api-reference/mutations/transaction-create.mdx) mutation takes the following arguments:
 
@@ -1533,7 +1532,7 @@ The [transactionCreate](developer/api-reference/mutations/transaction-create.mdx
 
 The following example shows how the [transactionCreate](developer/api-reference/mutations/transaction-create.mdx) mutation
 is used to create a new transaction.
-The transaction has status authorized, and payment was made with a credit card. The actions that can be called from Saleor are: `VOID` and `CHARGE`.
+The transaction was authorized, and payment was made with a credit card. The actions that can be called from Saleor are: `VOID` and `CHARGE`.
 The authorized amount is $99.
 
 ```graphql
@@ -1716,9 +1715,9 @@ sequenceDiagram
 
 ## Removing old checkouts
 
-In order not to overload the database, unfinished checkouts are deleted.
-Anonymous and unfinished checkouts are deleted after a specified time from their last modification:
+To avoid overloading the database, unfinished checkouts are deleted.
+Anonymous and unfinished checkouts are deleted after a specified period of time from its last modification:
 
-- anonymous checkouts (neither user and email are set) after 30 days,
-- user checkouts (user or email set) after 90 days,
+- anonymous checkouts (neither user or email is set) after 30 days,
+- user checkouts (either user or email is set) after 90 days,
 - checkouts without lines after 6 hours.
