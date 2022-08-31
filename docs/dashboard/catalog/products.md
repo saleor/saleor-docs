@@ -297,7 +297,7 @@ Click _Delete_ at the bottom of the page to permanently remove a product.
 To edit product details, click any field and start making changes. The _Save_ button in the footer will activate as soon as you have made amendments that need to be saved before exiting the page.
 
 :::tip Save it for later
-Do not remove a product if you want to remove it from your inventory temporarily. In that case, select the _Hidden_ option in the Visibility card, as described above.
+Do not remove a product if you want to hide it in your inventory temporarily. In that case, select the _Hidden_ option in the Visibility card, as described above.
 :::
 
 ### How to use the variant creator
