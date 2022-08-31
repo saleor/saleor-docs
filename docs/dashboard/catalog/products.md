@@ -169,7 +169,7 @@ Click _Create&nbsp;Product_ above the main list to enter the product setup page.
 Add the name of your product and a description. Use text formatting to make your product descriptions clear and engaging. The eight basic functions are: bold type, italic type, sub-header, second sub-header, quote, bullet point list, numbered list, new text line, and add hyperlink.
 
 :::tip Creating effective product names
-Make sure each product has a unique name so site users can find them quickly and your administrators can easily manage your store. If you have five t-shirts, do not call them all 't-shirts'. Use more engaging and searchable names like black men's t-shirts, sparkly unicorn girls' t-shirts, red lady's t-shirts, sports t-shirts, etc.
+Make sure each product has a unique name so site users can find them quickly and your administrators can easily manage your store. If you have five t-shirts, do not call them all "t-shirts". Use more engaging and searchable names like "sparkly unicorn girls' t-shirts", "red lady's t-shirts", "sports t-shirts", etc.
 :::
 
 :::tip Writing a good description
