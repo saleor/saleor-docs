@@ -1,0 +1,3 @@
+---
+title: App Templates Gallery
+---

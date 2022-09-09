@@ -1,5 +1,5 @@
 ---
-title: Apps
+title: Managing Apps
 ---
 
 This page gives you an overview of how to manage apps in the dashboard.
