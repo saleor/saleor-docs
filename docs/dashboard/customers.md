@@ -55,6 +55,12 @@ Click _Add Customer_ to open a new Add Customer page. Enter the customer’s mai
 
 Click _Save_ to proceed. Your new customer is now set up in the system and you are redirected to this customer’s overview page.
 
+:::note Staff members
+
+You can't add customers with **the same e-mail address** as stuff members. Stuff member will be visible in customer list once they've made at least 1 order.
+
+:::
+
 ### How to edit general information
 
 Make changes to the customer name and e-mail by simply typing into the relevant field in the General Information card. The _Save_ button in the footer will activate once changes that need to be confirmed have been made.
@@ -64,7 +70,8 @@ In the General Information card, there is a checkbox next to the text _User&nbsp
 If you have implemented a backend protocol that requires users to confirm account activation from an e-mail, which is not a default feature, this may also be useful if a user has issues with replying to the e-mail and asks for a manual activation.
 
 ### How to issue a gift card
-Click the *Issue new card* button in the Gift Cards section of the customer details view. Fill in all the information required for a specific gift card then click the *Issue* button.
+
+Click the _Issue new card_ button in the Gift Cards section of the customer details view. Fill in all the information required for a specific gift card then click the _Issue_ button.
 
 ![Customer gift cards](screenshots/customer-giftcards.png)
 
