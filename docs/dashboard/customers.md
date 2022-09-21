@@ -57,7 +57,7 @@ Click _Save_ to proceed. Your new customer is now set up in the system and you a
 
 :::note Staff members
 
-You can't add customers with **the same e-mail address** as stuff members. Stuff member will be visible in customer list once they've made at least 1 order.
+You can't add customers with **the same e-mail address** as staff members. A staff member will be visible in the customer list once they've made at least one order.
 
 :::
 
