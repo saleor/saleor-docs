@@ -12,12 +12,12 @@ An app is an off-the-shelf software, ready to be used immediately. There are two
 
 Here is a detailed list of differences between them:
 
-| App Template                          | 1st or 3rd party App                                          |
+| Template                              | App                                                           |
 | ------------------------------------- | ------------------------------------------------------------- |
 | Open source boilerplate               | Can be closed sourced                                         |
-| Not yet an app; setup required       | Ready to be used right away              |
+| Not yet an app; setup required        | Ready to be used right away                                   |
 | Hosted on your Cloud (e.g Vercel)     | Hosted by Saleor (1st party) or App Creator (3rd party)       |
-| Can be forked and extended            | Owned by App creator. The code may be open source |
+| Can be forked and extended            | Owned by App creator. The code may be open source             |
 | Can be created by Saleor or community | Can be created by Saleor or community                         |
 
 The left side of the table describes what you can find in the App Templates Gallery.
