@@ -3,10 +3,7 @@ title: App Templates Gallery (preview)
 ---
 
 :::info
-
-<!-- todo: change -->
-
-This feature was introduced in **Saleor 3.8**.
+This feature was introduced in **Saleor 3.7**.
 :::
 
 :::caution
