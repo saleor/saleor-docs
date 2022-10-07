@@ -2,53 +2,69 @@
 title: App Templates Gallery (preview)
 ---
 
-Apps are the centerpiece of the extending Saleor model. If you want to learn more about it, we described it in detail in [Extending Saleor -> Apps](../developer/extending/apps/key-concepts.mdx).
+:::info
 
-Saleor Cloud Marketplace features two types of entities you can use to extend Saleor: templates and apps.
+<!-- todo: change -->
 
-A template is a publicly available foundation you can build upon. It may require an extra setup to work correctly and you need to host it yourself.
+This feature was introduced in **Saleor 3.8**.
+:::
 
-An app is an off-the-shelf software, ready to be used immediately. There are two types of apps: 1st party (built and hosted by Saleor) or 3rd party (built by external developers).
+:::caution
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+:::
 
-Here is a detailed list of differences between them:
+## What is App Templates Gallery?
 
-| Template                              | App                                                           |
-| ------------------------------------- | ------------------------------------------------------------- |
-| Open source boilerplate               | Can be closed sourced                                         |
-| Not yet an app; setup required        | Ready to be used right away                                   |
-| Hosted on your Cloud (e.g Vercel)     | Hosted by Saleor (1st party) or App Creator (3rd party)       |
-| Can be forked and extended            | Owned by App creator. The code may be open source             |
-| Can be created by Saleor or community | Can be created by Saleor or community                         |
+Apps are the centerpiece of the [extending Saleor model](../developer/extending/apps/key-concepts.mdx). They are the preferred way of building custom logic on top of Saleor.
 
-The left side of the table describes what you can find in the App Templates Gallery.
+Saleor Cloud Marketplace is your headquarters for managing and installing apps.
 
-# Self-deployed apps
+:::note
+You can find Saleor Cloud Marketplace by going to _Apps_ -> _Marketplace_ in your Saleor Dashboard.
+:::
 
-Usually, self deployed apps are connected only for your Saleor instance. Templates can be prepared for a Multi-tenant
-compatibility, but likely you will configure it to work with your Shop's needs
+There are two types of software you can find in Saleor Cloud Marketplace: **templates** and **apps**.
 
-We created App Templates Gallery so you can:
+**A template** serves as a foundation you can build upon. It may need an extra setup to work, and you must host it yourself.
 
-- Browse a library of templates built by Saleor team or the community
-- Deploy them to Vercel (or other future providers) as quickly as possible 
-- Automatically install the deployed app in your Dashboard
+**An app** is off-the-shelf software that you can use without further adjustments. There are two types of apps: 1st party (built and hosted by Saleor) or 3rd party (built by external developers).
 
-# How self-deployment works
+We listed all the differences between them here:
 
-Here is a simplified diagram of how it works:
+| Template                              | App                                                     |
+| ------------------------------------- | ------------------------------------------------------- |
+| Open source boilerplate               | Can be closed-sourced                                   |
+| Not yet an app; setup required        | Ready to be used right away                             |
+| Hosted on your Cloud (e.g Vercel)     | Hosted by Saleor (1st party) or App Creator (3rd party) |
+| Can be forked and extended            | Owned by App creator. The code may be open source       |
+| Can be created by Saleor or community | Can be created by Saleor or community                   |
+
+The left column describes the content of the App Templates Gallery.
+
+---
+
+Summing up, the App Templates Gallery:
+
+- Is a subset of Saleor Cloud Marketplace.
+- Offers a library of templates built by the Saleor team or the community.
+- Helps you deploy them to Vercel (or other future providers).
+- Installs the deployed app in your Dashboard.
+
+## Self-deployment
+
+Using the App Templates, you are responsible for the deployment. The critical part is providing the correct environment variables to your hosting provider.
+
+Here is an example of an integration with Vercel:
 
 ```mermaid
 sequenceDiagram
-    Saleor Cloud Dashboard->>+Vercel: Create Deployment flow from Github repository
-    Vercel->>+Vercel: Create project & clone repository
+    Saleor Cloud Dashboard->>+Vercel: Create the deployment flow from the GitHub repository
+    Vercel->>+Vercel: Create a project & clone the repository
     Vercel->>+Saleor Marketplace Vercel Integration: Connect
-    Saleor Marketplace Vercel Integration->>+Vercel: Set ENV variables in Vercel project
+    Saleor Marketplace Vercel Integration->>+Vercel: Set ENV variables in the Vercel project
     Vercel->>+Vercel: Build & Deploy
     Vercel->>+Saleor Marketplace Vercel Integration: Inform about success
     Saleor Marketplace Vercel Integration->>+Saleor Cloud Dashboard: Redirect to Dashboard
     Saleor Cloud Dashboard->>+Saleor Cloud Dashboard: Install app
 ```
-
-# Getting started
-
-Open your dashboard and navigate to Apps -> Marketplace. Browse available apps and try them out
