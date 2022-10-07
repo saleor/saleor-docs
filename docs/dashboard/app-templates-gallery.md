@@ -47,7 +47,7 @@ Here is an example of an integration with Vercel:
 
 ```mermaid
 sequenceDiagram
-    Saleor Cloud Dashboard->>+Vercel: Create the deployment flow from the GitHub repository
+    Saleor Cloud Dashboard->>+Vercel: Initialize the deployment to Vercel from the GitHub repository
     Vercel->>+Vercel: Create a project & clone the repository
     Vercel->>+Saleor Marketplace Vercel Integration: Connect
     Saleor Marketplace Vercel Integration->>+Vercel: Set ENV variables in the Vercel project
