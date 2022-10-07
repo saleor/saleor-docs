@@ -97,7 +97,11 @@ module.exports = {
               "dashboard/discounts/vouchers",
             ],
           },
-          "dashboard/apps",
+          {
+            type: "category",
+            label: "Apps",
+            items: ["dashboard/apps", "dashboard/app-templates-gallery"],
+          },
           "dashboard/translations",
           {
             type: "category",
