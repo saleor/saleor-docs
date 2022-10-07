@@ -1,5 +1,5 @@
 ---
-title: App Templates Gallery (preview)
+title: App Templates Gallery
 ---
 
 :::info
