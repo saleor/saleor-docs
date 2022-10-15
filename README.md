@@ -81,7 +81,7 @@ query{
 ``` 
 ````
 
-### Lining pages
+### Linking pages
 Use full path to the file to avoid linking to wrong page.
 
 - :white_check_mark: Example of good link: `[Attributes](/docs/developer/attributes.mdx)`
