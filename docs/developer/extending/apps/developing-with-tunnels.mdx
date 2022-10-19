@@ -2,39 +2,40 @@
 title: Tunneling Apps
 ---
 
-Saleor apps can be developed fully locally or using Saleor deployed to the cloud (either Saleor Cloud or a self-hosted instance on the internet).
+## What is a tunnel?
 
-This article describes developing apps using tunneling.
+The Saleor extendability model relies on the concept of Apps. If you want to read more about them, head to [the Apps page](developer/key-concepts.mdx).
 
-## How does it work
+As you want Apps to react to events in your store, you reach for webhooks. However, webhooks pose a unique challenge: they can only communicate with HTTPS clients. It is a reasonable requirement for a deployed application, but what about the development environment?
 
-Saleor must communicate with your app, but it can't reach your localhost. Tunneling software creates a proxy,
-allowing access to a specific port from localhost to a publically accessible URL.
+This is where tunnels come into play. **A tunnel allows you to create a proxy that exposes a local environment to a public URL.**
 
-<!-- Consider diagram -->
+---
+
+Let's say you are building a [Next.js](https://nextjs.org/) application that leverages a webhook. You boot it up with the `next dev` command, which renders it on `http://localhost:3000`. Since this address is not HTTPS-compliant, the app cannot access the webhook response. We have a perfect use case for a tunnel on our hands.
+
+A simplified process of using a tunnel to expose this app would look like this:
+
+1. You authenticate yourself in the tunneling service of your choosing (e.g.: `ngrok`).
+2. You provide the tunnel with the port number `3000` (where your app is running).
+3. You access the URL returned from the tunnel.
+4. You successfully access the response from the webhook 🎉.
 
 ## Available tunnels
 
-- [Saleor App Tunnel](#saleor-app-tunnel) - official tunnel maintained by Saleor, built into Saleor CLI
-- [ngrok](https://ngrok.com/) - popular tunnelling software with free plans
-
-You can also look into the [alternatives](https://github.com/anderspitman/awesome-tunneling).
-
-## Using tunnels
-
-Tunneling software exposes an app running on localhost on a specific port. Before you start, make sure the dev server is on.
-
-Typically, running the Next.js app in development mode, `next dev` will open the app on `localhost:3000`.
-
 ### Saleor App Tunnel
 
-To use a tunnel, you must have installed [Saleor CLI](https://www.npmjs.com/package/@saleor/cli).
+:::caution
+We are keen on making Saleor App Tunnel flawless. Yet, issues with its stability may occur now and then. If that's the case, please look at [the alternatives](#alternatives).
+:::
+
+To use Saleor App Tunnel, you must install [Saleor CLI](https://www.npmjs.com/package/@saleor/cli).
 
 :::note
 Run `saleor app tunnel -h` to check detailed usage.
 :::
 
-To create a tunnel, run `saleor app tunnel`. After several seconds, CLI should print the URL with the`.saleor.live` domain:
+To create a tunnel, run `saleor app tunnel`. After several seconds, the CLI should print a URL with the`.saleor.live` domain:
 
 ```bash
 $ saleor app tunnel
@@ -60,25 +61,24 @@ Use it to install the app in the Dashboard
 
 ```
 
-#### Tunnel & automatic install
+#### Installing the App in the Dashboard
 
-Saleor App Tunnel can automatically install the app in the dashboard. Run `saleor app tunnel --force-install` to do that.
+An extra feature of the Saleor App Template is the ability to install Apps inside the Dashboard. This way, you can develop the App while displaying it inside your Saleor Dashboard.
 
-### Ngrok
+To do it, please run the following:
 
-Saleor doesn't care what tunnel is used. While App Tunnel from Saleor CLI is extra powerful and can install apps automatically,
-you can use an alternative like Ngrok. Most likely, it will be more stable and faster than App Tunnel.
+```
+saleor app tunnel --force-install
+```
 
-Visit the official [ngrok](https://ngrok.com/) documentation to check how to set it up.
-Eventually, you will run something like `ngrok http 3000,` and Saleor will be able to access your app.
+#### Troubleshooting
 
-## Troubleshooting
+If you experience any issues with the Saleor App Tunnel, please file an issue [here](https://github.com/saleor/saleor-cli/issues/new?assignees=&labels=bug,tunnel&template=cli-bug-report.md&title=).
 
-### Saleor App Tunnel is not working
+### Alternatives
 
-Saleor Team tries its best to maintain App Tunnel, but we can't promise it will always work.
+While we encourage you to use Saleor App Tunnel, Saleor will work with any tunneling solution. They will all follow a set-up process similar to the Saleor App Tunnel.
 
-It's possible that the tunnel hangs or crashes for some reason.
+The list of verified Saleor App Tunnel alternatives features:
 
-Please report an issue [here](https://github.com/saleor/saleor-cli/issues/new?assignees=&labels=bug,tunnel&template=cli-bug-report.md&title=)
-and use an alternative like [ngrok](#ngrok) in the meantime.
+- [ngrok](https://ngrok.com/)
