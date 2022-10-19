@@ -19,7 +19,7 @@ We are writing tutorials and instructions, so it's more suitable to talk directl
 ```
 
 ### Screenshots
-Try not to use screenshots Screenshots come at a high cost of maintenance because they tend to go out of date quickly. If we need a screenshot to explain something, it could mean we are not doing the best job at describing it, or our UX is lacking. Only if we can't do anything about it, a screenshot is fine.
+Try not to use screenshots. Screenshots come at a high cost of maintenance because they tend to go out of date quickly. If we need a screenshot to explain something, it's possible we are not doing the best job at describing it, or our UX is lacking. Only if we can't do anything about it, a screenshot is fine.
 
 ## Checklist
 Things to check before publishing:
