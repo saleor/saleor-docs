@@ -2,14 +2,14 @@
 title: App Pattern - Handling external webhooks
 ---
 
-## What is external webhook
+## What is an external webhook
 
-Saleor may be not the only source of the webhooks send to your application. Popular use cases:
+Saleor may not be the only source of the webhooks sent to your application. Popular use cases:
 
-- status update of a payment from payment provider like Stripe
+- status update of payment from a provider like Stripe
 - delivery status update of a package
 
-If application is multi tenant, then flow of the data is as below:
+If the application is multi-tenant, then the flow of the data is as below:
 
 ```mermaid
 flowchart LR
@@ -38,30 +38,30 @@ flowchart LR
 
 ## Exposing endpoint
 
-First step will be creating a REST endpoint which will receive events. For example it's going to be `/api/webhooks/status-update`. Since external services require address which is accessible from the internet, you are going to need a tunnel to expose local environment. You can read more in the [tunneling section](docs/developer/extending/apps/developing-with-tunnels.mdx).
+The first step will be creating a REST endpoint that will receive events. For example, it's going to be `/api/webhooks/status-update`. Since external services require an address that is accessible from the internet, you are going to need a tunnel to expose the local environment. You can read more in the [tunneling section](docs/developer/extending/apps/developing-with-tunnels.mdx).
 
-When subscribing for webhooks in the external service, use URL of the tunneled endpoint or deployed app.
+When subscribing for webhooks in the external service, use the URL of the tunneled endpoint or deployed app.
 
-## Handling multi tenancy
+## Handling multi-tenancy
 
-If your application is handling more than one Saleor instance, it's going to need a way do distinguish which one is target of the webhook payload. One way of doing that, is to add a domain or unique id to endpoint, for example `/api/webhooks/status-update?domain=demo.saleor.io`.
+If your application is handling more than one Saleor instance, it's going to need a way to distinguish which one is the target of the webhook payload. One way of doing that is to add a domain or unique id to the endpoint, for example `/api/webhooks/status-update?domain=demo.saleor.io`.
 
 ## Securing your endpoint
 
-Before you deploy your application, you'll need to make sure unauthorized clients wont use endpoints to send malicious data. Heres a few ways you should implement
+Before you deploy your application, you'll need to make sure unauthorized clients won't use endpoints to send malicious data. Here are a few ways you should implement
 
 ### Domain allowlist
 
-If possible, endpoint should reject connections from unknown domains. Services often publish list of known domains which they use to send webhooks. For example theres [list of domains used by Stripe](https://stripe.com/docs/ips).
+If possible, the endpoint should reject connections from unknown domains. Services often publish lists of known domains that they use to send webhooks. For example, there's [a list of domains used by Stripe](https://stripe.com/docs/ips).
 
 ### Secrets
 
-Common practice is to generate unique secret for each webhook and attach it to the payload body or headers. Consult webhook provider documentation where you can find it.
+Common practice is to generate a unique secret for each webhook and attach it to the payload body or headers. Consult webhook provider documentation where you can find it.
 You can use app metadata to store the secret value. Check [MetadataManager docs](developer/extending/apps/apps-patterns/persistence-with-metadata-manager.mdx) to learn more about helper functions available in Saleor App SDK.
 
 ### Checking the payload checksum - HMAC
 
-To make sure webhook payload has not been tempered with by third party, is to calculate it's checksum (signature).
+To make sure the webhook payload has not been tampered with by a third party is to calculate its checksum (signature).
 
 Example documentation of how you can calculate the signature:
 
