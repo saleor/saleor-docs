@@ -1,0 +1,39 @@
+---
+title: Required endpoints
+slug: required-endpoints
+---
+
+Saleor needs two endpoints that your app must expose
+
+Manifest URL - to get your app's metadata
+Register URL - to exchange App Token
+
+# Manifest URL
+
+- Method: `GET`
+- Response - `JSON` with valid [App Manifest](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest)
+- Suggested path - `/api/manifest`
+
+Saleor will call this endpoint to get your app metadata, like name and description, but first of all - to register webhooks, permissions, and extensions.
+
+See [Manifest docs](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest) or check its [typings](https://github.com/saleor/saleor-app-sdk/blob/main/src/types.ts#L67).
+
+If your app is built with [Next.js](https://nextjs.org/), you can use a [helper from saleor/app-sdk](https://github.com/saleor/saleor-app-sdk/blob/main/docs/api-handlers.md#manifest-handler-factory), that creates a handler with minimal config.
+
+Dashboard and Saleor API will use this endpoint to install the app.
+
+# Register URL
+
+- Method: `POST`
+- Response - status `200`
+- Suggested path - `/api/register`
+
+When Saleor installs the app, it will call a 2nd critical endpoint.
+
+Saleor will add `auth_token` param to the request body and domain header. The app should save this token and use it to run API calls.
+
+While we suggest `/api/register` path, it can be configured in [Manifest](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest) with `tokenTargetUrl` field.
+
+You can write this endpoint on your own, but saleor/app-sdk exports a [helper](https://github.com/saleor/saleor-app-sdk/blob/main/docs/api-handlers.md#app-register-handler-factory) for that
+
+To use this helper, you must provide a valid [APL](https://github.com/saleor/saleor-app-sdk/blob/main/docs/apl.md), that will handle storing token and domain pairs for your app.
