@@ -13,17 +13,39 @@ If the application is multi-tenant, then the flow of the data is as below:
 
 ```mermaid
 flowchart LR
-    a[App dev server]
-    t[Tunnel]
+    a[App]
     c1[Saleor API 1]
     c2[Saleor API 2]
+    e[External service]
+
+    e -- webhook --> a
+    a --> c1
+    a --> c2
+```
+
+## Exposing endpoint
+
+The first step will be creating a REST endpoint that will receive events. For example, it's going to be `/api/webhooks/status-update`.
+
+```mermaid
+flowchart LR
+    e[External service]
+    d[Deployed application]
+
+    e -- webhook --> d
+```
+
+Since external services require an address that is accessible from the internet, you are going to need a tunnel to expose the local environment. You can read more in the [tunneling section](docs/developer/extending/apps/developing-with-tunnels.mdx).
+
+```mermaid
+flowchart LR
+    a[App dev server]
+    t[Tunnel]
     e[External service]
 
     subgraph Internet
         e
         t
-        c1
-        c2
     end
 
     subgraph Local environment
@@ -32,13 +54,7 @@ flowchart LR
 
     e -- webhook --> t
     t -.-> a
-    a --> c1
-    a --> c2
 ```
-
-## Exposing endpoint
-
-The first step will be creating a REST endpoint that will receive events. For example, it's going to be `/api/webhooks/status-update`. Since external services require an address that is accessible from the internet, you are going to need a tunnel to expose the local environment. You can read more in the [tunneling section](docs/developer/extending/apps/developing-with-tunnels.mdx).
 
 When subscribing for webhooks in the external service, use the URL of the tunneled endpoint or deployed app.
 
