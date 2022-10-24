@@ -16,7 +16,24 @@ Saleor doesn't require App to use any specific technology for persistence. That'
 
 # Communication diagram
 
-TODO - diagram from register -> exchange -> save to APL and call -> get from APL -> call Saleor
+This diagram explains flow how APL is used:
+
+Following diagram describes how APL is used to store token received from Saleor during registration
+
+sequenceDiagram
+Saleor->>+App: Call /api/register with Auth Token and Domain header
+App->>+APL: Save token and header
+APL->>+External Database: Save in persistence layer
+
+Follow diagram describes example of external webhook, that calls the App and should send data to Saleor
+
+sequenceDiagram
+External Service->>+App: Call endpoint with webhook and Saleor domain
+App->>+APL: Get token for received domain
+APL->>+External Database: Ask for token in persistence layer
+External Database->>+APL: Provide saved token
+APL->>+App: Provide saved token
+App->>+Saleor: Call graphQL query for related domain with retrieved token
 
 # Shape of the APL
 
