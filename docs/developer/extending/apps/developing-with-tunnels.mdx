@@ -1,0 +1,116 @@
+---
+title: Tunneling Apps
+---
+
+## What is a tunnel, and why do you need one?
+
+The Saleor extendability model relies on the concept of Apps. If you want to read more about them, head to [the Apps page](developer/extending/apps/key-concepts.mdx).
+
+As you want Apps to react to events in your store, you reach for webhooks. However, webhooks pose a unique challenge: they can only communicate with public clients. If so, how are you supposed to develop your app on `localhost`?
+
+This is where tunnels come into play. **A tunnel allows you to create a proxy that exposes a local environment to a public URL.**
+
+```mermaid
+flowchart LR
+    a[Dev server]
+    t[Tunnel]
+    c[Saleor Cloud]
+    e[External services]
+
+    subgraph Local environment
+        a
+    end
+
+    subgraph Internet
+        t
+        c
+        e
+    end
+
+    a<-.-> t
+    t<-->c
+    t<-->e
+```
+
+---
+
+Let's say you are building a [Next.js](https://nextjs.org/) application that leverages a webhook. You boot it up with the `next dev` command, which renders it on `http://localhost:3000`. Since this address is only reachable from your machine and is not HTTPS compliant, the webhook cannot reach the app. We have a perfect use case for a tunnel on our hands.
+
+A simplified process of using a tunnel to expose this app would look like this:
+
+1. Start the dev server of your application.
+2. You authenticate yourself in the tunneling service of your choosing (e.g.: `ngrok`).
+3. You provide the tunnel with the port number `3000` (where your app is running).
+4. The tunnel will provide a publicly available URL of your application.
+5. Now you can install your application in Saleor Cloud and receive webhooks 🎉.
+
+## Available tunnels
+
+### Saleor App Tunnel
+
+:::caution
+We are keen on making Saleor App Tunnel flawless. Yet, issues with its stability may occur now and then. If that's the case, please look at [the alternatives](#alternatives).
+:::
+
+To use Saleor App Tunnel, you must install [Saleor CLI](https://www.npmjs.com/package/@saleor/cli):
+
+```bash
+npm i -g @saleor/cli
+```
+
+:::note
+Run `saleor app tunnel --help` to check detailed usage, like changing the used port or automatic installation of the app.
+:::
+
+To create a tunnel, run `saleor app tunnel` inside the app directory. After several seconds, the CLI should print a URL with the`.saleor.live` domain:
+
+```bash
+$ saleor app tunnel
+
+✔ Organization · YourShop
+✔ Select Environment · staging
+✔ Environment · staging
+─────────────────────────────────────────────────────────────────
+
+     Saleor App Name: Your app
+     Saleor App URL: https://your-app-shop.saleor.live
+
+     Saleor Dashboard: https://yourshop.eu.saleor.cloud/dashboard/
+     GraphQL Playground: https://yourshop.eu.saleor.cloud/graphql/
+
+─────────────────────────────────────────────────────────────────
+✔ Installing...
+
+Tunnel is listening to your local machine on port: 3000
+
+Press CTRL-C to stop the tunnel
+
+```
+
+#### Troubleshooting
+
+If you experience any issues with the Saleor App Tunnel, please file an issue [here](https://github.com/saleor/saleor-cli/issues/new?assignees=&labels=bug,tunnel&template=cli-bug-report.md&title=).
+
+### Alternatives
+
+While we encourage you to use Saleor App Tunnel, Saleor will work with any tunneling solution. They will all follow a set-up process similar to the Saleor App Tunnel.
+
+The list of verified Saleor App Tunnel alternatives features:
+
+- [ngrok](https://ngrok.com/)
+
+## Installing the App in the Dashboard
+
+An extra feature of the Saleor CLI is installing Apps inside the Dashboard. This way, you can develop the App while displaying it inside your Saleor Dashboard.
+
+If your tunnel isn't already running, you can run the following command:
+
+```bash
+saleor app tunnel --force-install # sets up the tunnel and installs the app
+```
+
+If you have started the tunnel with a separate command, all you have to do is install it with:
+
+```bash
+saleor app install # installs the app
+```

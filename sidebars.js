@@ -217,6 +217,7 @@ module.exports = {
             "developer/extending/apps/subscription-webhook-payloads",
             "developer/extending/apps/extending-dashboard-with-apps",
             "developer/extending/apps/sample-webhook-payloads",
+            "developer/extending/apps/developing-with-tunnels",
           ],
         },
         {
