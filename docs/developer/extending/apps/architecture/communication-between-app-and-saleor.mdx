@@ -1,3 +1,139 @@
 ---
 title: Communication between App and Saleor
 ---
+
+## Saleor Asynchronous Events
+
+In this scenario, the source of the request is a Saleor instance (the worker - to be exact). In contrast to synchronous events, Saleor does not expect an immediate response from the App.
+
+### Webhooks (HTTP requests)
+
+```mermaid
+sequenceDiagram
+    participant c as Customer
+    participant s as Saleor API
+    participant w as Saleor Worker
+    participant a as App
+    participant extSales as External sales reporting service
+
+    c ->>+ s: create order
+    s --> w: order created event
+    s ->>- c: order created
+
+    w ->>+ a: send event payload
+    a ->> a: process the payload
+    a ->>+ extSales: send new order data
+    extSales ->>- a:
+    a ->>- w: confirm task execution
+```
+
+To process webhooks, the App needs publicly accessible endpoints listening for HTTP POST requests. Before requests will be sent, App must [subscribe for events](developer/extending/apps/asynchronous-webhooks.mdx).
+Event delivery will retry if:
+
+- endpoint does not respond before timeout
+- endpoint will respond with non-200 status code
+
+If your application performs long-running operations after receiving the event, consider using the task queue
+
+### Task queue
+
+Example flow of the data for application sending data to reporting service:
+
+```mermaid
+sequenceDiagram
+    participant c as Customer
+    participant s as Saleor API
+    participant q as Queue service - ex SQS
+    participant a as App
+    participant extSales as External sales reporting service
+
+    c ->>+ s: create order
+    s --> q: order created event payload
+    s ->>- c: order created
+    a ->>+ q: pull new tasks for processing
+    q ->>- a:
+    a ->>+ extSales: send new order data
+    extSales ->>- a:
+    a ->> q: mark tasks as done
+```
+
+Instead of sending requests, the worker will put events in the queue. This approach allow you to:
+
+- perform long-running tasks
+- in case of events surge, the App will not be overwhelmed with requests. The tasks will wait in the queue for the processing
+- easy scaling - just add more workers consuming the queue
+- queue will ensure that all the tasks will be processed
+
+## Saleor synchronous events
+
+```mermaid
+sequenceDiagram
+    participant c as Customer
+    participant s as Saleor API
+    participant a as App
+
+
+    c ->>+ s: Create payment
+    s ->>+ a: Create payment event
+    a ->> a: Process the event
+    a ->>- s:
+    s ->>- c:
+```
+
+## App to Saleor API
+
+```mermaid
+sequenceDiagram
+    participant c as Customer
+    participant cms as External CMS service
+    participant a as App
+    participant s as Saleor API
+
+    c ->>+ cms: create a new page
+    cms ->>- c :
+
+    cms ->>+ a: send page data
+    a ->> a: process the data
+    a ->>+ s: create a new page
+    s ->>- a:
+    a ->>- cms:
+```
+
+- the source of the event is the external service
+- app need a way to know which Saleor API should be notified (in MT apps)
+
+## Dashboard interface
+
+```mermaid
+sequenceDiagram
+    participant u as Staff user
+    participant d as Saleor Dashboard
+    participant a as App
+    participant s as Saleor API
+
+    u ->>+ d: request app configuration page
+    d ->>+ a: get app interface
+    a ->>- d:
+    d ->>- u:
+
+    d ->> d: app bridge establishes connection
+
+    d ->>+ a: authorized request for restricted data
+    a ->> a: auth
+    a ->>- d:
+    d ->> d: process data
+    d ->> u: update the interface
+```
+
+Dashboard can display app views in two scenarios:
+
+- user will navigate to app configuration page
+- user will navigate to dashboard extension
+
+In both situations, the view will be rendered inside the iframe and [App Bridge] should be used to provide auth and the context data.
+
+### Dedicated app page
+
+The URL to the view is provided in the app's manifest in the `appUrl` field.
+
+### Extensions
