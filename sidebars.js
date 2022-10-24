@@ -218,6 +218,13 @@ module.exports = {
             "developer/extending/apps/extending-dashboard-with-apps",
             "developer/extending/apps/sample-webhook-payloads",
             "developer/extending/apps/developing-with-tunnels",
+            {
+              type: "category",
+              label: "Patterns",
+              items: [
+                "developer/extending/apps/apps-patterns/handling-external-webhooks",
+              ],
+            },
           ],
         },
         {
