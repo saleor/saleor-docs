@@ -220,6 +220,11 @@ module.exports = {
             "developer/extending/apps/developing-with-tunnels",
             {
               type: "category",
+              label: "Architecture",
+              items: ["developer/extending/apps/architecture/apl"],
+            },
+            {
+              type: "category",
               label: "Patterns",
               items: [
                 "developer/extending/apps/apps-patterns/handling-external-webhooks",
