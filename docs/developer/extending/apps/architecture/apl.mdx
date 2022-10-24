@@ -20,13 +20,16 @@ This diagram explains flow how APL is used:
 
 Following diagram describes how APL is used to store token received from Saleor during registration
 
+```mermaid
 sequenceDiagram
 Saleor->>+App: Call /api/register with Auth Token and Domain header
 App->>+APL: Save token and header
 APL->>+External Database: Save in persistence layer
+```
 
 Follow diagram describes example of external webhook, that calls the App and should send data to Saleor
 
+```mermaid
 sequenceDiagram
 External Service->>+App: Call endpoint with webhook and Saleor domain
 App->>+APL: Get token for received domain
@@ -34,44 +37,45 @@ APL->>+External Database: Ask for token in persistence layer
 External Database->>+APL: Provide saved token
 APL->>+App: Provide saved token
 App->>+Saleor: Call graphQL query for related domain with retrieved token
+```
 
 # Shape of the APL
 
-```
+```typescript
 export interface AuthData {
-	 domain: string;
-	 token: string;
-	}
+  domain: string;
+  token: string;
+}
 
-	export type AplReadyResult =
-	 | {
-	 ready: true;
-	 }
-	 | {
-	 ready: false;
-	 error: Error;
-	 };
+export type AplReadyResult =
+  | {
+      ready: true;
+    }
+  | {
+      ready: false;
+      error: Error;
+    };
 
-	export type AplConfiguredResult =
-	 | {
-	 configured: true;
-	 }
-	 | {
-	 configured: false;
-	 error: Error;
-	 };
+export type AplConfiguredResult =
+  | {
+      configured: true;
+    }
+  | {
+      configured: false;
+      error: Error;
+    };
 
-	export interface APL {
-	 get: (domain: string) => Promise<AuthData | undefined>;
-	 set: (authData: AuthData) => Promise<void>;
-	 delete: (domain: string) => Promise<void>;
-	 getAll: () => Promise<AuthData[]>;
-	 /**
-	 * Inform that configuration is finished and correct
-	 */
-	 isReady: () => Promise<AplReadyResult>;
-	 isConfigured: () => Promise<AplConfiguredResult>;
-	}
+export interface APL {
+  get: (domain: string) => Promise<AuthData | undefined>;
+  set: (authData: AuthData) => Promise<void>;
+  delete: (domain: string) => Promise<void>;
+  getAll: () => Promise<AuthData[]>;
+  /**
+   * Inform that configuration is finished and correct
+   */
+  isReady: () => Promise<AplReadyResult>;
+  isConfigured: () => Promise<AplConfiguredResult>;
+}
 ```
 
 You can find the [APL shape in app-sdk](https://github.com/saleor/saleor-app-sdk/blob/main/src/APL/apl.ts)
