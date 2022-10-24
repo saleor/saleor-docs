@@ -16,7 +16,7 @@ module.exports = {
 
   plugins: [
     [
-      require.resolve("@edno/docusaurus2-graphql-doc-generator"),
+      require.resolve("@graphql-markdown/docusaurus"),
       {
         schema: "http://localhost:8000/graphql/",
         rootPath: "./docs", // docs will be generated under rootPath/baseURL
@@ -58,6 +58,7 @@ module.exports = {
       loader: require.resolve("esbuild-loader"),
       options: {
         loader: "tsx",
+        format: isServer ? "cjs" : undefined,
         target: isServer ? "node12" : "es2017",
       },
     }),
