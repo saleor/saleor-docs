@@ -226,8 +226,14 @@ module.exports = {
             {
               type: "category",
               label: "Patterns",
+              link: {
+                type: "doc",
+                id: "developer/extending/apps/developing-apps/apps-patterns/apps-patterns",
+              },
               items: [
-                "developer/extending/apps/apps-patterns/handling-external-webhooks",
+                "developer/extending/apps/developing-apps/apps-patterns/handling-external-webhooks",
+                "developer/extending/apps/developing-apps/apps-patterns/debugging",
+                "developer/extending/apps/developing-apps/apps-patterns/persistence-with-metadata-manager",
               ],
             },
           ],
