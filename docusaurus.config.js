@@ -16,7 +16,7 @@ module.exports = {
 
   plugins: [
     [
-      require.resolve("@graphql-markdown/docusaurus"),
+      "@graphql-markdown/docusaurus",
       {
         schema: "http://localhost:8000/graphql/",
         rootPath: "./docs", // docs will be generated under rootPath/baseURL
