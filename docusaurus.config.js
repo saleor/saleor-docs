@@ -14,9 +14,14 @@ module.exports = {
 
   favicon: "img/saleor-icon.png",
 
+  markdown: {
+    mermaid: true,
+  },
+  themes: ["@docusaurus/theme-mermaid"],
+
   plugins: [
     [
-      require.resolve("@graphql-markdown/docusaurus"),
+      "@graphql-markdown/docusaurus",
       {
         schema: "http://localhost:8000/graphql/",
         rootPath: "./docs", // docs will be generated under rootPath/baseURL
@@ -169,7 +174,6 @@ module.exports = {
         docs: {
           // docs folder path relative to website dir.
           path: "./docs",
-          remarkPlugins: [require("mdx-mermaid")],
           lastVersion: "current",
           versions: {
             current: {
