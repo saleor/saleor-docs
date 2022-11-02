@@ -22,8 +22,7 @@ sequenceDiagram
 
     w ->>+ a: send event payload
     a ->> a: process the payload
-    a ->>+ extSales: send new order data
-    extSales ->>- a:
+    a ->> extSales: send new order data
     a ->>- w: confirm task execution
 ```
 
@@ -33,7 +32,7 @@ Event delivery will retry if:
 - endpoint does not respond before timeout
 - endpoint will respond with non-200 status code
 
-If your application performs long-running operations after receiving the event, consider using the task queue
+If your application performs long-running operations after receiving the event, consider using the task queue.
 
 ### Task queue
 
@@ -51,20 +50,25 @@ sequenceDiagram
     s --> q: order created event payload
     s ->>- c: order created
     a ->>+ q: pull new tasks for processing
-    q ->>- a:
+    q ->>- a: task payload
+    a ->> a: process payload
     a ->>+ extSales: send new order data
-    extSales ->>- a:
     a ->> q: mark tasks as done
 ```
 
-Instead of sending requests, the worker will put events in the queue. This approach allow you to:
+Instead of sending requests, the worker will put events in the queue. This approach allows you to:
 
 - perform long-running tasks
 - in case of events surge, the App will not be overwhelmed with requests. The tasks will wait in the queue for the processing
 - easy scaling - just add more workers consuming the queue
 - queue will ensure that all the tasks will be processed
 
+To read more, check [queues documentation](developer/extending/apps/asynchronous-webhooks.mdx#google-cloud-pubsub).
+
 ## Saleor synchronous events
+
+Synchronous events can be used to implement payments, shipping and tax processing. When using synchronous events, response time is crucial -
+any delay introduced by the App will impact customers using your shop.
 
 ```mermaid
 sequenceDiagram
@@ -73,14 +77,20 @@ sequenceDiagram
     participant a as App
 
 
-    c ->>+ s: Create payment
+    c ->>+ s: Create a payment
     s ->>+ a: Create payment event
     a ->> a: Process the event
-    a ->>- s:
-    s ->>- c:
+    a ->>- s: Response
+    s ->>- c: Response
 ```
 
+To read more about synchronous events, check [documentation](developer/extending/apps/synchronous-webhooks/key-concepts.mdx).
+
 ## App to Saleor API
+
+The App can also use Saleor GraphQL API queries and mutations. The scope of the access is dictated by the App's [permissions](developer/extending/apps/key-concepts.mdx#permissions).
+
+Example data flow for application synchronizing CMS (eg. Strapi) data with the Saleor:
 
 ```mermaid
 sequenceDiagram
@@ -90,19 +100,21 @@ sequenceDiagram
     participant s as Saleor API
 
     c ->>+ cms: create a new page
-    cms ->>- c :
+    cms ->>- c : response
 
-    cms ->>+ a: send page data
+    cms -->>+ a: send page data
     a ->> a: process the data
     a ->>+ s: create a new page
-    s ->>- a:
-    a ->>- cms:
 ```
 
-- the source of the event is the external service
-- app need a way to know which Saleor API should be notified (in MT apps)
-
 ## Dashboard interface
+
+The Dashboard can display App views in two scenarios:
+
+- user will navigate to the App configuration page
+- user will use the Dashboard extension
+
+Data flow for both is the same:
 
 ```mermaid
 sequenceDiagram
@@ -111,29 +123,20 @@ sequenceDiagram
     participant a as App
     participant s as Saleor API
 
-    u ->>+ d: request app configuration page
-    d ->>+ a: get app interface
-    a ->>- d:
-    d ->>- u:
+    u ->>+ d: request App configuration page
+    d ->>+ a: get App interface
+    a ->>- d: configuration data
+    d ->>- u: interface with a loading screen
 
-    d ->> d: app bridge establishes connection
+    d ->> d: App Bridge establishes the connection
 
     d ->>+ a: authorized request for restricted data
     a ->> a: auth
-    a ->>- d:
+    a ->>- d: configuration data
     d ->> d: process data
     d ->> u: update the interface
 ```
 
-Dashboard can display app views in two scenarios:
+The App interface should use App Bridge for auth and integration with dashboard features like notifications or theming.
 
-- user will navigate to app configuration page
-- user will navigate to dashboard extension
-
-In both situations, the view will be rendered inside the iframe and [App Bridge] should be used to provide auth and the context data.
-
-### Dedicated app page
-
-The URL to the view is provided in the app's manifest in the `appUrl` field.
-
-### Extensions
+To read more about using Apps in the dashboard, read the [extending dashboard documentation](developer/extending/apps/extending-dashboard-with-apps.mdx).
