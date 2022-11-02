@@ -203,7 +203,7 @@ module.exports = {
             "developer/extending/apps/asynchronous-webhooks",
             {
               type: "category",
-              label: "Synchronous webhooks",
+              label: "Synchronous Webhooks",
               link: {
                 type: "doc",
                 id: "developer/extending/apps/synchronous-webhooks/key-concepts",
