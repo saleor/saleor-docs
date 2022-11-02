@@ -5,6 +5,7 @@ title: Communication between App and Saleor
 ## Saleor Asynchronous Events
 
 In this scenario, the source of the request is a Saleor instance (the worker - to be exact). In contrast to synchronous events, Saleor does not expect an immediate response from the App.
+More details can be found at [Asynchronous Webhooks documentation pages](developer/extending/apps/asynchronous-webhooks.mdx).
 
 ### Webhooks (HTTP requests)
 
@@ -17,7 +18,7 @@ sequenceDiagram
     participant extSales as External sales reporting service
 
     c ->>+ s: create order
-    s --> w: order created event
+    s --> w: "ORDER_CREATED" event
     s ->>- c: order created
 
     w ->>+ a: send event payload
@@ -42,12 +43,12 @@ Example flow of the data for application sending data to reporting service:
 sequenceDiagram
     participant c as Customer
     participant s as Saleor API
-    participant q as Queue service - ex SQS
+    participant q as Queue service - e.g. SQS
     participant a as App
     participant extSales as External sales reporting service
 
     c ->>+ s: create order
-    s --> q: order created event payload
+    s --> q: "ORDER_CREATED" event payload
     s ->>- c: order created
     a ->>+ q: pull new tasks for processing
     q ->>- a: task payload
@@ -78,7 +79,7 @@ sequenceDiagram
 
 
     c ->>+ s: Create a payment
-    s ->>+ a: Create payment event
+    s ->>+ a: "PAYMENT_AUTHORIZE" event
     a ->> a: Process the event
     a ->>- s: Response
     s ->>- c: Response
