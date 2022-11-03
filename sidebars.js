@@ -203,7 +203,7 @@ module.exports = {
             "developer/extending/apps/asynchronous-webhooks",
             {
               type: "category",
-              label: "Synchronous webhooks",
+              label: "Synchronous Webhooks",
               link: {
                 type: "doc",
                 id: "developer/extending/apps/synchronous-webhooks/key-concepts",
@@ -221,7 +221,10 @@ module.exports = {
             {
               type: "category",
               label: "Architecture",
-              items: ["developer/extending/apps/architecture/apl"],
+              items: [
+                "developer/extending/apps/architecture/apl",
+                "developer/extending/apps/architecture/communication-between-app-and-saleor",
+              ],
             },
             {
               type: "category",
