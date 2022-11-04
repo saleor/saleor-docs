@@ -2,35 +2,33 @@
 title: Adyen
 ---
 
-The Adyen plugin allows you to process customer transactions via [Adyen](https://www.adyen.com). 
+The Adyen plugin allows you to process customer transactions via [Adyen](https://www.adyen.com).
 The list of available payments methods can be found [here](https://docs.adyen.com/payment-methods)
 
 :::note
-Saleor uses Adyen's checkout API in version [64](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/overview). 
-If you're using [drop-in](https://docs.adyen.com/online-payments/web-drop-in/integrated-before-5-0-0) or 
-[components](https://docs.adyen.com/online-payments/web-components/integrated-before-5-0-0) integrations make sure that 
+Saleor uses Adyen's checkout API in version [64](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/overview).
+If you're using [drop-in](https://docs.adyen.com/online-payments/web-drop-in/integrated-before-5-0-0) or
+[components](https://docs.adyen.com/online-payments/web-components/integrated-before-5-0-0) integrations make sure that
 you're using Adyen's packages in a version lower than 5.0.0.
 :::
 
-
 :::note
-To use the Adyen plugin, make sure that you have configured the plugin. 
+To use the Adyen plugin, make sure that you have configured the plugin.
 The configuration is described [here](dashboard/configuration/plugins/adyen.md#enabling-the-adyen-integration).
 :::
 
-
 ## Adding a payment form
 
-Adding a payment form for Adyen requires Saleor to provide available payment methods and a client-key. 
-Both of these values can be fetched by calling `checkout.availablePaymentGateways.config`. 
+Adding a payment form for Adyen requires Saleor to provide available payment methods and a client-key.
+Both of these values can be fetched by calling `checkout.availablePaymentGateways.config`.
 The query returns all required fields to prepare a payment form with methods available for the checkout.
 
 ```graphql
 {
-  checkout(token:"14f11c1c-9bc7-4145-89f7-67b60ef943f2"){
-    availablePaymentGateways{
+  checkout(token: "14f11c1c-9bc7-4145-89f7-67b60ef943f2") {
+    availablePaymentGateways {
       id
-      config{
+      config {
         field
         value
       }
@@ -38,10 +36,11 @@ The query returns all required fields to prepare a payment form with methods ava
   }
 }
 ```
- As a result, we get the details required to render a payment form.
 
- ```json
- {
+As a result, we get the details required to render a payment form.
+
+```json
+{
   "data": {
     "checkout": {
       "availablePaymentGateways": [
@@ -62,25 +61,24 @@ The query returns all required fields to prepare a payment form with methods ava
     }
   }
 }
- ```
+```
 
 ## Creating a payment in Saleor
 
-To create a payment properly, you need to follow the steps described in 
-[Creating a checkout session](developer/checkout.mdx#creating-a-checkout-session) and 
+To create a payment properly, you need to follow the steps described in
+[Creating a checkout session](developer/checkout.mdx#creating-a-checkout-session) and
 [Selecting a shipping method](developer/checkout.mdx#selecting-a-shipping-method).
 
-The next step is to choose Adyen as the payment gateway that we want to use to process the checkout. 
+The next step is to choose Adyen as the payment gateway that we want to use to process the checkout.
 For the Adyen payment gateway, we need to provide:
 
 - `checkoutId`: ID of the checkout, for which new payment should be created.
 
-- `input.gateway`: ID of the payment gateway which should be assigned to this payment. For Adyen it will be:  `mirumee.payments.adyen`.
+- `input.gateway`: ID of the payment gateway which should be assigned to this payment. For Adyen it will be: `mirumee.payments.adyen`.
 
 - `input.amount`: Amount of payment to process.
 
 - `input.returnUrl`: URL to where the customer should be taken back to after a redirection.
-
 
 :::note
 Description of the `checkoutPaymentCreate` mutation can be found [here](developer/checkout.mdx#selecting-a-payment-method).
@@ -90,7 +88,11 @@ Description of the `checkoutPaymentCreate` mutation can be found [here](develope
 mutation {
   checkoutPaymentCreate(
     checkoutId: "Q2hlY2tvdXQ6MWZiMmM1OGUtN2JhMy00YmY5LWI2ZDItNWY2ZWJiN2U3ZWJj"
-    input: { gateway: "mirumee.payments.adyen", amount: 45.61, returnUrl: "https://127.0.0.1:3001/checkout/payment-confirm" }
+    input: {
+      gateway: "mirumee.payments.adyen"
+      amount: 45.61
+      returnUrl: "https://127.0.0.1:3001/checkout/payment-confirm"
+    }
   ) {
     payment {
       id
@@ -105,34 +107,35 @@ mutation {
 ```
 
 ## Completing the checkout
-After we create a payment object for the Adyen payment gateway, 
+
+After we create a payment object for the Adyen payment gateway,
 we can call the `checkoutComplete` mutation.
 
-`checkoutComplete` can accept additional parameters for Adyen as fields in the `paymentData` input. 
+`checkoutComplete` can accept additional parameters for Adyen as fields in the `paymentData` input.
 The following fields in `paymentData` will be directly passed to Adyen's [payments endpoint](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments):
 
 - Required:
-  - `paymentMethod` - Received from the front-end payment form as a `state.data.paymentMethod` when a customer provides payment details. 
-  [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_paymentMethod).
+
+  - `paymentMethod` - Received from the front-end payment form as a `state.data.paymentMethod` when a customer provides payment details.
+    [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_paymentMethod).
 
 - Optional:
-  - `channel` - The platform where a payment transaction takes place. Default `web`. 
-  [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_channel).
-  - `originUrl` - Required for the 3D Secure 2 channel `web` integration. 
-  Value assigned to `origin` field. [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_origin).
-  - `browserInfo` - The customer's browser information. 
-  [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_browserInfo).
-  - `billingAddress` - The billing address of the customer. If empty or missing, 
-  Saleor will fill out the field based on the checkout billing address. 
-  [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_billingAddress).
-  - `deliveryAddress` - The delivery address of the customer. If empty or missing, 
-  Saleor will fill out the field based on the checkout shipping address. 
-  [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_deliveryAddress).
+  - `channel` - The platform where a payment transaction takes place. Default `web`.
+    [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_channel).
+  - `originUrl` - Required for the 3D Secure 2 channel `web` integration.
+    Value assigned to `origin` field. [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_origin).
+  - `browserInfo` - The customer's browser information.
+    [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_browserInfo).
+  - `billingAddress` - The billing address of the customer. If empty or missing,
+    Saleor will fill out the field based on the checkout billing address.
+    [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_billingAddress).
+  - `deliveryAddress` - The delivery address of the customer. If empty or missing,
+    Saleor will fill out the field based on the checkout shipping address.
+    [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_deliveryAddress).
   - `shopperIP` - The customer's IP address. [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_shopperIP).
-  - `deviceFingerprint` - A string containing the customer's device fingerprint. 
-  [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_deviceFingerprint).
+  - `deviceFingerprint` - A string containing the customer's device fingerprint.
+    [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_deviceFingerprint).
   - `shopperName` - The customer's full name. [Adyen's docs](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__reqParam_shopperName).
-
 
 ```graphql
 mutation {
@@ -150,12 +153,14 @@ mutation {
 ```
 
 The checkoutComplete mutation has the following fields:
-- `order` - Optional Order object. `Null` when Saleor was not able to finalize checkout or when additional action is required from the customer. 
+
+- `order` - Optional Order object. `Null` when Saleor was not able to finalize checkout or when additional action is required from the customer.
 - `confirmationNeeded` - Set to `true` when finalizing a checkout requires more action from the customer.
 - `confirmationData` - Action data that need to be processed on the frontend side before finalizing the payment. [Adyen doc's](https://docs.adyen.com/api-explorer/#/CheckoutService/v64/post/payments__resParam_action).
 - `errors` - Saleor's errors related to the `checkoutComplete` action.
 
 ### Completing the checkout without requiring any additional action
+
 When payment doesn't require any additional action from the customer, Saleor will finalize a checkout, return an order, set `confirmationNeeded` to `false` and `confirmationData` as an empty dict.
 
 ```json
@@ -173,9 +178,10 @@ When payment doesn't require any additional action from the customer, Saleor wil
 ```
 
 ### Processing the checkout payment with additional actions required
+
 When payment requires additional action from the customer like authentication payment with 3D Secure,
- logging in to their bank's website or a redirect to the payment provider page, Saleor will set `confirmationNeeded` to `true` 
- and provide all Adyen's action data required to finalize payment as a `confirmationData`.
+logging in to their bank's website or a redirect to the payment provider page, Saleor will set `confirmationNeeded` to `true`
+and provide all Adyen's action data required to finalize payment as a `confirmationData`.
 
 ```json
 {
@@ -207,33 +213,38 @@ mutation {
   }
 }
 ```
-The response of the mutation will contain a newly created order or additional data required for the next additional action from a customer. 
+
+The response of the mutation will contain a newly created order or additional data required for the next additional action from a customer.
 In case, when more actions are required, process them in the same way as the second `checkoutComplete` call.
 
 #### Processing a redirect additional action
 
 If `action.type` is `redirect`, Adyen will redirect a customer to a page where the customer can finalize the payment.
- After that, the customer will be redirected back. The request will go through the Saleor, which will confirm the current status of payment. 
+After that, the customer will be redirected back. The request will go through the Saleor, which will confirm the current status of payment.
 In the next step, Saleor will use `returnUrl` provided in the `checkoutPaymentCreate` mutation to redirect the shopper to the store page.
 The `returnUrl` will have attached the following parameters attached:
-  - Required:
-    - `checkout` - the ID of processed checkout.
-    - `payment` - the ID of processed payment.
-    - `resultCode` - status of the payment recieved from Adyen. Can be used to determine the current status of the payment. [Docs](https://docs.adyen.com/online-payments/payment-result-codes)
-  - Optional:
-    - `action` -  action data if an additional action is required by customer.
+
+- Required:
+  - `checkout` - the ID of processed checkout.
+  - `payment` - the ID of processed payment.
+  - `resultCode` - status of the payment recieved from Adyen. Can be used to determine the current status of the payment. [Docs](https://docs.adyen.com/online-payments/payment-result-codes)
+- Optional:
+  - `action` - action data if an additional action is required by customer.
 
 If payment was successfully processed, Saleor will create an order. The next mutation `checkoutComplete` call will return `order` in the response.
 
-
+:::caution
+When the notification is received for an inactive payment or there will be any issue
+with order creation, the payment is refunded or voided (in case the payment wasn't charged yet).
+:::
 
 ## Enabling native 3DS2
-Saleor uses redirect 3D Secure 1 and 2 by default. [Enabling native 3D Secure](dashboard/configuration/plugins/adyen.md#enabling-the-adyen-integration) will add the `additionalData.allow3DS2: true` flag 
-to all card transactions.
-Make sure that you provide all required fields for native 3D Secure in `checkoutComplete.input.paymentData` as described [here](developer/available-plugins/adyen.mdx#completing-the-checkout). 
-The mandatory fields for enabling native 3D Secure 2 can be found [here](https://docs.adyen.com/online-payments/3d-secure/native-3ds2). 
-Specific channel (`iOS`, `Android`, `Web`) or solution type (`Drop-in`, `Components`) can require different fields. 
 
+Saleor uses redirect 3D Secure 1 and 2 by default. [Enabling native 3D Secure](dashboard/configuration/plugins/adyen.md#enabling-the-adyen-integration) will add the `additionalData.allow3DS2: true` flag
+to all card transactions.
+Make sure that you provide all required fields for native 3D Secure in `checkoutComplete.input.paymentData` as described [here](developer/available-plugins/adyen.mdx#completing-the-checkout).
+The mandatory fields for enabling native 3D Secure 2 can be found [here](https://docs.adyen.com/online-payments/3d-secure/native-3ds2).
+Specific channel (`iOS`, `Android`, `Web`) or solution type (`Drop-in`, `Components`) can require different fields.
 
 ## Enabling Apple Pay
 
@@ -242,18 +253,20 @@ Make sure that you follow all steps required to activate Apple Pay as described 
 :::
 
 ### Enabling on web channel
+
 Each usage of Apple Pay on the web requires the initialization of the payment session.
-Adyen's form([Drop-in](https://docs.adyen.com/payment-methods/apple-pay/web-drop-in?tab=_code_payments_code__2#drop-in-configuration), 
-[Components](https://docs.adyen.com/payment-methods/apple-pay/web-component?tab=_code_payments_code__2#step-2-create-an-instance-of-the-component)) has handler `onValidateMerchant`. To request the Apple Pay session, 
+Adyen's form([Drop-in](https://docs.adyen.com/payment-methods/apple-pay/web-drop-in?tab=_code_payments_code__2#drop-in-configuration),
+[Components](https://docs.adyen.com/payment-methods/apple-pay/web-component?tab=_code_payments_code__2#step-2-create-an-instance-of-the-component)) has handler `onValidateMerchant`. To request the Apple Pay session,
 call mutation `paymentInitialize` inside `onValidateMerchant`.
 
-
 Mutation `paymentInitialize` accepts the following fields:
+
 - `channel`: channel slug, where the Apple Pay session should be initialized
-- `gateway`: - the `gateway` is the id of the plugin, which for Adyen is  - `mirumee.payments.adyen`
+- `gateway`: - the `gateway` is the id of the plugin, which for Adyen is - `mirumee.payments.adyen`
 - `paymentData`: JSONString with all data required to initialize session.
 
 `PaymentData` for initializing Apple Pay session should contain the below structure.
+
 ```json
 {
   "merchantIdentifier": "<your-apple-merchant-id>",
@@ -263,7 +276,9 @@ Mutation `paymentInitialize` accepts the following fields:
   "paymentMethod": "applepay"
 }
 ```
+
 As a response, you will get `initializedPayment` object. The `initializedPayment.data` contains the session object which should be converted to JSON (from JSONString) and passed to the resolve method.
 
 ### Testing Apple Pay
+
 To use the test card with Apple Pay on the web, you need to follow the [Apple's docs](https://developer.apple.com/apple-pay/sandbox-testing/).
