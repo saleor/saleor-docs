@@ -1,5 +1,4 @@
 require("dotenv").config();
-const path = require("path");
 
 module.exports = {
   title: "Documentation – Saleor Commerce",
