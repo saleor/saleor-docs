@@ -36,7 +36,8 @@ module.exports = {
       items: [
         "developer/extending/apps/architecture/communication-between-app-and-saleor",
         "developer/extending/apps/architecture/apl",
-        "developer/extending/apps/architecture/app-bridge",
+        // todo: add more content for app bridge
+        // "developer/extending/apps/architecture/app-bridge",
         {
           type: "category",
           label: "App Requirements",
