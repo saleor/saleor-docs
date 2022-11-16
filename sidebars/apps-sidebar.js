@@ -35,10 +35,8 @@ module.exports = {
       },
       items: [
         "developer/extending/apps/architecture/communication-between-app-and-saleor",
-        "developer/extending/apps/architecture/auth",
         "developer/extending/apps/architecture/apl",
         "developer/extending/apps/architecture/app-bridge",
-        "developer/extending/apps/architecture/storing-secrets",
         {
           type: "category",
           label: "App Requirements",
@@ -68,7 +66,6 @@ module.exports = {
           },
           items: [
             "developer/extending/apps/developing-apps/apps-patterns/handling-external-webhooks",
-            "developer/extending/apps/developing-apps/apps-patterns/debugging",
             "developer/extending/apps/developing-apps/apps-patterns/persistence-with-metadata-manager",
           ],
         },
