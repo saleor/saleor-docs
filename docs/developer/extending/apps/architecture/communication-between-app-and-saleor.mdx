@@ -1,11 +1,14 @@
 ---
-title: Communication between App and Saleor
+title: Communicating with apps
 ---
+
+While building an app, you may involve many subjects in the exchange of data. Their number and relations will vary given the problem you are trying to solve. In this article, we present different variants of communication between Saleor and apps.
 
 ## Saleor Asynchronous Events
 
-In this scenario, the source of the request is a Saleor instance (the worker - to be exact). In contrast to synchronous events, Saleor does not expect an immediate response from the App.
-More details can be found at [Asynchronous Webhooks documentation pages](developer/extending/apps/asynchronous-webhooks.mdx).
+When communicating through asynchronous events, the request comes from a Saleor worker. Unlike in the case of synchronous events, Saleor does not expect an immediate response from the app.
+
+You can find more details about the asynchronous webhooks in their [documentation](developer/extending/apps/asynchronous-webhooks.mdx).
 
 ### Webhooks (HTTP requests)
 
@@ -27,17 +30,18 @@ sequenceDiagram
     a ->>- w: confirm task execution
 ```
 
-To process webhooks, the App needs publicly accessible endpoints listening for HTTP POST requests. Before requests will be sent, App must [subscribe for events](developer/extending/apps/asynchronous-webhooks.mdx).
+To accept webhooks, your app must include public endpoints listening for HTTP POST requests. You have to also ensure the app [subscribes to the right events](developer/extending/apps/asynchronous-webhooks.mdx).
+
 Event delivery will retry if:
 
-- endpoint does not respond before timeout
-- endpoint will respond with non-200 status code
+- the endpoint does not respond before timeout
+- the endpoint will respond with a non-200 status code
 
-If your application performs long-running operations after receiving the event, consider using the task queue.
+If your application performs long-running operations, you should consider using the task queue.
 
 ### Task queue
 
-Example flow of the data for application sending data to reporting service:
+Example flow of an application sending data to a reporting service:
 
 ```mermaid
 sequenceDiagram
@@ -59,17 +63,16 @@ sequenceDiagram
 
 Instead of sending requests, the worker will put events in the queue. This approach allows you to:
 
-- perform long-running tasks
-- in case of events surge, the App will not be overwhelmed with requests. The tasks will wait in the queue for the processing
-- easy scaling - just add more workers consuming the queue
-- queue will ensure that all the tasks will be processed
+- Perform long-running tasks.
+- Offload the app so it does not get overwhelmed with requests.
+- Scale easily: in case of emergency, just add more workers to the queue.
+- Ensure all the tasks will be processed.
 
-To read more, check [queues documentation](developer/extending/apps/asynchronous-webhooks.mdx#google-cloud-pubsub).
+To read more about queues, check [Google Cloud Pub/Sub documentation](developer/extending/apps/asynchronous-webhooks.mdx#google-cloud-pubsub).
 
 ## Saleor synchronous events
 
-Synchronous events can be used to implement payments, shipping and tax processing. When using synchronous events, response time is crucial -
-any delay introduced by the App will impact customers using your shop.
+You can use synchronous events to implement payments, shipment and tax processing. When using synchronous events, response time is crucial - any delay in the app can impact your customers.
 
 ```mermaid
 sequenceDiagram
@@ -89,9 +92,9 @@ To read more about synchronous events, check [documentation](developer/extending
 
 ## App to Saleor API
 
-The App can also use Saleor GraphQL API queries and mutations. The scope of the access is dictated by the App's [permissions](developer/extending/apps/key-concepts.mdx#permissions).
+Apps can also communicate with Saleor GraphQL API. You can declare the access scope with the app's [permissions](developer/extending/apps/key-concepts.mdx#permissions).
 
-Example data flow for application synchronizing CMS (eg. Strapi) data with the Saleor:
+An example data flow for an application synchronizing CMS (e.g. Strapi) data with Saleor:
 
 ```mermaid
 sequenceDiagram
@@ -110,12 +113,13 @@ sequenceDiagram
 
 ## Dashboard interface
 
-The Dashboard can display App views in two scenarios:
+The Dashboard can display app views in two scenarios:
 
-- user will navigate to the App configuration page
-- user will use the Dashboard extension
+- user navigates to the app configuration page
+<!-- Question: What is a "Dashboard extension"? -->
+- user utilizes the Dashboard extension
 
-Data flow for both is the same:
+The diagram looks the same for either:
 
 ```mermaid
 sequenceDiagram
@@ -138,6 +142,6 @@ sequenceDiagram
     d ->> u: update the interface
 ```
 
-The App interface should use App Bridge for auth and integration with dashboard features like notifications or theming.
+We recommend using the App Bridge in the app interface. It authenticates the app, as well as connects it with the dashboard. That allows utilizing features such as notifications or theming.
 
-To read more about using Apps in the dashboard, read the [extending dashboard documentation](developer/extending/apps/extending-dashboard-with-apps.mdx).
+To read more about using apps in the dashboard, read the [extending dashboard documentation](developer/extending/apps/extending-dashboard-with-apps.mdx).
