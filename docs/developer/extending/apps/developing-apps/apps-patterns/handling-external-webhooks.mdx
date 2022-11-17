@@ -1,13 +1,13 @@
 ---
-title: App Pattern - Handling external webhooks
+title: Handling external webhooks
 ---
 
-## What is an external webhook
+## What is an external webhook?
 
-Saleor may not be the only source of the webhooks sent to your application. Popular use cases:
+Saleor may not be the only source of webhooks sent to your application. Some popular use cases include:
 
-- status update of payment from a provider like Stripe
-- delivery status update of a package
+- a status update of payment from a provider like Stripe
+- new information about a delivery of a package
 - CMS changed a product description
 
 If the application is multi-tenant, then the flow of the data is as below:
@@ -24,9 +24,9 @@ flowchart LR
     a --> c2
 ```
 
-## Exposing endpoint
+## Exposing an endpoint
 
-The first step will be creating an HTTP endpoint that will receive events. For example, it's going to be `/api/webhooks/status-update`.
+The first step will be creating an HTTP endpoint that will receive events. In our example, it's going to be: `/api/webhooks/status-update`.
 
 ```mermaid
 flowchart LR
@@ -36,7 +36,7 @@ flowchart LR
     e -- webhook --> d
 ```
 
-Since external services require an address that is accessible from the internet, you are going to need a tunnel to expose the local environment. You can read more in the [tunneling section](../../developing-with-tunnels.mdx).
+Since external services require a URL that is accessible from the internet, you are going to need a tunnel to expose your local environment. You can read more about it in the [tunneling article](/developer/extending/apps/developing-with-tunnels.mdx).
 
 ```mermaid
 flowchart LR
@@ -57,30 +57,31 @@ flowchart LR
     t -.-> a
 ```
 
-When subscribing for webhooks in the external service, use the URL of the tunneled endpoint or deployed app.
+When subscribing for webhooks in an external service, use the URL of the tunneled endpoint or a deployed app.
 
-## Handling multi-tenancy
+## Multi-tenancy
 
-If your application is handling more than one Saleor instance, it's going to need a way to distinguish which one is the target of the webhook payload. One way of doing that is to add a domain or unique id to the endpoint, for example `/api/webhooks/status-update?domain=demo.saleor.io`.
+Some applications can be dealing with more than one Saleor instance. In that case, you are going to need a way to distinguish which one is the target of the webhook payload. One way of doing that is to add a domain or unique id to the endpoint, for example `/api/webhooks/status-update?domain=demo.saleor.io`.
 
 ## Securing your endpoint
 
-Before you deploy your application, you'll need to make sure unauthorized clients won't use endpoints to send malicious data. Here are a few ways you should implement
+Before deploying your application, you'll need to make sure unauthorized clients won't use endpoints to send malicious data. Here are a few ways to ensure that:
 
 ### Domain allowlist
 
-If possible, the endpoint should reject connections from unknown domains. Services often publish lists of known domains that they use to send webhooks. For example, there's [a list of domains used by Stripe](https://stripe.com/docs/ips).
+If possible, the endpoint should reject connections from unknown domains. Services often publish lists of known domains that they use to send webhooks. For example, here is [a list of domains used by Stripe](https://stripe.com/docs/ips). Knowing the domains of the parties you communicate with, you can introduce an allowlist for your API.
 
 ### Secrets
 
-Common practice is to generate a unique secret for each webhook and attach it to the payload body or headers. Consult webhook provider documentation where you can find it.
+Common practice is to generate a unique secret key for each webhook and attach it to the payload body or headers. The details should be provided in the documentation of the service you are integrating with.
+
 You can use app metadata to store the secret value. Check [MetadataManager docs](./persistence-with-metadata-manager.mdx) to learn more about helper functions available in Saleor App SDK.
 
 ### Checking the payload checksum - HMAC
 
-To make sure the webhook payload has not been tampered with by a third party is to calculate its checksum (signature).
+Calculating the checksum of a webhook payload enables you to verify if it has not been tampered with by a third party.
 
-Example documentation of how you can calculate the signature:
+Here are some examples of how you can do that:
 
 - [Adyen docs](https://docs.adyen.com/development-resources/webhooks/verify-hmac-signatures)
 - [Stripe docs](https://stripe.com/docs/webhooks/signatures)
