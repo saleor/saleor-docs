@@ -3,37 +3,37 @@ title: Required endpoints
 slug: required-endpoints
 ---
 
-Saleor needs two endpoints that your app must expose
+Saleor expects your app to expose two endpoints:
 
-Manifest URL - to get your app's metadata
-Register URL - to exchange App Token
+- Manifest URL - to get your app's metadata.
+- Register URL - to exchange the app token.
 
-# Manifest URL
+## Manifest URL
 
 - Method: `GET`
-- Response - `JSON` with valid [App Manifest](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest)
-- Suggested path - `/api/manifest`
+- Response - `JSON` with a valid [App Manifest](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest)
+- Suggested path: `/api/manifest`
 
-Saleor will call this endpoint to get your app metadata, like name and description, but first of all - to register webhooks, permissions, and extensions.
+Saleor will call this endpoint to get your app metadata. It returns the app's name and description, as well as all the necessary information to register webhooks, permissions, and extensions.
 
-See [Manifest docs](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest) or check its [typings](https://github.com/saleor/saleor-app-sdk/blob/main/src/types.ts#L67).
+Dashboard and Saleor API will use this endpoint to retrieve information needed to install the app.
 
-If your app is built with [Next.js](https://nextjs.org/), you can use a [helper from saleor/app-sdk](https://github.com/saleor/saleor-app-sdk/blob/main/docs/api-handlers.md#manifest-handler-factory), that creates a handler with minimal config.
+To learn more about what Manifest consists of, please check the [Manifest docs](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest) or explore its [type](https://github.com/saleor/saleor-app-sdk/blob/main/src/types.ts#L67).
 
-Dashboard and Saleor API will use this endpoint to install the app.
+If your app is built with [Next.js](https://nextjs.org/), you can use a [helper from saleor-app-sdk](https://github.com/saleor/saleor-app-sdk/blob/main/docs/api-handlers.md#manifest-handler-factory) that creates a Manifest handler with minimal config.
 
-# Register URL
+## Register URL
 
 - Method: `POST`
 - Response - status `200`
 - Suggested path - `/api/register`
 
-When Saleor installs the app, it will call a 2nd critical endpoint.
+During the installation of an app, Saleor will call a second critical endpoint.
 
-Saleor will add `auth_token` param to the request body and domain header. The app should save this token and use it to run API calls.
+When calling the "register" endpoint, Saleor will add the `auth_token` param to the request body and domain header. The app's job is to save the token and use it to run API calls.
 
-While we suggest `/api/register` path, it can be configured in [Manifest](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest) with `tokenTargetUrl` field.
+While we suggest `/api/register` path, it can be configured in [Manifest](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest) with the `tokenTargetUrl` field.
 
-You can write this endpoint on your own, but saleor/app-sdk exports a [helper](https://github.com/saleor/saleor-app-sdk/blob/main/docs/api-handlers.md#app-register-handler-factory) for that
+You can write this endpoint on your own, but we recommend using a [helper](https://github.com/saleor/saleor-app-sdk/blob/main/docs/api-handlers.md#app-register-handler-factory) provided by `saleor-app-sdk`.
 
 To use this helper, you must provide a valid [APL](https://github.com/saleor/saleor-app-sdk/blob/main/docs/apl.md), that will handle storing token and domain pairs for your app.
