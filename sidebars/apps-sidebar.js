@@ -29,10 +29,6 @@ module.exports = {
     {
       type: "category",
       label: "Architecture",
-      link: {
-        type: "doc",
-        id: "developer/extending/apps/architecture/app-architecture",
-      },
       items: [
         "developer/extending/apps/architecture/communication-between-app-and-saleor",
         "developer/extending/apps/architecture/apl",
