@@ -8,6 +8,20 @@ module.exports = {
   items: [
     {
       type: "category",
+      label: "Quickstart",
+      link: {
+        type: "doc",
+        id: "developer/extending/apps/quickstart/getting-started",
+      },
+      items: [
+        "developer/extending/apps/quickstart/creating-apps",
+        "developer/extending/apps/quickstart/abandoned-checkouts",
+        "developer/extending/apps/quickstart/subscribing-to-webhook",
+        "developer/extending/apps/quickstart/deploy-to-vercel",
+      ],
+    },
+    {
+      type: "category",
       label: "Architecture",
       items: [
         "developer/extending/apps/manifest",
