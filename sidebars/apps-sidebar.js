@@ -9,11 +9,8 @@ module.exports = {
     {
       type: "category",
       label: "Quickstart",
-      link: {
-        type: "doc",
-        id: "developer/extending/apps/quickstart/getting-started",
-      },
       items: [
+        "developer/extending/apps/quickstart/getting-started",
         "developer/extending/apps/quickstart/creating-apps",
         "developer/extending/apps/quickstart/abandoned-checkouts",
         "developer/extending/apps/quickstart/subscribing-to-webhook",
