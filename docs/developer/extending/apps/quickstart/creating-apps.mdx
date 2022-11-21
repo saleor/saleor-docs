@@ -1,57 +1,51 @@
 ---
-title: Creating Apps with Saleor CLI
+title: Creating an app
 ---
 
-MINIMUM SALEOR VERSION
-3.5.10<br/>
-MINIMUM SALEOR CLI VERSION
-1.13
+## Summing up
 
-## Overview
+Before we continue, let's sum up what should we have up until this point:
 
-Saleor platform gives developers a powerful way to extend its capabilities by building `Apps`, which can then be integrated with the Saleor store. By developing Apps you can add new features to the store, create a better user experience or pull Saleor store data in response to webhook notifications or user input. To read more about Apps architecture and integration with Saleor, [read the Saleor docs](https://docs.saleor.io/docs/3.x/developer/extending/apps/key-concepts).
+- a Saleor account assigned to an organization
+- a Saleor Dashboard for a project we want to extend with an app
+- Saleor CLI installed
 
-## What will I learn?
+All good? Let's start building then 🚀!
 
-After finishing this guide, you'll have accomplished the following:
+## Step 1. Spawning the App Template
 
-1. Generated a template for your first Saleor App.
-2. Prepared your local development environment for App installation.
-3. Installed your App in the Admin Dashboard.
+Saleor CLI provides developers with the possibility to use a ready-made example app. In this guide, we will utilize CLI to spawn such a template.
 
-## Prerequisites
+In your terminal, `cd` to the path where you want to install the template and type in:
 
-Before you create your first App using CLI, you need to make sure to:
+```shell
+saleor app create abandoned-checkouts
+```
 
-1. Install Saleor CLI.
-2. Register an account in Saleor Cloud and be logged in.
-3. Create an organisation, a project and an environment.
+This command will install a Next.js app called `abandoned-checkouts` equipped with many tools that'll come in handy during the process of integration. After the successful completion of the installation process, the CLI will automatically start the development server.
 
-You may find the instructions for every of these steps in the [Getting Started with Saleor CLI guide](/cli/getting-started).
-
-## What will I build?
-
-You will create your first Saleor App. Also, you will embed this app to your Admin Dashboard in the Saleor Cloud and be able to see its view on a dedicated app page. Since you haven't built any Saleor apps yet, it is a good idea to start with a template.
-
-## Step 1. Installing the App template locally
-
-Saleor CLI provides developers with the possibility to use a ready-made example App. In this guide we will utilize CLI to create such a template.
-
-In your Terminal, `cd` to the path where you want to install the template and type in:
-
-`saleor app create abandoned-checkouts`
-
-This command will install a Next.js app called "abandoned-checkouts" equipped with many tools that'll come in handy during the process of integration. After the successful completion of the installation process, the CLI will automatically start the development server.
+:::note
+Under the hood, the `saleor app create` command uses the Saleor App Template repository. If you want to read up on it, go [here](developer/extending/apps/developing-apps/app-template.mdx).
+:::
 
 ![App template installed.](../../../screenshots/apps-quickstart/app-template.png)
 
-## Step 2. Updating the App manifest.
+## Step 2. Updating the App Manifest
 
-App manifest informs Saleor API about the details of your app such as name, url, permissions and the mounting place in the Dashboard. You can read more about the manifest in [the docs](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest).
+[The App Manifest](developer/extending/apps/manifest.mdx) serves as the source of information about the Saleor app. It includes the app name, description, URL, as well as configuration for webhooks and extensions. The information is then consumed by other Saleor parties, such as the API and the Dashboard.
 
-1. Go to `pages/api/manifest` folder in your app template and locate the `manifest` object.
-2. Add the `appUrl:` field with `${baseURL}` value.
-3. Add the `extensions` field under `webhooks`.
+:::note
+Don't worry, you don't need to fill the manifest yourself. The data is automatically drawn from the `package.json` file and the context in which the app is running.
+:::
+
+Some apps don't require a UI. They simply communicate through webhooks without displaying any information.
+
+However, the purpose of our application is to render a list of abandoned checkouts. This gives us a perfect chance to leverage one of many cool features baked-in in the app template the CLI has spawned for us.
+
+The apps can be mounted in the Saleor Dashboard. To accomplish it, please:
+
+1. Go to the `pages/api/manifest.ts` file in your app and locate the `manifest` object.
+2. Inside it, find the `extensions` field. Then, add a new extension to it as follows:
 
 ```jsx
 ...
@@ -67,26 +61,50 @@ extensions: [
 ...
 ```
 
-Here, we're giving the extension a label under which it is going to be visible in the navbar in the Admin Dashboard, the mounting place for the App (which is the Orders tab in the navbar) and permissions for the App. We want the App's view to be the index page.
+Let's break down what we have here:
 
-## Step 3. Installing the App template in the Dashboard
+- The `extensions` comes from [the "extendability" of the Dashboard](developer/extending/apps/extending-dashboard-with-apps.mdx#key-concepts).
+- There can be many "extensions" for each app. That is why the value of `extensions` is an array.
+- The array contains an object with five fields:
+  - `label`: A name of our extension. It will display in the Dashboard menu.
+  - `mount`: An identifier of [the place where we can mount our apps](developer/extending/apps/extending-dashboard-with-apps.mdx#possible-mounting-places).
+  - `target`: It describes the method of presenting the interface. The other option is `POPUP`.
+  - `permissions`: It allows blocking access from the extension based on permissions. If the users don't have the right permissions, they won't be able to display the extension. The full list of permissions is [here](developer/permissions.mdx#app-permissions).
+  - `url`: The path in the application the extension should render. As we will build our UI in the `pages/index.tsx` file, the path is "/".
 
-### Using `saleor app tunnel`
+## Step 3. Installing the app in the Dashboard
 
-In order to integrate your App with Saleor Cloud it needs to have a public endpoint. It is possible to create it using `saleor app tunnel` CLI command. Go to your Terminal, and run this command from the root folder of your app.
+:::tip
+In the next couple of paragraphs, you will see the term "tunneling" being thrown quite frequently. If it all sounds a bit foreign, please head on [here](developer/extending/apps/developing-with-tunnels).
+:::
 
-The `saleor app tunnel` command will also install the app in the Dashboard, so after running it successfully you will complete the integration process.
+### Option 1: Using `saleor app tunnel`
 
-### Using a third-party tunnelling software and `saleor app install`
+Right now, you develop your app locally. To embed it in your Dashboard hosted on Saleor Cloud, you need to make your environment public. Luckily, the CLI has your back on this one. Please run:
 
-Alternatively, you can set the App template live using a third-party tool. We're going to use a technique called _tunneling_, . In order to set the tunnel manually, you can use [localtunnel](https://theboroer.github.io/localtunnel-www/) or [ngrok](https://ngrok.com/). Follow the installation guides linked.
+```
+saleor app tunnel 3000
+```
 
-Then, go to your Terminal and:
+:::important
+`3000` is the assumed port on which your application is running. If you decided to run it on a different port, please adjust the command.
+:::
 
-1. Being in the App's root folder, type in `saleor app install`.
+The result of running this command is twofold:
+
+- It exposes your local environment through tunneling software. That makes it available publicly.
+- It installs your app in the Dashboard which makes it display under the location we pointed in the previous point.
+
+### Option 2: Using a third-party tunneling software and `saleor app install`
+
+Alternatively, you can set the App template live using a third-party tool. We're going to use a technique called _tunneling_. To set the tunnel manually, you can use [localtunnel](https://theboroer.github.io/localtunnel-www/) or [ngrok](https://ngrok.com/). Follow the installation guides linked.
+
+Then, go to your terminal and:
+
+1. While in the app's root folder, type in `saleor app install`.
 2. Provide the `name` for the app: `abandoned-checkouts`.
-3. Provide the `url` to the app's manifest: _[yourdomain-set-with-tunneling-app]/api/manifest_
+3. Provide the `url` to the app's manifest, following the format: _[yourdomain-set-with-tunneling-app]/api/manifest_.
 
-You can now go to your Admin Dashboard and inspect the new App in the "Apps" tab and inside the "Orders" tab.
+Either way, you can now go to your Saleor Dashboard and inspect the new app in the "Apps" tab, as well as the "Orders" tab.
 
 ![Admin Dashboard with App installed.](../../../screenshots/apps-quickstart/app-installed.png)
