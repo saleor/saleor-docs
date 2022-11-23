@@ -1,6 +1,6 @@
 ---
 id: before-you-start
-title: Before you start
+title: Introduction
 ---
 
 ## What is Saleor?
@@ -15,18 +15,14 @@ Saleor’s open-source platform is free to use in its full version. It has clean
 
 Getting an iteration of Saleor is simple. Before you commit to the platform, we recommend trying out our demo store to get a feel for the user experience.
 
-Try the traditional demo: https://demo.saleor.io
+Try the traditional demo: <https://demo.saleor.io>
 
-Experience the PWA version of the store: https://demo.saleor.io
+Experience the PWA version of the store: <https://demo.saleor.io>
 
 Once you know that Saleor is a great solution for you, the easiest way to get a full open source version is to fork Saleor from our GitHub page.
 
-Fork Saleor: https://github.com/saleor/saleor
+Fork Saleor: <https://github.com/saleor/saleor>
 
 We are also currently working on a tool to help migrate to Saleor from other platforms. Keep an eye on our Twitter feed and GitHub activity for progress reports.
 
-Finally, if you are interested in a custom version of Saleor, you can contact us and tell us more about your specific needs: https://mirumee.typeform.com/to/Xwfril
-
-## Using this guide
-
-This guide will help you get the most from the Saleor platform as an administrator or store owner. It shows you all the features of the dashboard and the best ways to use the platform. We recommend reading through this guide to familiarize yourself with all the features while playing with your Saleor dashboard. You can also use our demo store; it has all the functionalities of a working version but will not allow you to save changes: https://demo.saleor.io.
+Finally, if you are interested in a custom version of Saleor, you can contact us and tell us more about your specific needs: <https://mirumee.typeform.com/to/Xwfril>
