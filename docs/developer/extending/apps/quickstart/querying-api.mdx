@@ -1,0 +1,168 @@
+---
+title: Querying the Saleor API
+---
+
+## Summing up
+
+Arriving here, you should have an application:
+
+- displaying in the Saleor Dashboard
+- with a `manifest` updating the information about the `extensions` and `permissions`
+
+## Step 1. Creating example checkouts
+
+Since our application's job is to display a list of abandoned checkouts, we must create some first.
+
+:::note
+Checkouts are not created when choosing to populate the database with fictional data in the Saleor Cloud.
+:::
+
+To do that, let's head on to the Saleor GraphQL Playground. You can access one that is connected to your Saleor Cloud environment by adding "/graphql" to the end of the instance URL (e.g. "https://example-shop.saleor.cloud/graphql/").
+
+Then, call this mutation a bunch of times with different sets of data:
+
+```graphql
+mutation CheckoutCreate {
+  checkoutCreate(
+    input: {
+      channel: "default-channel"
+      email: "myname@example.com"
+      lines: []
+    }
+  ) {
+    checkout {
+      token
+    }
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+
+## Step 2. Adding the GraphQL query
+
+Our goal is to fetch the abandoned checkouts and display them. Let's focus on the first part for now.
+
+The template the CLI has spawned for us uses [GraphQL Code Generator](https://the-guild.dev/graphql/codegen). If that is the first time you are hearing about it, you may want to take a look at this [article](https://learn.saleor.io/setup/graphql-code-generator/).
+
+What is important for now is that it enables **the creation of TypeScript code out of GraphQL operations**. The code will include the types, as well as hooks needed to execute the operations.
+
+To see it in action, please:
+
+1. Create a `FetchAllCheckouts.graphql` file in the `graphql/queries` folder.
+2. Copy and paste the query below:
+
+```jsx
+query FetchAllCheckouts {
+  checkouts(first: 10) {
+    edges {
+      node {
+        id
+        created
+        lines {
+          variant {
+            product {
+              name
+              thumbnail {
+                url
+                alt
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+3. Finally, run the following in the terminal:
+
+```shell
+pnpm run generate
+```
+
+This command will first scan your project for `.graphql` files and then generate code out of them. To make sure everything went fine, you may inspect the newly created `useFetchAllCheckoutsQuery` hook in the `generated/graphql.ts` file.
+
+## Step 3. Building the UI
+
+To render the list of fetched checkouts let's use the Material-UI components, which are pre-installed in the template app. We will present the data in a form of a simple table.
+
+Please go to the `pages` folder, locate the `index.tsx` file, and change its content to:
+
+```tsx
+import {
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+} from "@material-ui/core";
+import { NextPage } from "next";
+import { useFetchAllCheckoutsQuery } from "../../generated/graphql";
+
+const AbandonedCheckoutsPage: NextPage = () => {
+  const [{ data, error }] = useFetchAllCheckoutsQuery();
+
+  if (!data?.checkouts) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error.message}</div>;
+  }
+
+  return (
+    <div>
+      <h1>Abandoned Checkouts</h1>
+
+      <main>
+        {data?.checkouts.edges.length > 0 ? (
+          <TableContainer component={Paper}>
+            <Table aria-label="checkouts table">
+              <TableHead>
+                <TableRow>
+                  <TableCell>No.</TableCell>
+                  <TableCell>Checkout Id</TableCell>
+                  <TableCell>Created At</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data.checkouts.edges.map((row, i) => (
+                  <TableRow key={row.node.id}>
+                    <TableCell>{i + 1}.</TableCell>
+                    <TableCell>{row.node.id}</TableCell>
+                    <TableCell>{row.node.created}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <div>No data to display...</div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default AbandonedCheckoutsPage;
+```
+
+In the above code, we utilized `useFetchAllCheckoutsQuery()` to pull data from Saleor. Then, we created a table with three columns: `No.`, `Checkout Id` and `Created At`, and iterated over the nodes to display the data in each row.
+
+After adding the necessary imports, the page is ready to be inspected. Go to your Saleor Dashboard and in the _Orders_ tab click on the _Abandoned Checkouts_ label. You should see the table with the data:
+
+![Abandoned Checkouts. Table with data.](../../../screenshots/apps-quickstart/checkouts-list.png)
+
+---
+
+Congratulations 👏. You have built a complete Saleor app.
+
+There are no criteria for when a use case is complex enough to build an app. One app may be a behemoth with many responsibilities, and another can be simple and focused.
+
+If you want to keep building but are lacking inspiration, I suggest visiting the [App Examples](developer/extending/apps/developing-apps/app-examples) and our [integrations page](https://saleor.io/integrations/).

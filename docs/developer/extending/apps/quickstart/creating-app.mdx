@@ -22,13 +22,17 @@ In your terminal, `cd` to the path where you want to install the template and ty
 saleor app create abandoned-checkouts
 ```
 
-This command will install a Next.js app called `abandoned-checkouts` equipped with many tools that'll come in handy during the process of integration. After the successful completion of the installation process, the CLI will automatically start the development server.
-
 :::note
 Under the hood, the `saleor app create` command uses the Saleor App Template repository. If you want to read up on it, go [here](developer/extending/apps/developing-apps/app-template.mdx).
 :::
 
-![App template installed.](../../../screenshots/apps-quickstart/app-template.png)
+This command will install a Next.js app called `abandoned-checkouts` equipped with many tools that'll come in handy during the process of integration.
+
+After the successful installation, you have to `cd` into the `abandoned-checkouts` directory, and boot up the project using [pnpm](https://pnpm.io/). The command is:
+
+```shell
+pnpm dev
+```
 
 ## Step 2. Updating the App Manifest
 
@@ -38,14 +42,16 @@ Under the hood, the `saleor app create` command uses the Saleor App Template rep
 Don't worry, you don't need to fill the manifest yourself. The data is automatically drawn from the `package.json` file and the context in which the app is running.
 :::
 
-Some apps don't require a UI. They simply communicate through webhooks without displaying any information.
+Some apps don't require a UI. They can simply communicate through webhooks without displaying an interface.
 
-However, the purpose of our application is to render a list of abandoned checkouts. This gives us a perfect chance to leverage one of many cool features baked-in in the app template the CLI has spawned for us.
+However, the purpose of our application is to render a list of abandoned checkouts. This gives us a perfect chance to leverage one of many cool features baked-in in the app template the CLI has spawned for us: mounting an app in the Saleor Dashboard.
 
-The apps can be mounted in the Saleor Dashboard. To accomplish it, please:
+---
 
-1. Go to the `pages/api/manifest.ts` file in your app and locate the `manifest` object.
-2. As our app will operate on checkouts, we must grant it the correct permissions. Find the `permissions` field and add `MANAGE_CHECKOUTS` to it:
+Even though apps are separate codebases, they can be embedded inside the Saleor Dashboard. To accomplish it, please:
+
+1. Open your code editor, go to the `pages/api/manifest.ts` file in your app and locate the `manifest` object.
+2. As our app will operate on checkouts, we must grant it the permissions required to fetch them. Find the `permissions` field and add `MANAGE_CHECKOUTS` to it:
 
 ```jsx
 ...
@@ -53,15 +59,15 @@ permissions: ["MANAGE_CHECKOUTS"],
 ...
 ```
 
-The `permissions` field configures the scope of operations **the app** is authorized to perform. You can find the full list of permissions [here](developer/permissions.mdx#app-permissions).
+The `permissions` field determines the scope of operations **the app** is authorized to perform. You can find the full list of permissions [here](developer/permissions.mdx#app-permissions).
 
-3. Inside it, find the `extensions` field. Then, add a new extension to it as follows:
+3.  Next, we want to declare the place in our Dashboard where the app should mount. To do so, please find the `extensions` field. Then, add a new extension to it as follows:
 
 ```jsx
 ...
 extensions: [
 	{
-		label: "Show Abandoned Carts",
+		label: "Show Abandoned Checkouts",
 		mount: "NAVIGATION_ORDERS",
 		target: "APP_PAGE",
 		permissions: ["MANAGE_CHECKOUTS"],
@@ -90,11 +96,15 @@ In the next couple of paragraphs, you will see the term "tunneling" being thrown
 
 ### Option 1: Using `saleor app tunnel`
 
-Right now, you develop your app locally. To embed it in your Dashboard hosted on Saleor Cloud, you need to make your environment public. Luckily, the CLI has your back on this one. Please run:
+Right now, you develop your app locally. To embed it in your Dashboard hosted on Saleor Cloud, you need to make your environment public. Luckily, the CLI has your back on this one.
+
+While running the app in the background, please execute:
 
 ```
 saleor app tunnel 3000
 ```
+
+The CLI wizard will ask you about the organization and environment. Those details are needed to install your app in the correct Saleor instance.
 
 :::important
 `3000` is the assumed port on which your application is running. If you decided to run it on a different port, please adjust the command.
@@ -103,11 +113,11 @@ saleor app tunnel 3000
 The result of running this command is twofold:
 
 - It exposes your local environment through tunneling software. That makes it available publicly.
-- It installs your app in the Dashboard which makes it display under the location we pointed in the previous point.
+- It installs your app in the Dashboard which makes it display under the location we pointed out in the previous point.
 
 ### Option 2: Using a third-party tunneling software and `saleor app install`
 
-Alternatively, you can set the App template live using a third-party tool. We're going to use a technique called _tunneling_. To set the tunnel manually, you can use [localtunnel](https://theboroer.github.io/localtunnel-www/) or [ngrok](https://ngrok.com/). Follow the installation guides linked.
+Alternatively, you can make your app live using a third-party tool. To set the tunnel manually, you can use [localtunnel](https://theboroer.github.io/localtunnel-www/) or [ngrok](https://ngrok.com/). Follow the installation guides linked.
 
 Then, go to your terminal and:
 
@@ -115,6 +125,8 @@ Then, go to your terminal and:
 2. Provide the `name` for the app: `abandoned-checkouts`.
 3. Provide the `url` to the app's manifest, following the format: _[yourdomain-set-with-tunneling-app]/api/manifest_.
 
-Either way, you can now go to your Saleor Dashboard and inspect the new app in the "Apps" tab, as well as the "Orders" tab.
+---
+
+Either way, you can now go to your Saleor Dashboard and inspect your app in the _Apps_ tab, as well as the _Orders_ tab.
 
 ![Admin Dashboard with App installed.](../../../screenshots/apps-quickstart/app-installed.png)

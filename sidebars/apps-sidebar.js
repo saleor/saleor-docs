@@ -12,9 +12,7 @@ module.exports = {
       items: [
         "developer/extending/apps/quickstart/getting-started",
         "developer/extending/apps/quickstart/creating-app",
-        "developer/extending/apps/quickstart/abandoned-checkouts",
-        "developer/extending/apps/quickstart/subscribing-to-webhook",
-        "developer/extending/apps/quickstart/deploy-to-vercel",
+        "developer/extending/apps/quickstart/querying-api",
       ],
     },
     {
