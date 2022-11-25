@@ -57,6 +57,7 @@ module.exports = {
               label: "Community",
               items: [
                 "developer/community/contributing",
+                "developer/community/awesome",
                 "developer/community/faq",
                 "developer/community/support",
               ],
