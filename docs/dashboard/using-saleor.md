@@ -3,6 +3,10 @@ id: using-saleor
 title: Using Saleor
 ---
 
+## About this guide
+
+This guide will help you get the most from the Saleor platform as an administrator or store owner. It shows you all the features of the dashboard and the best ways to use the platform. We recommend reading through this guide to familiarize yourself with all the features while playing with your Saleor dashboard. You can also use our demo store; it has all the functionalities of a working version but will not allow you to save changes: <https://demo.saleor.io>.
+
 ## About the dashboard
 
 The [Saleor 2.0](https://saleor.io/blog/saleor-release-graphqlfirst-headless-ecommerce-102/) dashboard is the administration panel behind your storefront. In a nutshell, it is for managing people, products, and processes:

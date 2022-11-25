@@ -1,10 +1,13 @@
 module.exports = {
   developer: [
-    "developer",
     {
       type: "category",
       label: "Overview",
-      items: ["developer/getting-started/architecture"],
+      items: [
+        "before-you-start",
+        "developer",
+        "developer/getting-started/architecture",
+      ],
     },
     {
       type: "category",
@@ -72,7 +75,6 @@ module.exports = {
       },
       items: [
         [
-          "dashboard/before-you-start",
           "dashboard/using-saleor",
           "dashboard/home",
           "dashboard/channels",
