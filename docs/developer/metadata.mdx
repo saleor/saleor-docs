@@ -51,11 +51,15 @@ All of the objects types listed above implement the same interface:
 ```graphql
 interface ObjectWithMetadata {
   privateMetadata: [MetadataItem]!
+  privateMetafield(key: String!): String
+  privateMetafields(keys: [String!]): Metadata
   metadata: [MetadataItem]!
+  metafield(key: String!): String
+  metafields(keys: [String!]): Metadata
 }
 ```
 
-Each metadata item is a key-value pair:
+Each `MetadataItem` is a key-value pair:
 
 ```graphql
 type MetadataItem {
@@ -64,7 +68,9 @@ type MetadataItem {
 }
 ```
 
-Here's an example query that fetches the metadata of the first product:
+There is a special `Metadata` scalar that returns an object literal with keys as fields.
+
+The following example fetches the metadata of the first product using both approaches to show the resulting data structures:
 
 ```graphql
 {
@@ -73,10 +79,13 @@ Here's an example query that fetches the metadata of the first product:
       node {
         id
         name
+        # highlight-start
         metadata {
           key
           value
         }
+        metafields
+        # highlight-end
       }
     }
   }
@@ -94,15 +103,58 @@ Response:
           "node": {
             "id": "UHJvZHVjdDo3Mg==",
             "name": "Apple Juice",
+            // highlight-start
             "metadata": [
               {
                 "key": "tax.group",
                 "value": "Food products"
               }
-            ]
+            ],
+            "metafields": {
+              "tax.group": "Food products"
+            }
+            // highlight-end
           }
         }
       ]
+    }
+  }
+}
+```
+
+## Selecting fields to return
+
+By default, `metafields` (`privateMetafields`) will return all metadata assigned to an object. You can use the optional `keys` argument to select the fields you want to return. We highly recommend that you only fetch the fields your application understands as it limits the amount of information being needlessly transferred.
+
+The following example returns only the `tax.group` field:
+
+```graphql
+{
+  products(first: 1) {
+    edges {
+      node {
+        id
+        name
+        # highlight-next-line
+        metafields(keys: ["tax.group"])
+      }
+    }
+  }
+}
+```
+
+If you only care about a single field, use `metafield` (`privateMetafield`) together with field aliasing:
+
+```graphql
+{
+  products(first: 1) {
+    edges {
+      node {
+        id
+        name
+        # highlight-next-line
+        taxGroup: metafield(key: "tax.group")
+      }
     }
   }
 }
@@ -143,12 +195,14 @@ type UpdateMetadata {
 
 Here's an example of how a product's metadata could be updated:
 
-```graphql {2-5}
+```graphql
 mutation {
+  # highlight-start
   updateMetadata(
     id: "UHJvZHVjdDo3Mg=="
     input: [{ key: "special_product", value: "true" }]
   ) {
+    # highlight-end
     metadataErrors {
       field
       code
@@ -165,9 +219,11 @@ mutation {
 
 And the same field being removed:
 
-```graphql {2}
+```graphql
 mutation {
+  # highlight-start
   deleteMetadata(id: "UHJvZHVjdDo3Mg==", keys: ["special_product"]) {
+    # highlight-end
     metadataErrors {
       field
       code
@@ -186,9 +242,10 @@ mutation {
 
 Objects with metadata interface can be filtered by their values. Filtering is only available for public metadata.
 
-```graphql {3}
+```graphql
 query FavoriteProducts {
   products(
+    # highlight-next-line
     filter: { metadata: { key: "isFavorite", value: "true" } }
     first: 10
     channel: "default-channel"
