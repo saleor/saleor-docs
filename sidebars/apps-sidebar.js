@@ -8,6 +8,15 @@ module.exports = {
   items: [
     {
       type: "category",
+      label: "Quickstart",
+      items: [
+        "developer/extending/apps/quickstart/getting-started",
+        "developer/extending/apps/quickstart/creating-app",
+        "developer/extending/apps/quickstart/querying-api",
+      ],
+    },
+    {
+      type: "category",
       label: "Architecture",
       items: [
         "developer/extending/apps/manifest",
