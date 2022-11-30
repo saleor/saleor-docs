@@ -12,56 +12,54 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Platform",
+      label: "Local development",
       items: [
         {
           type: "category",
-          label: "Local development",
+          label: "Installation",
+          link: {
+            type: "doc",
+            id: "developer/installation",
+          },
+          items: ["developer/installation/windows"],
+        },
+        "developer/running-saleor/configuration",
+        {
+          type: "category",
+          label: "Deployment",
+          link: {
+            type: "doc",
+            id: "developer/getting-started/deployment",
+          },
           items: [
-            {
-              type: "category",
-              label: "Installation",
-              link: {
-                type: "doc",
-                id: "developer/installation",
-              },
-              items: ["developer/installation/windows"],
-            },
-            "developer/running-saleor/configuration",
-            {
-              type: "category",
-              label: "Deployment",
-              items: [
-                "developer/running-saleor/docker",
-                "developer/running-saleor/heroku",
-                "developer/running-saleor/s3",
-                "developer/running-saleor/gcs",
-              ],
-            },
-            "developer/running-saleor/debugging-emails",
-            "developer/running-saleor/exposing-instance",
-            "developer/running-saleor/monitoring",
-            "developer/running-saleor/background-tasks",
-            "developer/running-saleor/read-replicas",
-            {
-              type: "category",
-              label: "Upgrade Guide",
-              items: [
-                "developer/upgrade-guide/3-5-to-3-6",
-                "developer/upgrade-guide/3-1-to-3-2",
-                "developer/upgrade-guide/3-0-to-3-1",
-                "developer/upgrade-guide/2-11-to-3-0",
-              ],
-            },
-            {
-              type: "category",
-              label: "Community",
-              items: [
-                "developer/community/contributing",
-                "developer/community/faq",
-                "developer/community/support",
-              ],
-            },
+            "developer/running-saleor/docker",
+            "developer/running-saleor/heroku",
+            "developer/running-saleor/s3",
+            "developer/running-saleor/gcs",
+          ],
+        },
+        "developer/running-saleor/debugging-emails",
+        "developer/running-saleor/exposing-instance",
+        "developer/running-saleor/monitoring",
+        "developer/running-saleor/background-tasks",
+        "developer/running-saleor/read-replicas",
+        {
+          type: "category",
+          label: "Upgrade Guide",
+          items: [
+            "developer/upgrade-guide/3-5-to-3-6",
+            "developer/upgrade-guide/3-1-to-3-2",
+            "developer/upgrade-guide/3-0-to-3-1",
+            "developer/upgrade-guide/2-11-to-3-0",
+          ],
+        },
+        {
+          type: "category",
+          label: "Community",
+          items: [
+            "developer/community/contributing",
+            "developer/community/faq",
+            "developer/community/support",
           ],
         },
       ],
