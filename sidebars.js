@@ -7,6 +7,7 @@ module.exports = {
         "before-you-start",
         "developer",
         "developer/getting-started/architecture",
+        "developer/getting-started/resources",
       ],
     },
     {
@@ -57,7 +58,6 @@ module.exports = {
               label: "Community",
               items: [
                 "developer/community/contributing",
-                "developer/community/resources",
                 "developer/community/faq",
                 "developer/community/support",
               ],
