@@ -7,6 +7,7 @@ module.exports = {
         "before-you-start",
         "developer",
         "developer/getting-started/architecture",
+        "developer/getting-started/resources",
       ],
     },
     {
