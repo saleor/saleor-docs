@@ -189,8 +189,6 @@ When you click the button with four dots on the right side of the description ta
 
 Type the price of your product manually or use the stepper by the currency indicator. If your product is tax-exempt, leave the _Charge&nbsp;taxes&nbsp;for&nbsp;this&nbsp;item_ checkbox empty. If you need to charge taxes, click on the box, and a green check mark will appear.
 
-For more information on taxes, see the [Taxes](dashboard/configuration/taxes.md) topic.
-
 :::note Displaying localized prices
 
 Saleor operates and charges in the store’s default currency but can display an estimated amount in the user’s local currency.

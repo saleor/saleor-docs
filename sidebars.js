@@ -117,7 +117,6 @@ module.exports = {
               "dashboard/configuration/products",
               "dashboard/configuration/shipping",
               "dashboard/configuration/warehouses",
-              "dashboard/configuration/taxes",
               "dashboard/configuration/staff",
               "dashboard/configuration/permission-groups",
               "dashboard/configuration/navigation",
