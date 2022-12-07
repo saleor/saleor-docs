@@ -4,27 +4,29 @@ title: OpenID Connect (OIDC)
 
 ## Key Concepts
 
-The OpenID Connect plugin allows you to integrate with your OAuth provider. 
+The OpenID Connect plugin allows you to integrate with your OAuth provider.
 This will allow you to move the authentication process to an external provider.
 
 Saleor will require the scopes:
- - openid
- - profile
- - email
- - offline\_access - _optionally, when you enable refreshing the token_
- - saleor:_permission_ - _optionally when you enable mapping OAuth permissions to Saleor_
+
+- openid
+- profile
+- email
+- offline*access - \_optionally, when you enable refreshing the token*
+- saleor:_permission_ - _optionally when you enable mapping OAuth permissions to Saleor_
 
 ## Type of integration
 
 The OIDC plugin supports two ways of integration:
- - Saleor as a client for authorization server - Saleor follows Authorization Code Flow to authenticate the user.
- - Saleor as a resource server - requests are authenticated with OAuth access token provided in `Authorization` header.
+
+- Saleor as a client for authorization server - Saleor follows Authorization Code Flow to authenticate the user.
+- Saleor as a resource server - requests are authenticated with OAuth access token provided in `Authorization` header.
 
 ## Saleor as a client for authorization server
 
 ### Configuration
 
-To use this flow you, need to configure the plugin by providing values for `JSON Web Key Set URL`, `OAuth Token URL` and `OAuth Authorization URL` on the Saleor Dashboard. 
+To use this flow you, need to configure the plugin by providing values for `JSON Web Key Set URL`, `OAuth Token URL` and `OAuth Authorization URL` on the Saleor Dashboard.
 
 ### Generating authentication URL
 
@@ -43,19 +45,21 @@ sequenceDiagram
 Executing [`externalAuthenticationUrl`](developer/api-reference/mutations/external-authentication-url.mdx) mutation will prepare special URL which will redirect user to requested page after successfull authentication. After redirection `state` and `code` fields will be added to the URL. [`externalObtainAccessTokens`](developer/api-reference/mutations/external-obtain-access-tokens.mdx) will require both.
 
 #### Mutation
+
 The mutation takes the following input fields:
+
 - `pluginId`: the ID of the authentication plugin
 - `input` [`JSONString`](developer/api-reference/scalars/json-string.mdx)
-    - `redirectUrl`: the URL where the user should be redirected after successful authentication
+  - `redirectUrl`: the URL where the user should be redirected after successful authentication
 
 ```graphql
 mutation ($input: JSONString!) {
   externalAuthenticationUrl(
-    pluginId:"mirumee.authentication.openidconnect",
+    pluginId: "mirumee.authentication.openidconnect"
     input: $input
-  ){
+  ) {
     authenticationData
-    accountErrors{
+    accountErrors {
       field
       message
     }
@@ -64,9 +68,10 @@ mutation ($input: JSONString!) {
 ```
 
 Query variables:
+
 ```json
 {
-    "input": "{\"redirectUri\":\"http://127.0.0.1:3001/callback\"}"
+  "input": "{\"redirectUri\":\"http://127.0.0.1:3001/callback\"}"
 }
 ```
 
@@ -100,27 +105,28 @@ sequenceDiagram
 ```
 
 #### Mutation
+
 The [`externalObtainAccessTokens`](developer/api-reference/mutations/external-obtain-access-tokens.mdx) mutation will generate requested access tokens. The mutation takes the following input fields:
+
 - `pluginId`: the ID of the authentication plugin
 - `input`: [`JSONString`](developer/api-reference/scalars/json-string.mdx)
-    - `code`: the authorization code received from the OAuth provider
-    - `state`: the state value received from the OAuth provider
-
+  - `code`: the authorization code received from the OAuth provider
+  - `state`: the state value received from the OAuth provider
 
 ```graphql
 mutation ($input: JSONString!) {
   externalObtainAccessTokens(
-    pluginId:"mirumee.authentication.openidconnect",
+    pluginId: "mirumee.authentication.openidconnect"
     input: $input
-  ){
+  ) {
     token
     refreshToken
     csrfToken
-    user{
+    user {
       id
       email
     }
-    accountErrors{
+    accountErrors {
       field
       code
       message
@@ -130,13 +136,15 @@ mutation ($input: JSONString!) {
 ```
 
 Query variables:
+
 ```json
 {
-    "input": "{\"code\": \"uLBlqQwnmKTIDLJ3\", \"state\": \"eyJyZWRpcmVjdFVyaSI6Imh0dHA6Ly8xMjcuMC4wLjE6MzAwMC9jYWxsYmFjayJ9:1l1lXU:93CE6SScisZNX4T93_7VM-JGlUDZa_EflH4RSUAtc-E\"}"
+  "input": "{\"code\": \"uLBlqQwnmKTIDLJ3\", \"state\": \"eyJyZWRpcmVjdFVyaSI6Imh0dHA6Ly8xMjcuMC4wLjE6MzAwMC9jYWxsYmFjayJ9:1l1lXU:93CE6SScisZNX4T93_7VM-JGlUDZa_EflH4RSUAtc-E\"}"
 }
 ```
 
 Successful response:
+
 ```json
 {
   "data": {
@@ -178,22 +186,22 @@ The [`externalRefresh`](developer/api-reference/mutations/external-refresh.mdx) 
 If the refresh token is not provided as an argument, the plugin will try to read it from a cookie set by the [`tokenCreate`](developer/api-reference/mutations/token-create.mdx) mutation. In that case, a matching CSRF token is required.
 
 The mutation takes the following input fields:
+
 - `pluginId`: the ID of the authentication plugin
 - `input`: [`JSONString`](developer/api-reference/scalars/json-string.mdx)
-    - `refreshToken`: the refresh token which should be used to refresh the access tokens
-    - `csrfToken`: required when `refreshToken` is not provided as an input
-
+  - `refreshToken`: the refresh token which should be used to refresh the access tokens
+  - `csrfToken`: required when `refreshToken` is not provided as an input
 
 ```graphql
 mutation ($input: JSONString!) {
   externalRefresh(
-    pluginId:"mirumee.authentication.openidconnect",
+    pluginId: "mirumee.authentication.openidconnect"
     input: $input
-  ){
+  ) {
     token
     refreshToken
     csrfToken
-    accountErrors{
+    accountErrors {
       field
       message
       code
@@ -203,13 +211,15 @@ mutation ($input: JSONString!) {
 ```
 
 Query variables:
+
 ```json
 {
-    "input": "{\"refreshToken\": \"ABCDE\"}"
+  "input": "{\"refreshToken\": \"ABCDE\"}"
 }
 ```
 
 Successful response:
+
 ```json
 {
   "data": {
@@ -224,25 +234,28 @@ Successful response:
 ```
 
 ### Token verification
+
 #### Mutation
+
 To verify the token, use the following [`externalVerify`](developer/api-reference/mutations/external-verify.mdx) mutation.
 
 The mutation takes the following input fields:
+
 - `pluginId`: the ID of the authentication plugin
 - `input`: [`JSONString`](developer/api-reference/scalars/json-string.mdx)
-    - `refreshToken`: the refresh token which should be used to refresh the access token
-    - `csrfToken`: required when `refreshToken` is not provided as an input
+  - `refreshToken`: the refresh token which should be used to refresh the access token
+  - `csrfToken`: required when `refreshToken` is not provided as an input
 
 ```graphql
 mutation ($input: JSONString!) {
   externalVerify(
-    pluginId:"mirumee.authentication.openidconnect",
+    pluginId: "mirumee.authentication.openidconnect"
     input: $input
-  ){
+  ) {
     isValid
     verifyData
-    user{
-      userPermissions{
+    user {
+      userPermissions {
         code
         name
       }
@@ -255,11 +268,12 @@ Query variables:
 
 ```json
 {
-    "input": "{\"token\": \"eyJ0eXAiOiJK...J1M7tqSzP0\"}"
+  "input": "{\"token\": \"eyJ0eXAiOiJK...J1M7tqSzP0\"}"
 }
 ```
 
 Successful response:
+
 ```json
 {
   "data": {
@@ -275,6 +289,7 @@ Successful response:
   }
 }
 ```
+
 #### Workflow
 
 ```mermaid
@@ -304,17 +319,18 @@ All values passed in field `input` will be added as GET parameters to the logout
 
 - `pluginId`: the ID of the authentication plugin
 - `input`: [`JSONString`](developer/api-reference/scalars/json-string.mdx)
-    - `returnTo`: the URL where a user should be redirected
+  - `returnTo`: the URL where a user should be redirected
 
 #### Mutation
+
 ```graphql
 mutation ($input: JSONString!) {
   externalLogout(
-    pluginId:"mirumee.authentication.openidconnect",
+    pluginId: "mirumee.authentication.openidconnect"
     input: $input
-  ){
+  ) {
     logoutData
-    accountErrors{
+    accountErrors {
       field
       message
       code
@@ -324,13 +340,15 @@ mutation ($input: JSONString!) {
 ```
 
 Query variables:
+
 ```json
 {
-    "input": "{\"returnTo\": \"http://localhost:3001\"}"
+  "input": "{\"returnTo\": \"http://localhost:3001\"}"
 }
 ```
 
 Successful response:
+
 ```json
 {
   "data": {
@@ -351,12 +369,13 @@ The authorization header has the following format:
 `Authorization: Bearer <your-OAuth-access-token>`
 
 ### Configuration
-To use this flow you need to provide values for `JSON Web Key Set URL` and `User info URL` on 
+
+To use this flow you need to provide values for `JSON Web Key Set URL` and `User info URL` on
 the Saleor Dashboard side.
 
 ### Access token permissions
-When [OAuth permissions](dashboard/configuration/plugins/oidc.md#using-oauth-permissions-in-saleor) are enabled, 
-Saleor will try to fetch [own's permissions](developer/available-plugins/openid-connect.mdx#oauth-permissions) from `access_token.scope`. In case when token's `scope` doesn't have any Saleor's permissions, 
+
+When OAuth permissions are enabled, Saleor will try to fetch [own's permissions](developer/available-plugins/openid-connect.mdx#oauth-permissions) from `access_token.scope`. In case when token's `scope` doesn't have any Saleor's permissions,
 it will try to find permissions in `access_token.permissions`.
 
 ## User authentication flow
@@ -373,35 +392,35 @@ sequenceDiagram
 ```
 
 ## OAuth permissions
+
 Saleor can use OAuth permissions assigned to a user. It maps internal permissions to OAuth scopes and attaches it to the authorization request.
 
-
 ### OAuth permission scopes
-| OAuth scope name                                | Saleor Name                          | Description                                                                                                                      |
-| ----------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| saleor:manage_apps                              | MANAGE_APPS                          | Manage apps                                                                                                                      |
-| saleor:manage_channels                          | MANAGE_CHANNELS                      | Manage Saleor's channels                                                                                                         |
-| saleor:manage_checkouts                         | MANAGE_CHECKOUTS                     | Manage checkout                                                                                                                  |
-| saleor:manage_discounts                         | MANAGE_DISCOUNTS                     | Manage discounts                                                                                                                 |
-| saleor:manage_gift_card                         | MANAGE_GIFT_CARD                     | Manage gift cards                                                                                                                |
-| saleor:manage_menus                             | MANAGE_MENUS                         | Manage the structure of menus                                                                                                    |
-| saleor:manage_orders                            | MANAGE_ORDERS                        | Access to orders data                                                                                                            |
-| saleor:manage_pages                             | MANAGE_PAGES                         | Manage pages                                                                                                                     |
-| saleor:manage_page_types_and_attributes         | MANAGE_PAGE_TYPES_AND_ATTRIBUTES     | Manage page types and attributes                                                                                              |
-| saleor:manage_plugins                           | MANAGE_PLUGINS                       | Manage plugins                                                                                                                   |
-| saleor:manage_products                           | MANAGE_PRODUCTS                      | Manage products                                                                                                                  |
-| saleor:manage_product_types_and_attributes      | MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES  | Manage products and attributes                                                                                              |
-| saleor:manage_settings                          | MANAGE_SETTINGS                      | Manage shop settings                                                                                                             |
-| saleor:manage_shipping                          | MANAGE_SHIPPING                      | Manage shipping                                                                                                                  |
-| saleor:manage_staff                             | MANAGE_STAFF                         | Access to staff users data                                                                                                       |
-| saleor:manage_translations                      | MANAGE_TRANSLATIONS                  | Manage tranlsations                                                                                                              |
-| saleor:manage_users                             | MANAGE_USERS                         | Access to customers data                                                                                                         |
-| saleor:staff                                    |   -                                  | User is marked as a staff user                                                                                                   |
 
+| OAuth scope name                           | Saleor Name                         | Description                      |
+| ------------------------------------------ | ----------------------------------- | -------------------------------- |
+| saleor:manage_apps                         | MANAGE_APPS                         | Manage apps                      |
+| saleor:manage_channels                     | MANAGE_CHANNELS                     | Manage Saleor's channels         |
+| saleor:manage_checkouts                    | MANAGE_CHECKOUTS                    | Manage checkout                  |
+| saleor:manage_discounts                    | MANAGE_DISCOUNTS                    | Manage discounts                 |
+| saleor:manage_gift_card                    | MANAGE_GIFT_CARD                    | Manage gift cards                |
+| saleor:manage_menus                        | MANAGE_MENUS                        | Manage the structure of menus    |
+| saleor:manage_orders                       | MANAGE_ORDERS                       | Access to orders data            |
+| saleor:manage_pages                        | MANAGE_PAGES                        | Manage pages                     |
+| saleor:manage_page_types_and_attributes    | MANAGE_PAGE_TYPES_AND_ATTRIBUTES    | Manage page types and attributes |
+| saleor:manage_plugins                      | MANAGE_PLUGINS                      | Manage plugins                   |
+| saleor:manage_products                     | MANAGE_PRODUCTS                     | Manage products                  |
+| saleor:manage_product_types_and_attributes | MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES | Manage products and attributes   |
+| saleor:manage_settings                     | MANAGE_SETTINGS                     | Manage shop settings             |
+| saleor:manage_shipping                     | MANAGE_SHIPPING                     | Manage shipping                  |
+| saleor:manage_staff                        | MANAGE_STAFF                        | Access to staff users data       |
+| saleor:manage_translations                 | MANAGE_TRANSLATIONS                 | Manage tranlsations              |
+| saleor:manage_users                        | MANAGE_USERS                        | Access to customers data         |
+| saleor:staff                               | -                                   | User is marked as a staff user   |
 
-If _Use OAuth scope permissions_ is enabled, any permissions granted to a user on the 
-authentication provider side will be used as the effective permissions on the Saleor side. 
-Please see the documentation of your authentication server to see how to manage permissions 
+If _Use OAuth scope permissions_ is enabled, any permissions granted to a user on the
+authentication provider side will be used as the effective permissions on the Saleor side.
+Please see the documentation of your authentication server to see how to manage permissions
 and how to configure role-based access control (RBAC).
 
 :::note
