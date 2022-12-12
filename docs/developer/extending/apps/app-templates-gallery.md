@@ -13,7 +13,7 @@ and subject to change but is available to experiment and provide feedback.
 
 ## What is App Templates Gallery?
 
-The concept of "apps" is the centerpiece of the [extending Saleor model](../developer/extending/apps/key-concepts.mdx). They are the preferred way of building custom logic on top of Saleor.
+The concept of "apps" is the centerpiece of the [extending Saleor model](developer/extending/apps/key-concepts.mdx). They are the preferred way of building custom logic on top of Saleor.
 
 There may be different types of apps but they will always have two things in common:
 
