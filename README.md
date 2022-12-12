@@ -1,10 +1,10 @@
 # Saleor Documentation
 
-- https://docs.saleor.io
-- Project homepage: https://saleor.io
-- Saleor Core source code: https://github.com/saleor/saleor
-- Saleor Dashboard source code: https://github.com/saleor/saleor-dashboard
-- Saleor React Storefront source code: https://github.com/saleor/react-storefront
+- Documentation: [https://docs.saleor.io](https://docs.saleor.io)
+- Project homepage: [https://saleor.io](https://saleor.io)
+- Saleor Core source code: [https://github.com/saleor/saleor](https://github.com/saleor/saleor)
+- Saleor Dashboard source code: [https://github.com/saleor/saleor-dashboard](https://github.com/saleor/saleor-dashboard)
+- Saleor React Storefront source code: [https://github.com/saleor/react-storefront](https://github.com/saleor/react-storefront)
 
 # What's In This Document
 
@@ -59,7 +59,6 @@ npm run serve
 - `/docusaurus2-graphql-doc-generator` GraphQL API Reference plugin code.
 - `/sidebars.js` Sidebar menu structure.
 - `/static` Styling and other static files.
-- `/versioned_docs` Previous versions of documentation.
 
 ## Formatting
 
@@ -224,7 +223,7 @@ In dev mode, Docusaurus serves a debug page with a list of all available routes 
 
 # Style
 
-Available visual components and text formatting can be found at http://localhost:3000/docs/3.x/style-guide.
+Available visual components and text formatting can be found at <http://localhost:3000/docs/3.x/style-guide>.
 
 # Full Docusaurus Documentation
 

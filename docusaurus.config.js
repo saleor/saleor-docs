@@ -46,9 +46,6 @@ module.exports = {
          * @returns string
          */
         createRedirects: function (existingPath) {
-          if (existingPath.startsWith("/docs/2.11")) {
-            return existingPath.replace("/2.11", "");
-          }
           if (existingPath.startsWith("/docs/3.x")) {
             return existingPath.replace("/3.x", "/3.0");
           }
