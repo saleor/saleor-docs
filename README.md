@@ -1,10 +1,10 @@
 # Saleor Documentation
 
-- <https://docs.saleor.io>
-- Project homepage: <https://saleor.io>
-- Saleor Core source code: <https://github.com/saleor/saleor>
-- Saleor Dashboard source code: <https://github.com/saleor/saleor-dashboard>
-- Saleor React Storefront source code: <https://github.com/saleor/react-storefront>
+- Documentation: [https://docs.saleor.io](https://docs.saleor.io)
+- Project homepage: [https://saleor.io](https://saleor.io)
+- Saleor Core source code: [https://github.com/saleor/saleor](https://github.com/saleor/saleor)
+- Saleor Dashboard source code: [https://github.com/saleor/saleor-dashboard](https://github.com/saleor/saleor-dashboard)
+- Saleor React Storefront source code: [https://github.com/saleor/react-storefront](https://github.com/saleor/react-storefront)
 
 # What's In This Document
 
