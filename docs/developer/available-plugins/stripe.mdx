@@ -10,11 +10,11 @@ Saleor uses Stripe API in version [2020-08-27](https://stripe.com/docs/upgrades#
 
 ## Creating payment in Saleor
 
-To create a payment properly, you need to follow the steps described in 
-[Creating a checkout session](developer/checkout.mdx#creating-a-checkout-session) and 
+To create a payment properly, you need to follow the steps described in
+[Creating a checkout session](developer/checkout.mdx#creating-a-checkout-session) and
 [Selecting a shipping method](developer/checkout.mdx#selecting-a-shipping-method).
 
-The next step is to choose Stripe as a payment gateway that we want to use to process checkout. 
+The next step is to choose Stripe as a payment gateway that we want to use to process checkout.
 For the Stripe payment gateway, we need to provide: `checkoutId`, and `input` with `gateway` and `amount`.
 
 :::note
@@ -37,13 +37,13 @@ mutation {
     }
   }
 }
-
 ```
 
 ## Completing the checkout
-After we create a payment object for the Stripe payment gateway, 
-we can call the `checkoutComplete` mutation.  The first call of `checkoutComplete` for checkout
- creates [Stripe payment intent object](https://stripe.com/docs/api/payment_intents/object).
+
+After we create a payment object for the Stripe payment gateway,
+we can call the `checkoutComplete` mutation. The first call of `checkoutComplete` for checkout
+creates [Stripe payment intent object](https://stripe.com/docs/api/payment_intents/object).
 
 Optionaly, `checkoutComplete` can accept additional parameters for Stripe as fields in `paymentData` input:
 
@@ -52,13 +52,11 @@ Optionaly, `checkoutComplete` can accept additional parameters for Stripe as fie
 - `paymentData.payment_method_id` - [ID of the payment method](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-payment_method) which should be used for this payment.
 - `paymentData.payment_method_type` - [List of payment method types that should be supported by this payment](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-payment_method_types). Default: `["card"]`
 
-
 :::note
 `paymentData.payment_method_type` - accepts all standard payment method types which use standard PaymentIntent flow to process a payment. [For more details check Stripe docs.](https://stripe.com/docs/payments/payment-methods/overview)
 :::
 
-
- ```graphql
+```graphql
 mutation {
   checkoutComplete(
     checkoutId: "Q2hlY2tvdXQ6YjBhYTUzMWItYjc3NS00MzM3LTkxNzEtYTgzOTYwYThjMmVk"
@@ -77,9 +75,9 @@ mutation {
     }
   }
 }
- ```
+```
 
- As a result, we get details required to finalize a payment.
+As a result, we get details required to finalize a payment.
 
 ```json
 {
@@ -93,21 +91,22 @@ mutation {
   }
 }
 ```
+
 `client_secret` is required to process a customer payment.
 Steps required to finalize a payment transaction are described in [Stripe documentation](https://stripe.com/docs/payments/accept-a-payment?platform=web&ui=elements).
 
-
 ### Finalizing a payment
-When the customer finalizes a payment, Stripe sends a webhook notification with all details 
-related to this payment. Saleor asynchronously receives the notification and 
+
+When the customer finalizes a payment, Stripe sends a webhook notification with all details
+related to this payment. Saleor asynchronously receives the notification and
 completes checkout process.
 
-On client-side, when `stripe.confirmCardPayment` doesn't return an error as 
+On client-side, when `stripe.confirmCardPayment` doesn't return an error as
 [described here](https://stripe.com/docs/payments/accept-a-payment?platform=web&ui=elements#web-submit-payment),  
-client-side can call  `checkoutComplete` one more time.
+client-side can call `checkoutComplete` one more time.
 Saleor confirms that the payment has success status and returns an order object.
 
- ```graphql
+```graphql
 mutation {
   checkoutComplete(
     checkoutId: "Q2hlY2tvdXQ6YjBhYTUzMWItYjc3NS00MzM3LTkxNzEtYTgzOTYwYThjMmVk"
@@ -129,6 +128,7 @@ mutation {
 ```
 
 As a result we get order object.
+
 ```json
 {
   "data": {
@@ -148,35 +148,6 @@ As a result we get order object.
 
 ## Saving card in Stripe for future payments
 
-### Saleor 3.0 (deprecated)
-
-Use `paymentData.setup_future_usage` to store payment method for future payments with `checkoutComplete`
-
-```graphql
-mutation {
-  checkoutComplete(
-    checkoutId: "ID"
-    storeSource: true
-    paymentData: "{\"setup_future_usage\": \"off_session\"}"
-  ) {
-    order {
-      id
-      userEmail
-      created
-    }
-    confirmationNeeded
-    confirmationData
-    errors {
-      field
-      message
-      code
-    }
-  }
-}
-```
-
-### Saleor 3.1+
-
 Use `input.storePaymentMethod` to store payment method for future payments with `checkoutPaymentCreate`.
 Metadata in `input.metadata` will be stored with the payment
 
@@ -189,12 +160,7 @@ mutation {
       token: "tokencc_bh_s3bjkh_24smq8_6c6zhq_w4v6b9_8vz"
       amount: 33.33
       storePaymentMethod: OFF_SESSION
-      metadata: [
-        {
-          key: "key"
-          value: "value"
-        }
-      ]
+      metadata: [{ key: "key", value: "value" }]
     }
   ) {
     payment {
@@ -210,6 +176,7 @@ mutation {
 ```
 
 ## Using stored payment method
+
 Use `paymentData.payment_method_id` and `paymentData.off_session` to use stored payment method.
 You can retrieve
 

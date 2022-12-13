@@ -13,51 +13,52 @@ Below is the list of test card numbers that can be used for checking different r
 
 Any other card numbers with valid expiration dates and random CVV values create a successful payment.
 
-| Card number        | Response                                                              |
-| ------------------ | --------------------------------------------------------------------- |
-| `0069`             | Causes `Card expired` error.                                          |
-| `9995`             | Causes `Insufficient funds` error.                                    |
-| `0127`             | Causes `Incorrect CVV` error.                                         |
-| `0002`             | Causes `Card declined` error.                                         |
-| `1111`             | The Card is pre-authorized and causes `Card declined` during capture. |
-| `1112`             | The Card is pre-authorized and successfully capture.                  |
-
+| Card number | Response                                                              |
+| ----------- | --------------------------------------------------------------------- |
+| `0069`      | Causes `Card expired` error.                                          |
+| `9995`      | Causes `Insufficient funds` error.                                    |
+| `0127`      | Causes `Incorrect CVV` error.                                         |
+| `0002`      | Causes `Card declined` error.                                         |
+| `1111`      | The Card is pre-authorized and causes `Card declined` during capture. |
+| `1112`      | The Card is pre-authorized and successfully capture.                  |
 
 ### Testing different responses with API
 
 In the case of testing dummy payment responses with API, you need to have a checkout with shipping and billing address set. See [the checkout page](developer/checkout.mdx#creating-a-checkout-session)
 to know how to create a checkout object.
-Then create checkout payment with use of [`checkoutPaymentCreate`](developer/api-reference/mutations/checkout-payment-create.mdx) mutation,
+Then create checkout payment with use of [`checkoutPaymentCreate`](api-reference/mutations/checkout-payment-create.mdx) mutation,
 set card number as a `token` value and `mirumee.payments.dummy` as a `gateway`.
 To check gateway response use `CheckoutComplete` mutation.
 Let's see an example for a token that causes Card Expired error.
 
 Creating checkout payment ([here](/developer/checkout.mdx#selecting-a-payment-method)
 you can find more details about `checkoutPaymentCreate`):
+
 ```graphql {2-9}
 mutation {
-    checkoutPaymentCreate(
-        input: {
-            amount: "15.00"
-            gateway: "mirumee.payments.dummy",
-            token: "4000000000000069",
-        }
-        token: "91e831f2-92c6-4977-aeca-3cc4c5292ead",
-    ) {
-        payment {
-            id
-            gateway
-            token
-        }
-        errors {
-            field
-            message
-        }
+  checkoutPaymentCreate(
+    input: {
+      amount: "15.00"
+      gateway: "mirumee.payments.dummy"
+      token: "4000000000000069"
     }
+    token: "91e831f2-92c6-4977-aeca-3cc4c5292ead"
+  ) {
+    payment {
+      id
+      gateway
+      token
+    }
+    errors {
+      field
+      message
+    }
+  }
 }
 ```
 
 We get newly created payment object:
+
 ```json
 {
   "data": {
@@ -77,11 +78,10 @@ We get newly created payment object:
 ```
 
 Completing checkout and testing gateway response:
+
 ```graphql {2-4}
 mutation {
-  checkoutComplete(
-    token: "91e831f2-92c6-4977-aeca-3cc4c5292ead"
-  ) {
+  checkoutComplete(token: "91e831f2-92c6-4977-aeca-3cc4c5292ead") {
     errors {
       field
       message
@@ -99,6 +99,7 @@ mutation {
 ```
 
 As a response, we get an error corresponding to the given card number:
+
 ```json {7-8}
 {
   "data": {
