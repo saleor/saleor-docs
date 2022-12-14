@@ -45,8 +45,36 @@ module.exports = {
             to: "/docs/3.x/overview/features",
           },
           {
+            from: "/docs/3.x/developer/api-conventions/error-handling",
+            to: "/docs/3.x/api-usage/error-handling",
+          },
+          {
+            from: "/docs/3.x/developer/api-conventions/pagination",
+            to: "/docs/3.x/api-usage/pagination",
+          },
+          {
+            from: "/docs/3.x/developer/api-conventions/prices",
+            to: "/docs/3.x/api-usage/prices",
+          },
+          {
+            from: "/docs/3.x/developer/api-conventions/slug-fields",
+            to: "/docs/3.x/api-usage/slug-fields",
+          },
+          {
+            from: "/docs/3.x/developer/api-conventions/translations",
+            to: "/docs/3.x/api-usage/i18n",
+          },
+          {
             from: "/docs/3.x/developer/getting-started/architecture",
             to: "/docs/3.x/overview/architecture",
+          },
+          {
+            from: "/docs/3.x/developer/getting-started/graphql",
+            to: "/docs/3.x/api-usage/overview",
+          },
+          {
+            from: "/docs/3.x/developer/getting-started/playground",
+            to: "/docs/3.x/api-usage/playground",
           },
           {
             from: "/docs/3.x/developer/getting-started/resources",
@@ -146,10 +174,20 @@ module.exports = {
       placeholder: "Search Saleor Documentation",
     },
 
+    colorMode: {
+      respectPrefersColorScheme: true,
+    },
+
     /* Colors for website */
     colors: {
       primaryColor: "#0c7d7b",
       secondaryColor: "#5d623c",
+    },
+
+    docs: {
+      sidebar: {
+        autoCollapseCategories: true,
+      },
     },
 
     navbar: {

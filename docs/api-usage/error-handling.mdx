@@ -4,11 +4,17 @@ title: Error Handling
 
 There are several error types in the GraphQL API, and you may come across different ones depending on the operations you are trying to perform.
 
-The Saleor GraphQL API handles the following three types of errors.
+The Saleor GraphQL API has two ways to indicate errors.
 
 ## Query-level errors
 
-This error occurs if you provide wrong or unrecognized input data while performing a specified operation. The GraphQL checks the syntax as you write, and if you are trying to execute an unknown operation, the editor you are using will notify you. If you proceed with sending the request, you will get a syntax error.
+This error type occurs when you provide invalid or unrecognized input. This happens in the following cases:
+
+- The GraphQL query is **malformed** (syntax errors, missing variables, type mismatch, etc.)
+- The query is syntactically correct but **semantically invalid** (e.g., you try to fetch a field that doesn't exist on the queried type)
+- Your client doesn't have the necessary **permission** to perform the requested operation
+
+### Example of a semantically invalid query
 
 Below is an example of an error triggered by the wrong syntax. The following query tries to fetch the `fullName` field, which doesn't exist on the `User` type:
 
@@ -40,15 +46,60 @@ Sending this query to the server would result in the following syntax error:
 }
 ```
 
+### Example of a permission error
+
+Below is an example of an error triggered by insufficient permissions. The `staffUsers` query requires appropriate admin permissions:
+
+```graphql
+{
+  staffUsers(first: 20) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Executing it without proper permission would result in the following error:
+
+```json
+{
+  "errors": [
+    {
+      "message": "You need one of the following permissions: MANAGE_STAFF",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": ["staffUsers"],
+      "extensions": {
+        "exception": {
+          "code": "PermissionDenied"
+        }
+      }
+    }
+  ],
+  "data": {
+    "staffUsers": null
+  }
+}
+```
+
 ## Data-level errors
 
 This error occurs when the user passes invalid data as the mutation input. For example, you provide an email address already used in another user's account while creating a new user. It is therefore not unique, and as a result, you will get a validation error.
 
 Validation errors are part of the schema, meaning we need to include them in the query to get them explicitly. In all mutations, for example, you can obtain them through the `errors` field.
 
+### Example of a validation error
+
 Below is an example of an error triggered by validation issues:
 
-```graphql {12-15}
+```graphql
 mutation {
   accountRegister(
     input: {
@@ -70,17 +121,19 @@ mutation {
 
 Validation errors are returned in a dedicated error field inside mutation results:
 
-```json {5-10}
+```json
 {
   "data": {
     "accountRegister": {
       "user": null,
+      // highlight-start
       "errors": [
         {
           "field": "email",
           "code": "UNIQUE"
         }
       ]
+      // highlight-end
     }
   }
 }
@@ -91,47 +144,3 @@ Although all error types contain a `message` field, the returned message is only
 :::
 
 We use enums for representing code values. All possible values for the query above can be found on the [AccountError](api-reference/enums/account-error-code.mdx) page of the API reference section.
-
-## Permission errors
-
-This error occurs when you are trying to perform a specific operation but are not authorized to do so; in other words, you have no sufficient permissions assigned.
-
-Below is an example of an error triggered by insufficient authorization. The `staffUsers` query requires appropriate admin permissions:
-
-```graphql
-{
-  staffUsers(first: 20) {
-    edges {
-      node {
-        id
-      }
-    }
-  }
-}
-```
-
-Executing it without proper permission would result in the following error:
-
-```json
-{
-  "errors": [
-    {
-      "message": "You do not have permission to perform this action",
-      "locations": [
-        {
-          "line": 2,
-          "column": 3
-        }
-      ],
-      "path": ["staffUsers"]
-    }
-  ],
-  "data": {
-    "staffUsers": null
-  }
-}
-```
-
-## Creating custom error classes
-
-If you want to extend Saleor on your own, you can find more information in the [Extending](developer/extending/api/errors.mdx) section.
