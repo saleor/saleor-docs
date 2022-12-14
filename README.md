@@ -52,9 +52,8 @@ npm run serve
 
 ## Directory Structure
 
-- `/docs/dashboard` Current dashboard user documentation.
-- `/docs/developer/api-reference` Automatically generated API reference.
-- `/docs/developer` Current developer documentation.
+- `/docs` Current developer documentation.
+- `/docs/api-reference` Automatically generated API reference.
 - `/docusaurus.config.js` Docusaurus configuration file.
 - `/docusaurus2-graphql-doc-generator` GraphQL API Reference plugin code.
 - `/sidebars.js` Sidebar menu structure.
@@ -220,10 +219,6 @@ To update the API reference:
 # Debugging
 
 In dev mode, Docusaurus serves a debug page with a list of all available routes and config at http://localhost:3000/\_\_docusaurus/debug.
-
-# Style
-
-Available visual components and text formatting can be found at <http://localhost:3000/docs/3.x/style-guide>.
 
 # Full Docusaurus Documentation
 

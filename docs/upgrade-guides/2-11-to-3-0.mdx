@@ -1,0 +1,224 @@
+---
+title: Upgrading from 2.11 to 3.0
+---
+
+## Preparation
+
+The new version introduces many new features as well as some breaking changes. As a result, most API clients such as Saleor Apps and storefronts will require changes.
+
+Before you start the process, create a backup of your data. Also, let your Celery worker process the task queue before starting API migration.
+
+Due to the scope of the upgrade, downtime will be required.
+
+## Multichannel
+
+Existing data will be assigned to the `default-channel` created during the database migration. As long as the shop has only one channel defined, you are not required to specify the `channel` argument. Thanks to that, you'll be able to migrate the storefront to 3.0 gradually.
+
+After adding more channels, the `channel` argument will become required. Because of that, we recommend always adding the channel argument, even if you have only one channel:
+
+```graphql
+{
+  products(first: 5, channel: "default-channel") {
+    edges {
+      node {
+        id
+        name
+        description
+      }
+    }
+  }
+}
+```
+
+Besides the impact on fetching the data, you'll be required to specify the channels during the checkout creation process. Read more at the [Checkout](developer/checkout.mdx) page.
+
+### Editing channel related fields
+
+If you use the API to modify objects (for example, with an external app), please note that channel-depending fields have dedicated mutations. Updating product price requires using the [productChannelListingUpdate](api-reference/mutations/product-channel-listing-update.mdx) mutation.
+
+Object attributes that can be defined on a channel basis can be referenced.
+
+- [Collection Channel Listing](api-reference/objects/collection-channel-listing.mdx)
+- [Product Channel Listing](api-reference/objects/product-channel-listing.mdx)
+- [ProductVariant Channel Listing](api-reference/objects/product-variant-channel-listing.mdx)
+- [Sale Channel Listing](api-reference/objects/sale-channel-listing.mdx)
+- [ShippingMethod Channel Listing](api-reference/objects/shipping-method-channel-listing.mdx)
+- [Voucher Channel Listing](api-reference/objects/voucher-channel-listing.mdx)
+
+## Email templates
+
+The email templates are stored in the database instead of static server files in the new email implementation. This change enables editing the templates in the dashboard and adds the integration with [Sendgrid](https://sendgrid.com/). If you modified the default email templates provided by Saleor, you need to migrate them to the [Handlebars](https://handlebarsjs.com/) format and configure them in the dashboard.
+
+Read more about user and admin email plugins here:
+
+- [User emails](developer/available-plugins/user-emails.mdx)
+- [Admin emails plugin](developer/available-plugins/admin-emails.mdx)
+
+## Editor.js rich text editor and description fields
+
+All rich text fields now use [Editor.js](https://editorjs.io/) instead of [Draft.js](https://draftjs.org/). Our database migration should convert the old format to the new one, but visual inspection is recommended.
+
+To render rich text in your storefront, you can use Editor.js in the `read-only` mode, or use [one of the libraries](https://github.com/editor-js/awesome-editorjs) recommended by its authors.
+
+Additionally, `description` fields in the Saleor API have changed type from `String` to `JSONString` in the following objects:
+
+- `Category`
+- `Collection`
+- `Product`
+- `Translation` for objects listed above
+
+`Pages` changed `content` field type in the same way.
+
+## Product and Variant Images
+
+Saleor 3.0 extends the possibilities for presenting your products to customers. Now, you can use photos and videos. The old `image` attribute and the `ProductImage` objects are left for backward compatibility but marked as deprecated. If you want to leverage all new features, please use `ProductMedia`.
+
+Read documentation for the [ProductMedia](developer/products.mdx#media).
+
+## Removed fields from the Shop object
+
+The `Shop.homepageCollection` field has been removed. The recommended way of getting a specific collection data in such a situation is to create a new collection and use the `collection` query with the desired slug, for example:
+
+```graphql
+query FeaturedProducts {
+  collection(slug: "featured", channel: "default-channel") {
+    products(first: 10) {
+      edges {
+        node {
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+`Shop.navigation` has been dropped in favor of querying the desired menu by a slug:
+
+```graphql
+query MainMenu {
+  menu(slug: "main-menu", channel: "default-channel") {
+    name
+    items {
+      name
+    }
+  }
+}
+```
+
+`Shop.geolocalization` has been removed.
+
+## Error handling
+
+The new version unifies error handling across the API. All mutation responses have an `errors` field. It contains detailed information about the issue(s). For example:
+
+```graphql
+mutation {
+  checkoutCreate(input: { lines: [] }) {
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+Server response:
+
+```json
+{
+  "data": {
+    "checkoutCreate": {
+      "errors": [
+        {
+          "field": "channel",
+          "message": "You need to provide channel slug.",
+          "code": "MISSING_CHANNEL_SLUG"
+        }
+      ]
+    }
+  }
+}
+```
+
+Error codes can be used for indentifing the issue and displaying custom message for the customers.
+
+## Product filters
+
+The API for searching and filtering products has been changed.
+
+Read documentation for [product filters and sorting](developer/products.mdx#retrieving-a-list-of-products).
+
+## Attributes
+
+`Attribute`:
+
+- `Attribute.values` dropped in favor of paginated list called [`choices`](developer/attributes.mdx#fetching-all-attributes).
+  AttributeValue type:
+- `Attribute.type: AttributeValueType` dropped. Use the `inputType` field to determine the type of attribute's value.
+
+`AttributeValueInput`:
+
+- `value: String` changed to `values` with type `[String!]`
+
+## Invoices
+
+- The `invoiceSendEmail` mutation is renamed to `invoiceSendNotification`.
+
+## Permissions
+
+- `MANAGE_SERVICE_ACCOUNTS` was removed. Use `MANAGE_APPS` for managing external apps.
+- `MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES` was added. Staff users managing the accounts may need to add this permission.
+- `MANAGE_PAGE_TYPES_AND_ATTRIBUTES` was added. Staff users managing pages may need to add this permission.
+
+## Apps
+
+Service Accounts have been renamed to Apps.
+
+### Authorization keys
+
+The following mutations were dropped:
+
+- `authorizationKeyAdd`
+- `authorizationKeyDelete`
+
+If you want to create access tokens, you can do that by creating an [App](developer/extending/apps/key-concepts.mdx).
+
+### Webhooks
+
+Webhook payloads have changed. You can reference examples at our [documentation](developer/extending/apps/sample-webhook-payloads.mdx).
+
+The following events have been added:
+
+- `DRAFT_CREATED_FROM_REPLACE`
+- `ADDED_PRODUCTS`
+- `REMOVED_PRODUCTS`
+- `ORDER_REPLACEMENT_CREATED`
+- `ORDER_DISCOUNT_ADDED`
+- `ORDER_DISCOUNT_AUTOMATICALLY_UPDATED`
+- `ORDER_DISCOUNT_UPDATED`
+- `ORDER_DISCOUNT_DELETED`
+- `ORDER_LINE_DISCOUNT_UPDATED`
+- `ORDER_LINE_DISCOUNT_REMOVED`
+- `ORDER_LINE_PRODUCT_DELETED`
+- `ORDER_LINE_VARIANT_DELETED`
+- `CONFIRMED`
+- `FULFILLMENT_REFUNDED`
+- `FULFILLMENT_RETURNED`
+- `FULFILLMENT_REPLACED`
+
+Removed:
+
+- `DRAFT_ADDED_PRODUCTS` in favor of `ADDED_PRODUCTS`
+- `DRAFT_REMOVED_PRODUCTS` in favor of `REMOVED_PRODUCTS`
+
+The full list of available events can be found [here](developer/extending/apps/asynchronous-webhooks.mdx#available-webhook-events).
+
+## Metadata
+
+The `privateMeta` and `meta` fields have been renamed to `privateMetadata` and `metadata`.
+
+## JWT
+
+The signature of JWT tokens has been replaced from HS256 to RS256. This change will require providing an [RSA private key](setup/configuration.mdx#rsa_private_key) for the production environments.

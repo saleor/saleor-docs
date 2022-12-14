@@ -24,31 +24,104 @@ module.exports = {
       {
         schema: "http://localhost:8000/graphql/",
         rootPath: "./docs", // docs will be generated under rootPath/baseURL
-        baseURL: "developer/api-reference",
+        baseURL: "api-reference",
         homepage: "./template/api-reference.mdx",
-        linkRoot: "../../../",
+        linkRoot: "../../",
         loaders: {
           UrlLoader: "@graphql-tools/url-loader",
         },
       },
     ],
     [
-      // Before 3.0, last stable version of docs had no
-      // version suffix in the URL.
-      // Since 3.0 we would like to add version number to
-      // the all URLs, so links always point to the same page.
-      // Redirection handles legacy links posted in the
-      // community channels.
       "@docusaurus/plugin-client-redirects",
       {
-        /**
-         * @param {string} existingPath
-         * @returns string
-         */
+        redirects: [
+          {
+            from: "/docs/3.x/before-you-start",
+            to: "/docs/3.x/overview/introduction",
+          },
+          {
+            from: "/docs/3.x/developer",
+            to: "/docs/3.x/overview/features",
+          },
+          {
+            from: "/docs/3.x/developer/getting-started/architecture",
+            to: "/docs/3.x/overview/architecture",
+          },
+          {
+            from: "/docs/3.x/developer/getting-started/resources",
+            to: "/docs/3.x/overview/resources",
+          },
+          {
+            from: "/docs/3.x/developer/installation",
+            to: "/docs/3.x/setup/docker-compose",
+          },
+          {
+            from: "/docs/3.x/developer/installation/windows",
+            to: "/docs/3.x/setup/windows",
+          },
+          {
+            from: "/docs/3.x/developer/running-saleor/configuration",
+            to: "/docs/3.x/setup/configuration",
+          },
+          {
+            from: "/docs/3.x/developer/running-saleor/docker",
+            to: "/docs/3.x/setup/docker-compose",
+          },
+          {
+            from: "/docs/3.x/developer/running-saleor/gcs",
+            to: "/docs/3.x/setup/media-gcs",
+          },
+          {
+            from: "/docs/3.x/developer/running-saleor/heroku",
+            to: "/docs/3.x/setup/deploy-heroku",
+          },
+          {
+            from: "/docs/3.x/developer/running-saleor/monitoring",
+            to: "/docs/3.x/setup/monitoring-sentry",
+          },
+          {
+            from: "/docs/3.x/developer/running-saleor/read-replicas",
+            to: "/docs/3.x/setup/read-replicas",
+          },
+          {
+            from: "/docs/3.x/developer/running-saleor/s3",
+            to: "/docs/3.x/setup/media-s3",
+          },
+          {
+            from: "/docs/3.x/developer/setup",
+            to: "/docs/3.x/category/setup",
+          },
+          {
+            from: "/docs/3.x/developer/upgrade-guide/2-11-to-3-0",
+            to: "/docs/3.x/upgrade-guides/2-11-to-3-0",
+          },
+          {
+            from: "/docs/3.x/developer/upgrade-guide/3-0-to-3-1",
+            to: "/docs/3.x/upgrade-guides/3-0-to-3-1",
+          },
+          {
+            from: "/docs/3.x/developer/upgrade-guide/3-1-to-3-2",
+            to: "/docs/3.x/upgrade-guides/3-1-to-3-2",
+          },
+          {
+            from: "/docs/3.x/developer/upgrade-guide/3-5-to-3-6",
+            to: "/docs/3.x/upgrade-guides/3-5-to-3-6",
+          },
+        ],
         createRedirects: function (existingPath) {
+          const oldPaths = [];
+          // redirects for old 3.0 docs to 3.x
           if (existingPath.startsWith("/docs/3.x")) {
-            return existingPath.replace("/3.x", "/3.0");
+            oldPaths.push(existingPath.replace("/3.x", "/3.0"));
           }
+          // redirects for the old API reference path
+          if (existingPath.startsWith("/docs/3.x/api-reference")) {
+            oldPaths.push(
+              existingPath.replace("/api-reference", "/developer/api-reference")
+            );
+          }
+          return oldPaths;
         },
       },
     ],
@@ -88,13 +161,21 @@ module.exports = {
       },
       items: [
         {
-          type: "docsVersionDropdown",
-          position: "right",
+          type: "docSidebar",
+          sidebarId: "main",
+          label: "Docs",
+          position: "left",
         },
         {
           type: "docSidebar",
-          sidebarId: "developer",
-          label: "Docs",
+          sidebarId: "cli",
+          label: "CLI",
+          position: "left",
+        },
+        {
+          type: "docSidebar",
+          sidebarId: "api",
+          label: "API",
           position: "left",
         },
       ],
