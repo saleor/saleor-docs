@@ -1,0 +1,144 @@
+---
+title: Authentication and Authorization
+sidebar_label: Authentication
+---
+
+This document describes different ways in which clients can authenticate with the API.
+
+## Authentication vs. authorization
+
+Authentication is the process of verifying the identity of an actor. Authorization is the process of verifying what permissions the actor has to access a resource.
+
+Saleor recognizes two types of actors:
+
+- **Users**: either customers or staff members (humans)
+- **Apps**: third-party integrations (programs)
+
+User tokens are short-lived and are used to access resources related to the user, such as their cart or orders.
+
+App tokens are long-lived and are used to access resources related to the app, such as products or orders.
+
+See [permissions](developer/permissions.mdx) for more information on permissions.
+
+## User authentication using email and password
+
+This is the most common way of authenticating users. It is used in the Saleor Storefront and Dashboard.
+
+To authenticate a user, you need to use the [`tokenCreate`](api-reference/mutations/token-create.mdx) mutation. It takes an email and password as input and returns an **access token** that can be used to access resources related to the user and a **refresh token** that can be used to generate future access tokens.
+
+```graphql
+mutation {
+  tokenCreate(email: "hello@example.com", password: "password") {
+    token
+    refreshToken
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+A valid email and password will return a `token` that can be passed to the `authorization` header of subsequent HTTP requests:
+
+```http
+POST /graphql/ HTTP/1.1
+...
+Authorization: Bearer <token>
+```
+
+Alternatively, if you already use that header for proxy authentication, you can pass the token in the `authorization-bearer` header:
+
+```http
+POST /graphql/ HTTP/1.1
+...
+Authorization: ...
+Authorization-Bearer: <token>
+```
+
+### Authentication with Playground
+
+If you are using [Playground](./playground.mdx) to access the API, you can authorize your requests by providing the JWT token in the _HTTP HEADERS_ tab. To do that, paste the following JSON structure into the tab, replacing the token with your real token:
+
+```json
+{
+  "Authorization": "Bearer <your-access-token>"
+}
+```
+
+### Access token structure
+
+Saleor's access tokens are [JSON Web Tokens](https://jwt.io) signed with RS256.
+
+A decoded token has the following structure:
+
+```json
+{
+  "iat": 1671039993,
+  "owner": "saleor",
+  "iss": "http://demo.saleor.io/graphql/",
+  "exp": 1671040293,
+  "token": "K3IJEFFZgshc",
+  "email": "admin@example.com",
+  "type": "access",
+  "user_id": "VXNlcjo1OQ==",
+  "is_staff": true
+}
+```
+
+You can verify tokens in your code by checking that it's signed with a trusted key. You can find the necessary JSON Web Key Set (JWKS) by visiting `https://<your-saleor-domain>/.well-known/jwks.json`.
+
+### Verifying the access token
+
+To verify a token, use the [`tokenVerify`](api-reference/mutations/token-verify.mdx) mutation:
+
+```graphql {2}
+mutation {
+  tokenVerify(token: "<token>") {
+    isValid
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+
+You can also use the [`me`](api-reference/queries/me.mdx) query to retrieve information about the currently authenticated user:
+
+```graphql
+{
+  me {
+    id
+    email
+  }
+}
+```
+
+### Refreshing the access token
+
+To refresh the access token, you need to use the `tokenRefresh` mutation. It takes a refresh token as input and returns a new access token.
+
+```graphql
+mutation {
+  tokenRefresh(refreshToken: "<refresh-token>") {
+    token
+  }
+}
+```
+
+### Deactivating all tokens of a particular user
+
+The [`tokensDeactivateAll`](api-reference/mutations/tokens-deactivate-all.mdx) mutation will invalidate all tokens (access and refresh, including the token used to invoke the mutation) that belong to the invoking user.
+
+```graphql
+mutation {
+  tokensDeactivateAll {
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```

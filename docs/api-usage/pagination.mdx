@@ -1,0 +1,198 @@
+---
+title: Pagination
+---
+
+Pagination is required in most queries that return lists of items in the Saleor GraphQL API. It limits the number of results returned by the server to a more manageable size and avoids data flow disruptions.
+
+## Relay specification
+
+Saleor's pagination model is based on the [GraphQL Connection Specification](https://facebook.github.io/relay/graphql/connections.htm) but contains some extra fields added for your convenience.
+
+If your GraphQL client supports **Relay-style pagination**, you can use it with Saleor and skip reading the rest of this page.
+
+- Apollo documentation on [Relay-style pagination](https://www.apollographql.com/docs/react/pagination/cursor-based/#relay-style-cursor-pagination)
+- Relay documentation on [pagination](https://relay.dev/docs/guided-tour/list-data/pagination/)
+
+## API reference
+
+Saleor uses **cursor-based** pagination, meaning that each item is assigned a unique cursor instead of page numbers. The API clients can ask for a certain number of items following or preceding a given item.
+
+### Lists vs. connections
+
+There are two types of lists in GraphQL:
+
+- `[Foo]` is a simple list. It is used to query a list containing several items.
+
+  An excellent example of a simple list could be a query for product variants which returns a list with a manageable number of results.
+
+- `FooConnection` represents a more complex list. When queried, it will return an unknown or large number of results.
+
+Pagination is used to help you handle large amounts of items returned by the connection list type.
+
+### &lt;Entity&gt;Connection
+
+```graphql
+type ProductCountableConnection {
+  edges: [ProductCountableEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int
+}
+```
+
+Each connection contains the following fields:
+
+- `edges`: the list of edges (see below).
+
+- `pageInfo`: information on the pagination result (see below).
+
+In addition to the above, _countable connections_ contain:
+
+- `totalCount`: the total number of items of that type.
+
+  :::caution
+  Request `totalCount` sparringly as it is very expensive to calculate.
+  :::
+
+### &lt;Entity&gt;Edge
+
+```graphql
+type ProductCountableEdge {
+  node: Product!
+  cursor: String!
+}
+```
+
+Each node contains the following fields:
+
+- `node`: an individual result (for example, a product).
+
+- `cursor`: the cursor representing the place where the node is located.
+
+### PageInfo
+
+```graphql
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+```
+
+- `hasNextPage`: indicates if there are more items to be fetched. Only calculated for queries using `first`.
+
+- `hasPreviousPage`: indicates if there are items prior to the current page. Only calculated for queries using `last`.
+
+- `startCursor`: the cursor of the first item in `edges`. Use it as `before` to paginate backwards.
+
+- `endCursor`: the cursor of the last item in `edges`. Use it as `after` to paginate forwards.
+
+You can use the `PageInfo` object to know whether the previous or next page exists (`hasPreviousPage`, `hasNextPage`) and how to reach them (`startCursor`, `endCursor`). You can also use individual `cursor` values returned with each node, but it's usually less convenient.
+
+For more information about pagination, see the [official GraphQL website](https://graphql.org/learn/pagination/).
+
+:::note
+Pagination is subject to [usage limits](./usage-limits.mdx).
+:::
+
+## Fetching paginated data
+
+To indicate how you want the queried items to be selected, use a combination of the following connection arguments:
+
+- `first`: the number of items (nodes) you want the query to return. This argument will return items from the beginning of the list. Cannot be combined with `last`.
+
+  <details>
+
+  <summary>See code example</summary>
+
+  ```graphql
+  query {
+    // highlight-next-line
+    products(first: 10) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+  ```
+
+  </details>
+
+- `last`: the number of items (nodes) you want the query to return. This argument will return items from the end of the list. Cannot be combined with `first`.
+
+  <details>
+
+  <summary>See code example</summary>
+
+  ```graphql
+  query {
+    // highlight-next-line
+    products(last: 10) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+  ```
+
+  </details>
+
+- `after`: the cursor you want to start from. Pass the `cursor` of the last item from the previously fetched chunk and combine it with `first` to paginate through data in equally sized chunks.
+
+  <details>
+
+  <summary>See code example</summary>
+
+  ```graphql
+  query {
+    // highlight-next-line
+    products(first: 10, after: "YXJyYXljb25uZWN0aW9uOjA=") {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+  ```
+
+  </details>
+
+- `before`: the cursor you want to end with from. Pass the `cursor` of the first item from the previously fetched chunk and combine it with `last` to paginate through data in equally sized chunks.
+
+  <details>
+
+  <summary>See code example</summary>
+
+  ```graphql
+  query {
+    // highlight-next-line
+    products(last: 10, before: "YXJyYXljb25uZWN0aW9uOjQ==") {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+  ```
+
+  </details>
+
+### Example
+
+> You want to display 5 results per page and start with items from the beginning of the list.
+>
+> 1.  Query the `first: 5` nodes. This becomes your **first page**.
+> 2.  If you have more results to show, query the following `first: 5` nodes `after` the node indicated by the value of the cursor of the **fifth node**. This becomes your **second page**.
+> 3.  For the **third page**, query the following `first: 5` nodes `after` the node indicated by the cursor of the **tenth node**.
+>
+> When you want to start displaying the results from the end of the list, you use `last` and `before` respectively.
