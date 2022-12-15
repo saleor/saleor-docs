@@ -134,7 +134,6 @@ module.exports = {
                 "developer/available-plugins/admin-emails",
                 "developer/available-plugins/adyen",
                 "developer/available-plugins/dummy-credit-card",
-                "developer/available-plugins/openid-connect",
                 "developer/available-plugins/stripe",
                 "developer/available-plugins/np-atobarai",
                 "developer/available-plugins/user-emails",
