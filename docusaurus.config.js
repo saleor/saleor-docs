@@ -65,6 +65,10 @@ module.exports = {
             to: "/docs/3.x/api-usage/i18n",
           },
           {
+            from: "/docs/3.x/developer/available-plugins/openid-connect",
+            to: "/docs/3.x/api-usage/authentication",
+          },
+          {
             from: "/docs/3.x/developer/getting-started/architecture",
             to: "/docs/3.x/overview/architecture",
           },
