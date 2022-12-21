@@ -107,8 +107,8 @@ module.exports = {
       },
       items: [
         "developer/extending/overview",
+        "developer/extending/integrations",
         require("./sidebars/apps-sidebar"),
-
         {
           type: "category",
           label: "Plugins",
