@@ -103,11 +103,12 @@ module.exports = {
       label: "Extending Saleor",
       link: {
         type: "doc",
-        id: "developer/extending",
+        id: "developer/extending/index",
       },
       items: [
+        "developer/extending/overview",
+        "developer/extending/integrations",
         require("./sidebars/apps-sidebar"),
-
         {
           type: "category",
           label: "Plugins",
