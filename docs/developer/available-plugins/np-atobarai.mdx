@@ -7,6 +7,46 @@ Saleor uses NP Atobarai's "Individual Real Time Registration Mode (Sync)". This 
 is requesting only a single transaction and the credit check result is available immediately.
 :::
 
+## What is NP Atobarai?
+
+_NP Atobarai (japanese: NP 後払い)_ is a deferred payment method dedicated to the Japanese market.
+
+Net Protections, the gateway operator, performs a credit check when a transaction is registered. Once an order is placed, the customer receives a paper invoice (via a traditional post) that can pay up to 14 days, e.g. in a local convenience store.
+
+The merchant receives funds once as soon as the shipment is delivered, regardless of the payment status on the customer's end.
+
+## Configuration
+
+Go to _Configuration_ -> _Plugins_ -> _NP 後払い_ and fill in the fields:
+
+- **Merchant Code**, **SP Code**, **Terminal ID:** you will receive those credentials while enrolling in Net Protections
+
+- **Use sandbox:** when enabled, transactions will be targeting the Net Protections test environment.
+
+- **Fill missing address:** when enabled, the system will append required locality information based on a database of japanese postal codes.
+  Since `city` and `cityArea` are not valid fields for Japanese addresses, this information has to be part of `streetAddress1`/`streetAddress2`.
+  We recommend testing both options with your storefront implementation and pick the one that doesn't result in duplicate address information.
+
+- **Shipping company code:** this field indicates which shipping carrier should appear in the fulfillment reports.
+  For a list of available shipping carriers, please refer to the NP Atobarai documentation.
+  If you want to use multiple carriers, please refer to the developers section of the documentation.
+
+- **Product SKU as name:** by default, Saleor is using the product name as a description of the line item. You can use this option to use SKU instead.
+
+## Limitations
+
+There are several limitations:
+
+- The only supported currency are Japanese yen (`JPY`).
+
+- The customer needs a Japanese phone number and postal address in order to pass the credit check.
+
+- The shipment has to be fulfilled using one of the supported local carriers.
+
+- NP Atobarai payments are processed in full, even for partial fulfillments.
+
+- NP Atobarai are marked as fully charged once they receive a successful credit check. The actual transfer of funds happens later and is indicated in the order events section.
+
 ## Using NP Atobarai
 
 ### Preparing a checkout
@@ -16,8 +56,9 @@ To prepare a checkout, you need to follow the steps described in
 [Selecting a shipping method](developer/checkout.mdx#selecting-a-shipping-method).
 
 Please note that NP Atobarai is only applicating to the Japanese market, as it requires:
+
 - a Japanese postal address
-- a Japanese phone number (country code: `+81`) 
+- a Japanese phone number (country code: `+81`)
 - only supports payments in Japanese yen (`JPY`)
 - the shipment has to be fulfilled using one of the supported local carriers
 
@@ -25,7 +66,7 @@ Please note that NP Atobarai is only applicating to the Japanese market, as it r
 mutation {
   checkoutCreate(
     input: {
-      channel: "channel-jpy",
+      channel: "channel-jpy"
       email: "OK@example.email"
       lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6MjA4" }]
       billingAddress: {
@@ -84,14 +125,14 @@ mutation {
     }
   }
 }
-
 ```
 
 ## Completing the checkout
+
 After we create a payment object for the NP Atobarai payment gateway,
 we can call the `checkoutComplete` mutation.
 
- ```graphql
+```graphql
 mutation {
   checkoutComplete(
     checkoutId: "Q2hlY2tvdXQ6YjBhYTUzMWItYjc3NS00MzM3LTkxNzEtYTgzOTYwYThjMmVk"
@@ -144,15 +185,15 @@ For an up to date list of NP error codes please refer to the NP documentation.
 Saleor introduces several internal codes in order to allow consistent processing across internal and external errors,
 although most of them can be eliminated by validating data on the frontend.
 
-- *SALEORNP000* - networking error occurred while communicating with the payment gateway
-- *SALEORNP001* - missing billing address
-- *SALEORNP002* - missing shipping address
-- *SALEORNP003* - invalid billing address, this can happen for invalid post codes with the "Fill missing address" option switched on
-- *SALEORNP004* - invalid shipping address, this can happen for invalid post codes with the "Fill missing address" option switched on
-- *SALEORNP005* - payment has no pspReference
-- *SALEORNP006* - payment with the given id could not be found
-- *SALEORNP007* - tracking number is missing
-- *SALEORNP008* - carrier company code is invalid
+- _SALEORNP000_ - networking error occurred while communicating with the payment gateway
+- _SALEORNP001_ - missing billing address
+- _SALEORNP002_ - missing shipping address
+- _SALEORNP003_ - invalid billing address, this can happen for invalid post codes with the "Fill missing address" option switched on
+- _SALEORNP004_ - invalid shipping address, this can happen for invalid post codes with the "Fill missing address" option switched on
+- _SALEORNP005_ - payment has no pspReference
+- _SALEORNP006_ - payment with the given id could not be found
+- _SALEORNP007_ - tracking number is missing
+- _SALEORNP008_ - carrier company code is invalid
 
 For errors that cannot be parsed, we recommend to display a generic payment error.
 
