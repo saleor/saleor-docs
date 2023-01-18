@@ -78,7 +78,7 @@ module.exports = {
           },
           {
             from: "/docs/3.x/developer/getting-started/playground",
-            to: "/docs/3.x/api-usage/playground",
+            to: "/docs/3.x/api-usage/developer-tools",
           },
           {
             from: "/docs/3.x/developer/getting-started/resources",
@@ -139,6 +139,10 @@ module.exports = {
           {
             from: "/docs/3.x/developer/upgrade-guide/3-5-to-3-6",
             to: "/docs/3.x/upgrade-guides/3-5-to-3-6",
+          },
+          {
+            from: "/docs/3.x/api-usage/playground",
+            to: "/docs/3.x/api-usage/developer-tools",
           },
         ],
         createRedirects: function (existingPath) {
