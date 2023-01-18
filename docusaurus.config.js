@@ -78,7 +78,7 @@ module.exports = {
           },
           {
             from: "/docs/3.x/developer/getting-started/playground",
-            to: "/docs/3.x/api-usage/playground",
+            to: "/docs/3.x/api-usage/developer-tools",
           },
           {
             from: "/docs/3.x/developer/getting-started/resources",
