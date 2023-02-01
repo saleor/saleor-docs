@@ -76,11 +76,55 @@ A decoded token has the following structure:
 }
 ```
 
+### Refresh token structure
+
+Saleor's refresh tokens are [JSON Web Tokens](https://jwt.io) signed with RS256.
+
+A decoded token has the following structure:
+
+```json
+{
+  "iat": 1671039993,
+  "owner": "saleor",
+  "iss": "http://demo.saleor.io/graphql/",
+  "exp": 1673631993,
+  "token": "K3IJEFFZgshc",
+  "email": "admin@example.com",
+  "type": "refresh",
+  "user_id": "VXNlcjo1OQ==",
+  "is_staff": true,
+  "csrf_token": "cAgshsjNr9AnsMKsAkpq4Q3fb4qBBPQT5mIyDMxShQEyO1fVpwCVzVyNQAJAZfKi"
+}
+```
+
+Note: `csrf_token` field is deprecated and is not used in current authentication flow.
+
+### Fetching information about currently authenticated user
+
+You can use the [`me`](api-reference/queries/me.mdx) query to retrieve information about the currently authenticated user:
+
+```graphql
+{
+  me {
+    id
+    email
+  }
+}
+```
+
+### Verifying tokens
+
+Note: when implementing a storefront, you should probably use the [`me`](#fetching-information-about-currently-authenticated-user) query instead.
+
+There are two ways to verify a token: by using the JWKS file or via a GraphQL mutation.
+
+#### Verifying tokens with a JWKS file
+
 You can verify tokens in your code by checking that it's signed with a trusted key. You can find the necessary JSON Web Key Set (JWKS) by visiting `https://<your-saleor-domain>/.well-known/jwks.json`.
 
-### Verifying the access token
+#### Verifying tokens with a mutation
 
-To verify a token, use the [`tokenVerify`](api-reference/mutations/token-verify.mdx) mutation:
+You can verify tokens by calling the [`tokenVerify`](api-reference/mutations/token-verify.mdx) mutation:
 
 ```graphql {2}
 mutation {
@@ -94,20 +138,11 @@ mutation {
 }
 ```
 
-You can also use the [`me`](api-reference/queries/me.mdx) query to retrieve information about the currently authenticated user:
-
-```graphql
-{
-  me {
-    id
-    email
-  }
-}
-```
-
 ### Refreshing the access token
 
-To refresh the access token, you need to use the `tokenRefresh` mutation. It takes a refresh token as input and returns a new access token.
+Refresh tokens have a longer lifetime than access tokens. You can generate a new access token by using the `tokenRefresh` mutation. It takes a refresh token as input and returns a new access token.
+
+Note: Keep in mind that you should not add the `Authorization` header with an expired access token to this request. It'll result in an error.
 
 ```graphql
 mutation {
@@ -116,6 +151,8 @@ mutation {
   }
 }
 ```
+
+In the future, `tokenRefresh` mutation will also generate a new refresh token, and refresh tokens will be one-time use only.
 
 ### Deactivating all tokens of a particular user
 
@@ -131,6 +168,46 @@ mutation {
     }
   }
 }
+```
+
+## Typical authentication flow for a storefront
+
+In the most common scenario, you'll use the `tokenCreate` mutation with user's email and password when they try logging in inside a storefront.
+
+You'll receive an access token and a refresh token. Depending on your use-case, you might consider **storing refresh token** in `localStorage` so that the token is persisted between page reloads and browser sessions.
+
+You should make sure to [refresh your access token](#refreshing-the-access-token) (generate a new one using refresh token) whenever it's close to its expiration date or expired.
+
+If you make a request with an expired access token, you'll receive `ExpiredSignatureError` ("Signature has expired"). You can implement a flow where your app would automatically try to refresh the access token in such cases, and then repeat the same request with the newly generated access token.
+
+When refreshing access token fails, you should remove the refresh token from storage and ask user to log in again.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  Browser ->> Saleor: tokenCreate()
+  Saleor -->> Browser: token + refreshToken
+
+  opt
+    Browser ->> Browser: Store refresh token
+  end
+
+  Browser ->> Saleor: me() + access token
+  Saleor -->> Browser: information about user
+
+  Browser ->> Saleor: query() or mutation() + access token
+  Saleor -->> Browser: protected resource
+
+  Note over Browser,Saleor: access token expires after some time
+
+  Browser ->> Saleor: query() or mutation() + access token
+  Saleor -->> Browser: ExpiredSignatureError
+
+  Browser ->> Saleor: tokenRefresh() + refresh token
+  Saleor -->> Browser: token + refreshToken
+
+  Browser ->> Saleor: repeat 8 + access token
+  Saleor -->> Browser: protected resource
 ```
 
 ## User authentication using OpenID Connect
