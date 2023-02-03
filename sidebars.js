@@ -15,6 +15,7 @@ module.exports = {
         },
       ],
     },
+    "cloud",
     {
       type: "category",
       label: "Setup",
