@@ -1,8 +1,7 @@
 # Writing documentation guidelines
 
 ## Tooling
-- [Grammarly](https://grammarly.com/) - everything you write goes through our editing process, but we would appreciate it if you used Grammarly for spell-checking. If you are a Saleor team member, login with your work email to join the organization.
-  - [VS Code extension](https://marketplace.visualstudio.com/items?itemName=znck.grammarly)
+- [Grammarly](https://grammarly.com/) - everything you write goes through our editing process, but we would appreciate it if you used Grammarly for spell-checking. We recommend installing the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=znck.grammarly). If you are a Saleor team member, login with your work email to join the organization. 
 - [Hemingway App](https://hemingwayapp.com/) - for extra clarity, we recommend using the excellent Hemingway App. It mainly helps with evaluating the complexity of sentences.
 
 ## Content
