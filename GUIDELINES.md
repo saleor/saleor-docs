@@ -1,9 +1,4 @@
 # Writing documentation guidelines
-## Language
-You can use Polish 🇵🇱, English 🇬🇧, or a mix of both.
-
-We want the experience of writing to be frictionless for you, that's why we handle rephrasing and translating the content.
-
 ## Tooling
 - [Grammarly](https://grammarly.com/) - everything you write goes through our editing process, but we would appreciate it if you used Grammarly for spell-checking.
   - [VS Code extension](https://marketplace.visualstudio.com/items?itemName=znck.grammarly)
