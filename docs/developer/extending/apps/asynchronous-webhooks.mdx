@@ -56,6 +56,8 @@ Deprecated headers list:
 
 :::
 
+Saleor gives you an option to add custom headers to the request (available since version 3.12). Currently supports `Authorization*` and `X-*` keys with limitations of 5 headers per webhook and 998 characters per header. To check how to add `customHeaders` go to [Subscribing to webhook](/docs/developer/extending/apps/asynchronous-webhooks.mdx#subscribing-to-a-webhook).
+
 #### Payload signature
 
 Saleor calculates a payload signature under `Saleor-Signature`:
@@ -223,7 +225,11 @@ Webhooks can be used to receive data from Saleor when particular events happen. 
 | `PRODUCT_VARIANT_CREATED`       | A new product variant is created.                                                                                                                                                                                                 |
 | `PRODUCT_VARIANT_DELETED`       | A product variant is deleted.                                                                                                                                                                                                     |
 | `PRODUCT_VARIANT_UPDATED`       | A product variant is updated.                                                                                                                                                                                                     |
+| `PRODUCT_MEDIA_CREATED`         | A new product media is created.                                                                                                                                                                                                   |
+| `PRODUCT_MEDIA_DELETED`         | A product media is deleted.                                                                                                                                                                                                       |
+| `PRODUCT_MEDIA_UPDATED`         | A product media is updated.                                                                                                                                                                                                       |
 | `NOTIFY`                        | Trigger notification to user.                                                                                                                                                                                                     |
+| `THUMBNAIL_CREATED`             | A thumbnail is created.                                                                                                                                                                                                           |
 | `TRANSACTION_ACTION_REQUEST`    | An action request for a transaction. Called when the state of the transaction should be changed. [See sample payload](developer/extending/apps/sample-webhook-payloads.mdx#transaction-action-request).                           |
 | `TRANSLATION_CREATED`           | A new translation is created.                                                                                                                                                                                                     |
 | `TRANSLATION_UPDATED`           | A translation is updated.                                                                                                                                                                                                         |
@@ -259,8 +265,9 @@ To subscribe to a webhook, we need to first create an App with proper permission
 - `app`: the ID of the App to which the webhook belongs. Can be ommited, if the request has the `Authentication` header with the App access token.
 - `isActive`: whether to activate the webhook.
 - `secretKey` argument is optional, but recommended for [validating](developer/extending/apps/asynchronous-webhooks.mdx#https) incoming payloads.
+- `customHeaders`: custom headers, which will be added to HTTP request
 
-```graphql {2-10}
+```graphql {2-11}
 mutation {
   webhookCreate(
     input: {
@@ -270,6 +277,7 @@ mutation {
       app: "QXBwOjk="
       isActive: true
       secretKey: "secret-key"
+      customHeaders: "{\"X-Key\": \"Value\"}"
     }
   ) {
     webhook {
