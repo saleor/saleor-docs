@@ -64,6 +64,7 @@ module.exports = {
     "developer/products",
     "developer/attributes",
     "developer/checkout",
+    "developer/payments",
     "developer/stock-allocation",
     "developer/gift-cards",
     "developer/address",

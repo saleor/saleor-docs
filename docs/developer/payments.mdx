@@ -1,0 +1,578 @@
+---
+title: Payments
+---
+
+## Introduction
+
+The below process describes the key milestones in the payment process flow in Saleor.
+Additional steps may also occur along the way; however, the purpose of this instruction is to
+deliver a base reference for the user to work with.
+
+Saleor distinguishes two different ways of processing a payment:
+
+- By using a [plugin](extending/overview#plugins) embedded in the Saleor code.
+- By using a [Saleor App](extending/overview#apps-recommended) (recommended).
+
+## Saleor App (recommended)
+
+The flow where the payment process is handled by an external Saleor App such as [saleor-checkout](https://github.com/saleor/saleor-checkout).
+Saleor expects to receive a result of the payment transaction processed by Saleor App.
+
+### Creating transaction
+
+:::info
+
+This feature was introduced in **Saleor 3.4**.
+
+:::
+
+:::caution
+
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+
+:::
+
+Transaction stores details of a payment transaction attached to order or checkout:
+
+The [transactionCreate](../api-reference/mutations/transaction-create) mutation takes the following arguments:
+
+- `id`: The ID of the checkout or order.
+- `transaction`: Input data required to create a new transaction object.
+- `transactionEvent`: Data that defines a transaction event. Can be used to provide more context about the current state of the transaction.
+
+The following example shows how the [transactionCreate](../api-reference/mutations/transaction-create) mutation
+is used to create a new transaction.
+The transaction was authorized, and payment was made with a credit card. The actions that can be called from Saleor are: `VOID` and `CHARGE`.
+The authorized amount is $99.
+
+#### Saleor 3.12+
+
+```graphql
+mutation {
+  transactionCreate(
+    id: "Q2hlY2tvdXQ6MWQzNmU5YzctYWEwYS00NzM5LTk0MGQtNzdjNmU4Mjc5YmQ0"
+    transaction: {
+      name: "Credit card"
+      message: "Authorized"
+      pspReference: "PSP-ref123"
+      availableActions: [VOID, CHARGE]
+      amountAuthorized: { currency: "USD", amount: 99 }
+      externalUrl: "https://saleor.io/payment-id/123"
+    }
+  ) {
+    transaction {
+      id
+    }
+  }
+}
+```
+
+A response would look like this:
+
+```json
+{
+  "data": {
+    "transactionCreate": {
+      "transaction": {
+        "id": "VHJhbnNhY3Rpb25JdGVtOjE="
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+#### Saleor 3.4 (Deprecated)
+
+```graphql
+mutation {
+  transactionCreate(
+    id: "Q2hlY2tvdXQ6MWQzNmU5YzctYWEwYS00NzM5LTk0MGQtNzdjNmU4Mjc5YmQ0"
+    transaction: {
+      status: "Authorized"
+      type: "Credit card"
+      reference: "PSP-ref123"
+      availableActions: [VOID, CHARGE]
+      amountAuthorized: { currency: "USD", amount: 99 }
+    }
+    transactionEvent: {
+      status: SUCCESS
+      name: "Authorized credit card"
+      reference: "PSP-ref123"
+    }
+  ) {
+    transaction {
+      id
+    }
+  }
+}
+```
+
+A response would look like this:
+
+```json
+{
+  "data": {
+    "transactionCreate": {
+      "transaction": {
+        "id": "VHJhbnNhY3Rpb25JdGVtOjE="
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+:::info
+
+- Transaction attached to the checkout are accessible via [transactions](../api-reference/objects/checkout#code-style-fontweight-normal-checkoutbtransactionsbcodetransactionitem--) field.
+- Transaction attached to the order are accessible via [transactions](../api-reference/objects/order#code-style-fontweight-normal-orderbtransactionsbcodetransactionitem--) field.
+
+:::
+
+### Updating transaction
+
+:::info
+
+This feature was introduced in **Saleor 3.4**.
+
+:::
+
+:::caution
+
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+
+:::
+
+The [transactionUpdate](../api-reference/mutations/transaction-update) mutation allows to update the details of the transaction.
+It takes the following arguments:
+
+- `id`: The ID of the transaction.
+- `transaction`: Input data that will be used to update transaction object.
+- `transactionEvent`: Data that defines a transaction event. Can be used to provide more context about the current state of the transaction.
+
+:::info
+
+The [transactionUpdate](../api-reference/mutations/transaction-update) can be called only by the owner (User or App) of
+the transaction.
+The owner is the User or App that created the given transaction.
+:::
+
+The following example shows how the [transactionUpdate](../api-reference/mutations/transaction-create) mutation
+is used to update the transaction.
+The available action is `REFUND`. The authorized funds are charged, so `amountCharged` is equal to 99USD.
+
+#### Saleor 3.12+
+
+```graphql
+mutation {
+  transactionUpdate(
+    id: "VHJhbnNhY3Rpb25JdGVtOjE="
+    transaction: {
+      availableActions: [REFUND]
+      amountCharged: { currency: "USD", amount: 99 }
+    }
+    transactionEvent: {
+      message: "Payment charged"
+      pspReference: "PSP-ref123.charge"
+    }
+  ) {
+    transaction {
+      id
+    }
+  }
+}
+```
+
+A response would look like this:
+
+```json
+{
+  "data": {
+    "transactionUpdate": {
+      "transaction": {
+        "id": "VHJhbnNhY3Rpb25JdGVtOjE="
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+#### Saleor 3.4 (Deprecated)
+
+The updated status of the transaction is `CHARGED`.
+The authorized funds are charged, so `amountAuthorized` is 0. `amountCharged` is equal to 99USD.
+
+```graphql
+mutation {
+  transactionUpdate(
+    id: "VHJhbnNhY3Rpb25JdGVtOjE="
+    transaction: {
+      status: "Charged"
+      availableActions: [REFUND]
+      amountAuthorized: { currency: "USD", amount: 0 }
+      amountCharged: { currency: "USD", amount: 99 }
+    }
+    transactionEvent: {
+      status: SUCCESS
+      name: "Charged credit card"
+      reference: "PSP-ref123.charge"
+    }
+  ) {
+    transaction {
+      id
+    }
+  }
+}
+```
+
+A response would look like this:
+
+```json
+{
+  "data": {
+    "transactionUpdate": {
+      "transaction": {
+        "id": "VHJhbnNhY3Rpb25JdGVtOjE="
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+:::note
+During the update of transactions, all funds that go to a new state should be subtracted from the previous state.
+Assuming that we have a transaction with `authorizedAmount` equal to 100 USD. Moving the `authorizedAmount` to `chargedAmount` requires setting `authorizedAmount` to 0.
+
+```graphql
+mutation {
+  transactionUpdate(
+    id: "VHJhbnNhY3Rpb25JdGVtOjE="
+    transaction: {
+      status: "Charged"
+      availableActions: [REFUND]
+      amountAuthorized: { currency: "USD", amount: 0 }
+      amountCharged: { currency: "USD", amount: 100 }
+    }
+    transactionEvent: {
+      status: SUCCESS
+      name: "Charged credit card"
+      reference: "PSP-ref123.charge"
+    }
+  ) {
+    transaction {
+      id
+    }
+  }
+}
+```
+
+:::
+
+### Reporting action for transaction
+
+:::info
+
+This feature was introduced in **Saleor 3.12**.
+
+:::
+
+:::caution
+
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+
+:::
+
+The [transactionEventReport](../api-reference/mutations/transaction-event-report) is used to
+report the new event for the transaction. The newly created event will be used to [re-calculate](#re-calculations-of-transaction-amounts)
+the transaction's amounts.
+The mutation should be used in case of
+[asynchronously processing the requested action](#handling-an-action-request-for-a-transaction) or reporting any
+changes that happened on payment provider side.
+
+It takes the following arguments:
+
+- `id`: The id of the transaction.
+- `type`: Type of the reported action.
+- `amount`: The amount of the reported action.
+- `pspReference`: The reference assigned to the action.
+- `time`: The time of the action.
+- `externalUrl`: The url that will allow to redirect user to payment provider page with action details.
+- `message`: Message related to the action.
+- `availableActions`: Current list of actions available for the transaction.
+
+:::info
+
+The [transactionEventReport](../api-reference/mutations/transaction-event-report) can be called only by
+the owner (`User` or `App`) of the transaction.
+The owner is the User or App that created the given transaction.
+:::
+
+The following example shows how the [transactionEventReport](../api-reference/mutations/transaction-event-report) mutation
+is used to report an event that happened for a given transaction.
+The report is a success charge action, with 20 as an amount. The currency is the same as declared
+for the transaction. Available action that can proceed for a transaction is `REFUND`.
+The provided data will be used to create a new [TransactionEvent](../api-reference/objects/transaction-event) object that will be included in
+the [re-calculation](#re-calculations-of-transaction-amounts) process.
+
+```graphql
+mutation TransactionEventReport {
+  transactionEventReport(
+    id: "VHJhbnNhY3Rpb25JdGVtOjE="
+    type: CHARGE_SUCCESS
+    amount: 20
+    pspReference: "psp-123"
+    time: "2022-01-01"
+    externalUrl: "https://saleor.io/event-details/123"
+    message: "Charge completed"
+    availableActions: [REFUND]
+  ) {
+    errors {
+      field
+      code
+    }
+    alreadyProcessed
+    transaction {
+      id
+    }
+    transactionEvent {
+      id
+    }
+  }
+}
+```
+
+As a response Saleor returns:
+
+- `alreadyProcessesed` - Defines if the reported event hasn't been processed earlier.
+  If there is an event with the same `pspReference`, `amount`, and `type` as provided in the input
+  mutation, Saleor will return it, instead of creating a new one, and the flag will be set
+  to `true`. If the event with provided `pspReference` and `type` was already reported but with a
+  different amount, the error with code
+  [INCORRECT_DETAILS](../api-reference/enums/transaction-event-report-error-code#code-style-fontweight-normal-transactioneventreporterrorcodebincorrect_detailsbcode)
+  will be raised.
+- `transaction` - Transaction that has been updated based on the received report.
+- `transactionEvent` - [TransactionEvent](../api-reference/objects/transaction-event) that has been created based on the received report.
+
+### Handling an action request for a transaction
+
+:::info
+
+This feature was introduced in **Saleor 3.4**.
+
+:::
+
+:::caution
+
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+
+:::
+
+An action request is called when a staff user or an app triggers a request for an action that should be called for a given transaction.
+
+#### Saleor 3.12+
+
+Calling mutation [transactionRequestAction](../api-reference/mutations/transaction-request-action) will also create a new
+[TransactionEvent](../api-reference/objects/transaction-event) with one of the request type ([AUTHORIZATION_REQUEST](../api-reference/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbauthorization_requestbcode),
+[CHARGE_REQUEST](../api-reference/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcharge_requestbcode),
+[REFUND_REQUEST](../api-reference/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode),
+[CANCEL_REQUEST](../api-reference/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcancel_requestbcode)),
+`amount` and the `owner` (User or App). Saleor will send synchronous webhook dedicated to the action
+[TRANSACTION_CHARGE_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
+[TRANSACTION_CANCELATION_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
+[TRANSACTION_REFUND_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode)
+
+The response should contain at least `pspReference` of the action. The `pspReference` will be placed in the previously created event of `_REQUEST` type.
+Optionally the response can contain the details of the completed action.
+
+More details about request webhook can be found [here](extending/apps/synchronous-webhooks/transaction-webhooks).
+
+:::caution
+
+The webhook will be sent only to the app that is the owner of the transaction.
+
+:::
+
+##### Asynchronously processing the action
+
+In case when action is processing asynchronously on the payment provider side, the app should call
+[transactionActionRequest](../api-reference/mutations/transaction-request-action) mutation when it will receive a webhook
+notification from the payment provider.
+
+The below diagram shows an example of processing asynchronous refund action.
+
+```mermaid
+sequenceDiagram
+   Staff ->>+ Saleor: Request refund<br>[transactionActionRequest]
+   Saleor ->> Saleor: Create REQUEST event for transaction
+   Saleor ->> Saleor: Schedule transaction action webhook
+   Saleor -->>- Staff: Requested
+   Note over Saleor,App: Celery task
+   Saleor -->>+ App: Send transaction-refund-requested <br>webhook
+   App ->>+ PaymentProvider: Request refund
+   PaymentProvider -->>- App: Processing refund
+   App -->>- Saleor: PSP reference
+   Note over Saleor,PaymentProvider: Async notification
+   PaymentProvider -)+ App: Refund processed
+   App ->>+ Saleor: Call transactionEventReport <br>mutation with all details<br> of completed action
+   Saleor ->> Saleor: Update transaction amounts
+   Saleor -->>- App: Updated
+   App --)- PaymentProvider: OK
+```
+
+##### Synchronously processing the action
+
+In case when action is processing synchronously on payment provider side. The app receives the completed status of the action as
+a response to the request of the action, then the App can pass the details of the action in the response of the
+webhook: [TRANSACTION_CHARGE_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
+[TRANSACTION_CANCELATION_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
+[TRANSACTION_REFUND_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode).
+
+The below diagram shows an example of processing synchronous refund action.
+
+```mermaid
+sequenceDiagram
+    Staff ->>+ Saleor: Request refund<br>[transactionActionRequest]
+    Saleor ->> Saleor: Create REQUEST event for transaction
+    Saleor ->> Saleor: Schedule transaction action webhook
+    Saleor -->>- Staff: Requested
+    Note over Saleor,App: Celery task
+    Saleor ->>+ App: Send transaction-refund-requested <br>webhook
+    App ->>+ PaymentProvider: Request refund
+    PaymentProvider -->>- App: Refunded
+    App -->>- Saleor: Return PSP<br> Reference and details<br> about completed action
+    Saleor ->> Saleor: Update transaction amounts
+```
+
+#### Saleor 3.4 (Deprecated)
+
+If your app should also process payment request actions (like charge, refund, or void) triggered by staff users on the
+Saleor dashboard side or by the app, make sure that your app is subscribed to the
+[transaction-action-request](developer/extending/apps/sample-webhook-payloads.mdx#transaction-action-request) webhook.
+
+The chart below shows a workflow for handling a `refund` request.
+
+```mermaid
+sequenceDiagram
+    Staff->>+Dashboard: Click refund button<br> for single transaction
+    Dashboard->>+Saleor: Call transactionActionRequest<br> with action - refund
+    Saleor -->>- Dashboard: OK
+    Dashboard -->>- Staff: Triggered
+    Saleor ->>+ App: Send webhook<br>transaction-action-request<br> with all details related<br> to action and transaction
+    App -->>- Saleor: OK
+    App ->>+ PaymentProvider: Execute refund <br>action
+    PaymentProvider -->>- App: Refunded
+    App ->>+ Saleor: Call transactionUpdate <br>to update transaction with<br> a result received after <br>requested action
+    Saleor -->>- App: Updated transaction
+```
+
+### Re-calculations of transaction amounts
+
+Based on the value of the enum [TransactionEventTypeEnum](../api-reference/enums/transaction-event-type-enum) provided as
+a value of field `type` used in [transactionEventReport](#reporting-action-for-transaction) mutation and [optionally in webhook response](extending/apps/synchronous-webhooks/transaction-webhooks),
+the re-calculation will be different:
+
+#### AUTHORIZATION_SUCCESS
+
+Assigns provided `amount` to `transaction.authorizedAmount`. Can’t have two success authorization for single
+transaction. The next requests after the first one will raise an exception. `AUTHORIZATION_ADJUSTMENT` should
+be used to change the `transaction.authorizedAmount`
+
+:::info
+In the case of finding `AUTHORISATION_SUCCESS` and `AUTHORISATION_FAILURE` with the same `pspReference`,
+the re-calculation for `transaction.authorizedAmount` will not take into account the amount from
+`AUTHORISATION_SUCCESS`, when `AUTHORISATION_SUCCESS` is the older one.
+:::
+
+#### AUTHORIZATION_FAILURE
+
+The provided amount will be used to provide the history of transactionItem's actions.
+
+#### AUTHORIZATION_ADJUSTMENT
+
+Assigns provided `amount` to `transaction.authorizedAmount`.
+
+#### CHARGE_SUCCESS
+
+Add provided `amount` to `transaction.chargedAmount`. Any next call will add the `amount` to existing
+`transaction.chargedAmount` (`transaction.chargedAmount += amount`)
+
+:::info
+In the case of finding `CHARGE_SUCCESS` and `CHARGE_FAILURE` with the same `pspReference`, the re-calculation
+for `transaction.chargedAmount` will not take into account the amount from `CHARGE_SUCCESS`, when
+`CHARGE_SUCCESS` is the older one.
+:::
+
+#### CHARGE_FAILURE
+
+The provided amount will be used to provide the history of transactionItem's actions.
+
+#### CHARGE_BACK
+
+The provided `amount` will be used to reduce `transaction.chargedAmount`
+(`transaction.chargedAmount -= amount`).
+
+#### REFUND_SUCCESS
+
+Add provided `amount` to `transaction.refundedAmount`. Any next call will add the `amount` to existing
+`transaction.refundedAmount` (`transaction.refundedAmount += amount`)
+
+:::info
+In the case of finding `REFUND_SUCCESS` and `REFUND_FAILURE` with the same `pspReference`, the re-calculation
+for `transaction.refundedAmount` will not take into account the amount from `REFUND_SUCCESS`, when
+`REFUND_SUCCESS` is the older one.
+:::
+
+#### REFUND_FAILURE
+
+The provided amount will be used to provide the history of transactionItem's actions.
+
+#### REFUND_REVERSE
+
+The provided `amount` will be used to reduce `transaction.refundedAmount` (`transaction.refundedAmount -= amount`).
+
+#### CANCEL_SUCCESS
+
+The provided `amount` will be added to `transaction.canceledAmount`
+(`transaction.canceledAmount += amount`).
+
+:::info
+In the case of finding `CANCEL_SUCCESS` and `CANCEL_FAILURE` with the same `pspReference`, the re-calculation
+for `transaction.canceledAmount` will not take into account the amount from `CANCEL_SUCCESS`, when
+`CANCEL_SUCCESS` is the older one.
+:::
+
+#### CANCEL_FAILURE
+
+The provided amount will be used to provide the history of transactionItem's actions.
+
+## Payment Gateway
+
+Using PaymentGateway is strictly related to the checkout object and explained in
+[Checkout](checkout#finalizing-checkout-with-saleors-payment-gateways) section.
