@@ -141,6 +141,10 @@ module.exports = {
             to: "/docs/3.x/upgrade-guides/3-5-to-3-6",
           },
           {
+            from: "/docs/3.x/developer/upgrade-guide/3-11-to-3-12",
+            to: "/docs/3.x/upgrade-guides/3-11-to-3-12",
+          },
+          {
             from: "/docs/3.x/api-usage/playground",
             to: "/docs/3.x/api-usage/developer-tools",
           },
