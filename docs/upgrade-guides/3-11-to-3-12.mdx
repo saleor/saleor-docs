@@ -2,16 +2,24 @@
 title: Upgrading from 3.11 to 3.12
 ---
 
-## Preparation
-
-Version 3.12 introduces some breaking changes necessary to ensure the highest quality of our API.
-To follow the zero-downtime strategy when upgrading from older versions to 3.12
-you need to migrate to 3.11.4 first. Otherwise, you will need to downtime your solution to ensure correct data migration.
+This migration guide describes the upgrade from versions 3.11 to 3.12. Version 3.12 contains the following breaking changes:
 
 ## Order settings moved to Channel type
 
-Version 3.12 introduces new fields to the database `Channel` model which results in the need for data migrations.
-In version 3.12 [`orderSettings`](../api-reference/queries/order-settings) were moved to [`Channel`](../api-reference/objects/channel), which includes
-moving data between database models and changing the schema.
-For more related information please refer to [Changelog](https://github.com/saleor/saleor/blob/main/CHANGELOG.md).
-In case of not following this guideline may happen an unexpected state of [`orderSettings`](../api-reference/queries/order-settings) data.
+We moved [`orderSettings`](../api-reference/queries/order-settings) to [`Channel`](../api-reference/objects/channel). The changes affect the database models and the schema.
+
+To follow the zero-downtime strategy when upgrading to 3.12, **we recommend migrating to 3.11.4 first**. Otherwise, you will need to downtime your solution to ensure correct data migration.
+
+## Changes in the discount rounding mode
+
+We changed the discount rounding mode from `ROUND_DOWN` to `ROUND_HALF_UP`.
+
+The change affects the discount amount and total price of future checkouts, as well as orders with an applied percentage discount. Now, the discount amount might be 0.01 greater, and the total price might be 0.01 lower.
+
+If you do any calculations on the discount amount or total price, you might need to consider that.
+
+**Example:**
+
+If you had an order for $13.00 and applied a 12.5% discount to it, you would get $11.38 with a $1.62 discount.
+
+In Saleor 3.12.0, the numbers would be $11.37 for the order and $1.63 for the discount.
