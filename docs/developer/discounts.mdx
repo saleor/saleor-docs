@@ -1,0 +1,175 @@
+---
+title: Discounts
+sidebar_label: Discounts
+---
+
+## Introduction
+
+There are two kinds of discounts in Saleor: `Sales` and `Vouchers`.
+Discounts allow for the reduction of prices for selected variants, products, collections,
+or categories by a given percentage or fixed value.
+The sale discount is automatically applied to all included products, without requiring
+any additional actions from the user. In contrast, vouchers require the user to provide
+a code during the checkout process. Both the sale and voucher discounts can be used together.
+
+### Sale
+
+As mentioned earlier, sales are automatically applied when a product is added to the checkout.
+For instance, if a product is priced at **$9** and has a **10%** discount, it will be available for **$8.1**.
+The discount will be visible on line prices. To calculate the total applied discount,
+subtract the `line.undiscountedTotalPrice` from the `line.totalPrice`.
+To calculate the discount on one unit, subtract the `line.undiscountedUnitPrice` from the `line.unitPrice`.
+
+:::info
+The sale discount is not visible on `checkout.discount.amount`.
+:::
+
+Consider the following example: after adding a product on sale to the checkout,
+the response will include the discounted price of the product.
+
+```graphql
+mutation {
+  checkoutLinesAdd(
+    checkoutId: "Q2hlY2tvdXQ6NzMwMzkwMmItZGRhOC00MzU3LTk1YTAtNjRiODNiNTllMmUy"
+    lines: { quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mzcx" }
+  ) {
+    errors {
+      message
+    }
+    checkout {
+      discount {
+        amount
+      }
+      token
+      lines {
+        quantity
+        variant {
+          name
+        }
+        totalPrice {
+          gross {
+            amount
+          }
+          net {
+            amount
+          }
+        }
+        undiscountedTotalPrice {
+          amount
+        }
+        unitPrice {
+          gross {
+            amount
+          }
+          net {
+            amount
+          }
+        }
+        undiscountedUnitPrice {
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+Please check the line prices in the following response.
+The line.totalPrice is 8.1, and the line.undiscountedTotalPrice is 9.0.
+
+```json {16-37}
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "errors": [],
+      "checkout": {
+        "discount": {
+          "amount": 0.0
+        },
+        "token": "7303902b-dda8-4357-95a0-64b83b59e2e2",
+        "lines": [
+          {
+            "quantity": 1,
+            "variant": {
+              "name": "UHJvZHVjdFZhcmlhbnQ6Mzcx"
+            },
+            "totalPrice": {
+              "gross": {
+                "amount": 8.1
+              },
+              "net": {
+                "amount": 8.1
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 9.0
+            },
+            "unitPrice": {
+              "gross": {
+                "amount": 8.1
+              },
+              "net": {
+                "amount": 8.1
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 9.0
+            }
+          }
+        ]
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 1,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+### Voucher
+
+There are three types of vouchers:
+
+- Fixed amount: reduces the price by a specified value.
+- Percentage: reduces the price by a specified percentage value.
+- Free shipping: zeros out the shipping price.
+
+The voucher can be applied to all checkout products, or only to specified ones.
+
+There is also an option to apply the discount only to the cheapest eligible product.
+If the voucher specifies certain products, the discount will be applied only to
+the cheapest item included in the discount. If the voucher applies to all products,
+the discount will be applied only to the cheapest item overall.
+
+To apply the voucher on checkout use [checkoutAddPromoCode](api-reference/mutations/checkout-add-promo-code.mdx)
+mutation. The discount will be visible both in the line prices and in the `checkout.discount` field.
+
+```graphql
+
+```
+
+Let's see the example:
+
+Applying the entire order voucher
+
+```graphql
+
+```
+
+The discount is visible on `checkout.lines`, the `total_price` is less by .. than the
+`undiscounted_prcie`. The sum of the difference between `total_price` and `undiscounted_prcie`
+of lines gives the `checkout.discount_amount`.
+
+Specific product - one line in discount one not
+
+```graphql
+
+```
+
+Here we see that the discount was applied only on the cheapest line from lines that are
+included in the voucher discount.
+
+### Sale and Voucher together
