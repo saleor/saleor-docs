@@ -69,6 +69,7 @@ module.exports = {
     "developer/address",
     "developer/users",
     "developer/permissions",
+    "developer/taxes",
     "developer/thumbnails",
     {
       type: "category",
