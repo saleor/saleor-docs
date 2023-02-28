@@ -5,16 +5,16 @@ sidebar_label: Discounts
 
 ## Introduction
 
-There are two kinds of discounts in Saleor: `Sales` and `Vouchers`.
 Discounts allow for the reduction of prices for selected variants, products, collections,
-or categories by a given percentage or fixed value.
-The sale discount is automatically applied to all included products, without requiring
-any additional actions from the user. In contrast, vouchers require the user to provide
+or categories by a given percentage or a fixed value.
+There are two kinds of discounts in Saleor: `Sales` and `Vouchers`.
+The **sale** discount is automatically applied to all products included in the sale, without requiring
+any additional actions from the user. In contrast, **vouchers** require the user to provide
 a code during the checkout process. Both the sale and voucher discounts can be used together.
 
 ### Sale
 
-As mentioned earlier, sales are automatically applied when a product is added to the checkout.
+Sales are automatically applied when a product is added to the checkout.
 For instance, if a product is priced at **$9** and has a **10%** discount, it will be available for **$8.1**.
 The discount will be visible on the line prices. To calculate the total applied discount,
 subtract the `line.undiscountedTotalPrice` from the `line.totalPrice`.
@@ -24,8 +24,8 @@ To calculate the discount on one unit, subtract the `line.undiscountedUnitPrice`
 The sale discount is not visible on `checkout.discount.amount`.
 :::
 
-Consider the following example: after adding a product on sale to the checkout,
-the response will include the discounted price of the product.
+In the example below, we add an on-sale product to the checkout.
+The response of the `checkoutLinesAdd` mutation will include the discounted product price.
 
 ```graphql
 mutation {
@@ -74,8 +74,8 @@ mutation {
 }
 ```
 
-Please check the line prices in the following response.
-The line.totalPrice is **8.1**, and the `line.undiscountedTotalPrice` is **9.0**.
+Please note the line prices in the following response.
+The `line.totalPrice` is **8.1**, and the `line.undiscountedTotalPrice` is **9.0**.
 
 ```json {7,16-37}
 {
@@ -295,20 +295,20 @@ while the difference in the second line is **$4.59**.
 The `checkout.discount` is the sum of the differences between `totalPrice` and `undiscountedTotalPrice` of the lines.
 
 :::info
-If an entire order voucher with a fixed amount is applied during checkout,
-and the order contains multiple lines, the discount will be distributed evenly in proportion to the total price of each line.
+If the user applied a fixed-amount order voucher during checkout, and the order contains multiple lines,
+the discount will be distributed evenly in proportion to the total price of each line.
 :::
 
-#### Applying the entire order voucher that is applied once per order
+#### Applying the entire order voucher once per order
 
-If a voucher with the `applyOncePerOrder` flag set to True is used in a similar scenario,
+If a voucher with the `applyOncePerOrder` flag set to `True` is used in a similar scenario,
 the discount will only apply to the cheapest eligible product. In this checkout,
 the cheapest eligible product is priced at **$4**.
-Therefore, the discount amount will also be $4 and will only appear on one line.
+Therefore, the discount will be $4 and will only appear on one line.
 
 Refer to the response from running the same mutation as before.
-The `checkout.discount` is **4.0**. The cheapest line's totalPrice is **0.0**,
-and the undiscountedTotalPrice is **4.0**.
+The `checkout.discount` is **4.0**. The cheapest line's `totalPrice` is **0.0**,
+and the `undiscountedTotalPrice` is **4.0**.
 
 ```json {11,27-37}
 {
@@ -508,10 +508,10 @@ As we can see, the 10% discount has been applied to the first two lines.
 The total discount amount is visible in the `checkout.discount` field, which is equal to
 the sum of the differences between the `undiscountedTotalPrice` and `totalPrice` of all lines.
 
-#### Applying the specific product voucher that applies once per order
+#### Applying the specific product voucher once per order
 
-If the voucher has the `applyOncePerOrder` flag turned on, the discount will only be applied to
-the single cheapest product that is eligible for the discount. In the scenario described,
+If the voucher has the `applyOncePerOrder` flag set to `True`, the discount will only be applied to
+the single cheapest product eligible for the discount. In the scenario described,
 the discount would only be applied to the product with a price of **$20**, and would be visible on only one line of the order.
 
 ```json {11,27-37,52-62,77-87}
@@ -622,14 +622,14 @@ the discount would only be applied to the product with a price of **$20**, and w
 ```
 
 Here, we can see that the discount was only applied to the cheapest line included in the voucher discount.
-The total `checkout.discount` is only **$2.0** in this case. The difference between
+The total `checkout.discount` is **$2.0** in this case. The difference between
 `totalPrice` and `undiscountedTotalPrice` is only visible on the second line.
 
 ### Sale and Voucher together
 
 Sales and vouchers can be combined. In this case, the voucher discount is applied to the price after the sale.
 Let's consider an example: the checkout has two items, and the second item is on sale.
-A fixed amount discount of $5 is being applied to the entire order.
+A fixed discount of **$5** is being applied to the entire order.
 
 Here is the checkout data before applying the voucher code (only the sale is included in the price).
 
@@ -804,9 +804,9 @@ Below is the checkout data after applying the entire order voucher.
   }
 ```
 
-As we can see, the total discount is **$5.0**. For the first line,
+As we can see, the total discount is **$5.0**. In the first line,
 the entire difference between `totalPrice` and `undiscountedTotalPrice` comes from
-the voucher discount ($1.94). However, in the case of the second line, the difference
+the voucher discount ($1.94). However, in the second line, the difference
 between those values ($6.56) is the total discount applied to this line,
 which includes both sales and voucher discounts.
 
