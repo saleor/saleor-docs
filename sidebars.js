@@ -70,6 +70,7 @@ module.exports = {
     "developer/users",
     "developer/permissions",
     "developer/thumbnails",
+    "developer/filtering",
     {
       type: "category",
       label: "Development",
