@@ -1,0 +1,815 @@
+---
+title: Discounts
+sidebar_label: Discounts
+---
+
+## Introduction
+
+Discounts allow for the reduction of prices for selected variants, products, collections,
+or categories by a given percentage or a fixed value.
+There are two kinds of discounts in Saleor: `Sales` and `Vouchers`.
+The **sale** discount is automatically applied to all products included in the sale, without requiring
+any additional actions from the user. In contrast, **vouchers** require the user to provide
+a code during the checkout process. Both the sale and voucher discounts can be used together.
+
+### Sale
+
+Sales are automatically applied when a product is added to the checkout.
+For instance, if a product is priced at **$9** and has a **10%** discount, it will be available for **$8.1**.
+The discount will be visible on the line prices. To calculate the total applied discount,
+subtract the `line.undiscountedTotalPrice` from the `line.totalPrice`.
+To calculate the discount on one unit, subtract the `line.undiscountedUnitPrice` from the `line.unitPrice`.
+
+:::info
+The sale discount is not visible on `checkout.discount.amount`.
+:::
+
+In the example below, we add an on-sale product to the checkout.
+The response of the `checkoutLinesAdd` mutation will include the discounted product price.
+
+```graphql
+mutation {
+  checkoutLinesAdd(
+    checkoutId: "Q2hlY2tvdXQ6NzMwMzkwMmItZGRhOC00MzU3LTk1YTAtNjRiODNiNTllMmUy"
+    lines: { quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mzcx" }
+  ) {
+    errors {
+      message
+    }
+    checkout {
+      discount {
+        amount
+      }
+      token
+      lines {
+        quantity
+        variant {
+          name
+        }
+        totalPrice {
+          gross {
+            amount
+          }
+          net {
+            amount
+          }
+        }
+        undiscountedTotalPrice {
+          amount
+        }
+        unitPrice {
+          gross {
+            amount
+          }
+          net {
+            amount
+          }
+        }
+        undiscountedUnitPrice {
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+Please note the line prices in the following response.
+The `line.totalPrice` is **8.1**, and the `line.undiscountedTotalPrice` is **9.0**.
+
+```json {7,16-37}
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "errors": [],
+      "checkout": {
+        "discount": {
+          "amount": 0.0
+        },
+        "token": "7303902b-dda8-4357-95a0-64b83b59e2e2",
+        "lines": [
+          {
+            "quantity": 1,
+            "variant": {
+              "name": "UHJvZHVjdFZhcmlhbnQ6Mzcx"
+            },
+            "totalPrice": {
+              "gross": {
+                "amount": 8.1
+              },
+              "net": {
+                "amount": 8.1
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 9.0
+            },
+            "unitPrice": {
+              "gross": {
+                "amount": 8.1
+              },
+              "net": {
+                "amount": 8.1
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 9.0
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+### Voucher
+
+There are three types of vouchers:
+
+- Fixed amount: reduces the price by a specified value.
+- Percentage: reduces the price by a specified percentage value.
+- Shipping: reduces the shipping price.
+
+The voucher can be applied to all checkout products, or only to specified ones.
+
+There is also an option to apply the discount only to the cheapest eligible product.
+If the voucher specifies certain products, the discount will be applied only to
+the cheapest item included in the discount. If the voucher applies to all products,
+the discount will be applied only to the cheapest item overall.
+
+To apply the voucher on checkout use [checkoutAddPromoCode](api-reference/mutations/checkout-add-promo-code.mdx)
+mutation. The discount will be visible both in the line prices and in the `checkout.discount` field. Let's see the examples.
+
+#### Applying the entire order voucher
+
+In the example below, the entire order voucher with a fixed discount of **$5** is applied at checkout.
+The order consists of two lines: the first for **$4** and the second for **$45**.
+
+```graphql
+mutation {
+  checkoutAddPromoCode(
+    token: 7303902b-dda8-4357-95a0-64b83b59e2e2, promoCode: "DISCOUNT"
+  ) {
+    errors {
+      field
+      message
+      code
+    }
+    checkout {
+      id
+      token
+      voucherCode
+      discountName
+      discount {
+        amount
+      }
+      subtotalPrice {
+        tax {
+          amount
+        }
+        gross {
+          amount
+        }
+        net {
+          amount
+        }
+      }
+      lines {
+        quantity
+        totalPrice {
+          net {
+            amount
+          }
+          gross {
+            amount
+          }
+        }
+        undiscountedTotalPrice {
+          amount
+        }
+        unitPrice {
+          net {
+            amount
+          }
+          gross {
+            amount
+          }
+        }
+        undiscountedUnitPrice {
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+Here is the response:
+
+```json {11,27-37,52-62}
+{
+  "data": {
+    "checkoutAddPromoCode": {
+      "errors": [],
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6OTNmMWQxZjItMjBjNC00ZWMyLTkwYzgtOThjYmEzY2YyNTU1",
+        "token": "93f1d1f2-20c4-4ec2-90c8-98cba3cf2555",
+        "voucherCode": "DISCOUNT",
+        "discountName": "Big order discount",
+        "discount": {
+          "amount": 5.0
+        },
+        "subtotalPrice": {
+          "tax": {
+            "amount": 0.0
+          },
+          "gross": {
+            "amount": 44.0
+          },
+          "net": {
+            "amount": 44.0
+          }
+        },
+        "lines": [
+          {
+            "quantity": 1,
+            "totalPrice": {
+              "net": {
+                "amount": 3.59
+              },
+              "gross": {
+                "amount": 3.59
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 4.0
+            },
+            "unitPrice": {
+              "net": {
+                "amount": 3.59
+              },
+              "gross": {
+                "amount": 3.59
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 4.0
+            }
+          },
+          {
+            "quantity": 1,
+            "totalPrice": {
+              "net": {
+                "amount": 40.41
+              },
+              "gross": {
+                "amount": 40.41
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 45.0
+            },
+            "unitPrice": {
+              "net": {
+                "amount": 40.41
+              },
+              "gross": {
+                "amount": 40.41
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 45.0
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+The discount is visible on both the `checkout.discount` field and the prices in `checkout.lines`.
+In the first line, the `totalPrice` is **$0.41** less than the `undiscountedTotalPrice`,
+while the difference in the second line is **$4.59**.
+The `checkout.discount` is the sum of the differences between `totalPrice` and `undiscountedTotalPrice` of the lines.
+
+:::info
+If the user applied a fixed-amount order voucher during checkout, and the order contains multiple lines,
+the discount will be distributed evenly in proportion to the total price of each line.
+:::
+
+#### Applying the once-per-order entire order voucher
+
+If a voucher with the `applyOncePerOrder` flag set to `True` is used in a similar scenario,
+the discount will only apply to the cheapest eligible product. In this checkout,
+the cheapest eligible product is priced at **$4**.
+Therefore, the discount will be $4 and will only appear on one line.
+
+Refer to the response from running the same mutation as before.
+The `checkout.discount` is **4.0**. The cheapest line's `totalPrice` is **0.0**,
+and the `undiscountedTotalPrice` is **4.0**.
+
+```json {11,27-37}
+{
+	"data": {
+		"checkoutAddPromoCode": {
+			"errors": [],
+			"checkout": {
+				"id": "Q2hlY2tvdXQ6OTNmMWQxZjItMjBjNC00ZWMyLTkwYzgtOThjYmEzY2YyNTU1",
+				"token": "93f1d1f2-20c4-4ec2-90c8-98cba3cf2555",
+				"voucherCode": "DISCOUNT",
+				"discountName": "Big order discount",
+				"discount": {
+					"amount": 4.0
+				},
+				"subtotalPrice": {
+					"tax": {
+						"amount": 0.0
+					},
+					"gross": {
+						"amount": 45.0
+					},
+					"net": {
+						"amount": 45.0
+					}
+				},
+				"lines": [
+					{
+						"quantity": 1,
+						"totalPrice": {
+							"net": {
+								"amount": 0.0
+							},
+							"gross": {
+								"amount": 0.0
+							}
+						},
+						"undiscountedTotalPrice": {
+							"amount": 4.0
+						},
+						"unitPrice": {
+							"net": {
+								"amount": 0.0
+							},
+							"gross": {
+								"amount": 0.0
+							}
+						},
+						"undiscountedUnitPrice": {
+							"amount": 4.0
+						}
+					},
+					{
+						"quantity": 1,
+						"totalPrice": {
+							"net": {
+								"amount": 45.0
+							},
+							"gross": {
+								"amount": 45.0
+							}
+						},
+						"undiscountedTotalPrice": {
+							"amount": 45.0
+						},
+						"unitPrice": {
+							"net": {
+								"amount": 45.0
+							},
+							"gross": {
+								"amount": 45.0
+							}
+						},
+						"undiscountedUnitPrice": {
+							"amount": 45.0
+						}
+					}
+				]
+			}
+		}
+	}
+```
+
+#### Applying the specific product voucher
+
+In the following example, a **10%** voucher for a specific product is applied during checkout.
+The discount applies to the first two lines, one for **$45** and the other for **$20**, but not to the third line for **$1.99**.
+The response of running the `checkoutAddPromoCode` mutation with the voucher code for this discount is shown below:
+
+```json {11,27-37,52-62,77-87}
+{
+  "data": {
+    "checkoutAddPromoCode": {
+      "errors": [],
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6YWJlZTQzNTEtMGZjMS00MWYzLTk1YzEtMTIyMTc4NWMwYzY2",
+        "token": "abee4351-0fc1-41f3-95c1-1221785c0c66",
+        "voucherCode": "SPECIFIC PRODUCT",
+        "discountName": null,
+        "discount": {
+          "amount": 6.5
+        },
+        "subtotalPrice": {
+          "tax": {
+            "amount": 0.0
+          },
+          "gross": {
+            "amount": 60.49
+          },
+          "net": {
+            "amount": 60.49
+          }
+        },
+        "lines": [
+          {
+            "quantity": 1,
+            "totalPrice": {
+              "net": {
+                "amount": 40.5
+              },
+              "gross": {
+                "amount": 40.5
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 45.0
+            },
+            "unitPrice": {
+              "net": {
+                "amount": 40.5
+              },
+              "gross": {
+                "amount": 40.5
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 45.0
+            }
+          },
+          {
+            "quantity": 1,
+            "totalPrice": {
+              "net": {
+                "amount": 18.0
+              },
+              "gross": {
+                "amount": 18.0
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 20.0
+            },
+            "unitPrice": {
+              "net": {
+                "amount": 18.0
+              },
+              "gross": {
+                "amount": 18.0
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 20.0
+            }
+          },
+          {
+            "quantity": 1,
+            "totalPrice": {
+              "net": {
+                "amount": 1.99
+              },
+              "gross": {
+                "amount": 1.99
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 1.99
+            },
+            "unitPrice": {
+              "net": {
+                "amount": 1.99
+              },
+              "gross": {
+                "amount": 1.99
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 1.99
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+As we can see, the 10% discount has been applied to the first two lines.
+The total discount amount is visible in the `checkout.discount` field, which is equal to
+the sum of the differences between the `undiscountedTotalPrice` and `totalPrice` of all lines.
+
+#### Applying the once-per-order specific product voucher
+
+If the voucher has the `applyOncePerOrder` flag set to `True`, the discount will only be applied to
+the single cheapest product eligible for the discount. In the scenario described,
+the discount would only be applied to the product with a price of **$20**, and would be visible on only one line of the order.
+
+```json {11,27-37,52-62,77-87}
+{
+  "data": {
+    "checkoutAddPromoCode": {
+      "errors": [],
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6YWJlZTQzNTEtMGZjMS00MWYzLTk1YzEtMTIyMTc4NWMwYzY2",
+        "token": "abee4351-0fc1-41f3-95c1-1221785c0c66",
+        "voucherCode": "SPECIFIC PRODUCT",
+        "discountName": null,
+        "discount": {
+          "amount": 2.0
+        },
+        "subtotalPrice": {
+          "tax": {
+            "amount": 0.0
+          },
+          "gross": {
+            "amount": 64.99
+          },
+          "net": {
+            "amount": 64.99
+          }
+        },
+        "lines": [
+          {
+            "quantity": 1,
+            "totalPrice": {
+              "net": {
+                "amount": 45.0
+              },
+              "gross": {
+                "amount": 45.0
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 45.0
+            },
+            "unitPrice": {
+              "net": {
+                "amount": 45.0
+              },
+              "gross": {
+                "amount": 45.0
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 45.0
+            }
+          },
+          {
+            "quantity": 1,
+            "totalPrice": {
+              "net": {
+                "amount": 18.0
+              },
+              "gross": {
+                "amount": 18.0
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 20.0
+            },
+            "unitPrice": {
+              "net": {
+                "amount": 18.0
+              },
+              "gross": {
+                "amount": 18.0
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 20.0
+            }
+          },
+          {
+            "quantity": 1,
+            "totalPrice": {
+              "net": {
+                "amount": 1.99
+              },
+              "gross": {
+                "amount": 1.99
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 1.99
+            },
+            "unitPrice": {
+              "net": {
+                "amount": 1.99
+              },
+              "gross": {
+                "amount": 1.99
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 1.99
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+Here, we can see that the discount was only applied to the cheapest line included in the voucher discount.
+The total `checkout.discount` is **$2.0** in this case. The difference between
+`totalPrice` and `undiscountedTotalPrice` is only visible on the second line.
+
+### Sale and Voucher together
+
+Sales and vouchers can be combined. In this case, the voucher discount is applied to the price after the sale.
+Let's consider an example: the checkout has two items, and the second item is on sale.
+A fixed discount of **$5** is being applied to the entire order.
+
+Here is the checkout data before applying the voucher code (only the sale is included in the price).
+
+```json {11,34-44,56-66}
+{
+  "data": {
+    "checkout": {
+      "id": "Q2hlY2tvdXQ6YzhkYmIxMWEtYzQyMi00ODdiLTg3ZTUtMGQ0NzhiNTU2N2Fj",
+      "token": "c8dbb11a-c422-487b-87e5-0d478b5567ac",
+      "channel": {
+        "slug": "default-channel"
+      },
+      "voucherCode": null,
+      "discount": {
+        "amount": 0.0
+      },
+      "discountName": null,
+      "totalPrice": {
+        "gross": {
+          "amount": 51.5
+        },
+        "net": {
+          "amount": 51.5
+        }
+      },
+      "subtotalPrice": {
+        "gross": {
+          "amount": 51.5
+        },
+        "net": {
+          "amount": 51.5
+        },
+        "__typename": "TaxedMoney"
+      },
+      "lines": [
+        {
+          "quantity": 1,
+          "undiscountedTotalPrice": {
+            "amount": 20.0
+          },
+          "totalPrice": {
+            "gross": {
+              "amount": 20.0
+            },
+            "net": {
+              "amount": 20.0
+            }
+          },
+          "unitPrice": {
+            "net": {
+              "amount": 20.0
+            }
+          },
+          "undiscountedUnitPrice": {
+            "amount": 20.0
+          }
+        },
+        {
+          "quantity": 1,
+          "undiscountedTotalPrice": {
+            "amount": 35.0
+          },
+          "totalPrice": {
+            "gross": {
+              "amount": 31.5
+            },
+            "net": {
+              "amount": 31.5
+            }
+          },
+          "unitPrice": {
+            "gross": {
+              "amount": 31.5
+            },
+            "net": {
+              "amount": 31.5
+            }
+          },
+          "undiscountedUnitPrice": {
+            "amount": 35.0
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+As we can see the price of the second line is reduced by **$3.5**. The `checkout.discount`
+is **$0.0**.
+
+Below is the checkout data after applying the entire order voucher.
+
+```json {11,27-36,52-62}
+{
+  "data": {
+    "checkoutAddPromoCode": {
+      "errors": [],
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6YzhkYmIxMWEtYzQyMi00ODdiLTg3ZTUtMGQ0NzhiNTU2N2Fj",
+        "token": "c8dbb11a-c422-487b-87e5-0d478b5567ac",
+        "voucherCode": "DISCOUNT",
+        "discountName": "Big order discount",
+        "discount": {
+          "amount": 5.0
+        },
+        "subtotalPrice": {
+          "tax": {
+            "amount": 0.0
+          },
+          "gross": {
+            "amount": 46.5
+          },
+          "net": {
+            "amount": 46.5
+          }
+        },
+        "lines": [
+          {
+            "quantity": 1,
+            "totalPrice": {
+              "net": {
+                "amount": 18.06
+              },
+              "gross": {
+                "amount": 18.06
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 20.0
+            },
+            "unitPrice": {
+              "net": {
+                "amount": 18.06
+              },
+              "gross": {
+                "amount": 18.06
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 20.0
+            }
+          },
+          {
+            "quantity": 1,
+            "totalPrice": {
+              "net": {
+                "amount": 28.44
+              },
+              "gross": {
+                "amount": 28.44
+              }
+            },
+            "undiscountedTotalPrice": {
+              "amount": 35.0
+            },
+            "unitPrice": {
+              "net": {
+                "amount": 28.44
+              },
+              "gross": {
+                "amount": 28.44
+              }
+            },
+            "undiscountedUnitPrice": {
+              "amount": 35.0
+            }
+          }
+        ]
+      }
+    }
+  }
+```
+
+As we can see, the total discount is **$5.0**. In the first line,
+the entire difference between `totalPrice` and `undiscountedTotalPrice` comes from
+the voucher discount ($1.94). However, in the second line, the difference
+between those values ($6.56) is the total discount applied to this line,
+which includes both sales and voucher discounts.
+
+To calculate the value of the applied sale, we can sum up the line discounts and subtract
+`checkout.discount`. In this example, the calculation would be: **($1.94 + $6.56) - $5.00 = $3.5**.
+Therefore, we end up with the same value as before applying the voucher.

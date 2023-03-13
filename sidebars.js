@@ -66,11 +66,13 @@ module.exports = {
     "developer/checkout",
     "developer/payments",
     "developer/stock-allocation",
+    "developer/discounts",
     "developer/gift-cards",
     "developer/address",
     "developer/users",
     "developer/permissions",
     "developer/thumbnails",
+    "developer/filtering",
     {
       type: "category",
       label: "Development",
