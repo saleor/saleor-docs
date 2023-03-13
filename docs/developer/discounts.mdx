@@ -12,7 +12,7 @@ The **sale** discount is automatically applied to all products included in the s
 any additional actions from the user. In contrast, **vouchers** require the user to provide
 a code during the checkout process. Both the sale and voucher discounts can be used together.
 
-### Sale
+## Sale
 
 Sales are automatically applied when a product is added to the checkout.
 For instance, if a product is priced at **$9** and has a **10%** discount, it will be available for **$8.1**.
@@ -123,7 +123,7 @@ The `line.totalPrice` is **8.1**, and the `line.undiscountedTotalPrice` is **9.0
 }
 ```
 
-### Voucher
+## Voucher
 
 There are three types of vouchers:
 
@@ -141,7 +141,7 @@ the discount will be applied only to the cheapest item overall.
 To apply the voucher on checkout use [checkoutAddPromoCode](api-reference/mutations/checkout-add-promo-code.mdx)
 mutation. The discount will be visible both in the line prices and in the `checkout.discount` field. Let's see the examples.
 
-#### Applying the entire order voucher
+### Applying the entire order voucher
 
 In the example below, the entire order voucher with a fixed discount of **$5** is applied at checkout.
 The order consists of two lines: the first for **$4** and the second for **$45**.
@@ -299,7 +299,7 @@ If the user applied a fixed-amount order voucher during checkout, and the order 
 the discount will be distributed evenly in proportion to the total price of each line.
 :::
 
-#### Applying the once-per-order entire order voucher
+### Applying the once-per-order entire order voucher
 
 If a voucher with the `applyOncePerOrder` flag set to `True` is used in a similar scenario,
 the discount will only apply to the cheapest eligible product. In this checkout,
@@ -391,7 +391,7 @@ and the `undiscountedTotalPrice` is **4.0**.
 	}
 ```
 
-#### Applying the specific product voucher
+### Applying the specific product voucher
 
 In the following example, a **10%** voucher for a specific product is applied during checkout.
 The discount applies to the first two lines, one for **$45** and the other for **$20**, but not to the third line for **$1.99**.
@@ -508,7 +508,7 @@ As we can see, the 10% discount has been applied to the first two lines.
 The total discount amount is visible in the `checkout.discount` field, which is equal to
 the sum of the differences between the `undiscountedTotalPrice` and `totalPrice` of all lines.
 
-#### Applying the once-per-order specific product voucher
+### Applying the once-per-order specific product voucher
 
 If the voucher has the `applyOncePerOrder` flag set to `True`, the discount will only be applied to
 the single cheapest product eligible for the discount. In the scenario described,
@@ -625,7 +625,7 @@ Here, we can see that the discount was only applied to the cheapest line include
 The total `checkout.discount` is **$2.0** in this case. The difference between
 `totalPrice` and `undiscountedTotalPrice` is only visible on the second line.
 
-### Sale and Voucher together
+## Sale and Voucher together
 
 Sales and vouchers can be combined. In this case, the voucher discount is applied to the price after the sale.
 Let's consider an example: the checkout has two items, and the second item is on sale.
@@ -813,3 +813,193 @@ which includes both sales and voucher discounts.
 To calculate the value of the applied sale, we can sum up the line discounts and subtract
 `checkout.discount`. In this example, the calculation would be: **($1.94 + $6.56) - $5.00 = $3.5**.
 Therefore, we end up with the same value as before applying the voucher.
+
+## Completing checkout with the discounts
+
+### Voucher discount
+
+When completing the checkout with an assigned voucher, the applied voucher discount
+will be visible on the order and order line prices. Additionally, the sum of voucher
+discounts will be reflected in the `order.discounts` field. This behavior is consistent
+across all voucher types.
+
+The following example shows the response from the [checkoutComplete](api-reference/mutations/checkout-complete.mdx)
+mutation for a checkout that includes **two items** of the same variant with a **10% voucher discount** applied.
+
+```json {42,57-75}
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6NmM1MjhkNGYtZjc5YS00OGM1LTk2ZWUtYjI0M2U2ZjdmMDBm",
+        "status": "UNFULFILLED",
+        "totalCaptured": {
+          "amount": 113.51
+        },
+        "subtotal": {
+          "net": {
+            "amount": 33.96
+          },
+          "gross": {
+            "amount": 36.0
+          }
+        },
+        "total": {
+          "currency": "USD",
+          "net": {
+            "amount": 107.08
+          },
+          "gross": {
+            "amount": 113.51
+          }
+        },
+        "undiscountedTotal": {
+          "currency": "USD",
+          "net": {
+            "amount": 113.12
+          },
+          "gross": {
+            "amount": 117.51
+          }
+        },
+        "discounts": [
+          {
+            "name": null,
+            "type": "VOUCHER",
+            "valueType": "FIXED",
+            "amount": {
+              "amount": 4.0
+            }
+          }
+        ],
+        "lines": [
+          {
+            "quantity": 2,
+            "totalPrice": {
+              "gross": {
+                "amount": 36.0
+              },
+              "net": {
+                "amount": 33.96
+              }
+            },
+            "unitPrice": {
+              "gross": {
+                "amount": 18.0
+              },
+              "net": {
+                "amount": 16.98
+              }
+            },
+            "undiscountedUnitPrice": {
+              "gross": {
+                "amount": 20.0
+              },
+              "net": {
+                "amount": 20.0
+              }
+            },
+            "unitDiscount": {
+              "amount": 2.0
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+The discount amount can be found in `order.discounts.amount`, the value is equal to the
+`order.lines.unitDiscount` multiplied by the line quantity.
+The discount can also be seen in the line prices - compare the `undiscountedUnitPrice` and the `unitPrice`.
+
+### Sale discount
+
+In the case of product on sale, the applied discount is visible only on the order and lines
+prices, the `order.discounts` field is empty. Let's see the following example,
+for completing the checkout with **two items** of the product on sale.
+
+```json {18-36,48-63}
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6ZmQwNDFiMGMtZjFmYy00MjNjLTllMmUtOGJlOTY1ZDQwOGYy",
+        "status": "UNFULFILLED",
+        "totalCaptured": {
+          "amount": 133.51
+        },
+        "subtotal": {
+          "net": {
+            "amount": 52.83
+          },
+          "gross": {
+            "amount": 56.0
+          }
+        },
+        "total": {
+          "currency": "USD",
+          "net": {
+            "amount": 125.95
+          },
+          "gross": {
+            "amount": 133.51
+          }
+        },
+        "undiscountedTotal": {
+          "currency": "USD",
+          "net": {
+            "amount": 143.12
+          },
+          "gross": {
+            "amount": 147.51
+          }
+        },
+        "discounts": [],
+        "lines": [
+          {
+            "quantity": 2,
+            "totalPrice": {
+              "gross": {
+                "amount": 56.0
+              },
+              "net": {
+                "amount": 52.83
+              }
+            },
+            "unitPrice": {
+              "gross": {
+                "amount": 28.0
+              },
+              "net": {
+                "amount": 26.42
+              }
+            },
+            "undiscountedUnitPrice": {
+              "gross": {
+                "amount": 35.0
+              },
+              "net": {
+                "amount": 35.0
+              }
+            },
+            "unitDiscount": {
+              "amount": 7.0
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+As you can see, the `order.discounts` field is empty, but there is a difference between
+`order.total` and `order.undiscountedTotal`. The applied discount can be checked
+on the unit level in the `order.lines.unitDiscount` field, as well as by comparing
+the `order.lines.undiscountedUnitPrice` and `order.lines.unitPrice`. The sum of line unit
+discounts multiplied by the quantity of the line gives the total discount, which is
+equal to the difference between `order.total` and `order.undiscountedTotal`.
