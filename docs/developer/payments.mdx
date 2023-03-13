@@ -46,7 +46,7 @@ is used to create a new transaction.
 The transaction was authorized, and payment was made with a credit card. The actions that can be called from Saleor are: `VOID` and `CHARGE`.
 The authorized amount is $99.
 
-#### Saleor 3.12+
+#### Saleor 3.13+
 
 ```graphql
 mutation {
@@ -172,69 +172,23 @@ The owner is the User or App that created the given transaction.
 
 The following example shows how the [transactionUpdate](../api-reference/mutations/transaction-create) mutation
 is used to update the transaction.
-The available action is `REFUND`. The authorized funds are charged, so `amountCharged` is equal to 99USD.
-
-#### Saleor 3.12+
+The available action is `REFUND`. The authorized funds are charged, so `amountAuthorized` is 0. `amountCharged` is equal to 99USD.
 
 ```graphql
 mutation {
   transactionUpdate(
     id: "VHJhbnNhY3Rpb25JdGVtOjE="
     transaction: {
-      availableActions: [REFUND]
-      amountCharged: { currency: "USD", amount: 99 }
-    }
-    transactionEvent: {
-      message: "Payment charged"
-      pspReference: "PSP-ref123.charge"
-    }
-  ) {
-    transaction {
-      id
-    }
-  }
-}
-```
-
-A response would look like this:
-
-```json
-{
-  "data": {
-    "transactionUpdate": {
-      "transaction": {
-        "id": "VHJhbnNhY3Rpb25JdGVtOjE="
-      }
-    }
-  },
-  "extensions": {
-    "cost": {
-      "requestedQueryCost": 0,
-      "maximumAvailable": 50000
-    }
-  }
-}
-```
-
-#### Saleor 3.4 (Deprecated)
-
-The updated status of the transaction is `CHARGED`.
-The authorized funds are charged, so `amountAuthorized` is 0. `amountCharged` is equal to 99USD.
-
-```graphql
-mutation {
-  transactionUpdate(
-    id: "VHJhbnNhY3Rpb25JdGVtOjE="
-    transaction: {
-      status: "Charged"
+      name: "Credit card"
+      message: "Authorized"
+      pspReference: "PSP-ref123"
       availableActions: [REFUND]
       amountAuthorized: { currency: "USD", amount: 0 }
       amountCharged: { currency: "USD", amount: 99 }
     }
     transactionEvent: {
-      status: SUCCESS
-      name: "Charged credit card"
-      reference: "PSP-ref123.charge"
+      message: "Payment charged"
+      pspReference: "PSP-ref123.charge"
     }
   ) {
     transaction {
@@ -521,7 +475,7 @@ Assigns provided `amount` to `transaction.authorizedAmount`.
 #### CHARGE_SUCCESS
 
 Add provided `amount` to `transaction.chargedAmount`. Any next call will add the `amount` to existing
-`transaction.chargedAmount` (`transaction.chargedAmount += amount`)
+`transaction.chargedAmount` (`transaction.chargedAmount += amount`). The provided `amount` will reduce `transaction.authorizedAmount`.
 
 :::info
 In the case of finding `CHARGE_SUCCESS` and `CHARGE_FAILURE` with the same `pspReference`, the re-calculation
@@ -541,7 +495,7 @@ The provided `amount` will be used to reduce `transaction.chargedAmount`
 #### REFUND_SUCCESS
 
 Add provided `amount` to `transaction.refundedAmount`. Any next call will add the `amount` to existing
-`transaction.refundedAmount` (`transaction.refundedAmount += amount`)
+`transaction.refundedAmount` (`transaction.refundedAmount += amount`). The provided `amount` will reduce `transaction.chargedAmount`.
 
 :::info
 In the case of finding `REFUND_SUCCESS` and `REFUND_FAILURE` with the same `pspReference`, the re-calculation
@@ -556,11 +510,12 @@ The provided amount will be used to provide the history of transactionItem's act
 #### REFUND_REVERSE
 
 The provided `amount` will be used to reduce `transaction.refundedAmount` (`transaction.refundedAmount -= amount`).
+The provided `amount` will increase `transaction.chargedAmount`.
 
 #### CANCEL_SUCCESS
 
 The provided `amount` will be added to `transaction.canceledAmount`
-(`transaction.canceledAmount += amount`).
+(`transaction.canceledAmount += amount`). The provided `amount` will reduce `transaction.authorizedAmount`.
 
 :::info
 In the case of finding `CANCEL_SUCCESS` and `CANCEL_FAILURE` with the same `pspReference`, the re-calculation
