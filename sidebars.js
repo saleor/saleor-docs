@@ -81,15 +81,7 @@ module.exports = {
         "developer/running-saleor/exposing-instance",
       ],
     },
-    {
-      type: "category",
-      label: "Community",
-      items: [
-        "developer/community/contributing",
-        "developer/community/faq",
-        "developer/community/support",
-      ],
-    },
+
     {
       type: "category",
       label: "Exporting Data",
@@ -104,6 +96,15 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Saleor App Store",
+      items: [
+        "developer/app-store/overview",
+        "developer/app-store/available-apps",
+        "developer/app-store/taxes",
+      ],
+    },
+    {
+      type: "category",
       label: "Extending Saleor",
       link: {
         type: "doc",
@@ -112,15 +113,6 @@ module.exports = {
       items: [
         "developer/extending/overview",
         "developer/extending/integrations",
-        {
-          type: "category",
-          label: "App Store",
-          items: [
-            "developer/extending/app-store/overview",
-            "developer/extending/app-store/available-apps",
-            "developer/extending/app-store/taxes",
-          ],
-        },
         require("./sidebars/apps-sidebar"),
         {
           type: "category",
@@ -158,6 +150,15 @@ module.exports = {
         },
         "developer/extending/apollo-federation",
         "developer/metadata",
+      ],
+    },
+    {
+      type: "category",
+      label: "Community",
+      items: [
+        "developer/community/contributing",
+        "developer/community/faq",
+        "developer/community/support",
       ],
     },
     {
