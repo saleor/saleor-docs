@@ -112,6 +112,14 @@ module.exports = {
       items: [
         "developer/extending/overview",
         "developer/extending/integrations",
+        {
+          type: "category",
+          label: "App Store",
+          items: [
+            "developer/extending/app-store/overview",
+            "developer/extending/app-store/available-apps",
+          ],
+        },
         require("./sidebars/apps-sidebar"),
         {
           type: "category",
