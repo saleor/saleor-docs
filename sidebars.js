@@ -118,6 +118,7 @@ module.exports = {
           items: [
             "developer/extending/app-store/overview",
             "developer/extending/app-store/available-apps",
+            "developer/extending/app-store/taxes",
           ],
         },
         require("./sidebars/apps-sidebar"),
