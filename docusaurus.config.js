@@ -224,6 +224,11 @@ module.exports = {
           label: "API",
           position: "left",
         },
+        {
+          to: "https://github.com/saleor/saleor-docs/issues/new",
+          label: "Report an Issue",
+          position: "right",
+        },
       ],
     },
 
