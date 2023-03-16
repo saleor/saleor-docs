@@ -99,8 +99,17 @@ module.exports = {
       label: "Saleor App Store",
       items: [
         "developer/app-store/overview",
-        "developer/app-store/available-apps",
-        "developer/app-store/taxes",
+        "developer/app-store/development",
+        "developer/app-store/forking",
+        {
+          type: "category",
+          label: "Apps",
+          link: {
+            type: "doc",
+            id: "developer/app-store/apps/index",
+          },
+          items: ["developer/app-store/apps/taxes"],
+        },
       ],
     },
     {
