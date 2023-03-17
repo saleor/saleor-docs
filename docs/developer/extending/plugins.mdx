@@ -2,6 +2,10 @@
 title: Plugins
 ---
 
+:::caution
+We are in the process of deprecating plugins in favor of [apps](developer/extending/apps/key-concepts.mdx). If you plan on building a new integration with Saleor, we recommend using apps instead.
+:::
+
 ## Introduction
 
 Plugins offer a mechanism to extend Saleor's Python core with new functionality. They are loaded by the core process and use predefined callbacks to execute custom code in response to certain events.
@@ -12,21 +16,20 @@ Saleor ships with some plugins included, you can find those in the `saleor/plugi
 
 By default Saleor installs with the following plugins:
 
-- *Adyen*
-- [*AdminEmails*](developer/available-plugins/admin-emails.mdx)
-- *Authorize.Net*
-- *Avalara*
-- *Braintree*
-- [*Dummy Credit Card*](developer/available-plugins/dummy-credit-card.mdx)
-- *Dummy Gateway*
-- *Invoicing*
-- *NP Atobarai*
-- *Razorpay*
-- *Stripe*
-- [*UserEmails*](developer/available-plugins/user-emails.mdx)
-- *Vatlayer*
-- *Webhooks*
-
+- _Adyen_
+- [_AdminEmails_](developer/available-plugins/admin-emails.mdx)
+- _Authorize.Net_
+- _Avalara_
+- _Braintree_
+- [_Dummy Credit Card_](developer/available-plugins/dummy-credit-card.mdx)
+- _Dummy Gateway_
+- _Invoicing_
+- _NP Atobarai_
+- _Razorpay_
+- _Stripe_
+- [_UserEmails_](developer/available-plugins/user-emails.mdx)
+- _Vatlayer_
+- _Webhooks_
 
 ## Base plugin class
 
@@ -38,7 +41,7 @@ Multiple plugins are executed as a pipeline. Each callback receives a `previous_
 
 Saleor allows you to change the configuration of any given plugin over API.
 
-`CONFIG_STRUCTURE` describes the *shape* of the configuration: field names, their types, and labels to use in the user interface.
+`CONFIG_STRUCTURE` describes the _shape_ of the configuration: field names, their types, and labels to use in the user interface.
 
 `DEFAULT_CONFIGURATION` provides initial values for those fields.
 
@@ -124,7 +127,7 @@ There is no need to implement all base methods as the `PluginsManager` will use 
 
 ### Loading your plugin
 
-Saleor uses the *entry points* API of Python's `setuptools` to automatically discover installed plugins. To make a plugin discoverable, include a `saleor.plugins` entry point in your `setup()` call. The syntax is `package_name = package_name.path.to:PluginClass`:
+Saleor uses the _entry points_ API of Python's `setuptools` to automatically discover installed plugins. To make a plugin discoverable, include a `saleor.plugins` entry point in your `setup()` call. The syntax is `package_name = package_name.path.to:PluginClass`:
 
 ```python
 # setup.py
@@ -182,6 +185,7 @@ def api_post_request_task(
     except requests.exceptions.RequestException:
         return
 ```
+
 ### Webhook handler
 
 The `BasePlugin` has an abstract method `webhook`. The `webhook` method can be used for processing the payload received over HTTP. It is useful in case when a plugin can receive the data from the external services, like payment gateway or external notification system.
@@ -198,17 +202,16 @@ class MyPlugin(BasePlugin):
             # do something with the request
             return JsonResponse(data={"paid":True})
         return HttpResponseNotFound()
-        
+
 ```
 
 The above method will be called when we execute the request to `www.your.saleor.io/plugins/my.plugin/webhook/paid`.
 
-`PluginManager` will identify the owner of the request and will pass the data to the expected plugin. Everything in the URL path after the `PLUGIN_ID`(my.plugin) will be passed to the plugin as a `path` argument. 
+`PluginManager` will identify the owner of the request and will pass the data to the expected plugin. Everything in the URL path after the `PLUGIN_ID`(my.plugin) will be passed to the plugin as a `path` argument.
 
 :::note
 Plugin as a response needs to return the object of type inherited from `django.http.HttpResponse`.
 :::
-
 
 ## Customizing the plugins manager
 
