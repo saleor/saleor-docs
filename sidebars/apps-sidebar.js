@@ -19,6 +19,7 @@ module.exports = {
       type: "category",
       label: "Architecture",
       items: [
+        "developer/extending/apps/architecture/overview",
         "developer/extending/apps/manifest",
         "developer/extending/apps/architecture/communication-between-app-and-saleor",
         "developer/extending/apps/architecture/apl",
@@ -64,6 +65,10 @@ module.exports = {
     {
       type: "category",
       label: "Webhooks",
+      link: {
+        type: "generated-index",
+        title: "Webhooks",
+      },
       items: [
         "developer/extending/apps/asynchronous-webhooks",
         {
