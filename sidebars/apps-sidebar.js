@@ -3,7 +3,7 @@ module.exports = {
   label: "Apps",
   link: {
     type: "doc",
-    id: "developer/extending/apps/key-concepts",
+    id: "developer/extending/apps/index",
   },
   items: [
     {

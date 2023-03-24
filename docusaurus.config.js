@@ -144,6 +144,10 @@ module.exports = {
             from: "/docs/3.x/api-usage/playground",
             to: "/docs/3.x/api-usage/developer-tools",
           },
+          {
+            from: "/docs/3.x/developer/extending/apps/key-concepts",
+            to: "/docs/3.x/developer/extending/apps/",
+          },
         ],
         createRedirects: function (existingPath) {
           const oldPaths = [];
