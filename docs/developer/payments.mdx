@@ -11,9 +11,260 @@ deliver a base reference for the user to work with.
 Saleor distinguishes two different ways of processing a payment:
 
 - By using a [plugin](extending/overview#plugins) embedded in the Saleor code.
-- By using a [Saleor App](extending/overview#apps-recommended) (recommended).
+- By using a [Saleor Payment App](extending/overview#apps-recommended)
+- By using a [Saleor App with existing Checkout App](extending/overview#apps-recommended).
 
-## Saleor App (recommended)
+## Saleor Payment App
+
+:::info
+
+This feature was introduced in **Saleor 3.13**.
+
+:::
+
+:::caution
+
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+
+:::
+
+This section describes the flow for processing payments using the Payment App. The communication between the storefront and the Payment App
+goes through Saleor. Based on the Payment App's response, Saleor creates or updates the transaction with the appropriate status.
+
+The described flow can be used with Order and Checkout.
+
+### Initialize payment gateway
+
+To initialize the payment app, call the **`paymentGatewayInitialize`** mutation. The `data` provided in the `paymentGateways` will be sent to the payment app. Saleor will then return the data received from each app as a response.
+
+This step is useful when some data needs to be fetched from the Payment App, such as fetching the available payment methods for a specific checkout.
+
+The **`paymentGatewayInitialize`** mutation requires the following arguments:
+
+- `id` - ID of the `Checkout` or `Order`.
+- `amount` - The amount requested for initializing the payment gateway. If not provided, the difference between `checkout.total` and transactions that are already processed will be sent to the apps.
+- `paymentGateways` - A list of payment gateways to initialize. If not provided, all apps subscribed to the webhook `PAYMENT_GATEWAY_INITIALIZE_SESSION` will be used.
+- `paymentGateways.id` - The identifier of the payment gateway app to initialize.
+- `paymentGateway.data` - The data to be passed to the payment gateway.
+
+The **`paymentGatewayInitialize`** mutation returns the following response:
+
+- `gatewayConfigs` - A list of payment apps that were initialized.
+- `gatewayConfigs.id` - The app identifier.
+- `gatewayConfigs.data` - The data required to initialize the payment gateway returned by the app.
+- `gatewayConfigs.errors` - A list of errors related to the specific payment gateway app.
+- `errors` - Errors related to the mutation call.
+
+The following example shows how to use the `paymentGatewayInitialize` mutation to initialize the payment gateways:
+
+```graphql
+mutation {
+  paymentGatewayInitialize(
+    id: "Q2hlY2tvdXQ6ZmIxMzljMjgtYWY4OS00Mzk2LWEyMjgtZmM2ZDg0NGFhOWY3"
+    amount: 100
+    paymentGateways: [
+      { id: "payment.app", data: { details: { passed: "to-app" } } }
+    ]
+  ) {
+    gatewayConfigs {
+      id
+      data
+      errors {
+        field
+        message
+        code
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+The response would look like this:
+
+```json
+{
+  "data": {
+    "paymentGatewayInitialize": {
+      "gatewayConfigs": [
+        {
+          "id": "payment.app",
+          "data": {
+            "json": "data-returned-by-app"
+          },
+          "errors": []
+        }
+      ],
+      "errors": []
+    }
+  }
+}
+```
+
+The mutation will trigger the `PAYMENT_GATEWAY_INITIALIZE_SESSION` webhook. For more details about this webhook, please refer to its documentation. FIXME:
+
+### Initialize transaction
+
+To initiate payment processing, call the `transactionInitialize` mutation. The `data` provided in the `paymentGateway` field will be sent to the payment app, and Saleor will return the `data` received from the app as a response. Based on the Payment App's response, Saleor will create or update the transaction with the appropriate status.
+
+The `transactionInitialize` mutation requires the following arguments:
+
+- `id` - ID of the `Checkout` or `Order`.
+- `paymentGateway` - The payment gateway used to initiate payment processing.
+- `paymentGateway.id` - The identifier of the payment gateway app.
+- `paymentGateway.data` - The data to be passed to the payment gateway.
+- `action` - The expected action called for the transaction. By default, the `channel.defaultTransactionFlowStrategy` will be used. This field can be used only by an app that has `HANDLE_PAYMENTS` permission.
+- `amount` - The amount requested for the payment. If not provided, the difference between `checkout.total` and transactions that are already processed will be sent.
+
+The `transactionInitialize` mutation returns the following response:
+
+- `transaction` - The initialized transaction.
+- `transactionEvent` - The event created based on the response received from the payment app.
+- `data` - The data returned by the app.
+- `errors` - Errors related to the mutation call.
+
+The mutation will trigger the `TRANSACTION_INITIALIZE_SESSION` webhook. For more details about this webhook, please refer to its documentation.
+
+The following example demonstrates how to use the `transactionInitialize` mutation to initiate payment processing:
+
+```graphql
+mutation TransactionInitialize {
+  transactionInitialize(
+    amount: 100
+    id: "Q2hlY2tvdXQ6MzE3NDk5MjgtZDFkMC00NjdjLTgxNjktMGRiZGM4ZGJhMGZh"
+    paymentGateway: { id: "payment.app", data: { details: "passed-to-app" } }
+  ) {
+    transaction {
+      id
+    }
+    transactionEvent {
+      type
+      pspReference
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+The response would look like this:
+
+```json
+{
+  "data": {
+    "transactionInitialize": {
+      "data": {
+        "some-json": "data"
+      },
+      "transaction": {
+        "id": "VHJhbnNhY3Rpb25JdGVtOjhhMzE1ODVlLWE1MTktNDVkMS1hNTFmLTYwZGZlNGRkM2FkNg"
+      },
+      "transactionEvent": {
+        "type": "CHARGE_SUCCESS",
+        "pspReference": "ppp-123"
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+The current status of a payment can be determined based on the value of `transactionEvent.type`:
+
+- `AUTHORIZATION_ACTION_REQUIRED` or `CHARGE_ACTION_REQUIRED` indicates that additional action is required from the
+  customer to finalize the payment. Calling `transactionProcess` will be required to pass the result of the action to the app.
+- `AUTHORIZATION_SUCCESS` indicates that funds have been authorized.
+- `AUTHORIZATION_FAILURE` indicates that authorization has failed.
+- `AUTHORIZATION_REQUEST` indicates that authorization is in a pending state.
+- `CHARGE_SUCCESS` indicates that funds have been charged.
+- `CHARGE_FAILURE` indicates that charging has failed.
+- `CHARGE_REQUEST` indicates that charging is in a pending state.
+
+### Process transaction
+
+If `transactionInitialize` or `transactionProcess` returns `transactionEvent.type` equal to `AUTHORIZATION_ACTION_REQUIRED` or `CHARGE_ACTION_REQUIRED`, additional
+steps from the customer are required. To provide the app with the result of the additional action, call the `transactionProcess` mutation.
+
+The `transactionProcess` mutation requires the following arguments:
+
+- `id` - The ID of the transaction returned by `transactionInitialize`.
+- `data` - The data to be passed to the payment gateway.
+
+The `transactionProcess` mutation returns:
+
+- `transaction` - The processed transaction.
+- `transactionEvent` - The event created based on the response received from the payment app.
+- `data` - The data returned by the app.
+- `errors` - Errors related to the mutation call.
+
+The mutation triggers the `TRANSACTION_PROCESS_SESSION` webhook. For more details about this webhook, refer to its documentation. FIXME:
+
+The following example demonstrates how to use the `transactionProcess` mutation to process the payment:
+
+```graphql
+mutation TransactionInitialize {
+  transactionProcess(
+    id: "VHJhbnNhY3Rpb25JdGVtOjhhMzE1ODVlLWE1MTktNDVkMS1hNTFmLTYwZGZlNGRkM2FkNg"
+    data: { additional: { actions: "details" } }
+  ) {
+    transaction {
+      id
+    }
+    transactionEvent {
+      type
+      pspReference
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+The response would look like this:
+
+```json
+{
+  "data": {
+    "transactionProcess": {
+      "data": {
+        "some-json": "data"
+      },
+      "transaction": {
+        "id": "VHJhbnNhY3Rpb25JdGVtOjhhMzE1ODVlLWE1MTktNDVkMS1hNTFmLTYwZGZlNGRkM2FkNg"
+      },
+      "transactionEvent": {
+        "type": "CHARGE_SUCCESS",
+        "pspReference": "ppp-123"
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+The current status of a payment can be determined based on the value of `transactionEvent.type`:
+
+- `AUTHORIZATION_ACTION_REQUIRED` or `CHARGE_ACTION_REQUIRED` indicates that additional action is required from the customer to
+  finalize the payment. Calling `transactionProcess` will be required to pass the result of the action to the app.
+- `AUTHORIZATION_SUCCESS` indicates that funds have been authorized.
+- `AUTHORIZATION_FAILURE` indicates that authorization has failed.
+- `AUTHORIZATION_REQUEST` indicates that authorization is in a pending state.
+- `CHARGE_SUCCESS` indicates that funds have been charged.
+- `CHARGE_FAILURE` indicates that charging has failed.
+- `CHARGE_REQUEST` indicates that charging is in a pending state.
+
+## Saleor App with existing Checkout App
 
 This section describes the flow where the payment process is handled by an external Saleor App such as [Checkout](https://github.com/saleor/react-storefront/tree/canary/apps/checkout).
 In this case, Saleor expects to receive a result of the payment transaction processed by the Saleor App.
