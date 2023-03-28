@@ -22,13 +22,18 @@ module.exports = {
     [
       "@graphql-markdown/docusaurus",
       {
-        schema: "http://localhost:8000/graphql/",
+        schema: "./schema.graphql",
         rootPath: "./docs", // docs will be generated under rootPath/baseURL
         baseURL: "api-reference",
         homepage: "./template/api-reference.mdx",
         linkRoot: "../../",
         loaders: {
-          UrlLoader: "@graphql-tools/url-loader",
+          GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
+        },
+        groupByDirective: {
+          directive: "doc",
+          field: "category",
+          fallback: "Miscellaneous",
         },
       },
     ],
