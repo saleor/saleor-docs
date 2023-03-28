@@ -26,7 +26,7 @@ module.exports = {
         rootPath: "./docs", // docs will be generated under rootPath/baseURL
         baseURL: "api-reference",
         homepage: "./template/api-reference.mdx",
-        linkRoot: "../../",
+        linkRoot: "../../../",
         loaders: {
           GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
         },
