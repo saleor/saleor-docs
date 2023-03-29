@@ -35,13 +35,13 @@ and subject to change but is available to experiment and provide feedback.
 
 Transaction stores details of a payment transaction attached to an order or a checkout:
 
-The [transactionCreate](../api-reference/mutations/transaction-create) mutation takes the following arguments:
+The [transactionCreate](../api-reference/payments/mutations/transaction-create) mutation takes the following arguments:
 
 - `id`: The ID of the checkout or order.
 - `transaction`: Input data required to create a new transaction object.
 - `transactionEvent`: Data that defines a transaction event. It can be used to provide more context about the current state of the transaction.
 
-The following example shows how you can use the [transactionCreate](../api-reference/mutations/transaction-create) mutation to create a new transaction.
+The following example shows how you can use the [transactionCreate](../api-reference/payments/mutations/transaction-create) mutation to create a new transaction.
 
 The transaction was authorized, and the payment was made with a credit card. The actions that can be called from Saleor are: `CANCEL` and `CHARGE`.
 The authorized amount is **$99**.
@@ -136,8 +136,8 @@ The response would look like this:
 
 :::info
 
-- Transactions attached to the checkout are accessible via the [transactions](../api-reference/objects/checkout#code-style-fontweight-normal-checkoutbtransactionsbcodetransactionitem--) field.
-- Transactions attached to the order are accessible via the [transactions](../api-reference/objects/order#code-style-fontweight-normal-orderbtransactionsbcodetransactionitem--) field.
+- Transactions attached to the checkout are accessible via the [transactions](../api-reference/checkout/objects/checkout#code-style-fontweight-normal-checkoutbtransactionsbcodetransactionitem--) field.
+- Transactions attached to the order are accessible via the [transactions](../api-reference/orders/objects/order#code-style-fontweight-normal-orderbtransactionsbcodetransactionitem--) field.
 
 :::
 
@@ -156,7 +156,7 @@ and subject to change but is available to experiment and provide feedback.
 
 :::
 
-The [transactionUpdate](../api-reference/mutations/transaction-update) mutation allows updating the transaction details.
+The [transactionUpdate](../api-reference/payments/mutations/transaction-update) mutation allows updating the transaction details.
 It takes the following arguments:
 
 - `id`: The ID of the transaction.
@@ -165,11 +165,11 @@ It takes the following arguments:
 
 :::info
 
-The [transactionUpdate](../api-reference/mutations/transaction-update) can only be called by the transaction owner.
+The [transactionUpdate](../api-reference/payments/mutations/transaction-update) can only be called by the transaction owner.
 The owner is the User or App that created the given transaction.
 :::
 
-The following example shows how you can use the [transactionUpdate](../api-reference/mutations/transaction-create) mutation to update the transaction.
+The following example shows how you can use the [transactionUpdate](../api-reference/payments/mutations/transaction-create) mutation to update the transaction.
 
 The available action is `REFUND`. The authorized funds are charged, so `amountAuthorized` is **$0**. `amountCharged` is equal to **$99**.
 
@@ -261,7 +261,7 @@ and subject to change but is available to experiment and provide feedback.
 
 :::
 
-The [transactionEventReport](../api-reference/mutations/transaction-event-report) is used to
+The [transactionEventReport](../api-reference/payments/mutations/transaction-event-report) is used to
 report a new transaction event. The newly created event will be used to [recalculate](#re-calculations-of-transaction-amounts) the transaction's amounts.
 The mutation should be used in case of [asynchronously processing the requested action](#handling-an-action-request-for-a-transaction) or reporting any
 changes that happened on the payment provider side.
@@ -279,16 +279,16 @@ It takes the following arguments:
 
 :::info
 
-The [transactionEventReport](../api-reference/mutations/transaction-event-report) can be called only by
+The [transactionEventReport](../api-reference/payments/mutations/transaction-event-report) can be called only by
 the owner of the transaction.
 The owner is the User or App that created the given transaction.
 :::
 
-The following example shows how the [transactionEventReport](../api-reference/mutations/transaction-event-report) mutation is used to report an event
+The following example shows how the [transactionEventReport](../api-reference/payments/mutations/transaction-event-report) mutation is used to report an event
 that happened for a given transaction.
 The report is a success charge action, with 20 as an amount. The currency is the same as declared
 for the transaction. Available action that can proceed for a transaction is `REFUND`.
-The provided data will be used to create a new [TransactionEvent](../api-reference/objects/transaction-event) object that will be included in the
+The provided data will be used to create a new [TransactionEvent](../api-reference/payments/objects/transaction-event) object that will be included in the
 [re-calculation](#re-calculations-of-transaction-amounts) process.
 
 ```graphql
@@ -324,10 +324,10 @@ In the response, Saleor returns:
   If there is an event with the same `pspReference`, `amount`, and `type` as the ones provided in the input
   mutation, Saleor will return it instead of creating a new one, and the flag will be set
   to `true`. If the event with provided `pspReference` and `type` was already reported but with a
-  different amount, the error with code [INCORRECT_DETAILS](../api-reference/enums/transaction-event-report-error-code#code-style-fontweight-normal-transactioneventreporterrorcodebincorrect_detailsbcode)
+  different amount, the error with code [INCORRECT_DETAILS](../api-reference/payments/enums/transaction-event-report-error-code#code-style-fontweight-normal-transactioneventreporterrorcodebincorrect_detailsbcode)
   will be raised.
 - `transaction` - Transaction that has been updated based on the received report.
-- `transactionEvent` - [TransactionEvent](../api-reference/objects/transaction-event) that has been created based on the received report.
+- `transactionEvent` - [TransactionEvent](../api-reference/payments/objects/transaction-event) that has been created based on the received report.
 
 ### Handling an action request for a transaction
 
@@ -348,15 +348,15 @@ An action request is called when a staff user or an app triggers a request for a
 
 #### Saleor 3.13+
 
-Calling mutation [transactionRequestAction](../api-reference/mutations/transaction-request-action) will also create a new
-[TransactionEvent](../api-reference/objects/transaction-event) with one of the request type ([AUTHORIZATION_REQUEST](../api-reference/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbauthorization_requestbcode),
-[CHARGE_REQUEST](../api-reference/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcharge_requestbcode),
-[REFUND_REQUEST](../api-reference/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode),
-[CANCEL_REQUEST](../api-reference/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcancel_requestbcode)),
+Calling mutation [transactionRequestAction](../api-reference/payments/mutations/transaction-request-action) will also create a new
+[TransactionEvent](../api-reference/payments/objects/transaction-event) with one of the request type ([AUTHORIZATION_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbauthorization_requestbcode),
+[CHARGE_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcharge_requestbcode),
+[REFUND_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode),
+[CANCEL_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcancel_requestbcode)),
 `amount` and the `owner` (User or App). Saleor will send synchronous webhook dedicated to the action
-[TRANSACTION_CHARGE_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
-[TRANSACTION_CANCELATION_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
-[TRANSACTION_REFUND_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode)
+[TRANSACTION_CHARGE_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
+[TRANSACTION_CANCELATION_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
+[TRANSACTION_REFUND_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode)
 
 The response should contain at least `pspReference` of the action. The `pspReference` will be placed in the previously created event of `_REQUEST` type.
 Optionally the response can contain the details of the completed action.
@@ -371,7 +371,7 @@ The webhook will be sent only to the app that is the owner of the transaction.
 
 ##### Asynchronously processing the action
 
-When action is processed asynchronously on the payment provider side, the app should call the [transactionActionRequest](../api-reference/mutations/transaction-request-action)
+When action is processed asynchronously on the payment provider side, the app should call the [transactionActionRequest](../api-reference/payments/mutations/transaction-request-action)
 mutation once it receives a webhook notification from the payment provider.
 
 The below diagram shows an example of processing asynchronous refund action.
@@ -398,9 +398,9 @@ sequenceDiagram
 ##### Synchronously processing the action
 
 The app immediately receives the status of the requested action. It can provide the details of the action in response to the received Saleor webhook. The following webhook events
-can accept action details in the response:: [TRANSACTION_CHARGE_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
-[TRANSACTION_CANCELATION_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
-[TRANSACTION_REFUND_REQUESTED](../api-reference/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode).
+can accept action details in the response:: [TRANSACTION_CHARGE_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
+[TRANSACTION_CANCELATION_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
+[TRANSACTION_REFUND_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode).
 
 The below diagram shows an example of processing synchronous refund action.
 
@@ -441,7 +441,7 @@ sequenceDiagram
 
 ### Re-calculations of transaction amounts
 
-The re-calculation will differ based on the value of the [TransactionEventTypeEnum](../api-reference/enums/transaction-event-type-enum) provided as the field `type`
+The re-calculation will differ based on the value of the [TransactionEventTypeEnum](../api-reference/payments/enums/transaction-event-type-enum) provided as the field `type`
 used in the [transactionEventReport](#reporting-action-for-transaction) mutation and [optionally in the webhook response](extending/apps/synchronous-webhooks/transaction-webhooks):
 
 #### AUTHORIZATION_SUCCESS
