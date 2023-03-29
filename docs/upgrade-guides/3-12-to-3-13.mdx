@@ -1,0 +1,124 @@
+---
+title: Upgrading from 3.12 to 3.13
+sidebar_position: 6
+---
+
+:::info
+To follow the zero-downtime strategy when upgrading to 3.13, **we recommend migrating to 3.12.6 first** and turn on the celery worker to process all data migrations asynchronously.
+Otherwise, you will need to downtime your solution to ensure correct data migration.
+:::
+
+This migration guide describes the upgrade from versions 3.12 to 3.13. Version 3.13 contains the following breaking changes:
+
+## Mutation `transactionCreate`
+
+The usage of the input fields for the [transactionCreate](../api-reference/payments/mutations/transaction-create) mutation will change as follows:
+
+- `TransactionCreateInput`
+  - `status` - Saleor will calculate the status. The field can be skipped.
+  - `type` - Use `name` and `message` instead.
+  - `reference` - Use `pspReference` instead.
+  - `amountVoided` - Use `amountCanceled` instead.
+- `TransactionEventInput`:
+  - `status` - Saleor will calculate the status. The field can be skipped.
+  - `reference` - Use `pspReference` instead.
+  - `name` - Use `message` instead.
+
+All those fields will be removed in Saleor 3.14.
+
+For each new [transactionItem](../api-reference/payments/objects/transaction-item) created by [transactionCreate](../api-reference/payments/mutations/transaction-create), any update action can be done only by the same app/user that performed [transactionCreate](../api-reference/payments/mutations/transaction-create) action. These changes impact only new [transactionItem](../api-reference/payments/objects/transaction-item). The existing ones will work the same way as before.
+
+## Mutation `transactionUpdate`
+
+The usage of the input fields for the [transactionUpdate](../api-reference/payments/mutations/transaction-update) mutation will change as follows:
+
+- [TransactionUpdateInput](../api-reference/payments/inputs/transaction-create-input)
+  - `status` - Saleor will calculate the status. The field can be skipped.
+  - `type` - Use `name` and `message` instead.
+  - `reference` - Use `pspReference` instead.
+  - `amountVoided` - Use `amountCanceled` instead.
+- [TransactionEventInput](../api-reference/payments/inputs/transaction-event-input):
+  - `status` - Saleor will calculate the status. The field can be skipped.
+  - `reference` - Use `pspReference` instead.
+  - `name` - Use `message` instead.
+
+All those fields will be removed in Saleor 3.14.
+
+For each new [transactionItem](../api-reference/payments/objects/transaction-item) created by [transactionCreate](../api-reference/payments/mutations/transaction-create), any update action can be done only by the same app/user that performed [transactionCreate](../api-reference/payments/mutations/transaction-create) action. These changes has impact only on new [transactionItem](../api-reference/payments/objects/transaction-item). The existing ones will work in the same way as before.
+
+## Mutation `transactionEventReport`
+
+We highly recommend converting to [transactionReportEvent](../api-reference/payments/mutations/transaction-event-report). The new mutation simplifies the flow of reporting changes for the transaction. It is also more error-proof than [transactionUpdate](../api-reference/payments/mutations/transaction-update) as Saleor does all calculations, and it requires providing a specific type of action that should be reported. [transactionReportEvent](../api-reference/payments/mutations/transaction-event-report) mutation is idempotent, so the app doesn't need to build a de-duplication system on its side.
+
+The below examples show calls of both mutations where the result will be the same.
+
+For example, the query:
+
+```graphql
+mutation {
+  transactionUpdate(
+    id: "VHJhbnNhY3Rpb25JdGVtOjE="
+    transaction: {
+      status: "Charged"
+      availableActions: [REFUND]
+      reference: "PSP-ref123.charge"
+      amountAuthorized: { currency: "USD", amount: 0 }
+      amountCharged: { currency: "USD", amount: 99 }
+    }
+    transactionEvent: {
+      status: SUCCESS
+      name: "Charged credit card"
+      reference: "PSP-ref123.charge"
+    }
+  ) {
+    transaction {
+      id
+    }
+  }
+}
+```
+
+should be converted to:
+
+```graphql
+mutation {
+  transactionEventReport(
+    id: "VHJhbnNhY3Rpb25JdGVtOjE="
+    pspReference: "PSP-ref123.charge"
+    type: CHARGE_SUCCESS
+    amount: 99
+    message: "Charged credit card"
+    availableActions: [REFUND]
+  ) {
+    transaction {
+      id
+    }
+  }
+}
+```
+
+- `transactionUpdate.id` is the same as `transactionEventReport.id`
+- `transactionUpdate.transactionEvent.reference` is `transactionEventReport.pspReference`
+- `transactionUpdate.transaction.reference` is not needed
+- `transactionUpdate.transaction.amountAuthorized` App doesn't need to make the reduction calculation in `transactionEventReport`.
+- `transactionUpdate.transaction.amountCharged` is `transactionEventReport.amount`
+- `trasactionUpdate.transaction.availableActions` doesn't exist in `transactionEventReport.availableActions`. Saleor will calculate possible actions.
+- `transactionUpdate.transactionEvent.status` is not needed. `transactionEventReport.type` covers all statuses
+- `transactionUpdate.transactionEvent.name` is `transactionEventReport.message`
+
+## Webhook `TRANSACTION_ACTION_REQUEST`
+
+[TRANSACTION_ACTION_REQUEST](../api-reference/webhooks/enums/webhook-event-type-enum#code-style-fontweight-normal-webhookeventtypeenumbtransaction_action_requestbcode) is deprecated and will be removed in Saleor 3.14.
+Use synchronous webhooks: [TRANSACTION_CHARGE_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-enum#code-style-fontweight-normal-webhookeventtypeenumbtransaction_charge_requestedbcode),
+[TRANSACTION_REFUND_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-enum#code-style-fontweight-normal-webhookeventtypeenumbtransaction_refund_requestedbcode), [TRANSACTION_CANCELATION_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-enum#code-style-fontweight-normal-webhookeventtypeenumbtransaction_cancelation_requestedbcode) instead.
+
+[TransactionChargeRequested](../api-reference/miscellaneous/objects/transaction-charge-requested), [TransactionRefundRequested](../api-reference/miscellaneous/objects/transaction-refund-requested), [TransactionCancelationRequested](../api-reference/miscellaneous/objects/transaction-cancelation-requested) (subscription types for above events) will have the same payload as webhook subscription of [TRANSACTION_ACTION_REQUEST](../api-reference/webhooks/enums/webhook-event-type-enum#code-style-fontweight-normal-webhookeventtypeenumbtransaction_action_requestbcode). The new webhooks are synchronous and require providing a `pspReference` in the returned payload.
+
+The app implementation needs to be modified to provide at least a PSP reference in the response. The app on the Saleor side needs to be subscribed to the webhook with events [TRANSACTION_CHARGE_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-enum#code-style-fontweight-normal-webhookeventtypeenumbtransaction_charge_requestedbcode),
+[TRANSACTION_REFUND_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-enum#code-style-fontweight-normal-webhookeventtypeenumbtransaction_refund_requestedbcode), [TRANSACTION_CANCELATION_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-enum#code-style-fontweight-normal-webhookeventtypeenumbtransaction_cancelation_requestedbcode). Webhook subscribtion for the event: `transaction-action-request` should be removed from the App.
+
+Calling [transactionReportEvent](../api-reference/payments/mutations/transaction-event-report) require `HANDLE_PAYMENTS` permission. (Previously it was `MANAGE_ORDERS`).
+
+## Order mutations
+
+Mutations [orderVoid](../api-reference/orders/mutations/order-void), [orderCapture](../api-reference/orders/mutations/order-capture), [orderRefund](../api-reference/orders/mutations/order-refund), [orderFulfillmentRefundProducts](../api-reference/orders/mutations/order-fulfillment-refund-products), [orderFulfillmentReturnProducts](../api-reference/orders/mutations/order-fulfillment-return-products) will not trigger [TRANSACTION_ACTION_REQUEST](../api-reference/webhooks/enums/webhook-event-type-enum#code-style-fontweight-normal-webhookeventtypeenumbtransaction_action_requestbcode) webhook no more. Use a dedicated mutation for triggering an action: [transactionRequestAction](../api-reference/payments/mutations/transaction-request-action).

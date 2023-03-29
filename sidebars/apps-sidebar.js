@@ -82,6 +82,7 @@ module.exports = {
             "developer/extending/apps/synchronous-webhooks/payment-webhooks",
             "developer/extending/apps/synchronous-webhooks/shipping-webhooks",
             "developer/extending/apps/synchronous-webhooks/tax-webhooks",
+            "developer/extending/apps/synchronous-webhooks/transaction-webhooks",
           ],
         },
         "developer/extending/apps/subscription-webhook-payloads",

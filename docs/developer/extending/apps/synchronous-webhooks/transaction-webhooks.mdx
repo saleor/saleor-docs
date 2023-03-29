@@ -1,0 +1,424 @@
+---
+title: Transaction webhooks
+---
+
+# Introduction
+
+:::caution
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+:::
+
+Transaction webhooks are synchronous webhooks that allow delegating the transaction's action to the Saleor App.
+Synchronous means that these webhooks expect a response of a particular shape to be returned from the App to continue processing in Saleor.
+Transaction webhooks only support the HTTP(S) protocol; they are sent as POST requests with the `application/json` body and expect the
+response of the same content type.
+
+## Key concepts
+
+The `HANDLE_PAYMENTS` permission is required for the App to receive transaction webhooks.
+The webhook notification is only sent to a specific app connected to a given transaction.
+
+The usage of the webhook is strictly related to the payment flow handled by transactions.
+You can find more details about the transaction flow in the [_Payments_ documentation](../../../payments#saleor-app-recommended).
+
+## Transaction charge
+
+`TRANSACTION_CHARGE_REQUESTED`
+
+:::info
+
+This feature was introduced in **Saleor 3.13**.
+
+:::
+
+A synchronous webhook called inside a Celery task. It is triggered when a staff user requests the charge action.
+
+The webhook expects to return at least the `pspReference` in the response. The `pspReference` will be attached to [TransactionEvent](api-reference/payments/objects/transaction-event.mdx)
+with request details. When `pspReference` is attached to the `request` object, it means the app has successfully processed the webhook.
+
+Optionally the result data can be provided. The data is
+used to provide the final status of the requested action, and it will be used to create a new [TransactionEvent](api-reference/payments/objects/transaction-event.mdx)
+object. The new [TransactionEvent](../../../../api-reference/payments/objects/transaction-event.mdx) object will have provided `pspReference`, and will be used in the
+[recalculation of the transaction's amount process](../../../payments#re-calculations-of-transaction-amounts).
+
+### Request
+
+Saleor will send a
+[TRANSACTION_CHARGE_REQUESTED](../../../../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode)
+webhook by using the [TransactionChargeRequested](../../../../api-reference/miscellaneous/objects/transaction-charge-requested) subscription type or with a pre-defined payload in case of a missing subscription query.
+
+You can find more details about building webhook subscription query
+[here](../../../extending/apps/subscription-webhook-payloads).
+
+The example below shows a sample webhook subscription defined to handle charge requests:
+
+```graphql
+subscription {
+  event {
+    __typename
+    ... on TransactionChargeRequested {
+      action {
+        actionType
+        amount
+      }
+      transaction {
+        id
+        pspReference
+        authorizedAmount {
+          amount
+          currency
+        }
+        order {
+          id
+        }
+      }
+    }
+  }
+}
+```
+
+The example below shows the pre-defined payload that will be used in the case when a subscription query is not provided:
+
+```json
+{
+  "action": { "currency": "USD", "type": "charge", "value": "5.00" },
+  "meta": {
+    "issued_at": "1914-06-28T10:50:00+00:00",
+    "issuing_principal": { "id": "Sample app objects", "type": "app" },
+    "version": "3.13.0-a"
+  },
+  "transaction": {
+    "authorized_value": "10.00",
+    "available_actions": ["capture", "void"],
+    "canceled_value": "0.00",
+    "charged_value": "0.00",
+    "checkout_id": null,
+    "created_at": "1914-06-28T10:50:00Z",
+    "currency": "USD",
+    "message": "",
+    "modified_at": "1914-06-28T10:50:00Z",
+    "name": "Credit card",
+    "order_id": "T3JkZXI6YjE1YzdlZTgtMzUxNy00MTczLWEzNWYtMmQxMDdkMWI4Yzhk",
+    "psp_reference": "PSP ref",
+    "reference": "PSP ref",
+    "refunded_value": "0.00",
+    "status": "Authorized",
+    "type": "Credit card",
+    "voided_value": "0.00"
+  }
+}
+```
+
+### Response
+
+#### Async flow
+
+App needs to at least return the `pspReference` of the requested action. This is a common case
+when the payment provider doesn't return a status of the requested action in the response.
+In this situation, the status of the action is delivered by an asynchronous notification that
+should be handled by App, and passed to Saleor by using the
+[transactionEventReport](../../../payments#reporting-action-for-transaction)
+mutation.
+
+The response in this case should have bellowed structure:
+
+```json
+{
+  "pspReference": "<psp reference received from payment provider>"
+}
+```
+
+#### Sync flow
+
+The app has the possibility to report the status of the requested action immediately.
+This is a common case when the payment provider returns the status of the action in
+response to the requested action.
+The payload response has to contain at least `pspReference`, `result` (
+[CHARGE_SUCCESS](../../../../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcharge_successbcode)
+or [CHARGE_FAILURE](../../../../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcharge_failurebcode)),
+and `amount` fields.
+
+The response, in this case, should have bellowed structure:
+
+```json
+{
+  "pspReference": "<psp reference recieved from payment provider>",
+  "result": "<CHARGE_SUCCESS or CHARGE_FAILURE>",
+  "amount": "<Decimal amount of the processed action>",
+  "time": "<[Optional] time of the action>",
+  "externalUrl": "<[Optional] external url with action details.",
+  "message": "<[Optional] message related to the action."
+}
+```
+
+:::caution
+In the case when one of `result`, `amount` is provided and the second one is missing,
+the response will not be processed, and Saleor will create the failure event.
+:::
+
+## Transaction cancelation
+
+`TRANSACTION_CANCELATION_REQUESTED`
+
+:::info
+
+This feature was introduced in **Saleor 3.13**.
+
+:::
+
+A synchronous webhook called inside a Celery task. They are called when a staff user requests the cancelation action.
+The webhook expects to return at least the `pspReference` in the response. The `pspReference` will
+be attached to [TransactionEvent](api-reference/payments/objects/transaction-event.mdx)
+with request details. When `pspReference` is attached to the `request` object, it means the app has successfully processed the webhook. Optionally the result data can be provided. The data is
+used to provide the final status of the requested action, and it will be used to create a new
+[TransactionEvent](api-reference/payments/objects/transaction-event.mdx) object. The new
+[TransactionEvent](../../../../api-reference/payments/objects/transaction-event.mdx) object will have
+provided `pspReference`, and will be used in the
+[recalculation of the transaction's amount process](../../../payments#re-calculations-of-transaction-amounts).
+
+### Request
+
+Saleor will send a
+[TRANSACTION_CANCEL_REQUESTED](../../../../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode)
+webhook by using the [TransactionCancelationRequested](../../../../api-reference/miscellaneous/objects/transaction-cancelation-requested) subscription type or with a pre-defined payload in case of a missing subscription query.
+You can find more details about building webhook subscription query
+[here](../../../extending/apps/subscription-webhook-payloads).
+
+The example below shows a sample webhook subscription defined to handle cancelation requests:
+
+```graphql
+subscription {
+  event {
+    __typename
+    ... on TransactionCancelationRequested {
+      action {
+        actionType
+        amount
+      }
+      transaction {
+        id
+        pspReference
+        authorizedAmount {
+          amount
+          currency
+        }
+        order {
+          id
+        }
+      }
+    }
+  }
+}
+```
+
+The example below shows the pre-defined payload that will be used in the case when a subscription query is not provided:
+
+```json
+{
+  "action": { "currency": "USD", "type": "cancel", "value": "0.00" },
+  "meta": {
+    "issued_at": "1914-06-28T10:50:00+00:00",
+    "issuing_principal": { "id": "Sample app objects", "type": "app" },
+    "version": "3.13.0-a"
+  },
+  "transaction": {
+    "authorized_value": "10.00",
+    "available_actions": ["capture", "void"],
+    "canceled_value": "0.00",
+    "charged_value": "0.00",
+    "checkout_id": null,
+    "created_at": "1914-06-28T10:50:00Z",
+    "currency": "USD",
+    "message": "",
+    "modified_at": "1914-06-28T10:50:00Z",
+    "name": "Credit card",
+    "order_id": "T3JkZXI6YWEzYzVhOTMtN2NlYS00OGZkLWJmYWUtMWFkYjI5YTRjMmY1",
+    "psp_reference": "PSP ref",
+    "reference": "PSP ref",
+    "refunded_value": "0.00",
+    "status": "Authorized",
+    "type": "Credit card",
+    "voided_value": "0.00"
+  }
+}
+```
+
+### Response
+
+#### Async flow
+
+App needs to at least return the `pspReference` of the requested action. This is a common case
+when the payment provider doesn't return a status of the requested action in the response.
+In this situation, the status of the action is delivered by an asynchronous notification that
+should be handled by App, and passed to Saleor by using the
+[transactionEventReport](../../../payments#reporting-action-for-transaction)
+mutation.
+
+The response in this case should have bellowed structure:
+
+```json
+{
+  "pspReference": "<psp reference received from payment provider>"
+}
+```
+
+#### Sync flow
+
+The app has the possibility to report the status of the requested action immediately.
+This is a common case when the payment provider returns the status of the action in
+response to the requested action.
+The payload response has to contain at least `pspReference`, `result` (
+[CANCEL_SUCCESS](../../../../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcancel_successbcode)
+or [CANCEL_FAILURE](../../../../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcancel_failurebcode)),
+and `amount` fields.
+
+The response in this case should have bellowed structure:
+
+```json
+{
+  "pspReference": "<psp reference recieved from payment provider>",
+  "result": "<CANCEL_SUCCESS or CANCEL_FAILURE>",
+  "amount": "<Decimal amount of the processed action>",
+  "time": "<[Optional] time of the action>",
+  "externalUrl": "<[Optional] external url with action details.",
+  "message": "<[Optional] message related to the action."
+}
+```
+
+:::caution
+In the case when one of `result`, `amount` is provided and the second one is missing,
+the response will not be processed, and Saleor will create the failure event.
+:::
+
+## Transaction refund
+
+`TRANSACTION_REFUND_REQUESTED`
+
+:::info
+
+This feature was introduced in **Saleor 3.13**.
+
+:::
+
+A synchronous webhook called inside a Celery task. They are called when a staff user requests the refund action.
+The webhook expects to return at least the `pspReference` in the response. The `pspReference` will be attached to [TransactionEvent](api-reference/payments/objects/transaction-event.mdx)
+with request details. When `pspReference` is attached to the `request` object, it means the app has successfully processed the webhook. Optionally the result data can be provided. The data is
+used to provide the final status of the requested action, and it will be used to create a new [TransactionEvent](api-reference/payments/objects/transaction-event.mdx)
+object. The new [TransactionEvent](../../../../api-reference/payments/objects/transaction-event.mdx) object will have provided `pspReference`, and will be used in the
+[recalculation of the transaction's amount process](../../../payments#re-calculations-of-transaction-amounts).
+
+### Request
+
+Saleor will send a
+[TRANSACTION_REFUND_REQUESTED](../../../../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode)
+webhook by using the [TransactionRefundRequested](../../../../api-reference/miscellaneous/objects/transaction-refund-requested) subscription type or with a pre-defined payload in case of a missing subscription query.
+
+More details about building webhook subscription query can be found
+[here](../../../extending/apps/subscription-webhook-payloads).
+
+The example below shows a sample webhook subscription defined to handle refund requests:
+
+```graphql
+subscription {
+  event {
+    __typename
+    ... on TransactionRefundRequested {
+      action {
+        actionType
+        amount
+      }
+      transaction {
+        id
+        pspReference
+        chargedAmount {
+          amount
+          currency
+        }
+        order {
+          id
+        }
+      }
+    }
+  }
+}
+```
+
+The example below shows the pre-defined payload that will be used in the case when a subscription query is not provided:
+
+```json
+{
+  "action": { "currency": "USD", "type": "refund", "value": "9.00" },
+  "meta": {
+    "issued_at": "1914-06-28T10:50:00+00:00",
+    "issuing_principal": { "id": "Sample app objects", "type": "app" },
+    "version": "3.13.0-a"
+  },
+  "transaction": {
+    "authorized_value": "10.00",
+    "available_actions": ["capture", "void"],
+    "canceled_value": "0.00",
+    "charged_value": "0.00",
+    "checkout_id": null,
+    "created_at": "1914-06-28T10:50:00Z",
+    "currency": "USD",
+    "message": "",
+    "modified_at": "1914-06-28T10:50:00Z",
+    "name": "Credit card",
+    "order_id": "T3JkZXI6NjdlYTYxNDAtMzEwZi00YTRlLThmODktNTU2NjliMjk4NjU5",
+    "psp_reference": "PSP ref",
+    "reference": "PSP ref",
+    "refunded_value": "0.00",
+    "status": "Authorized",
+    "type": "Credit card",
+    "voided_value": "0.00"
+  }
+}
+```
+
+### Response
+
+#### Async flow
+
+App needs to at least return the `pspReference` of the requested action. This is a common case
+when the payment provider doesn't return a status of the requested action in the response.
+In this situation, the status of the action is delivered by an asynchronous notification that
+should be handled by App, and passed to Saleor by using the
+[transactionEventReport](../../../payments#reporting-action-for-transaction)
+mutation.
+
+The response in this case should have bellowed structure:
+
+```json
+{
+  "pspReference": "<psp reference received from payment provider>"
+}
+```
+
+#### Sync flow
+
+The app has the possibility to report the status of the requested action immediately.
+This is a common case when the payment provider returns the status of the action in
+response to the requested action.
+The payload response has to contain at least `pspReference`, `result` (
+[REFUND_SUCCESS](../../../../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_successbcode)
+or [REFUND_FAILURE](../../../../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_failurebcode)),
+and `amount` fields.
+
+The response in this case should have bellowed structure:
+
+```json
+{
+  "pspReference": "<psp reference recieved from payment provider>",
+  "result": "<REFUND_SUCCESS or REFUND_FAILURE>",
+  "amount": "<Decimal amount of the processed action>",
+  "time": "<[Optional] time of the action>",
+  "externalUrl": "<[Optional] external url with action details.",
+  "message": "<[Optional] message related to the action."
+}
+```
+
+:::caution
+In the case when one of `result`, `amount` is provided and the second one is missing,
+the response will not be processed, and Saleor will create the failure event.
+:::
