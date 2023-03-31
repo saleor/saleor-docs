@@ -422,3 +422,302 @@ The response in this case should have bellowed structure:
 In the case when one of `result`, `amount` is provided and the second one is missing,
 the response will not be processed, and Saleor will create the failure event.
 :::
+
+## Initialize payment gateway session
+
+`PAYMENT_GATEWAY_INITIALIZE_SESSION`
+:::info
+
+This feature was introduced in **Saleor 3.13**.
+
+:::
+
+The synchronous [PAYMENT_GATEWAY_INITIALIZE_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_initialize_sessionbcode)
+webhook is called when a customer requests payment gateway initialization by calling the [paymentGatewayInitialize](developer/payments.mdx#initialize-payment-gateway) mutation. The webhook contains details about the object (`Order`/`Checkout`)
+for which the payment gateway initialization was requested, the requested amount, and the `data` received from the frontend.
+As a response, the webhook expects the `data` field with all initialization details that will be passed to the storefront.
+
+### Request
+
+Saleor will send a
+[PAYMENT_GATEWAY_INITIALIZE_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_initialize_sessionbcode)
+webhook by using the [PaymentGatewayInitializeSession](api-reference/miscellaneous/objects/payment-gateway-initialize-session.mdx) subscription type or with a pre-defined payload in case of a missing subscription query.
+
+More details about building webhook subscription query can be found
+[here](../../../extending/apps/subscription-webhook-payloads).
+
+The example below shows a sample webhook subscription defined to handle payment gateway initialization requests:
+
+```graphql
+subscription PaymentGatewayInitialize {
+  event {
+    ... on PaymentGatewayInitializeSession {
+      sourceObject {
+        __typename
+        ... on Checkout {
+          id
+          totalPrice {
+            gross {
+              amount
+            }
+          }
+        }
+        ... on Order {
+          id
+          total {
+            gross {
+              amount
+            }
+          }
+        }
+      }
+      data
+      amount
+    }
+  }
+}
+```
+
+The example below shows the pre-defined payload that will be used in the case when a subscription query is not provided:
+
+```json
+{
+  "id": "T3JkZXI6NGI2ZjEzMDctMTA1Yi00NGU4LWFlZjAtYWNjMGJmYjUwMjY1",
+  "data": {
+    "some": "request-data"
+  },
+  "amount": "10.00"
+}
+```
+
+### Response
+
+The app needs to return the `data` field. The `data` received from the webhook will be returned as a [paymentGatewayInitialize](developer/payments.mdx#initialize-payment-gateway) mutation response.
+
+```json
+{
+  "data": {
+    "some": "init-data"
+  }
+}
+```
+
+## Initialize transaction session
+
+`TRANSACTION_INITIALIZE_SESSION`
+:::info
+
+This feature was introduced in **Saleor 3.13**.
+
+:::
+
+The synchronous [TRANSACTION_INITIALIZE_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_initialize_sessionbcode) webhook
+is called when a customer begins processing a payment by calling the [transactionInitialize](developer/payments.mdx#initialize-transaction)
+mutation. The webhook contains details about the object (`Order`/`Checkout`) related to this action, the `transactionItem` object, details related to the
+requested action, and the `data` passed in the mutation input. Saleor expects the response to be in the proper format. Based on the response, the `transactionItem`'s amount can be marked as fully covered
+or marked as a transaction that requires additional actions from the customer, such as processing 3D secure action.
+
+### Request
+
+Saleor will send a
+[TRANSACTION_INITIALIZE_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_initialize_sessionbcode)
+webhook by using the [TransactionInitializeSession](api-reference/miscellaneous/objects/transaction-initialize-session.mdx) subscription type or with a pre-defined payload in case of a missing subscription query.
+
+More details about building webhook subscription query can be found
+[here](../../../extending/apps/subscription-webhook-payloads).
+
+The example below shows a sample webhook subscription defined to handle transaction initialization requests:
+
+```graphql
+subscription TransactionInitialize {
+  event {
+    ... on TransactionInitializeSession {
+      sourceObject {
+        __typename
+        ... on Checkout {
+          id
+          totalPrice {
+            gross {
+              amount
+            }
+          }
+        }
+        ... on Order {
+          id
+          total {
+            gross {
+              amount
+            }
+          }
+        }
+      }
+      data
+      merchantReference
+      action {
+        amount
+        currency
+        actionType
+      }
+      transaction {
+        id
+      }
+    }
+  }
+}
+```
+
+The example below shows the pre-defined payload that will be used in the case when a subscription query is not provided:
+
+```json
+{
+  "id": "Q2hlY2tvdXQ6Mjk2OWFkNTAtZTQwYS00ZThkLTgwNWItYjk5ZDI0ZGYwOTdm",
+  "data": {
+    "some": "request-data"
+  },
+  "amount": "10.00",
+  "currency": "USD",
+  "action_type": "CHARGE",
+  "transaction_id": "VHJhbnNhY3Rpb25JdGVtOjNiZDUyNjQ2LTUxM2YtNGE1Ni1hOWUzLWY3NzEwN2Y2NTAxNA=="
+}
+```
+
+### Response
+
+The app must return a response in a specified format. Based on the payload, Saleor will determine the current status of the transaction.
+If the format is incorrect or the response is missing, Saleor will create either a `CHARGE_FAILURE` or `AUTHORIZATION_FAILURE` event, depending on the type of action that was requested.
+
+The response in this case should have bellowed structure:
+
+```json
+{
+  "pspReference": "<psp reference recieved from payment provider>",
+  "result": "CHARGE_SUCCESS or CHARGE_FAILURE or CHARGE_REQUEST or AUTHORIZATION_SUCCESS or AUTHORIZATION_FAILURE or AUTHORIZATION_REQUEST or AUTHORIZATION_ACTION_REQUIRED or CHARGE_ACTION_REQUIRED>",
+  "amount": "<Decimal amount of the processed action>",
+  "data": "<[Optional] JSON data tha will be returned to storefront>",
+  "time": "<[Optional] time of the action>",
+  "externalUrl": "<[Optional] external url with action details.",
+  "message": "<[Optional] message related to the action."
+}
+```
+
+Below are the possible `result` values and their explanations:
+
+- `result:CHARGE_SUCCESS`: The funds have been successfully charged. The event amount will be added to `transaction.chargedAmount`.
+- `result:AUTHORIZATION_SUCCESS`: The funds have been successfully authorized. The event amount will be added to `transaction.authorizedAmount`.
+- `result:CHARGE_REQUEST`: A charge has been requested. The event amount will be added to `transaction.chargePendingAmount`.
+- `result:AUTHORIZATION_REQUEST`: An authorization has been requested. The event amount will be added to `transaction.authorizePendingAmount`.
+- `result:AUTHORIZATION_ACTION_REQUIRED`: Additional actions are required from the customer to authorize the payment. Before finalizing these additional actions, the payment is treated as not processed.
+- `result:CHARGE_ACTION_REQUIRED`: Additional actions are required from the customer to charge the payment. Before finalizing these additional actions, the payment is treated as not processed.
+- `result:CHARGE_FAILURE`: Charging the payment has failed.
+- `result:AUTHORIZATION_FAILURE`: Authorizing the payment has failed.
+
+## Process transaction session
+
+`TRANSACTION_PROCESS_SESSION`
+:::info
+
+This feature was introduced in **Saleor 3.13**.
+
+:::
+
+The [TRANSACTION_PROCESS_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_process_sessionbcode) webhook is called synchronously when
+a customer needs to process additional actions received as a response from either
+the [transactionInitialize](developer/payments.mdx#initialize-transaction) or [transactionProcess](/developer/payments.mdx#process-transaction) mutations. This webhook is triggered when the customer calls the
+[transactionProcess](/developer/payments.mdx#process-transaction) mutation.
+It contains details about the `Order` or `Checkout` object related to this action, the `transactionItem` object, details related to the requested action, and the `data` passed in the mutation input.
+Saleor expects the response to be in the proper format. Based on the response, the amount of the `transactionItem` can be marked as fully covered or marked as a transaction
+that requires additional actions from the customer, such as processing a 3D secure action.
+
+### Request
+
+Saleor will send a
+[TRANSACTION_PROCESS_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_process_sessionbcode)
+webhook by using the [TransactionProcessSession](/api-reference/miscellaneous/objects/transaction-process-session.mdx) subscription type or with a pre-defined payload in case of a missing subscription query.
+
+More details about building webhook subscription query can be found
+[here](../../../extending/apps/subscription-webhook-payloads).
+
+The example below shows a sample webhook subscription defined to handle transaction process requests:
+
+```graphql
+subscription TransactionProcess {
+  event {
+    ... on TransactionProcessSession {
+      sourceObject {
+        __typename
+        ... on Checkout {
+          id
+          totalPrice {
+            gross {
+              amount
+            }
+          }
+        }
+        ... on Order {
+          id
+          total {
+            gross {
+              amount
+            }
+          }
+        }
+      }
+      data
+      merchantReference
+      action {
+        amount
+        currency
+        actionType
+      }
+      transaction {
+        id
+      }
+    }
+  }
+}
+```
+
+The example below shows the pre-defined payload that will be used in the case when a subscription query is not provided:
+
+```json
+{
+  "id": "Q2hlY2tvdXQ6NzMyNGJlMWMtMjg3Yy00NDQxLTkwOWYtMDhmYjg0YjNhYjNl",
+  "data": {
+    "some": "request-data"
+  },
+  "amount": "10.00",
+  "currency": "USD",
+  "action_type": "CHARGE",
+  "transaction_id": "VHJhbnNhY3Rpb25JdGVtOjRhODMxNThkLTU0NTAtNDU2Mi04MDE5LTAzYzY4NjMyZjA1Mg=="
+}
+```
+
+### Response
+
+The app must return a response in a specified format. Based on the payload, Saleor will determine the current status of the transaction.
+If the format is incorrect or the response is missing, Saleor will create either a `CHARGE_FAILURE` or `AUTHORIZATION_FAILURE` event, depending on the type of action that was requested.
+
+The response in this case should have bellowed structure:
+
+```json
+{
+  "pspReference": "<psp reference recieved from payment provider>",
+  "result": "CHARGE_SUCCESS or CHARGE_FAILURE or CHARGE_REQUEST or AUTHORIZATION_SUCCESS or AUTHORIZATION_FAILURE or AUTHORIZATION_REQUEST or AUTHORIZATION_ACTION_REQUIRED or CHARGE_ACTION_REQUIRED>",
+  "amount": "<Decimal amount of the processed action>",
+  "data": "<[Optional] JSON data tha will be returned to storefront>",
+  "time": "<[Optional] time of the action>",
+  "externalUrl": "<[Optional] external url with action details.",
+  "message": "<[Optional] message related to the action."
+}
+```
+
+Below are the possible `result` values and their explanations:
+
+- `result:CHARGE_SUCCESS`: The funds have been successfully charged. The event amount will be added to `transaction.chargedAmount`.
+- `result:AUTHORIZATION_SUCCESS`: The funds have been successfully authorized. The event amount will be added to `transaction.authorizedAmount`.
+- `result:CHARGE_REQUEST`: A charge has been requested. The event amount will be added to `transaction.chargePendingAmount`.
+- `result:AUTHORIZATION_REQUEST`: An authorization has been requested. The event amount will be added to `transaction.authorizePendingAmount`.
+- `result:AUTHORIZATION_ACTION_REQUIRED`: Additional actions are required from the customer to authorize the payment. Before finalizing these additional actions, the payment is treated as not processed.
+- `result:CHARGE_ACTION_REQUIRED`: Additional actions are required from the customer to charge the payment. Before finalizing these additional actions, the payment is treated as not processed.
+- `result:CHARGE_FAILURE`: Charging the payment has failed.
+- `result:AUTHORIZATION_FAILURE`: Authorizing the payment has failed.
