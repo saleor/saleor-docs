@@ -22,13 +22,18 @@ module.exports = {
     [
       "@graphql-markdown/docusaurus",
       {
-        schema: "http://localhost:8000/graphql/",
+        schema: "./schema.graphql",
         rootPath: "./docs", // docs will be generated under rootPath/baseURL
         baseURL: "api-reference",
         homepage: "./template/api-reference.mdx",
-        linkRoot: "../../",
+        linkRoot: "../../../",
         loaders: {
-          UrlLoader: "@graphql-tools/url-loader",
+          GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
+        },
+        groupByDirective: {
+          directive: "doc",
+          field: "category",
+          fallback: "Miscellaneous",
         },
       },
     ],
@@ -144,6 +149,10 @@ module.exports = {
             from: "/docs/3.x/api-usage/playground",
             to: "/docs/3.x/api-usage/developer-tools",
           },
+          {
+            from: "/docs/3.x/developer/extending/apps/key-concepts",
+            to: "/docs/3.x/developer/extending/apps/",
+          },
         ],
         createRedirects: function (existingPath) {
           const oldPaths = [];
@@ -223,6 +232,11 @@ module.exports = {
           sidebarId: "api",
           label: "API",
           position: "left",
+        },
+        {
+          to: "https://github.com/saleor/saleor-docs/issues/new",
+          label: "Report an Issue",
+          position: "right",
         },
       ],
     },
