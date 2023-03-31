@@ -1401,8 +1401,145 @@ Here are the example scenarios that may end up with payment refunding:
 
 ## Finalizing checkout with Saleor App
 
-The flow where the payment process is handled by an external Saleor App such as [saleor-checkout](https://github.com/saleor/saleor-checkout).
+The flow where the payment process is handled by an external Saleor App.
 Saleor expects to receive a result of the payment transaction processed by Saleor App.
+
+There are two ways to process payments with the Saleor app:
+
+- Using the Checkout app: This external app handles the payment process and creates an order by
+  using the `orderCreateFromCheckout` API. The API is protected and requires an app token.
+  This flow supports two ways of processing checkout: first payments, then order and first order,
+  then payments. It also supports partial payments.
+
+- Using the Payment app: The communication between the storefront and payment app goes through
+  Saleor. Based on the response, Saleor creates or updates the transaction with the proper status.
+  The API is public. This flow allows you to handle the checkout process when payments are processed
+  first, then the order is created. It also supports partial payments.
+
+### Using the Payment app
+
+:::info
+
+This feature was introduced in **Saleor 3.13**.
+
+:::
+:::caution
+
+This feature is currently in **Feature Preview**. That means this part of Saleor is not complete
+but is available to experiment with and provide feedback, and is subject to change.
+
+:::
+
+:::info
+This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#code-style-fontweight-normal-apptypeenumbthirdpartybcode) apps.
+:::
+
+The flow of communication between the storefront and payment app goes through Saleor. Based on the response, Saleor creates or updates the transaction with the proper status and returns them to the frontend.
+
+The diagram below shows the workflow of a checkout process with a payment app:
+
+```mermaid
+sequenceDiagram
+  Front->>+Saleor: Fetch <br>checkout.availablePaymentGateways
+  Saleor -->>- Front: List of the paymentGatewyas<br> with included payment app
+  Front ->>+ Saleor: Mutation paymentGatewayInitialize,<br>amount, list of<br>payment gateways IDs<br>to initialize and <br>data, if<br>old ID provided, return<br>error
+  Saleor ->>+ PaymentApp: payment-gateway-initialize-session<br>webhook
+  PaymentApp ->>+ PaymentProvider: Initialize payment gateway
+  PaymentProvider -->>- PaymentApp: Data mandatory to<br>initialize the payment<br>on fronted
+  PaymentApp -->>- Saleor: PaymentGateway data with config
+  Saleor -->>- Front: List of PaymentGateways
+  Front ->>+ Saleor: TransactionInitialize<br> with amount and<br>payment gateway ID, data
+  Saleor ->> Saleor: Create TransactionItem
+  Saleor ->> Saleor: Request TransactionEvent created
+  Saleor ->>+ PaymentApp: webhook transaction-initialize-session
+  PaymentApp ->>+ PaymentProvider: Initialize the payment
+  PaymentProvider -->>- PaymentApp: Additional action from<br>customer required to finalize<br>the payment
+  PaymentApp -->>- Saleor: mandatory data for processing<br>payment on the frontend
+  Saleor ->> Saleor: TransactionEvent <br>created/TransactionEvent<br>request updated
+  Saleor -->>- Front: TransactionItem and payment details
+  Front ->>+ PaymentProvider: Process a payment
+  PaymentProvider -->>- Front: additional action required
+  Front ->>+ Saleor: TransactionProcess
+  Saleor ->>+ PaymentApp: transaction-process-session webhook
+  PaymentApp ->>+ PaymentProvider: Additional action details
+  PaymentProvider -->>- PaymentApp: Payment processed
+  PaymentApp -->>- Saleor: success
+  Saleor ->> Saleor: Create the TransactionEvent
+  Saleor -->>- Front: Return success
+  Front ->>+ Saleor: call checkoutComplete
+  Saleor -->>- Front: Order created
+```
+
+#### Processing a payment
+
+All details related to processing and managing payments can be found [here](payments#saleor-payment-app)
+
+:::note
+When the checkout is fully paid, the webhook [CHECKOUT_FULLY_PAID](api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#code-style-fontweight-normal-webhookeventtypeasyncenumbcheckout_fully_paidbcode) will be triggered.
+:::
+
+#### Completing the checkout
+
+The purpose of the operation is to ensure this checkout is correct. The validation consists of checking:
+
+1. The required addresses are valid.
+
+2. All selected products are in stock (while making the purchase, another user could already buy the last available item).
+
+3. The payments are processed
+
+If these are satisfied, the checkout is transformed into an order, and the customer receives a confirmation email.
+
+The [`checkoutComplete`](api-reference/checkout/mutations/checkout-complete.mdx) mutation requires the following input:
+
+- `token`: the token of the checkout to complete.
+
+It returns the following output:
+
+- `order`: an `Order` object created from the checkout object.
+- `errors`: a list of errors that occurred during mutation execution.
+
+Here is the example of a complete mutation:
+
+```graphql {2-4}
+mutation {
+  checkoutComplete(token: "fd18c322-f816-406b-a71f-d9ce6a39c768") {
+    order {
+      id
+      status
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+A successful response would look like this:
+
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6MjU=",
+        "status": "UNFULFILLED"
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+### Using the Checkout app
+
+The flow where the payment process is handled by an external Saleor App such as [saleor-checkout](https://github.com/saleor/react-storefront/tree/canary/apps/checkout).
+
+:::note
+This flow is recommended when the implemented checkout has custom steps that need to be handled before creating
+the order or when you expect that the order needs to be created first.
+:::
 
 The below charts show the workflow of a checkout process.
 
@@ -1439,7 +1576,7 @@ sequenceDiagram
     Checkout App-->>-Customer: Order
 ```
 
-### Creating order from checkout
+#### Creating order from checkout
 
 :::info
 
@@ -1507,10 +1644,10 @@ As a result, we get an order object:
 }
 ```
 
-### Managing payments
+#### Managing payments
 
 Saleor uses transaction flow to manage the payments attached to the checkout by Saleor apps.
-You can find more details about it [here](payments#saleor-app-recommended).
+You can find more details about it [here](payments#saleor-app-with-existing-checkout-app).
 
 ## Removing old checkouts
 

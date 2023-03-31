@@ -8,12 +8,301 @@ The process below describes the key milestones in the Saleor payment flow.
 Additional steps may also occur along the way; however, the purpose of this instruction is to
 deliver a base reference for the user to work with.
 
-Saleor distinguishes two different ways of processing a payment:
+Saleor distinguishes three different ways of processing a payment:
 
 - By using a [plugin](extending/overview#plugins) embedded in the Saleor code.
-- By using a [Saleor App](extending/overview#apps-recommended) (recommended).
+- By using a [Saleor Payment App](extending/overview#apps-recommended)
+- By using a [Saleor App with existing Checkout App](extending/overview#apps-recommended).
 
-## Saleor App (recommended)
+## Saleor Payment App
+
+:::info
+
+This feature was introduced in **Saleor 3.13**.
+
+:::
+
+:::caution
+
+This feature is currently in **Feature Preview**. This part of Saleor is not complete
+and subject to change but is available to experiment and provide feedback.
+
+:::
+
+This section describes the flow for processing payments using the Payment App. The communication between the storefront and the Payment App
+goes through Saleor. Based on the Payment App's response, Saleor creates or updates the transaction with the appropriate status.
+
+The described flow can be used with Order and Checkout.
+
+```mermaid
+sequenceDiagram
+  Front ->>+ Saleor: Mutation paymentGatewayInitialize,<br>amount, list of<br>payment gateways IDs<br>to initialize and <br>data, if<br>old ID provided, return<br>error
+  Saleor ->>+ PaymentApp: payment-gateway-initialize-session<br>webhook
+  PaymentApp ->>+ PaymentProvider: Initialize payment gateway
+  PaymentProvider -->>- PaymentApp: Data mandatory to<br>initialize the payment<br>on fronted
+  PaymentApp -->>- Saleor: PaymentGateway data with config
+  Saleor -->>- Front: List of PaymentGateways
+  Front ->>+ Saleor: TransactionInitialize<br> with amount and<br>payment gateway ID, data
+  Saleor ->> Saleor: Create TransactionItem
+  Saleor ->> Saleor: Request TransactionEvent created
+  Saleor ->>+ PaymentApp: webhook transaction-initialize-session
+  PaymentApp ->>+ PaymentProvider: Initialize the payment
+  PaymentProvider -->>- PaymentApp: Additional action from<br>customer required to finalize<br>the payment
+  PaymentApp -->>- Saleor: mandatory data for processing<br>payment on the frontend
+  Saleor ->> Saleor: TransactionEvent <br>created/TransactionEvent<br>request updated
+  Saleor -->>- Front: TransactionItem and payment details
+  Front ->>+ PaymentProvider: Process a payment
+  PaymentProvider -->>- Front: additional action required
+  Front ->>+ Saleor: TransactionProcess
+  Saleor ->>+ PaymentApp: transaction-process-session webhook
+  PaymentApp ->>+ PaymentProvider: Additional action details
+  PaymentProvider -->>- PaymentApp: Payment processed
+  PaymentApp -->>- Saleor: success
+  Saleor ->> Saleor: Create the TransactionEvent
+  Saleor -->>- Front: Return success
+```
+
+### Initialize payment gateway
+
+To initialize the payment app, call the [paymentGatewayInitialize](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation.
+The [data](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#code-style-fontweight-normal-paymentgatewaytoinitializebdatabcodejson--) provided in the
+[paymentGateways](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) will be sent to the payment app. Saleor will then return the [data](api-reference/payments/objects/payment-gateway-initialize.mdx#code-style-fontweight-normal-paymentgatewayinitializebgatewayconfigsbcodepaymentgatewayconfig---) received from each app as a response.
+
+This step is useful when some data needs to be fetched from the Payment App, such as fetching the available payment methods for a specific checkout.
+
+The [paymentGatewayInitialize](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation requires the following arguments:
+
+- `id` - ID of the `Checkout` or `Order`.
+- `amount` - The amount requested for initializing the payment gateway. If not provided, the difference between `checkout.total` and transactions that are already processed will be sent to the apps.
+- `paymentGateways` - A list of payment gateways to initialize. If not provided, all apps subscribed to the webhook [PAYMENT_GATEWAY_INITIALIZE_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_initialize_sessionbcode) will be used.
+- `paymentGateways.id` - The identifier of the payment gateway app to initialize.
+- `paymentGateway.data` - The data to be passed to the payment gateway.
+
+The [paymentGatewayInitialize](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation returns the following response:
+
+- `gatewayConfigs` - A list of payment apps that were initialized.
+- `gatewayConfigs.id` - The app identifier.
+- `gatewayConfigs.data` - The data required to initialize the payment gateway returned by the app.
+- `gatewayConfigs.errors` - A list of errors related to the specific payment gateway app.
+- `errors` - Errors related to the mutation call.
+
+The following example shows how to use the [paymentGatewayInitialize](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation to initialize the payment gateways:
+
+```graphql
+mutation {
+  paymentGatewayInitialize(
+    id: "Q2hlY2tvdXQ6ZmIxMzljMjgtYWY4OS00Mzk2LWEyMjgtZmM2ZDg0NGFhOWY3"
+    amount: 100
+    paymentGateways: [
+      { id: "payment.app", data: { details: { passed: "to-app" } } }
+    ]
+  ) {
+    gatewayConfigs {
+      id
+      data
+      errors {
+        field
+        message
+        code
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+The response would look like this:
+
+```json
+{
+  "data": {
+    "paymentGatewayInitialize": {
+      "gatewayConfigs": [
+        {
+          "id": "payment.app",
+          "data": {
+            "json": "data-returned-by-app"
+          },
+          "errors": []
+        }
+      ],
+      "errors": []
+    }
+  }
+}
+```
+
+The mutation will trigger the [PAYMENT_GATEWAY_INITIALIZE_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_sessionbcode) webhook.
+For more details about this webhook, please refer to its [documentation](developer/extending/apps/synchronous-webhooks/transaction-webhooks.mdx#initialize-payment-gateway-session).
+
+### Initialize transaction
+
+To initiate payment processing, call the [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation.
+The [data](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#code-style-fontweight-normal-paymentgatewaytoinitializebdatabcodejson--) provided in the
+[paymentGateways](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) field will be sent to the payment app, and Saleor will return the
+[data](api-reference/payments/objects/transaction-initialize.mdx#code-style-fontweight-normal-transactioninitializebdatabcodejson--) received from the app as a response.
+Based on the Payment App's response, Saleor will create or update the transaction with the appropriate status.
+
+The [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation requires the following arguments:
+
+- `id` - ID of the `Checkout` or `Order`.
+- `paymentGateway` - The payment gateway used to initiate payment processing.
+- `paymentGateway.id` - The identifier of the payment gateway app.
+- `paymentGateway.data` - The data to be passed to the payment gateway.
+- `action` - The expected action called for the transaction. By default, the `channel.defaultTransactionFlowStrategy` will be used. This field can be used only by an app that has `HANDLE_PAYMENTS` permission.
+- `amount` - The amount requested for the payment. If not provided, the difference between `checkout.total` and transactions that are already processed will be sent.
+
+The [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation returns the following response:
+
+- `transaction` - The initialized transaction.
+- `transactionEvent` - The event created based on the response received from the payment app.
+- `data` - The data returned by the app.
+- `errors` - Errors related to the mutation call.
+
+The mutation will trigger the [TRANSACTION_INITIALIZE_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_initialize_sessionbcode) webhook.
+For more details about this webhook, please refer to its [documentation](developer/extending/apps/synchronous-webhooks/transaction-webhooks.mdx#initialize-transaction-session).
+
+The following example demonstrates how to use the [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation to initiate payment processing:
+
+```graphql
+mutation TransactionInitialize {
+  transactionInitialize(
+    amount: 100
+    id: "Q2hlY2tvdXQ6MzE3NDk5MjgtZDFkMC00NjdjLTgxNjktMGRiZGM4ZGJhMGZh"
+    paymentGateway: { id: "payment.app", data: { details: "passed-to-app" } }
+  ) {
+    transaction {
+      id
+    }
+    transactionEvent {
+      type
+      pspReference
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+The response would look like this:
+
+```json
+{
+  "data": {
+    "transactionInitialize": {
+      "data": {
+        "some-json": "data"
+      },
+      "transaction": {
+        "id": "VHJhbnNhY3Rpb25JdGVtOjhhMzE1ODVlLWE1MTktNDVkMS1hNTFmLTYwZGZlNGRkM2FkNg"
+      },
+      "transactionEvent": {
+        "type": "CHARGE_SUCCESS",
+        "pspReference": "ppp-123"
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+The current status of a payment can be determined based on the value of [transactionEvent.type](api-reference/payments/enums/transaction-event-type-enum.mdx):
+
+- `AUTHORIZATION_ACTION_REQUIRED` or `CHARGE_ACTION_REQUIRED` indicates that additional action is required from the
+  customer to finalize the payment. Calling [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) will be required to pass the result of the action to the app.
+- `AUTHORIZATION_SUCCESS` indicates that funds have been authorized.
+- `AUTHORIZATION_FAILURE` indicates that authorization has failed.
+- `AUTHORIZATION_REQUEST` indicates that authorization is in a pending state.
+- `CHARGE_SUCCESS` indicates that funds have been charged.
+- `CHARGE_FAILURE` indicates that charging has failed.
+- `CHARGE_REQUEST` indicates that charging is in a pending state.
+
+### Process transaction
+
+If [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) or [transactionProcess](api-reference/payments/mutations/transaction-process.mdx)
+returns `transactionEvent.type` equal to [AUTHORIZATION_ACTION_REQUIRED](api-reference/payments/enums/transaction-event-type-enum.mdx#code-style-fontweight-normal-transactioneventtypeenumbauthorization_action_requiredbcode)
+or [CHARGE_ACTION_REQUIRED](api-reference/payments/enums/transaction-event-type-enum.mdx#code-style-fontweight-normal-transactioneventtypeenumbcharge_action_requiredbcode), additional steps from the customer are required. To provide the app with the result of the additional action, call the [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation.
+
+The [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation requires the following arguments:
+
+- `id` - The ID of the transaction returned by [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx).
+- `data` - The data to be passed to the payment gateway.
+
+The [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation returns:
+
+- `transaction` - The processed transaction.
+- `transactionEvent` - The event created based on the response received from the payment app.
+- `data` - The data returned by the app.
+- `errors` - Errors related to the mutation call.
+
+The mutation triggers the [TRANSACTION_PROCESS_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_process_sessionbcode) webhook.
+For more details about this webhook, refer to its [documentation](developer/extending/apps/synchronous-webhooks/transaction-webhooks.mdx#process-transaction-session).
+
+The following example demonstrates how to use the [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation to process the payment:
+
+```graphql
+mutation TransactionInitialize {
+  transactionProcess(
+    id: "VHJhbnNhY3Rpb25JdGVtOjhhMzE1ODVlLWE1MTktNDVkMS1hNTFmLTYwZGZlNGRkM2FkNg"
+    data: { additional: { actions: "details" } }
+  ) {
+    transaction {
+      id
+    }
+    transactionEvent {
+      type
+      pspReference
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+The response would look like this:
+
+```json
+{
+  "data": {
+    "transactionProcess": {
+      "data": {
+        "some-json": "data"
+      },
+      "transaction": {
+        "id": "VHJhbnNhY3Rpb25JdGVtOjhhMzE1ODVlLWE1MTktNDVkMS1hNTFmLTYwZGZlNGRkM2FkNg"
+      },
+      "transactionEvent": {
+        "type": "CHARGE_SUCCESS",
+        "pspReference": "ppp-123"
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+The current status of a payment can be determined based on the value of `transactionEvent.type`:
+
+- `AUTHORIZATION_ACTION_REQUIRED` or `CHARGE_ACTION_REQUIRED` indicates that additional action is required from the customer to
+  finalize the payment. Calling [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) will be required to pass the result of the action to the app.
+- `AUTHORIZATION_SUCCESS` indicates that funds have been authorized.
+- `AUTHORIZATION_FAILURE` indicates that authorization has failed.
+- `AUTHORIZATION_REQUEST` indicates that authorization is in a pending state.
+- `CHARGE_SUCCESS` indicates that funds have been charged.
+- `CHARGE_FAILURE` indicates that charging has failed.
+- `CHARGE_REQUEST` indicates that charging is in a pending state.
+
+## Saleor App with existing Checkout App
 
 This section describes the flow where the payment process is handled by an external Saleor App such as [Checkout](https://github.com/saleor/react-storefront/tree/canary/apps/checkout).
 In this case, Saleor expects to receive a result of the payment transaction processed by the Saleor App.
@@ -439,14 +728,18 @@ sequenceDiagram
     Saleor -->>- App: Updated transaction
 ```
 
-### Re-calculations of transaction amounts
+## Re-calculations of transaction amounts
 
 The re-calculation will differ based on the value of the [TransactionEventTypeEnum](../api-reference/payments/enums/transaction-event-type-enum) provided as the field `type`
-used in the [transactionEventReport](#reporting-action-for-transaction) mutation and [optionally in the webhook response](extending/apps/synchronous-webhooks/transaction-webhooks):
+used in the [transactionEventReport](#reporting-action-for-transaction) [transactionInitialize](#initialize-transaction), [transactionProcess](#process-transaction) mutations, [optionally in the webhook response](extending/apps/synchronous-webhooks/transaction-webhooks):
+
+### Event type explanation
 
 #### AUTHORIZATION_SUCCESS
 
-Saleor assigns provided `amount` to `transaction.authorizedAmount`. You can’t have two successful authorizations for a single transaction.
+Saleor assigns provided `amount` to `transaction.authorizedAmount`. If an `AUTHORIZATION_SUCCESS` event is related to an `AUTHORIZATION_REQUEST` event by `pspReference`, then the `transactionItem.authorizePendingAmount`
+will be reduced by the amount reported in the `AUTHORIZATION_SUCCESS` event.
+You can’t have two successful authorizations for a single transaction.
 Each successful request after the first one will raise an exception. `AUTHORIZATION_ADJUSTMENT` should be used to change the `transaction.authorizedAmount`.
 
 :::info
@@ -457,7 +750,9 @@ the re-calculation for `transaction.authorizedAmount` will not take into account
 
 #### AUTHORIZATION_FAILURE
 
-The provided amount will be used to provide the history of `transactionItem` actions.
+If an `AUTHORIZATION_FAILURE` event is related to an `AUTHORIZATION_REQUEST` event by `pspReference`, then the `transactionItem.authorizePendingAmount`
+will be reduced by the amount reported in the `AUTHORIZATION_FAILURE` event. If there is no related `AUTHORIZATION_REQUEST`, the failure event will only
+be used to provide the history of `transactionItem` actions.
 
 #### AUTHORIZATION_ADJUSTMENT
 
@@ -466,7 +761,8 @@ Saleor assigns the provided `amount` to the `transaction.authorizedAmount`.
 #### CHARGE_SUCCESS
 
 Adds the provided `amount` to the `transaction.chargedAmount`. Each next call will add the `amount` to the existing
-`transaction.chargedAmount` (`transaction.chargedAmount += amount`). The provided `amount` will reduce `transaction.authorizedAmount`.
+`transaction.chargedAmount` (`transaction.chargedAmount += amount`). If a `CHARGE_SUCCESS` event is related to a `CHARGE_REQUEST` event by `pspReference`, then the `transactionItem.chargePendingAmount`
+will be reduced by the amount reported in the `CHARGE_SUCCESS` event. If there is no related `CHARGE_REQUEST` event, the provided `amount` will reduce `transaction.authorizedAmount`.
 
 :::info
 In the case of finding `CHARGE_SUCCESS` and `CHARGE_FAILURE` with the same `pspReference`, the re-calculation
@@ -476,7 +772,9 @@ for `transaction.chargedAmount` will not take into account the amount from `CHAR
 
 #### CHARGE_FAILURE
 
-The provided amount will be used to provide the history of `transactionItem` actions.
+If an `CHARGE_FAILURE` event is related to an `CHARGE_REQUEST` event by `pspReference`, then the `transactionItem.chargePendingAmount`
+will be reduced by the amount reported in the `CHARGE_FAILURE` event. If there is no related `CHARGE_REQUEST`, the failure event will only
+be used to provide the history of `transactionItem` actions.
 
 #### CHARGE_BACK
 
@@ -486,7 +784,8 @@ The provided `amount` will be used to reduce `transaction.chargedAmount`
 #### REFUND_SUCCESS
 
 Adds provided `amount` to `transaction.refundedAmount`. Each next call will add the `amount` to the existing
-`transaction.refundedAmount` (`transaction.refundedAmount += amount`). The provided `amount` will reduce `transaction.chargedAmount`.
+`transaction.refundedAmount` (`transaction.refundedAmount += amount`). If a `REFUND_SUCCESS` event is related to a `REFUND_REQUEST` event by `pspReference`, then the `transactionItem.refundPendingAmount`
+will be reduced by the amount reported in the `REFUND_SUCCESS` event. If there is no related `REFUND_REQUEST` event, the provided `amount` will reduce `transaction.chargedAmount`.
 
 :::info
 In the case of finding `REFUND_SUCCESS` and `REFUND_FAILURE` with the same `pspReference`, the re-calculation
@@ -496,7 +795,9 @@ for `transaction.refundedAmount` will not take into account the amount from `REF
 
 #### REFUND_FAILURE
 
-The provided amount will be used to provide the history of `transactionItem` actions.
+If an `REFUND_FAILURE` event is related to an `REFUND_REQUEST` event by `pspReference`, then the `transactionItem.refundPendingAmount`
+will be reduced by the amount reported in the `REFUND_FAILURE` event. If there is no related `REFUND_REQUEST`, the failure event will only
+be used to provide the history of `transactionItem` actions.
 
 #### REFUND_REVERSE
 
@@ -506,7 +807,8 @@ The provided `amount` will increase `transaction.chargedAmount`.
 #### CANCEL_SUCCESS
 
 The provided `amount` will be added to `transaction.canceledAmount`
-(`transaction.canceledAmount += amount`). The provided `amount` will reduce `transaction.authorizedAmount`.
+(`transaction.canceledAmount += amount`). If a `CANCEL_SUCCESS` event is related to a `CANCEL_REQUEST` event by `pspReference`, then the `transactionItem.cancelPendingAmount`
+will be reduced by the amount reported in the `CANCEL_SUCCESS` event. If there is no related `CANCEL_REQUEST` event, the provided `amount` will reduce `transaction.authorizedAmount`.
 
 :::info
 In the case of finding `CANCEL_SUCCESS` and `CANCEL_FAILURE` with the same `pspReference`, the re-calculation
@@ -516,7 +818,113 @@ for `transaction.canceledAmount` will not take into account the amount from `CAN
 
 #### CANCEL_FAILURE
 
-The provided amount will be used to provide the history of `transactionItem` actions.
+If an `CANCEL_FAILURE` event is related to an `CANCEL_REQUEST` event by `pspReference`, then the `transactionItem.cancelPendingAmount`
+will be reduced by the amount reported in the `CANCEL_FAILURE` event. If there is no related `CANCEL_REQUEST`, the failure event will only
+be used to provide the history of `transactionItem` actions.
+
+### Example of re-calculations
+
+The tables below show examples of transactions and their amounts when a given event is attached to the transaction.
+Depending on the event type, the amounts may change. The last columns show the current amounts assigned to the transaction after
+processing the events defined in a given row and in the rows above it.
+
+| Event |         Type          | pspReference |           Time            | Amount | `transaction.authorizedAmount` | `transaction.authorizePendingAmount` |
+| :---: | :-------------------: | :----------: | :-----------------------: | :----: | :----------------------------: | :----------------------------------: |
+|   1   | AUTHORIZATION_REQUEST |     AB12     | 2022-03-28T12:50:33+00:00 |   10   |               0                |                  10                  |
+|   2   | AUTHORIZATION_SUCCESS |     AB12     | 2022-03-28T12:51:33+00:00 |   10   |               10               |                  0                   |
+|   3   | AUTHORIZATION_FAILURE |     YZ13     | 2022-03-28T12:52:33+00:00 |   10   |               10               |                  0                   |
+
+After receiving an `AUTHORIZATION_REQUEST` event, the amount defined in the event is attached to `transaction.authorizePendingAmount`.
+Then, an `AUTHORIZATION_SUCCESS` event is attached to the transaction. Since the `AUTHORIZATION_SUCCESS` event has the same `pspReference` as
+the `AUTHORIZATION_REQUEST` event, the `transaction.authorizePendingAmount` is reduced by the event amount, and added to the `transaction.authorizedAmount`.
+An `AUTHORIZATION_FAILURE` event doesn’t change anything, as there isn’t an `AUTHORIZATION_REQUEST` event related to it.
+
+---
+
+| Event |           Type           | pspReference |           Time            | Amount | `transaction.authorizedAmount` | `transaction.authorizePendingAmount` |
+| :---: | :----------------------: | :----------: | :-----------------------: | :----: | :----------------------------: | :----------------------------------: |
+|   1   |  AUTHORIZATION_REQUEST   |     AB12     | 2022-03-28T12:50:33+00:00 |   10   |               0                |                  10                  |
+|   2   |  AUTHORIZATION_SUCCESS   |     AB12     | 2022-03-28T12:51:33+00:00 |   10   |               10               |                  0                   |
+|   3   | AUTHORIZATION_ADJUSTMENT |     YZ13     | 2022-03-28T12:52:33+00:00 |  100   |              100               |                  0                   |
+
+Upon receiving an `AUTHORIZATION_REQUEST` event, the corresponding amount is attached to `transaction.authorizePendingAmount`. An `AUTHORIZATION_SUCCESS` event
+is then attached to the transaction, with the same `pspReference` as the `AUTHORIZATION_REQUEST` event. The `transaction.authorizePendingAmount` is reduced
+by the event amount, and the result is added to the `transaction.authorizedAmount`.
+Note that an `AUTHORIZATION_ADJUSTMENT` event will overwrite the previous `transaction.authorizedAmount` and cause the
+previous `AUTHORIZATION_SUCCESS` event to be ignored.
+
+---
+
+| Event |         Type          | pspReference |           Time            | Amount | `transaction.authorizedAmount` | `transaction.authorizePendingAmount` |
+| :---: | :-------------------: | :----------: | :-----------------------: | :----: | :----------------------------: | :----------------------------------: |
+|   1   | AUTHORIZATION_SUCCESS |     AB12     | 2022-03-28T12:51:33+00:00 |   10   |               10               |                  0                   |
+
+---
+
+The transaction receives an `AUTHORIZATION_SUCCESS` event. Since there is no `AUTHORIZATION_REQUEST` with the same pspReference, the value of `transaction.authorizePendingAmount`
+will not be changed. The amount from the event is assigned to `transaction.authorizedAmount`.
+
+| Event |         Type          | pspReference |           Time            | Amount | `transaction.chargedAmount` | `transaction.chargePendingAmount` | `transaction.authorizedAmount` |
+| :---: | :-------------------: | :----------: | :-----------------------: | :----: | :-------------------------: | :-------------------------------: | :----------------------------: |
+|   1   | AUTHORIZATION_SUCCESS |     AB12     | 2022-03-28T12:50:33+00:00 |   10   |              0              |                 0                 |               10               |
+|   2   |    CHARGE_REQUEST     |     YZ13     | 2022-03-28T12:51:33+00:00 |   3    |              0              |                 3                 |               7                |
+|   3   |    CHARGE_SUCCESS     |     YZ13     | 2022-03-28T12:52:33+00:00 |   3    |              3              |                 0                 |               7                |
+
+When the transaction receives an `AUTHORIZATION_SUCCESS` event, if there is no `AUTHORIZATION_REQUEST` with the same pspReference, the value of `transaction.authorizePendingAmount`
+will not change. The amount from the event is then assigned to `transaction.authorizedAmount`. Additionally, a `CHARGE_REQUEST` event is added to the transaction, and the amount
+from the event is added to `transaction.chargePendingAmount`. The amount also reduces `transaction.authorizedAmount`. Finally, when a `CHARGE_SUCCESS` event occurs, the `transaction.chargePendingAmount`
+is reduced by the event’s amount and added to `transaction.chargedAmount`.
+
+---
+
+| Event |         Type          | pspReference |           Time            | Amount | `transaction.chargedAmount` | `transaction.chargePendingAmount` | `transaction.authorizedAmount` |
+| :---: | :-------------------: | :----------: | :-----------------------: | :----: | :-------------------------: | :-------------------------------: | :----------------------------: |
+|   1   | AUTHORIZATION_SUCCESS |     AB12     | 2022-03-28T12:50:33+00:00 |   10   |              0              |                 0                 |               10               |
+|   2   |    CHARGE_REQUEST     |     YZ13     | 2022-03-28T12:51:33+00:00 |   3    |              0              |                 3                 |               7                |
+|   3   |    CHARGE_SUCCESS     |     YZ13     | 2022-03-28T12:51:33+00:00 |   3    |              3              |                 0                 |               7                |
+|   4   |    CHARGE_FAILURE     |     YZ13     | 2022-03-28T12:55:33+00:00 |   3    |              0              |                 0                 |               10               |
+
+When an `AUTHORIZATION_SUCCESS` event is attached to the transaction, the `transaction.authorizedAmount` is updated with the amount from the event.
+If there is no `AUTHORIZATION_REQUEST` with the same `pspReference`, the `transaction.authorizePendingAmount` remains unchanged.
+Additionally, a `CHARGE_REQUEST` event is added to the transaction, and its amount is added to `transaction.chargePendingAmount`.
+The `transaction.authorizedAmount` is reduced by the amount from the `CHARGE_REQUEST` event.
+Finally, when a `CHARGE_SUCCESS` event occurs, the `transaction.chargedAmount` is updated with the event's amount, and the
+`transaction.chargePendingAmount` is reduced by the same amount. A `CHARGE_FAILURE` event with the same `pspReference` as `CHARGE_SUCCESS` is
+also attached to the transaction, `time` indicating that it is newer than the `CHARGE_SUCCESS`. The previous `CHARGE_SUCCESS` event is ignored during the re-calculation process.
+
+---
+
+| Event |         Type          | pspReference |           Time            | Amount | `transaction.chargedAmount` | `transaction.chargePendingAmount` | `transaction.authorizedAmount` |
+| :---: | :-------------------: | :----------: | :-----------------------: | :----: | :-------------------------: | :-------------------------------: | :----------------------------: |
+|   1   | AUTHORIZATION_SUCCESS |     AB12     | 2022-03-28T12:50:33+00:00 |   10   |              0              |                 0                 |               10               |
+|   2   |    CHARGE_REQUEST     |     YZ13     | 2022-03-28T12:51:33+00:00 |   3    |              0              |                 3                 |               7                |
+|   3   |    CHARGE_SUCCESS     |     YZ13     | 2022-03-28T12:51:33+00:00 |   3    |              3              |                 0                 |               7                |
+|   4   |    CHARGE_FAILURE     |     YZ13     | 2022-03-28T12:50:45+00:00 |   3    |              3              |                 0                 |               7                |
+
+When an `AUTHORIZATION_SUCCESS` event is attached to a transaction, the `transaction.authorizedAmount` is updated with the event's amount. If there is no `AUTHORIZATION_REQUEST` with the
+same `pspReference`, the `transaction.authorizePendingAmount` remains unchanged. In addition, a `CHARGE_REQUEST` event is added to the transaction, and its amount is added to
+`transaction.chargePendingAmount`. The `transaction.authorizedAmount` is reduced by the amount from the `CHARGE_REQUEST` event. Finally, when a `CHARGE_SUCCESS` event occurs, the
+`transaction.chargedAmount` is updated with the event's amount, and the `transaction.chargePendingAmount` is reduced by the same amount. A `CHARGE_FAILURE` event with
+the same `pspReference` as `CHARGE_SUCCESS` is also attached to the transaction. The `time` field indicates that it is older than the `CHARGE_SUCCESS` event. This means
+that the `CHARGE_FAILURE` event will be ignored, and the `CHARGE_SUCCESS` event will be included in the calculations.
+
+---
+
+| Event |      Type      | pspReference |           Time            | Amount | `transaction.chargedAmount` | `transaction.chargePendingAmount` | `transaction.authorizedAmount` |
+| :---: | :------------: | :----------: | :-----------------------: | :----: | :-------------------------: | :-------------------------------: | :----------------------------: |
+|   1   | CHARGE_SUCCESS |     AB12     | 2022-03-28T12:50:33+00:00 |   10   |             10              |                 0                 |               0                |
+
+---
+
+| Event |         Type          | pspReference |           Time            | Amount | `transaction.chargedAmount` | `transaction.chargePendingAmount` | `transaction.authorizedAmount` |
+| :---: | :-------------------: | :----------: | :-----------------------: | :----: | :-------------------------: | :-------------------------------: | :----------------------------: |
+|   1   | AUTHORIZATION_SUCCESS |     AB12     | 2022-03-28T12:50:33+00:00 |   10   |              0              |                 0                 |               10               |
+|   2   |    CHARGE_SUCCESS     |     YZ13     | 2022-03-28T12:51:33+00:00 |   3    |              3              |                 0                 |               7                |
+
+The `AUTHORIZATION_SUCCESS` event is attached to the transaction, and its amount is added to `transaction.authorizedAmount`. Similarly, the `CHARGE_SUCCESS` event is attached to the transaction,
+and its amount is added to `transaction.chargedAmount`. Finally, the amount of the `AUTHORIZATION_SUCCESS` event is subtracted from the `transaction.authorizedAmount`.
+
+---
 
 ## Payment Gateway
 
