@@ -17,7 +17,7 @@ const Feedback = () => {
       window.analytics.track(feedback, {
         pathname: window.location.pathname,
         title: document.title,
-        feedback,
+        feedback: `feedback_${feedback}`,
         message,
         uuid: id,
       });
@@ -93,7 +93,7 @@ const Feedback = () => {
         </div>
       )}
 
-      {sent && <strong>Thank you for feedback!</strong>}
+      {sent && <strong>Thank you for your feedback!</strong>}
 
       <hr />
     </>
