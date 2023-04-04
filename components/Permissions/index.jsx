@@ -4,7 +4,9 @@ import styles from "./styles.module.css";
 
 const Permissions = ({ permissions = "" }) => {
   const permissionList = permissions.split(",");
-  const suffix = permissionList.length > 1 ? "permissions." : "permission.";
+  const prefix =
+    permissionList.length > 1 ? "Required permissions: " : "Requires ";
+  const suffix = permissionList.length > 1 ? "" : "permission";
 
   return (
     <div className={`margin-bottom--sm ` + styles.permissions}>
@@ -25,7 +27,7 @@ const Permissions = ({ permissions = "" }) => {
 
       <div className="margin-left--sm">
         <div>
-          {"Requires "}
+          {prefix}
           {permissionList.map((permission, idx) => (
             <span key={idx} className="badge badge--danger margin-right--sm">
               {permission}
