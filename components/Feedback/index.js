@@ -48,18 +48,20 @@ const Feedback = () => {
         <div className="row">
           <div className="col">
             <span className="padding-right--lg">Was this page helpful?</span>
-            <button
-              onClick={() => setFeedback("positive")}
-              className="button button--primary button--sm margin-right--md"
-            >
-              Yes
-            </button>
-            <button
-              onClick={() => setFeedback("negative")}
-              className="button button--primary button--sm margin-right--md"
-            >
-              No
-            </button>
+            <span className={styles.buttons}>
+              <button
+                onClick={() => setFeedback("positive")}
+                className="button button--primary button--sm margin-right--md"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setFeedback("negative")}
+                className="button button--primary button--sm margin-right--md"
+              >
+                No
+              </button>
+            </span>
           </div>
         </div>
       )}
