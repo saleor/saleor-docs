@@ -53,14 +53,14 @@ import Permissions from "@site/components/Permissions";
 
     [...new Set(file.match(permissionsLineRe) ?? [])].forEach(
       (permissionLine) => {
-        const [_, permissionsListStr] = permissionLine.split(": ");
+        const [permissionStr, permissionsListStr] = permissionLine.split(": ");
         const permissions = permissionsListStr
           .split(",")
           .map((p) => p.trim().replace(".", ""))
           .join(",");
         const re = new RegExp(permissionLine, "g");
         const component = `
-<Permissions permissions={"${permissions}"} />
+<Permissions permissions={"${permissions}"} text={"${permissionStr}"} />
 `;
         newContent = newContent.replace(re, component);
       }

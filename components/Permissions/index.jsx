@@ -2,9 +2,43 @@ import React from "react";
 
 import styles from "./styles.module.css";
 
-const Permissions = ({ permissions = "" }) => {
+const Permissions = ({ permissions = "", text = "" }) => {
   const permissionList = permissions.split(",");
-  const suffix = permissionList.length > 1 ? "permissions." : "permission.";
+
+  const genericContent = () => {
+    const suffix = permissionList.length > 1 ? "permissions." : "permission.";
+
+    return (
+      <>
+        {"Requires "}
+        {permissionList.map((permission, idx) => (
+          <span key={idx} className="badge badge--danger margin-right--sm">
+            {permission}
+          </span>
+        ))}
+        {suffix}
+      </>
+    );
+  };
+
+  const scopedContent = () => {
+    return (
+      <>
+        {text}
+        {": "}
+        {permissionList.map((permission, idx) => (
+          <span key={idx} className="badge badge--danger margin-right--sm">
+            {permission}
+          </span>
+        ))}
+      </>
+    );
+  };
+
+  const content =
+    text === "Requires one of the following permissions"
+      ? genericContent()
+      : scopedContent();
 
   return (
     <div className={`margin-bottom--sm ` + styles.permissions}>
@@ -24,15 +58,7 @@ const Permissions = ({ permissions = "" }) => {
       </div>
 
       <div className="margin-left--sm">
-        <div>
-          {"Requires "}
-          {permissionList.map((permission, idx) => (
-            <span key={idx} className="badge badge--danger margin-right--sm">
-              {permission}
-            </span>
-          ))}
-          {suffix}
-        </div>
+        <div>{content}</div>
       </div>
     </div>
   );
