@@ -309,6 +309,13 @@ module.exports = {
           customCss: [require.resolve("./src/css/theme.css")],
         },
         docs: {
+          async sidebarItemsGenerator({
+            defaultSidebarItemsGenerator,
+            ...args
+          }) {
+            const sidebarItems = await defaultSidebarItemsGenerator(args);
+            return sortSidebarItems(sidebarItems);
+          },
           // docs folder path relative to website dir.
           path: "./docs",
           lastVersion: "current",
@@ -345,3 +352,31 @@ module.exports = {
     },
   ],
 };
+
+// Sort sidebar items with localeCompare
+function sortSidebarItems(items) {
+  const result = items.map((item) => {
+    if (item.type === "category") {
+      return { ...item, items: sortSidebarItems(item.items) };
+    }
+    return item;
+  });
+
+  return result.map((item) => {
+    if (item.items) {
+      return {
+        ...item,
+        items: item.items.sort((a, b) => {
+          // sort by generated id or label
+          if (a.id) {
+            return a.id.localeCompare(b.id);
+          }
+
+          return a.label.localeCompare(b.label);
+        }),
+      };
+    }
+
+    return item;
+  });
+}
