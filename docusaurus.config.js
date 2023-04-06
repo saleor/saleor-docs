@@ -207,6 +207,33 @@ module.exports = {
       },
     },
 
+    mermaid: {
+      theme: {
+        light: "base",
+        dark: "base",
+      },
+      options: {
+        themeVariables: {
+          activationBkgColor: "var(--ifm-background-color)",
+          activationBorderColor: "var(--ifm-color-emphasis-500)",
+          actorBorder: "var(--ifm-color-emphasis-500)",
+          actorTextColor: "var(--ifm-color-emphasis-800)",
+          defaultLinkColor: "var(--ifm-color-primary)",
+          edgeLabelBackground: "var(--ifm-background-color)",
+          lineColor: "var(--ifm-color-emphasis-500)",
+          noteBkgColor: "var(--ifm-color-emphasis-100)",
+          noteBorderColor: "var(--ifm-color-emphasis-500)",
+          noteTextColor: "var(--ifm-heading-color)",
+          mainBkg: "var(--ifm-background-color)",
+          primaryBorderColor: "var(--ifm-color-emphasis-800)",
+          primaryTextColor: "var(--ifm-color-emphasis-800)",
+          sequenceNumberColor: "var(--ifm-background-color)",
+          signalTextColor: "var(--ifm-color-emphasis-800)",
+          titleColor: "var(--ifm-heading-color)",
+        },
+      },
+    },
+
     navbar: {
       hideOnScroll: true,
       logo: {
