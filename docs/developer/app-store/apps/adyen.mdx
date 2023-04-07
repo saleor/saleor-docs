@@ -1,0 +1,176 @@
+---
+title: Adyen
+sidebar_position: 2
+---
+
+# Adyen
+
+## Overview
+
+Adyen App is a payment integration app that allows merchants using the Saleor e-commerce platform to accept online payments from customers using Adyen as their payment processor. Adyen is a popular global payment provider that offers a range of payment methods, including credit cards, bank transfers, and digital wallets.
+
+The Saleor App Payment Adyen is designed to simplify the payment process for both merchants and customers by seamlessly integrating Adyen's payment processing technology into the Saleor platform. With this app, merchants can easily set up and manage their Adyen account and accept a wide range of payment methods directly from their Saleor store, without needing to integrate Adyen's payment gateway separately.
+
+In addition to processing payments, the Saleor App Payment Adyen provides merchants with tools for managing refunds and chargebacks. Overall, the Saleor App Payment Adyen is a powerful tool for merchants looking to streamline their payment processes and offer their customers a seamless and secure online shopping experience.
+
+:::caution
+
+To successfully configure the Adyen App, you must have an account with [Adyen](https://www.adyen.com).
+
+:::
+
+## Capabilities
+
+The Adyen App implements the following [Saleor sync webhooks related to transactions](../../extending/apps/synchronous-webhooks/transaction-webhooks):
+
+- [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_sessionbcode)
+- [`TRANSACTION_INITIALIZE_SESSION`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_initialize_sessionbcode)
+- [`TRANSACTION_PROCESS_SESSION`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_process_sessionbcode)
+- [`TRANSACTION_CHARGE_REQUESTED`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode)
+- [`TRANSACTION_CANCEL_REQUESTED`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode)
+- [`TRANSACTION_REFUND_REQUESTED`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode)
+
+Furthermore, it's also prepared to handle [async Adyen webhooks](https://docs.adyen.com/development-resources/webhooks).
+
+Adyen App follows the flow described in detail in the [Saleor Payment App documentation](../../payments#saleor-payment-app).
+
+## Configuration
+
+For Adyen to appear as [available payment gateway](../../checkout#listing-available-payment-gateways), you need to install and configure it in the Saleor Dashboard. You need to obtain the API key from Adyen and paste it into the Adyen App configuration form. Then, a wizard will guide you through the process of configuring the Adyen App, generating the HMAC key, and setting up the webhook.
+
+## Usage in Storefront or apps
+
+:::info
+
+Adyen App uses Adyen [Checkout API v70](https://docs.adyen.com/api-explorer/#/CheckoutService/v70/overview) and [Management API v1](https://docs.adyen.com/api-explorer/#/ManagementService/v1/overview).
+
+:::
+
+Adyen App can be used to integrate with Adyen APIs. By using a set of GraphQL mutations, one can interact with Adyen to authorize, capture, refund, and cancel payments.
+
+### Getting payment gateways
+
+The first step is to fetch the Checkout object including [`availablePaymentGateways`](../../../api-reference/checkout/objects/checkout#code-style-fontweight-normal-checkoutbavailablepaymentgatewaysbcodepaymentgateway---) field. The `availablePaymentGateways` field contains a list of payment gateways available for given checkout. The Adyen App should be one of the payment gateways available in the list. Its `id` is [`app.saleor.adyen`](https://github.com/saleor/saleor-app-payment-adyen/blob/43aa0435c94702c2d6ed89a0d94020b6924e3447/src/pages/api/manifest.ts#L15).
+
+### Obtaining Adyen payment methods
+
+Next, you need to fetch configured payment methods from Adyen. To do that, use the [`paymentGatewayInitialize`](../../../api-reference/payments/mutations/payment-gateway-initialize) mutation. The mutation returns a `PaymentGatewayInitialize` object with `data` field containing a list of payment methods. The `data` field is an object with the following fields:
+
+```ts
+{
+  paymentMethodsResponse: PaymentMethodsResponse;
+  clientKey: string;
+  environment: "LIVE" | "TEST";
+  errors?: SyncWebhookAppErrors;
+}
+```
+
+Where `PaymentMethodsResponse` is the result of calling Adyen's `/paymentMethods` endpoint and is described in the [Adyen documentation](https://docs.adyen.com/api-explorer/Checkout/latest/post/paymentMethods#responses-200). `SyncWebhookAppErrors` is [described below](#handling-errors).
+
+If `errors` field doesn't exist or is an empty array, `paymentMethodsResponse`, `clientKey` and `environment` should be used to initialize [Adyen Drop-in](https://docs.adyen.com/online-payments/web-drop-in/additional-use-cases/advanced-flow).
+
+:::tip
+
+For instructions on how to add, remove or constraint payment methods from Adyen, please consult the [Adyen payment methods documentation](https://docs.adyen.com/payment-methods).
+
+:::
+
+### Paying with Adyen
+
+After a user has interacted with the Adyen Drop-in and entered payment details, [Drop-in event data along with other information](https://docs.adyen.com/online-payments/web-drop-in/additional-use-cases/advanced-flow#step-3-make-a-payment) should be passed to the [`transactionInitialize`](../../../api-reference/payments/mutations/transaction-initialize) mutation as the `paymentGateway.data` field. The mutation returns the `TransactionInitialize` object with a `data` field containing the following fields:
+
+```ts
+{
+  paymentResponse: PaymentResponse;
+  errors?: SyncWebhookAppErrors;
+}
+```
+
+Where `PaymentResponse` is the result of calling Adyen's `/payments` endpoint and is described in the [Adyen documentation](https://docs.adyen.com/api-explorer/Checkout/latest/post/payments#responses-200). `SyncWebhookAppErrors` is [described below](#handling-errors).
+
+If the `errors` field doesn't exist or is an empty array, pass the `paymentResponse` to Adyen Drop-in. The Drop-in will handle the response and display the result to the user or require additional actions to proceed.
+
+### Performing additional actions (_optional_)
+
+Optionally, additional actions may be required: authentication of payment with 3D Secure, scan of a QR code, or logging in to the bank to complete the payment. In this case, [`transactionProcess`](../../../api-reference/payments/mutations/transaction-process) mutation should be used. The mutation returns a `TransactionProcess` object with a `data` field containing the following fields:
+
+```ts
+{
+  paymentDetailsResponse: PaymentDetailsResponse
+  errors?: SyncWebhookAppErrors;
+}
+```
+
+Where `PaymentDetailsResponse` is the result of calling Adyen's `/payments/details` endpoint and is described in the [Adyen documentation](https://docs.adyen.com/api-explorer/Checkout/latest/post/payments/details#responses-200). `SyncWebhookAppErrors` is [described below](#handling-errors).
+
+If the `errors` field doesn't exist or is an empty array, pass the `paymentDetailsResponse` back to Adyen Drop-in. The Drop-in will handle the response and display the result to the user or again require additional actions to proceed.
+
+Repeat the step until the payment is successful or fails.
+
+:::caution
+
+Many payment methods are not settled synchronously. Sometimes it takes seconds, minutes, hours, or even days for a payment to go through. Adyen App will automatically handle Adyen webhook notifications and create transaction events in Saleor (see [`transactionEventReport`](../../../api-reference/payments/mutations/transaction-event-report)).
+
+:::
+
+### Handling errors
+
+The three mutations described above may return `data.errors` field. The existence of this field determines that the request was unsuccessful. `errors` is an array of `SyncWebhookAppError` objects. The `SyncWebhookAppError` object has the following fields:
+
+```ts
+{
+  code?: string;
+  message?: string;
+  details?: JSONObject;
+}
+```
+
+The `code` field is a string identifying the error. One of the following values is allowed:
+
+- `UnknownError`
+- `JsonSchemaError`
+- `MissingSaleorApiUrlError`
+- `MissingAuthDataError`
+- `HttpClientError`
+
+:::note
+
+This list may be extended in the future. Make sure your app handles unknown error codes.
+
+:::
+
+The `message` field is a human-readable message describing the error.
+
+The `details` field is an object containing additional information about the error. It may contain two fields:
+
+- `errorCode` – [Adyen error code](https://docs.adyen.com/development-resources/error-codes)
+- `statusCode` – [Adyen HTTP status code](https://docs.adyen.com/development-resources/response-handling)
+
+## Development
+
+To run the Adyen App locally:
+
+1. Go to the app directory.
+2. Copy the `.env.example` file to `.env`.The `.env` should contain the following variables:
+
+:::info
+
+Adyen App is a Next.js application. If you want to learn more about setting environment variables in Next.js, head over to the [documentation](https://nextjs.org/docs/basic-features/environment-variables).
+
+:::
+
+`SECRET_KEY` (_required_)
+
+A randomly generated key for the encryption of [Settings Manager](https://github.com/saleor/saleor-app-sdk/blob/main/docs/settings-manager.md). At least 8 characters long.
+
+`APL` (_optional_)
+
+Name of the chosen implementation of the [Authentication Persistence Layer](https://github.com/saleor/saleor-app-sdk/blob/main/docs/apl.md).
+
+When no value is provided, `FileAPL` is used by default. See `saleor-app.ts` in the app directory to see supported APLs.
+
+`APP_DEBUG` (_optional_)
+
+The logging level for the app. The possible values are: `trace`, `debug`, `info`, `warn`, `error`, `fatal`, and `silent`. The default value is `info` which means that some information will be logged into the console.
+
+You can read more about our logger in [its documentation](https://getpino.io/#/docs/api?id=loggerlevel-string-gettersetter).
