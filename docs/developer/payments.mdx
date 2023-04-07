@@ -8,13 +8,24 @@ The process below describes the key milestones in the Saleor payment flow.
 Additional steps may also occur along the way; however, the purpose of this instruction is to
 deliver a base reference for the user to work with.
 
-Saleor distinguishes three different ways of processing a payment:
+Saleor distinguishes two different approach of processing a payment:
 
 - By using a [plugin](extending/overview#plugins) embedded in the Saleor code.
-- By using a [Saleor Payment App](extending/overview#apps-recommended)
-- By using a [Saleor App with existing Checkout App](extending/overview#apps-recommended).
+- By using a [Saleor App](extending/overview#apps-recommended).
 
-## Saleor Payment App
+## Saleor App
+
+Saleor offers two ways to process payments using the Saleor app:
+
+- [Saleor payment app](developer/payments.mdx#processing-a-payment-with-payment-app) - The communication between the storefront and payment app goes through Saleor.
+  Saleor allows the storefront to provide and receive data directly from the app. Based on the response received from the app,
+  Saleor can determine the current status of the payment and update it on its own side.
+- [Saleor app with existing checkout app](developer/payments.mdx#processing-a-payment-with-checkout-app): This is recommended for more advanced use cases when a shop owner needs to provide more
+  validation before finalizing the checkout or to cover specific cases. The `CheckoutApp` handles the payment process on its side
+  and uses Saleor's mutation to report any changes that happen for a specific `transactionItem`.
+  The order can be created by protected mutation [orderCreateFromCheckout](docs/api-reference/checkout/mutations/order-create-from-checkout.mdx).
+
+### Processing a payment with Payment App
 
 :::info
 
@@ -41,7 +52,7 @@ sequenceDiagram
   PaymentApp ->>+ PaymentProvider: Initialize payment gateway
   PaymentProvider -->>- PaymentApp: Data mandatory to<br>initialize the payment<br>on fronted
   PaymentApp -->>- Saleor: PaymentGateway data with config
-  Saleor -->>- Front: List of PaymentGateways
+  Saleor -->>- Front: List of PaymentGateway data and configs
   Front ->>+ Saleor: TransactionInitialize<br> with amount and<br>payment gateway ID, data
   Saleor ->> Saleor: Create TransactionItem
   Saleor ->> Saleor: Request TransactionEvent created
@@ -62,7 +73,7 @@ sequenceDiagram
   Saleor -->>- Front: Return success
 ```
 
-### Initialize payment gateway
+#### Initialize payment gateway
 
 To initialize the payment app, call the [paymentGatewayInitialize](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation.
 The [data](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#code-style-fontweight-normal-paymentgatewaytoinitializebdatabcodejson--) provided in the
@@ -139,7 +150,7 @@ The response would look like this:
 The mutation will trigger the [PAYMENT_GATEWAY_INITIALIZE_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_sessionbcode) webhook.
 For more details about this webhook, please refer to its [documentation](developer/extending/apps/synchronous-webhooks/transaction-webhooks.mdx#initialize-payment-gateway-session).
 
-### Initialize transaction
+#### Initialize transaction
 
 To initiate payment processing, call the [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation.
 The [data](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#code-style-fontweight-normal-paymentgatewaytoinitializebdatabcodejson--) provided in the
@@ -224,7 +235,7 @@ The current status of a payment can be determined based on the value of [transac
 - `CHARGE_FAILURE` indicates that charging has failed.
 - `CHARGE_REQUEST` indicates that charging is in a pending state.
 
-### Process transaction
+#### Process transaction
 
 If [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) or [transactionProcess](api-reference/payments/mutations/transaction-process.mdx)
 returns `transactionEvent.type` equal to [AUTHORIZATION_ACTION_REQUIRED](api-reference/payments/enums/transaction-event-type-enum.mdx#code-style-fontweight-normal-transactioneventtypeenumbauthorization_action_requiredbcode)
@@ -302,12 +313,12 @@ The current status of a payment can be determined based on the value of `transac
 - `CHARGE_FAILURE` indicates that charging has failed.
 - `CHARGE_REQUEST` indicates that charging is in a pending state.
 
-## Saleor App with existing Checkout App
+### Processing a payment with Checkout App
 
 This section describes the flow where the payment process is handled by an external Saleor App such as [Checkout](https://github.com/saleor/react-storefront/tree/canary/apps/checkout).
 In this case, Saleor expects to receive a result of the payment transaction processed by the Saleor App.
 
-### Creating transaction
+#### Creating transaction
 
 :::info
 
@@ -335,7 +346,7 @@ The following example shows how you can use the [transactionCreate](../api-refer
 The transaction was authorized, and the payment was made with a credit card. The actions that can be called from Saleor are: `CANCEL` and `CHARGE`.
 The authorized amount is **$99**.
 
-#### Saleor 3.13+
+##### Saleor 3.13+
 
 ```graphql
 mutation {
@@ -377,7 +388,7 @@ The response would look like this:
 }
 ```
 
-#### Saleor 3.4 (deprecated)
+##### Saleor 3.4 (deprecated)
 
 ```graphql
 mutation {
@@ -430,7 +441,7 @@ The response would look like this:
 
 :::
 
-### Updating transaction
+#### Updating transaction
 
 :::info
 
@@ -728,14 +739,14 @@ sequenceDiagram
     Saleor -->>- App: Updated transaction
 ```
 
-## Re-calculations of transaction amounts
+### Re-calculations of transaction amounts
 
 The re-calculation will differ based on the value of the [TransactionEventTypeEnum](../api-reference/payments/enums/transaction-event-type-enum) provided as the field `type`
 used in the [transactionEventReport](#reporting-action-for-transaction) [transactionInitialize](#initialize-transaction), [transactionProcess](#process-transaction) mutations, [optionally in the webhook response](extending/apps/synchronous-webhooks/transaction-webhooks):
 
-### Event type explanation
+#### Event type explanation
 
-#### AUTHORIZATION_SUCCESS
+##### AUTHORIZATION_SUCCESS
 
 Saleor assigns provided `amount` to `transaction.authorizedAmount`. If an `AUTHORIZATION_SUCCESS` event is related to an `AUTHORIZATION_REQUEST` event by `pspReference`, then the `transactionItem.authorizePendingAmount`
 will be reduced by the amount reported in the `AUTHORIZATION_SUCCESS` event.
@@ -748,17 +759,17 @@ the re-calculation for `transaction.authorizedAmount` will not take into account
 `AUTHORIZATION_SUCCESS`, when `AUTHORIZATION_SUCCESS` is the older one.
 :::
 
-#### AUTHORIZATION_FAILURE
+##### AUTHORIZATION_FAILURE
 
 If an `AUTHORIZATION_FAILURE` event is related to an `AUTHORIZATION_REQUEST` event by `pspReference`, then the `transactionItem.authorizePendingAmount`
 will be reduced by the amount reported in the `AUTHORIZATION_FAILURE` event. If there is no related `AUTHORIZATION_REQUEST`, the failure event will only
 be used to provide the history of `transactionItem` actions.
 
-#### AUTHORIZATION_ADJUSTMENT
+##### AUTHORIZATION_ADJUSTMENT
 
 Saleor assigns the provided `amount` to the `transaction.authorizedAmount`.
 
-#### CHARGE_SUCCESS
+##### CHARGE_SUCCESS
 
 Adds the provided `amount` to the `transaction.chargedAmount`. Each next call will add the `amount` to the existing
 `transaction.chargedAmount` (`transaction.chargedAmount += amount`). If a `CHARGE_SUCCESS` event is related to a `CHARGE_REQUEST` event by `pspReference`, then the `transactionItem.chargePendingAmount`
@@ -770,18 +781,18 @@ for `transaction.chargedAmount` will not take into account the amount from `CHAR
 `CHARGE_SUCCESS` is the older one.
 :::
 
-#### CHARGE_FAILURE
+##### CHARGE_FAILURE
 
 If an `CHARGE_FAILURE` event is related to an `CHARGE_REQUEST` event by `pspReference`, then the `transactionItem.chargePendingAmount`
 will be reduced by the amount reported in the `CHARGE_FAILURE` event. If there is no related `CHARGE_REQUEST`, the failure event will only
 be used to provide the history of `transactionItem` actions.
 
-#### CHARGE_BACK
+##### CHARGE_BACK
 
 The provided `amount` will be used to reduce `transaction.chargedAmount`
 (`transaction.chargedAmount -= amount`).
 
-#### REFUND_SUCCESS
+##### REFUND_SUCCESS
 
 Adds provided `amount` to `transaction.refundedAmount`. Each next call will add the `amount` to the existing
 `transaction.refundedAmount` (`transaction.refundedAmount += amount`). If a `REFUND_SUCCESS` event is related to a `REFUND_REQUEST` event by `pspReference`, then the `transactionItem.refundPendingAmount`
@@ -793,18 +804,18 @@ for `transaction.refundedAmount` will not take into account the amount from `REF
 `REFUND_SUCCESS` is the older one.
 :::
 
-#### REFUND_FAILURE
+##### REFUND_FAILURE
 
 If an `REFUND_FAILURE` event is related to an `REFUND_REQUEST` event by `pspReference`, then the `transactionItem.refundPendingAmount`
 will be reduced by the amount reported in the `REFUND_FAILURE` event. If there is no related `REFUND_REQUEST`, the failure event will only
 be used to provide the history of `transactionItem` actions.
 
-#### REFUND_REVERSE
+##### REFUND_REVERSE
 
 The provided `amount` will be used to reduce `transaction.refundedAmount` (`transaction.refundedAmount -= amount`).
 The provided `amount` will increase `transaction.chargedAmount`.
 
-#### CANCEL_SUCCESS
+##### CANCEL_SUCCESS
 
 The provided `amount` will be added to `transaction.canceledAmount`
 (`transaction.canceledAmount += amount`). If a `CANCEL_SUCCESS` event is related to a `CANCEL_REQUEST` event by `pspReference`, then the `transactionItem.cancelPendingAmount`
@@ -816,13 +827,13 @@ for `transaction.canceledAmount` will not take into account the amount from `CAN
 `CANCEL_SUCCESS` is the older one.
 :::
 
-#### CANCEL_FAILURE
+##### CANCEL_FAILURE
 
 If an `CANCEL_FAILURE` event is related to an `CANCEL_REQUEST` event by `pspReference`, then the `transactionItem.cancelPendingAmount`
 will be reduced by the amount reported in the `CANCEL_FAILURE` event. If there is no related `CANCEL_REQUEST`, the failure event will only
 be used to provide the history of `transactionItem` actions.
 
-### Example of re-calculations
+#### Example of re-calculations
 
 The tables below show examples of transactions and their amounts when a given event is attached to the transaction.
 Depending on the event type, the amounts may change. The last columns show the current amounts assigned to the transaction after
@@ -926,7 +937,7 @@ and its amount is added to `transaction.chargedAmount`. Finally, the amount of t
 
 ---
 
-## Payment Gateway
+## Payment Plugin
 
-Using PaymentGateway is strictly related to the checkout object and is explained in
+Using PaymentPlugin is strictly related to the checkout object and is explained in
 [Checkout](checkout#finalizing-checkout-with-saleors-payment-gateways) section.
