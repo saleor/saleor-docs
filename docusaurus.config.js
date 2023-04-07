@@ -270,7 +270,7 @@ module.exports = {
 
     footer: {
       // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
-      copyright: `Copyright © 2018–${new Date().getFullYear()} <a href="https://saleor.io/">Saleor Commerce</a>`,
+      copyright: `Copyright © 2018–${new Date().getFullYear()} <a href="https://saleor.io/">Saleor Commerce</a>. All rights reserved.`,
       links: [
         {
           title: "Saleor Commerce",
