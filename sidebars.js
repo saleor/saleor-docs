@@ -109,7 +109,10 @@ module.exports = {
             type: "doc",
             id: "developer/app-store/apps/index",
           },
-          items: ["developer/app-store/apps/taxes"],
+          items: [
+            "developer/app-store/apps/taxes",
+            "developer/app-store/apps/crm",
+          ],
         },
       ],
     },
