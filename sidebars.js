@@ -77,6 +77,11 @@ module.exports = {
     {
       type: "category",
       label: "Development",
+      link: {
+        type: "generated-index",
+        title: "Development",
+        description: "Development overview.",
+      },
       items: [
         "developer/running-saleor/debugging-emails",
         "developer/running-saleor/exposing-instance",
@@ -98,6 +103,11 @@ module.exports = {
     {
       type: "category",
       label: "Saleor App Store",
+      link: {
+        type: "generated-index",
+        title: "Saleor App Store",
+        description: "Saleor App Store overview.",
+      },
       items: [
         "developer/app-store/overview",
         "developer/app-store/development",
@@ -169,6 +179,11 @@ module.exports = {
     {
       type: "category",
       label: "Community",
+      link: {
+        type: "generated-index",
+        title: "Community",
+        description: "Community Overview.",
+      },
       items: [
         "developer/community/contributing",
         "developer/community/faq",
