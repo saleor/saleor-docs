@@ -348,8 +348,8 @@ module.exports = {
     image: "img/og-image.png",
 
     prism: {
-      theme: require("prism-react-renderer/themes/github"),
-      darkTheme: require("prism-react-renderer/themes/dracula"),
+      theme: require("prism-react-renderer/themes/oceanicNext"),
+      defaultLanguage: "graphql",
     },
   },
 
