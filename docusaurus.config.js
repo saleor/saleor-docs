@@ -38,6 +38,25 @@ module.exports = {
       },
     ],
     [
+      "@graphql-markdown/docusaurus",
+      {
+        id: "storefront",
+        schema: "./schema.graphql",
+        rootPath: "./docs", // docs will be generated under rootPath/baseURL
+        baseURL: "api-storefront",
+        homepage: "./template/api-reference.mdx",
+        linkRoot: "../../../",
+        loaders: {
+          GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
+        },
+        groupByDirective: {
+          directive: "doc",
+          field: "category",
+          fallback: "Miscellaneous",
+        },
+      },
+    ],
+    [
       "@docusaurus/plugin-client-redirects",
       {
         redirects: [
@@ -258,6 +277,12 @@ module.exports = {
           type: "docSidebar",
           sidebarId: "api",
           label: "API",
+          position: "left",
+        },
+        {
+          type: "docSidebar",
+          sidebarId: "storefrontApi",
+          label: "Storefront API",
           position: "left",
         },
         {
