@@ -257,8 +257,8 @@ module.exports = {
       hideOnScroll: true,
       logo: {
         alt: "Saleor",
-        src: "img/saleor-logo.svg",
-        srcDark: "img/saleor-logo-dark.svg",
+        src: "img/logo.svg",
+        srcDark: "img/logo.svg",
       },
       items: [
         {
