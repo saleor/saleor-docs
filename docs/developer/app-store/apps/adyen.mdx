@@ -7,15 +7,19 @@ sidebar_position: 2
 
 ## Overview
 
-Adyen App is a payment integration app that allows merchants using the Saleor e-commerce platform to accept online payments from customers using Adyen as their payment processor. Adyen is a popular global payment provider that offers a range of payment methods, including credit cards, bank transfers, and digital wallets.
-
-The Saleor App Payment Adyen is designed to simplify the payment process for both merchants and customers by seamlessly integrating Adyen's payment processing technology into the Saleor platform. With this app, merchants can easily set up and manage their Adyen account and accept a wide range of payment methods directly from their Saleor store, without needing to integrate Adyen's payment gateway separately.
-
-In addition to processing payments, the Saleor App Payment Adyen provides merchants with tools for managing refunds and chargebacks. Overall, the Saleor App Payment Adyen is a powerful tool for merchants looking to streamline their payment processes and offer their customers a seamless and secure online shopping experience.
+Adyen App is a payment integration app that allows merchants using the Saleor e-commerce platform to accept online payments from customers using Adyen as their payment processor. In addition to processing payments, the Saleor App Payment Adyen provides merchants with tools for managing refunds and chargebacks.
 
 :::caution
 
-To successfully configure the Adyen App, you must have an account with [Adyen](https://www.adyen.com).
+To configure the Adyen App, you must have an account with [Adyen](https://www.adyen.com).
+
+:::
+
+The Adyen App allows for integrations with [Adyen Web Drop-in](https://docs.adyen.com/online-payments/web-drop-in/additional-use-cases/advanced-flow), [Adyen iOS Drop-in](https://docs.adyen.com/online-payments/ios/drop-in/additional-use-cases/advanced-flow), [Adyen Android Drop-in](https://docs.adyen.com/online-payments/android/drop-in), and [Adyen React Native Drop-in](https://docs.adyen.com/online-payments/react-native/drop-in). It uses the Adyen Drop-in Advanced Flow.
+
+:::info
+
+Adyen App uses Adyen [Checkout API v70](https://docs.adyen.com/api-explorer/#/CheckoutService/v70/overview) and [Management API v1](https://docs.adyen.com/api-explorer/#/ManagementService/v1/overview).
 
 :::
 
@@ -36,21 +40,43 @@ Adyen App follows the flow described in detail in the [Saleor Payment App docume
 
 ## Configuration
 
-For Adyen to appear as [available payment gateway](../../checkout#listing-available-payment-gateways), you need to install and configure it in the Saleor Dashboard. You need to obtain the API key from Adyen and paste it into the Adyen App configuration form. Then, a wizard will guide you through the process of configuring the Adyen App, generating the HMAC key, and setting up the webhook.
+For Adyen to appear as [available payment gateway](../../checkout#listing-available-payment-gateways), you need to [install it in the Saleor Dashboard](../overview#usage). You need to obtain the API key from Adyen and paste it into the Adyen App configuration form. Then, a wizard will guide you through the process of configuring the Adyen App, generating the HMAC key, and setting up the webhook.
 
-## Usage in Storefront or apps
-
-:::info
-
-Adyen App uses Adyen [Checkout API v70](https://docs.adyen.com/api-explorer/#/CheckoutService/v70/overview) and [Management API v1](https://docs.adyen.com/api-explorer/#/ManagementService/v1/overview).
-
-:::
+## Usage in Storefront or mobile apps
 
 Adyen App can be used to integrate with Adyen APIs. By using a set of GraphQL mutations, one can interact with Adyen to authorize, capture, refund, and cancel payments.
 
 ### Getting payment gateways
 
 The first step is to fetch the Checkout object including [`availablePaymentGateways`](../../../api-reference/checkout/objects/checkout#code-style-fontweight-normal-checkoutbavailablepaymentgatewaysbcodepaymentgateway---) field. The `availablePaymentGateways` field contains a list of payment gateways available for given checkout. The Adyen App should be one of the payment gateways available in the list. Its `id` is [`app.saleor.adyen`](https://github.com/saleor/saleor-app-payment-adyen/blob/43aa0435c94702c2d6ed89a0d94020b6924e3447/src/pages/api/manifest.ts#L15).
+
+```graphql
+query {
+  checkout(id: "Q2hlY2tvdXQ6YWY3MDJkMGQtMzM0NC00NjMxLTlkNmEtMDk4Yzk1ODhlNmMy") {
+    availablePaymentGateways {
+      id
+      name
+    }
+  }
+}
+```
+
+The response:
+
+```json
+{
+  "data": {
+    "checkout": {
+      "availablePaymentGateways": [
+        {
+          "id": "app.saleor.adyen",
+          "name": "Adyen"
+        }
+      ]
+    }
+  }
+}
+```
 
 ### Obtaining Adyen payment methods
 
@@ -68,6 +94,62 @@ Next, you need to fetch configured payment methods from Adyen. To do that, use t
 Where `PaymentMethodsResponse` is the result of calling Adyen's `/paymentMethods` endpoint and is described in the [Adyen documentation](https://docs.adyen.com/api-explorer/Checkout/latest/post/paymentMethods#responses-200). `SyncWebhookAppErrors` is [described below](#handling-errors).
 
 If `errors` field doesn't exist or is an empty array, `paymentMethodsResponse`, `clientKey` and `environment` should be used to initialize [Adyen Drop-in](https://docs.adyen.com/online-payments/web-drop-in/additional-use-cases/advanced-flow).
+
+```graphql
+mutation {
+  paymentGatewayInitialize(
+    id: "Q2hlY2tvdXQ6YWY3MDJkMGQtMzM0NC00NjMxLTlkNmEtMDk4Yzk1ODhlNmMy"
+    amount: 54.24
+    paymentGateways: [{ id: "app.saleor.adyen" }]
+  ) {
+    gatewayConfigs {
+      id
+      data
+      errors {
+        field
+        message
+        code
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+The response:
+
+```json
+{
+  "data": {
+    "paymentGatewayInitialize": {
+      "gatewayConfigs": [
+        {
+          "id": "app.saleor.adyen",
+          "data": {
+            "paymentMethodsResponse": {
+              "paymentMethods": [
+                {
+                  "brands": ["visa", "mc"],
+                  "name": "Credit Card",
+                  "type": "scheme"
+                }
+              ]
+            },
+            "clientKey": "test_AHSJKADHK12731KDSALD11DSADASA003",
+            "environment": "TEST"
+          },
+          "errors": []
+        }
+      ],
+      "errors": []
+    }
+  }
+}
+```
 
 :::tip
 
@@ -89,6 +171,70 @@ After a user has interacted with the Adyen Drop-in and entered payment details, 
 Where `PaymentResponse` is the result of calling Adyen's `/payments` endpoint and is described in the [Adyen documentation](https://docs.adyen.com/api-explorer/Checkout/latest/post/payments#responses-200). `SyncWebhookAppErrors` is [described below](#handling-errors).
 
 If the `errors` field doesn't exist or is an empty array, pass the `paymentResponse` to Adyen Drop-in. The Drop-in will handle the response and display the result to the user or require additional actions to proceed.
+
+```graphql
+mutation AdyenTransactionInitialize($data: JSON!) {
+  transactionInitialize(
+    id: "Q2hlY2tvdXQ6YWY3MDJkMGQtMzM0NC00NjMxLTlkNmEtMDk4Yzk1ODhlNmMy"
+    action: AUTHORIZATION
+    amount: 54.24
+    paymentGateway: { id: "app.saleor.adyen", data: $data }
+  ) {
+    transactionEvent {
+      pspReference
+      amount {
+        amount
+        currency
+      }
+      type
+    }
+    data
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+Where `$data` is the object provided by Adyen Drop-in in the `onSubmit` (Web, React Native), `didSubmit` (iOS) or `makePaymentsCall` (Android) callback. Response:
+
+```json
+{
+  "data": {
+    "transactionInitialize": {
+      "transactionEvent": {
+        "pspReference": "XXXX9XXXXXXXXX99",
+        "amount": {
+          "amount": 54.24,
+          "currency": "EUR"
+        },
+        "type": "AUTHORIZATION_SUCCESS"
+      },
+      "data": {
+        "paymentResponse": {
+          "additionalData": {
+            "paymentMethod": "visa"
+          },
+          "amount": {
+            "currency": "EUR",
+            "value": 5424
+          },
+          "merchantReference": "SOME_MERCHANT_ID_",
+          "paymentMethod": {
+            "brand": "visa",
+            "type": "scheme"
+          },
+          "pspReference": "XXXX9XXXXXXXXX99",
+          "resultCode": "Authorised"
+        }
+      },
+      "errors": []
+    }
+  }
+}
+```
 
 ### Performing additional actions (_optional_)
 
@@ -145,6 +291,39 @@ The `details` field is an object containing additional information about the err
 
 - `errorCode` – [Adyen error code](https://docs.adyen.com/development-resources/error-codes)
 - `statusCode` – [Adyen HTTP status code](https://docs.adyen.com/development-resources/response-handling)
+
+Example:
+
+```json
+{
+  "data": {
+    "transactionInitialize": {
+      "transactionEvent": {
+        "pspReference": "",
+        "amount": {
+          "amount": 54.24,
+          "currency": "EUR"
+        },
+        "type": "AUTHORIZATION_FAILURE"
+      },
+      "data": {
+        "errors": [
+          {
+            "code": "HttpClientError",
+            "message": "HTTP Exception: 422. : Unable to decrypt data",
+            "details": {
+              "errorCode": "174",
+              "statusCode": 422
+            }
+          }
+        ],
+        "paymentResponse": {}
+      },
+      "errors": []
+    }
+  }
+}
+```
 
 ## Development
 
