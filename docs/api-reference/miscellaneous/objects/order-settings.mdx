@@ -39,13 +39,48 @@ export const Badge = (props) => (
   </>
 );
 
+import { useState } from "react";
+
+export const Details = ({
+  dataOpen,
+  dataClose,
+  children,
+  startOpen = false,
+}) => {
+  const [open, setOpen] = useState(startOpen);
+  return (
+    <details
+      {...(open ? { open: true } : {})}
+      className="details"
+      style={{
+        border: "none",
+        boxShadow: "none",
+        background: "var(--ifm-background-color)",
+      }}
+    >
+      <summary
+        onClick={(e) => {
+          e.preventDefault();
+          setOpen((open) => !open);
+        }}
+        style={{ listStyle: "none" }}
+      >
+        {open ? dataOpen : dataClose}
+      </summary>
+      {open && children}
+    </details>
+  );
+};
+
 Represents the channel-specific order settings.
 
 ```graphql
 type OrderSettings {
   automaticallyConfirmAllNewOrders: Boolean!
   automaticallyFulfillNonShippableGiftCard: Boolean!
+  expireOrdersAfter: Minute
   markAsPaidStrategy: MarkAsPaidStrategyEnum!
+  defaultTransactionFlowStrategy: TransactionFlowStrategyEnum!
 }
 ```
 
@@ -59,17 +94,31 @@ type OrderSettings {
 
 > When enabled, all non-shippable gift card orders will be fulfilled automatically.
 
+#### [<code style={{ fontWeight: 'normal' }}>OrderSettings.<b>expireOrdersAfter</b></code>](#)<Bullet />[`Minute`](../../../api-reference/miscellaneous/scalars/minute) <Badge class="secondary" text="scalar"/>
+
+> Expiration time in minutes. Default null - means do not expire any orders.
+>
+> <Badge text="Added in Saleor 3.13" class="secondary margin-bottom--sm" />
+>
+> <FeaturePreview />
+
 #### [<code style={{ fontWeight: 'normal' }}>OrderSettings.<b>markAsPaidStrategy</b></code>](#)<Bullet />[`MarkAsPaidStrategyEnum!`](../../../api-reference/channels/enums/mark-as-paid-strategy-enum) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="enum"/>
 
 > Determine what strategy will be used to mark the order as paid. Based on the chosen option, the proper object will be created and attached to the order when it's manually marked as paid.
 > `PAYMENT_FLOW` - [default option] creates the `Payment` object.
 > `TRANSACTION_FLOW` - creates the `TransactionItem` object.
-
-<Badge text="Added in Saleor 3.13" class="secondary margin-bottom--sm" />
-
-<FeaturePreview />
-
 >
+> <Badge text="Added in Saleor 3.13" class="secondary margin-bottom--sm" />
+>
+> <FeaturePreview />
+
+#### [<code style={{ fontWeight: 'normal' }}>OrderSettings.<b>defaultTransactionFlowStrategy</b></code>](#)<Bullet />[`TransactionFlowStrategyEnum!`](../../../api-reference/payments/enums/transaction-flow-strategy-enum) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="enum"/>
+
+> Determine the transaction flow strategy to be used. Include the selected option in the payload sent to the payment app, as a requested action for the transaction.
+>
+> <Badge text="Added in Saleor 3.13" class="secondary margin-bottom--sm" />
+>
+> <FeaturePreview />
 
 ### Returned by
 
