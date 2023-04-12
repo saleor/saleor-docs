@@ -29,7 +29,7 @@ const AskAI = () => {
   };
 
   return (
-    <div className="margin-right--xs">
+    <div className={styles.wrapper}>
       <button
         onClick={handleOpenModal}
         type="button"
