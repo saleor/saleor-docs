@@ -25,7 +25,7 @@ const highlightSaleorVersion = (file: string): string => {
     const versions = [...new Set(file.match(re))];
 
     const newContent = versions.reduce((newContent, version) => {
-      const re = new RegExp(`${version}$`, "gm");
+      const re = new RegExp(`${escapeString(version)}$`, "gm");
       return newContent.replace(
         re,
         `<Badge text="${version.replace(
@@ -58,7 +58,7 @@ import Permissions from "@site/components/Permissions";
           .split(",")
           .map((p) => p.trim().replace(".", ""))
           .join(",");
-        const re = new RegExp(permissionLine, "g");
+        const re = new RegExp(escapeString(permissionLine), "g");
         const component = `
 <Permissions permissions={"${permissions}"} text={"${permissionStr}"} />
 `;
@@ -80,12 +80,16 @@ import FeaturePreview from "@site/components/FeaturePreview";
 `;
 
   if (file.match(previewStr)) {
-    const re = new RegExp(previewStr, "g");
+    const re = new RegExp(escapeString(previewStr), "g");
     const newContent = file.replace(re, "<FeaturePreview />") + importStr;
     return newContent;
   }
 
   return file;
+};
+
+const escapeString = (str: string): string => {
+  return str.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
 };
 
 highlight();
