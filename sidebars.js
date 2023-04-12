@@ -180,7 +180,15 @@ module.exports = {
       id: "api-reference/api-reference",
       label: "API Reference",
     },
+    {
+      type: "ref",
+      id: "api-storefront/api-reference",
+      label: "Storefront API Reference",
+    },
   ],
   cli: ["cli"],
   api: [...require("./docs/api-reference/sidebar-schema.js").schemaSidebar],
+  storefrontApi: [
+    ...require("./docs/api-storefront/sidebar-schema.js").schemaSidebar,
+  ],
 };
