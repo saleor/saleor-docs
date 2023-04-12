@@ -1,4 +1,5 @@
 require("dotenv").config();
+const path = require("path");
 
 module.exports = {
   title: "Documentation – Saleor Commerce",
@@ -163,17 +164,33 @@ module.exports = {
           // redirects for the old API reference path
           if (existingPath.startsWith("/docs/3.x/api-reference")) {
             oldPaths.push(
-              existingPath.replace("/api-reference", "/developer/api-reference")
+              existingPath.replace(
+                "/api-reference",
+                "/developer/api-reference",
+              ),
             );
           }
           return oldPaths;
         },
       },
     ],
+    [
+      "docusaurus-plugin-module-alias",
+      {
+        alias: {
+          "@saleor/macaw-ui/next/style": path.resolve(
+            "./node_modules/@saleor/macaw-ui/dist/style.css",
+          ),
+          "@saleor/macaw-ui/next": path.resolve(
+            "./node_modules/@saleor/macaw-ui/dist/macaw-ui.js",
+          ),
+        },
+      },
+    ],
   ],
 
   webpack: {
-    jsLoader: (isServer) => ({
+    jsLoader: isServer => ({
       loader: require.resolve("esbuild-loader"),
       options: {
         loader: "tsx",
@@ -382,14 +399,14 @@ module.exports = {
 
 // Sort sidebar items with localeCompare
 function sortSidebarItems(items) {
-  const result = items.map((item) => {
+  const result = items.map(item => {
     if (item.type === "category") {
       return { ...item, items: sortSidebarItems(item.items) };
     }
     return item;
   });
 
-  return result.map((item) => {
+  return result.map(item => {
     if (item.items) {
       return {
         ...item,
