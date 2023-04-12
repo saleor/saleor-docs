@@ -29,7 +29,7 @@ const AskAI = () => {
   };
 
   return (
-    <div>
+    <div className="margin-right--xs">
       <button
         onClick={handleOpenModal}
         type="button"
@@ -59,8 +59,11 @@ const AskAI = () => {
       </button>
 
       {showModal && (
-        <div className={"ai-modal " + styles.modal}>
-          <div className={styles.modalContent}>
+        <div className={"ai-modal " + styles.modal} onClick={handleCloseModal}>
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
             <Markprompt
               placeholder="Ask me anything... eg. 'How to query products?'"
               projectKey="WNDN2YD8Z1HZwy5fOMVkUTzdL7pazDwN"
