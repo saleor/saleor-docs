@@ -1,10 +1,12 @@
-import React from "react";
+import { ThemeProvider } from "@saleor/macaw-ui/next";
+import "@saleor/macaw-ui/next/style";
 import Layout from "@theme-original/Layout";
+import React from "react";
 
+import ErrorBoundary from "@docusaurus/ErrorBoundary";
+import siteConfig from "@generated/docusaurus.config";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
-import siteConfig from "@generated/docusaurus.config";
-import ErrorBoundary from "@docusaurus/ErrorBoundary";
 
 const sentryDSN = siteConfig.customFields.sentryDSN;
 
@@ -25,7 +27,9 @@ export default function LayoutWrapper(props) {
         }
       }}
     >
-      <Layout {...props} />
+      <ThemeProvider>
+        <Layout {...props} />
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
