@@ -22,35 +22,36 @@ Thumbnails are available on the following models and fields:
 - `ProductMedia.url`
 - `ProductImage.url`
 
-You can specify the `size` and `format` of a thumbnail. You may pass any integer as `size`,
-but we will resolve it to the closest value from the following list:
-[32, 64, 128, 256, 512, 1024, 2048, 4096].
-For example: when you pass "55", we resolve it to "64".
+You can specify the `size` and `format` of a thumbnail.
 
-Currently, `WebP` is the only supported value for `format`.
-Both `size` and `format` fields are optional, but when you decide to provide `format`,
-the `size` becomes required as well. If you don't specify these or pass only one,
-the original image attributes will be used.
+#### Size
 
-:::caution
-You may have encountered a problem with the `WebP` content type recognition.
-Currently, there is an issue in Python with validation of the content type of `WebP` files,
-but it should be fixed in version 3.11.
-Until then, to fix the problem, extend one of `mime.types`
-[files](https://github.com/python/cpython/blob/3.10/Lib/mimetypes.py#L48) with the `image/webp`.
-:::
+Size defines the longest dimension of the thumbnail in pixels. You may pass any integer as `size`, Saleor will use the closest value from the following list: 32, 64, 128, 256, 512, 1024, 2048, 4096.
+
+If omitted, 4096 is used as a default value.
+
+For example, if you pass `55` as size, Saleor will find the closest supported size, 64, and return an image that is at most 64 by 64 pixels.
+
+#### Format
+
+Supported formats:
+
+- `ORIGINAL`: the format the image was uploaded in.
+- `WEBP`: WebP format.
+- `AVIF`: AVIF format.
+
+If omitted, `ORIGINAL` is used as a default value.
 
 ### Generating the thumbnails
 
-The thumbnails are generated on-demand. When the user requests the thumbnail with the
-given size and format for the first time, the proxy URL is returned. When the proxy URL
-is opened, the requested thumbnail is created and the user gets the requested image.
-In case of a second and further request for the same thumbnail, the previously created
-thumbnail's URL is returned.
+The thumbnails are generated on demand. When a client requests the thumbnail with the
+given size and format for the first time, a proxy URL is returned. When the proxy URL
+is accessed, the requested thumbnail is created and the client is redirected.
+Future requests return the thumbnail's URL directly.
 
 ### Example
 
-Here is an example query for the category's background image of `size` = "100" and `format` = "WebP":
+Here is an example query for the category's background image with a size of 100px in WebP format:
 
 ```graphql
 query {
@@ -64,7 +65,7 @@ query {
 }
 ```
 
-The query runs for the first time, and as a result, the response contains proxy URL:
+The query runs for the first time, and as a result, the response contains a proxy URL:
 
 ```json
 {
@@ -72,7 +73,7 @@ The query runs for the first time, and as a result, the response contains proxy 
     "category": {
       "name": "Accessories",
       "backgroundImage": {
-        "url": "http://localhost:8000/thumbnail/Q2F0ZWdvcnk6MjU=/128/webp/",
+        "url": "https://localhost:8000/thumbnail/Q2F0ZWdvcnk6MjU=/128/webp/",
         "alt": ""
       }
     }
@@ -86,7 +87,7 @@ The query runs for the first time, and as a result, the response contains proxy 
 }
 ```
 
-After opening the link, the thumbnail with the `size` of "128", and the `format` of "WebP" is generated.
+After opening the link, the thumbnail with the `size` of `128`, and the `format` of `WEBP` is generated.
 The resolution is equal to 128 as this is the closest available size to the provided value.
 
 The next time we run the query, we receive the URL to the actual thumbnail.

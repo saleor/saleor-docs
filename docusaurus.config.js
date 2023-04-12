@@ -207,6 +207,33 @@ module.exports = {
       },
     },
 
+    mermaid: {
+      theme: {
+        light: "base",
+        dark: "base",
+      },
+      options: {
+        themeVariables: {
+          activationBkgColor: "var(--ifm-background-color)",
+          activationBorderColor: "var(--ifm-color-emphasis-500)",
+          actorBorder: "var(--ifm-color-emphasis-500)",
+          actorTextColor: "var(--ifm-color-emphasis-800)",
+          defaultLinkColor: "var(--ifm-color-primary)",
+          edgeLabelBackground: "var(--ifm-background-color)",
+          lineColor: "var(--ifm-color-emphasis-500)",
+          noteBkgColor: "var(--ifm-color-emphasis-100)",
+          noteBorderColor: "var(--ifm-color-emphasis-500)",
+          noteTextColor: "var(--ifm-heading-color)",
+          mainBkg: "var(--ifm-background-color)",
+          primaryBorderColor: "var(--ifm-color-emphasis-800)",
+          primaryTextColor: "var(--ifm-color-emphasis-800)",
+          sequenceNumberColor: "var(--ifm-background-color)",
+          signalTextColor: "var(--ifm-color-emphasis-800)",
+          titleColor: "var(--ifm-heading-color)",
+        },
+      },
+    },
+
     navbar: {
       hideOnScroll: true,
       logo: {
@@ -243,7 +270,7 @@ module.exports = {
 
     footer: {
       // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
-      copyright: `Copyright © 2018–${new Date().getFullYear()} <a href="https://saleor.io/">Saleor Commerce</a>`,
+      copyright: `Copyright © 2018–${new Date().getFullYear()} <a href="https://saleor.io/">Saleor Commerce</a>. All rights reserved.`,
       links: [
         {
           title: "Saleor Commerce",
@@ -309,6 +336,13 @@ module.exports = {
           customCss: [require.resolve("./src/css/theme.css")],
         },
         docs: {
+          async sidebarItemsGenerator({
+            defaultSidebarItemsGenerator,
+            ...args
+          }) {
+            const sidebarItems = await defaultSidebarItemsGenerator(args);
+            return sortSidebarItems(sidebarItems);
+          },
           // docs folder path relative to website dir.
           path: "./docs",
           lastVersion: "current",
@@ -338,4 +372,38 @@ module.exports = {
   customFields: {
     sentryDSN: process.env.SENTRY_DSN,
   },
+  scripts: [
+    {
+      src: "https://cdn.segment.com/analytics.js/v1/JlfojBlUjPv2SgxOBkDAwpmshEaC97t4/analytics.min.js",
+      async: true,
+    },
+  ],
 };
+
+// Sort sidebar items with localeCompare
+function sortSidebarItems(items) {
+  const result = items.map((item) => {
+    if (item.type === "category") {
+      return { ...item, items: sortSidebarItems(item.items) };
+    }
+    return item;
+  });
+
+  return result.map((item) => {
+    if (item.items) {
+      return {
+        ...item,
+        items: item.items.sort((a, b) => {
+          // sort by generated id or label
+          if (a.id) {
+            return a.id.localeCompare(b.id);
+          }
+
+          return a.label.localeCompare(b.label);
+        }),
+      };
+    }
+
+    return item;
+  });
+}

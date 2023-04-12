@@ -112,6 +112,7 @@ module.exports = {
           items: [
             "developer/app-store/apps/taxes",
             "developer/app-store/apps/adyen",
+            "developer/app-store/apps/crm",
           ],
         },
       ],
