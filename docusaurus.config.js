@@ -382,7 +382,18 @@ module.exports = {
 
 // Sort sidebar items with localeCompare
 function sortSidebarItems(items) {
-  const result = items.map((item) => {
+  const sort = (items) => {
+    return items.sort((a, b) => {
+      // sort by generated id or label
+      if (a.id) {
+        return a.id.localeCompare(b.id || b.label);
+      }
+
+      return a.label.localeCompare(b.label || b.id);
+    });
+  };
+
+  const result = sort(items).map((item) => {
     if (item.type === "category") {
       return { ...item, items: sortSidebarItems(item.items) };
     }
@@ -393,14 +404,7 @@ function sortSidebarItems(items) {
     if (item.items) {
       return {
         ...item,
-        items: item.items.sort((a, b) => {
-          // sort by generated id or label
-          if (a.id) {
-            return a.id.localeCompare(b.id);
-          }
-
-          return a.label.localeCompare(b.label);
-        }),
+        items: sort(item.items),
       };
     }
 
