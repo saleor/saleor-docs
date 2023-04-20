@@ -65,11 +65,8 @@ module.exports = {
     {
       type: "category",
       label: "Exporting Data",
-      link: {
-        type: "doc",
-        id: "developer/export/export-overview",
-      },
       items: [
+        "developer/export/export-overview",
         "developer/export/export-products",
         "developer/export/export-gift-cards",
       ],
