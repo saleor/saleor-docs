@@ -269,12 +269,6 @@ module.exports = {
         },
         {
           type: "docSidebar",
-          sidebarId: "cli",
-          label: "CLI",
-          position: "left",
-        },
-        {
-          type: "docSidebar",
           sidebarId: "api",
           label: "Admin API",
           position: "left",
