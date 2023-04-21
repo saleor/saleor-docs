@@ -2,7 +2,10 @@ const fg = require("fast-glob");
 import * as fs from "node:fs/promises";
 
 const highlight = async () => {
-  const files = await fg("docs/api-reference/**/*.mdx");
+  const files = await fg([
+    "docs/api-reference/**/*.mdx",
+    "docs/api-storefront/**/*.mdx",
+  ]);
 
   for (const file of files) {
     const content = await fs.readFile(file);
@@ -19,19 +22,31 @@ const highlight = async () => {
 };
 
 const highlightSaleorVersion = (file: string): string => {
-  const re = /Added in Saleor.*\d\./g;
+  const re = /^.*Added in Saleor.*\d\.$/gm;
 
   if (file.match(re)) {
     const versions = [...new Set(file.match(re))];
 
-    const newContent = versions.reduce((newContent, version) => {
-      const re = new RegExp(`${escapeString(version)}$`, "gm");
+    const newContent = versions.reduce((newContent, versionLine) => {
+      const [_, block, version] = versionLine.match(
+        /(^.*)(Added in Saleor.*\d)\.$/
+      )!;
+      const badgeText = version.replace(/\.$/, "");
+
+      if (block.startsWith(">")) {
+        const re = new RegExp(`^${escapeString(versionLine)}$`, "gm");
+        return newContent.replace(
+          re,
+          `${block}<Badge text="${badgeText}" class="secondary margin-bottom--sm" />`
+        );
+      }
+
+      const re = new RegExp(`^${escapeString(versionLine)}$`, "gm");
       return newContent.replace(
         re,
-        `<Badge text="${version.replace(
-          /\.$/,
-          ""
-        )}" class="secondary margin-bottom--sm" />`
+        `${block}
+<Badge text="${badgeText}" class="secondary margin-bottom--sm" />
+`
       );
     }, file);
 
