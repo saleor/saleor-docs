@@ -24,6 +24,9 @@ Go to Configuration -> Plugins -> OpenID Connect and fill in the fields:
 - **OAuth logout URL:** The logout URL which Saleor will return for frontend's logout request (Optional for flow: _Saleor as a client for authorization server_).
 - **Audience:** The Oauth resource identifier. If provided, Saleor will define the audience for each authorization request. Used to fetch user permissions from OAuth provider and map it to Saleor's permission (Optional for both integration flows).
 - **Use OAuth scope permissions:** Use OAuth scope permissions to grant a logged-in user access to protected resources. Your OAuth provider needs to have defined Saleor's permission scopes in format \_saleor:<saleor-permission\> (Required for both integration flows).
+- **Staff user domains:** The domains of the user emails, separated by commas, that should be treated as staff users.
+- **Default permission group name for new staff users:** The name of the default permission group to which the new staff user should be assigned to.
+  When the provided group doesn't exist, the new group without any permissions and any channels is created.
 
 ### Using OAuth permissions in Saleor
 
@@ -38,3 +41,41 @@ Your OAuth provider needs to have an assigned audience with proper Saleor's perm
 > _UserA_ has assigned permissions on the OAuth side - `saleor:manage_apps` and `saleor:manage_orders`, _UserB_ has assigned
 > permission - `saleor:manage_users`. When _UserA_ logs in to the Saleor using _OpenID Connect_ plugin, the plugin will grant the _UserA_
 > permissions to _MANAGE_APPS_ and _MANAGE_ORDERS_. The _UserB_ will have access to resources protected by _MANAGE_USERS_
+
+If a user logs in via OAuth and is a staff member, they will be assigned to the default
+permission group if one has been set. The user's permissions will be the sum of the permissions
+granted by the OAuth and the Saleor groups to which the user has been assigned.
+
+The user is considered as staff when:
+
+- the user email domain matches any domain from `Staff user domains`,
+- the user has any Saleor's permission assigned on the OAuth side,
+- the user is marked as staff on OAuth side by `saleor:staff`.
+
+:::important
+The data in Saleor is protected by channel permissions. Therefore, to ensure that staff
+members logged into Saleor via OAuth have the correct permissions, you should create
+a permission group on the Saleor side without channel restrictions.
+Set this group as the `default permission group name for new staff users`.
+:::
+
+The flow is shown in the chart below:
+
+```mermaid
+graph TD
+ A[The user login via OIDC]
+ A --> K[Get or create user in Saleor]
+ K --> B{The user email match any domain from <br> `Staff user domains`}
+ B --> |No| C{The user has any Saleor's permission <br> assigned on the OAuth side}
+ C --> |No| D{The user is marked as staff on OAuth side}
+ D --> |Yes| E[Mark user as a staff user]
+ B --> |Yes| E
+ C --> |Yes| E
+ E --> F{Default permission group set <br> in OIDC configuration}
+ F --> |Yes| G[Get or create the default staff permission group]
+ G --> H[Assign user to this permission group]
+ H --> J[Assign to the user OAuth permissions and permissions from user groups]
+ E --> |No|J
+ D --> |No| Z[The user is successfully logged in]
+ J --> Z
+```

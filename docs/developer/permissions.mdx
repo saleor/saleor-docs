@@ -4,16 +4,37 @@ title: Permissions
 
 ## User permissions
 
-Instead of assigning permissions directly to the user, we define them on a group basis. Organizing access rights in [Groups](docs/api-reference/users/objects/group.mdx) helps in determining the roles of team members.
+The user permissions are divided into data and channel permissions.
+Data permissions allow access to certain data types, such as `orders` and `products`.
+Channel permissions allow access to that data with restrictions to specific channels.
+
+For example, a user with `MANAGE_ORDERS` and `channel_USD` permissions can only access
+orders from the `channel_USD` channel.
+
+The channel restriction affects the access to data restricted by the following permissions:
+
+- `MANAGE_ORDERS`
+
+Instead of assigning permissions directly to the user, we define them on a group basis.
+Organizing access rights in [Groups](docs/api-reference/users/objects/group.mdx) helps in determining the roles of team members.
 
 Examples of groups:
 
 - Translators - `MANAGE_TRANSLATIONS` permission.
 - Customer support - `MANAGE_ORDERS` and `MANAGE_USERS` permissions.
+- Customer support for USD channel - `MANAGE_ORDERS` and `MANAGE_USERS` permissions, `channel_USD` channel.
+
+:::important
+When a user is a member of multiple groups, their permissions are summed up.
+This means that if the user is in at least one group that has not restricted channel access,
+they will have access to data from all channels.
+:::
 
 ### Creating and removing groups
 
 To create a new group, use the [permissionGroupCreate](docs/api-reference/users/mutations/permission-group-create.mdx) mutation.
+
+#### Creating the group without channel restriction
 
 Request:
 
@@ -24,6 +45,8 @@ mutation {
       addPermissions: [MANAGE_GIFT_CARD, MANAGE_DISCOUNTS]
       addUsers: []
       name: "Sale managers"
+      restrictedAccessToChannels: false
+      addChannels: []
     }
   ) {
     errors {
@@ -34,6 +57,10 @@ mutation {
       name
       permissions {
         name
+      }
+      restrictedAccessToChannels
+      accessibleChannels {
+        slug
       }
     }
   }
@@ -58,11 +85,90 @@ A successful response:
             "name": "Manage gift cards."
           }
         ]
+        "restrictedAccessToChannels": false,
+        "accessibleChannels": [
+          {
+            "slug": "channel-pln"
+          },
+          {
+            "slug": "default-channel"
+          }
+        ]
       }
     }
   }
 }
 ```
+
+#### Creating a group with channel restrictions
+
+Request:
+
+```graphql
+mutation {
+  permissionGroupCreate(
+    input: {
+      addPermissions: [MANAGE_ORDERS]
+      addUsers: []
+      name: "Order managers for channel USD"
+      restrictedAccessToChannels: true
+      addChannels: ["Q2hhbm5lbDoy"]
+    }
+  ) {
+    errors {
+      message
+    }
+    group {
+      id
+      name
+      permissions {
+        name
+      }
+      restrictedAccessToChannels
+      accessibleChannels {
+        slug
+      }
+    }
+  }
+}
+```
+
+A successful response:
+
+```json
+{
+  "data": {
+    "permissionGroupCreate": {
+      "errors": [],
+      "group": {
+        "id": "R3JvdXA6MjY=",
+        "name": "Order managers for USD channel",
+        "permissions": [
+          {
+            "name": "Manage orders."
+          }
+        ],
+        "restrictedAccessToChannels": true,
+        "accessibleChannels": [
+          {
+            "slug": "channel-pln"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+As we can see, the `accessibleChannels` field differs from the previous example. The users from this
+group will have access only to data from the `channel-pln` channel.
+
+:::important
+When the `restrictedAccessToChannels` flag is set to `false`, the channels provided
+in `addChannels` field will be ignored.
+:::
+
+#### Removing a group
 
 To remove a group, use the [permissionGroupDelete](docs/api-reference/users/mutations/permission-group-delete.mdx) mutation:
 
@@ -77,7 +183,9 @@ mutation {
 }
 ```
 
-### Modifying a group and managing its members
+### Modifying a group
+
+#### Managing the group members
 
 The [permissionGroupUpdate](docs/api-reference/users/mutations/permission-group-update.mdx) mutation takes a list of user IDs you would like to add or remove from the group. Having the same user in both lists will result in an error.
 
@@ -102,9 +210,43 @@ mutation {
 }
 ```
 
+#### Managing the group channels
+
+The [permissionGroupUpdate](docs/api-reference/users/mutations/permission-group-update.mdx)
+mutation takes a list of channel IDs you would like to add or remove from the group.
+Having the same channels in both lists will result in an error.
+
+Example request:
+
+```graphql
+mutation {
+  permissionGroupUpdate(
+    id: "R3JvdXA6MjY="
+    input: {
+      addPermissions: []
+      removePermissions: []
+      addChannels: ["Q2hhbm5lbDox"]
+      removeChannels: ["Q2hhbm5lbDoy"]
+    }
+  ) {
+    errors {
+      message
+    }
+  }
+}
+```
+
+:::important
+When the `restrictedAccessToChannels` flag is changed from `true` to `false`, all currently assigned channels will be cleared.
+
+When the `restrictedAccessToChannels` flag is set to `false`, the channels provided
+in `addChannels` and `removeChannels` fields will be ignored.
+:::
+
 ## App permissions
 
 App permissions are defined on a per-app basis. Access can be assigned during the app installation and modified later using the [appUpdate](docs/api-reference/apps/mutations/app-update.mdx) mutation.
+The apps don't have channel restrictions, so all channels data can be visible by the app with the proper permission.
 
 ## JWT token and permissions
 
