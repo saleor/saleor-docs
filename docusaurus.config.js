@@ -146,7 +146,7 @@ module.exports = {
           },
           {
             from: "/docs/3.x/developer/setup",
-            to: "/docs/3.x/category/setup",
+            to: "/docs/3.x/setup/quickstart",
           },
           {
             from: "/docs/3.x/developer/upgrade-guide/2-11-to-3-0",
