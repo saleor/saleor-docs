@@ -107,11 +107,8 @@ module.exports = {
         {
           type: "category",
           label: "Plugins",
-          link: {
-            type: "doc",
-            id: "developer/extending/plugins",
-          },
           items: [
+            "developer/extending/plugins/overview",
             "developer/extending/payment-gateways",
             {
               type: "category",
