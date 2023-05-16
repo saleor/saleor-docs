@@ -4,7 +4,7 @@ sidebar_position: 7
 ---
 
 :::info
-To follow the zero-downtime strategy when upgrading to 3.14, **we recommend first migrating to at least 3.13.8** and turn on the celery worker to process all data migrations asynchronously.
+To follow the zero-downtime strategy when upgrading to 3.14, **It is recommend first migrating to at least 3.13.8** and turn on the celery worker to process all data migrations asynchronously.
 Otherwise, you will need to downtime your solution to ensure correct data migration.
 :::
 
@@ -15,3 +15,21 @@ This migration guide describes the upgrade from versions 3.13 to 3.14. Version 3
 Channel permissions allow limiting staff user access only to certain channels. To ensure
 the proper functioning of OAuth permissions, ensure that the `Default permission group name for new staff users`
 is set to a permission group with no channel restrictions.
+
+## Plugins manager:
+
+In Saleor 3.14, sales applied to checkout are denormalized. The `CheckoutLineInfo` object now includes a `discounts: List["CheckoutLineDiscount"]`. This field contains the sales that are applied to the lines. As a consequence of this change, the `discounts` field has been removed from the listed plugin manager methods. Instead of the `discounts` argument, an applied discount is now assigned to each line in the `CheckoutLineInfo` inside the `CheckoutInfo` object.
+This change applies to the following methods:
+
+- `calculate_checkout_total`
+- `calculate_checkout_subtotal`
+- `calculate_checkout_shipping`
+- `get_checkout_shipping_tax_rate`
+- `calculate_checkout_line_total`
+- `calculate_checkout_line_unit_price`
+- `get_checkout_line_tax_rate`
+- `preprocess_order_creation`
+
+:::note
+In the future, It is planned to add objects created by vouchers that can be applied to checkout. More information in [RFC](https://github.com/saleor/saleor/issues/12108).
+:::
