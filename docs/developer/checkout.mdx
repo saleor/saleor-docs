@@ -1657,3 +1657,140 @@ Anonymous and unfinished checkouts are deleted after a specified period of time 
 - anonymous checkouts (neither user or email is set) after 30 days,
 - user checkouts (either user or email is set) after 90 days,
 - checkouts without lines after 6 hours.
+
+## Creating checkout from order
+
+:::info
+
+This feature was introduced in **Saleor 3.14**.
+
+:::
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+
+Saleor allows you to create a checkout from existing orders. This feature can be used when implementing the reordering functionality.
+
+The [checkoutCreateFromOrder](docs/api-reference/checkout/mutations/checkout-create-from-order.mdx) mutation accepts the `Order`
+[ID](docs/api-reference/checkout/mutations/checkout-create-from-order.mdx#code-style-fontweight-normal-checkoutcreatefromorderbidbcodeid--)
+as input and returns the new [checkout](docs/api-reference/checkout/objects/checkout-create-from-order.mdx#code-style-fontweight-normal-checkoutcreatefromorderbcheckoutbcodecheckout-),
+with the lines from the order attached to it. Lines that are not available (variants deleted, products deleted, variants not published, out of stock, etc.) are returned as
+[unavailableVariants](docs/api-reference/checkout/objects/checkout-create-from-order.mdx#code-style-fontweight-normal-checkoutcreatefromorderbunavailablevariantsbcodecheckoutcreatefromorderunavailablevariant--).
+Any discounts or custom prices attached to the order will not be carried over to the newly created checkout. The price of each checkout line will be based on the current price of the variant.
+
+[UnavailableVariants](docs/api-reference/checkout/objects/checkout-create-from-order.mdx#code-style-fontweight-normal-checkoutcreatefromorderbunavailablevariantsbcodecheckoutcreatefromorderunavailablevariant--)
+is a list of variants that could not be attached to the checkout.
+Each [item](docs/api-reference/checkout/objects/checkout-create-from-order-unavailable-variant.mdx) has:
+
+- [code](docs/api-reference/checkout/objects/checkout-create-from-order-unavailable-variant.mdx#code-style-fontweight-normal-checkoutcreatefromorderunavailablevariantbcodebcodecheckoutcreatefromorderunavailablevarianterrorcode--) that describes why Saleor could not add it to the checkout.
+- [variantId](docs/api-reference/checkout/objects/checkout-create-from-order-unavailable-variant.mdx#code-style-fontweight-normal-checkoutcreatefromorderunavailablevariantbvariantidbcodeid--) that contains the ID of the unavailable variant.
+- [lineId](docs/api-reference/checkout/objects/checkout-create-from-order-unavailable-variant.mdx#code-style-fontweight-normal-checkoutcreatefromorderunavailablevariantblineidbcodeid--) that contains the ID of the related `orderLine`.
+- [message](docs/api-reference/checkout/objects/checkout-create-from-order-unavailable-variant.mdx#code-style-fontweight-normal-checkoutcreatefromorderunavailablevariantbmessagebcodestring--) the error message.
+
+The following example shows how the [checkoutCreateFromOrder](docs/api-reference/checkout/mutations/checkout-create-from-order.mdx) mutation creates a new checkout:
+
+```graphql
+mutation CheckoutCreateFromOrder {
+  checkoutCreateFromOrder(
+    id: "T3JkZXI6OTM2ZTFlNzEtZDc4NS00MGZiLWI4OTAtYTRmMTk5MTJiOWM2"
+  ) {
+    errors {
+      field
+      message
+      code
+    }
+    unavailableVariants {
+      message
+      code
+      variantId
+      lineId
+    }
+    checkout {
+      id
+      lines {
+        quantity
+        variant {
+          id
+        }
+      }
+    }
+  }
+}
+```
+
+The response returns an order object:
+
+```json
+{
+  "data": {
+    "checkoutCreateFromOrder": {
+      "errors": [],
+      "unavailableVariants": [],
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6ZjIwMjE3MjAtYzI5Yy00N2NmLWFmYzYtYzZjNGZlOTIyODM2",
+        "lines": [
+          {
+            "quantity": 1,
+            "variant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6NDAw"
+            }
+          },
+          {
+            "quantity": 3,
+            "variant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6MzU0"
+            }
+          },
+          {
+            "quantity": 1,
+            "variant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6Mzkw"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+If there are variants that cannot be attached to the checkout, the response will be as follows:
+
+```json
+{
+  "data": {
+    "checkoutCreateFromOrder": {
+      "errors": [],
+      "unavailableVariants": [
+        {
+          "message": "Product variant not found",
+          "code": "NOT_FOUND",
+          "variantId": "UHJvZHVjdFZhcmlhbnQ6NDAw",
+          "lineId": "T3JkZXJMaW5lOjc2NWM2Y2JjLTZkZTktNDUwYS1hNjFlLTc5ZmQ1YjkwYmQzMg=="
+        },
+        {
+          "message": "Cannot add lines for unpublished variants.",
+          "code": "PRODUCT_NOT_PUBLISHED",
+          "variantId": "UHJvZHVjdFZhcmlhbnQ6Mzkw",
+          "lineId": "T3JkZXJMaW5lOmJhMGIxYTIyLWUyMGYtNDQyMC04NDgxLTA1MjgxYzdhMWE3MQ=="
+        }
+      ],
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6M2VlM2Y3NjEtZTRmYi00MTE5LTgwZmUtNTZmMzQ3MTkxYTFi",
+        "lines": [
+          {
+            "quantity": 3,
+            "variant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6MzU0"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
