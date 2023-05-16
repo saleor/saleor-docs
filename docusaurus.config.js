@@ -172,6 +172,30 @@ module.exports = {
             from: "/docs/3.x/developer/extending/apps/key-concepts",
             to: "/docs/3.x/developer/extending/apps/",
           },
+          {
+            from: "/docs/3.x/category/api-usage",
+            to: "/docs/3.x/api-usage/authentication",
+          },
+          {
+            from: "/docs/3.x/category/community",
+            to: "/docs/3.x/developer/community/contributing",
+          },
+          {
+            from: "/docs/3.x/category/development",
+            to: "/docs/3.x/developer/running-saleor/debugging-emails",
+          },
+          {
+            from: "/docs/3.x/category/saleor-app-store",
+            to: "/docs/3.x/developer/app-store/overview",
+          },
+          {
+            from: "/docs/3.x/category/setup",
+            to: "/docs/3.x/cloud",
+          },
+          {
+            from: "/docs/3.x/category/upgrade-guides",
+            to: "/docs/3.x/upgrade-guides/2-11-to-3-0",
+          },
         ],
         createRedirects: function (existingPath) {
           const oldPaths = [];
