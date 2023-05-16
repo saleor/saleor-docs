@@ -85,11 +85,8 @@ module.exports = {
         {
           type: "category",
           label: "Apps",
-          link: {
-            type: "doc",
-            id: "developer/app-store/apps/index",
-          },
           items: [
+            "developer/app-store/apps/overview",
             "developer/app-store/apps/taxes",
             "developer/app-store/apps/crm",
             "developer/app-store/apps/adyen",
@@ -107,11 +104,8 @@ module.exports = {
         {
           type: "category",
           label: "Plugins",
-          link: {
-            type: "doc",
-            id: "developer/extending/plugins",
-          },
           items: [
+            "developer/extending/plugins/overview",
             "developer/extending/payment-gateways",
             {
               type: "category",
