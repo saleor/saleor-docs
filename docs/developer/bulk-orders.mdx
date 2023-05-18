@@ -38,7 +38,6 @@ mutation OrderBulkCreate(
     results {
       order {
         id
-        number
         user {
           id
           email
@@ -247,7 +246,6 @@ mutation OrderBulkCreate(
   "errorPolicy": "REJECT_EVERYTHING",
   "orders": [
     {
-      "number": "order-126",
       "channel": "default-channel",
       "createdAt": "2022-07-13T17:30:15+05:30",
       "status": "DRAFT",
@@ -427,7 +425,6 @@ mutation OrderBulkCreate(
         {
           "order": {
             "id": "T3JkZXI6NDQxYzhlYzItNDA0ZC00NmEwLWEwMDMtNmY2MjgzMTRmNTNi",
-            "number": "order-127",
             "user": {
               "id": "VXNlcjoxODEyMzc4ODk1",
               "email": "alec.thornton@example.com"
@@ -648,25 +645,21 @@ mutation OrderBulkCreate(
 
 ### Permission
 
-Since this operation is more powerful than regular order management, it is not automatically assigned to staff users or apps with `MANAGE_ORDERS` permission. The mutation requires a new permission:` MANAGE_ORDERS_IMPORT`.
+Since this operation is broader in scope than regular order management, it is not automatically assigned to staff users or apps with `MANAGE_ORDERS` permission. The mutation requires a new permission:` MANAGE_ORDERS_IMPORT`.
 
 ### Input details
 
 #### User (`OrderBulkCreateUserInput`)
 
-To find a user, the mutation accepts one of the following identifiers: `id`, `email` or `external_reference`. If the user associated with an order doesn’t exist in Saleor database, user's email must be provided as a reference in the order instance.
+To identify a user, the mutation accepts one of the following identifiers: `id`, `email` or `external_reference`. If the user associated with an order doesn’t exist in Saleor database, user's email must be provided as a reference in the order instance.
 
 #### Delivery method (`OrderBulkCreateDeliveryMethodInput`)
 
-Orders in Saleor can be shipped to customers or collected directly from warehouse. To identify the type of delivery either `warehouseId` or `shippingMethodId` must be provided. There can also be scenario, when an order doesn’t require physical delivery. It happens when all order’s lines have `isShippingRequired` flag set to `false`. In this case, `OrderBulkCreateDeliveryMethodInput` can be omitted.
+Since orders can be either shipped or collected directly from a warehouse, either `warehouseId` or `shippingMethodId` must be provided. Orders with all lines set `isShippingRequired` flag to `false` don't require physical delivery. In this case, `OrderBulkCreateDeliveryMethodInput` can be omitted.
 
-The input also accepts denormalized names of delivery methods (`warehouseName`and `shippingMethodName` fields) and tax class (`taxClassName`).
+The input also accepts arbitrary names of delivery methods (`warehouseName`and `shippingMethodName` fields) and tax class (`taxClassName`).
 
 If `shippingPrice` is not provided, Saleor will fetch the current shipping method price from database.
-
-#### Order (`OrderBulkCreateInput`)
-
-The mutation allows to set `Order.number` value to any string, as long as it is unique. By default, when new order is created, Saleor generates a number in sequence to store a unique order number. If an integer value is passed to the `number` field, Saleor updates the current value in the underlying database sequence.
 
 #### Order line (`OrderBulkCreateOrderLineInput`)
 
@@ -674,7 +667,7 @@ The mutation allows to set `Order.number` value to any string, as long as it is 
 
 To find product variant, the mutation accepts one of the following identifiers: `id`, `sku` or `external_reference`.
 
-The input also accepts denormalized names of variant (`variantName`), product (`productName`) and tax class (`taxClassName`).
+The input also accepts arbitrary names of variant (`variantName`), product (`productName`) and tax class (`taxClassName`).
 
 `isShippingRequired` - determines if line items need to be physically shipped. If all lines of an order do not require shipping, `OrderBulkCreateInput.deliveryMethod` can be skipped.
 
