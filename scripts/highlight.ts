@@ -58,7 +58,7 @@ const highlightSaleorVersion = (file: string): string => {
 
 const highlightPermissions = (file: string): string => {
   const permissionsLineRe =
-    /Requires one of the following permissions(.*): (.*?)\./gi;
+    /Requires( one of)? the following permissions(.*): (.*?)\./gi;
   const importStr = `
 import Permissions from "@site/components/Permissions";
 `;

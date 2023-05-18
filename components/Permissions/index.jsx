@@ -3,37 +3,30 @@ import React from "react";
 import styles from "./styles.module.css";
 
 const Permissions = ({ permissions = "", text = "" }) => {
-  const permissionList = permissions.split(",");
-  const suffix = permissionList.length > 1 ? "permissions." : "permission.";
-
-  const genericContent = (
-    <>
-      {"Requires "}
-      {permissionList.map((permission, idx) => (
-        <span key={idx} className="badge badge--danger margin-right--sm">
-          {permission}
-        </span>
-      ))}
-      {suffix}
-    </>
-  );
-
-  const scopedContent = (
-    <>
-      {text}
-      {": "}
-      {permissionList.map((permission, idx) => (
-        <span key={idx} className="badge badge--danger margin-right--sm">
-          {permission}
-        </span>
-      ))}
-    </>
-  );
+  const permissionList = permissions.split(/,| and /);
 
   const content =
-    text === "Requires one of the following permissions"
-      ? scopedContent
-      : genericContent;
+    permissionList.length > 1 ? (
+      <>
+        {text}
+        {": "}
+        {permissionList.map((permission, idx) => (
+          <span key={idx} className="badge badge--danger margin-right--sm">
+            {permission}
+          </span>
+        ))}
+      </>
+    ) : (
+      <>
+        {"Requires "}
+        {permissionList.map((permission, idx) => (
+          <span key={idx} className="badge badge--danger margin-right--sm">
+            {permission}
+          </span>
+        ))}
+        {"permission."}
+      </>
+    );
 
   return (
     <div className={`margin-bottom--sm ` + styles.permissions}>
