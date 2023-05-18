@@ -260,10 +260,11 @@ To subscribe to a webhook, we need to first create an App with proper permission
 
 - `name`: the name of the webhook.
 - `targetUrl`: the URL of a service that will receive webhooks requests.
-- `events`: a list of the events to subscribe to.
+- `asyncEvents`: a list of the asynchronous events to subscribe to.
+- `syncEvents`: a list of the synchronous events to subscribe to.
 - `app`: the ID of the App to which the webhook belongs. Can be ommited, if the request has the `Authentication` header with the App access token.
 - `isActive`: whether to activate the webhook.
-- `secretKey` argument is optional, but recommended for [validating](developer/extending/apps/asynchronous-webhooks.mdx#https) incoming payloads.
+- `query`: subscription query used to define a webhook payload
 - `customHeaders`: custom headers, which will be added to HTTP request
 
 ```graphql {2-11}
@@ -272,10 +273,10 @@ mutation {
     input: {
       name: "New orders notification"
       targetUrl: "https://order-processing-service.example.com"
-      events: [ORDER_CREATED]
+      asyncEvents: [ORDER_CREATED]
       app: "QXBwOjk="
       isActive: true
-      secretKey: "secret-key"
+      query: "subscription {  event {    ... on OrderCreated {      order {        id        created      }    }  }}"
       customHeaders: "{\"X-Key\": \"Value\"}"
     }
   ) {
@@ -290,7 +291,7 @@ mutation {
 }
 ```
 
-If there are no errors in the response, the webhook is successfully created. From now on, whenever a new order is placed, the payload with the order data will be sent to your `targetUrl`.
+If there are no errors in the response, the webhook is successfully created. From now on, whenever a new order is placed, the payload with the order data specified by subscription query will be sent to your `targetUrl`.
 
 ### Updating a webhook
 
