@@ -26,6 +26,8 @@ There are many models you can customize per channel. The details of which fields
 - [ShippingMethod](docs/api-reference/shipping/objects/shipping-method-channel-listing.mdx)
 - [Voucher](docs/api-reference/discounts/objects/voucher-channel-listing.mdx)
 
+Many [Saleor Apps](docs/developer/app-store/overview.mdx) allow to configure them per-channel. We recommend to allow it for the best flexibility.
+
 ## Permissions
 
 Listing channels is allowed only for users with the active [`isStaff`](docs/api-reference/users/objects/user.mdx#isstaff-boolean) flag.
@@ -40,6 +42,8 @@ You can read more about channel permissions [here](docs/developer/permissions.md
 ## Getting channel details
 
 Use [`channel`](docs/api-reference/channels/queries/channel.mdx) query to get channel details.
+
+Channel query requires channel ID, but from Saleor 3.6 it can be executed with channel slug too.
 
 Available fields:
 
@@ -58,7 +62,7 @@ Request:
 
 ```graphql
 query {
-  channel(id: "Q2hhbm5lbDo3") {
+  channel(slug: "mobile") {
     id
     isActive
     name
@@ -93,7 +97,7 @@ Response:
         "code": "US",
         "country": "United States of America"
       },
-      "hasOrders": false
+      "hasOrders": false,
       "warehouses": [
         {
           "slug": "oceania"
@@ -101,7 +105,7 @@ Response:
         {
           "slug": "europe"
         }
-      ]
+      ],
       "stockSettings": {
         "allocationStrategy": "PRIORITIZE_HIGH_STOCK"
       }
@@ -216,7 +220,7 @@ If you want to make the channel unavailable for customers, you can change it's s
 
 ```graphql
 mutation {
-  channelDeactivate(id: "Q2hhbm5lbDoxMQ==") {
+  channelDeactivate(slug: "default-channel") {
     channel {
       name
       isActive
@@ -248,7 +252,7 @@ And to reverse the previous operation use the [`channelActivate`](docs/api-refer
 
 ```graphql
 mutation {
-  channelActivate(id: "Q2hhbm5lbDoxMQ==") {
+  channelActivate(slug: "default-channel") {
     channel {
       name
       isActive
@@ -387,7 +391,7 @@ Channels can be removed only when:
 [`channelDelete`](docs/api-reference/channels/mutations/channel-delete.mdx) mutation takes [input](docs/api-reference/channels/inputs/channel-delete-input.mdx):
 
 - `id`: ID of the Channel that will be deleted
-- `targetChannel`: all existing orders will be moved into this channel
+- `channelId`: all existing orders will be moved into this channel
 
 ```graphql
 channelDelete(
@@ -396,7 +400,7 @@ channelDelete(
 ): ChannelDelete
 
 input ChannelDeleteInput {
-  targetChannel: ID!
+  channelId: ID! # ID of the channel to migrate orders from origin channel.
 }
 ```
 
