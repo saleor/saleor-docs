@@ -67,12 +67,11 @@ This mutation takes the following [input](docs/api-reference/checkout/inputs/che
 The resulting [`Checkout`](docs/api-reference/checkout/objects/checkout.mdx) object contains the following fields:
 
 - `id`: a unique checkout ID.
-- `token`: similar to `id`, a unique identifier suitable for inclusion in emails and URLs, required by most checkout operations.
 - `totalPrice`: the total price of the checkout lines and shipping costs.
 - `isShippingRequired`: denotes whether shipping is required for this checkout.
 - `availablePaymentGateways`: a list of payment gateways that are currently configured on your Saleor server and can be used to pay for the checkout. Only gateways which support the checkout currency are returned. For each gateway, API returns an ID, a name, and a config object, which for some gateways may return additional information required to process the payment in the frontend.
 - `shippingMethods`: a list of all shipping methods for this checkout. If the items in the cart require shipment.
-- `availableCollectionPoints`: a list of available places of self-pickup. It is calculated based on the given country and available Stocks (for Warehouses which `clickAndCollectOption` field is not set to `DISABLED`).
+- `availableCollectionPoints`: a list of available places for self-pickup. It is calculated based on the given country and available Stocks (for Warehouses which `clickAndCollectOption` field is not set to `DISABLED`).
 
 In addition, the following fields are available in the mutation results:
 
@@ -110,7 +109,6 @@ mutation {
   ) {
     checkout {
       id
-      token
       totalPrice {
         gross {
           amount
@@ -146,7 +144,7 @@ mutation {
 }
 ```
 
-We get a newly created checkout object for which we return the ID, token, total price, and list of available shipping and payment methods:
+We get a newly created checkout object for which we return the ID, total price, and list of available shipping and payment methods:
 
 ```json
 {
@@ -154,7 +152,6 @@ We get a newly created checkout object for which we return the ID, token, total 
     "checkoutCreate": {
       "checkout": {
         "id": "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk",
-        "token": "4b22fbc0-b095-4937-a08e-bd18d04c951a",
         "totalPrice": {
           "gross": {
             "amount": 20,
@@ -218,17 +215,17 @@ Use the [`CheckoutEmailUpdate`](docs/api-reference/checkout/mutations/checkout-e
 
 The operation requires the following inputs:
 
-- `token`: the checkout token (the `token` field of the [`Checkout`](docs/api-reference/checkout/objects/checkout.mdx) object),
+- `id`: the checkout ID (the `id` field of the [`Checkout`](docs/api-reference/checkout/objects/checkout.mdx) object),
 - `email`: the user email.
 
 ```graphql {2-4}
 mutation {
   checkoutEmailUpdate(
-    token: "fd18c322-f816-406b-a71f-d9ce6a39c768"
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
     email: "test_customer@example.com"
   ) {
     checkout {
-      token
+      id
       email
     }
     errors {
@@ -246,7 +243,7 @@ As a result, we get an updated checkout object with the new checkout email set:
   "data": {
     "checkoutDeliveryMethodUpdate": {
       "checkout": {
-        "token": "fd18c322-f816-406b-a71f-d9ce6a39c768",
+        "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
         "email": "test_customer@example.com"
       },
       "errors": []
@@ -258,8 +255,8 @@ As a result, we get an updated checkout object with the new checkout email set:
 ## Removing old checkouts
 
 To avoid overloading the database, unfinished checkouts are deleted.
-Anonymous and unfinished checkouts are deleted after a specified period of time from its last modification:
+Anonymous and unfinished checkouts are deleted after a specified period from its last modification:
 
-- anonymous checkouts (neither user or email is set) after 30 days,
+- anonymous checkouts (neither user nor email is set) after 30 days,
 - user checkouts (either user or email is set) after 90 days,
 - checkouts without lines after 6 hours.

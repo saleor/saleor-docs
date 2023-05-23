@@ -24,7 +24,7 @@ Available payment gateways can be listed from the `Checkout.availablePaymentGate
 
 ```graphql
 query {
-  checkout(token: "853ca234-b113-4021-8434-b37087d652a1") {
+  checkout(id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw") {
     availablePaymentGateways {
       id
       name
@@ -78,15 +78,14 @@ Response:
 
 The [`checkoutPaymentCreate`](docs/api-reference/checkout/mutations/checkout-payment-create.mdx) mutation takes the following arguments:
 
-- `token`: the checkout token (if required by a payment gateway).
-
+- `id`: the checkout id (if required by a payment gateway).
 - `input`: [PaymentInput](docs/api-reference/payments/inputs/payment-input.mdx) object:
-- `gateway`: the ID of the selected payment gateway (list of the available payment gateways can be fetched from the `Checkout.availablePaymentGateways` field). The selected gateway must support the checkout currency.
-- `token`: a client-side generated payment token (if required).
-- `amount`: the total amount of this operation.
-- `returnUrl`: URL of a storefront view where the user should be redirected after requiring additional actions. Payment with additional actions will not be finished if this field is not provided.
-- `storePaymentMethod`: the type of payment storage in a gateway. [StorePaymentMethod](docs/api-reference/payments/enums/store-payment-method-enum.mdx) value. If not provided, defaults to `NONE` (added in Saleor 3.1).
-- `metadata`: a list of [MetadataInput](docs/api-reference/miscellaneous/inputs/metadata-input.mdx) (added in Saleor 3.1).
+  - `gateway`: the ID of the selected payment gateway (a list of the available payment gateways can be fetched from the `Checkout.availablePaymentGateways` field). The selected gateway must support the checkout currency.
+  - `token`: a client-side generated payment token (if required).
+  - `amount`: the total amount of this operation.
+  - `returnUrl`: URL of a storefront view where the user should be redirected after requiring additional actions. Payment with additional actions will not be finished if this field is not provided.
+  - `storePaymentMethod`: the type of payment storage in a gateway. [StorePaymentMethod](docs/api-reference/payments/enums/store-payment-method-enum.mdx) value. If not provided, defaults to `NONE` (added in Saleor 3.1).
+  - `metadata`: a list of [MetadataInput](docs/api-reference/miscellaneous/inputs/metadata-input.mdx) (added in Saleor 3.1).
 
 This mutation returns the following fields:
 
@@ -99,7 +98,7 @@ In the example below, we're creating a new Braintree payment for our checkout:
 ```graphql {2-15}
 mutation {
   checkoutPaymentCreate(
-    token: "fd18c322-f816-406b-a71f-d9ce6a39c768"
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
     input: {
       gateway: "mirumee.payments.braintree"
       token: "tokencc_bh_s3bjkh_24smq8_6c6zhq_w4v6b9_8vz"
@@ -172,7 +171,7 @@ sequenceDiagram
 
 The [`checkoutComplete`](docs/api-reference/checkout/mutations/checkout-complete.mdx) mutation requires the following input:
 
-- `token`: the token of the checkout to complete.
+- `id`: the ID of the checkout to complete.
 - `redirectUrl`: URL of a view where users should be redirected to see the order details. URL in RFC 1808 format.
 - `paymentData`: Client-side generated data required to finalize the payment.
 
@@ -187,7 +186,9 @@ Here is the example of a complete mutation:
 
 ```graphql {2-4}
 mutation {
-  checkoutComplete(token: "fd18c322-f816-406b-a71f-d9ce6a39c768") {
+  checkoutComplete(
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+  ) {
     order {
       id
       status
@@ -221,7 +222,7 @@ Here is an example of the [`checkoutComplete`](docs/api-reference/checkout/mutat
 ```graphql {2-5}
 mutation{
   checkoutComplete(
-    token: "fd18c322-f816-406b-a71f-d9ce6a39c768",
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
     paymentData: "{\"paymentMethod\": {\"type\": \"scheme\", \"encryptedCardNumber\": \"ad...\", \"encryptedExpiryMonth\": \"18...\", \"encryptedExpiryYear\": \"18$C...\", \"encryptedSecurityCode\": \"18$...\", \"holderName\": \"S. Hopper\"}}"
 ){
      confirmationNeeded
@@ -276,7 +277,7 @@ An example of a complete mutation where the payment gateway requires additional 
 ```graphql {2-5}
 mutation{
   checkoutComplete(
-    token: "fd18c322-f816-406b-a71f-d9ce6a39c768",
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
     paymentData: "{\"encryptedAdditionalAction\": \"eka...\"}"
 ){
      confirmationNeeded
@@ -412,7 +413,7 @@ If these are satisfied, the checkout is transformed into an order, and the custo
 
 The [`checkoutComplete`](api-reference/checkout/mutations/checkout-complete.mdx) mutation requires the following input:
 
-- `token`: the token of the checkout to complete.
+- `id`: the ID of the checkout to complete
 
 It returns the following output:
 
@@ -423,7 +424,9 @@ Here is the example of a complete mutation:
 
 ```graphql {2-4}
 mutation {
-  checkoutComplete(token: "fd18c322-f816-406b-a71f-d9ce6a39c768") {
+  checkoutComplete(
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+  ) {
     order {
       id
       status
