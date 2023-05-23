@@ -1,0 +1,400 @@
+---
+title: Managing products
+---
+
+### Adding a line to checkout
+
+To add an item to the cart, use [`checkoutLinesAdd`](docs/api-reference/checkout/mutations/checkout-lines-add.mdx). Total prices will be updated automatically:
+
+```graphql {4}
+mutation {
+  checkoutLinesAdd(
+    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
+    lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0" }]
+  ) {
+    checkout {
+      lines {
+        id
+        variant {
+          name
+        }
+        quantity
+      }
+      totalPrice {
+        gross {
+          currency
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+The response contains the updated checkout object:
+
+```json {16-17}
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "lines": [
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1Mw=="
+            "variant": {
+              "name": "XL"
+            },
+            "quantity": 1
+          }
+        ],
+        "totalPrice": {
+          "gross": {
+            "currency": "USD",
+            "amount": 5
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Adding the same product variant to multiple lines
+
+:::info
+
+This feature was introduced in **Saleor 3.6**.
+
+:::
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+The creation of multiple lines with the same variant is possible upon using the `forceNewLine` flag.
+The `forceNewLine` can be used in the:
+
+[CheckoutLineInput](docs/api-reference/checkout/inputs/checkout-line-input.mdx)
+in the following mutations:
+
+- [checkoutCreate](docs/api-reference/checkout/mutations/checkout-create.mdx)
+- [checkoutLinesAdd](docs/api-reference/checkout/mutations/checkout-lines-add.mdx)
+
+```graphql {5}
+mutation {
+  checkoutLinesAdd(
+    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
+    lines: [
+      { quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0", forceNewLine: true }
+      { quantity: 2, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0" }
+    ]
+  ) {
+    checkout {
+      lines {
+        id
+        variant {
+          name
+        }
+        quantity
+      }
+      totalPrice {
+        gross {
+          currency
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+The response contains the updated checkout object:
+
+```json
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "lines": [
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1Mw==",
+            "variant": {
+              "name": "XL"
+            },
+            "quantity": 1
+          },
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1Mw==",
+            "variant": {
+              "name": "XL"
+            },
+            "quantity": 2
+          }
+        ],
+        "totalPrice": {
+          "gross": {
+            "currency": "USD",
+            "amount": 15
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+If the variant is already added to the checkout and exists only in one line, Saleor will increase the corresponding line's quantity.
+Running mutation twice will result in a checkout object with one line and the amount set to 2:
+
+```graphql {4}
+mutation {
+  checkoutLinesAdd(
+    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
+    lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0" }]
+  ) {
+    checkout {
+      lines {
+        id
+        variant {
+          name
+        }
+        quantity
+      }
+      totalPrice {
+        gross {
+          currency
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+Response after second run:
+
+```json {11}
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "lines": [
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1Mw=="
+            "variant": {
+              "name": "XL"
+            },
+            "quantity": 2
+          }
+        ],
+        "totalPrice": {
+          "gross": {
+            "currency": "USD",
+            "amount": 10
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+:::caution
+
+If the variant is already added to the checkout and exists in more than one line, Saleor will create a new line with provided quantity.
+
+:::
+
+### Updating a line
+
+To modify a line, use [checkoutLinesUpdate](docs/api-reference/checkout/mutations/checkout-lines-update.mdx).
+
+Currently, [CheckoutLineUpdateInput](docs/api-reference/checkout/inputs/checkout-line-update-input.mdx) supports `variantId` and `lineId` parameters to operate on the selected line object.
+The version `3.6` featured [adding the same product to multiple lines](checkout.mdx#adding-same-product-to-multiple-lines). Since then, we recommend using the `lineId` parameter, as `variantId` will be deprecated in the future.
+
+:::caution
+
+Is not allowed to use `variantId` and `lineId` in the same line input.
+
+If the `variantId` parameter is used in line input and the variant exists in multiple lines, [checkoutLinesUpdate](docs/api-reference/checkout/mutations/checkout-lines-update.mdx) will return an error. In that case, you are required to use `lineId`.
+
+:::
+
+#### Changing the line quantity
+
+```graphql {4}
+mutation {
+  checkoutLinesUpdate(
+    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
+    lines: [{ quantity: 12, lineId: "Q2hlY2tvdXRMaW5lOjI1NA==" }]
+  ) {
+    checkout {
+      lines {
+        id
+        variant {
+          id
+        }
+        quantity
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+```json {11}
+{
+  "data": {
+    "checkoutLinesUpdate": {
+      "checkout": {
+        "lines": [
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1NA==",
+            "variant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6MTcy"
+            },
+            "quantity": 12
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+If the quantity is changed to 0, API will remove this line from checkout.
+
+### Removing line from checkout
+
+Running the [checkoutLineDelete](docs/api-reference/checkout/mutations/checkout-line-delete.mdx) mutation will remove the whole line, no matter the quantity:
+
+```graphql
+mutation {
+  checkoutLineDelete(
+    token: "4b22fbc0-b095-4937-a08e-bd18d04c951a"
+    lineId: "Q2hlY2tvdXRMaW5lOjI1Mw=="
+  ) {
+    checkout {
+      lines {
+        id
+        variant {
+          id
+        }
+        quantity
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+```json
+{
+  "data": {
+    "checkoutLineDelete": {
+      "checkout": {
+        "lines": []
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+### Setting custom prices for checkout lines
+
+You can override the variant price of the item in checkout with any value.
+The overridden price will be treated as the base price of a variant.
+If you apply a voucher or sale in checkout, it will reduce the price.
+
+:::note
+This feature is only available for apps with `HANDLE_CHECKOUTS` permission.
+:::
+
+The custom price can be set with the use of field `price` in the
+[CheckoutLineInput](docs/api-reference/checkout/inputs/checkout-line-input.mdx)
+in the following mutations:
+
+- [checkoutCreate](docs/api-reference/checkout/mutations/checkout-create.mdx),
+- [checkoutLinesAdd](docs/api-reference/checkout/mutations/checkout-lines-add.mdx) - when adding
+  a variant that already exists in the checkout, the corresponding line gets overridden - the quantity is incremented and the price is updated.
+- [checkoutLinesUpdate](docs/api-reference/checkout/mutations/checkout-lines-update.mdx) - overrides
+  the existing line with the price provided in the mutation.
+
+The following example shows how to set a custom price with the use of `checkoutLinesAdd` mutation:
+
+```graphql {7}
+mutation {
+  checkoutLinesAdd(
+    token: "d6d68835-6776-4caf-8db7-72e18d04d9a4"
+    lines: [
+      { quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6MzA2", price: 16.22 }
+    ]
+  ) {
+    checkout {
+      token
+      lines {
+        variant {
+          id
+        }
+        quantity
+        totalPrice {
+          gross {
+            amount
+            currency
+          }
+          net {
+            amount
+            currency
+          }
+        }
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+As a response, we get an updated checkout with the new price. As the given variant was already in the checkout, the quantity was incremented, and the price was overridden.
+
+```json
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "token": "d6d68835-6776-4caf-8db7-72e18d04d9a4",
+        "lines": [
+          {
+            "variant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6MzA2"
+            },
+            "quantity": 2,
+            "totalPrice": {
+              "gross": {
+                "amount": 32.44,
+                "currency": "USD"
+              },
+              "net": {
+                "amount": 32.44,
+                "currency": "USD"
+              }
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
