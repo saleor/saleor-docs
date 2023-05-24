@@ -8,40 +8,22 @@ module.exports = {
   items: [
     {
       type: "category",
-      label: "Quickstart",
-      items: [
-        "developer/extending/apps/quickstart/getting-started",
-        "developer/extending/apps/quickstart/creating-app",
-        "developer/extending/apps/quickstart/querying-api",
-      ],
-    },
-    {
-      type: "category",
       label: "Architecture",
       items: [
         "developer/extending/apps/architecture/overview",
-        "developer/extending/apps/manifest",
+        "developer/extending/apps/architecture/app-requirements",
         "developer/extending/apps/architecture/communication-between-app-and-saleor",
+        "developer/extending/apps/manifest",
         "developer/extending/apps/architecture/apl",
         // todo: add more content for app bridge
         // "developer/extending/apps/architecture/app-bridge",
-        {
-          type: "category",
-          label: "App Requirements",
-          link: {
-            type: "doc",
-            id: "developer/extending/apps/architecture/requirements/app-requirements",
-          },
-          items: [
-            "developer/extending/apps/architecture/requirements/required-endpoints",
-          ],
-        },
       ],
     },
     {
       type: "category",
       label: "Developing Apps",
       items: [
+        "developer/extending/apps/quickstart",
         "developer/extending/apps/installing-apps",
         "developer/extending/apps/developing-with-tunnels",
         "developer/extending/apps/extending-dashboard-with-apps",
@@ -74,11 +56,8 @@ module.exports = {
         {
           type: "category",
           label: "Synchronous webhooks",
-          link: {
-            type: "doc",
-            id: "developer/extending/apps/synchronous-webhooks/key-concepts",
-          },
           items: [
+            "developer/extending/apps/synchronous-webhooks/key-concepts",
             "developer/extending/apps/synchronous-webhooks/payment-webhooks",
             "developer/extending/apps/synchronous-webhooks/shipping-webhooks",
             "developer/extending/apps/synchronous-webhooks/tax-webhooks",
