@@ -54,51 +54,6 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Self-hosting",
-      items: [
-        "setup/docker-compose",
-        "setup/docker-images",
-        "setup/configuration",
-        "setup/read-replicas",
-        "setup/windows",
-        {
-          type: "category",
-          label: "Deploying",
-          items: [
-            "setup/deploy-do",
-            "setup/deploy-heroku",
-            "setup/deploy-kubernetes",
-            "setup/deploy-linux",
-          ],
-        },
-        {
-          type: "category",
-          label: "Monitoring",
-          items: ["setup/monitoring-jaeger", "setup/monitoring-sentry"],
-        },
-        {
-          type: "category",
-          label: "Storing Files",
-          items: ["setup/media-gcs", "setup/media-s3"],
-        },
-        {
-          type: "category",
-          label: "Upgrade Guides",
-          items: [
-            "setup/upgrading",
-            "upgrade-guides/2-11-to-3-0",
-            "upgrade-guides/3-0-to-3-1",
-            "upgrade-guides/3-1-to-3-2",
-            "upgrade-guides/3-5-to-3-6",
-            "upgrade-guides/3-11-to-3-12",
-            "upgrade-guides/3-12-to-3-13",
-            "upgrade-guides/3-13-to-3-14",
-          ],
-        },
-      ],
-    },
-    {
-      type: "category",
       label: "Development",
       items: [
         "developer/running-saleor/debugging-emails",
@@ -173,6 +128,51 @@ module.exports = {
         },
         "developer/extending/apollo-federation",
         "developer/metadata",
+      ],
+    },
+    {
+      type: "category",
+      label: "Self-hosting",
+      items: [
+        "setup/docker-compose",
+        "setup/docker-images",
+        "setup/configuration",
+        "setup/read-replicas",
+        "setup/windows",
+        {
+          type: "category",
+          label: "Deploying",
+          items: [
+            "setup/deploy-do",
+            "setup/deploy-heroku",
+            "setup/deploy-kubernetes",
+            "setup/deploy-linux",
+          ],
+        },
+        {
+          type: "category",
+          label: "Monitoring",
+          items: ["setup/monitoring-jaeger", "setup/monitoring-sentry"],
+        },
+        {
+          type: "category",
+          label: "Storing Files",
+          items: ["setup/media-gcs", "setup/media-s3"],
+        },
+        {
+          type: "category",
+          label: "Upgrade Guides",
+          items: [
+            "setup/upgrading",
+            "upgrade-guides/2-11-to-3-0",
+            "upgrade-guides/3-0-to-3-1",
+            "upgrade-guides/3-1-to-3-2",
+            "upgrade-guides/3-5-to-3-6",
+            "upgrade-guides/3-11-to-3-12",
+            "upgrade-guides/3-12-to-3-13",
+            "upgrade-guides/3-13-to-3-14",
+          ],
+        },
       ],
     },
     {
