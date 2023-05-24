@@ -49,7 +49,7 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Cloud",
+      label: "Saleor Cloud",
       items: ["cloud"],
     },
     {
