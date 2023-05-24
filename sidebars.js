@@ -54,15 +54,6 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Development",
-      items: [
-        "developer/running-saleor/debugging-emails",
-        "developer/running-saleor/exposing-instance",
-      ],
-    },
-
-    {
-      type: "category",
       label: "Exporting Data",
       items: [
         "developer/export/export-overview",
@@ -139,6 +130,14 @@ module.exports = {
         "setup/configuration",
         "setup/read-replicas",
         "setup/windows",
+        {
+          type: "category",
+          label: "Development",
+          items: [
+            "developer/running-saleor/debugging-emails",
+            "developer/running-saleor/exposing-instance",
+          ],
+        },
         {
           type: "category",
           label: "Deploying",
