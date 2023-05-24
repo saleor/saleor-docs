@@ -64,7 +64,7 @@ Saleor gives you an option to add custom headers to the request (available since
 
 Saleor calculates a payload signature under `Saleor-Signature`:
 
-- if `secretKey` was set for a webhook - the HMAC SHA-256 header based on it and the payload
+- DEPRECATED if `secretKey` was set for a webhook - the HMAC SHA-256 header based on it and the payload
 - if `secretKey` wasn't set for a webhook - the JWS signature using RS256 with payload detached, to verify the signature you can use a public key, which can be fetched from `http(s)://<your-backend-domain>/.well-known/jwks.json` (available since Saleor 3.5, before 3.5 the payload from webhooks without `secretKey` set were not signed)
 
 #### Validating signature
@@ -175,8 +175,8 @@ To subscribe to a webhook, we need to first create an App with proper permission
 - `syncEvents`: a list of the synchronous events to subscribe to.
 - `app`: the ID of the App to which the webhook belongs. Can be ommited, if the request has the `Authentication` header with the App access token.
 - `isActive`: whether to activate the webhook.
-- `secretKey` deprecated, optional, the secret key used to create a hash signature with each payload.
-- `query`: subscription query used to define a webhook payload.
+- `secretKey` DEPRECATED, optional, the secret key used to create a hash signature with each payload.
+- `query`: subscription query used to define a webhook payload, check [Subscription Webhook Payloads](subscription-webhook-payloads) page for details.
 - `customHeaders`: custom headers, which will be added to HTTP request. There is a limitation of 5 headers per webhook and 998 characters per header. Only "X-_" and "Authorization_" keys are allowed.
 
 ```graphql {2-22}
@@ -215,6 +215,10 @@ mutation {
 ```
 
 If there are no errors in the response, the webhook is successfully created. From now on, whenever a new order is placed, the payload with the order data specified by subscription query will be sent to your `targetUrl`.
+
+### Custom payloads
+
+You can define webhook payloads in Saleor with GraphQL subscriptions. Subscription queries allow you to subscribe to different events and determine what fields should be returned in the payload. For details check [Subscription Webhook Payloads](subscription-webhook-payloads) page.
 
 ### Updating a webhook
 
