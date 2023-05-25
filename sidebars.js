@@ -39,6 +39,11 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Cookbook",
+      items: ["cookbook/storefront"],
+    },
+    {
+      type: "category",
       label: "API Usage",
       items: [
         {
