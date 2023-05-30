@@ -1,0 +1,344 @@
+---
+title: Zero downtime migrations
+---
+
+## The problem
+
+From Saleor 3.13 version forward we need a way to make sure we can safely migrate the database without interrupting the work of already running web workers.
+
+## Solution
+
+To achieve the goal we need to ensure that:
+
+- Old code is compatible with new database schema or new database schema is compatible with old code.
+- Migrations don't lock tables, rows etc. for no longer than one second.
+
+## Writing migrations
+
+This paragraph covers the most common cases you can encounter while writing migrations. Please remember that shown examples are only to give you an idea of how specific migration should be written.
+
+### Adding a new table to the schema
+
+Adding a new table to the schema is backward compatible with the old code. No additional steps are needed.
+
+### Adding a new field to the schema
+
+To add a new field to the database, we must at least ensure one of the following:
+
+- field is nullable
+- field has a default value
+
+Please note that Django doesn't propagate default onto the database, that's why you need to manually do that:
+
+```python
+operations = [
+    migrations.AddField(
+        model_name="transactionevent",
+        name="psp_reference",
+        field=models.CharField(blank=True, default="", max_length=512),
+    )
+
+    migrations.RunSQL(
+        """
+        ALTER TABLE payment_transactionevent
+        ALTER COLUMN psp_reference
+        SET DEFAULT '';
+        """,
+        migrations.RunSQL.noop,
+    ),
+]
+```
+
+Adding a field that cannot be nullable and a default value cannot be added manually, needs additional steps.
+To add a new field in Saleor version X follow the diagram:
+
+```mermaid
+flowchart TD
+    subgraph ver_X-1
+        A[Add new nullable field]
+        A -->B[Add logic in code that covers writing to the new field]
+        B -->C[Add migration task to fill values in new field]
+    end
+    subgraph ver_X
+        D[Add migration to change the new field to be nonnullable]
+        C -->E[Convert migration task into migration]
+    end
+    ver_X-1 -->ver_X
+```
+
+e.g. **Adding `new_field` to Saleor version 3.14:**
+
+- In version 3.13 add `new_field` with `null=True`.
+- In version 3.13 add logic in code that covers writing to `new_field`.
+- In version 3.13 add migration that will fill nullable values. Please check [data migration](#data-migration)
+- In version 3.14 change `new_field` to be nonnullable.
+
+### Renaming field
+
+To rename a field you need to first add a new field with a new name and then migrate data between.
+
+```mermaid
+flowchart TD
+    subgraph ver_X-1
+        A[Add new field]
+        A -->B[Add logic in code that covers writing to both the new field and old field]
+        B -->C[Add migration task to migrate values from old field to new field]
+    end
+    subgraph ver_X
+        D[Logic should now use only new field]
+        C -->E[Convert migration task into migration]
+    end
+    ver_X-1 -->ver_X
+```
+
+e.g. **Rename field `old_field_name` to `new_field_name` in Saleor version 3.14:**
+
+- In version 3.13 add a new field `new_field_name`.
+- In version 3.13 add logic in code that covers writing to both `new_field_name` and `old_field_name`.
+- In version 3.13 migrate data from `old_field_name` to `new_field_name`. Please check [data migration](#data-migration)
+- In version 3.14 update logic to use only `new_field_name`.
+- From version 3.14 remove `old_field_name`. Please check [removing field](#removing-field).
+
+### Change field type without renaming
+
+Similarly to [renaming field](#renaming-field) you need to first add a new field, but there are differences.
+
+```mermaid
+flowchart TD
+    subgraph ver_X-1
+        A[Add a new temporary field]
+        A -->B[Add logic in code that covers writing to both the new temporary field and old field]
+        B -->C[Add migration task to migrate values from the old field to the new temporary field]
+    end
+    subgraph ver_X
+        D[Remove old field from logic and ORM]
+        C -->E[Convert migration task into migration]
+    end
+    subgraph ver_X+1
+        D -->F[Remove old field from database]
+        F -->G[Add old field back again to the database with correct type]
+        G -->H[Add logic in code that covers writing to both the temporary field and old field]
+        H -->I[Add migration task to migrate values from the temporary field to the old field]
+    end
+    subgraph ver_X+2
+        I -->J[Convert migration task into migration]
+        K[Remove temporary field from logic and ORM]
+    end
+    subgraph ver_X+3
+        K -->M[Remove field from database]
+    end
+    ver_X-1 -->ver_X -->ver_X+1 -->ver_X+2 -->ver_X+3
+```
+
+e.g. **Change field type of `field` from `int` to `string` in Saleor version 3.14:**
+
+- In version 3.13 add a new field `temp_field`.
+- In version 3.13 add logic in code that covers writing to both `field` and `temp_field`.
+- In version 3.13 migrate data from `field` to `temp_field`. Please check [data migration](#data-migration)
+- From version 3.14 remove `field`. Please check [removing field](#removing-field)
+- In version 3.15 add a new field `field` back.
+- In version 3.15 add logic in code that covers writing to both `field` and `temp_field`.
+- In version 3.15 migrate data from `temp_field` to `field`. Please check [data migration](#data-migration)
+- From version 3.16 remove `temp_field`. Please check [removing field](#removing-field)
+
+### Removing field
+
+To remove a field from the schema, you first need to remove it from ORM and then you can proceed with removal from the database.
+
+e.g. **Removing field `old_field` in Saleor version 3.14:**
+
+- In version 3.14 drop the field from ORM and ensure that the field is nullable or has a default value:
+
+```python
+operations = [
+    migrations.SeparateDatabaseAndState(
+        database_operations=[
+            migrations.AlterField(
+                model_name="example",
+                name="old_field",
+                field=models.CharField(
+                    blank=True, null=True
+                ),
+            ),
+        ],
+        state_operations=[
+            migrations.RemoveField(
+                model_name="example",
+                name="old_field",
+            ),
+        ],
+    )
+]
+```
+
+- In version 3.15 drop the field from the database:
+
+```python
+operations = [
+    migrations.SeparateDatabaseAndState(
+        database_operations=[
+            migrations.RunSQL(
+                sql="""
+                ALTER TABLE app_example
+                DROP COLUMN old_field;
+                """,
+                reverse_sql="""
+                ALTER TABLE app_example
+                ADD COLUMN old_field
+                VARCHAR(512);
+                """
+            ),
+        ],
+    )
+]
+```
+
+### Adding index to the database
+
+Creating an index can lock the table for several hours. To avoid such a scenario you need to create an index using the `concurrently` option.
+Example:
+
+```python
+from django.db import migrations
+from django.db.models import Index
+from django.contrib.postgres.operations import AddIndexConcurrently
+
+class Migration(migrations.Migration):
+    atomic=False
+
+    operations = [
+        AddIndexConcurrently(
+            model_name="user",
+            index=Index(fields=["city_id"], name="account_user_city_id_index")
+        )
+    ]
+```
+
+Please note that line `atomic=False` is needed to proceed with concurrent index creation.
+
+### Data migration
+
+Data migration can lock the table for several hours. To avoid such a scenario you need to delegate logic to Celery worker.
+Celery task should be placed in `saleor/<module_name>/migrations/tasks/saleor<X>.py` where X means Saleor version,
+e.g. task to migrate data between orders in Saleor version 3.13 should be placed in `saleor/order/migrations/tasks/saleor3_13.py`
+
+To call a task inside migration use `post_migrate` signal, e.g:
+
+```python
+from django.db import migrations
+from django.db.models.signals import post_migrate
+from django.apps import apps as registry
+from .tasks.saleor3_13 import migration_task
+
+
+def migration(apps, _schema_editor):
+    def on_migrations_complete(sender=None, **kwargs):
+        migration_task.delay()
+
+    sender = registry.get_app_config("order")
+    post_migrate.connect(on_migrations_complete, weak=False, sender=sender)
+
+
+class Migration(migrations.Migration):
+    dependencies = []
+
+    operations = [
+        migrations.RunPython(migration, migrations.RunPython.noop)
+    ]
+```
+
+The following conditions must be met regarding the migration task:
+
+- single task execution should not take longer than one second
+- task should be idempotent
+- task should check if there is data to be migrated (e.g. do not start calculations if the table is empty)
+- task should be concurrently safe (e.g. execution of the same task by multiple workers should not end in deadlock)
+- task should que yourself if there is still data to be processed
+- task should proceed with data from newest to oldest
+
+```mermaid
+graph TD
+    subgraph Migraion
+        A[Migration trigger task in post-migrate if there is any object in the table.]
+    end
+    subgraph Task
+        A -->B{{If there is any object to update?}}
+        B -->|Yes| C[Take X of the latest object to update..]
+        C -->D[Update selected objects.]
+        D --> E[Trigger again same update tasks.]
+        E -->B
+        B -->|No|F{{Is there a next task to trigger e.g. Data migration to the next model?}}
+        F -->|Yes|G[Trigger next task.]
+        F -->|No|H[End]
+    end
+```
+
+e.g. from Saleor core code, task to change `type` in `OrderEvent` from `transaction_void_requested` to `transaction_cancel_requested`.
+
+```python
+from ....celeryconf import app
+from ...models import OrderEvent
+
+from django.db import transaction
+from django.db.models import QuerySet
+
+# batch size to make sure that task is completed in 1 second and as well we don't use too much memory
+BATCH_SIZE = 5000
+
+
+def update_type_to_transaction_cancel_requested(qs: QuerySet[OrderEvent]):
+    with transaction.atomic():
+        # lock the batch of objects, to avoid deadlocks
+        _events = list(qs.select_for_update(of=(["self"])))
+        qs.update(type="transaction_cancel_requested")
+
+
+@app.task
+def order_events_rename_transaction_void_events_task():
+    # Order events proceed from the newest to the oldest
+    events = OrderEvent.objects.filter(type="transaction_void_requested").order_by(
+        "-pk"
+    )
+    ids = events.values_list("pk", flat=True)[:BATCH_SIZE]
+    qs = OrderEvent.objects.filter(pk__in=ids)
+
+    # If we found data, queue next execution of the task
+    if ids:
+        update_type_to_transaction_cancel_requested(qs)
+        order_events_rename_transaction_void_events_task.delay()
+```
+
+## Upgrading with zero-downtime migrations
+
+For the general upgrade guide see the [upgrading guide](../../setup/upgrading).
+Zero-downtime migrations can only be achieved by upgrading Saleor minor version by minor version, that means, to upgrade Saleor from version 3.11 to 3.13, you need first upgrade your workers
+to version 3.12, then proceed with upgrading to version 3.13. By upgrading from version 3.11 directly to 3.13 you will not follow zero-downtime policy.
+
+The exact steps needed to be done:
+
+- Upgrade your current minor version to the newest patch of Saleor of that version, remember to turn off Celery workers as stated in [upgrading guide](../../setup/upgrading).
+- Upgrade your current minor version of Saleor to the next one. Remember to follow the steps stated in [upgrading guide](../../setup/upgrading).
+
+### Troubleshooting: Migration with celery task fails
+
+It's safe to rerun failed migration tasks in case of an error. To do that you can for example start a task from `Django shell`
+
+```bash
+python manage.py shell
+```
+
+And inside the shell just import the task and schedule it, e.g.
+
+```python
+from saleor.order.migrations.tasks import task
+task.delay()
+```
+
+### Troubleshooting: Adding a new index fails
+
+Adding the index concurrently to the database can fail. The recommended recovery method in such a scenario will be:
+
+1. Drop indexes that were added in failed migration, if they exist in the database as concurrent index building can result in adding the index that will be marked as `INVALID`.
+   To check if the index is marked as `INVALID` you can use `psql \d` command, e.g. to check indexes of Order you can run `\d public.order_order`.
+2. Rerun the migration.
+3. Run again command `psql \d table` to check if indexes are added correctly. The index will be considered correct if is **not** `INVALID`
