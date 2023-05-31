@@ -44,7 +44,7 @@ module.exports = {
         schema: "./schema-storefront.graphql",
         rootPath: "./docs", // docs will be generated under rootPath/baseURL
         baseURL: "api-storefront",
-        homepage: "./template/api-reference.mdx",
+        homepage: "./template/storefront/api-reference.mdx",
         linkRoot: "../../../",
         loaders: {
           GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
