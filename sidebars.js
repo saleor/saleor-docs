@@ -35,6 +35,11 @@ module.exports = {
         "developer/taxes",
         "developer/thumbnails",
         "developer/filtering",
+        {
+          type: "category",
+          label: "Data Imports",
+          items: ["developer/bulks/bulk-orders"],
+        },
       ],
     },
     {
