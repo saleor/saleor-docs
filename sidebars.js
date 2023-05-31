@@ -54,6 +54,11 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Saleor CLI",
+      items: ["cli"],
+    },
+    {
+      type: "category",
       label: "Exporting Data",
       items: [
         "developer/export/export-overview",
@@ -184,7 +189,6 @@ module.exports = {
       ],
     },
   ],
-  cli: ["cli"],
   api: [...require("./docs/api-reference/sidebar-schema.js").schemaSidebar],
   storefrontApi: [
     ...require("./docs/api-storefront/sidebar-schema.js").schemaSidebar,
