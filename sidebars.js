@@ -9,7 +9,7 @@ module.exports = {
       ],
     },
     {
-      "Core concepts": [
+      Guides: [
         "developer/channels",
         "developer/products",
         "developer/attributes",
