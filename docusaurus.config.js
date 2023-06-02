@@ -232,9 +232,6 @@ module.exports = {
       apiKey: "e4b2fbb46f8e998981100702d37da551",
       indexName: "saleor",
       placeholder: "Search Saleor Documentation",
-      searchParameters: {
-        customRanking: ["desc(rank)"],
-      },
     },
 
     colorMode: {
