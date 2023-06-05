@@ -1,0 +1,724 @@
+---
+title: Bulk Orders
+---
+
+:::info
+
+This feature was introduced in **Saleor 3.14**.
+
+:::
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+
+## Introduction
+
+This guide describes a mutation allowing users to create multiple orders in Saleor. Purpose of this mutation could be importing orders from other systems. The main assumption is to allow the user to specify as many fields as possible and skip most of the logic and calculations that are done when creating orders from draft or checkout. Among other things, the mutation allows specifying things like: order creation date, order number, order lines with net and gross line prices, payment transactions and fulfillments.
+
+## orderBulkCreate
+
+#### Mutation example:
+
+```graphql
+mutation OrderBulkCreate(
+  $orders: [OrderBulkCreateInput!]!
+  $errorPolicy: ErrorPolicyEnum
+  $stockUpdatePolicy: StockUpdatePolicyEnum
+) {
+  orderBulkCreate(
+    orders: $orders
+    errorPolicy: $errorPolicy
+    stockUpdatePolicy: $stockUpdatePolicy
+  ) {
+    count
+    results {
+      order {
+        id
+        user {
+          id
+          email
+        }
+        metadata {
+          key
+          value
+        }
+        privateMetadata {
+          key
+          value
+        }
+        lines {
+          id
+          variant {
+            id
+          }
+          productName
+          variantName
+          translatedVariantName
+          translatedProductName
+          productVariantId
+          isShippingRequired
+          quantity
+          quantityFulfilled
+          unitPrice {
+            gross {
+              amount
+            }
+            net {
+              amount
+            }
+          }
+          unitDiscount {
+            amount
+          }
+          totalPrice {
+            gross {
+              amount
+            }
+            net {
+              amount
+            }
+          }
+          undiscountedUnitPrice {
+            gross {
+              amount
+            }
+            net {
+              amount
+            }
+          }
+          metadata {
+            key
+            value
+          }
+          privateMetadata {
+            key
+            value
+          }
+          taxClass {
+            id
+          }
+          taxClassName
+          taxRate
+          taxClassMetadata {
+            key
+            value
+          }
+          taxClassPrivateMetadata {
+            key
+            value
+          }
+        }
+        billingAddress {
+          postalCode
+        }
+        shippingAddress {
+          postalCode
+        }
+        shippingMethodName
+        shippingTaxClass {
+          name
+        }
+        shippingTaxClassName
+        shippingTaxClassMetadata {
+          key
+          value
+        }
+        shippingTaxClassPrivateMetadata {
+          key
+          value
+        }
+        shippingPrice {
+          gross {
+            amount
+          }
+          net {
+            amount
+          }
+        }
+        total {
+          gross {
+            amount
+          }
+          net {
+            amount
+          }
+        }
+        undiscountedTotal {
+          gross {
+            amount
+          }
+          net {
+            amount
+          }
+        }
+        events {
+          message
+          user {
+            id
+          }
+          app {
+            id
+          }
+        }
+        weight {
+          value
+        }
+        externalReference
+        trackingClientId
+        displayGrossPrices
+        channel {
+          slug
+        }
+        status
+        created
+        languageCode
+        collectionPointName
+        redirectUrl
+        origin
+        fulfillments {
+          lines {
+            quantity
+            orderLine {
+              id
+            }
+          }
+          trackingNumber
+          fulfillmentOrder
+          status
+        }
+        transactions {
+          id
+          reference
+          type
+          status
+          authorizedAmount {
+            amount
+            currency
+          }
+          canceledAmount {
+            currency
+            amount
+          }
+          chargedAmount {
+            currency
+            amount
+          }
+          refundedAmount {
+            currency
+            amount
+          }
+          events {
+            amount {
+              amount
+            }
+            type
+          }
+        }
+        invoices {
+          number
+          url
+        }
+        discounts {
+          valueType
+          value
+          reason
+        }
+      }
+      errors {
+        path
+        message
+        code
+      }
+    }
+  }
+}
+```
+
+#### Input example:
+
+```graphql
+{
+  "stockUpdatePolicy": "SKIP",
+  "errorPolicy": "REJECT_EVERYTHING",
+  "orders": [
+    {
+      "channel": "default-channel",
+      "createdAt": "2022-07-13T17:30:15+05:30",
+      "status": "DRAFT",
+      "user": {
+        "email":"alec.thornton@example.com"
+      },
+      "billingAddress": {
+        "firstName": "John Saleor",
+        "lastName": "Doe Mirumee",
+        "companyName": "Mirumee Software",
+        "streetAddress1": "Tęczowa 7",
+        "streetAddress2": "",
+        "postalCode": "53-601",
+        "country": "PL",
+        "city": "Wrocław",
+        "countryArea": "",
+        "phone": "+48321321888"
+      },
+      "currency": "PLN",
+      "languageCode": "PL",
+      "deliveryMethod": {
+        "shippingMethodId": "U2hpcHBpbmdNZXRob2Q6MQ==",
+        "shippingTaxClassId": "VGF4Q2xhc3M6MQ==",
+        "shippingPrice": {
+            "gross": 120,
+            "net": 100
+        },
+        "shippingTaxRate": 0.2,
+        "shippingTaxClassMetadata": [
+          {
+            "key": "md key",
+            "value": "md value"
+          }
+        ],
+        "shippingTaxClassPrivateMetadata": [
+          {
+            "key": "pmd key",
+            "value": "pmd value"
+          }
+        ]
+      },
+      "lines": [
+        {
+          "variantId": "UHJvZHVjdFZhcmlhbnQ6NDAz",
+          "createdAt": "2022-07-20T17:30:15+05:30",
+          "productName": "Product Name",
+          "variantName": "Variant Name",
+          "translatedProductName": "Nazwa Produktu",
+          "translatedVariantName": "Nazwa Wariantu",
+          "isShippingRequired": true,
+          "isGiftCard": false,
+          "quantity": 5,
+          "totalPrice": {
+              "gross": 120,
+              "net": 100
+          },
+          "undiscountedTotalPrice": {
+              "gross": 120,
+              "net": 100
+          },
+          "warehouse": "V2FyZWhvdXNlOmZiMWNkYzNmLWVhYmYtNDQxNC1iZTFhLTFkNWEwZTA5YzA2OA==",
+          "taxRate": 0.2,
+          "taxClassId": "VGF4Q2xhc3M6MQ==",
+          "taxClassName": "Line Tax Class Name",
+          "taxClassMetadata": [
+            {
+              "key": "md key",
+              "value": "md value"
+            }
+          ],
+          "taxClassPrivateMetadata": [
+            {
+              "key": "pmd key",
+              "value": "pmd value"
+            }
+          ]
+        }
+      ],
+      "fulfillments": [
+        {
+          "trackingCode": "abc-123",
+          "lines": [
+            {
+              "variantId": "UHJvZHVjdFZhcmlhbnQ6NDAz",
+              "quantity": 5,
+              "warehouse": "V2FyZWhvdXNlOmZiMWNkYzNmLWVhYmYtNDQxNC1iZTFhLTFkNWEwZTA5YzA2OA==",
+              "orderLineIndex": 0
+            }
+          ]
+        }
+      ],
+      "transactions": [
+        {
+          "status": "Authorized for 10$",
+          "reference": "PSP reference - 123",
+          "availableActions": [
+            "REFUND",
+            "CANCEL"
+          ],
+          "amountAuthorized": {
+              "amount": 120,
+              "currency": "PLN"
+          },
+          "amountCharged": {
+              "amount": 120,
+              "currency": "PLN"
+          },
+          "metadata": [
+            {
+              "key": "md key",
+              "value": "md value"
+            }
+          ],
+          "privateMetadata": [
+            {
+              "key": "pmd key",
+              "value": "pmd value"
+            }
+          ]
+        }
+      ],
+      "invoices": [
+        {
+          "number": "01/12/2020/TEST",
+          "url": "http://www.example.com",
+          "createdAt": "2022-07-13T17:30:15+05:30",
+          "metadata": [
+            {
+              "key": "md key",
+              "value": "md value"
+            }
+          ],
+          "privateMetadata": [
+            {
+              "key": "pmd key",
+              "value": "pmd value"
+            }
+          ]
+        }
+      ],
+      "discounts": [
+        {
+          "valueType": "FIXED",
+          "value": 10,
+          "reason": "Black Friday"
+        }
+      ],
+      "giftCards": ["Gift_card_1"],
+      "voucher": "FREESHIPPING",
+      "weight": "10.15",
+      "trackingClientId": "tracking-id-123",
+      "metadata": [
+        {
+          "key": "md key",
+          "value": "md value"
+        }
+      ],
+      "privateMetadata": [
+        {
+          "key": "pmd key",
+          "value": "pmd value"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### Expected response:
+
+```graphql
+{
+  "data": {
+    "orderBulkCreate": {
+      "count": 1,
+      "results": [
+        {
+          "order": {
+            "id": "T3JkZXI6NDQxYzhlYzItNDA0ZC00NmEwLWEwMDMtNmY2MjgzMTRmNTNi",
+            "user": {
+              "id": "VXNlcjoxODEyMzc4ODk1",
+              "email": "alec.thornton@example.com"
+            },
+            "metadata": [
+              {
+                "key": "md key",
+                "value": "md value"
+              }
+            ],
+            "privateMetadata": [
+              {
+                "key": "pmd key",
+                "value": "pmd value"
+              }
+            ],
+            "lines": [
+              {
+                "id": "T3JkZXJMaW5lOmQyYzdhODk1LTgxZTctNGIxOC04MjZjLThkMWUyMDVlMDI1YQ==",
+                "variant": {
+                  "id": "UHJvZHVjdFZhcmlhbnQ6NDAz"
+                },
+                "productName": "Product Name",
+                "variantName": "Variant Name",
+                "translatedVariantName": "Nazwa Wariantu",
+                "translatedProductName": "Nazwa Produktu",
+                "productVariantId": "UHJvZHVjdFZhcmlhbnQ6NDAz",
+                "isShippingRequired": true,
+                "quantity": 5,
+                "quantityFulfilled": 5,
+                "unitPrice": {
+                  "gross": {
+                    "amount": 24.0
+                  },
+                  "net": {
+                    "amount": 20.0
+                  }
+                },
+                "unitDiscount": {
+                  "amount": 0.0
+                },
+                "totalPrice": {
+                  "gross": {
+                    "amount": 120.0
+                  },
+                  "net": {
+                    "amount": 100.0
+                  }
+                },
+                "undiscountedUnitPrice": {
+                  "gross": {
+                    "amount": 24.0
+                  },
+                  "net": {
+                    "amount": 20.0
+                  }
+                },
+                "metadata": [],
+                "privateMetadata": [],
+                "taxClass": {
+                  "id": "VGF4Q2xhc3M6MQ=="
+                },
+                "taxClassName": "Line Tax Class Name",
+                "taxRate": 0.2,
+                "taxClassMetadata": [
+                  {
+                    "key": "md key",
+                    "value": "md value"
+                  }
+                ],
+                "taxClassPrivateMetadata": [
+                  {
+                    "key": "pmd key",
+                    "value": "pmd value"
+                  }
+                ]
+              }
+            ],
+            "billingAddress": {
+              "postalCode": "53-601"
+            },
+            "shippingAddress": null,
+            "shippingMethodName": "DHL",
+            "shippingTaxClass": null,
+            "shippingTaxClassName": "No Taxes",
+            "shippingTaxClassMetadata": [
+              {
+                "key": "md key",
+                "value": "md value"
+              }
+            ],
+            "shippingTaxClassPrivateMetadata": [
+              {
+                "key": "pmd key",
+                "value": "pmd value"
+              }
+            ],
+            "shippingPrice": {
+              "gross": {
+                "amount": 120.0
+              },
+              "net": {
+                "amount": 100.0
+              }
+            },
+            "total": {
+              "gross": {
+                "amount": 120.0
+              },
+              "net": {
+                "amount": 100.0
+              }
+            },
+            "undiscountedTotal": {
+              "gross": {
+                "amount": 120.0
+              },
+              "net": {
+                "amount": 100.0
+              }
+            },
+            "events": [],
+            "weight": {
+              "value": 10.15
+            },
+            "externalReference": null,
+            "trackingClientId": "tracking-id-123",
+            "displayGrossPrices": true,
+            "channel": {
+              "slug": "default-channel"
+            },
+            "status": "DRAFT",
+            "created": "2022-07-13T17:30:15+05:30",
+            "languageCode": "pl",
+            "collectionPointName": null,
+            "redirectUrl": null,
+            "origin": "BULK_CREATE",
+            "fulfillments": [
+              {
+                "lines": [
+                  {
+                    "quantity": 5,
+                    "orderLine": {
+                      "id": "T3JkZXJMaW5lOmQyYzdhODk1LTgxZTctNGIxOC04MjZjLThkMWUyMDVlMDI1YQ=="
+                    }
+                  }
+                ],
+                "trackingNumber": "abc-123",
+                "fulfillmentOrder": 1,
+                "status": "FULFILLED"
+              }
+            ],
+            "transactions": [
+              {
+                "id": "VHJhbnNhY3Rpb25JdGVtOjI3MTYwYWRlLTA4ZWYtNDhiNC05OWE1LTFkNWExOWYzZDhkNA==",
+                "reference": "PSP reference - 123",
+                "type": "",
+                "status": "Authorized for 10$",
+                "authorizedAmount": {
+                  "amount": 120.0,
+                  "currency": "PLN"
+                },
+                "canceledAmount": {
+                  "currency": "PLN",
+                  "amount": 0.0
+                },
+                "chargedAmount": {
+                  "currency": "PLN",
+                  "amount": 120.0
+                },
+                "refundedAmount": {
+                  "currency": "PLN",
+                  "amount": 0.0
+                },
+                "events": [
+                  {
+                    "amount": {
+                      "amount": 120.0
+                    },
+                    "type": "CHARGE_SUCCESS"
+                  },
+                  {
+                    "amount": {
+                      "amount": 120.0
+                    },
+                    "type": "AUTHORIZATION_SUCCESS"
+                  }
+                ]
+              }
+            ],
+            "invoices": [
+              {
+                "number": "01/12/2020/TEST",
+                "url": "http://www.example.com"
+              }
+            ],
+            "discounts": [
+              {
+                "valueType": "FIXED",
+                "value": 10.0,
+                "reason": "Black Friday"
+              }
+            ]
+          },
+          "errors": []
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 22,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+### Permission
+
+Since this operation is broader in scope than regular order management, it is not automatically assigned to staff users or apps with `MANAGE_ORDERS` permission. The mutation requires a new permission:` MANAGE_ORDERS_IMPORT`.
+
+### Input details
+
+#### User (`OrderBulkCreateUserInput`)
+
+To identify a user, the mutation accepts one of the following identifiers: `id`, `email` or `external_reference`. If the user associated with an order doesn’t exist in Saleor database, user's email must be provided as a reference in the order instance.
+
+#### Delivery method (`OrderBulkCreateDeliveryMethodInput`)
+
+Since orders can be either shipped or collected directly from a warehouse, either `warehouseId` or `shippingMethodId` must be provided. Orders with all lines set `isShippingRequired` flag to `false` don't require physical delivery. In this case, `OrderBulkCreateDeliveryMethodInput` can be omitted.
+
+The input also accepts arbitrary names of delivery methods (`warehouseName`and `shippingMethodName` fields) and tax class (`taxClassName`).
+
+If `shippingPrice` is not provided, Saleor will fetch the current shipping method price from database.
+
+#### Order line (`OrderBulkCreateOrderLineInput`)
+
+`totalPrice` and `undiscountedTotalPrice` are the primary sources of truth about the order pricing. Based on the fields, Saleor calculates unit price, undiscounted unit price, unit discount amount, order total and subtotal.
+
+To find product variant, the mutation accepts one of the following identifiers: `id`, `sku` or `external_reference`.
+
+The input also accepts arbitrary names of variant (`variantName`), product (`productName`) and tax class (`taxClassName`).
+
+`isShippingRequired` - determines if line items need to be physically shipped. If all lines of an order do not require shipping, `OrderBulkCreateInput.deliveryMethod` can be skipped.
+
+`warehouse` - ID of the warehouse, where the order line should be allocated. It is required to check stock availability.
+
+#### Fulfillments (`OrderBulkCreateFulfillmentLineInput`)
+
+Product variant is searched by one of the following identifiers: `id`, `sku` or `external_reference`.
+
+To match fulfillment line with respective order line, `OrderBulkCreateFulfillmentLineInput` requires `orderLineIndex`. It is a 0-based index of `OrderBulkCreateInput.lines` list.
+
+#### Notes (`OrderBulkCreateNoteInput`)
+
+The input allows to provide a custom list of events that would be saved as `OrderEvent` instances in the order history. For each event, the user can provide a message, timestamp, and either a user or an app that is associated with the event.
+
+#### Gift cards and vouchers
+
+The input accepts a list of gift card codes and a single voucher code that should be associated with the order, but it doesn’t trigger any price recalculation. Prices are based only on line totals.
+
+#### CreatedAt fields
+
+Some systems might have incorrect time that is in the future compared to Saleor. Therefore mutation accepts future time values within 5 minutes from current time. `createdAt` is required field in following inputs:
+
+- `OrderBulkCreateInput`
+- `OrderBulkCreateOrderLineInput`
+- `OrderBulkCreateInvoiceInput`
+
+### Stock update policy
+
+The policy determines how stocks should be updated, while processing an order.
+
+- `UPDATE` (default) - only do an update, if there is enough stock. Otherwise produce an error.
+- `SKIP` - stocks are not checked and not updated.
+- `FORCE` - force update, if there is not enough stock.
+
+### Error policy
+
+There are three options, how the mutation can handle errors:
+
+- `REJECT_EVERYTHING` (default): if a single error occurs, in at least one of the orders, the whole mutation fails and no data is saved.
+- `REJECT_FAILED_ROWS`: the mutation saves only those orders, which do not produce any error
+- `IGNORE_FAILED`: if an error occurs for some order, Saleor will try to save it partially and skip the invalid part, if it is possible. Please note, that some of errors ignore this policy and disqualify whole order:
+  - order number is not unique
+  - invalid billing address
+  - channel can’t be resolved
+  - delivery method can’t be resolved (if shipping is required)
+  - user can’t be resolved, unless user email is provided as an identifier
+  - at least one of the order lines can’t be created
+  - at least one of the fulfillments can’t be created
+  - not enough or non-existing stocks (taking into account `stockUpdatePolicy`)
+
+### Webhooks
+
+If successfull, the mutation will emit `ORDER_BULK_CREATE` event with a list of all created orders.
