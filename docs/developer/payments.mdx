@@ -346,6 +346,11 @@ The following example shows how you can use the [transactionCreate](../api-refer
 The transaction was authorized, and the payment was made with a credit card. The actions that can be called from Saleor are: `CANCEL` and `CHARGE`.
 The authorized amount is **$99**.
 
+::: info
+The [transactionCreate] can only be called by staff users or app with
+[HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
+:::
+
 ##### Saleor 3.13+
 
 ```graphql
@@ -465,8 +470,9 @@ It takes the following arguments:
 
 :::info
 
-The [transactionUpdate](../api-reference/payments/mutations/transaction-update) can only be called by the transaction owner.
-The owner is the User or App that created the given transaction.
+The [transactionUpdate](../api-reference/payments/mutations/transaction-update) can only be called by staff users with
+[HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission
+or by App which is the owner of the transaction and has [HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
 :::
 
 The following example shows how you can use the [transactionUpdate](../api-reference/payments/mutations/transaction-create) mutation to update the transaction.
@@ -579,8 +585,9 @@ It takes the following arguments:
 
 :::info
 
-The [transactionEventReport](../api-reference/payments/mutations/transaction-event-report) can be called only by
-the owner of the transaction.
+The [transactionEventReport](../api-reference/payments/mutations/transaction-event-report) can only be called by staff users with
+[HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission
+or by App which is the owner of the transaction and has [HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
 The owner is the User or App that created the given transaction.
 :::
 
@@ -648,15 +655,23 @@ An action request is called when a staff user or an app triggers a request for a
 
 #### Saleor 3.13+
 
-Calling mutation [transactionRequestAction](../api-reference/payments/mutations/transaction-request-action) will also create a new
-[TransactionEvent](../api-reference/payments/objects/transaction-event) with one of the request type ([AUTHORIZATION_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbauthorization_requestbcode),
-[CHARGE_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcharge_requestbcode),
-[REFUND_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode),
-[CANCEL_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcancel_requestbcode)),
-`amount` and the `owner` (User or App). Saleor will send a synchronous webhook dedicated to the action
-[TRANSACTION_CHARGE_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
-[TRANSACTION_CANCELATION_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
-[TRANSACTION_REFUND_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode)
+There are two mutations that can trigger the action on the app side:
+
+- Calling mutation [transactionRequestAction](../api-reference/payments/mutations/transaction-request-action) will also create a new
+  [TransactionEvent](../api-reference/payments/objects/transaction-event) with one of the request type ([AUTHORIZATION_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbauthorization_requestbcode),
+  [CHARGE_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcharge_requestbcode),
+  [REFUND_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode),
+  [CANCEL_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcancel_requestbcode)),
+  `amount` and the `owner` (User or App). Saleor will send a synchronous webhook dedicated to the action
+  [TRANSACTION_CHARGE_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
+  [TRANSACTION_CANCELATION_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
+  [TRANSACTION_REFUND_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode)
+
+- Calling mutation [transactionRequestRefundForGrantedRefund](../api-reference/payments/mutations/transaction-request-refund-for-granted-refund) will create a new [TransactionEvent](../api-reference/payments/objects/transaction-event) with
+  [REFUND_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode) type, `amount` and the `owner` (User or App).
+  Saleor will send a synchronous webhook [TRANSACTION_REFUND_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode).
+  [OrderGrantedRefund](api-reference/orders/objects/order-granted-refund.mdx) will be included in the webhook payload (if requested in a [subscription query](developer/extending/apps/subscription-webhook-payloads.mdx#custom-payloads) for the webhook).
+  The mutation is useful when the payment provider requires details about lines that are related to refund action.
 
 The response should contain at least `pspReference` of the action. The `pspReference` will be placed in the previously created event of `_REQUEST` type.
 Optionally the response can contain the details of the completed action.
