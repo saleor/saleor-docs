@@ -40,7 +40,12 @@ module.exports = {
     {
       type: "category",
       label: "Cookbook",
-      items: ["cookbook/storefront"],
+      items: [
+        {
+          Saleor: ["cookbook/saleor/storefront"],
+          Storefront: ["cookbook/storefront/checklist"],
+        },
+      ],
     },
     {
       type: "category",
