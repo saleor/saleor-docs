@@ -42,6 +42,22 @@ Adyen App follows the flow described in detail in the [Saleor Payment App docume
 
 For Adyen to appear as [available payment gateway](../../checkout/finalizing#listing-available-payment-gateways), you need to [install it in the Saleor Dashboard](../overview#usage). You must obtain the API key from Adyen and paste it into the Adyen App configuration form. Then, a wizard will guide you through the process of configuring the Adyen App, setting up the webhook to receive notifications from Adyen, generating the HMAC key, and adding allowed origins for the Client Key that's used on your Storefront.
 
+:::caution
+
+API Key provided inside the configuration must have the following permissions set in Adyen Dashboard:
+
+- "Management API - Accounts read and write"
+- "Management API - API credentials read and write"
+- "Management API - Payment methods read"
+- "Management API - Stores read and write"
+- "Management API - Webhooks read and write"
+- "Checkout encrypted cardholder data"
+- "Merchant Recurring role"
+- "Checkout webservice role"
+- "Merchant PAL Webservice role"
+
+:::
+
 ## Usage in Storefront or mobile apps
 
 Adyen App can be used to integrate with Adyen APIs. By using a set of GraphQL mutations, one can interact with Adyen to authorize, capture, refund, and cancel payments.
@@ -391,26 +407,28 @@ To test Adyen Webhooks, you need to expose your local server to the internet (tu
 
 To run tests, one needs to provide additional environment variables. Copy the `.env.test` file to `.env.test.local`.The `.env.test.local` should contain the following variables:
 
-| env variable name                      | required?  | description                                               | example                                                                                                                                          |
-| -------------------------------------- | :--------: | :-------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `TEST_SALEOR_API_URL`                  | _required_ | Full URL to the Saleor GraphQL endpoint                   | `https://saleor.cloud/graphql/`                                                                                                                  |
-| `TEST_SALEOR_APP_TOKEN`                | _required_ | [AppToken](../../../api-reference/apps/objects/app-token) | `3DZ7CbFTyPETthDixPtFpPysoKG4FP`                                                                                                                 |
-| `TEST_SALEOR_APP_ID`                   | _required_ | [App.id](../../../api-reference/apps/objects/app)         | `QXBwOjk=`                                                                                                                                       |
-| `TEST_SALEOR_JWKS`                     | _required_ | stringified JWKS                                          | `"{\"keys\": [{\"kty\": \"RSA\", \"key_ops\": [\"verify\"], \"n\": \"...\", \"e\": \"AQAB\", \"use\": \"sig\", \"kid\": \"1\"}]}"`               |
-| `TEST_ADYEN_API_KEY`                   | _required_ | Private API key from Adyen                                | `AQEohmfxJojOaBRLw0m/n3Q5qf3Ve4pBCJxYmJ8cz6RWstDlt8grQIwhBhDBXVsNvuR83LVYjEgiTGAH-o3+ZlYSRYp2TB6rVbp0kJZ3gZRJvLL/8FP0ef9CK45k=-w~g@gZ?45:u9D2ed` |
-| `TEST_ADYEN_MERCHANT_API_KEY`          | _required_ | Private API key from Adyen scoped to a single merchant    | `AQEohmfxJojOaBRLw0m/n3Q5qf3Ve4pBCJxYmJ8cz6RWstDlt8grQIwhBhDBXVsNvuR83LVYjEgiTGAH-o3+ZlYSRYp2TB6rVbp0kJZ3gZRJvLL/8FP0ef9CK45k=-w~g@gZ?45:u9D2ed` |
-| `TEST_ADYEN_API_KEY_ID`                | _required_ | ID of `TEST_ADYEN_API_KEY`                                | `S2-123A5678910F99`                                                                                                                              |
-| `TEST_ADYEN_MERCHANT_API_KEY_ID`       | _required_ | ID of `TEST_ADYEN_MERCHANT_API_KEY`                       | `S2-123A5678910F99`                                                                                                                              |
-| `TEST_ADYEN_API_KEY_USERNAME`          | _required_ | Username of `TEST_ADYEN_API_KEY`                          | `ws_123456@Company.Saleor`                                                                                                                       |
-| `TEST_ADYEN_MERCHANT_API_KEY_USERNAME` | _required_ | Username of `TEST_ADYEN_MERCHANT_API_KEY`                 | `ws_123456@Company.Saleor`                                                                                                                       |
-| `TEST_ADYEN_API_KEY_SCOPE`             | _required_ | Scope of the key                                          | `company`                                                                                                                                        |
-| `TEST_ADYEN_MERCHANT_ACCOUNT`          | _required_ | Name of the merchant account                              | `YourECOM`                                                                                                                                       |
-| `TEST_ADYEN_COMPANY_ID`                | _required_ | Company account ID                                        | `YourCompany`                                                                                                                                    |
-| `TEST_ADYEN_CLIENT_KEY`                | _required_ | Adyen Client key                                          | `test_0123456789ABCDEF0123456789ABCDEF`                                                                                                          |
-| `TEST_ADYEN_WEBHOOK_ID`                | _required_ | ID of a webhook                                           | `S2-123A5678910F99`                                                                                                                              |
-| `TEST_ADYEN_WEBHOOK_USERNAME`          | _required_ | Username for a webhook                                    | `root`                                                                                                                                           |
-| `TEST_ADYEN_WEBHOOK_PASSWORD`          | _required_ | Password for a webhook                                    | `toor`                                                                                                                                           |
-| `TEST_ADYEN_WEBHOOK_HMAC`              | _required_ | HMAC key generated by Adyen                               | `2B500F50AE17D5E7EC5257D285BCE632E4195908E72100F12E039C8B0A7AA1B8`                                                                               |
+| env variable name                      | required?  | description                                                                 | example                                                                                                                                          |
+| -------------------------------------- | :--------: | :-------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TEST_SALEOR_API_URL`                  | _required_ | Full URL to the Saleor GraphQL endpoint                                     | `https://saleor.cloud/graphql/`                                                                                                                  |
+| `TEST_SALEOR_APP_TOKEN`                | _required_ | [AppToken](../../../api-reference/apps/objects/app-token)                   | `3DZ7CbFTyPETthDixPtFpPysoKG4FP`                                                                                                                 |
+| `TEST_SALEOR_APP_ID`                   | _required_ | [App.id](../../../api-reference/apps/objects/app)                           | `QXBwOjk=`                                                                                                                                       |
+| `TEST_SALEOR_JWKS`                     | _required_ | stringified JWKS                                                            | `"{\"keys\": [{\"kty\": \"RSA\", \"key_ops\": [\"verify\"], \"n\": \"...\", \"e\": \"AQAB\", \"use\": \"sig\", \"kid\": \"1\"}]}"`               |
+| `TEST_ADYEN_API_KEY`                   | _required_ | Private API key from Adyen                                                  | `AQEohmfxJojOaBRLw0m/n3Q5qf3Ve4pBCJxYmJ8cz6RWstDlt8grQIwhBhDBXVsNvuR83LVYjEgiTGAH-o3+ZlYSRYp2TB6rVbp0kJZ3gZRJvLL/8FP0ef9CK45k=-w~g@gZ?45:u9D2ed` |
+| `TEST_ADYEN_MERCHANT_API_KEY`          | _required_ | Private API key from Adyen scoped to a single merchant                      | `AQEohmfxJojOaBRLw0m/n3Q5qf3Ve4pBCJxYmJ8cz6RWstDlt8grQIwhBhDBXVsNvuR83LVYjEgiTGAH-o3+ZlYSRYp2TB6rVbp0kJZ3gZRJvLL/8FP0ef9CK45k=-w~g@gZ?45:u9D2ed` |
+| `TEST_ADYEN_API_KEY_ID`                | _required_ | ID of `TEST_ADYEN_API_KEY`                                                  | `S2-123A5678910F99`                                                                                                                              |
+| `TEST_ADYEN_MERCHANT_API_KEY_ID`       | _required_ | ID of `TEST_ADYEN_MERCHANT_API_KEY`                                         | `S2-123A5678910F99`                                                                                                                              |
+| `TEST_ADYEN_API_KEY_USERNAME`          | _required_ | Username of `TEST_ADYEN_API_KEY`                                            | `ws_123456@Company.Saleor`                                                                                                                       |
+| `TEST_ADYEN_MERCHANT_API_KEY_USERNAME` | _required_ | Username of `TEST_ADYEN_MERCHANT_API_KEY`                                   | `ws_123456@Company.Saleor`                                                                                                                       |
+| `TEST_ADYEN_API_KEY_SCOPE`             | _required_ | Scope of the key                                                            | `company`                                                                                                                                        |
+| `TEST_ADYEN_MERCHANT_ACCOUNT`          | _required_ | Name of the merchant account                                                | `YourECOM`                                                                                                                                       |
+| `TEST_ADYEN_COMPANY_ID`                | _required_ | Company account ID                                                          | `YourCompany`                                                                                                                                    |
+| `TEST_ADYEN_CLIENT_KEY`                | _required_ | Adyen Client key                                                            | `test_0123456789ABCDEF0123456789ABCDEF`                                                                                                          |
+| `TEST_ADYEN_WEBHOOK_ID`                | _required_ | ID of a webhook                                                             | `S2-123A5678910F99`                                                                                                                              |
+| `TEST_ADYEN_WEBHOOK_USERNAME`          | _required_ | Username for a webhook                                                      | `root`                                                                                                                                           |
+| `TEST_ADYEN_WEBHOOK_PASSWORD`          | _required_ | Password for a webhook                                                      | `toor`                                                                                                                                           |
+| `TEST_ADYEN_WEBHOOK_HMAC`              | _required_ | HMAC key generated by Adyen                                                 | `2B500F50AE17D5E7EC5257D285BCE632E4195908E72100F12E039C8B0A7AA1B8`                                                                               |
+| `TEST_ADYEN_API_KEY_MISSING_ROLES`     | _required_ | Private API key from Adyen that doesn't have all Management API permissinos | `AQEohmfxJojOaBRLw0m/n3Q5qf3Ve4pBCJxYmJ8cz6RWstDlt8grQIwhBhDBXVsNvuR83LVYjEgiTGAH-o3+ZlYSRYp2TB6rVbp0kJZ3gZRJvLL/8FP0ef9CK45k=-w~g@gZ?45:u9D2ed` |
+| `TEST_ADYEN_API_KEY_NO_MANAGEMENT_API` | _required_ | Private API key from Adyen that doesn't have any Management API permissions | `AQEohmfxJojOaBRLw0m/n3Q5qf3Ve4pBCJxYmJ8cz6RWstDlt8grQIwhBhDBXVsNvuR83LVYjEgiTGAH-o3+ZlYSRYp2TB6rVbp0kJZ3gZRJvLL/8FP0ef9CK45k=-w~g@gZ?45:u9D2ed` |
 
 Then run the following command:
 
