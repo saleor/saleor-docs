@@ -1,6 +1,8 @@
-# Saleor App Monitoring
+---
+title: Monitoring
+---
 
-![Hero image](https://user-images.githubusercontent.com/249912/71523206-4e45f800-28c8-11ea-84ba-345a9bfc998a.png)
+# Saleor App Monitoring
 
 ❗️NOTE: This is Alpha version of the app.❗️
 
