@@ -167,7 +167,7 @@ module.exports = {
           },
           {
             from: "/docs/3.x/developer/extending/apps/key-concepts",
-            to: "/docs/3.x/developer/extending/apps/",
+            to: "/docs/3.x/developer/extending/apps/overview",
           },
           {
             from: "/docs/3.x/category/api-usage",

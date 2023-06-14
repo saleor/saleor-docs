@@ -1,19 +1,16 @@
 module.exports = {
   type: "category",
-  label: "Apps",
-  link: {
-    type: "doc",
-    id: "developer/extending/apps/index",
-  },
+  label: "Extending dashboard",
   items: [
+    "developer/extending/apps/overview",
     {
       type: "category",
       label: "Architecture",
       items: [
         "developer/extending/apps/architecture/overview",
+        "developer/extending/apps/architecture/manifest",
         "developer/extending/apps/architecture/app-requirements",
         "developer/extending/apps/architecture/communication-between-app-and-saleor",
-        "developer/extending/apps/manifest",
         "developer/extending/apps/architecture/apl",
         // todo: add more content for app bridge
         // "developer/extending/apps/architecture/app-bridge",

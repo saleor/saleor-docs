@@ -76,8 +76,6 @@ module.exports = {
       label: "Saleor App Store",
       items: [
         "developer/app-store/overview",
-        "developer/app-store/development",
-        "developer/app-store/forking",
         {
           type: "category",
           label: "Apps",
