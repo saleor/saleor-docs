@@ -43,30 +43,6 @@ module.exports = {
         },
       ],
     },
-    {
-      type: "category",
-      label: "Webhooks",
-      link: {
-        type: "generated-index",
-        title: "Webhooks",
-      },
-      items: [
-        "developer/extending/apps/asynchronous-webhooks",
-        {
-          type: "category",
-          label: "Synchronous webhooks",
-          items: [
-            "developer/extending/apps/synchronous-webhooks/key-concepts",
-            "developer/extending/apps/synchronous-webhooks/payment-webhooks",
-            "developer/extending/apps/synchronous-webhooks/shipping-webhooks",
-            "developer/extending/apps/synchronous-webhooks/tax-webhooks",
-            "developer/extending/apps/synchronous-webhooks/transaction-webhooks",
-          ],
-        },
-        "developer/extending/apps/subscription-webhook-payloads",
-        "developer/extending/apps/sample-webhook-payloads",
-      ],
-    },
     // {
     //   type: "category",
     //   label: "Deploying Apps",

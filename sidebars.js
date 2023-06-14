@@ -117,6 +117,30 @@ module.exports = {
         require("./sidebars/apps-sidebar"),
         {
           type: "category",
+          label: "Webhooks",
+          items: [
+            "developer/extending/webhooks/overview",
+            "developer/extending/webhooks/creating",
+            "developer/extending/webhooks/subscription-webhook-payloads",
+            "developer/extending/webhooks/payload-signature",
+            "developer/extending/webhooks/asynchronous-events",
+            {
+              type: "category",
+              label: "Synchronous events",
+              items: [
+                "developer/extending/webhooks/synchronous-events/key-concepts",
+                "developer/extending/webhooks/synchronous-events/payment",
+                "developer/extending/webhooks/synchronous-events/shipping",
+                "developer/extending/webhooks/synchronous-events/tax",
+                "developer/extending/webhooks/synchronous-events/transaction",
+              ],
+            },
+
+            "developer/extending/webhooks/sample-webhook-payloads",
+          ]
+        },
+        {
+          type: "category",
           label: "Plugins",
           items: [
             "developer/extending/plugins/overview",

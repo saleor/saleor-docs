@@ -14,7 +14,7 @@ Here is a list of currently supported CMSes and their configuration guides:
 
 ## How does it work?
 
-1. `cms` listens to Saleor product variant events through [webhooks](https://docs.saleor.io/docs/3.x/developer/extending/apps/asynchronous-webhooks).
+1. `cms` listens to Saleor product variant events through [webhooks](https://docs.saleor.io/docs/3.x/developer/extending/webhooks/asynchronous-events).
 2. When an event is triggered, we extract the product data and pass it to the CMS Client.
 3. CMS Client checks what CMS you picked, transforms the data to the format the CMS expects, and sends it over.
 
