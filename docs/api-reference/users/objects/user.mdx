@@ -89,8 +89,8 @@ type User implements Node, ObjectWithMetadata {
   isStaff: Boolean!
   isActive: Boolean!
   addresses: [Address!]!
-  checkout: Checkout
-  checkoutTokens(channel: String): [UUID!]
+  checkout: Checkout @deprecated
+  checkoutTokens(channel: String): [UUID!] @deprecated
   checkoutIds(channel: String): [ID!]
   checkouts(
     channel: String
@@ -115,6 +115,8 @@ type User implements Node, ObjectWithMetadata {
   userPermissions: [UserPermission!]
   permissionGroups: [Group!]
   editableGroups: [Group!]
+  accessibleChannels: [Channel!]
+  restrictedAccessToChannels: Boolean!
   avatar(size: Int, format: ThumbnailFormatEnum = ORIGINAL): Image
   events: [CustomerEvent!]
   storedPaymentSources(channel: String): [PaymentSource!]
@@ -132,7 +134,7 @@ type User implements Node, ObjectWithMetadata {
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>id</b></code>](#)<Bullet />[`ID!`](../../../api-reference/miscellaneous/scalars/id) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="scalar"/>
 
->
+> The ID of the user.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>privateMetadata</b></code>](#)<Bullet />[`[MetadataItem!]!`](../../../api-reference/miscellaneous/objects/metadata-item) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="object"/>
 
@@ -188,23 +190,23 @@ type User implements Node, ObjectWithMetadata {
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>email</b></code>](#)<Bullet />[`String!`](../../../api-reference/miscellaneous/scalars/string) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="scalar"/>
 
->
+> The email address of the user.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>firstName</b></code>](#)<Bullet />[`String!`](../../../api-reference/miscellaneous/scalars/string) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="scalar"/>
 
->
+> The given name of the address.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>lastName</b></code>](#)<Bullet />[`String!`](../../../api-reference/miscellaneous/scalars/string) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="scalar"/>
 
->
+> The family name of the address.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>isStaff</b></code>](#)<Bullet />[`Boolean!`](../../../api-reference/miscellaneous/scalars/boolean) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="scalar"/>
 
->
+> Determine if the user is a staff admin.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>isActive</b></code>](#)<Bullet />[`Boolean!`](../../../api-reference/miscellaneous/scalars/boolean) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="scalar"/>
 
->
+> Determine if the user is active.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>addresses</b></code>](#)<Bullet />[`[Address!]!`](../../../api-reference/users/objects/address) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="object"/>
 
@@ -332,8 +334,26 @@ type User implements Node, ObjectWithMetadata {
 
 > List of user's permission groups which user can manage.
 
+#### [<code style={{ fontWeight: 'normal' }}>User.<b>accessibleChannels</b></code>](#)<Bullet />[`[Channel!]`](../../../api-reference/channels/objects/channel) <Badge class="secondary" text="list"/> <Badge class="secondary" text="object"/>
+
+> List of channels the user has access to. The sum of channels from all user groups. If at least one group has `restrictedAccessToChannels` set to False - all channels are returned.
+>
+> <Badge text="Added in Saleor 3.14" class="secondary margin-bottom--sm" />
+>
+> <FeaturePreview />
+
+#### [<code style={{ fontWeight: 'normal' }}>User.<b>restrictedAccessToChannels</b></code>](#)<Bullet />[`Boolean!`](../../../api-reference/miscellaneous/scalars/boolean) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="scalar"/>
+
+> Determine if user have restricted access to channels. False if at least one user group has `restrictedAccessToChannels` set to False.
+>
+> <Badge text="Added in Saleor 3.14" class="secondary margin-bottom--sm" />
+>
+> <FeaturePreview />
+
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>avatar</b></code>](#)<Bullet />[`Image`](../../../api-reference/miscellaneous/objects/image) <Badge class="secondary" text="object"/>
 
+> The avatar of the user.
+>
 > ##### [<code style={{ fontWeight: 'normal' }}>User.avatar.<b>size</b></code>](#)<Bullet />[`Int`](../../../api-reference/miscellaneous/scalars/int) <Badge class="secondary" text="scalar"/>
 >
 > Desired longest side the image in pixels. Defaults to 4096. Images are never cropped. Pass 0 to retrieve the original size (not recommended).
@@ -367,11 +387,11 @@ type User implements Node, ObjectWithMetadata {
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>defaultShippingAddress</b></code>](#)<Bullet />[`Address`](../../../api-reference/users/objects/address) <Badge class="secondary" text="object"/>
 
->
+> The default shipping address of the user.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>defaultBillingAddress</b></code>](#)<Bullet />[`Address`](../../../api-reference/users/objects/address) <Badge class="secondary" text="object"/>
 
->
+> The default billing address of the user.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>externalReference</b></code>](#)<Bullet />[`String`](../../../api-reference/miscellaneous/scalars/string) <Badge class="secondary" text="scalar"/>
 
@@ -381,15 +401,15 @@ type User implements Node, ObjectWithMetadata {
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>lastLogin</b></code>](#)<Bullet />[`DateTime`](../../../api-reference/miscellaneous/scalars/date-time) <Badge class="secondary" text="scalar"/>
 
->
+> The date when the user last time log in to the system.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>dateJoined</b></code>](#)<Bullet />[`DateTime!`](../../../api-reference/miscellaneous/scalars/date-time) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="scalar"/>
 
->
+> The data when the user create account.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>updatedAt</b></code>](#)<Bullet />[`DateTime!`](../../../api-reference/miscellaneous/scalars/date-time) <Badge class="secondary" text="non-null"/> <Badge class="secondary" text="scalar"/>
 
->
+> The data when the user last update the account information.
 
 ### Interfaces
 
@@ -407,7 +427,7 @@ type User implements Node, ObjectWithMetadata {
 
 ### Member of
 
-[`AccountAddressCreate`](../../../api-reference/users/objects/account-address-create) <Badge class="secondary" text="object"/><Bullet />[`AccountAddressDelete`](../../../api-reference/users/objects/account-address-delete) <Badge class="secondary" text="object"/><Bullet />[`AccountAddressUpdate`](../../../api-reference/users/objects/account-address-update) <Badge class="secondary" text="object"/><Bullet />[`AccountDelete`](../../../api-reference/users/objects/account-delete) <Badge class="secondary" text="object"/><Bullet />[`AccountRegister`](../../../api-reference/users/objects/account-register) <Badge class="secondary" text="object"/><Bullet />[`AccountSetDefaultAddress`](../../../api-reference/users/objects/account-set-default-address) <Badge class="secondary" text="object"/><Bullet />[`AccountUpdate`](../../../api-reference/users/objects/account-update) <Badge class="secondary" text="object"/><Bullet />[`AddressCreate`](../../../api-reference/users/objects/address-create) <Badge class="secondary" text="object"/><Bullet />[`AddressDelete`](../../../api-reference/users/objects/address-delete) <Badge class="secondary" text="object"/><Bullet />[`AddressSetDefault`](../../../api-reference/users/objects/address-set-default) <Badge class="secondary" text="object"/><Bullet />[`AddressUpdate`](../../../api-reference/users/objects/address-update) <Badge class="secondary" text="object"/><Bullet />[`Checkout`](../../../api-reference/checkout/objects/checkout) <Badge class="secondary" text="object"/><Bullet />[`ConfirmAccount`](../../../api-reference/users/objects/confirm-account) <Badge class="secondary" text="object"/><Bullet />[`ConfirmEmailChange`](../../../api-reference/users/objects/confirm-email-change) <Badge class="secondary" text="object"/><Bullet />[`CreateToken`](../../../api-reference/authentication/objects/create-token) <Badge class="secondary" text="object"/><Bullet />[`CustomerBulkResult`](../../../api-reference/users/objects/customer-bulk-result) <Badge class="secondary" text="object"/><Bullet />[`CustomerCreate`](../../../api-reference/users/objects/customer-create) <Badge class="secondary" text="object"/><Bullet />[`CustomerCreated`](../../../api-reference/users/objects/customer-created) <Badge class="secondary" text="object"/><Bullet />[`CustomerDelete`](../../../api-reference/users/objects/customer-delete) <Badge class="secondary" text="object"/><Bullet />[`CustomerEvent`](../../../api-reference/users/objects/customer-event) <Badge class="secondary" text="object"/><Bullet />[`CustomerMetadataUpdated`](../../../api-reference/users/objects/customer-metadata-updated) <Badge class="secondary" text="object"/><Bullet />[`CustomerUpdate`](../../../api-reference/users/objects/customer-update) <Badge class="secondary" text="object"/><Bullet />[`CustomerUpdated`](../../../api-reference/users/objects/customer-updated) <Badge class="secondary" text="object"/><Bullet />[`ExportEvent`](../../../api-reference/miscellaneous/objects/export-event) <Badge class="secondary" text="object"/><Bullet />[`ExportFile`](../../../api-reference/miscellaneous/objects/export-file) <Badge class="secondary" text="object"/><Bullet />[`ExternalObtainAccessTokens`](../../../api-reference/authentication/objects/external-obtain-access-tokens) <Badge class="secondary" text="object"/><Bullet />[`ExternalRefresh`](../../../api-reference/authentication/objects/external-refresh) <Badge class="secondary" text="object"/><Bullet />[`ExternalVerify`](../../../api-reference/authentication/objects/external-verify) <Badge class="secondary" text="object"/><Bullet />[`GiftCard`](../../../api-reference/gift-cards/objects/gift-card) <Badge class="secondary" text="object"/><Bullet />[`GiftCardEvent`](../../../api-reference/gift-cards/objects/gift-card-event) <Badge class="secondary" text="object"/><Bullet />[`Group`](../../../api-reference/users/objects/group) <Badge class="secondary" text="object"/><Bullet />[`Order`](../../../api-reference/orders/objects/order) <Badge class="secondary" text="object"/><Bullet />[`OrderEvent`](../../../api-reference/orders/objects/order-event) <Badge class="secondary" text="object"/><Bullet />[`OrderGrantedRefund`](../../../api-reference/orders/objects/order-granted-refund) <Badge class="secondary" text="object"/><Bullet />[`PasswordChange`](../../../api-reference/users/objects/password-change) <Badge class="secondary" text="object"/><Bullet />[`RefreshToken`](../../../api-reference/authentication/objects/refresh-token) <Badge class="secondary" text="object"/><Bullet />[`RequestEmailChange`](../../../api-reference/users/objects/request-email-change) <Badge class="secondary" text="object"/><Bullet />[`SetPassword`](../../../api-reference/users/objects/set-password) <Badge class="secondary" text="object"/><Bullet />[`StaffCreate`](../../../api-reference/users/objects/staff-create) <Badge class="secondary" text="object"/><Bullet />[`StaffCreated`](../../../api-reference/users/objects/staff-created) <Badge class="secondary" text="object"/><Bullet />[`StaffDelete`](../../../api-reference/users/objects/staff-delete) <Badge class="secondary" text="object"/><Bullet />[`StaffDeleted`](../../../api-reference/users/objects/staff-deleted) <Badge class="secondary" text="object"/><Bullet />[`StaffNotificationRecipient`](../../../api-reference/miscellaneous/objects/staff-notification-recipient) <Badge class="secondary" text="object"/><Bullet />[`StaffUpdate`](../../../api-reference/users/objects/staff-update) <Badge class="secondary" text="object"/><Bullet />[`StaffUpdated`](../../../api-reference/users/objects/staff-updated) <Badge class="secondary" text="object"/><Bullet />[`UserAvatarDelete`](../../../api-reference/users/objects/user-avatar-delete) <Badge class="secondary" text="object"/><Bullet />[`UserAvatarUpdate`](../../../api-reference/users/objects/user-avatar-update) <Badge class="secondary" text="object"/><Bullet />[`UserCountableEdge`](../../../api-reference/users/objects/user-countable-edge) <Badge class="secondary" text="object"/><Bullet />[`VerifyToken`](../../../api-reference/authentication/objects/verify-token) <Badge class="secondary" text="object"/>
+[`AccountAddressCreate`](../../../api-reference/users/objects/account-address-create) <Badge class="secondary" text="object"/><Bullet />[`AccountAddressDelete`](../../../api-reference/users/objects/account-address-delete) <Badge class="secondary" text="object"/><Bullet />[`AccountAddressUpdate`](../../../api-reference/users/objects/account-address-update) <Badge class="secondary" text="object"/><Bullet />[`AccountConfirmationRequested`](../../../api-reference/users/objects/account-confirmation-requested) <Badge class="secondary" text="object"/><Bullet />[`AccountDelete`](../../../api-reference/users/objects/account-delete) <Badge class="secondary" text="object"/><Bullet />[`AccountDeleteRequested`](../../../api-reference/users/objects/account-delete-requested) <Badge class="secondary" text="object"/><Bullet />[`AccountRegister`](../../../api-reference/users/objects/account-register) <Badge class="secondary" text="object"/><Bullet />[`AccountSetDefaultAddress`](../../../api-reference/users/objects/account-set-default-address) <Badge class="secondary" text="object"/><Bullet />[`AccountUpdate`](../../../api-reference/users/objects/account-update) <Badge class="secondary" text="object"/><Bullet />[`AddressCreate`](../../../api-reference/users/objects/address-create) <Badge class="secondary" text="object"/><Bullet />[`AddressDelete`](../../../api-reference/users/objects/address-delete) <Badge class="secondary" text="object"/><Bullet />[`AddressSetDefault`](../../../api-reference/users/objects/address-set-default) <Badge class="secondary" text="object"/><Bullet />[`AddressUpdate`](../../../api-reference/users/objects/address-update) <Badge class="secondary" text="object"/><Bullet />[`Checkout`](../../../api-reference/checkout/objects/checkout) <Badge class="secondary" text="object"/><Bullet />[`ConfirmAccount`](../../../api-reference/users/objects/confirm-account) <Badge class="secondary" text="object"/><Bullet />[`ConfirmEmailChange`](../../../api-reference/users/objects/confirm-email-change) <Badge class="secondary" text="object"/><Bullet />[`CreateToken`](../../../api-reference/authentication/objects/create-token) <Badge class="secondary" text="object"/><Bullet />[`CustomerBulkResult`](../../../api-reference/users/objects/customer-bulk-result) <Badge class="secondary" text="object"/><Bullet />[`CustomerCreate`](../../../api-reference/users/objects/customer-create) <Badge class="secondary" text="object"/><Bullet />[`CustomerCreated`](../../../api-reference/users/objects/customer-created) <Badge class="secondary" text="object"/><Bullet />[`CustomerDelete`](../../../api-reference/users/objects/customer-delete) <Badge class="secondary" text="object"/><Bullet />[`CustomerEvent`](../../../api-reference/users/objects/customer-event) <Badge class="secondary" text="object"/><Bullet />[`CustomerMetadataUpdated`](../../../api-reference/users/objects/customer-metadata-updated) <Badge class="secondary" text="object"/><Bullet />[`CustomerUpdate`](../../../api-reference/users/objects/customer-update) <Badge class="secondary" text="object"/><Bullet />[`CustomerUpdated`](../../../api-reference/users/objects/customer-updated) <Badge class="secondary" text="object"/><Bullet />[`ExportEvent`](../../../api-reference/miscellaneous/objects/export-event) <Badge class="secondary" text="object"/><Bullet />[`ExportFile`](../../../api-reference/miscellaneous/objects/export-file) <Badge class="secondary" text="object"/><Bullet />[`ExternalObtainAccessTokens`](../../../api-reference/authentication/objects/external-obtain-access-tokens) <Badge class="secondary" text="object"/><Bullet />[`ExternalRefresh`](../../../api-reference/authentication/objects/external-refresh) <Badge class="secondary" text="object"/><Bullet />[`ExternalVerify`](../../../api-reference/authentication/objects/external-verify) <Badge class="secondary" text="object"/><Bullet />[`GiftCard`](../../../api-reference/gift-cards/objects/gift-card) <Badge class="secondary" text="object"/><Bullet />[`GiftCardEvent`](../../../api-reference/gift-cards/objects/gift-card-event) <Badge class="secondary" text="object"/><Bullet />[`Group`](../../../api-reference/users/objects/group) <Badge class="secondary" text="object"/><Bullet />[`Order`](../../../api-reference/orders/objects/order) <Badge class="secondary" text="object"/><Bullet />[`OrderEvent`](../../../api-reference/orders/objects/order-event) <Badge class="secondary" text="object"/><Bullet />[`OrderGrantedRefund`](../../../api-reference/orders/objects/order-granted-refund) <Badge class="secondary" text="object"/><Bullet />[`PasswordChange`](../../../api-reference/users/objects/password-change) <Badge class="secondary" text="object"/><Bullet />[`RefreshToken`](../../../api-reference/authentication/objects/refresh-token) <Badge class="secondary" text="object"/><Bullet />[`RequestEmailChange`](../../../api-reference/users/objects/request-email-change) <Badge class="secondary" text="object"/><Bullet />[`SetPassword`](../../../api-reference/users/objects/set-password) <Badge class="secondary" text="object"/><Bullet />[`StaffCreate`](../../../api-reference/users/objects/staff-create) <Badge class="secondary" text="object"/><Bullet />[`StaffCreated`](../../../api-reference/users/objects/staff-created) <Badge class="secondary" text="object"/><Bullet />[`StaffDelete`](../../../api-reference/users/objects/staff-delete) <Badge class="secondary" text="object"/><Bullet />[`StaffDeleted`](../../../api-reference/users/objects/staff-deleted) <Badge class="secondary" text="object"/><Bullet />[`StaffNotificationRecipient`](../../../api-reference/miscellaneous/objects/staff-notification-recipient) <Badge class="secondary" text="object"/><Bullet />[`StaffUpdate`](../../../api-reference/users/objects/staff-update) <Badge class="secondary" text="object"/><Bullet />[`StaffUpdated`](../../../api-reference/users/objects/staff-updated) <Badge class="secondary" text="object"/><Bullet />[`UserAvatarDelete`](../../../api-reference/users/objects/user-avatar-delete) <Badge class="secondary" text="object"/><Bullet />[`UserAvatarUpdate`](../../../api-reference/users/objects/user-avatar-update) <Badge class="secondary" text="object"/><Bullet />[`UserCountableEdge`](../../../api-reference/users/objects/user-countable-edge) <Badge class="secondary" text="object"/><Bullet />[`VerifyToken`](../../../api-reference/authentication/objects/verify-token) <Badge class="secondary" text="object"/>
 
 ### Implemented by
 
