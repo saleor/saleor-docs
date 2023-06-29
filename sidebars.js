@@ -153,7 +153,6 @@ module.exports = {
           label: "Deploying",
           items: [
             "setup/deploy-do",
-            "setup/deploy-heroku",
             "setup/deploy-kubernetes",
             "setup/deploy-linux",
           ],
