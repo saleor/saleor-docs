@@ -1,43 +1,43 @@
 ---
-title: Local apps development
+title: Local app development
 ---
 
 :::note
-This article covers developing apps locally on your machine. If you want to connect app to Saleor hosted in the Cloud, see [developing apps with tunnels](developer/extending/apps/developing-with-tunnels.mdx).
+This article covers the local development workflow. If you want to connect your app to a Saleor Cloud instance, see [developing apps with tunnels](developer/extending/apps/developing-with-tunnels.mdx).
 
-Article assumes you are working on MacOS or Windows environment, if your are using Linux, [skip to this section](#working-on-linux)
+If you are a Linux user, you can [skip to this section](#working-on-linux).
 :::
 
-# Prerequisites
+## Prerequisites
 
-In this article we will assume developing an app using official [Saleor App Template](developer/extending/apps/developing-apps/app-template.mdx).
-
-To develop apps locally, you need to have the following installed:
+This article will require you to have installed the following:
 
 - [Docker](https://www.docker.com/) - for running Saleor locally
-- [Node.js](https://nodejs.org/en/) (v18 or higher) - to run a Node.js app locally.
-- [pnpm](https://pnpm.io/) (v8 or higher) - to install dependencies of the [Saleor App Template](developer/extending/apps/developing-apps/app-template.mdx).
+- [Node.js](https://nodejs.org/en/) (v18 or higher) - to run a Node.js app locally
+- [pnpm](https://pnpm.io/) (v8 or higher) - to install dependencies of the [Saleor App Template](developer/extending/apps/developing-apps/app-template.mdx)
 
-# Set up Saleor local development environment
+## Setting up the local development environment
 
 The easiest way to set up up-to-date Saleor ecosystem is to use official [Saleor Platform](https://github.com/saleor/saleor-platform) repository. It contains all the necessary services and tools to run Saleor locally.
 
-To set up Saleor local development environment, follow the [readme](https://github.com/saleor/saleor-platform) in the Saleor Platform documentation.
+To set up Saleor local development environment, follow the [README](https://github.com/saleor/saleor-platform) in the Saleor Platform repository.
 
-At this point you can run your `docker-compose` and see Saleor running locally together with the Dashboard.
+When you finish, you should be able to run the `docker-compose` command and see Saleor running locally together with the Dashboard.
 
 :::tip
-Default addresses in Saleor Platform are:
+Default addresses in the Saleor Platform are:
 
 - Saleor Core (API) - http://localhost:8000
 - Saleor Dashboard - http://localhost:9000
 
-**Try to open Dashboard in the browser now. You need to successfully log in before you continue**
+**Try to open the Dashboard in your browser now. You need to log in successfully before you continue.**
 :::
 
-# Set up Saleor App Template
+## Setting up Saleor App Template
 
-To set up Saleor App Template, check [this article](developer/extending/apps/developing-apps/app-template.mdx).
+After setting up all the services, we need to create our app. For that purpose, we will leverage [Saleor App Template](https://github.com/saleor/saleor-app-template) - the official Saleor app boilerplate.
+
+To set up Saleor App Template, follow the instructions in [this article](developer/extending/apps/developing-apps/app-template.mdx).
 
 Make sure you run `pnpm install` in the app directory to install all the dependencies.
 
@@ -45,13 +45,11 @@ Make sure you run `pnpm install` in the app directory to install all the depende
 Saleor App Template is built on top of Next.js framework. You can visit [Next.js documentation](https://nextjs.org/) to learn more about it's concepts.
 :::
 
-#### Accessing App locally
+Before we continue, let's ensure our app is properly set up and running.
 
-Before we continue, let's ensure App Template is properly set up and running.
+To do that, run the default `pnpm dev` script. It should start the app on `http://localhost:3000`.
 
-To do that, run default `pnpm dev` script. It should start the app on http://localhost:3000.
-
-Once you open the address in your browser, you should see a simple welcome page. **You need it before we continue.**
+Once you visit the app in your browser, you should see a simple welcome page.
 
 :::note
 At this point you should have three required services running:
@@ -59,9 +57,10 @@ At this point you should have three required services running:
 - Saleor Core (API) on port 8000
 - Saleor Dashboard on port 9000
 - Saleor App on port 3000
-  :::
 
-# Connecting App to Saleor
+:::
+
+## Connecting the app to Saleor
 
 Now we reached the tricky part. Installing app in Saleor requires bi-directional communication between services:
 
@@ -69,60 +68,61 @@ Now we reached the tricky part. Installing app in Saleor requires bi-directional
 2. App needs to call Saleor API (host -> container).
 3. Saleor needs to call App API (container -> host).
 
-To achieve that we need to ensure all services are available to each other. While host (your machine) can open container exposed service, container can't open host that easily.
+To achieve that, we need to ensure all services can communicate with each other. While the host machine can access the container's exposed service, the container itself cannot easily access the host.
 
 We will configure the app to work well both with Saleor (container) and the Dashboard (host browser).
 
 ### App's URL overriding
 
-By default, your app will run on the http://localhost:3000. This URL is available for the browser, but once Saleor API from the container tries to reach it - it will look container's port, not your host's.
+By default, your app will run on the `http://localhost:3000`. This URL is available for the browser, but once Saleor API from the container tries to reach it - it will look for the container's port, not your host's.
 
-We will alter behavior of the app, to be available on different hosts, depending "who is asking".
+We will alter the behavior of the app. Now, depending on "who is asking", it will be available on different hosts.
 
-- For browser, app will be available on http://localhost:3000
-- For Saleor in the container, app will be available on http://host.docker.internal:3000.
+- For the browser, the app will be available on `http://localhost:3000`.
+- For Saleor in the container, the app will be available on `http://host.docker.internal:3000`.
 
 :::note
-Read more about [host.docker.internal](https://docs.docker.com/desktop/networking/#i-want-to-connect-from-a-container-to-a-service-on-the-host) in Docker documentation.
+Read more about [host.docker.internal](https://docs.docker.com/desktop/networking/#i-want-to-connect-from-a-container-to-a-service-on-the-host) in the Docker documentation.
 :::
 
-Saleor App Template ships with documented [`.env.example` file](https://github.com/saleor/saleor-app-template/blob/main/.env.example) you can rename to `.env`. It will be automatically loaded by the app.
+Saleor App Template ships with a documented [`.env.example` file](https://github.com/saleor/saleor-app-template/blob/main/.env.example) you can rename to `.env`. The environment variables will be automatically loaded by the app.
 
-To override app's base URLs, you need to set following envs:
+To override the app's base URLs, you need to set following envs:
 
 ```dotenv
 APP_IFRAME_BASE_URL=http://localhost:3000
 APP_API_BASE_URL=http://host.docker.internal:3000
 ```
 
-Remember that `:3000` port if a default port Next.js uses for development. If you change it, you need to update the envs accordingly.
+:::note
+Remember that `:3000` port is the default port Next.js uses for development. If you change it, you need to update the envs accordingly.
+:::
 
-You can see [the Manifest endpoint](https://github.com/saleor/saleor-app-template/blob/main/src/pages/api/manifest.ts) to see how the envs are used. In the nutshell:
+You can visit [the Manifest endpoint](https://github.com/saleor/saleor-app-template/blob/main/src/pages/api/manifest.ts) to verify how the envs are used. You should see:
 
-1. `appUrl` which Dashboard uses to open the app in the iframe is using "localhost".
-2. Other API endpoints are using `host.docker.internal` to ensure container can reach them. Saleor will call few of them (registration handshake, webhooks, fetching app logo...)
+1. The `appUrl` which Dashboard uses to open the app in the iframe, should be using "localhost".
+2. Other API endpoints should be using `host.docker.internal` to ensure container can reach them.
 
 :::caution
 You need to restart your app after changing the envs.
 :::
 
-At this point, your app will be still available on [http://localhost:3000](http://localhost:3000). You can open it in the browser and see if it works.
-You will see that manifest under [http://localhost:3000/api/manifest](http://localhost:3000/api/manifest) contains `host.docker.internal` URLs.
+At this point, your app will be still available on [http://localhost:3000](http://localhost:3000). You can open it in the browser and see if everything works.
 
 ### Installing App in Saleor
 
-The final step is install the app in Saleor. You can do that via API or the Dashboard. We will use the Dashboard:
+The final step is installing the app in Saleor. You can do that via API or the Dashboard. We will use the Dashboard:
 
 1. Open Dashboard ([http://localhost:9000](http://localhost:9000))
-2. Navigate to Apps section ([http://localhost:9000/apps](http://localhost:9000/apps))
-3. Click "Install external app" button and paste your `http://host.docker.internal:3000/api/manifest` URL.
-4. Continue with installation process.
+2. Navigate to the _Apps_ section ([http://localhost:9000/apps](http://localhost:9000/apps))
+3. Click on "Install external app" button and paste your `http://host.docker.internal:3000/api/manifest` URL.
+4. Continue with the installation process.
 
 Your app should be soon available on the Apps' list. You can open it and see if it works.
 
 :::caution
-Be careful not to override envs in the deployment environment. By default, App will use the same endpoint it is reach from.
-Thanks to that, you can install App on a cloud like Vercel and use it's unique domains for each deployment.
+Be careful not to override envs in the deployment environment. By default, the app will use the same endpoint it is reached from.
+Thanks to that, you can install the App on the cloud like Vercel and use its unique domains for each deployment.
 :::
 
 ## Working on Linux
