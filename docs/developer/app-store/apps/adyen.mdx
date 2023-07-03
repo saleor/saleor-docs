@@ -289,9 +289,9 @@ Many payment methods are not settled synchronously. Sometimes it takes seconds, 
 
 To use some payment methods inside Adyen Drop-in you may have to implement the following callbacks:
 
-- `onBalanceCheck`
-- `onOrderRequest`
-- `onOrderCancel`
+- `onBalanceCheck` (Web, React Native), `checkBalance` (iOS) or `checkBalance` (Android)
+- `onOrderRequest` (Web, React Native), `requestOrder` (iOS) or `createOrder` (Android)
+- `onOrderCancel` (Web, React Native), `cancelOrder` (iOS) or `cancelOrder` (Android)
 
 For example, these methods are required for [Gift card split-payments](https://docs.adyen.com/payment-methods/gift-cards/web-drop-in?tab=config-payments_2#required-configuration).
 
@@ -308,7 +308,7 @@ Orders link transactions on the Adyen level. For example, if a user cancels an o
 To call the `/paymentMethods/balance` endpoint use the `paymentGatewayInitialize` mutation:
 
 ```graphql
-mutation SendDataToApp($checkoutId: ID!, $data: JSON) {
+mutation PaymentGatewayInitialize($checkoutId: ID!, $data: JSON) {
   paymentGatewayInitialize(
     paymentGateways: [{ id: "app.saleor.adyen", data: $data }]
     id: $checkoutId
@@ -347,13 +347,13 @@ and provide the following JSON in `$data`:
 
 The contents of the `paymentMethod` field come from the Adyen Drop-in.
 
-Example `onBalanceCheck` implementation could look like this (depending on your GraphQL client):
+Example `onBalanceCheck` implementation in TypeScript could look like this (depending on your GraphQL client):
 
 ```ts
 async onBalanceCheck(resolve, reject, data) {
   const {
     paymentGatewayInitialize: { gatewayConfigs },
-  } = await client.request(BalanceCheck, {
+  } = await client.request(PaymentGatewayInitialize, {
     checkoutId,
     data: { action: "checkBalance", paymentMethod: data.paymentMethod },
   });
@@ -361,6 +361,12 @@ async onBalanceCheck(resolve, reject, data) {
   resolve(response);
 }
 ```
+
+::: note
+
+Error handling is intentionally omitted for brevity.
+
+:::
 
 The response received from Saleor with data from the Adyen app will be:
 
@@ -388,7 +394,7 @@ The response received from Saleor with data from the Adyen app will be:
 }
 ```
 
-#### `onOrderCreate`
+#### `onOrderRequest`
 
 Similarly to `onBalanceCheck`, to call the `/orders` endpoint use the `paymentGatewayInitialize` mutation and pass the following `$data`:
 
@@ -398,19 +404,19 @@ Similarly to `onBalanceCheck`, to call the `/orders` endpoint use the `paymentGa
 }
 ```
 
-The `onOrderCreate` implementation could look like this (depending on your GraphQL client):
+The `onOrderCreate` implementation in TypeScript could look like this (depending on your GraphQL client):
 
 ```ts
-    async onOrderCreate(resolve, reject, data) {
-      const {
-        paymentGatewayInitialize: { gatewayConfigs },
-      } = await client.request(CreateOrder, {
-        checkoutId,
-        data: { action: "createOrder" },
-      });
-      const response = gatewayConfigs[0].data.orderCreateResponse;
-      resolve(response);
-    },
+async onOrderCreate(resolve, reject, data) {
+  const {
+    paymentGatewayInitialize: { gatewayConfigs },
+  } = await client.request(PaymentGatewayInitialize, {
+    id: checkoutId,
+    data: { action: "createOrder" },
+  });
+  const response = gatewayConfigs[0].data.orderCreateResponse;
+  resolve(response);
+}
 ```
 
 The response received from Saleor with data from the `/orders` endpoint will be:
@@ -431,7 +437,7 @@ The response received from Saleor with data from the `/orders` endpoint will be:
               "expiresAt": "2023-07-04T11:34:02Z",
               "orderData": "...",
               "pspReference": "W...82",
-              "reference": "Checkout:Q2hlY2...jM1OGJm",
+              "reference": "Checkout:Q2hlY2…jM1OGJm",
               "remainingAmount": {
                 "currency": "EUR",
                 "value": 12000
@@ -453,13 +459,13 @@ For example: if you have only 20 EUR left on a gift card, and the order's total
 
 #### `onOrderCancel`
 
-This endpoint is called when the user removes a payment method in a pending Adyen order, for example when there was already a partial charge for a gift card, but the user decided to use a different payment method.
+Should be called when the user removes a payment method in a pending Adyen order, for example when there was already a partial charge for a gift card but the user decided to use a different payment method.
 
 To call the `/orders/cancel` endpoint use the `transactionProcess` mutation:
 
 ```graphql
-mutation CancelOrder($id: ID!, $data: JSON!) {
-  transactionProcess(data: $data, id: $id) {
+mutation TransactionProcess($id: ID!, $data: JSON!) {
+  transactionProcess(id: $id, data: $data) {
     data
   }
 }
