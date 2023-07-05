@@ -129,10 +129,6 @@ module.exports = {
             to: "/docs/3.x/setup/media-gcs",
           },
           {
-            from: "/docs/3.x/developer/running-saleor/heroku",
-            to: "/docs/3.x/setup/deploy-heroku",
-          },
-          {
             from: "/docs/3.x/developer/running-saleor/monitoring",
             to: "/docs/3.x/setup/monitoring-sentry",
           },
