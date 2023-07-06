@@ -86,6 +86,16 @@ module.exports = {
             "developer/app-store/apps/taxes",
             "developer/app-store/apps/crm",
             "developer/app-store/apps/adyen",
+            {
+              type: "category",
+              label: "Emails and messages",
+              items: [
+                "developer/app-store/apps/emails-and-messages/overview",
+                "developer/app-store/apps/emails-and-messages/sendgrid",
+                "developer/app-store/apps/emails-and-messages/smtp",
+                "developer/app-store/apps/emails-and-messages/troubleshooting",
+              ],
+            },
           ],
         },
       ],

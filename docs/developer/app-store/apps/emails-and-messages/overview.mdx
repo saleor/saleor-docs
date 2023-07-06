@@ -1,0 +1,100 @@
+---
+title: Overview
+sidebar_position: 1
+---
+
+# Introduction
+
+Emails and messages (EAM) application is responsible for sending emails and messages to the customers. It is connected to the Saleor API via webhooks, which are used to notify the application about the events. Delivery of the messages is done by the external providers, which are configured in the application.
+
+## Suported providers
+
+Currently, we are supporting:
+
+- [Sendgrid](sendgrid) - Create templates in the Sengrid visual editor and send them to your customers
+- [SMTP](smtp) - Use your own SMTP server to send emails. Email templates are created using MJML and handlebars.
+
+## Supported events
+
+The application is listening to the following events:
+
+- `account_confirmation`
+- `account_password_reset`
+- `account_change_email_request`
+- `account_change_email_confirm`
+- `account_delete`
+- `account_set_customer_password`
+- `invoice_ready`
+- `order_confirmed`
+- `order_fulfillment_confirmation`
+- `order_fully_paid`
+- `order_canceled`
+- `send_gift_card`
+
+## Configuration
+
+The application can be simultaneously configured to use multiple providers. You'll be able to:
+
+- create test configurations before using them in production
+- use different providers for different events
+- use different providers for different channels
+
+### Multichannel
+
+Each provider can be configured to work with specific channels. The configurations by default are used for all channels. It can be changed in the configuration details to:
+
+- use only the specific channels
+- use all channels except the specific ones
+
+## Development
+
+To run the App locally:
+
+1. Go to the app directory.
+2. Copy the `.env.example` file to `.env`.The `.env` should contain the following variables:
+
+:::info
+
+Emails and Messages App is a Next.js application. If you want to learn more about setting environment variables in Next.js, head over to the [documentation](https://nextjs.org/docs/basic-features/environment-variables).
+
+:::
+
+`SECRET_KEY` (_required_)
+
+A randomly generated key for the encryption of [Settings Manager](https://github.com/saleor/saleor-app-sdk/blob/main/docs/settings-manager.md). At least 8 characters long.
+
+`APL` (_optional_)
+
+Name of the chosen implementation of the [Authentication Persistence Layer](https://github.com/saleor/saleor-app-sdk/blob/main/docs/apl.md).
+
+When no value is provided, `FileAPL` is used by default. See `saleor-app.ts` in the app directory to see supported APLs.
+
+`APP_DEBUG` (_optional_)
+
+The logging level for the app. The possible values are: `trace`, `debug`, `info`, `warn`, `error`, `fatal`, and `silent`. The default value is `info` which means that some information will be logged into the console.
+
+You can read more about our logger in [its documentation](https://getpino.io/#/docs/api?id=loggerlevel-string-gettersetter).
+
+### Running app in development mode
+
+To run the app in development mode, run the following command:
+
+```bash
+pnpm i
+pnpm dev
+```
+
+:::note
+
+pnpm 8.0.0 or higher is required to run the app.
+
+:::
+
+The app will be available at `http://localhost:3000`.
+
+## Known limitations and issues
+
+- When the application has multiple active configurations and one of them fails, it may result in duplicated email deliveries. [Issue link](https://github.com/saleor/apps/issues/725)
+- Emails use the default language of the Saleor instance. Using translations is not supported yet. [Issue link](https://github.com/saleor/apps/issues/726)
+- The order refunded event is not supported yet. [Issue link](https://github.com/saleor/apps/issues/728)
+- The fulfillment updated event is not supported yet. [Issue link](https://github.com/saleor/apps/issues/729)
