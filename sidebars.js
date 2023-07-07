@@ -135,9 +135,7 @@ module.exports = {
                 "developer/extending/webhooks/synchronous-events/transaction",
               ],
             },
-
-            "developer/extending/webhooks/sample-webhook-payloads",
-          ]
+          ],
         },
         {
           type: "category",
