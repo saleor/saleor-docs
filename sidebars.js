@@ -107,6 +107,19 @@ module.exports = {
             },
           ],
         },
+        {
+          type: "category",
+          label: "Available Plugins",
+          items: [
+            "developer/app-store/available-plugins/admin-emails",
+            "developer/app-store/available-plugins/adyen",
+            "developer/app-store/available-plugins/dummy-credit-card",
+            "developer/app-store/available-plugins/stripe",
+            "developer/app-store/available-plugins/oidc",
+            "developer/app-store/available-plugins/np-atobarai",
+            "developer/app-store/available-plugins/user-emails",
+          ],
+        },
       ],
     },
     {
@@ -137,37 +150,24 @@ module.exports = {
             },
           ],
         },
-        {
-          type: "category",
-          label: "Plugins",
-          items: [
-            "developer/extending/plugins/overview",
-            "developer/extending/payment-gateways",
-            {
-              type: "category",
-              label: "Internal APIs",
-              items: [
-                "developer/extending/api/errors",
-                "developer/extending/api/events",
-                "developer/extending/api/sorters",
-                "developer/extending/api/i18n",
-              ],
-            },
-            {
-              type: "category",
-              label: "Available Plugins",
-              items: [
-                "developer/available-plugins/admin-emails",
-                "developer/available-plugins/adyen",
-                "developer/available-plugins/dummy-credit-card",
-                "developer/available-plugins/stripe",
-                "developer/available-plugins/oidc",
-                "developer/available-plugins/np-atobarai",
-                "developer/available-plugins/user-emails",
-              ],
-            },
-          ],
-        },
+        // {
+        //   type: "category",
+        //   label: "Plugins",
+        //   items: [
+        //     "developer/extending/plugins/overview",
+        //     "developer/extending/payment-gateways",
+        //     {
+        //       type: "category",
+        //       label: "Internal APIs",
+        //       items: [
+        //         "developer/extending/api/errors",
+        //         "developer/extending/api/events",
+        //         "developer/extending/api/sorters",
+        //         "developer/extending/api/i18n",
+        //       ],
+        //     },
+        //   ],
+        // },
         "developer/extending/apollo-federation",
         "developer/metadata",
       ],
