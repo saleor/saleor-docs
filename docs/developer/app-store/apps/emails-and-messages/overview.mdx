@@ -5,35 +5,99 @@ sidebar_position: 1
 
 # Introduction
 
-Emails and messages (EAM) application is responsible for sending emails and messages to the customers. It is connected to the Saleor API via webhooks, which are used to notify the application about the events. Delivery of the messages is done by the external providers, which are configured in the application.
+Emails and messages (EAM) application is responsible for sending emails and messages to the customers. It is connected to the Saleor API via webhooks, which notify the application about the events. The messages are delivered by external providers configured in the application.
 
 ## Suported providers
 
-Currently, we are supporting:
+Emails and Messages app currently supports the following providers:
 
-- [Sendgrid](sendgrid) - Create templates in the Sengrid visual editor and send them to your customers
+- [Sendgrid](sendgrid) - Create templates in the Sendgrid visual editor and send them to your customers.
 - [SMTP](smtp) - Use your own SMTP server to send emails. Email templates are created using MJML and handlebars.
 
 ## Supported events
 
-The application is listening to the following events:
+### Account confirmation
 
-- `account_confirmation`
-- `account_password_reset`
-- `account_change_email_request`
-- `account_change_email_confirm`
-- `account_delete`
-- `account_set_customer_password`
-- `invoice_ready`
-- `order_confirmed`
-- `order_fulfillment_confirmation`
-- `order_fully_paid`
-- `order_canceled`
-- `send_gift_card`
+A message containing an account activation token after registration. To activate the account, your storefront should perform an API call according to [the documentation](developer/users#registration-with-email-confirmation).
+
+If you don't want to use the email confirmation, you can disable it in the Saleor dashboard:
+
+1. Open the Saleor dashboard
+1. Navigate to the Configuration page
+1. Click on the Site settings card
+1. Update the `User registration` form
+
+The event has been implemented using the `NOTIFY` webhook.
+
+### Account password reset
+
+Message sent after requesting a password change. The payload contains a token that has to be attached to the request to the Saleor API to change the password. To implement a storefront interface for password change, follow [the documentation](developer/users#resetting-the-password).
+
+The event has been implemented using the `NOTIFY` webhook.
+
+### Account password reset for accounts created by the staff
+
+As in the previous event, but for accounts created by Staff users in the Saleor Dashboard.
+
+The event has been implemented using the `NOTIFY` webhook.
+
+### Account email address change
+
+Message sent on the email address change request. Follow the [documentation](developer/users#changing-the-email-address) for more details.
+
+The event has been implemented using the `NOTIFY` webhook.
+
+### Account email change confirmation
+
+Confirmation is sent to new address after following directions from the previous message.
+
+The event has been implemented using the `NOTIFY` webhook.
+
+### Account deletion request
+
+A message with a token that's used for account deletion. To implement a storefront interface for account deletion, follow [the documentation](developer/users#deleting-the-account).
+
+The event has been implemented using the `NOTIFY` webhook.
+
+### Invoice sent
+
+The event is triggered when the Staff users use the `Sent invoice` action. The message contains a link to the invoice.
+
+The event has been implemented using the `INVOICE_SENT` webhook.
+
+### Order has been confirmed
+
+Sends a message when the order is confirmed.
+
+The event has been implemented using the `ORDER_CONFIRMED` webhook.
+
+### Order has been fulfilled
+
+Sends a message when the order status is changed to `FULFILLED`.
+
+The event has been implemented using the `ORDER_FULFILLED` webhook.
+
+### Order has been fully paid
+
+Sends a message when the order is fully paid.
+
+The event has been implemented using the `ORDER_FULLY_PAID` webhook.
+
+### Order has been canceled
+
+Sends a message when the order is canceled.
+
+The event has been implemented using the `ORDER_CANCELLED` webhook.
+
+### Sent gift card
+
+Sends a message when the gift card is sent to the customer.
+
+The event has been implemented using the `GIFT_CARD_SENT` webhook.
 
 ## Configuration
 
-The application can be simultaneously configured to use multiple providers. You'll be able to:
+The application can use multiple providers at the same time. This way, you'll be able to:
 
 - create test configurations before using them in production
 - use different providers for different events
@@ -48,49 +112,7 @@ Each provider can be configured to work with specific channels. The configuratio
 
 ## Development
 
-To run the App locally:
-
-1. Go to the app directory.
-2. Copy the `.env.example` file to `.env`.The `.env` should contain the following variables:
-
-:::info
-
-Emails and Messages App is a Next.js application. If you want to learn more about setting environment variables in Next.js, head over to the [documentation](https://nextjs.org/docs/basic-features/environment-variables).
-
-:::
-
-`SECRET_KEY` (_required_)
-
-A randomly generated key for the encryption of [Settings Manager](https://github.com/saleor/saleor-app-sdk/blob/main/docs/settings-manager.md). At least 8 characters long.
-
-`APL` (_optional_)
-
-Name of the chosen implementation of the [Authentication Persistence Layer](https://github.com/saleor/saleor-app-sdk/blob/main/docs/apl.md).
-
-When no value is provided, `FileAPL` is used by default. See `saleor-app.ts` in the app directory to see supported APLs.
-
-`APP_DEBUG` (_optional_)
-
-The logging level for the app. The possible values are: `trace`, `debug`, `info`, `warn`, `error`, `fatal`, and `silent`. The default value is `info` which means that some information will be logged into the console.
-
-You can read more about our logger in [its documentation](https://getpino.io/#/docs/api?id=loggerlevel-string-gettersetter).
-
-### Running app in development mode
-
-To run the app in development mode, run the following command:
-
-```bash
-pnpm i
-pnpm dev
-```
-
-:::note
-
-pnpm 8.0.0 or higher is required to run the app.
-
-:::
-
-The app will be available at `http://localhost:3000`.
+To run the application locally, follow the [documentation](../../development).
 
 ## Known limitations and issues
 
