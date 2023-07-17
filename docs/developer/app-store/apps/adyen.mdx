@@ -285,6 +285,48 @@ Many payment methods are not settled synchronously. Sometimes it takes seconds, 
 
 :::
 
+### Apple Pay `onValidateMerchant`
+
+In case you want to implement Apple Pay integration through Adyen and use your own Apple Pay certificate, you need to implement `onValidateMerchant` (Web, React Native) or `onvalidatemerchant` (iOS). Saleor App Adyen provides a way to validate the merchant through the `paymentGatewayInitialize` mutation:
+
+```graphql
+mutation PaymentGatewayInitialize($checkoutId: ID!, $data: JSON) {
+  paymentGatewayInitialize(
+    paymentGateways: [{ id: "app.saleor.adyen", data: $data }]
+    id: $checkoutId
+  ) {
+    gatewayConfigs {
+      id
+      data
+      errors {
+        field
+        message
+        code
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+and provide the following JSON in `$data`:
+
+```json
+{
+  "action": "APPLEPAY_onvalidatemerchant",
+  "validationURL": "…",
+  "domain": "…",
+  "merchantIdentifier": "…",
+  "merchantName": "…"
+}
+```
+
+All the parameters should be provided according to [Apple Pay documentation on the Adyen website](https://docs.adyen.com/payment-methods/apple-pay/web-drop-in?tab=_code_payments_code__2#page-introduction).
+
 ### Additional endpoints (optional)
 
 To use some payment methods inside Adyen Drop-in you may have to implement the following callbacks:
@@ -297,7 +339,7 @@ For example, these methods are required for [Gift card split-payments](https://d
 
 :::note
 
-Adyen's orders and requests for balance check are not saved in Saleor. Each payment linked to Adyen's order will be stored as a separate transaction in Saleor.
+Adyen's orders and requests for balance checks are not saved in Saleor. Each payment linked to Adyen's order will be stored as a separate transaction in Saleor.
 
 Orders link transactions on the Adyen level. For example, if a user cancels an order (by removing gift card payment inside the Drop-in), every payment linked to that order will be refunded or voided.
 
