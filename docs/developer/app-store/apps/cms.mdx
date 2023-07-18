@@ -1,0 +1,204 @@
+---
+title: CMS
+sidebar_position: 4
+---
+
+# CMS
+
+:::note V2 version
+This document describes the v2 version of the app. The v1 version is deprecated and will be removed in the future.
+:::
+
+## Overview
+
+_CMS_ is a Saleor app that allows one-direction synchronization of Saleor products into supported CMS platforms. Here are the currently available platforms:
+
+- [Contentful](https://www.contentful.com/)
+- [Strapi](https://strapi.io/)
+- [DatoCMS](https://www.datocms.com/)
+- [Builder.io](https://www.builder.io/)
+
+:::note Missing integrations?
+We listen to the community's voice. Let us know if you miss any integration by [filling out a survey](https://saleor.typeform.com/to/ecR2msLk?typeform-source=apps.staging.saleor.io).
+:::
+
+### Features
+
+The app allows you to:
+
+- Connect one or more CMS platforms.
+- Perform initial synch of all products from Saleor to the CMS platform.
+- Automatically synchronize product updates from Saleor to the CMS platform via events/webhooks.
+- Configure multiple CMS configurations and assign them to channels.
+
+### Main assumptions & limitations
+
+- The app is unidirectional. It means it will only send product updates from Saleor to the CMS platform. If you change data in the CMS, it will not be reflected in Saleor.
+- The app considers [Product Variant](https://docs.saleor.io/docs/3.x/api-reference/products/objects/product-variant) as a main synchronized entity. Every created item in the CMS will be a single, unique variant of the product.
+- The app requires you to create a model in the CMS platform, but you can map Saleor product fields to the CMS fields.
+- The app will synchronize product variants on the following [events](https://docs.saleor.io/docs/3.x/developer/extending/apps/asynchronous-webhooks):
+  - `PRODUCT_UPDATED`
+  - `PRODUCT_VARIANT_CREATED`
+  - `PRODUCT_VARIANT_UPDATED`
+  - `PRODUCT_VARIANT_DELETED`
+- If the CMS platform allows that, the App will create an item with an ID that equals Saleor's product variant ID. If not, it will reference the product by mapped variant id field.
+- Bulk / initial sync runs only on the frontend. This is usually a one-time operation, but the browser must be opened. In case of a connection problem, the operation can fail.
+  You can read more about this [below](#initial-syncbulk-sync).
+- If **UNIQUE** attribute is not set on the variant ID field in the CMS, there will be no guarantee that duplicates will not be created.
+
+You can find more details about specific CMS platforms behavior below.
+
+### Synchronized data
+
+The app will synchronize the following fields:
+
+- Variant id
+- Variant name
+- Variant channels availability and prices
+- Product id
+- Product name
+- Product slug
+
+That means _variant id_ field should be unique among synchronized product variants. Other fields may be the same among variants.
+
+:::caution
+Most CMS platform allows setting **UNIQUE** constraint/validation on some fields. **It's highly recommended** to set this attribute on Variant ID field.
+
+If the attribute is not set, the App will not guarantee that duplicates will not be created.
+:::
+
+## Glossary
+
+The app uses the following terms:
+
+### Provider
+
+The provider is a CMS platform that is supported by the app.
+
+### Provider configuration
+
+Provider configuration is an instance of the configured provider.
+Usually, it contains credentials and field mapping. The app allows multiple configurations of the same provider.
+
+For example, you can connect your CMS platform's production and staging setup or have different configurations for each channel.
+
+### Provider-channel connection
+
+The app allows you to connect a provider configuration to the Saleor channel.
+Once it happens, product operations in Saleor will automatically send product updates to the provider with chosen configuration.
+
+This step is optional, but you will likely want to connect the provider configuration to the channel.
+
+:::caution Connecting many channels
+If you want to connect many channels to the same provider configuration, you must create a separate connection for each channel using the same provider configuration.
+:::
+
+### Initial sync/bulk sync
+
+The app does not automatically synchronize the products that were created before its installation. If you want to import all the Saleor products into your CMS, you must perform an initial sync.
+
+To execute the initial sync, you must have at least one connection configured. You can then use it to scan the entire Saleor database for products and send them to the provider.
+
+:::caution Limitation
+At the moment, the App performs bulk sync on the front end. That means when this is happening, the App must stay open. Closing the window will stop the operation.
+:::
+
+## Configuration
+
+To configure the app, follow the instructions built into the app.
+
+Usually, you will need to perform the following steps:
+
+1. Create a provider configuration for the chosen provider.
+2. Assign the created configuration to a selected channel.
+3. Perform an initial sync.
+4. Edit or create some product variant to see if it is synchronized with the provider.
+
+:::caution
+
+To successfully configure the CMS App, you must have an account with a supported CMS platform.
+
+:::
+
+### CMS fields setup
+
+The App allows you to map Saleor product fields to the CMS fields.
+Some providers allow the App to fetch and display the available fields in an autocomplete. If autocomplete is unavailable, you must ensure the field names are correct.
+
+## CMS Providers
+
+Each of the CMS platforms has slight differences in configuration and behavior due to their APIs and limitations.
+
+### Contentful
+
+- Fields are autocompleted after you provide [space ID](https://www.contentful.com/help/find-space-id/) and a [token](https://www.contentful.com/help/personal-access-tokens/).
+- Entries will be created with an ID that matches Saleor product variant ID.
+- Bulk sync operations are limited to 2 items per second due to Contentful API limitations.
+- All fields must be the type of `string/text`, except `channels`, which should be type `json`.
+
+### [DatoCMS](https://www.datocms.com/)
+
+- Fields are autocompleted after you provide a full-access [API token (Content Management API)](https://www.datocms.com/docs/content-management-api/authentication).
+- Entries will be created with IDs generated by DatoCMS. You should set the variant ID field to be unique.
+- Bulk sync operations will be rate-limited by DatoCMS client itself.
+- All fields must be the type of `string/text`, except `channels`, which should be type `json`.
+
+### [Strapi](https://strapi.io/)
+
+- Fields are not autocompleted. You must provide an auth token with full access to the product variant entity and API base URL (without `/api` suffix).
+- Item type must be plural, eg, `saleor-products` instead `saleor-product`.
+- All fields must be the type of `string/text`, except `channels`, which should be type `json`.
+
+### [Builder.io](https://www.builder.io/)
+
+- Fields are not autocompleted. You must ensure mapping is correct.
+- Builder.io doesn't support unique constraints on fields - hence the app will not guarantee that duplicates will not be created.
+
+## Troubleshooting
+
+### I see a lot of network errors in the console
+
+It's expected. Some providers are rate-limited, and the app will retry the operation. Sometimes app will try to create an item in CMS and in case of conflict, it will retry with an _update_ operation.
+
+### I see duplicated variants in CMS
+
+Ensure you set the _unique_ attribute on the CMS field where the variant ID is stored. This will prevent the app from creating a product already created.
+The app will try to update it instead of creating it.
+
+## Development
+
+To run the CMS App locally:
+
+1. Follow the [_Setup_ section in the _Development_ article](developer/app-store/development.mdx#setup).
+2. Go to the app directory.
+3. Copy the `.env.example` file to `.env`. The `.env` should contain the following variables:
+
+:::info
+
+CMS is a Next.js application. If you want to learn more about setting environment variables in Next.js, head over to the [documentation](https://nextjs.org/docs/basic-features/environment-variables).
+
+:::
+
+`SECRET_KEY` (_optional_)
+
+A randomly generated key for the encryption of [Settings Manager](https://github.com/saleor/saleor-app-sdk/blob/main/docs/settings-manager.md).
+
+Although it is not required in the development, we recommend setting it. If not set, a random key will be generated on each app start.
+
+`APL` (_optional_)
+
+Name of the chosen implementation of the [Authentication Persistence Layer](https://github.com/saleor/saleor-app-sdk/blob/main/docs/apl.md).
+
+When no value is provided, `FileAPL` is used by default. See `saleor-app.ts` in the app directory to see supported APLs.
+
+`APP_LOG_LEVEL` (_optional_)
+
+Logging level based on which the app will decide on what messages to log.
+
+The possible values are: `trace`, `debug`, `info`, `warn`, `error`, `fatal`, `silent`. The default value is `silent` which means no logs will be printed.
+
+You can read more about our logger in [its documentation](https://getpino.io/#/docs/api?id=loggerlevel-string-gettersetter).
+
+`ALLOWED_DOMAIN_PATTERN` (_optional_)
+
+A regex pattern that prohibits the app from being installed on a Saleor instance that does not match the pattern. If not set, all installations will be allowed.

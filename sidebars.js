@@ -86,6 +86,7 @@ module.exports = {
             "developer/app-store/apps/taxes",
             "developer/app-store/apps/crm",
             "developer/app-store/apps/adyen",
+            "developer/app-store/apps/cms",
             {
               type: "category",
               label: "Emails and messages",
