@@ -6,7 +6,9 @@ title: Asynchronous events
 
 Asynchronous webhooks can be used for reacting to the events emitted by Saleor.
 
-The worker instance will send the event payload via the chosen protocol. Your App should acknowledge receiving that payload, by responding with HTTP 200 status. The result of the App operations is not sent back to the Saleor. If you need to send data back to the user (for example, calculated shipping cost), you should use a [synchronous webhook](developer/extending/webhooks/synchronous-events/key-concepts.mdx).
+The worker instance will send the event payload via the chosen protocol. Your App or service should acknowledge receiving the payload, by responding with HTTP 200 status. If a successful response has not been received, for example in the case of temporary service unavailability, the worker instance will retry delivery. The delivery is triggered a maximum of five times. Behind the scenes, Saleor uses an exponential backoff strategy with the retry interval calculated as 10 \* (2\*\*retries) seconds.
+
+The asynchronous events are meant to be used for Apps or services that do not require processing on the Saleor side. If you need to send data back to the user (for example, calculated shipping cost), you should use a [synchronous webhook](developer/extending/webhooks/synchronous-events/key-concepts.mdx).
 
 ## Examples of the use cases
 
@@ -35,9 +37,7 @@ Webhook payloads are sent in POST requests.
 
 All webhooks with `targetUrl`, where the scheme is HTTP(S) will use this protocol.
 
-If a successful response has not been received in the case of temporary service unavailability, it will retry its request after a delay in time.
-
-While HTTPS webhooks are a familiar concept and may seem easy to implement, ensure your endpoint can handle the same level of concurrency that you expect from the monitored events. Saleor Cloud will do its best to deliver webhooks in real time, which could mean more traffic than your servers can handle. Because of this and the possibility of losing events when the destination server is down, we recommend using a queue like Google Cloud Pub/Sub or AWS SQS (see below).
+While HTTPS webhooks are a familiar concept and may seem easy to implement, ensure your endpoint can handle the same level of concurrency that you expect from the monitored events. Saleor Cloud will do its best to deliver webhooks in real-time, which could mean more traffic than your servers can handle. Because of this and the possibility of losing events when the destination server is down, we recommend using a queue like Google Cloud Pub/Sub or AWS SQS (see below).
 
 ### Google Cloud Pub/Sub
 
