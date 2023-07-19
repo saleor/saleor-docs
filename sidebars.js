@@ -141,7 +141,7 @@ module.exports = {
               type: "category",
               label: "Synchronous events",
               items: [
-                "developer/extending/webhooks/synchronous-events/key-concepts",
+                "developer/extending/webhooks/synchronous-events/overview",
                 "developer/extending/webhooks/synchronous-events/payment",
                 "developer/extending/webhooks/synchronous-events/shipping",
                 "developer/extending/webhooks/synchronous-events/tax",
