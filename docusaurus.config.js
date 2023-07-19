@@ -19,7 +19,6 @@ module.exports = {
   themes: ["@docusaurus/theme-mermaid"],
 
   plugins: [
-    ["./plugins/list-apps", {}],
     [
       "@graphql-markdown/docusaurus",
       {
