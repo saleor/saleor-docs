@@ -193,6 +193,58 @@ module.exports = {
             from: "/docs/3.x/category/upgrade-guides",
             to: "/docs/3.x/upgrade-guides/2-11-to-3-0",
           },
+          {
+            from: "/docs/3.x/developer/available-plugins/admin-emails",
+            to: "/docs/3.x/developer/app-store/available-plugins/admin-emails",
+          },
+          {
+            from: "/docs/3.x/developer/available-plugins/adyen",
+            to: "/docs/3.x/developer/app-store/available-plugins/adyen",
+          },
+          {
+            from: "/docs/3.x/developer/available-plugins/dummy-credit-card",
+            to: "/docs/3.x/developer/app-store/available-plugins/dummy-credit-card",
+          },
+          {
+            from: "/docs/3.x/developer/available-plugins/np-atobarai",
+            to: "/docs/3.x/developer/app-store/available-plugins/np-atobarai",
+          },
+          {
+            from: "/docs/3.x/developer/available-plugins/oidc",
+            to: "/docs/3.x/developer/app-store/available-plugins/oidc",
+          },
+          {
+            from: "/docs/3.x/developer/available-plugins/stripe",
+            to: "/docs/3.x/developer/app-store/available-plugins/stripe",
+          },
+          {
+            from: "/docs/3.x/developer/available-plugins/user-emails",
+            to: "/docs/3.x/developer/app-store/available-plugins/user-emails",
+          },
+          {
+            from: "/docs/3.x/developer/app-store/development.mdx",
+            to: "/docs/3.x/developer/extending/apps/developing-apps/app-examples",
+          },
+          {
+            from: "/docs/3.x/developer/app-store/forking.mdx",
+            to: "/docs/3.x/developer/extending/apps/developing-apps/app-examples",
+          },
+          {
+            from: "/docs/3.x/developer/extending/apps/index",
+            to: "/docs/3.x/developer/extending/apps/overview",
+          },
+          {
+            from: "/docs/3.x/developer/extending/apps/manifest",
+            to: "/docs/3.x/developer/extending/apps/architecture/manifest",
+          },
+          {
+            from: "/docs/3.x//developer/extending/apps/synchronous-webhooks/key-concepts",
+            to: "/docs/3.x/developer/extending/webhooks/synchronous-events/overview",
+          },
+          {
+            from: "/docs/3.x/developer/extending/apps/asynchronous-webhooks",
+            to: "/docs/3.x/developer/extending/webhooks/asynchronous-events",
+          },
         ],
         createRedirects: function (existingPath) {
           const oldPaths = [];
