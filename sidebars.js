@@ -85,6 +85,7 @@ module.exports = {
             "developer/app-store/apps/overview",
             "developer/app-store/apps/taxes",
             "developer/app-store/apps/crm",
+            "developer/app-store/apps/stripe",
             "developer/app-store/apps/adyen",
             "developer/app-store/apps/cms",
             {
