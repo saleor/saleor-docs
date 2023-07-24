@@ -5,9 +5,9 @@ sidebar_label: Authentication
 
 This document describes different ways in which clients can authenticate with the API.
 
-## Authentication vs. authorization
-
+:::info Authentication vs. authorization
 Authentication is the process of verifying the identity of an actor. Authorization is the process of verifying what permissions the actor has to access a resource.
+:::
 
 Saleor recognizes two types of actors:
 
@@ -20,7 +20,141 @@ App tokens are long-lived and are used to access resources related to the app, s
 
 See [permissions](developer/permissions.mdx) for more information on permissions.
 
-## User authentication using email and password
+## Authentication with Auth SDK
+
+[Saleor Auth SDK](https://github.com/saleor/auth-sdk) is a TypeScript library for adding auth functionality to your
+TypeScript and JavaScript applications. We also provide tooling to make it easier to use our SDK with React.js and
+Next.js applications.
+
+### Next.js (Pages Router) with Apollo Client
+
+Saleor Auth SDK helps you integrate auth functionality into your Next.js application thanks to `SaleorAuthProvider`
+that injects the Saleor Auth client into the component tree:
+
+```tsx
+import { AppProps } from "next/app";
+import {
+  ApolloProvider,
+  ApolloClient,
+  InMemoryCache,
+  createHttpLink,
+} from "@apollo/client";
+import { createSaleorAuthClient } from "@saleor/auth-sdk";
+import { SaleorAuthProvider, useAuthChange } from "@saleor/auth-sdk/react";
+
+const saleorApiUrl = "<your Saleor API URL>";
+
+// Saleor Auth Client
+const saleorAuthClient = createSaleorAuthClient({ saleorApiUrl });
+
+// Apollo Client
+const httpLink = createHttpLink({
+  uri: saleorApiUrl,
+  fetch: saleorAuthClient.fetchWithAuth,
+});
+
+export const apolloClient = new ApolloClient({
+  link: httpLink,
+  cache: new InMemoryCache(),
+});
+
+export default function App({ Component, pageProps }: AppProps) {
+  useAuthChange({
+    saleorApiUrl,
+    onSignedOut: () => apolloClient.resetStore(),
+    onSignedIn: () => {
+      apolloClient.refetchQueries({ include: "all" });
+    },
+  });
+
+  return (
+    <SaleorAuthProvider client={saleorAuthClient}>
+      <ApolloProvider client={apolloClient}>
+        <Component {...pageProps} />
+      </ApolloProvider>
+    </SaleorAuthProvider>
+  );
+}
+```
+
+and the `useSaleorAuthContext` hook for accessing the `signIn` and `signOut` functions:
+
+```tsx
+import React, { FormEvent } from "react";
+import { useSaleorAuthContext } from "@saleor/auth-sdk/react";
+import { gql, useQuery } from "@apollo/client";
+
+const CurrentUserDocument = gql`
+  query CurrentUser {
+    me {
+      id
+      email
+      firstName
+      lastName
+      avatar {
+        url
+        alt
+      }
+    }
+  }
+`;
+
+export default function LoginPage() {
+  const { signIn, signOut } = useSaleorAuthContext();
+
+  const { data: currentUser, loading } = useQuery(CurrentUserDocument);
+
+  const submitHandler = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const result = await signIn({
+      email: "admin@example.com",
+      password: "admin",
+    });
+
+    if (result.data.tokenCreate.errors) {
+      // handle errors
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <main>
+      {currentUser?.me ? (
+        <>
+          <div>Display user {JSON.stringify(currentUser)}</div>
+          <button className="button" onClick={() => signOut()}>
+            Log Out
+          </button>
+        </>
+      ) : (
+        <div>
+          <form onSubmit={submitHandler}>
+            {/* You must connect your inputs to state or use a form library such as react-hook-form */}
+            <input type="email" name="email" placeholder="Email" />
+            <input type="password" name="password" placeholder="Password" />
+            <button className="button" type="submit">
+              Log In
+            </button>
+          </form>
+        </div>
+      )}
+    </main>
+  );
+}
+```
+
+Check the [Saleor Auth SDK](https://github.com/saleor/auth-sdk) docs for more details and examples.
+
+You can also check Saleor Auth examples live at [saleor-auth-examples.vercel.app](https://saleor-auth-examples.vercel.app/)
+along with the [source code](https://github.com/saleor/example-auth-sdk).
+
+## Authentication with GraphQL
+
+### Email and Password
 
 This is the most common way of authenticating users. It is used in the Saleor Storefront and Dashboard.
 
@@ -56,7 +190,7 @@ Authorization: ...
 Authorization-Bearer: <token>
 ```
 
-### Access token structure
+#### Access token structure
 
 Saleor's access tokens are [JSON Web Tokens](https://jwt.io) signed with RS256.
 
@@ -76,7 +210,7 @@ A decoded token has the following structure:
 }
 ```
 
-### Refresh token structure
+#### Refresh token structure
 
 Saleor's refresh tokens are [JSON Web Tokens](https://jwt.io) signed with RS256.
 
@@ -101,7 +235,7 @@ A decoded token has the following structure:
 `csrf_token` field is deprecated and is not used in the current authentication flow.
 :::
 
-### Fetching information about the currently authenticated user
+#### Fetching information about the currently authenticated user
 
 You can use the [`me`](docs/api-reference/users/queries/me.mdx) query to retrieve information about the currently authenticated user:
 
@@ -116,7 +250,7 @@ query {
 
 This query will verify the token and return the current user's data or an error if the token is invalid.
 
-### Verifying tokens
+#### Verifying tokens
 
 :::tip
 When implementing a storefront, you should probably use the [`me`](#fetching-information-about-currently-authenticated-user) query instead.
@@ -124,7 +258,7 @@ When implementing a storefront, you should probably use the [`me`](#fetching-inf
 
 There are two ways to verify a token: by using the JWKS file or via a GraphQL mutation.
 
-#### Verifying tokens with a JWKS file
+##### Verifying tokens with a JWKS file
 
 You can verify tokens in your code by checking that it's signed with a trusted key. You can find the necessary JSON Web Key Set (JWKS) by visiting `https://<your-saleor-domain>/.well-known/jwks.json`.
 
@@ -144,7 +278,7 @@ const result = await jose.jwtVerify(token, JWKS);
 console.log(result);
 ```
 
-#### Verifying tokens with a mutation
+##### Verifying tokens with a mutation
 
 You can verify tokens by calling the [`tokenVerify`](docs/api-reference/authentication/mutations/token-verify.mdx) mutation:
 
@@ -160,7 +294,7 @@ mutation {
 }
 ```
 
-### Refreshing the access token
+#### Refreshing the access token
 
 Refresh tokens have a longer lifetime than access tokens. You can generate a new access token by using the `tokenRefresh` mutation. It takes a refresh token as input and returns a new access token.
 
@@ -178,7 +312,7 @@ Keep in mind that you should **not** add the `Authorization` header with an expi
 
 In the future, `tokenRefresh` mutation will also generate a new refresh token and refresh tokens will be one-time use only.
 
-### Deactivating all tokens of a particular user
+#### Deactivating all tokens of a particular user
 
 The [`tokensDeactivateAll`](docs/api-reference/authentication/mutations/tokens-deactivate-all.mdx) mutation will invalidate all tokens (access and refresh, including the token used to invoke the mutation) that belong to the invoking user.
 
@@ -194,7 +328,7 @@ mutation {
 }
 ```
 
-## Typical authentication flow for a storefront
+### Typical authentication flow for a storefront
 
 In the most common scenario, you'll use the `tokenCreate` mutation with the user's email and password when they try logging in inside a storefront.
 
