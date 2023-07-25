@@ -1,19 +1,16 @@
 module.exports = {
   type: "category",
-  label: "Apps",
-  link: {
-    type: "doc",
-    id: "developer/extending/apps/index",
-  },
+  label: "Extending dashboard",
   items: [
+    "developer/extending/apps/overview",
     {
       type: "category",
       label: "Architecture",
       items: [
         "developer/extending/apps/architecture/overview",
+        "developer/extending/apps/architecture/manifest",
         "developer/extending/apps/architecture/app-requirements",
         "developer/extending/apps/architecture/communication-between-app-and-saleor",
-        "developer/extending/apps/manifest",
         "developer/extending/apps/architecture/apl",
         // todo: add more content for app bridge
         // "developer/extending/apps/architecture/app-bridge",
@@ -44,30 +41,6 @@ module.exports = {
             "developer/extending/apps/developing-apps/apps-patterns/persistence-with-metadata-manager",
           ],
         },
-      ],
-    },
-    {
-      type: "category",
-      label: "Webhooks",
-      link: {
-        type: "generated-index",
-        title: "Webhooks",
-      },
-      items: [
-        "developer/extending/apps/asynchronous-webhooks",
-        {
-          type: "category",
-          label: "Synchronous webhooks",
-          items: [
-            "developer/extending/apps/synchronous-webhooks/key-concepts",
-            "developer/extending/apps/synchronous-webhooks/payment-webhooks",
-            "developer/extending/apps/synchronous-webhooks/shipping-webhooks",
-            "developer/extending/apps/synchronous-webhooks/tax-webhooks",
-            "developer/extending/apps/synchronous-webhooks/transaction-webhooks",
-          ],
-        },
-        "developer/extending/apps/subscription-webhook-payloads",
-        "developer/extending/apps/sample-webhook-payloads",
       ],
     },
     // {

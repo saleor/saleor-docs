@@ -1,10 +1,10 @@
 ---
-title: Payment webhooks
+title: Payment events
 ---
 
 ## Introduction
 
-Payment webhooks are synchronous webhooks that allow delegating payment handling to Saleor Apps. Synchronous means that these webhooks expect a response of a particular shape to be returned from the App to continue processing in Saleor. Payment webhooks only support the HTTP(S) protocol; they are sent as POST requests with the `application/json` body and expect a response of the same content type.
+Payment webhooks are synchronously sent webhooks that allow delegating payment handling to Saleor Apps. Synchronous means that these webhooks expect a response of a particular shape to be returned from the App to continue processing in Saleor. Payment webhooks only support the HTTP(S) protocol, they are sent as POST requests with the `application/json` body and expect a response of the same content type.
 
 Available payment events are:
 
@@ -18,7 +18,7 @@ Available payment events are:
 | `PAYMENT_REFUND`        | Refund payment        |
 | `PAYMENT_VOID`          | Void payment          |
 
-First, you need to create an App to react to payment webhooks. You can read more about apps [here](developer/extending/apps/index.mdx).
+First, you need to create an App to react to payment webhooks. You can read more about apps [here](developer/extending/apps/overview.mdx).
 Remember to make the App active and grant it the `HANDLE_PAYMENTS` permission.
 
 ### Register `PAYMENT_LIST_GATEWAYS` webhook
@@ -47,7 +47,7 @@ This query returns information about available payment gateways without any addi
 }
 ```
 
-The `availablePaymentGateways` field accepts the optional `currency` argument; if provided, it will be passed in the webhook payload and can be used to return payment methods that support a particular currency.
+The `availablePaymentGateways` field accepts the optional `currency` argument. If provided, it will be passed in the webhook payload and can be used to return payment methods that support a particular currency.
 
 #### Listing available payment gateways for a checkout
 
@@ -63,7 +63,7 @@ You can also query for the available payment gateways in the context of a specif
 }
 ```
 
-See the example payload sent from Saleor for this event: [List payment gateways payload](/developer/extending/apps/sample-webhook-payloads.mdx#list-payment-gateways-payload).
+See the example payload sent from Saleor for this event: [List payment gateways payload](/developer/extending/webhooks/sample-webhook-payloads.mdx#list-payment-gateways-payload).
 
 #### Expected webhook response
 
@@ -93,7 +93,7 @@ In the response, you should return a list of the supported payment methods, for 
 
 Each item on the list should have the following fields:
 
-- `id` - the ID of a payment method; must be unique within your App.
+- `id` - the ID of a payment method. Must be unique within your App.
 - `name` - the name of the payment method.
 - `currencies` - a list of currencies supported by this payment method.
 - `config` - optional configuration, such as additional payment data that may be needed to proceed with the payment in the frontend.
@@ -115,7 +115,7 @@ List of payment events:
 If an App has more than one webhook that listens to the same payment event, Saleor will always pick the first webhook from the list.
 :::
 
-See the example payload sent from Saleor for these payment events: [Payment actions payload](/developer/extending/apps/sample-webhook-payloads.mdx#payment-actions-payload).
+See the example payload sent from Saleor for these payment events: [Payment actions payload](/developer/extending/webhooks/sample-webhook-payloads.mdx#payment-actions-payload).
 
 For payments that require confirmation (such as 3D Secure) Saleor triggers the following events:
 
@@ -132,9 +132,9 @@ Below is the list of fields that a webhook can return in the JSON response for a
 - `action_required` - (boolean) determines if additional action (confirmation) is required.
 - `action_required_data` - (object) additional data that may be needed to confirm the payment. An example would be a URL to redirect the user to the confirmation page in the frontend.
 - `kind` - (string) Transaction kind, one of: action_to_confirm, auth, cancel, capture, capture_failed, confirm, external, pending, refund, refund_failed, refund_ongoing, refund_reversed, void.
-- `amount` - (number) transaction amount; use this field only if the charged amount is different than the checkout's total.
+- `amount` - (number) transaction amount. Use this field only if the charged amount is different than the checkout's total.
 - `customer_id` - (string) gateway's customer ID.
-- `error` - (string) error message; if provided, the transaction will be marked as failed in Saleor and payment will have to be retried. Use this field if you need to return any errors.
+- `error` - (string) error message. If provided, the transaction will be marked as failed in Saleor and payment will have to be retried. Use this field if you need to return any errors.
 - `payment_method` - (object) information about the payment method chosen by the user.
 - `psp_reference` - (string) external payment reference id. Can be used for finding transactions in the payment provider dashboard or relevant orders in the Saleor dashboard.
 - `transaction_id` - (string) gateway's transaction ID.
@@ -184,7 +184,7 @@ Example response for the `PAYMENT_PROCESS` event when the payment should be auth
 
 ### Use the webhook's payment method in checkout
 
-If payment webhooks are configured properly, you can use their payment methods in checkout. To do this, you need to [list available payment methods for your checkout or shop](/developer/extending/apps/index.mdx#listing-all-available-payment-gateways). Each payment method from a payment webhook has an ID of this format: `app:<app-database-id>:<id-returned-by-webhook>`
+If payment webhooks are configured properly, you can use their payment methods in checkout. To do this, you need to [list available payment methods for your checkout or shop](/developer/extending/apps/overview.mdx#listing-all-available-payment-gateways). Each payment method from a payment webhook has an ID of this format: `app:<app-database-id>:<id-returned-by-webhook>`
 
 Example: `app:1:credit-card`
 
