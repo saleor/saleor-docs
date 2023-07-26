@@ -1,45 +1,16 @@
 # App documentation template
 
-Across the article, I will be using the example of "Social Media" app. It integrates with Facebook and Instagram. It allows users to promote their products on these platforms.
-
 ## Structure
 
 1. Overview
 
 Explain what the app does. List all the features and limitations. List the services it integrates with (if there are any).
 
-Example:
-
-> Social Media app allows you to configure marketing campaings on social media platforms with your Saleor products. It integrates with Facebook and Instagram. The app currently doesn't support other language than English.
-
 2. Configuration
 
 List all the fields in the configuration UI of the app, explain what they mean and how to obtain them.
 
 Explain how to test if the integration works.
-
-If complex, this section should be extracted to a separate document (one per provider). Then, the structure of the "Apps" directory would change from:
-
-```
-Apps
-    Overview
-    Taxes
-    ...
-    Social Media
-```
-
-to:
-
-```
-Apps
-    Overview
-    Taxes
-    ...
-    Social Media
-        Overview
-        Facebook configuration
-        Instagram configuration
-```
 
 3. Development
 
