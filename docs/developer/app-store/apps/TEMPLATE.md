@@ -4,7 +4,7 @@
 
 1. Overview
 
-Explain what the app does. List all the features and limitations. List the services it integrates with (if there are any).
+Explain what the app does. List all the features and limitations. List the services it integrates with (if there are any). State the required version.
 
 2. Configuration
 
