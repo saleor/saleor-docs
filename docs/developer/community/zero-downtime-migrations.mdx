@@ -2,6 +2,8 @@
 title: Zero downtime migrations
 ---
 
+Following page contains information about writing zero-downtime migrations. If you are interested in section about upgrading Saleor, please visit [upgrading guide](docs/setup/upgrading.mdx).
+
 ## The problem
 
 From Saleor 3.13 version forward, we provide a way to ensure we can safely migrate the database without interrupting the work of already running web workers.
@@ -130,16 +132,18 @@ flowchart TD
     ver_X-1 -->ver_X -->ver_X+1 -->ver_X+2 -->ver_X+3
 ```
 
-e.g. **Change field type of `field` from `int` to `string` in Saleor version 3.14:**
+e.g. **Change field type of `number` from `int` to `string` in Saleor version 3.14:**
 
-- In version 3.13 add a new field `temp_field`.
-- In version 3.13 add logic in code that covers writing to both `field` and `temp_field`.
-- In version 3.13 migrate data from `field` to `temp_field`. Please check [data migration](#data-migration)
-- From version 3.14 remove `field`. Please check [removing field](#removing-field)
-- In version 3.15 add a new field `field` back.
-- In version 3.15 add logic in code that covers writing to both `field` and `temp_field`.
-- In version 3.15 migrate data from `temp_field` to `field`. Please check [data migration](#data-migration)
-- From version 3.16 remove `temp_field`. Please check [removing field](#removing-field)
+- In version 3.13 add a new field `number_string`.
+- In version 3.13 add logic in code that covers writing to both `number` and `number_string`.
+- In version 3.13 migrate data from `number` to `number_string`. Please check [data migration](#data-migration)
+- From version 3.14 remove `number`. Please check [removing field](#removing-field)
+- In version 3.15 add a new field `number` back.
+- In version 3.15 add logic in code that covers writing to both `number` and `number_string`.
+- In version 3.15 migrate data from `number_string` to `number`. Please check [data migration](#data-migration)
+- From version 3.16 remove `number_string`. Please check [removing field](#removing-field)
+
+Please note, that the process can be simplified if we can stay with a new name for the field, in this example that would be `number_string`.
 
 ### Removing field
 
@@ -307,38 +311,3 @@ def order_events_rename_transaction_void_events_task():
         update_type_to_transaction_cancel_requested(qs)
         order_events_rename_transaction_void_events_task.delay()
 ```
-
-## Upgrading with zero-downtime migrations
-
-For the general upgrade guide see the [upgrading guide](../../setup/upgrading).
-Zero-downtime migrations can only be achieved by upgrading Saleor minor version by minor version, that means, to upgrade Saleor from version 3.11 to 3.13, you need first upgrade your workers
-to version 3.12, then proceed with upgrading to version 3.13. By upgrading from version 3.11 directly to 3.13 you will not follow zero-downtime policy.
-
-The exact steps needed to be done:
-
-- Upgrade your current minor version to the newest patch of Saleor of that version, remember to turn off Celery workers as stated in [upgrading guide](../../setup/upgrading).
-- Upgrade your current minor version of Saleor to the next one. Remember to follow the steps stated in [upgrading guide](../../setup/upgrading).
-
-### Troubleshooting: Migration with Celery task fails
-
-It's safe to rerun failed migration tasks in case of an error. To do that, you can for example start a task from the Django shell:
-
-```bash
-python manage.py shell
-```
-
-And inside the shell just import the task and schedule it, e.g.:
-
-```python
-from saleor.order.migrations.tasks import task
-task.delay()
-```
-
-### Troubleshooting: Adding a new index fails
-
-Adding the index concurrently to the database can fail. The recommended recovery method in such a scenario will be:
-
-1. Drop indexes that were added in failed migration, if they exist in the database as concurrent index building can result in adding the index that will be marked as `INVALID`.
-   To check if the index is marked as `INVALID` you can use `psql \d` command, e.g. to check indexes of Order you can run `\d public.order_order`.
-2. Rerun the migration.
-3. Run again command `psql \d table` to check if indexes are added correctly. The index will be considered correct if is **not** `INVALID`
