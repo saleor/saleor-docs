@@ -1,31 +1,49 @@
 # App documentation template
 
-## Structure
+## Metadata
 
-1. Overview
+- Saleor version
+- Roadmap
+- Link to dashboard
+- Link to GitHub
 
-Explain what the app does. List all the features and limitations. List the services it integrates with (if there are any). State the required version.
+## Overview
 
-2. Configuration
+1. Introduction
 
-List all the fields in the configuration UI of the app, explain what they mean and how to obtain them.
+Explain problem the app solves. List the services it integrates with (if there are any).
 
-Explain how to test if the integration works.
+2. Features
 
-3. Development
+- coming soon
+- create issue for upcoming features and link to it
 
-Note everything that is specific about working with this app. If nothing, link to general docs.
+3. Assumptions
 
-4. Troubleshooting
+4. Limitations
 
-List common issues and how to get around them. The list can contain both bugs and common scenarios when users get confused.
+- create issue for limitations that will be addressed and link to it
 
-Example:
+5. Glossary
 
-> 1. I can't see the app in the dashboard.
->
-> Make sure you have the latest version of Saleor installed.
->
-> 2. I can't uninstall the app.
->
-> This is a known bug in Saleor. You can track the issue for it [here](#).
+- link to general apps glossary
+- app-specific language
+
+6. Permissions
+
+- app permissions
+- user permissions check
+
+7. Behavior
+
+- what webhooks the app use
+- diagram
+
+## Other
+
+1. Prerequisites
+2. Config
+3. Troubleshooting
+4. Error index
+5. Development
+- env vars
