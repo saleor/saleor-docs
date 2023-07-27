@@ -86,8 +86,17 @@ module.exports = {
               label: "Taxes",
               items: [
                 "developer/app-store/apps/taxes/overview",
-                "developer/app-store/apps/taxes/avatax",
-                "developer/app-store/apps/taxes/taxjar",
+                "developer/app-store/apps/taxes/tax-codes",
+                {
+                  type: "category",
+                  label: "Avatax",
+                  items: [
+                    "developer/app-store/apps/taxes/avatax/configuration",
+                    "developer/app-store/apps/taxes/avatax/document-recording",
+                    "developer/app-store/apps/taxes/avatax/entity-type",
+                  ],
+                },
+                "developer/app-store/apps/taxes/taxjar/configuration",
                 "developer/app-store/apps/taxes/development",
               ],
             },
