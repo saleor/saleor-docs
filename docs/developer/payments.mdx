@@ -954,6 +954,52 @@ and its amount is added to `transaction.chargedAmount`. Finally, the amount of t
 
 ---
 
+### Stored payment methods
+
+A stored payment method is a payment method that can be used later by customers without providing all payment details.
+Saleor uses synchronous webhooks to notify the payment app about actions (such as list-stored-payment-method) requested by the customer.
+
+#### Listing user's stored payment methods
+
+:::info
+
+This feature was introduced in **Saleor 3.15**.
+
+:::
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+
+:::info
+This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#code-style-fontweight-normal-apptypeenumbthirdpartybcode) apps.
+:::
+
+Requesting [checkout.storedPaymentMethods](api-storefront/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbstoredpaymentmethodsbcodestoredpaymentmethod--) or [User.storedPaymentMethod](api-storefront/users/objects/user.mdx#code-style-fontweight-normal-userbstoredpaymentmethodsbcodestoredpaymentmethod--)
+field will make a synchronous requests to each app subscribed to [LIST_STORED_PAYMENT_METHODS](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
+webhook. Saleor as a response will return a list of payment methods returned by subscribed apps. The stored payment methods can be used in further steps of processing the payment.
+
+All details related to [LIST_STORED_PAYMENT_METHODS](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
+webhook can be found [here](docs/developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#list-stored-payment-methods).
+
+The diagram below shows the workflow of a fetching stored payment methods with a payment app:
+
+```mermaid
+sequenceDiagram
+    actor User
+    User->>Storefront: Request a stored payment methods
+    Storefront->>Saleor: checkout.storedPaymentMethods query
+    loop Fetching from Payment Apps
+    Saleor->>Payment App: LIST_STORED_PAYMENT_METHODS webhook
+    Payment App->>Saleor: List of stored payment methods for the user
+    end
+    Saleor->>Storefront: Views list of stored payment methods
+    Storefront->>User: Sees a list of saved payment methods
+```
+
 ## Payment Plugin
 
 Using PaymentPlugin is strictly related to the checkout object and is explained in
