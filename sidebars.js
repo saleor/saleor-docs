@@ -103,6 +103,7 @@ module.exports = {
             "developer/app-store/apps/crm",
             "developer/app-store/apps/stripe",
             "developer/app-store/apps/adyen",
+            "developer/app-store/apps/invoices",
             "developer/app-store/apps/cms",
             {
               type: "category",
