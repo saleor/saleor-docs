@@ -23,6 +23,13 @@ const objects = ["Query", "Mutation", "Subscription"];
 
 // Iterate over node fields & interfaces
 const checkNode = (node) => {
+  if (node.kind === "DirectiveDefinition") {
+    node.arguments?.forEach((argument) => {
+      const input = extractType(argument.type);
+      objects.push(input);
+    });
+  }
+
   node.fields?.forEach((field) => {
     field.arguments?.forEach((argument) => {
       const input = extractType(argument.type);
@@ -60,6 +67,11 @@ const traverse = (schema) => {
       if (objects.includes(value)) {
         checkNode(node);
       }
+    },
+
+    DirectiveDefinition(node) {
+      const { value } = node.name;
+      checkNode(node);
     },
   });
 };
