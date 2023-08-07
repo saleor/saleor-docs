@@ -244,6 +244,10 @@ module.exports = {
             from: "/docs/3.x/developer/extending/apps/asynchronous-webhooks",
             to: "/docs/3.x/developer/extending/webhooks/asynchronous-events",
           },
+          {
+            from: "/docs/3.x/developer/filtering",
+            to: "/docs/3.x/api-usage/filtering",
+          },
         ],
         createRedirects: function (existingPath) {
           const oldPaths = [];
