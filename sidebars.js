@@ -34,7 +34,6 @@ module.exports = {
         "developer/permissions",
         "developer/taxes",
         "developer/thumbnails",
-        "developer/filtering",
         {
           type: "category",
           label: "Data Imports",
