@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./AppMetadata.module.css";
+import ExternalLinkIcon from "../../static/assets/icons/external-link.svg";
 
 type Props = {
   minSaleorVersion: string;
@@ -14,21 +15,21 @@ export const AppMetadata = ({
 }: Props) => {
   return (
     <div className={styles.root}>
-      <div>
-        <span>
-          Saleor version required: <strong>{minSaleorVersion}</strong>
-        </span>
-      </div>
-      <div>
-        <span>
-          Roadmap: <a href={roadmapUrl}>GitHub</a>
-        </span>
-      </div>
-      <div>
-        <span>
-          Repository: <a href={githubUrl}>GitHub</a>
-        </span>
-      </div>
+      <span>
+        Saleor version required: <strong>{minSaleorVersion}</strong>
+      </span>
+      <span>
+        Roadmap:{" "}
+        <a href={roadmapUrl}>
+          GitHub <ExternalLinkIcon />
+        </a>
+      </span>
+      <span>
+        Repository:{" "}
+        <a href={githubUrl}>
+          GitHub <ExternalLinkIcon />
+        </a>
+      </span>
     </div>
   );
 };
