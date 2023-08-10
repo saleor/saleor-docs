@@ -1,22 +1,22 @@
 # Settings Manager
 
-Settings managers are used to persist configuration data like API keys, preferences, etc..
+Settings managers are used to persist configuration data like API keys, preferences, etc.
 
-## `SettingsValue` interface
+## SettingsValue interface
 
-Entries in the manager are stored using structure:
+Entries in the manager are stored using the structure:
 
-```
+```typescript
   key: string;
   value: string;
   domain?: string;
 ```
 
-## `DeleteMetadataArg` interface
+## DeleteMetadataArg interface
 
-Argument that can be used to remove metadata via `manager.delete()` method
+The argument that can be used to remove metadata via `manager.delete()` method
 
-It contains key and domain:
+It contains the key and domain:
 
 ```typescript
 type DeleteMetadataArg = {
@@ -25,7 +25,7 @@ type DeleteMetadataArg = {
 };
 ```
 
-For values which should not be migrated during environment cloning (as private keys to payment provider), developer should use domain field to bind it to particular store instance.
+For values that should not be migrated during environment cloning (as private keys to payment provider), the developer should use the `domain` field to bind it to a particular store instance.
 
 ## Available methods
 
@@ -33,11 +33,13 @@ For values which should not be migrated during environment cloning (as private k
 - `set: (settings: SettingsValue[] | SettingsValue) => Promise<void>`
 - `delete: (args: string | string[] | DeleteMetadataArg | DeleteMetadataArg[]) => Promise<void>`
 
-Warning: delete method can throw, if instance of SettingsManager was not configured with proper mutation in constructor.
+:::warning
+`delete` method can throw if the instance of SettingsManager was not configured with a proper mutation in the constructor.
+:::
 
 # MetadataManager
 
-Default manager used by app template. Use app metadata as storage. Since app developer can use any GraphQL client, constructor must be parametrized with fetch and mutate functions:
+Default manager used by the [App Template](docs/developer/extending/apps/developing-apps/app-template.mdx). Uses the app metadata as storage. Since the app developer can use any GraphQL client, the constructor must be parametrized with fetch and mutate functions:
 
 ```ts
 import { MetadataEntry } from "@saleor/app-sdk/settings-manager";
@@ -101,7 +103,7 @@ const settings = new MetadataManager({
 
 # EncryptedMetadataManager
 
-This manager encrypts add the layer of encryption for all the stored data.
+This manager adds a layer of encryption for all the stored data.
 To operate correctly, the encryption key needs to be passed to the constructor:
 
 ```ts
@@ -113,5 +115,6 @@ new EncryptedMetadataManager({
 });
 ```
 
-> **Warning**
-> If encryption key won't be passed, the application will exit.
+:::warning
+If the encryption key won't be passed, the application will exit.
+:::
