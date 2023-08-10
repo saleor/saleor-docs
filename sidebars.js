@@ -28,7 +28,16 @@ module.exports = {
         },
         "developer/payments",
         "developer/stock-allocation",
-        "developer/discounts",
+        {
+          type: "category",
+          label: "Discounts",
+          items: [
+            "developer/discounts/overview",
+            "developer/discounts/promotions",
+            "developer/discounts/voucher",
+            "developer/discounts/sales",
+          ],
+        },
         "developer/gift-cards",
         "developer/address",
         "developer/users",
