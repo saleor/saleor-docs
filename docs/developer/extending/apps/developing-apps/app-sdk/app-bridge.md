@@ -1,30 +1,32 @@
 # AppBridge
 
-App bridge is an interface that connects App (running inside Dashboard) with Dashboard itself.
+AppBridge is an interface that connects an App (running inside Dashboard) with the Dashboard itself.
 
 ## Setup
 
-Create instance of AppBridge by running following code
+Create instance of `AppBridge` by running the following code:
 
-```js
+```typescript
 import { AppBridge } from "@saleor/app-sdk/app-bridge";
 
 const appBridge = new AppBridge(options);
 ```
 
-Options object is following:
+Options object is the following:
 
-```
+```typescript
 type AppBridgeOptions = {
   targetDomain?: string;
   saleorApiUrl?: string;
   initialLocale?: LocaleCode;
   autoNotifyReady?: boolean;
-  initialTheme?: "dark" | "light"
+  initialTheme?: "dark" | "light";
 };
 ```
 
-## Access app state:
+## AppState
+
+You can get the current state of the app by calling `appBridge.getState()`:
 
 ```js
 const { token, saleorApiUrl, ready, id } = appBridge.getState();
@@ -70,7 +72,7 @@ type AppBridgeState = {
 
 ## AppBridgeProvider
 
-`AppBridgeProvider` and `useAppBridge` hook are exposed from app-sdk
+`AppBridgeProvider` and `useAppBridge` hook are exposed from `@saleor/app-sdk``:
 
 ```tsx
 // app.tsx
@@ -81,11 +83,11 @@ import { AppBridgeProvider } from "@saleor/app-sdk/app-bridge";
 </AppBridgeProvider>;
 ```
 
-`AppBridgeProvider` can optionally receive AppBridge instance in props, otherwise will create one automatically
+`AppBridgeProvider` can optionally receive AppBridge instance in props, otherwise it will create one automatically.
 
 ### useAppBridge hook
 
-In components wrapped with `AppBridgeProvider`, `useAppBridge` hook is available
+In components wrapped with `AppBridgeProvider`, you can use the `useAppBridge` hook:
 
 ```tsx
 import { useAppBridge } from "@saleor/app-sdk/app-bridge";
@@ -102,15 +104,15 @@ const MyComponent = () => {
 };
 ```
 
-`appBridgeState?` and `appBridge` can be nullish, because in server side context it's not available
+`appBridgeState?` and `appBridge` can be nullish, because they don't exist in the server side context.
 
 ## Events
 
-Events are messages that originate in Saleor Dashboard. AppBridge can subscribe on events and app can react on them
+Events are messages that originate in Saleor Dashboard. AppBridge can subscribe to events and the App can react to them.
 
 ### Subscribing to events
 
-`subscribe(eventType, callback)` - can be used to listen to particular [event type](#available-event-types). It returns an unsubscribe function, which unregisters the callback.
+`subscribe(eventType, callback)` - can be used to listen to particular [event type](#available-event-types). It returns an `unsubscribe` function, which unregisters the callback.
 
 Example:
 
