@@ -1,24 +1,24 @@
 # API Handlers
 
-Saleor Apps are meant to work in serverless environment, where Cloud Functions are the foundations of server-side code.
+Saleor Apps are meant to work in a serverless environment, where Cloud Functions are the foundations of server-side code.
 
-Currently, Saleor heavily relies on Next.js, but in the future, other platforms will be supported.
+Currently, Saleor heavily relies on Next.js, but other platforms will be supported in the future.
 
 ## Required handlers
 
-Saleor requires 2 endpoints to be available for a standalone app:
+Saleor requires two endpoints to be available for a standalone app:
 
 - Manifest endpoint - Returns JSON object with app properties, like its name or permissions. [Read more](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest)
-- Register endpoint - During the installation process, Saleor sends `POST` request with auth token to this endpoint. [Read more](https://docs.saleor.io/docs/3.x/developer/extending/apps/installing-apps#installation-using-graphql-api)
+- Register endpoint - During installation, Saleor sends a `POST` request with auth token to this endpoint. [Read more](https://docs.saleor.io/docs/3.x/developer/extending/apps/installing-apps#installation-using-graphql-api)
 
 ## Built-in API handlers
 
-To hide Saleor internal logic, app-sdk provides handlers factories. They should work with minimal configuration, leaving
+To hide Saleor's internal logic, app-sdk provides handlers factories. They should work with minimal configuration, leaving
 App creators space for domain logic.
 
 ### Manifest handler factory
 
-Example usage of manifest handler in Next.js
+Here is an example usage of a manifest handler in Next.js:
 
 ```typescript
 // pages/api/manifest.ts
@@ -39,7 +39,7 @@ export default createManifestHandler({
 });
 ```
 
-Options provided to handler factory
+Options provided to handler factory:
 
 ```typescript
 type CreateManifestHandlerOptions = {
@@ -50,7 +50,7 @@ type CreateManifestHandlerOptions = {
 };
 ```
 
-You can use NextApiRequest to read additional params from request. For example read Saleor version to enable or disabled some features, depending on their support.
+You can use `NextApiRequest` to read additional parameters from the request. An example use case would be enabling some features based on the Saleor version.
 
 See [source](./src/handlers/next/create-manifest-handler.ts) for more details. See [manifest](../src/types.ts) too.
 
@@ -139,10 +139,10 @@ export type CreateAppRegisterHandlerOptions = {
 };
 ```
 
-See [APL](./apl.md) for details what is Auth Persistence Layer in Saleor apps
+See [APL](apl) for details on what is Auth Persistence Layer in Saleor apps.
 
 ### Async Webhook Handler
 
-App SDK provides a utility that helps building (async) webhook handlers, so app can react on Saleor events.
+App SDK provides a utility that helps build (async) webhook handlers so that the app can react to Saleor events.
 
-Read about it [here](./saleor-webhook.md).
+Read about it [here](saleor-webhook).
