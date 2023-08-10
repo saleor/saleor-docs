@@ -1,15 +1,15 @@
 # Protected API handlers
 
-The App SDK provides helpers which ensure, that incoming requests are sent from Saleor dashboard.
-Example of such situation could be a change of the application configuration iframe.
+The App SDK provides helpers which ensure that incoming requests are sent from the Saleor dashboard.
+An example of such a situation could be a change in the application configuration iframe.
 
 > **Warning**
-> This handler only works for requests originated from frontend calls. It checks JWT token from the client, which is available
-> in AppBridge. Do not call this endpoint from backend context (calling it from API function will fail)
+> This handler works only for requests originating from front-end calls. It checks the JWT token from the client, which is available
+> in [`AppBridge`](app-bridge). Please do not call this endpoint from the backend context (calling it from API function will fail).
 
 ## How to protect the endpoint
 
-First, create handler for your business logic. The only difference from usual NextJS handler is an additional argument `ctx` of type `ProtectedHandlerContext`, which contains additional data related to the request:
+First, create a handler for your business logic. The only difference from the usual NextJS handler is an additional argument `ctx` of type `ProtectedHandlerContext`, which contains additional data related to the request:
 
 ```typescript
 export type ProtectedHandlerContext = {
@@ -25,12 +25,12 @@ export type ProtectedHandlerContext = {
 `createProtectedHandler` will check if:
 
 - the request has `saleor-api-url` header of the Saleor instance
-- the API URL has been registered, with help of the APL
-- the request has `authorization-bearer`
+- the API URL has been registered with the help of the APL
+- the request has an `authorization-bearer`
 - the auth token is a valid JWT token created by the Saleor running on the given URL
 - user has required permissions in the token
 
-For example purposes our endpoint will only log welcome message:
+For example purposes, our endpoint will only log the welcome message:
 
 ```typescript
 import {
@@ -80,12 +80,11 @@ If you want to read more about `appBridgeState`, check [App Bridge](./app-bridge
 
 ### Using `useAuthenticatedFetch()` hook
 
-Instead of manually attaching headers with AppBridge context, you can use `useAuthenticatedFetch()` hook
+Instead of manually attaching headers with AppBridge context, use the `useAuthenticatedFetch()` hook.
 
-Since it requires AppBridge, it's only available in browser context. It depends on `Window` object,
-so your app will break if Next.js tries to render it server-side. Hence, ensure component that uses the hook is imported with dynamic()
+Since it requires AppBridge, it's only available in a browser context. It depends on the `window` object, so your app will break if Next.js tries to render it server-side. Hence, ensure the component that uses the hook is imported with dynamic().
 
-Component must be within `AppBridgeProvider` to have access to the AppBridge
+The component must be within `AppBridgeProvider` to have access to the AppBridge.
 
 ```tsx
 import { useAuthenticatedFetch } from "@saleor/app-sdk/app-bridge";
