@@ -1,6 +1,6 @@
-# App protected views
+# App-protected views
 
-Most likely at least some screens of the Saleor App are meant to be visible only withing Dashboard "Apps" section.
+Most likely, at least some screens of the Saleor App are meant to be visible only within the Dashboard "Apps" section.
 
 SDK provides a Higher Order Component that can be used to wrap Next.js pages and perform basic protection checks
 
@@ -16,20 +16,20 @@ const AppConfigurationPage: NextPage = () => {
 export default withAuthorization()(AppConfigurationPage);
 ```
 
-This code will render default, unstyled error screens if one of following checks are not met:
+This code will render default, unstyled error screens if one of the following checks is not met:
 
 - App is rendered Server Side
-- App is rendered outside iframe
-- App is rendered and token can't be accessed
-- App is rendered, but token is invalid
+- App is rendered outside the iframe
+- App is rendered, and the token can't be accessed
+- App is rendered, but the token is invalid
 
-If all conditions are successful, child Page will be rendered
+If all conditions are successful, the child page will be rendered.
 
 ## Configuration
 
-Each condition can be styled with custom error React Node, by passing configuration into HOC factory
+Each condition can be styled with the custom error `ReactNode`, by passing the configuration into the HOC factory.
 
-Interface of configuration is following
+The interface of configuration is following:
 
 ```typescript
 type Props = {
@@ -40,7 +40,7 @@ type Props = {
 };
 ```
 
-Each prop is optional, so some of them can be left with default fallback component.
+Each prop is optional, so some of them can be left with the default fallback component.
 
 ### Full example
 
