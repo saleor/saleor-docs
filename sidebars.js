@@ -107,6 +107,7 @@ module.exports = {
             "developer/app-store/apps/adyen",
             "developer/app-store/apps/invoices",
             "developer/app-store/apps/cms",
+            "developer/app-store/apps/segment",
             {
               type: "category",
               label: "Emails and messages",
