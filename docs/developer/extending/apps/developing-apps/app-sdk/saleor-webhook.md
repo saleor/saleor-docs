@@ -2,7 +2,7 @@
 
 Apps are usually connected via webhooks - one App sends an HTTP request to another App, informing about some event or requesting some action to be performed.
 
-To inform your App about events originated from Saleor, you need to expose a webhook handler, which Saleor will call with POST request.
+To inform your App about events originating from Saleor, you need to expose a webhook handler, which Saleor will call with a POST request.
 
 The App SDK provides a utility that abstracts connection details and auth, allowing developers to focus on business logic.
 
@@ -13,17 +13,17 @@ Depending on the type of the webhook, you can choose one of the classes:
 
 ## Common configuration
 
-Both `SaleorSyncWebhook` and `SaleorAsyncWebhook` contain similar API with little differences.
+Both `SaleorSyncWebhook` and `SaleorAsyncWebhook` contain a similar API with few differences.
 
 ### Constructing Webhook instance
 
-In Next.js pages create a page, e.g. `pages/api/webhooks/order-created.ts`. We recommend to keep webhook type in file name, which will be resolved by Next.js to route path.
+In Next.js `pages` directory, create a page, e.g., `pages/api/webhooks/order-created.ts`. We recommend keeping the webhook type in the file name, which Next.js will resolve to route the path.
 
 ```typescript
 import { SaleorAsyncWebhook } from "@saleor/app-sdk/handlers/next";
 
 /**
-* Default body parser must be turned off - raw body is needed to verify signature
+* Default body parser must be turned off - the raw body is needed to verify the signature
 * /
 export const config = {
   api: {
@@ -43,13 +43,13 @@ export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>(
 );
 ```
 
-For `SaleorSyncWebhook` it will be similar. Create e.g. `order-calculate-taxes.ts` page and create a new instance:
+For `SaleorSyncWebhook`, it will be similar. Create e.g., `order-calculate-taxes.ts` page and create a new instance:
 
 ```typescript
 import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
 
 /**
-* Default body parser must be turned off - raw body is needed to verify signature
+* Default body parser must be turned off - the raw body is needed to verify the signature
 * /
 export const config = {
   api: {
@@ -71,7 +71,7 @@ export const orderCalculateTaxesWebhook = new SaleorSyncWebhook<OrderPayload>(
 
 ### Configuring Webhook instance
 
-`options` in constructor must be specified. Here are all options:
+`options` in the constructor must be specified. Here are all options:
 
 ```typescript
 type Options = {
@@ -80,11 +80,11 @@ type Options = {
    */
   name?: string;
   /**
-   * Path to webhook. Should represent relative path from base app URL. In Next.js it will start with `api/`, e.g. `api/webhooks/order-created`.
+   * Path to webhook. It should represent a relative path from the base app URL. In Next.js, it will start with `api/`, e.g. `api/webhooks/order-created`.
    */
   webhookPath: string;
   /**
-   * Valid Async or Sync webhook. Constructor is statically typed so only valid Sync/Async webhooks will be allowed
+   * Valid Async or Sync webhook. Constructor is statically typed, so only valid Sync/Async webhooks will be allowed
    */
   event: Event;
   /**
@@ -104,7 +104,7 @@ type Options = {
     res: NextApiResponse
   ): void;
   /**
-   * Optional callback that allows to format error message. Useful to control how much details should be returned in the response
+   * Optional callback that allows formatting error messages. Useful to control how many details should be returned in the response
    */
   formatErrorResponse?(
     error: WebhookError | Error,
@@ -132,47 +132,47 @@ type Options = {
  * To be type-safe, define payload from API. This should be imported from generated GraphQL code
  */
 type OrderPayload = {
-  id: string;
+ id: string;
 };
 
 /**
-* Default body parser must be turned off - raw body is needed to verify signature
+* Default body parser must be turned off - the raw body is needed to verify the signature
 * /
 export const config = {
-  api: {
-    bodyParser: false,
+ api: {
+ bodyParser: false,
   },
 };
 
 export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
-  name: "Order Created",
-  webhookPath: "api/webhooks/order-created",
-  event: "ORDER_CREATED",
-  isActive: true,
-  apl: require("../lib/apl"),
-  query: `
-    subscription {
-      event {
-        ... on OrderCreated {
-          order {
-            id
+ name: "Order Created",
+ webhookPath: "api/webhooks/order-created",
+ event: "ORDER_CREATED",
+ isActive: true,
+ apl: require("../lib/apl"),
+ query: `
+ subscription {
+ event {
+ ... on OrderCreated {
+ order {
+ id
           }
         }
       }
     }
   `,
-  onError(error: WebhookError | Error) {
+ onError(error: WebhookError | Error) {
     // Can be used to e.g. trace errors
-    sentry.captureError(error);
+ sentry.captureError(error);
   },
-  async formatErrorResponse(
-    error: WebhookError | Error,
-    req: NextApiRequest,
-    res: NextApiResponse
+ async formatErrorResponse(
+ error: WebhookError | Error,
+ req: NextApiRequest,
+ res: NextApiResponse
   ) {
-    return {
-      code: 400,
-      body: "My custom response",
+ return {
+ code: 400,
+ body: "My custom response",
     };
   },
 });
@@ -184,16 +184,16 @@ export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
 // pages/api/webhooks/order-created.ts
 
 /**
- * To be type safe, define payload from API. This should be imported from generated graphQL code
+ * To be type-safe, define payload from API. This should be imported from generated graphQL code
  */
 type Payload = {
-  taxBase: {
-    currency: string;
+ taxBase: {
+ currency: string;
   };
 };
 
 /**
-* Default body parser must be turned off - raw body is needed to verify signature
+* Default body parser must be turned off - the raw body is needed to verify the signature
 * /
 export const config = {
   api: {
@@ -265,11 +265,11 @@ export default createManifestHandler({
 });
 ```
 
-Now, try to read your manifest, in default Next.js config it will be `GET localhost:3000/api/manifest`. You should see webhook configuration as part of manifest response.
+Now, try to read your manifest. In the default Next.js config, it will be `GET localhost:3000/api/manifest`. You should see the webhook configuration as part of the manifest response.
 
 ### Creating webhook domain logic
 
-Now, let's create a handler that will process webhook data. Let's back to handler file `pages/api/webhooks/order-created.ts`.
+Now, let's create a handler that will process webhook data. Let's go back to the handler file `pages/api/webhooks/order-created.ts`.
 
 ```typescript
 type OrderPayload = {
@@ -297,8 +297,8 @@ export default orderCreatedWebhook.createHandler((req, res, context) => {
 
 ### Typed sync webhook response
 
-Sync webhooks need to return response to Saleor, so operation can be completed. To achieve that, `SaleorAsyncWebhook` injects additional context field `buildResponse`.
-It infers even from constructor and provides typed factory:
+Sync webhooks need to return a response to Saleor so that the operation can be completed. To achieve that, `SaleorAsyncWebhook` injects an additional context field `buildResponse`.
+It infers even from the constructor and provides a typed factory:
 
 ```typescript
 const webhook = new SaleorAsyncWebhook({
@@ -316,7 +316,7 @@ orderCreatedWebhook.createHandler((req, res, context) => {
 
 ### query vs subscriptionQueryAst
 
-Subscription query can be specified using plain string or as `ASTNode` object created by `gql` tag.
+Subscription query can be specified using plain string or as an `ASTNode` object created by `gql` tag.
 
 If your project does not use any code generation for GraphQL operations, use the string. In case you are using [GraphQL Code Generator](https://the-guild.dev/graphql/codegen), which we highly recommend, you should pass a subscription as GraphQL ASTNode:
 
