@@ -90,15 +90,9 @@ module.exports = {
                 {
                   type: "category",
                   label: "Avatax",
-                  items: [
-                    "developer/app-store/apps/taxes/avatax/configuration",
-                    "developer/app-store/apps/taxes/avatax/document-recording",
-                    "developer/app-store/apps/taxes/avatax/entity-type",
-                    "developer/app-store/apps/taxes/avatax/document-code",
-                    "developer/app-store/apps/taxes/avatax/tax-calculation-date",
-                  ],
+                  items: ["developer/app-store/apps/taxes/avatax/overview"],
                 },
-                "developer/app-store/apps/taxes/taxjar/configuration",
+                "developer/app-store/apps/taxes/taxjar/overview",
                 "developer/app-store/apps/taxes/development",
               ],
             },
