@@ -1,8 +1,6 @@
 # App-protected views
 
-Most likely, at least some screens of the Saleor App are meant to be visible only within the Dashboard "Apps" section.
-
-SDK provides a Higher Order Component that can be used to wrap Next.js pages and perform basic protection checks
+SDK provides a Higher Order Component that can be used to wrap Next.js pages and perform basic protection checks. With it, you'll be able to make pages visible only when accessed from within Saleor Dashboard.
 
 ## Example usage
 
