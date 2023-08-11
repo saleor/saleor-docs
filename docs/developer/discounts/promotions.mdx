@@ -2,3 +2,81 @@
 title: Promotions
 sidebar_label: Promotions
 ---
+
+## Introduction
+
+Promotions allow price reduction based on defined conditions.
+The promotion conditions are defined in the promotion rules as predicates.
+One promotion can have multiply rules, but the rule can be part of only one promotion.
+Promotion rules define the conditions to be met, as well as the discount reward.
+
+The discounts from rules with catalogue predicates are automatically applied to all products
+that met the conditions defined in the promotion.
+For instance, if a product is priced at **$9** and has a **10%** discount, it will be available for **$8.1**.
+The discount will be visible on `ProductVariant.pricing` - `priceUndiscounted` will be the price
+before the promotion discount, and `price` will have an applied discount.
+The promotion discount will be also visible on the checkout line prices after adding the discounted
+product to the card.
+
+When multiple promotions apply to one product, the promotion with the greatest savings is used.
+The discounts from rules within the single promotion are summed up.
+
+### Glossary
+
+- **Promotion**: Consists of promotion rules, defines the start and end date when the discounts
+  from the rules will be applied.
+- **Promotion rule**:
+- **Catalogue predicate**: Defines the conditions to be met on catalogue level.
+  When the conditions are met, the discount is applied automatically to corresponding variant prices.
+- **Reward**:
+
+## Predicates
+
+Predicates define the conditions to be met to apply the reward.
+Allows defining complex nested conditions in the same way as in `where` filters, with `AND` and `OR` operators,
+combined with operations (e.g. `eq`, `oneOf`).
+To get to know how to build complex conditions reach out the [filters page](../filtering#general-approach).
+
+Currently only predicates on catalogue levels are available,
+that allow to define the conditions for variants, products, collections and categories.
+
+#### Catalogue predicates examples
+
+## Rewards
+
+Rewards are defined on the promotion rule level, and specify the discount type and value
+that will be applied when the defined conditions are met.
+Currently there is only `FIXED` or `PRECENTAGE` discount available.
+
+## Channel availability
+
+Each rule can have assigned channels in which the discount will be applied.
+Promotion rule without any channels will not apply anywhere.
+
+The promotion rule can have multiple channels assigned, but there is a restriction to that.
+When the rule reward value type is `FIXED`, all assigned channels must have the same currency.
+
+## Creating the promotion
+
+### Define the promotion
+
+### Add promotion rule
+
+To add a promotion rule to the promotion use `promotionRuleCreate` mutation.
+
+The mutation takes the following input:
+
+- `name`: Optional name of the promotion rule
+- `description`: Optional description of the promotion rule
+- `cataloguePredicate`: Defines the conditions to be met. Allows defining complex nested
+  conditions with `AND` and `OR` operators.
+
+:::info
+The promotion discount is not visible on `checkout.discount.amount`.
+:::
+
+In the example below, we add an on-sale product to the checkout.
+The response of the `checkoutLinesAdd` mutation will include the discounted product price.
+
+To calculate the total applied discount, subtract the `line.undiscountedTotalPrice` from the `line.totalPrice`.
+To calculate the discount on one unit, subtract the `line.undiscountedUnitPrice` from the `line.unitPrice`.
