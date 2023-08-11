@@ -184,7 +184,7 @@ export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
 // pages/api/webhooks/order-created.ts
 
 /**
- * To be type-safe, define payload from API. This should be imported from generated graphQL code
+ * To be type-safe, define payload from API. This should be imported from generated GraphQL code
  */
 type Payload = {
  taxBase: {
