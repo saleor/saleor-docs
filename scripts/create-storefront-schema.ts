@@ -43,6 +43,10 @@ const checkNode = (node) => {
   node.interfaces?.forEach((i) => {
     objects.push(i.name.value);
   });
+
+  node.types?.forEach((i) => {
+    objects.push(i.name.value);
+  });
 };
 
 // Gather objects' items
@@ -70,8 +74,31 @@ const traverse = (schema) => {
     },
 
     DirectiveDefinition(node) {
-      const { value } = node.name;
       checkNode(node);
+    },
+
+    UnionTypeDefinition(node) {
+      const { value } = node.name;
+
+      if (objects.includes(value)) {
+        checkNode(node);
+      }
+    },
+
+    EnumTypeDefinition(node) {
+      const { value } = node.name;
+
+      if (objects.includes(value)) {
+        checkNode(node);
+      }
+    },
+
+    ScalarTypeDefinition(node) {
+      const { value } = node.name;
+
+      if (objects.includes(value)) {
+        checkNode(node);
+      }
     },
   });
 };
@@ -119,6 +146,7 @@ const getStorefrontSchema = async () => {
         return null;
       }
     },
+
     UnionTypeDefinition(node) {
       if (!objects.includes(node.name.value)) {
         return null;
@@ -126,6 +154,12 @@ const getStorefrontSchema = async () => {
     },
 
     InterfaceTypeDefinition(node) {
+      if (!objects.includes(node.name.value)) {
+        return null;
+      }
+    },
+
+    ScalarTypeDefinition(node) {
       if (!objects.includes(node.name.value)) {
         return null;
       }
