@@ -1,0 +1,223 @@
+---
+title: Environment variables
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+Saleor follows the [12-factor](https://12factor.net/) approach, so you can configure Saleor using environment variables.
+
+Below is a list of available environment variables and their default values.
+
+## Setting environment variables
+
+While most production environments offer a way to configure the environment, you will likely want to set them on your local development machine first.
+
+<Tabs defaultValue="cmd" values={[
+    { label: "Windows (Command Prompt)", value: "cmd" },
+    { label: "Windows (PowerShell)", value: "ps" },
+    { label: "Linux/MacOS", value: "posix" },
+    { label: "Docker", value: "docker" }
+]}>
+<TabItem value="cmd">
+
+To set the variable temporarily, until the terminal window is closed:
+
+```shell
+set SECRET_KEY "<mysecretkey>"
+```
+
+To permanently set the variable:
+
+```shell
+setx SECRET_KEY "<mysecretkey>"
+```
+
+</TabItem>
+<TabItem value="ps">
+
+To set the variable temporarily, until the terminal window is closed:
+
+```shell
+$Env:SECRET_KEY = "<mysecretkey>"
+```
+
+To permanently set the variable:
+
+```shell
+setx SECRET_KEY "<mysecretkey>"
+```
+
+</TabItem>
+<TabItem value="posix">
+
+To set the variable temporarily, until the terminal window is closed:
+
+```shell
+export SECRET_KEY="<mysecretkey>"
+```
+
+To permanently set the variable, use [direnv](https://direnv.net/).
+
+</TabItem>
+<TabItem value="docker">
+
+Use the `--env` flag to pass environment variables to Docker containers:
+
+```shell
+docker run --env SECRET_KEY="<mysecretkey>" saleor
+```
+
+</TabItem>
+</Tabs>
+
+## General configuration
+
+### `ALLOWED_CLIENT_HOSTS`
+
+A list of strings representing host/domain names of client applications (storefront or dashboard) that use this Saleor instance as a backend. Values in this list should be URLs in [RFC 1808](https://tools.ietf.org/html/rfc1808) format.
+
+Some operations, such as registering a new account or resetting the password, involve sending an email from the backend with a link that users need to click to confirm the action. The backend doesn't know the structure of frontend applications' routing, and the path to the view where users can proceed with the operation needs to be passed as arguments in GraphQL mutations. These paths are validated against URLs configured in the `ALLOWED_CLIENT_HOSTS` setting.
+
+`ALLOWED_CLIENT_HOSTS` is required in production mode (with `DEBUG=False`). In local development (`DEBUG=True`), when it's not set, the paths are validated against `localhost, 127.0.0.1`.
+
+Multiple values should be separated with a comma.
+
+### `ALLOWED_GRAPHQL_ORIGINS`
+
+Controls the value of [`Access-Control-Allow-Origin`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin) response header. Defaults to `*`.
+
+### `ALLOWED_HOSTS`
+
+This variable controls [Django's allowed hosts](https://docs.djangoproject.com/en/3.0/ref/settings/#allowed-hosts) setting. It defaults to `localhost`.
+
+Multiple values should be separated with a comma.
+
+### `CACHE_URL` or `REDIS_URL`
+
+The URL of a cache database. It defaults to local process memory.
+
+Redis is recommended.
+
+**Example**: `redis://redis.example.com:6379/0`
+
+### `CELERY_BROKER_URL`
+
+Default task broker URL. You can read more about configuring this at [Celery Documentation.](https://docs.celeryproject.org/en/stable/userguide/configuration.html#broker-url)
+
+### `DATABASE_URL`
+
+The connection URL to a PostgreSQL database. Defaults to `postgres://saleor:saleor@localhost:5432/saleor`.
+
+Format: `postgres://<username>:<password>@<hostname>:<port>/<database-name>`
+
+### `DEBUG`
+
+Controls [Django's debug mode](https://docs.djangoproject.com/en/3.0/ref/settings/#s-debug). It defaults to `True`.
+
+### `DEFAULT_COUNTRY`
+
+Indicates the default country of your store. Depending on what setup you require, this variable also controls the default VAT, shipping country, etc. Defaults to `US`.
+
+### `DEFAULT_CURRENCY`
+
+Indicates a default currency which is a basis for all prices entered and stored in your store. Defaults to `USD`.
+
+### `DEFAULT_FROM_EMAIL`
+
+Indicates a default email address to use for all outgoing mail.
+
+### `ENABLE_DEBUG_TOOLBAR`
+
+Controls whether to run [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/). Defaults to `False`.
+
+To use the toolbar, you must also enable the `PLAYGROUND_ENABLED` setting. Then, the toolbar will be rendered when accessing the `/graphql/` URL.
+Note that using the toolbar is recommended only locally and should be disabled in production, as it affects the performance and may potentially reveal sensitive or private information.
+
+### `EMAIL_URL`
+
+The URL of the email gateway. Defaults to printing everything to the console.
+
+Some examples:
+
+| Description               | URL                                                                           |
+| ------------------------- | ----------------------------------------------------------------------------- |
+| Amazon SES                | `smtp://username:password@email-smtp.us-east-1.amazonaws.com:587/?tls=True`   |
+| Gmail                     | `smtp://my.gmail.username@gmail.com:my-password@smtp.gmail.com:465/?ssl=True` |
+| Mailgun                   | `smtp://username:password@smtp.mailgun.org:465/?ssl=True`                     |
+| Mailjet                   | `smtp://username:password@in-v3.mailjet.com:587/?tls=True`                    |
+| OVH                       | `smtp://username@example.com:my-password@pro1.mail.ovh.net:587/?tls=True`     |
+| SendGrid                  | `smtp://apikey:your.api.key@smtp.sendgrid.com:465/?ssl=True`                  |
+| A SMTP server unencrypted | `smtp://username@example.com:my-password@smtp.example.com:25/`                |
+
+**Example:** `smtp://user:password@smtp.example.com:465/?ssl=True`
+
+### `ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL`
+
+Controls whether registering new customer accounts should require email confirmation. Requires [`ALLOWED_CLIENT_HOSTS`](#allowed_client_hosts) variable to be set.
+
+Defaults to `True`.
+
+### `FEDERATED_QUERY_MAX_ENTITIES`
+
+Sets upper limit on how many entities may be requested by Apollo Federation's gateway for a single GraphQL query. Defaults to `100`. Set to `0` to remove this limit.
+
+### `GRAPHQL_QUERY_MAX_COMPLEXITY`
+
+Controls maximum allowed complexity (cost) of a GraphQL query. If the query's complexity exceeds this limit, it will not be executed, and GraphQL API will return an error instead.
+
+Set `0` to remove this limit.
+
+### `INTERNAL_IPS`
+
+Controls [Django's internal IPs setting](https://docs.djangoproject.com/en/3.0/ref/settings/#s-internal-ips). Defaults to `127.0.0.1`.
+
+Multiple values should be separated with a comma.
+
+### `JWT_TTL_ACCESS`
+
+The time until JWT access tokens expire. The value should be a time expression like `5m`, `5 minutes`, `5d`, `5 days`, `1w`, or `1 week`. Defaults to `5 minutes`.
+
+### `JWT_TTL_REFRESH`
+
+The time until JWT refresh tokens expire. The value should be a time expression like `5m`, `5 minutes`, `5d`, `5 days`, `1w`, or `1 week`. Defaults to `30 days`.
+
+### `JWT_TTL_REQUEST_EMAIL_CHANGE`
+
+The time until email change request tokens expire. The value should be a time expression like `5m`, `5 minutes`, `5d`, `5 days`, `1w`, or `1 week`. Defaults to `1 hour`.
+
+### `RSA_PRIVATE_KEY`
+
+The RSA private key in PEM format is used for signing Saleor's JWT tokens. This is unnecessary in the DEBUG mode as Saleor will generate a temporary private key. It is required in production environments.
+
+### `RSA_PRIVATE_PASSWORD`
+
+The password is required for loading `RSA_PRIVATE_KEY`. Default set to `None`.
+
+### `MAX_CHECKOUT_LINE_QUANTITY`
+
+Controls the maximum quantity of a line item that can be added to a single checkout. Defaults to `50`.
+
+### `MEDIA_URL`
+
+Controls [Django's `MEDIA_URL`](https://docs.djangoproject.com/en/3.0/ref/settings/#media-url) setting. Defaults to `/media/`.
+
+### `PLAYGROUND_ENABLED`
+
+Controls whether to run [Playground](https://github.com/prisma-labs/graphql-playground) - the interactive GraphQL explorer - when accessing the `/graphql/` URL exposed by Saleor. Defaults to `True`.
+
+### `SECRET_KEY`
+
+Controls [Django's secret key](https://docs.djangoproject.com/en/3.0/ref/settings/#s-secret-key) setting.
+
+### `STATIC_URL`
+
+Controls the production assets mount path. Defaults to `/static/`.
+
+## Currency exchange
+
+Saleor can automatically convert amounts between currencies. To use this feature, you will need an [Open Exchange Rates account](https://openexchangerates.org/).
+
+### `OPENEXCHANGERATES_API_KEY`
+
+Your store's Open Exchange Rates "App ID".

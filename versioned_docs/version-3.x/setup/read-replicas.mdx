@@ -1,0 +1,76 @@
+---
+title: Database Read Replicas
+---
+
+A database read replica is a read-only copy of the primary database. Replica should reflect changes in the primary database as fast as possible. This feature allows Saleor to offload the primary database by moving the read-only traffic to a separate database.
+
+```mermaid
+graph LR
+  C((Saleor Core)) ---|Read/Write| P[(Primary database)]
+  C <---|Read| R[(Read replica)]
+  P --->|Asynchronous replication| R
+```
+
+:::note
+Asynchronous replication is not part of Saleor Core. You need to consult your platform manual to learn how to set it up.
+:::
+
+## Configuration
+
+To start using read replica in Saleor, set `DATABASE_CONNECTION_REPLICA_NAME` in `settings.py` and specify this connection in `DATABASES`.
+
+#### Example config:
+
+```python title="settings.py"
+PRIMARY_DB_URL = "postgres://saleor:saleor@localhost:5432/saleor"
+REPLICA_DB_URL = "postgres://saleor:saleor@localhost-replica:5433/saleor"
+
+DATABASE_CONNECTION_DEFAULT_NAME = "default"
+DATABASE_CONNECTION_REPLICA_NAME = "replica"
+
+DATABASES = {
+    DATABASE_CONNECTION_DEFAULT_NAME: dj_database_url.config(
+        default=PRIMARY_DB_URL conn_max_age=600
+    ),
+    DATABASE_CONNECTION_REPLICA_NAME: dj_database_url.config(
+        default=REPLICA_DB_URL, conn_max_age=600,
+    ),
+}
+```
+
+## Testing on a local machine
+
+To simulate a read replica on a local machine, use a second connection to the primary database with the read-only user.
+
+1. Add a **read-only user** in your database:
+
+   ```sql
+   CREATE USER saleor_read_only WITH PASSWORD 'saleor';
+   GRANT CONNECT ON DATABASE saleor TO saleor_read_only;
+   GRANT USAGE ON SCHEMA public TO saleor_read_only;
+   GRANT SELECT ON ALL TABLES IN SCHEMA public TO saleor_read_only;
+   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO saleor_read_only;
+   ```
+
+   :::note
+   `saleor-platform` creates a read-only user by default.
+   :::
+
+2. Add the following configuration in `settings.py`:
+
+   ```python title="settings.py"
+   PRIMARY_DB_URL = "postgres://saleor:saleor@localhost:5432/saleor"
+   REPLICA_DB_URL = "postgres://saleor_read_only:saleor@localhost:5433/saleor"
+
+   DATABASE_CONNECTION_DEFAULT_NAME = "default"
+   DATABASE_CONNECTION_REPLICA_NAME = "replica"
+
+   DATABASES = {
+       DATABASE_CONNECTION_DEFAULT_NAME: dj_database_url.config(
+           default=PRIMARY_DB_URL conn_max_age=600
+       ),
+       DATABASE_CONNECTION_REPLICA_NAME: dj_database_url.config(
+           default=REPLICA_DB_URL, conn_max_age=600,
+       ),
+   }
+   ```

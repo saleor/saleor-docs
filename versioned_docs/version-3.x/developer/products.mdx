@@ -1,0 +1,715 @@
+---
+title: Products
+---
+
+## Introduction
+
+This guide describes how to obtain products from the Saleor GraphQL API.
+
+You can either retrieve a single product or a list of products. You may require a list of products in many situations, for example, when you need to display the catalog in your storefront or to provide a third-party service with a list of products available in your store.
+
+## Multiple channels and products
+
+Customers can only fetch products from available channels. Because listing channels is only available for staff users, you will need to provide channel slugs to your storefront.
+Besides availability, you can define more parameters on a channel basis using [ProductChannelListing](docs/api-reference/products/objects/product-channel-listing.mdx):
+
+- `publicationDate`
+- `isPublished`
+- `visibleInListings`
+- `availableForPurchase`
+- `isAvailableForPurchase`
+
+For variants, there's [ProductVariantChannelListing](docs/api-reference/products/objects/product-variant-channel-listing.mdx):
+
+- `price`
+- `costPrice`
+- `margin`
+
+[Learn more about using multiple channels](developer/channels.mdx).
+
+## Retrieving a list of products
+
+To fetch a product list, you need to run the `products` query. The `products` field is a paginated collection, see [Pagination](api-usage/pagination.mdx) for more information.
+
+Let's take a look at an example query to fetch a list of products:
+
+```graphql
+{
+  products(first: 2, channel: "default-channel") {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3Mg==",
+            "name": "Apple Juice"
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3NA==",
+            "name": "Banana Juice"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+In this example, for each product, we want to return the following fields:
+
+- `id`: the unique product ID, most operations will require one.
+- `name`: the name of the product.
+
+The `channel` argument can be skipped only if a user has `is_staff` flag.
+
+### Filtering
+
+The [`products`](docs/api-reference/products/queries/products.mdx) query gives the ability to filter the results. Use the optional [`filter`](docs/api-reference/products/inputs/product-filter-input.mdx) argument. Some of the filters that are available here are:
+
+- `search: String`: search by name or part of the description.
+- `price: ...`: filter by base price:
+  - `price: {lte: Float}`: price lower than or equal to a given value.
+  - `price: {gte: Float}`: price greater than or equal to a given value.
+- `minimalPrice: ...`: filter by minimal variant price:
+  - `minimalPrice: {lte: Float}`: price lower than or equal to a given value.
+  - `minimalPrice: {gte: Float}`: price greater than or equal to a given value.
+- `stockAvailability: ...`: filter by available stock:
+  - `stockAvailability: IN_STOCK`: only available products.
+  - `stockAvailability: OUT_OF_STOCK`: only out-of-stock products.
+
+Here is an example query that looks for the first three products containing the term "juice" in the title or description:
+
+```graphql
+{
+  products(first: 3, channel: "default-channel", filter: { search: "juice" }) {
+    edges {
+      node {
+        name
+      }
+    }
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "name": "Apple Juice"
+          }
+        },
+        {
+          "node": {
+            "name": "Banana Juice"
+          }
+        },
+        {
+          "node": {
+            "name": "Bean Juice"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+### Sorting
+
+In [`products`](docs/api-reference/products/queries/products.mdx) you can also sort the results using two [`sortBy`](docs/api-reference/products/inputs/product-order.mdx) arguments:
+
+- `field`: the field to use for sorting the results from several predefined choices:
+  - `DATE`: sort products by last update.
+  - `MINIMAL_PRICE`: sort products by minimal variant price.
+  - `NAME`: sort products by name.
+  - `PRICE`: sort products by base price.
+  - `PUBLICATION_DATE`: sort products by publication date.
+  - `PUBLISHED`: sort products by publication status.
+  - `RATING`: sort products by rating.
+  - `TYPE`: sort products by product type.
+- `direction`: The direction for sorting items:
+  - `ASC`: sort ascending.
+  - `DESC`: sort descending.
+
+This example shows how to sort the products list by the minimal variant price, lowest to highest:
+
+```graphql
+{
+  products(
+    first: 2
+    channel: "default-channel"
+    sortBy: { field: MINIMAL_PRICE, direction: ASC }
+  ) {
+    edges {
+      node {
+        name
+        minimalVariantPrice {
+          amount
+          currency
+        }
+      }
+    }
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "name": "Blue Hoodie",
+            "minimalVariantPrice": {
+              "amount": 2.5,
+              "currency": "USD"
+            }
+          }
+        },
+        {
+          "node": {
+            "name": "Banana Juice",
+            "minimalVariantPrice": {
+              "amount": 3,
+              "currency": "USD"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+## Retrieving a single product
+
+To fetch a single product, use the [`product`](docs/api-reference/products/queries/product.mdx) query, which requires only one input field:
+
+- `id`: the unique product ID.
+
+Here is the example query that retrieves a single product:
+
+```graphql {2}
+query {
+  product(id: "UHJvZHVjdDoxMTU=") {
+    id
+    name
+  }
+}
+```
+
+## Retrieving product variants
+
+To obtain product variants, query the `variants` field on the `Product` type:
+
+```graphql
+{
+  products(first: 1, channel: "default-channel") {
+    edges {
+      node {
+        id
+        name
+        variants {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3Mg==",
+            "name": "Apple Juice",
+            "variants": [
+              {
+                "id": "UHJvZHVjdFZhcmlhbnQ6MjAz",
+                "name": "1l"
+              },
+              {
+                "id": "UHJvZHVjdFZhcmlhbnQ6MjA0",
+                "name": "2l"
+              },
+              {
+                "id": "UHJvZHVjdFZhcmlhbnQ6MjAy",
+                "name": "500ml"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+Like products, here we're asking for two fields from each variant:
+
+- `id`: the unique variant ID.
+- `name`: the name of the variant.
+
+## Pricing
+
+Use the `pricing` field of products and variants to obtain pricing information.
+
+Here are the available fields for product pricing:
+
+```graphql
+type ProductPricingInfo {
+  priceRange: TaxedMoneyRange
+  priceRangeUndiscounted: TaxedMoneyRange
+  discount: TaxedMoney
+  onSale: Boolean
+}
+```
+
+And similar fields for product variants:
+
+```graphql
+type VariantPricingInfo {
+  price: TaxedMoney
+  priceUndiscounted: TaxedMoney
+  discount: TaxedMoney
+  onSale: Boolean
+}
+```
+
+The main difference is that products don't have a price point. Instead, they offer a price range that includes all their variant prices.
+
+Here are the money types returned by the above:
+
+```graphql
+type TaxedMoneyRange {
+  # lowest price
+  start: TaxedMoney
+  # highest price
+  stop: TaxedMoney
+}
+
+type TaxedMoney {
+  # before tax
+  net: Money!
+  # after tax
+  gross: Money!
+
+  # gross - net
+  tax: Money!
+  # repeated for convenience
+  currency: String!
+}
+
+type Money {
+  amount: Float!
+  currency: String!
+}
+```
+
+See [Prices](api-usage/prices.mdx) for more information about money types.
+
+### Fetching prices with tax rates specific to a country
+
+When using Saleor with tax plugins such as Vatlayer, you can fetch prices including taxes specific to a country. To do that, pass the `address` parameter in the `pricing` field, including the country code for which the tax should be calculated. The `address` parameter is available in the `Product.pricing` and `ProductVariant.pricing` fields.
+
+In the example below, we fetch the price of a product variant for Poland, where the standard VAT rate is 23%:
+
+```graphql {3}
+{
+  productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
+    pricing(address: { country: PL }) {
+      price {
+        net {
+          amount
+        }
+        gross {
+          amount
+        }
+        tax {
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+Result:
+
+```json
+{
+  "data": {
+    "productVariant": {
+      "pricing": {
+        "price": {
+          "net": {
+            "amount": 5
+          },
+          "gross": {
+            "amount": 6.15
+          },
+          "tax": {
+            "amount": 1.15
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+The tax equals 1.15, which is 23% of the net price. The gross price is the sum of the net price and the tax.
+
+:::note
+The `address` parameter is optional. If it's not provided, Saleor will use the default country code configured in the backend settings (see [DEFAULT_COUNTRY](setup/configuration.mdx#default_country)).
+:::
+
+Learn more about [Taxes](docs/developer/taxes.mdx)
+
+## Stock availability for customers
+
+Stock availability of products is defined for each variant and warehouse. There are two fields that allow you to fetch the stock information in the public API.
+
+To fetch the stock availability, use the `Product.isAvailable` field:
+
+```graphql {4}
+{
+  product(id: "UHJvZHVjdDo3Mg==", channel: "default-channel") {
+    name
+    isAvailable(address: { country: US })
+  }
+}
+```
+
+Result:
+
+```json
+{
+  "data": {
+    "product": {
+      "name": "Apple Juice",
+      "isAvailable": true
+    }
+  }
+}
+```
+
+The `address` parameter checks the quantity in a warehouse connected with a shipping zone that includes the given address. If not provided, Saleor will use a warehouse with the highest available quantity.
+
+The `isAvailable` field is `True` when:
+
+- There is at least one variant for which the stock quantity minus the allocated quantity is above zero (in a warehouse matching the given address).
+- The product is published in the given channel and available for purchase.
+
+To fetch the available quantity, use the `ProductVariant.quantityAvailable` field:
+
+```graphql {3}
+{
+  productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
+    quantityAvailable(address: { country: US })
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "productVariant": {
+      "quantityAvailable": 30
+    }
+  }
+}
+```
+
+A warehouse is chosen based on the argument `address`. If the argument is omitted, API will return the highest available quantity.
+
+:::note
+To avoid leaking precise stock information, the `quantityAvailable` field will not be greater than the maximum orderable threshold configured in the [`MAX_CHECKOUT_LINE_QUANTITY`](setup/configuration.mdx#max_checkout_line_quantity) server setting.
+:::
+
+## Stock quantities
+
+For creating integrations with an external stock management system, you will need to use stock values not restricted by [`MAX_CHECKOUT_LINE_QUANTITY`](setup/configuration.mdx#max_checkout_line_quantity).
+
+:::note
+`stocks` field in the [`ProductVariant`](docs/api-reference/products/objects/product-variant.mdx) object require `MANAGE_PRODUCTS` permission.
+:::
+
+To clarify the difference between `quantityAvailable` and stocks, we will query both for the product variant:
+
+Request:
+
+```graphql {3,8-9}
+query {
+  productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
+    quantityAvailable
+    stocks {
+      warehouse {
+        slug
+      }
+      quantity
+      quantityAllocated
+    }
+  }
+}
+```
+
+Response:
+
+```json {4,10-11,17-18}
+{
+  "data": {
+    "productVariant": {
+      "quantityAvailable": 50,
+      "stocks": [
+        {
+          "warehouse": {
+            "slug": "europe"
+          },
+          "quantity": 111,
+          "quantityAllocated": 0
+        },
+        {
+          "warehouse": {
+            "slug": "americas"
+          },
+          "quantity": 113,
+          "quantityAllocated": 0
+        }
+      ]
+    }
+  }
+}
+```
+
+- The `quantityAvailable` is a sum of stock quantities from all available stocks.
+  In this case, the sum is higher than the `MAX_CHECKOUT_LINE_QUANTITY`, so the maximum
+  value of 50 products is returned.
+- `stocks` contain a full list of stock quantities in each warehouse.
+
+:::note
+When the product has the track inventory turned off, the `quantityAvailable` will always
+be equal to the `MAX_CHECKOUT_LINE_QUANTITY` value.
+:::
+
+### Getting the available quantity for the particular address
+
+The quantity available can be fetched for the given address. The returned quantity
+is the sum of the quantity from all stocks that are available in the shipping zone that
+supports the provided address. When the address is not provided, the highest quantity
+from available shipping zones is returned.
+
+To get the `quantityAvailable` for a particular address use the `address` parameter:
+Request:
+
+```graphql {3-5}
+query {
+    productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
+    quantityAvailable(
+      address: {"country": "US"}
+    )
+    stocks {
+      warehouse {
+        slug
+      }
+      quantity
+      quantityAllocated
+    }
+  }
+}
+```
+
+Response:
+
+```json {4,10-11,17-18}
+{
+  "data": {
+    "productVariant": {
+      "quantityAvailable": 20,
+      "stocks": [
+        {
+          "warehouse": {
+            "slug": "europe"
+          },
+          "quantity": 30,
+          "quantityAllocated": 0
+        },
+        {
+          "warehouse": {
+            "slug": "americas"
+          },
+          "quantity": 20,
+          "quantityAllocated": 0
+        }
+      ]
+    }
+  }
+}
+```
+
+In the response, we get the available quantity of 20 as the `americas` is the only
+warehouse available in the `US`.
+
+In the case when the address is not provided, the quantity for the shipping zone with
+the highest available quantity is returned.
+
+### Handling collection point warehouses in the quantity calculations
+
+The collection point warehouses are treated as a single-warehouse shipping zone.
+
+- In the case of a local collection point warehouse, the calculated quantity will equal
+  the quantity of this local warehouse.
+- In the case of a global collection point warehouse the quantity will equal the sum
+  of available quantity from all stocks that are available in the provided country code
+  and channel. When the country is not provided the quantity will be the sum of quantities
+  from all stocks that are available in the given channel, regardless of the shipping zone.
+
+## Media
+
+Product media are images or videos associated with products and used to render product galleries. The `Product` type contains two fields that refer to its media:
+
+- `thumbnail: Image`: the product's main image. If the first media file for a product is a video, a video thumbnail is returned. An optional `size` parameter specifies the desired size in pixels if provided. The following fields are available:
+
+  - `url: String!`: the image's URL.
+  - `alt: String`: the alternative text to include when displaying the image.
+
+- `media: [ProductMedia!]`: gives you access to the entire list of associated product media with the following fields available:
+  - `type: ProductMediaType!`: the type of media file - `IMAGE` or `VIDEO`
+  - `url: String!`: the media URL. For images, an optional `size` parameter specifies the desired size in pixels if provided.
+  - `alt: String`: the alternative text to include when displaying the media file.
+  - `oembedData: JSONString!`: embedded representation of a video URL, returned in the [oEmbed](https://oembed.com/) format.
+
+Here's a query that asks for both the thumbnail and all media of the first product, optimized for display at 100×100px:
+
+```graphql
+{
+  products(first: 1, channel: "default-channel") {
+    edges {
+      node {
+        id
+        name
+        thumbnail(size: 100) {
+          url
+        }
+        media {
+          type
+          url(size: 100)
+        }
+      }
+    }
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDo3Mg==",
+            "name": "Apple Juice",
+            "thumbnail": {
+              "url": "https://demo.saleor.io/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png"
+            },
+            "media": [
+              {
+                "type": "IMAGE",
+                "url": "https://demo.saleor.io/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png"
+              },
+              {
+                "type": "VIDEO",
+                "url": "https://youtu.be/yPYZpwSpKmA"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+## Examples
+
+Here's a more complex GraphQL query that combines all of the above information:
+
+```graphql
+{
+  products(
+    first: 2
+    channel: "default-channel"
+    sortBy: { field: NAME, direction: ASC }
+  ) {
+    edges {
+      node {
+        id
+        name
+        pricing {
+          priceRange {
+            start {
+              gross {
+                amount
+                currency
+              }
+            }
+          }
+          discount {
+            gross {
+              amount
+              currency
+            }
+          }
+          priceRangeUndiscounted {
+            start {
+              gross {
+                amount
+                currency
+              }
+            }
+          }
+        }
+        thumbnail {
+          url
+        }
+      }
+    }
+  }
+}
+```

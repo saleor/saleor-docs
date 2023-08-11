@@ -1,0 +1,146 @@
+---
+title: Error Handling
+---
+
+There are several error types in the GraphQL API, and you may come across different ones depending on the operations you are trying to perform.
+
+The Saleor GraphQL API has two ways to indicate errors.
+
+## Query-level errors
+
+This error type occurs when you provide invalid or unrecognized input. This happens in the following cases:
+
+- The GraphQL query is **malformed** (syntax errors, missing variables, type mismatch, etc.)
+- The query is syntactically correct but **semantically invalid** (e.g., you try to fetch a field that doesn't exist on the queried type)
+- Your client doesn't have the necessary **permission** to perform the requested operation
+
+### Example of a semantically invalid query
+
+Below is an example of an error triggered by the wrong syntax. The following query tries to fetch the `fullName` field, which doesn't exist on the `User` type:
+
+```graphql
+{
+  me {
+    fullName
+  }
+}
+```
+
+Sending this query to the server would result in the following syntax error:
+
+```json
+{
+  "error": {
+    "errors": [
+      {
+        "message": "Cannot query field \"fullName\" on type \"User\". Did you mean \"firstName\" or \"lastName\"?",
+        "locations": [
+          {
+            "line": 3,
+            "column": 5
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Example of a permission error
+
+Below is an example of an error triggered by insufficient permissions. The `staffUsers` query requires appropriate admin permissions:
+
+```graphql
+{
+  staffUsers(first: 20) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Executing it without proper permission would result in the following error:
+
+```json
+{
+  "errors": [
+    {
+      "message": "You need one of the following permissions: MANAGE_STAFF",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": ["staffUsers"],
+      "extensions": {
+        "exception": {
+          "code": "PermissionDenied"
+        }
+      }
+    }
+  ],
+  "data": {
+    "staffUsers": null
+  }
+}
+```
+
+## Data-level errors
+
+This error occurs when the user passes invalid data as the mutation input. For example, you provide an email address already used in another user's account while creating a new user. It is therefore not unique, and as a result, you will get a validation error.
+
+Validation errors are part of the schema, meaning we need to include them in the query to get them explicitly. In all mutations, for example, you can obtain them through the `errors` field.
+
+### Example of a validation error
+
+Below is an example of an error triggered by validation issues:
+
+```graphql
+mutation {
+  accountRegister(
+    input: {
+      email: "customer@example.com"
+      password: ""
+      redirectUrl: "http://demo.saleor.io/reset-password/"
+    }
+  ) {
+    user {
+      email
+    }
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+
+Validation errors are returned in a dedicated error field inside mutation results:
+
+```json
+{
+  "data": {
+    "accountRegister": {
+      "user": null,
+      // highlight-start
+      "errors": [
+        {
+          "field": "email",
+          "code": "UNIQUE"
+        }
+      ]
+      // highlight-end
+    }
+  }
+}
+```
+
+:::caution
+Although all error types contain a `message` field, the returned message is only meant for debugging and is not suitable for display to your customers. Please use the `code` field and provide your own meaningful error messages.
+:::
+
+We use enums for representing code values. All possible values for the query above can be found on the [AccountError](docs/api-reference/users/enums/account-error-code.mdx) page of the API reference section.

@@ -1,0 +1,505 @@
+---
+title: Gift Cards
+---
+
+:::info
+
+This feature was introduced in **Saleor 3.1**.
+
+:::
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+
+## Introduction
+
+Gift cards can be created by staff users or bought by customers as a standard product. They can have an expiry date set or can never expire. Gift cards are not assigned to any channel and can be used in any channel whose currency is the same as the currency of the gift card. During the first gift card usage, the customer user is assigned the gift card, which can be used only by this user.
+
+## Creating gift cards
+
+Every staff user with the `MANAGE_GIFT_CARD` permission can create gift cards separately or in bulk.
+
+The following example shows how to create a single gift card.
+Once you provide the `userEmail` and configure the email plugin for the given channel, the gift card is sent to the customer, and the `SENT_TO_CUSTOMER` event is created.
+In this example, providing the `expiryDate` value will set the expiry date. If you want to create a non-expiring card, do not provide `expiryDate` value.
+
+```graphql {2-10}
+mutation {
+  giftCardCreate(
+    input: {
+      balance: { amount: 100, currency: "USD" }
+      userEmail: "test@example.com"
+      channel: "channel-USD"
+      expiryDate: "2050-10-10"
+      isActive: true
+    }
+  ) {
+    giftCard {
+      id
+      code
+      last4CodeChars
+      isActive
+      expiryDate
+      initialBalance {
+        currency
+        amount
+      }
+      currentBalance {
+        currency
+        amount
+      }
+      events {
+        type
+      }
+    }
+  }
+}
+```
+
+As a response, we get a newly created active gift card with initial and current balance,
+generated code, and two events:
+
+- `ISSUED` which informs that gift card has been created by staff,
+- `SENT_TO_CUSTOMER` as the `userEmail` has been provided and gift card has been sent.
+  Also the staff user that run mutation has been assigned as `createdBy` user.
+  As the card hasn't been used yet, the field `usedByUser` is empty.
+
+```graphql
+{
+  "data": {
+    "giftCardCreate": {
+      "giftCard": {
+        "id": "R2lmdENhcmQ6MTE=",
+        "code": "ABCD-EFGH-IJKL",
+        "last4CodeChars": "IJKL",
+        "isActive": true,
+        "expiryDate": "2050-10-10",
+        "initialBalance": {
+          "currency": "USD",
+          "amount": 100.0
+        },
+        "currentBalance": {
+          "currency": "USD",
+          "amount": 100.0
+        },
+        "events": [
+          {
+            "type": "ISSUED"
+          }
+          {
+            "type": "SENT_TO_CUSTOMER"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+Creating gift cards in bulk is similar, but you need to specify the number of gift cards to create and the tag value which will be assigned to all created gift cards.
+
+```graphql {2-9}
+mutation {
+  giftCardBulkCreate(
+    input: {
+      count: 5
+      tag: "example-tag"
+      isActive: true
+      balance: { amount: 200.0, currency: "USD" }
+    }
+  ) {
+    giftCards {
+      id
+      code
+      isActive
+      tag
+    }
+  }
+}
+```
+
+We get five new gift cards:
+
+```graphql
+
+{
+  "data": {
+    "giftCardBulkCreate": {
+      "giftCards": [
+        {
+          "id": "R2lmdENhcmQ6MjU=",
+          "code": "B13F-5C78-A18F",
+          "isActive": true,
+          "tag": "example-tag"
+        },
+        {
+          "id": "R2lmdENhcmQ6MjY=",
+          "code": "2CF4-BA56-1A5E",
+          "isActive": true,
+          "tag": "example-tag"
+        },
+        {
+          "id": "R2lmdENhcmQ6Mjc=",
+          "code": "BA14-A867-943C",
+          "isActive": true,
+          "tag": "example-tag"
+        },
+        {
+          "id": "R2lmdENhcmQ6Mjg=",
+          "code": "FC4A-DD96-F21A",
+          "isActive": true,
+          "tag": "example-tag"
+        },
+        {
+          "id": "R2lmdENhcmQ6Mjk=",
+          "code": "413A-2ECE-7F5A",
+          "isActive": true,
+          "tag": "example-tag"
+        }
+      ]
+    }
+  }
+}
+```
+
+After creation, you can export the gift card codes to CSV.
+
+## Gift card resending
+
+You can resend the gift card to the customer at any time after creation.
+If the `userEmail` is not provided, the card is sent to the customer who already used the card. If the card hasn't been used yet, it is sent to the customer who created it.
+You require the channel to choose the correct email plugin to send the gift card.
+
+```graphql {2-8}
+mutation {
+  giftCardResend(
+    input: {
+      id: "R2lmdENhcmQ6MjU="
+      channel: "default-channel"
+      email: "saleor@example.com"
+    }
+  ) {
+    giftCard {
+      id
+      code
+      events {
+        type
+        user {
+          email
+        }
+        app {
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+## Updating gift card
+
+After creation, the tag, expiry date, and balance amount can be updated.
+
+:::note
+Remember, only the balance amount can be updated, currency cannot be changed,
+and updating is equal to reseting the current balance value.
+Both initial and current balance is set to the provided value, no matter
+if the card was already used or not.
+:::
+
+The following example shows updating the expiry date, tag, and balance amount reset.
+
+```graphql {2-9}
+mutation {
+  giftCardUpdate(
+    id: "R2lmdENhcmQ6MjU=",
+    input: {
+      balanceAmount: 70,
+      expiryDate: "2040-10-10",
+      tag: "new-tag",
+    }
+  ) {
+  giftCard {
+    id
+    expiryDate
+    initialBalance {
+      currency
+      amount
+    }
+    currentBalance {
+      currency
+      amount
+    }
+    events {
+      type
+      expiryDate
+      oldExpiryDate
+      oldTag
+      tag
+      balance {
+        initialBalance {
+            amount
+            currency
+        }
+        oldInitialBalance {
+            amount
+            currency
+        }
+        currentBalance {
+            amount
+            currency
+        }
+        oldCurrentBalance {
+            amount
+            currency
+        }
+      }
+    }
+  }
+}
+```
+
+As a result, we get the updated gift card with new events
+`BALANCE_RESET`, `EXPIRY_DATE_UPDATED` and `TAG_UPDATED`
+as balance, expiry date and tag has been changed.
+
+```graphql
+{
+  "data": {
+    "giftCardUpdate": {
+      "giftCard": {
+        "id": "R2lmdENhcmQ6MjU=",
+        "expiryDate": "2040-10-10",
+        "initialBalance": {
+          "currency": "USD",
+          "amount": 70.0
+        },
+        "currentBalance": {
+          "currency": "USD",
+          "amount": 70.0
+        },
+        "events": [
+          {
+            "type": "ISSUED",
+            "expiryDate": null,
+            "oldExpiryDate": null,
+            "oldTag": null,
+            "tag": null,
+            "balance": {
+              "initialBalance": {
+                "amount": 200.0,
+                "currency": "USD"
+              },
+              "oldInitialBalance": null,
+              "currentBalance": {
+                "amount": 200.0,
+                "currency": "USD"
+              },
+              "oldCurrentBalance": null
+            }
+          },
+          {
+            "type": "BALANCE_RESET",
+            "expiryDate": null,
+            "oldExpiryDate": null,
+            "oldTag": null,
+            "tag": null,
+            "balance": {
+              "initialBalance": {
+                "amount": 70.0,
+                "currency": "USD"
+              },
+              "oldInitialBalance": {
+                "amount": 200.0,
+                "currency": "USD"
+              },
+              "currentBalance": {
+                "amount": 70.0,
+                "currency": "USD"
+              },
+              "oldCurrentBalance": {
+                "amount": 200.0,
+                "currency": "USD"
+              }
+            }
+          },
+          {
+            "type": "EXPIRY_DATE_UPDATED",
+            "expiryDate": "2040-10-10",
+            "oldExpiryDate": null,
+            "oldTag": null,
+            "tag": null,
+            "balance": null
+          }
+          {
+            "type": "TAG_UPDATED",
+            "expiryDate": null,
+            "oldExpiryDate": null,
+            "oldTag": "example-tag",
+            "tag": "new-tag",
+            "balance": null
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+## Activation and deactivation
+
+Cards can be activated and deactivated at any time.
+You can activate and deactivate a single card or a bunch of cards.
+To deactivate the gift card just provide the `id` of the card to deactivate.
+
+```graphql {2}
+mutation {
+  giftCardDeactivate(id: "R2lmdENhcmQ6MjY=") {
+    giftCard {
+      id
+      isActive
+      events {
+        type
+      }
+    }
+  }
+}
+```
+
+The deactivated gift card has been returned with `DEACTIVATED` event.
+
+```graphql
+{
+  "data": {
+    "giftCardDeactivate": {
+      "giftCard": {
+        "id": "R2lmdENhcmQ6MjY=",
+        "isActive": false,
+        "events": [
+          {
+            "type": "ISSUED"
+          },
+          {
+            "type": "DEACTIVATED"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+And similarly, for activation:
+
+```graphql {2}
+mutation {
+  giftCardActivate(id: "R2lmdENhcmQ6MjY=") {
+    giftCard {
+      id
+      isActive
+      events {
+        type
+      }
+    }
+  }
+}
+```
+
+And we get an active gift card with a new `ACTIVATED` event:
+
+```graphql
+{
+  "data": {
+    "giftCardActivate": {
+      "giftCard": {
+        "id": "R2lmdENhcmQ6MjY=",
+        "isActive": true,
+        "events": [
+          {
+            "type": "ISSUED"
+          },
+          {
+            "type": "DEACTIVATED"
+          },
+          {
+            "type": "ACTIVATED"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+For bulk activation, use [giftCardBulkActivate](docs/api-reference/gift-cards/mutations/gift-card-bulk-activate.mdx)
+and for bulk deactivation use [giftCardBulkDeactivate](docs/api-reference/gift-cards/mutations/gift-card-bulk-deactivate.mdx) mutation.
+
+## Creating gift card products
+
+To allow customers to purchase gift cards, you have to [create a product type](docs/api-reference/products/mutations/product-type-create.mdx) with `GIFT_CARD` kind and use it to [create a product](docs/api-reference/products/mutations/product-create.mdx).
+
+:::note
+If you want to have an unlimited number of gift cards in your shop you should create a stock in a chosen channel with at least one quantity and unset track inventory flag.
+:::
+
+# Buying gift cards
+
+The `automaticallyFulfillNonShippableGiftCard` order setting defines when the bought gift cards will be created. If this flag is set to `True`, a gift card will be created during checkout completion.
+The fulfillment will be created automatically, and a gift card will be generated and sent to the customer.
+If this option is unset, the gift card will be created during order fulfillment and, after that, also sent to the customer.
+The value of this option can be changed with use of [orderSettingsUpdate](docs/api-reference/orders/mutations/order-settings-update.mdx) mutation.
+
+The created gift card expiry date is set based on gift card settings.
+Gift card settings can be set never to expire or set to an expiry period, based on which the card expiry date is calculated.
+
+The gift card settings are set as never expiry by default and can be changed with use of [giftCardSettingsUpdate](docs/api-reference/gift-cards/mutations/gift-card-settings-update.mdx).
+In the following example, the gif card settings are set to 12 months.
+
+```graphql {2-7}
+mutation {
+  giftCardSettingsUpdate(
+    input: {
+      expiryType: EXPIRY_PERIOD
+      expiryPeriod: { type: YEAR, amount: 12 }
+    }
+  ) {
+    giftCardSettings {
+      expiryType
+      expiryPeriod {
+        type
+        amount
+      }
+    }
+  }
+}
+```
+
+As a result, we get the expiry settings updated.
+
+```graphql
+{
+  "data": {
+    "giftCardSettingsUpdate": {
+      "giftCardSettings": {
+        "expiryType": "EXPIRY_PERIOD",
+        "expiryPeriod": {
+          "type": "YEAR",
+          "amount": 12
+        }
+      }
+    }
+  }
+}
+```
+
+## Using gift card in checkout
+
+To use a gift card in the checkout just run [checkoutAddPromoCode](docs/api-reference/checkout/mutations/checkout-add-promo-code.mdx)
+mutation with the gift card code.
+When the gift card is used for the first time, it will be assigned to the checkout user.
+If the card was already used, the checkout user will be compared with the gift card user. When the users differ, a validation error is raised.
+Finally, remember that the channel currency must be the same as the card currency.

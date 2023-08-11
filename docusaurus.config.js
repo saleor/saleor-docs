@@ -441,9 +441,9 @@ module.exports = {
           },
           // docs folder path relative to website dir.
           path: "./docs",
-          lastVersion: "current",
+          lastVersion: "3.x",
           versions: {
-            current: {
+            "3.x": {
               label: "3.x",
               path: "3.x",
             },

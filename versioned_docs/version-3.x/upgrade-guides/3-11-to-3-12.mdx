@@ -1,0 +1,35 @@
+---
+title: Upgrading from 3.11 to 3.12
+sidebar_position: 5
+---
+
+This migration guide describes the upgrade from versions 3.11 to 3.12. Version 3.12 contains the following breaking changes:
+
+## Order settings moved to Channel type
+
+We moved [`orderSettings`](../api-reference/orders/queries/order-settings) to [`Channel`](../api-reference/channels/objects/channel). The changes affect the database models and the schema.
+
+To follow the zero-downtime strategy when upgrading to 3.12, **we recommend migrating to 3.11.4 first**. Otherwise, you will need to downtime your solution to ensure correct data migration.
+
+## Changes in the discount rounding mode
+
+We changed the discount rounding mode from `ROUND_DOWN` to `ROUND_HALF_UP`.
+
+The change affects the discount amount and total price of future [`Checkouts`](../api-reference/checkout/objects/checkout),
+as well as [`Orders`](../api-reference/orders/objects/order) with an applied percentage discount.
+Now, the discount amount might be 0.01 greater, and the total price might be 0.01 lower.
+
+If you do any calculations on the discount amount or total price, you might need to consider that.
+
+**Example:**
+
+If you had an order for $13.00 and applied a 12.5% discount to it, you would get $11.38 with a $1.62 discount.
+
+In Saleor 3.12.0, the numbers would be $11.37 for the order and $1.63 for the discount.
+
+## Include specific products and apply-once-per-order vouchers in checkout discount
+
+The change affects value of the [Checkout.discount](../api-reference/checkout/objects/checkout#code-style-fontweight-normal-checkoutbdiscountbcodemoney-)
+field when a `specific product` voucher or `apply-once-per-order` voucher is used.
+Previously, the checkout discount for such cases was 0, and the discount was only visible on the line level.
+Now, the checkout discount will reflect the amount of the applied discount regardless of the voucher type.

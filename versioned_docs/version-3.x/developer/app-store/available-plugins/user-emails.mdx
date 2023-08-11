@@ -1,0 +1,2109 @@
+---
+title: User Emails
+---
+
+`UserEmails` plugin is responsible for sending emails to shop customers.
+
+After being called by [`PluginManager`](developer/extending/plugins/overview.mdx), the plugin will fill the template using event payload and send a message via SMTP.
+
+## Available events
+
+- `account_confirmation`
+- `account_password_reset`
+- `account_change_email_request`
+- `account_change_email_confirm`
+- `account_delete`
+- `account_set_customer_password`
+- `invoice_ready`
+- `order_confirmation`
+- `order_confirmed`
+- `order_fulfillment_confirmation`
+- `order_fulfillment_update`
+- `order_payment_confirmation`
+- `order_canceled`
+- `order_refund_confirmation`
+- `send_gift_card`
+
+## Templates
+
+`UserEmails` plugin uses [handlebars](https://handlebarsjs.com/guide/) as a template language.
+You can use [Saleor's default templates](https://github.com/saleor/saleor-email-templates) as a good start for building your emails.
+Prepared emails can be uploaded via plugin section on the Dashboard side.
+
+## Helper functions
+
+### format_address
+
+Applies formatting to the address.
+
+Arguments:
+
+- **address** (json) - Adress instance in json format.
+- **include_phone** (boolean) - Controls if formatted adress will contain phone number. Default: True
+- **inline** (boolean) - Controlls if address should be formated inline. Default: False
+- **latin** (boolean) - Controls if unicode characters (for example cyrillic or kanji) should be formatted as their latin counterparts. [Learn more](https://github.com/mirumee/google-i18n-address#address-latinization). Default: False
+
+Usage:
+
+```
+{{format_address order.shipping_address}}
+```
+
+### price
+
+Applies formatting to the price.
+
+Arguments:
+
+- **net_amount** (decimal) - Net price.
+- **gross_amount** (decimal) - Gross price.
+- **currency** (string) - Price currency.
+- **display_gross** (boolean) - Controls if gross price should used, instead of net price.
+
+Usage:
+
+```
+{{price order.subtotal_net_amount order.subtotal_gross_amount order.currency display_gross=order.display_gross_prices}}
+```
+
+### format_datetime
+
+Converts datetime iso string format to requested format.
+
+Arguments:
+
+- **date** (date) - Date you want to format.
+- **date_format** (string) - Date format. By default, it will be `"%d-%m-%Y"`. Available formats can be found [here](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes).
+
+Usage:
+
+```
+{{format_datetime order.created "%b. %d, %Y"}}
+```
+
+### get_product_image_thumbnail
+
+Returns URL to the requested size of image.
+
+Arguments:
+
+- **size** (integer) - Image size in pixels.
+- **image** (Image) - Image instance.
+
+Usage:
+
+```
+{{get_product_image_thumbnail 60 product.first_image}}
+```
+
+### compare
+
+Compares two values. Returns true/false value.
+
+Arguments:
+
+- **val1** (any) - First value.
+- **compare_operator** (string) - Available operators: `==`,`!=`,`<`,`<=`,`>=`,`>`.
+- **val2** (any) - Second value.
+
+Usage:
+
+```
+{{#if (compare order.id "==" "1")}}
+    First order!
+{{/if}}
+```
+
+## Sample payloads
+
+### Customer account has been created
+
+Each `id` field is in the GraphQL format.
+
+Event name: _account_confirmation_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "user": {
+    "id": "VXNlcjo2OA==",
+    "email": "test@example.com1",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": false,
+    "private_metadata": {},
+    "metadata": {},
+    "language_code": "en"
+  },
+  "recipient_email": "test@example.com1",
+  "token": "ajcv09-f3f7880d4a5e33657fe12f9cc372a23f",
+  "confirm_url": "https://dev.saleor.cloud/account-confirm?email=test%40example.com1&token=ajcv09-f3f7880d4a5e33657fe12f9cc372a23f",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### Customer requested a reset password
+
+Event name: _account_password_reset_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "user": {
+    "id": "VXNlcjo2OA==",
+    "email": "test@example.com1",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "private_metadata": {},
+    "metadata": {},
+    "language_code": "en"
+  },
+  "recipient_email": "test@example.com1",
+  "token": "ajcvfp-cc31f7d6e10c8553c3fe923876d0451f",
+  "reset_url": "https://dev.saleor.cloud/reset-password?email=test%40example.com1&token=ajcvfp-cc31f7d6e10c8553c3fe923876d0451f",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### Customer requested email change
+
+Event name: _account_change_email_request_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "user": {
+    "id": "VXNlcjo2OA==",
+    "email": "test@example.com1",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": false,
+    "private_metadata": {},
+    "metadata": {},
+    "language_code": "en"
+  },
+  "old_email": "test@example.com1",
+  "new_email": "new.email@example.com1",
+  "recipient_email": "test@example.com1",
+  "token": "ajcv09-f3f7880d4a5e33650fe12f9cc372a23f",
+  "redirect_url": "https://dev.saleor.cloud/account-change?email=test%40example.com1&token=ajcv09-f3f7880d4a5e33650fe12f9cc372a23f",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### Customer confirmed email change
+
+Event name: _account_change_email_confirm_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "user": {
+    "id": "VXNlcjo2OA==",
+    "email": "test@example.com1",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": false,
+    "private_metadata": {},
+    "metadata": {},
+    "language_code": "en"
+  },
+  "recipient_email": "test@example.com1",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### Customer requested a delete account
+
+Event name: _account_delete_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "user": {
+    "id": "VXNlcjo2Nw==",
+    "email": "admin@example.com",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": true,
+    "is_active": true,
+    "private_metadata": {},
+    "metadata": {},
+    "language_code": "en"
+  },
+  "recipient_email": "admin@example.com",
+  "token": "ajcvzr-47f32f211ae984939a5f7ce6daf928b2",
+  "delete_url": "https://dev.saleor.cloud/logout?token=ajcvzr-47f32f211ae984939a5f7ce6daf928b2",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### Staff user has created a customer account
+
+Event name: _account_set_customer_password_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "user": {
+    "id": "VXNlcjo3MQ==",
+    "email": "new.customer@example.com",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "private_metadata": {},
+    "metadata": {},
+    "language_code": "en"
+  },
+  "token": "ajcx3t-6b86b0037b3d806728cfa1e2e455dcf1",
+  "recipient_email": "new.customer@example.com",
+  "password_set_url": "https://example.com/reset?email=new.customer%40example.com&token=ajcx3t-6b86b0037b3d806728cfa1e2e455dcf1",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### The invoice for the order is ready
+
+Event name: _invoice_ready_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "invoice": {
+    "id": "VXNlcjox",
+    "number": "1/03/2021",
+    "download_url": "https://example.com/media/invoices/invoice-1/03/2021-order-52-5d6f7e71-61b6-4af2-ba56-423d304717ac.pdf",
+    "order_id": "VXNlcjo1Mg=="
+  },
+  "recipient_email": "user@example.com",
+  "requester_user_id": "VXNlcjo2Nw==",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### The order has been created
+
+Event name: _order_confirmation_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "order": {
+    "id": "VXNlcjo1Mg==",
+    "private_metadata": {},
+    "metadata": {},
+    "status": "unconfirmed",
+    "language_code": "en",
+    "currency": "USD",
+    "token": "f7080def-babf-4018-87cb-e701b6ccb93d",
+    "total_net_amount": "240.82",
+    "undiscounted_total_net_amount": "240.820",
+    "total_gross_amount": "240.82",
+    "undiscounted_total_gross_amount": "240.820",
+    "display_gross_prices": true,
+    "channel_slug": "default-channel",
+    "created": "2021-03-11 16:56:59.121991+00:00",
+    "shipping_price_net_amount": "91.22",
+    "shipping_price_gross_amount": "91.22",
+    "order_details_url": "",
+    "email": "admin@example.com",
+    "subtotal_gross_amount": "149.600",
+    "subtotal_net_amount": "149.600",
+    "tax_amount": "0.00",
+    "lines": [
+      {
+        "id": "VXNlcjoxMjQ=",
+        "product": {
+          "id": "VXNlcjo3Mg==",
+          "attributes": [
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "flavor",
+                  "name": "Flavor"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple",
+                  "value": "",
+                  "slug": "apple",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "details",
+                  "name": "Details"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple juice details",
+                  "value": "",
+                  "slug": "72_2",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "product-type",
+                  "name": "product-type"
+                }
+              },
+              "values": [
+                {
+                  "name": "ABC",
+                  "value": "",
+                  "slug": "abc",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "related-products",
+                  "name": "Related products"
+                }
+              },
+              "values": []
+            }
+          ],
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "product_name": "Apple Juice",
+        "translated_product_name": "Apple Juice",
+        "variant_name": "1l",
+        "variant": {
+          "id": "VXNlcjoyMDM=",
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "translated_variant_name": "1l",
+        "product_sku": "43226647",
+        "quantity": 11,
+        "quantity_fulfilled": 0,
+        "currency": "USD",
+        "unit_price_net_amount": "4.000",
+        "unit_price_gross_amount": "4.000",
+        "unit_tax_amount": "0.000",
+        "total_gross_amount": "44.000",
+        "total_net_amount": "44.000",
+        "total_tax_amount": "0.000",
+        "tax_rate": "0.0000",
+        "is_shipping_required": true,
+        "is_digital": false,
+        "digital_url": "",
+        "unit_discount_value": "0.000",
+        "unit_discount_reason": null,
+        "unit_discount_type": "fixed",
+        "unit_discount_amount": "0.000"
+      }
+    ],
+    "billing_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_method_name": "DB Schenker",
+    "voucher_discount": null,
+    "discounts": [],
+    "discount_amount": 0
+  },
+  "recipient_email": "admin@example.com",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### The order has been confirmed by the staff user
+
+Event name: _order_confirmed_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "order": {
+    "id": "VXNlcjo1Mg==",
+    "private_metadata": {},
+    "metadata": {},
+    "status": "unfulfilled",
+    "language_code": "en",
+    "currency": "USD",
+    "token": "f7080def-babf-4018-87cb-e701b6ccb93d",
+    "total_net_amount": "240.820",
+    "undiscounted_total_net_amount": "240.820",
+    "total_gross_amount": "240.820",
+    "undiscounted_total_gross_amount": "240.820",
+    "display_gross_prices": true,
+    "channel_slug": "default-channel",
+    "created": "2021-03-11 16:56:59.121991+00:00",
+    "shipping_price_net_amount": "91.220",
+    "shipping_price_gross_amount": "91.220",
+    "order_details_url": "",
+    "email": "admin@example.com",
+    "subtotal_gross_amount": "149.600",
+    "subtotal_net_amount": "149.600",
+    "tax_amount": "0.000",
+    "lines": [
+      {
+        "id": "VXNlcjoxMjQ=",
+        "product": {
+          "id": "VXNlcjo3Mg==",
+          "attributes": [
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "flavor",
+                  "name": "Flavor"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple",
+                  "value": "",
+                  "slug": "apple",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "details",
+                  "name": "Details"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple juice details",
+                  "value": "",
+                  "slug": "72_2",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "product-type",
+                  "name": "product-type"
+                }
+              },
+              "values": [
+                {
+                  "name": "ABC",
+                  "value": "",
+                  "slug": "abc",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "related-products",
+                  "name": "Related products"
+                }
+              },
+              "values": []
+            }
+          ],
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "product_name": "Apple Juice",
+        "translated_product_name": "Apple Juice",
+        "variant_name": "1l",
+        "variant": {
+          "id": "VXNlcjoyMDM=",
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "translated_variant_name": "1l",
+        "product_sku": "43226647",
+        "quantity": 11,
+        "quantity_fulfilled": 0,
+        "currency": "USD",
+        "unit_price_net_amount": "4.000",
+        "unit_price_gross_amount": "4.000",
+        "unit_tax_amount": "0.000",
+        "total_gross_amount": "44.000",
+        "total_net_amount": "44.000",
+        "total_tax_amount": "0.000",
+        "tax_rate": "0.0000",
+        "is_shipping_required": true,
+        "is_digital": false,
+        "digital_url": "",
+        "unit_discount_value": "0.000",
+        "unit_discount_reason": null,
+        "unit_discount_type": "fixed",
+        "unit_discount_amount": "0.000"
+      }
+    ],
+    "billing_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_method_name": "DB Schenker",
+    "voucher_discount": null,
+    "discounts": [],
+    "discount_amount": 0
+  },
+  "recipient_email": "admin@example.com",
+  "requester_user_id": "VXNlcjo2Nw==",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### The order has been fulfilled
+
+Event name: _order_fulfillment_confirmation_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "order": {
+    "id": "VXNlcjo1Mg==",
+    "private_metadata": {},
+    "metadata": {},
+    "status": "partially fulfilled",
+    "language_code": "en",
+    "currency": "USD",
+    "token": "7b212dfe-c8df-4991-bd4f-f42e5135e04c",
+    "total_net_amount": "55.180",
+    "undiscounted_total_net_amount": "55.180",
+    "total_gross_amount": "55.180",
+    "undiscounted_total_gross_amount": "55.180",
+    "display_gross_prices": true,
+    "channel_slug": "default-channel",
+    "created": "2021-03-11 16:57:47.697075+00:00",
+    "shipping_price_net_amount": "33.580",
+    "shipping_price_gross_amount": "33.580",
+    "order_details_url": "",
+    "email": "admin@example.com",
+    "subtotal_gross_amount": "21.600",
+    "subtotal_net_amount": "21.600",
+    "tax_amount": "0.000",
+    "lines": [
+      {
+        "id": "VXNlcjoxMjY=",
+        "product": {
+          "id": "VXNlcjo3Mg==",
+          "attributes": [
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "flavor",
+                  "name": "Flavor"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple",
+                  "value": "",
+                  "slug": "apple",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "details",
+                  "name": "Details"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple juice details",
+                  "value": "",
+                  "slug": "72_2",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "product-type",
+                  "name": "product-type"
+                }
+              },
+              "values": [
+                {
+                  "name": "ABC",
+                  "value": "",
+                  "slug": "abc",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "related-products",
+                  "name": "Related products"
+                }
+              },
+              "values": []
+            }
+          ],
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "product_name": "Apple Juice",
+        "translated_product_name": "Apple Juice",
+        "variant_name": "1l",
+        "variant": {
+          "id": "VXNlcjoyMDM=",
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "translated_variant_name": "1l",
+        "product_sku": "43226647",
+        "quantity": 2,
+        "quantity_fulfilled": 1,
+        "currency": "USD",
+        "unit_price_net_amount": "4.000",
+        "unit_price_gross_amount": "4.000",
+        "unit_tax_amount": "0.000",
+        "total_gross_amount": "8.000",
+        "total_net_amount": "8.000",
+        "total_tax_amount": "0.000",
+        "tax_rate": "0.0000",
+        "is_shipping_required": true,
+        "is_digital": false,
+        "digital_url": "",
+        "unit_discount_value": "0.000",
+        "unit_discount_reason": null,
+        "unit_discount_type": "fixed",
+        "unit_discount_amount": "0.000"
+      }
+    ],
+    "billing_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_method_name": "DHL",
+    "voucher_discount": null,
+    "discounts": [],
+    "discount_amount": 0
+  },
+  "fulfillment": {
+    "tracking_number": "",
+    "is_tracking_number_url": false
+  },
+  "physical_lines": [
+    {
+      "id": "VXNlcjo1Mg==",
+      "order_line": {
+        "id": "VXNlcjoxMjY=",
+        "product": {
+          "id": "VXNlcjo3Mg==",
+          "attributes": [
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "flavor",
+                  "name": "Flavor"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple",
+                  "value": "",
+                  "slug": "apple",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "details",
+                  "name": "Details"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple juice details",
+                  "value": "",
+                  "slug": "72_2",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "product-type",
+                  "name": "product-type"
+                }
+              },
+              "values": [
+                {
+                  "name": "ABC",
+                  "value": "",
+                  "slug": "abc",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "related-products",
+                  "name": "Related products"
+                }
+              },
+              "values": []
+            }
+          ],
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "product_name": "Apple Juice",
+        "translated_product_name": "Apple Juice",
+        "variant_name": "1l",
+        "variant": {
+          "id": "VXNlcjoyMDM=",
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "translated_variant_name": "1l",
+        "product_sku": "43226647",
+        "quantity": 2,
+        "quantity_fulfilled": 1,
+        "currency": "USD",
+        "unit_price_net_amount": "4.000",
+        "unit_price_gross_amount": "4.000",
+        "unit_tax_amount": "0.000",
+        "total_gross_amount": "8.000",
+        "total_net_amount": "8.000",
+        "total_tax_amount": "0.000",
+        "tax_rate": "0.0000",
+        "is_shipping_required": true,
+        "is_digital": false,
+        "digital_url": "",
+        "unit_discount_value": "0.000",
+        "unit_discount_reason": null,
+        "unit_discount_type": "fixed",
+        "unit_discount_amount": "0.000"
+      },
+      "quantity": 1
+    }
+  ],
+  "digital_lines": [],
+  "recipient_email": "admin@example.com",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce",
+  "requester_user_id": "VXNlcjo2Nw=="
+}
+```
+
+</details>
+
+### The fulfillment has been updated
+
+Event name: _order_fulfillment_update_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "order": {
+    "id": "VXNlcjo1Mg==",
+    "private_metadata": {},
+    "metadata": {},
+    "status": "partially fulfilled",
+    "language_code": "en",
+    "currency": "USD",
+    "token": "7b212dfe-c8df-4991-bd4f-f42e5135e04c",
+    "total_net_amount": "55.180",
+    "undiscounted_total_net_amount": "55.180",
+    "total_gross_amount": "55.180",
+    "undiscounted_total_gross_amount": "55.180",
+    "display_gross_prices": true,
+    "channel_slug": "default-channel",
+    "created": "2021-03-11 16:57:47.697075+00:00",
+    "shipping_price_net_amount": "33.580",
+    "shipping_price_gross_amount": "33.580",
+    "order_details_url": "",
+    "email": "admin@example.com",
+    "subtotal_gross_amount": "21.600",
+    "subtotal_net_amount": "21.600",
+    "tax_amount": "0.000",
+    "lines": [
+      {
+        "id": "VXNlcjoxMjY=",
+        "product": {
+          "id": "VXNlcjo3Mg==",
+          "attributes": [
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "flavor",
+                  "name": "Flavor"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple",
+                  "value": "",
+                  "slug": "apple",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "details",
+                  "name": "Details"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple juice details",
+                  "value": "",
+                  "slug": "72_2",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "product-type",
+                  "name": "product-type"
+                }
+              },
+              "values": [
+                {
+                  "name": "ABC",
+                  "value": "",
+                  "slug": "abc",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "related-products",
+                  "name": "Related products"
+                }
+              },
+              "values": []
+            }
+          ],
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "product_name": "Apple Juice",
+        "translated_product_name": "Apple Juice",
+        "variant_name": "1l",
+        "variant": {
+          "id": "VXNlcjoyMDM=",
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "translated_variant_name": "1l",
+        "product_sku": "43226647",
+        "quantity": 2,
+        "quantity_fulfilled": 1,
+        "currency": "USD",
+        "unit_price_net_amount": "4.000",
+        "unit_price_gross_amount": "4.000",
+        "unit_tax_amount": "0.000",
+        "total_gross_amount": "8.000",
+        "total_net_amount": "8.000",
+        "total_tax_amount": "0.000",
+        "tax_rate": "0.0000",
+        "is_shipping_required": true,
+        "is_digital": false,
+        "digital_url": "",
+        "unit_discount_value": "0.000",
+        "unit_discount_reason": null,
+        "unit_discount_type": "fixed",
+        "unit_discount_amount": "0.000"
+      }
+    ],
+    "billing_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_method_name": "DHL",
+    "voucher_discount": null,
+    "discounts": [],
+    "discount_amount": 0
+  },
+  "fulfillment": {
+    "tracking_number": "http://127.0.0.1:8000/tracking-url",
+    "is_tracking_number_url": true
+  },
+  "physical_lines": [
+    {
+      "id": "VXNlcjo1Mg==",
+      "order_line": {
+        "id": "VXNlcjoxMjY=",
+        "product": {
+          "id": "VXNlcjo3Mg==",
+          "attributes": [
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "flavor",
+                  "name": "Flavor"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple",
+                  "value": "",
+                  "slug": "apple",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "details",
+                  "name": "Details"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple juice details",
+                  "value": "",
+                  "slug": "72_2",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "product-type",
+                  "name": "product-type"
+                }
+              },
+              "values": [
+                {
+                  "name": "ABC",
+                  "value": "",
+                  "slug": "abc",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "related-products",
+                  "name": "Related products"
+                }
+              },
+              "values": []
+            }
+          ],
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "product_name": "Apple Juice",
+        "translated_product_name": "Apple Juice",
+        "variant_name": "1l",
+        "variant": {
+          "id": "VXNlcjoyMDM=",
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "translated_variant_name": "1l",
+        "product_sku": "43226647",
+        "quantity": 2,
+        "quantity_fulfilled": 1,
+        "currency": "USD",
+        "unit_price_net_amount": "4.000",
+        "unit_price_gross_amount": "4.000",
+        "unit_tax_amount": "0.000",
+        "total_gross_amount": "8.000",
+        "total_net_amount": "8.000",
+        "total_tax_amount": "0.000",
+        "tax_rate": "0.0000",
+        "is_shipping_required": true,
+        "is_digital": false,
+        "digital_url": "",
+        "unit_discount_value": "0.000",
+        "unit_discount_reason": null,
+        "unit_discount_type": "fixed",
+        "unit_discount_amount": "0.000"
+      },
+      "quantity": 1
+    }
+  ],
+  "digital_lines": [],
+  "recipient_email": "admin@example.com",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### The payment has been confirmed
+
+Event name: _order_payment_confirmation_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "order": {
+    "id": "VXNlcjo1Mg==",
+    "private_metadata": {},
+    "metadata": {},
+    "status": "unconfirmed",
+    "language_code": "en",
+    "currency": "USD",
+    "token": "f7080def-babf-4018-87cb-e701b6ccb93d",
+    "total_net_amount": "240.82",
+    "undiscounted_total_net_amount": "240.820",
+    "total_gross_amount": "240.82",
+    "undiscounted_total_gross_amount": "240.820",
+    "display_gross_prices": true,
+    "channel_slug": "default-channel",
+    "created": "2021-03-11 16:56:59.121991+00:00",
+    "shipping_price_net_amount": "91.22",
+    "shipping_price_gross_amount": "91.22",
+    "order_details_url": "",
+    "email": "admin@example.com",
+    "subtotal_gross_amount": "149.600",
+    "subtotal_net_amount": "149.600",
+    "tax_amount": "0.00",
+    "lines": [
+      {
+        "id": "VXNlcjoxMjM=",
+        "product": {
+          "id": "VXNlcjo3Mg==",
+          "attributes": [
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "flavor",
+                  "name": "Flavor"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple",
+                  "value": "",
+                  "slug": "apple",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "details",
+                  "name": "Details"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple juice details",
+                  "value": "",
+                  "slug": "72_2",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "product-type",
+                  "name": "product-type"
+                }
+              },
+              "values": [
+                {
+                  "name": "ABC",
+                  "value": "",
+                  "slug": "abc",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "related-products",
+                  "name": "Related products"
+                }
+              },
+              "values": []
+            }
+          ],
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "product_name": "Apple Juice",
+        "translated_product_name": "Apple Juice",
+        "variant_name": "500ml",
+        "variant": {
+          "id": "VXNlcjoyMDI=",
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "translated_variant_name": "500ml",
+        "product_sku": "93855755",
+        "quantity": 11,
+        "quantity_fulfilled": 0,
+        "currency": "USD",
+        "unit_price_net_amount": "4.000",
+        "unit_price_gross_amount": "4.000",
+        "unit_tax_amount": "0.000",
+        "total_gross_amount": "44.000",
+        "total_net_amount": "44.000",
+        "total_tax_amount": "0.000",
+        "tax_rate": "0.0000",
+        "is_shipping_required": true,
+        "is_digital": false,
+        "digital_url": "",
+        "unit_discount_value": "0.000",
+        "unit_discount_reason": null,
+        "unit_discount_type": "fixed",
+        "unit_discount_amount": "0.000"
+      }
+    ],
+    "billing_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_method_name": "DB Schenker",
+    "voucher_discount": null,
+    "discounts": [],
+    "discount_amount": 0
+  },
+  "recipient_email": "admin@example.com",
+  "payment": {
+    "created": "2021-03-11T16:56:57.028Z",
+    "modified": "2021-03-11T16:56:59.100Z",
+    "charge_status": "fully-charged",
+    "total": "240.820",
+    "captured_amount": "240.820",
+    "currency": "USD"
+  },
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### The order has been canceled
+
+Event name: _order_canceled_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "requester_user_id": "VXNlcjo2Nw==",
+  "order": {
+    "id": "VXNlcjo1Mw==",
+    "private_metadata": {},
+    "metadata": {},
+    "status": "canceled",
+    "language_code": "en",
+    "currency": "USD",
+    "token": "2f330431-fef4-4454-bf93-bdbb831caf3e",
+    "total_net_amount": "41.680",
+    "undiscounted_total_net_amount": "41.680",
+    "total_gross_amount": "41.680",
+    "undiscounted_total_gross_amount": "41.680",
+    "display_gross_prices": true,
+    "channel_slug": "default-channel",
+    "created": "2021-03-11 16:58:13.461513+00:00",
+    "shipping_price_net_amount": "33.580",
+    "shipping_price_gross_amount": "33.580",
+    "order_details_url": "",
+    "email": "admin@example.com",
+    "subtotal_gross_amount": "8.100",
+    "subtotal_net_amount": "8.100",
+    "tax_amount": "0.000",
+    "lines": [
+      {
+        "id": "VXNlcjoxMjk=",
+        "product": {
+          "id": "VXNlcjo3Mg==",
+          "attributes": [
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "flavor",
+                  "name": "Flavor"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple",
+                  "value": "",
+                  "slug": "apple",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "details",
+                  "name": "Details"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple juice details",
+                  "value": "",
+                  "slug": "72_2",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "product-type",
+                  "name": "product-type"
+                }
+              },
+              "values": [
+                {
+                  "name": "ABC",
+                  "value": "",
+                  "slug": "abc",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "related-products",
+                  "name": "Related products"
+                }
+              },
+              "values": []
+            }
+          ],
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "product_name": "Apple Juice",
+        "translated_product_name": "Apple Juice",
+        "variant_name": "2l",
+        "variant": {
+          "id": "VXNlcjoyMDQ=",
+          "weight": "2.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "translated_variant_name": "2l",
+        "product_sku": "80884671",
+        "quantity": 1,
+        "quantity_fulfilled": 0,
+        "currency": "USD",
+        "unit_price_net_amount": "5.600",
+        "unit_price_gross_amount": "5.600",
+        "unit_tax_amount": "0.000",
+        "total_gross_amount": "5.600",
+        "total_net_amount": "5.600",
+        "total_tax_amount": "0.000",
+        "tax_rate": "0.0000",
+        "is_shipping_required": true,
+        "is_digital": false,
+        "digital_url": "",
+        "unit_discount_value": "0.000",
+        "unit_discount_reason": null,
+        "unit_discount_type": "fixed",
+        "unit_discount_amount": "0.000"
+      }
+    ],
+    "billing_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_method_name": "DHL",
+    "voucher_discount": null,
+    "discounts": [],
+    "discount_amount": 0
+  },
+  "recipient_email": "admin@example.com",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### The order has been refunded
+
+Event name: _order_refund_confirmation_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "requester_user_id": "VXNlcjo2Nw==",
+  "order": {
+    "id": "VXNlcjo1Mg==",
+    "private_metadata": {},
+    "metadata": {},
+    "status": "unfulfilled",
+    "language_code": "en",
+    "currency": "USD",
+    "token": "f7080def-babf-4018-87cb-e701b6ccb93d",
+    "total_net_amount": "240.820",
+    "undiscounted_total_net_amount": "240.820",
+    "total_gross_amount": "240.820",
+    "undiscounted_total_gross_amount": "240.820",
+    "display_gross_prices": true,
+    "channel_slug": "default-channel",
+    "created": "2021-03-11 16:56:59.121991+00:00",
+    "shipping_price_net_amount": "91.220",
+    "shipping_price_gross_amount": "91.220",
+    "order_details_url": "",
+    "email": "admin@example.com",
+    "subtotal_gross_amount": "149.600",
+    "subtotal_net_amount": "149.600",
+    "tax_amount": "0.000",
+    "lines": [
+      {
+        "id": "VXNlcjoxMjM=",
+        "product": {
+          "id": "VXNlcjo3Mg==",
+          "attributes": [
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "flavor",
+                  "name": "Flavor"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple",
+                  "value": "",
+                  "slug": "apple",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "details",
+                  "name": "Details"
+                }
+              },
+              "values": [
+                {
+                  "name": "Apple juice details",
+                  "value": "",
+                  "slug": "72_2",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "product-type",
+                  "name": "product-type"
+                }
+              },
+              "values": [
+                {
+                  "name": "ABC",
+                  "value": "",
+                  "slug": "abc",
+                  "file_url": null
+                }
+              ]
+            },
+            {
+              "assignment": {
+                "attribute": {
+                  "slug": "related-products",
+                  "name": "Related products"
+                }
+              },
+              "values": []
+            }
+          ],
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "product_name": "Apple Juice",
+        "translated_product_name": "Apple Juice",
+        "variant_name": "500ml",
+        "variant": {
+          "id": "VXNlcjoyMDI=",
+          "weight": "1.0 kg",
+          "first_image": {
+            "original": {
+              "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+              "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+              "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+              "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+              "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+              "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+            }
+          },
+          "images": [
+            {
+              "original": {
+                "60x60": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-60x60.png",
+                "540x540": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-540x540.png",
+                "255x255": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-255x255.png",
+                "510x510": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-510x510.png",
+                "120x120": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-120x120.png",
+                "1080x1080": "https://example.com/media/__sized__/products/saleordemoproduct_fd_juice_06-thumbnail-1080x1080.png"
+              }
+            }
+          ]
+        },
+        "translated_variant_name": "500ml",
+        "product_sku": "93855755",
+        "quantity": 11,
+        "quantity_fulfilled": 0,
+        "currency": "USD",
+        "unit_price_net_amount": "4.000",
+        "unit_price_gross_amount": "4.000",
+        "unit_tax_amount": "0.000",
+        "total_gross_amount": "44.000",
+        "total_net_amount": "44.000",
+        "total_tax_amount": "0.000",
+        "tax_rate": "0.0000",
+        "is_shipping_required": true,
+        "is_digital": false,
+        "digital_url": "",
+        "unit_discount_value": "0.000",
+        "unit_discount_reason": null,
+        "unit_discount_type": "fixed",
+        "unit_discount_amount": "0.000"
+      }
+    ],
+    "billing_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_address": {
+      "first_name": "Maciej",
+      "last_name": "KK",
+      "company_name": "",
+      "street_address_1": "Teczowa 7",
+      "street_address_2": "",
+      "city": "WROCLAW",
+      "city_area": "",
+      "postal_code": "53-601",
+      "country": "PL",
+      "country_area": "",
+      "phone": ""
+    },
+    "shipping_method_name": "DB Schenker",
+    "voucher_discount": null,
+    "discounts": [],
+    "discount_amount": 0
+  },
+  "recipient_email": "admin@example.com",
+  "amount": "16.800",
+  "currency": "USD",
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
+
+### Gift card is being send to customer
+
+Event name: _send_gift_card_
+
+<details><summary>Payload</summary>
+
+```json
+{
+  "user": {
+    "id": "VXNlcjo5",
+    "email": "recipient@example.com",
+    "first_name": "Leslie",
+    "last_name": "Wade",
+    "is_staff": false,
+    "is_active": true,
+    "private_metadata": {},
+    "metadata": {},
+    "language_code": "en"
+  },
+  "requester_user_id": "VXNlcjo4",
+  "requester_app_id": null,
+  "recipient_email": "recipient@example.com",
+  "resending": false,
+  "gift_card": {
+    "id": "VXNlcjoxMjE=",
+    "code": "DC96-AF49-BECB",
+    "balance": 60.0,
+    "currency": "USD"
+  },
+  "domain": "example.com",
+  "site_name": "Saleor e-commerce"
+}
+```
+
+</details>
