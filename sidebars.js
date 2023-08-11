@@ -34,7 +34,7 @@ module.exports = {
           items: [
             "developer/discounts/overview",
             "developer/discounts/promotions",
-            "developer/discounts/voucher",
+            "developer/discounts/vouchers",
             "developer/discounts/sales",
           ],
         },
