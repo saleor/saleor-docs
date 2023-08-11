@@ -50,7 +50,7 @@ import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
 
 /**
 * Default body parser must be turned off - the raw body is needed to verify the signature
-* /
+*/
 export const config = {
   api: {
     bodyParser: false,
