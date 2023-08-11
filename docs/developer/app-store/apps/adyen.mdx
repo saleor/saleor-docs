@@ -224,7 +224,39 @@ mutation AdyenTransactionInitialize($data: JSON!) {
 }
 ```
 
-Where `$data` is the object provided by Adyen Drop-in in the `onSubmit` (Web, React Native), `didSubmit` (iOS) or `makePaymentsCall` (Android) callback. Response:
+Where `$data` is the object provided by Adyen Drop-in in the `onSubmit` (Web, React Native), `didSubmit` (iOS) or `makePaymentsCall` (Android) callback. Specifically, the following fields may be passed inside the `$data`:
+
+- `paymentMethod` (required)
+- `browserInfo` (required in browsers)
+- `returnUrl` (required for some payment methods)
+- `origin` (optional)
+- `channel` (optional, `"Web"` by default)
+- `order` (optional)
+
+:::note
+
+Moreover, Saleor Adyen App automatically provides the following fields to Adyen:
+
+- `reference`
+- `shopperReference`
+- `additionalData.manualCapture (when action is authorization)`
+- `merchantAccount`
+- `countryCode`
+- `shopperLocale`
+- `amount`
+- `authenticationData.threeDSRequestData.nativeThreeDS` (`"preferred"`)
+- `metadata` (`{ transactionId, channelId, checkoutId, orderId }`)
+- `lineItems`
+- `shopperEmail`
+- `shopperName`
+- `telephoneNumber`
+- `deliveryAddress`
+- `billingAddress`
+- `company.name`
+
+:::
+
+Response:
 
 ```json
 {
@@ -264,7 +296,30 @@ Where `$data` is the object provided by Adyen Drop-in in the `onSubmit` (Web, Re
 
 ### Performing additional actions (_optional_)
 
-Optionally, additional actions may be required: authentication of payment with 3D Secure, scan of a QR code, or logging in to the bank to complete the payment. In this case, [`transactionProcess`](../../../api-reference/payments/mutations/transaction-process) mutation should be used. The mutation returns a `TransactionProcess` object with a `data` field containing the following fields:
+Optionally, additional actions may be required: authentication of payment with 3D Secure, scan of a QR code, or logging in to the bank to complete the payment. In this case, [`transactionProcess`](../../../api-reference/payments/mutations/transaction-process) mutation should be used.
+
+```graphql
+mutation AdyenTransactionProcess($id: ID!, $data: JSON) {
+  transactionProcess(id: $id, data: $data) {
+    transaction {
+      id
+      actions
+    }
+    transactionEvent {
+      message
+      type
+    }
+    data
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+Where `$data` is the object provided by Adyen Drop-in in the `onAdditionalDetails` (Web, React Native), `didProvide` (iOS) or `makeDetailsCall` (Android) callback. The response is similar to the one from `transactionInitialize` but the `data` field has a different shape:
 
 ```ts
 {
@@ -273,7 +328,7 @@ Optionally, additional actions may be required: authentication of payment with 3
 }
 ```
 
-Where `PaymentDetailsResponse` is the result of calling Adyen's `/payments/details` endpoint and is described in the [Adyen documentation](https://docs.adyen.com/api-explorer/Checkout/latest/post/payments/details#responses-200). `SyncWebhookAppErrors` is [described below](#handling-errors).
+`PaymentDetailsResponse` is the result of calling Adyen's `/payments/details` endpoint and is described in the [Adyen documentation](https://docs.adyen.com/api-explorer/Checkout/latest/post/payments/details#responses-200). `SyncWebhookAppErrors` is [described below](#handling-errors).
 
 If the `errors` field doesn't exist or is an empty array, pass the `paymentDetailsResponse` back to Adyen Drop-in. The Drop-in will handle the response and display the result to the user or again require additional actions to proceed.
 
