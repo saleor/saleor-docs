@@ -236,13 +236,13 @@ export const orderCalculateTaxesWebhook = new SaleorAsyncWebhook<Payload>({
 
 ### Resources
 
-- Check available events [here](https://docs.saleor.io/docs/3.x/developer/extending/apps/asynchronous-webhooks#available-webhook-events)
+- Check available events [here](docs/developer/extending/webhooks/asynchronous-events.mdx#available-webhook-events)
 - [Read more about APLs](./apl.md)
-- [Subscription query documentation](https://docs.saleor.io/docs/3.x/developer/extending/apps/subscription-webhook-payloads)
+- [Subscription query documentation](docs/developer/extending/webhooks/subscription-webhook-payloads.mdx)
 
 ### Extending app manifest
 
-Webhooks are created in Saleor when the App is installed. Saleor uses [AppManifest](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest) to get information about webhooks to create.  
+Webhooks are created in Saleor when the App is installed. Saleor uses [AppManifest](docs/developer/extending/apps/architecture/manifest.mdx) to get information about webhooks to create.  
 `SaleorSyncWebhook` & `SaleorAsyncWebhook` utility can generate this manifest:
 
 ```typescript

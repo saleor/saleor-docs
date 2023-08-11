@@ -152,7 +152,7 @@ appBridge.unsubscribeAll();
 | `localeChanged` | Fired when Dashboard changes locale (and passes locale code in payload)      |
 | `tokenRefresh`  | Fired when Dashboard receives a new auth token and passes it to the app      |
 
-See [source code for detailed payload](./src/app-bridge/events.ts)
+See [source code for detailed payload](https://github.com/saleor/saleor-app-sdk/blob/5c56cf566d2cc6e4a075c8c619f174fa43aad6c9/src/app-bridge/events.ts)
 
 ## Actions
 

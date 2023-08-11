@@ -8,8 +8,8 @@ Currently, Saleor heavily relies on Next.js, but other platforms will be support
 
 Saleor requires two endpoints to be available for a standalone app:
 
-- Manifest endpoint - Returns JSON object with app properties, like its name or permissions. [Read more](https://docs.saleor.io/docs/3.x/developer/extending/apps/manifest)
-- Register endpoint - During installation, Saleor sends a `POST` request with auth token to this endpoint. [Read more](https://docs.saleor.io/docs/3.x/developer/extending/apps/installing-apps#installation-using-graphql-api)
+- Manifest endpoint - Returns JSON object with app properties, like its name or permissions. [Read more](docs/developer/extending/apps/architecture/manifest.mdx)
+- Register endpoint - During installation, Saleor sends a `POST` request with auth token to this endpoint. [Read more](docs/developer/extending/apps/installing-apps.mdx#installation-using-graphql-api)
 
 ## Built-in API handlers
 
@@ -52,7 +52,7 @@ type CreateManifestHandlerOptions = {
 
 You can use `NextApiRequest` to read additional parameters from the request. An example use case would be enabling some features based on the Saleor version.
 
-See [source](./src/handlers/next/create-manifest-handler.ts) for more details. See [manifest](../src/types.ts) too.
+See [`createManifestHandler`](https://github.com/saleor/saleor-app-sdk/blob/5c56cf566d2cc6e4a075c8c619f174fa43aad6c9/src/handlers/next/create-manifest-handler.ts#L18) for more details. See [manifest](https://github.com/saleor/saleor-app-sdk/blob/5c56cf566d2cc6e4a075c8c619f174fa43aad6c9/src/types.ts#L223) too.
 
 ### App register handler factory
 
