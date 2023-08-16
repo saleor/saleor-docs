@@ -1,0 +1,352 @@
+---
+title: Bulk Attribute Import
+---
+
+:::info
+
+This feature was introduced in **Saleor 3.15**.
+
+:::
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+
+## Introduction
+
+This guide describes a mutation allowing users to create and update multiple attributes in Saleor. The purpose of these mutations could be to import attributes from other systems.
+
+:::caution
+Mutations use the same data inputs as [`attributeCreate`](/docs/3.x/api-reference/attributes/mutations/attribute-create) and [`attributeUpdate`](/docs/3.x/api-reference/attributes/mutations/attribute-update) to keep it consistent between single and bulk mutations, but deprecated
+fields from [`AttributeCreateInput`](/docs/3.x/api-reference/attributes/inputs/attribute-create-input), [`AttributeUpdateInput`](/docs/3.x/api-reference/attributes/inputs/attribute-update-input), [`AttributeValueCreateInput`](/docs/3.x/api-reference/attributes/inputs/attribute-value-create-input) and [`AttributeValueUpdateInput`](/docs/3.x/api-reference/attributes/inputs/attribute-value-update-input) are not supported in bulk mutations and using them will result in an error.
+
+Those fields are:
+
+- `filterableInStorefront`
+- `availableInGrid`
+- `storefrontSearchPosition`
+- `richText`
+- `plainText`
+
+:::
+
+## Permissions
+
+To edit and create attributes, a user needs to have the following permissions, depending on the attribute type:
+
+- `MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES` if the attribute type is `PRODUCT_TYPE`
+- `MANAGE_PAGE_TYPES_AND_ATTRIBUTES` if the attribute type is `PAGE_TYPE`
+
+## Error Policy
+
+`attributeBulkCreate` and `attributeBulkUpdate` mutation as well as other new bulk mutations accepts [`errorPolicy`](./error-policy.mdx) argument, which determines how to handle errors.
+
+## attributeBulkCreate
+
+#### Mutation example:
+
+```graphql
+mutation AttributeBulkCreate(
+  $attributes: [AttributeCreateInput!]!
+  $errorPolicy: ErrorPolicyEnum
+) {
+  attributeBulkCreate(attributes: $attributes, errorPolicy: $errorPolicy) {
+    results {
+      errors {
+        path
+        message
+        code
+      }
+      attribute {
+        id
+        name
+        externalReference
+        slug
+        choices(first: 10) {
+          edges {
+            node {
+              id
+              name
+              externalReference
+              slug
+              value
+              file {
+                url
+                contentType
+              }
+            }
+          }
+        }
+      }
+    }
+    count
+  }
+}
+```
+
+#### Input example:
+
+```json
+{
+  "attributes": [
+    {
+      "name": "Attribute 1",
+      "externalReference": "attribute-1-external-reference",
+      "type": "PRODUCT_TYPE",
+      "inputType": "DROPDOWN",
+      "values": [
+        {
+          "name": "Value 1",
+          "externalReference": "value-1-external-reference"
+        },
+        { "name": "Value 2", "externalReference": "value-2-external-reference" }
+      ]
+    },
+    {
+      "name": "Attribute 2",
+      "externalReference": "attribute-2-external-reference",
+      "type": "PRODUCT_TYPE",
+      "inputType": "DROPDOWN",
+      "values": [
+        { "name": "Value 3", "externalReference": "value-3-external-reference" }
+      ]
+    }
+  ]
+}
+```
+
+#### Expected response:
+
+```json
+{
+  "data": {
+    "attributeBulkCreate": {
+      "results": [
+        {
+          "errors": [],
+          "attribute": {
+            "id": "QXR0cmlidXRlOjQ4",
+            "name": "Attribute 1",
+            "externalReference": "attribute-1-external-reference",
+            "slug": "attribute-1",
+            "choices": {
+              "edges": [
+                {
+                  "node": {
+                    "id": "QXR0cmlidXRlVmFsdWU6MTQ4",
+                    "name": "Value 1",
+                    "externalReference": "value-1-external-reference",
+                    "slug": "value-1",
+                    "value": "",
+                    "file": null
+                  }
+                },
+                {
+                  "node": {
+                    "id": "QXR0cmlidXRlVmFsdWU6MTQ5",
+                    "name": "Value 2",
+                    "externalReference": "value-2-external-reference",
+                    "slug": "value-2",
+                    "value": "",
+                    "file": null
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "errors": [],
+          "attribute": {
+            "id": "QXR0cmlidXRlOjQ5",
+            "name": "Attribute 2",
+            "externalReference": "attribute-2-external-reference",
+            "slug": "attribute-2",
+            "choices": {
+              "edges": [
+                {
+                  "node": {
+                    "id": "QXR0cmlidXRlVmFsdWU6MTUw",
+                    "name": "Value 3",
+                    "externalReference": "value-3-external-reference",
+                    "slug": "value-3",
+                    "value": "",
+                    "file": null
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "count": 2
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 10,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+### Webhooks
+
+The mutation will emit `ATTRIBUTE_CREATED` event for every successfully created attribute.
+
+## attributeBulkUpdate
+
+To update attributes one of the following fields is required: `id` or `externalReference`.
+
+#### Mutation example:
+
+```graphql
+mutation AttributeBulkUpdate(
+  $attributes: [AttributeBulkUpdateInput!]!
+  $errorPolicy: ErrorPolicyEnum
+) {
+  attributeBulkUpdate(attributes: $attributes, errorPolicy: $errorPolicy) {
+    results {
+      errors {
+        path
+        message
+        code
+      }
+      attribute {
+        id
+        name
+        externalReference
+        slug
+        choices(first: 10) {
+          edges {
+            node {
+              id
+              name
+              externalReference
+              slug
+              value
+              file {
+                url
+                contentType
+              }
+            }
+          }
+        }
+      }
+    }
+    count
+  }
+}
+```
+
+#### Input example:
+
+```json
+{
+  "attributes": [
+    {
+      "id": "QXR0cmlidXRlOjQ4",
+      "fields": {
+        "name": "Attribute 1 New Name",
+        "removeValues": ["QXR0cmlidXRlVmFsdWU6MTQ5"]
+      }
+    },
+    {
+      "externalReference": "attribute-2-external-reference",
+      "fields": {
+        "addValues": [
+          {
+            "name": "Value 4",
+            "externalReference": "value-4-external-reference"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+#### Expected response:
+
+```json
+{
+  "data": {
+    "attributeBulkUpdate": {
+      "results": [
+        {
+          "errors": [],
+          "attribute": {
+            "id": "QXR0cmlidXRlOjQ4",
+            "name": "Attribute 1 New Name",
+            "externalReference": "attribute-1-external-reference",
+            "slug": "attribute-1",
+            "choices": {
+              "edges": [
+                {
+                  "node": {
+                    "id": "QXR0cmlidXRlVmFsdWU6MTQ4",
+                    "name": "Value 1",
+                    "externalReference": "value-1-external-reference",
+                    "slug": "value-1",
+                    "value": "",
+                    "file": null
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "errors": [],
+          "attribute": {
+            "id": "QXR0cmlidXRlOjQ5",
+            "name": "Attribute 2",
+            "externalReference": "attribute-2-external-reference",
+            "slug": "attribute-2",
+            "choices": {
+              "edges": [
+                {
+                  "node": {
+                    "id": "QXR0cmlidXRlVmFsdWU6MTUw",
+                    "name": "Value 3",
+                    "externalReference": "value-3-external-reference",
+                    "slug": "value-3",
+                    "value": "",
+                    "file": null
+                  }
+                },
+                {
+                  "node": {
+                    "id": "QXR0cmlidXRlVmFsdWU6MTUx",
+                    "name": "Value 4",
+                    "externalReference": "value-4-external-reference",
+                    "slug": "value-4",
+                    "value": "",
+                    "file": null
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "count": 2
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 10,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+### Webhooks
+
+The mutation will emit `ATTRIBUTE_UPDATED` event for every successfully updated attribute or when value is added or removed.
+Optionally `ATTRIBUTE_VALUE_CREATED` and `ATTRIBUTE_VALUE_DELETED` will be emitted when value is added or removed.

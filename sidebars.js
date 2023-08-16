@@ -37,7 +37,11 @@ module.exports = {
         {
           type: "category",
           label: "Data Imports",
-          items: ["developer/bulks/bulk-orders"],
+          items: [
+            "developer/bulks/error-policy",
+            "developer/bulks/bulk-attributes",
+            "developer/bulks/bulk-orders",
+          ],
         },
       ],
     },
