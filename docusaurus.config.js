@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+const isDev = process.env.NODE_ENV === "development";
+
 module.exports = {
   title: "Documentation – Saleor Commerce",
   tagline:
@@ -444,14 +446,9 @@ module.exports = {
             const sidebarItems = await defaultSidebarItemsGenerator(args);
             return sortSidebarItems(sidebarItems);
           },
-          // docs folder path relative to website dir.
-          path: "./docs",
-          lastVersion: "3.x",
+          path: "docs",
+          lastVersion: isDev ? "current" : "3.x",
           versions: {
-            "3.x": {
-              label: "3.x",
-              path: "3.x",
-            },
             current: {
               label: "Canary 🚧",
             },
@@ -463,8 +460,7 @@ module.exports = {
               return `https://github.com/saleor/saleor-docs/edit/main/${versionDocsDirPath}/${docPath}`;
             }
           },
-          // sidebars file relative to website dir.
-          sidebarPath: require.resolve("./sidebars.js"),
+          sidebarPath: "sidebars.js",
         },
         // Google Analytics tracking ID to track page views.
         googleAnalytics: {
