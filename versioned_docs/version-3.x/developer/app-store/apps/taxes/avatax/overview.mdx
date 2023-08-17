@@ -1,0 +1,118 @@
+---
+title: AvaTax
+---
+
+# AvaTax
+
+Avalara AvaTax is a cloud-based solution automating transaction tax calculations and the tax filing process. Avalara
+provides real-time tax calculation using tax content from more than 12,000 US taxing jurisdictions and over 200
+countries, insuring your transaction tax is calculated based on the most current tax rules.
+
+## Prerequisites
+
+Before you begin, ensure you have met the following requirements:
+
+- You have created a [Avalara](https://www.avalara.com/) account.
+- You have installed the Taxes App.
+
+## Configuration
+
+The AvaTax configuration form consists of three sections: _Credentials_, _Settings_, and _Address_.
+
+Each configuration must have _Instance name_ - it is used to identify it across all the views.
+
+### Credentials
+
+Fields needed to authenticate the instance:
+
+- Username - the username for the Avatax account. You will generate it in the Avalara dashboard (_Settings_ → _License and API keys_ → _License key_).
+- Password - the password for the Avatax account. You will generate it in the Avalara dashboard (_Settings_ → _License and API keys_ → _License key_).
+- Company code - the [company code](https://developer.avalara.com/ecommerce-integration-guide/sales-tax-badge/transactions/simple-transactions/company-codes/) for the AvaTax account.
+- Sandbox - a flag that indicates whether the instance should use [the sandbox environment or the production environment](https://developer.avalara.com/erp-integration-guide/sales-tax-badge/authentication-in-avatax/sandbox-vs-production/).
+
+### Settings
+
+Fields that affect the created transactions:
+
+- Autocommit - a flag that indicates whether the instance should [automatically commit the transactions](https://developer.avalara.com/communications/dev-guide_rest_v2/commit-uncommit/).
+- Shipping tax code - the [tax code](https://taxcode.avatax.avalara.com) for shipping.
+- [Document recording](#document-recording) - a flag that indicates whether the instance should [record the transactions](https://developer.avalara.com/ecommerce-integration-guide/sales-tax-badge/designing/disable-document-recording/).
+
+#### Document recording
+
+Taxes App creates AvaTax transactions on two events:
+
+- while calculating taxes (in order or checkout)
+- while confirming an order
+
+When calculating taxes, the default [document type](https://developer.avalara.com/avatax/dev-guide/transactions/document-types/) is `SalesOrder`. It makes the transaction temporary and not visible in the Avalara dashboard.
+
+In the case of order confirmation, the default document type is `SalesInvoice`. It makes the transaction permanent and visible in the Avalara dashboard.
+
+The AvaTax configuration form in the Taxes App contains _Document recording_ toggle. When switched off, it changes all the document types to `SalesOrder`. This effectively stops the "document recording", making all the transactions temporary.
+
+### Address
+
+Fields that describe the address of the company.
+
+After entering, the address must be verified by clicking the _Verify_ button that triggers AvaTax [address validation](https://developer.avalara.com/avatax/address-validation/). In response, AvaTax returns the validated address the user has to review. After either applying or rejecting suggestions, you can save the configuration.
+
+## Mapping transaction fields
+
+When an order is confirmed, the Taxes App [creates a transaction in AvaTax](https://developer.avalara.com/api-reference/avatax/rest/v2/methods/Transactions/CreateTransaction/). The transaction contains fields that are mapped from the order. For several fields, you can provide custom values with [`privateMetadata`](docs/developer/metadata.mdx#private-and-public-metadata). You have to make sure to set the value before confirming the order (e.g. when the order is still a draft).
+
+The mutation for setting the private metadata is:
+
+```graphql
+mutation UpdatePrivateMetadata {
+  updatePrivateMetadata(
+    id: "ORDER_ID"
+    input: { key: "METADATA_KEY", value: "METADATA_VALUE" }
+  ) {
+    item {
+      metadata {
+        key
+        value
+      }
+    }
+  }
+}
+```
+
+where `ORDER_ID` is the id of the order, `METADATA_KEY` is key of the supported mapping, and `METADATA_VALUE` is the value for that field.
+
+Taxes App supports the following mappings:
+
+### Document code
+
+**Metadata key: `avataxDocumentCode`**
+
+By default, the [document code](https://developer.avalara.com/erp-integration-guide/sales-tax-badge/transactions/cert-document-codes/) is set to be equal to Saleor [`order`](docs/api-storefront/orders/objects/order.mdx) id.
+
+If you want to override it, you can do so by providing a value for the `privateMetadata` field `avataxDocumentCode`.
+
+:::caution
+Due to AvaTax API restrictions, the document code will be sliced to be under 20 characters.
+:::
+
+### Entity type
+
+**Metadata key: `avataxEntityCode`**
+
+AvaTax supports [`entityUseCode`](https://developer.avalara.com/erp-integration-guide/sales-tax-badge/designing/entity-code/) field that represents the type of customer the transaction is assigned to. The field is then used to determine the taxability of the transaction.
+
+Let's say you have a draft order that was filled by tax-exempted US government entity. In AvaTax, the code for a "FEDERAL_GOV" entity is "A".
+
+To map the entity type, you need to provide the value for the `entityUseCode` field of the Order `privateMetadata` field of key `avataxEntityCode` and value of "A".
+
+### Tax calculation date
+
+**Metadata key: `avataxTaxCalculationDate`**
+
+By default, the [tax calculation date](https://developer.avalara.com/erp-integration-guide/sales-tax-badge/transactions/cert-tax-calc-date/) is set to be equal to the order creation date from Saleor [`order`](docs/api-storefront/orders/objects/order.mdx).
+
+If you want to override it, you can do so by providing a value for the `privateMetadata` field `avataxTaxCalculationDate`.
+
+:::info
+The value of the `avataxTaxCalculationDate` field must be a valid UTC datetime string.
+:::
