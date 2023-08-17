@@ -358,6 +358,11 @@ module.exports = {
           position: "left",
         },
         {
+          type: "docsVersionDropdown",
+          position: "right",
+          dropdownActiveClassDisabled: true,
+        },
+        {
           to: "https://github.com/saleor/saleor-docs/issues/new",
           label: "Report an Issue",
           position: "right",
@@ -446,6 +451,9 @@ module.exports = {
             "3.x": {
               label: "3.x",
               path: "3.x",
+            },
+            current: {
+              label: "Canary 🚧",
             },
           },
           editUrl: function ({ version, versionDocsDirPath, docPath }) {
