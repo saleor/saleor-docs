@@ -233,7 +233,7 @@ Apply changes in `docs` folders.
 ## Releasing `Canary` to `3.x`
 
 1. Remove `versions.json` file or just `"3.x"` inside
-1. Run `npx docusaurus docs:version 3.x`
+1. Run `UPDATE_SALEOR=true npx docusaurus docs:version 3.x`
 1. Commit changes and issue a PR
 
 # Updating the API Reference

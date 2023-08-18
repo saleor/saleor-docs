@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const isDev = process.env.NODE_ENV === "development";
+const isUpdate = process.env.UPDATE_SALEOR;
 
 module.exports = {
   title: "Documentation – Saleor Commerce",
@@ -447,12 +447,22 @@ module.exports = {
             return sortSidebarItems(sidebarItems);
           },
           path: "docs",
-          lastVersion: isDev ? "current" : "3.x",
-          versions: {
-            current: {
-              label: "Canary 🚧",
-            },
-          },
+          lastVersion: isUpdate ? "current" : "3.x",
+          versions: isUpdate
+            ? {
+                current: {
+                  label: "Canary 🚧",
+                },
+              }
+            : {
+                "3.x": {
+                  label: "3.x",
+                  path: "3.x",
+                },
+                current: {
+                  label: "Canary 🚧",
+                },
+              },
           editUrl: function ({ version, versionDocsDirPath, docPath }) {
             if (version === "current") {
               return `https://github.com/saleor/saleor-docs/edit/main/docs/${docPath}`;
