@@ -3,8 +3,8 @@ import * as fs from "node:fs/promises";
 
 const highlight = async () => {
   const files = await fg([
-    "docs/api-reference/**/*.mdx",
-    "docs/api-storefront/**/*.mdx",
+    ".tmp/api-reference/**/*.mdx",
+    ".tmp/api-storefront/**/*.mdx",
   ]);
 
   for (const file of files) {
