@@ -53,7 +53,7 @@ will be returned.
 
 > **_Example:_** _Return attributes that have `Flavor` name._
 
-```graphql {2}
+```graphql
 query getAttributes($where: AttributeWhereInput) {
   attributes(first: 20, where: $where) {
     edges {
@@ -71,7 +71,7 @@ Query variables:
 
 ```json
 {
-  "where": { type: { oneOf: ["Flavor"] }
+  "where": { "type": { "eq": "Flavor" } }
 }
 ```
 
@@ -82,9 +82,9 @@ specified in the list are returned.
 
 > **_Example_**: _Return attributes that input type is `DATE`, or `DATE_TIME`._
 
-```graphql {2}
-query {
-  attributes(first: 20, where: { inputType: { oneOf: [DATE, DATE_TIME] } }) {
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
     edges {
       node {
         id
@@ -96,25 +96,41 @@ query {
 }
 ```
 
+Query variables:
+
+```json
+{
+  "where": { "inputType": { "oneOf": ["DATE", "DATE_TIME"] }
+}
+```
+
 ### Filtering with the `AND` operator
 
 The `AND` operator allows for defining a list of conditions that must be met.
 
 > **_Example:_** _Return attributes that have `Author` name, and slug "tom" or "james"._
 
-```graphql {5}
-query {
-  attributes(
-    first: 20
-    where: {
-      AND: [{ name: { eq: "Author" } }, { slug: { oneOf: ["tom", "james"] } }]
-    }
-  ) {
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
     edges {
       node {
         id
       }
     }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "AND": [
+      { "name": { "eq": "Author" } },
+      { "slug": { "oneOf": ["tom", "james"] } }
+    ]
   }
 }
 ```
@@ -125,22 +141,27 @@ The `OR` operator allows you to define a list of conditions, of which at least o
 
 > **_Example:_** _Return attributes that have `Author` name, or input type `DATE` or `DATE_TIME`._
 
-```graphql {5-8}
-query {
-  attributes(
-    first: 20
-    where: {
-      OR: [
-        { name: { eq: "Author" } }
-        { inputType: { oneOf: [DATE, DATE_TIME] } }
-      ]
-    }
-  ) {
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
     edges {
       node {
         id
       }
     }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "OR": [
+      { "name": { "eq": "Author" } }
+      { "inputType": { "oneOf": ["DATE", "DATE_TIME"] } }
+    ]
   }
 }
 ```
@@ -151,12 +172,9 @@ If no operator is given, the provided conditions are combined with an `AND` oper
 
 > **_Example:_** _Return attributes that have `Author` name, and slug "tom" or "james"._
 
-```graphql {5}
-query {
-  attributes(
-    first: 20
-    where: { name: { eq: "Author" }, slug: { oneOf: ["tom", "james"] } }
-  ) {
+````graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
     edges {
       node {
         id
@@ -164,7 +182,14 @@ query {
     }
   }
 }
-```
+
+Query variables:
+
+```json
+{
+  "where": { "name": { "eq": "Author" }, "slug": { "oneOf": ["tom", "james"] } }
+}
+````
 
 :::note
 
@@ -178,28 +203,33 @@ The operators can be nested, but it's not allowed to combine operators at the sa
 
 > **_Example:_** _Return attributes that are `PRODUCT_TYPE` type, and the `id` is `QXR0cmlidXRlOjIx` or `QXR0cmlidXRlOjI3`, or the attribute `name` is `Size`._
 
-```graphql {5-13}
-query {
-  attributes(
-    first: 20
-    where: {
-      AND: [
-        { type: { eq: PRODUCT_TYPE } }
-        {
-          OR: [
-            { ids: ["QXR0cmlidXRlOjIx", "QXR0cmlidXRlOjI3"] }
-            { name: { eq: "Size" } }
-          ]
-        }
-      ]
-    }
-  ) {
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
     edges {
       node {
         id
         name
       }
     }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "AND": [
+      { "type": { "eq": PRODUCT_TYPE } }
+      {
+        "OR": [
+          { "ids": ["QXR0cmlidXRlOjIx", "QXR0cmlidXRlOjI3"] }
+          { "name": { "eq": "Size" } }
+        ]
+      }
+    ]
   }
 }
 ```
@@ -373,34 +403,52 @@ query {
 
 > **_Example:_** _Return attributes that name is `Author` and type is `PRODUCT-TYPE`._
 
-```graphql {4-5}
-query {
-   attributes(
-    where: {
-        type: {eq: PRODUCT-TYPE}},
-        AND: [{name: {eq: "Author"}}]
-    }) {
-      edges {
-          node {
-             id
-          }
-      }
-   }
-}
-```
-
-**INSTEAD:** Join both conditions into one `AND` filter input
-
-```graphql {3}
-query {
-  attributes(
-    where: { AND: [{ name: { eq: "Author" } }, { type: { eq: PRODUCT_TYPE } }] }
-  ) {
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
     edges {
       node {
         id
       }
     }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "type": { "eq": "PRODUCT-TYPE}" },
+    "AND": [{ "name": { "eq": "Author" } }]
+  }
+}
+```
+
+**INSTEAD:** Join both conditions into one `AND` filter input
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "AND": [
+      { "name": { "eq": "Author" } },
+      { "type": { "eq": "PRODUCT_TYPE" } }
+    ]
   }
 }
 ```
@@ -410,40 +458,35 @@ query {
 > **_Example:_** _Return attributes that have `DROPDOWN` input type,
 > and the `slug` is `blue` or `green`, or the attribute `name` is `Size`._
 
-```graphql {5-6}
-query {
-  attributes(
-    first: 20
-    where: {
-      AND: [{ inputType: { eq: DROPDOWN } }]
-      OR: [{ slug: { oneOf: ["blue", "green"] } }, { name: { eq: "Size" } }]
-    }
-  ) {
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
     edges {
       node {
         id
         name
       }
     }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "AND": [{ "inputType": { "eq": "DROPDOWN" } }]
+    "OR": [{ "slug": { "oneOf": ["blue", "green"] } }, { "name": { "eq": "Size" } }]
   }
 }
 ```
 
 **INSTEAD:** Nest `OR` condition inside `AND`
 
-```graphql {5-10}
-query {
-  attributes(
-    first: 20
-    where: {
-      AND: [
-        { inputType: { eq: DROPDOWN } }
-        {
-          OR: [{ slug: { oneOf: ["blue", "green"] } }, { name: { eq: "Size" } }]
-        }
-      ]
-    }
-  ) {
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
     edges {
       node {
         id
@@ -454,21 +497,44 @@ query {
 }
 ```
 
+Query variables:
+
+```json
+{
+  "where": {
+      "AND": [
+        { "inputType": { "eq": "DROPDOWN" } }
+        {
+          "OR": [{ "slug": { "oneOf": ["blue", "green"] } }, { "name": { "eq": "Size" } }]
+        }
+      ]
+    }
+}
+```
+
 ### Mixing `filter` and `where` options
 
-```graphql {4-5}
-query {
-   attributes(
-    first: 20
-    filter: {type: PRODUCT-TYPE}
-    where: {AND: [{name: {eq: "Author"}}]}
-){
-      edges {
-          node {
-             id
-          }
+```graphql
+query getAttributes(
+  $where: AttributeWhereInput
+  $filter: AttributeFilterInput
+) {
+  attributes(first: 20, where: $where, filter: $filter) {
+    edges {
+      node {
+        id
       }
-   }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": { "AND": [{ "name": { "eq": "Author" } }] },
+  "filter": { "type": "PRODUCT_TYPE" }
 }
 ```
 
@@ -476,16 +542,24 @@ query {
 
 ### Mixing different operations
 
-```graphql {3}
-query {
-  attributes(
-    where: { AND: [{ name: { eq: "Author", oneOf: ["Author", "Juice"] } }] }
-  ) {
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
     edges {
       node {
         id
       }
     }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "AND": [{ "name": { "eq": "Author", "oneOf": ["Author", "Juice"] } }]
   }
 }
 ```
