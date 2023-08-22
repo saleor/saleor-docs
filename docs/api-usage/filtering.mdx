@@ -5,7 +5,7 @@ title: Filtering
 :::info
 
 The `where` filtering approach was introduced in **Saleor 3.11**. For now, it's only
-available on the `Attribute` type.
+available on the `Attribute` and `Product` type.
 
 :::
 
@@ -26,6 +26,8 @@ for now, only on the [attributes](docs/api-reference/attributes/queries/attribut
 
 - Currently only `AND` and `OR` operators are available.
   (See the example for [AND](#filtering-with-the-and-operator) and [OR](#filtering-with-the-or-operator) operator usage).
+- Each provided value is treated explicitly, which means that filtering by null value for a non-nullable field will result in returning empty list.
+  ([See the examples](#filtering-by-empty-values)).
 - You can filter by flat fields and specify operators, but you cannot mix these two approaches.
   ([See the example](#mixing-flat-field-filter-and-operator-and-or)).
 - When only flat fields are provided, the conditions are mixed with the `AND` operator. ([See the example](#filtering-with-flat-fields)).
@@ -52,8 +54,8 @@ will be returned.
 > **_Example:_** _Return attributes that have `Flavor` name._
 
 ```graphql {2}
-query {
-  attributes(first: 20, where: { type: { oneOf: ["Flavor"] } }) {
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
     edges {
       node {
         id
@@ -62,6 +64,14 @@ query {
       }
     }
   }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": { type: { oneOf: ["Flavor"] }
 }
 ```
 
@@ -189,6 +199,150 @@ query {
         id
         name
       }
+    }
+  }
+}
+```
+
+### Filtering by empty values
+
+Each provided value in filters is treated explicitly.
+
+#### Providing an empty list for a list input field will result in returning an empty list.
+
+> **_Example:_** _Filtering products by empty list of `ids`._
+
+Query:
+
+```graphql
+query getProducts($where: ProductWhereInput) {
+  products(where: $where, first: 10) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "ids": []
+  }
+}
+```
+
+Result:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": []
+    }
+  }
+}
+```
+
+#### Providing the `null` value for a non-nullable field will result in returning an empty list.
+
+> **_Example:_** _Filtering products by `null` value for `name` field._
+
+```graphql
+query getProducts($where: ProductWhereInput) {
+  products(where: $where, first: 10) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "name": { "eq": null }
+  }
+}
+```
+
+Result:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": []
+    }
+  }
+}
+```
+
+#### Providing an empty value for a nullable field will return the instances with empty value
+
+> **_Example:_** _Filtering attributes whose unit is null._
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        unit
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "unit": { "eq": null }
+  }
+}
+```
+
+Result:
+
+```json
+{
+  "data": {
+    "attributes": {
+      "edges": [
+        {
+          "node": {
+            "unit": null,
+            "id": "QXR0cmlidXRlOjQx",
+            "name": "EBook Format"
+          }
+        },
+        {
+          "node": {
+            "unit": null,
+            "id": "QXR0cmlidXRlOjQw",
+            "name": "Flavor"
+          }
+        },
+        {
+          "node": {
+            "unit": null,
+            "id": "QXR0cmlidXRlOjM2",
+            "name": "Material"
+          }
+        }
+      ]
     }
   }
 }
