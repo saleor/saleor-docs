@@ -116,7 +116,7 @@ module.exports = {
         },
         {
           type: "category",
-          label: "Available Plugins",
+          label: "Legacy Plugins",
           items: [
             "developer/app-store/available-plugins/admin-emails",
             "developer/app-store/available-plugins/adyen",
