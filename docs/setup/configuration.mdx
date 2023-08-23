@@ -134,6 +134,10 @@ Controls whether to run [Django Debug Toolbar](https://django-debug-toolbar.read
 To use the toolbar, you must also enable the `PLAYGROUND_ENABLED` setting. Then, the toolbar will be rendered when accessing the `/graphql/` URL.
 Note that using the toolbar is recommended only locally and should be disabled in production, as it affects the performance and may potentially reveal sensitive or private information.
 
+### `ENABLE_SSL`
+
+Used while generating URLs. Set to `True` if Saleor is deployed behind HTTPS. Defaults to `False`.
+
 ### `EMAIL_URL`
 
 The URL of the email gateway. Defaults to printing everything to the console.
@@ -221,3 +225,27 @@ Saleor can automatically convert amounts between currencies. To use this feature
 ### `OPENEXCHANGERATES_API_KEY`
 
 Your store's Open Exchange Rates "App ID".
+
+## Updating domain configuration
+
+If deploying Saleor under a specific domain, like `api.example.com`, it's crucial to ensure the system is set up to generate URLs properly. Adjust the domain configuration by utilizing the GraphQL `shopDomainUpdate` mutation:
+
+```graphql
+mutation UpdateDomain {
+  shopDomainUpdate(input: { domain: "api.example.com" }) {
+    shop {
+      domain {
+        host
+      }
+    }
+  }
+}
+```
+
+:::caution
+After applying this modification, remember to restart the Saleor instances. Since the shop data is cached in memory, this action is vital for the updated configuration to be applied effectively.
+:::
+
+Additionally, ensure the `ENABLE_SSL` environment variable is configured appropriately.
+
+With these configurations in place, Saleor will effectively generate URLs tailored to its domain, enabling smooth bidirectional communication.
