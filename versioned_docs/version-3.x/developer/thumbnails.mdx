@@ -1,0 +1,118 @@
+---
+title: Thumbnails
+---
+
+:::note
+Thumbnails with the configurable format were introduced in **Saleor 3.6**.
+:::
+
+## Introduction
+
+This guide describes how to request for a thumbnail and how the thumbnails are generated.
+
+### Thumbnails sizes and formats
+
+Thumbnails are available on the following models and fields:
+
+- `User.avatar`
+- `OrderLine.thumbnail`
+- `Product.thumbnail`
+- `Collection.background_image`
+- `Category.background_image`
+- `ProductMedia.url`
+- `ProductImage.url`
+
+You can specify the `size` and `format` of a thumbnail.
+
+#### Size
+
+Size defines the longest dimension of the thumbnail in pixels. You may pass any integer as `size`, Saleor will use the closest value from the following list: 32, 64, 128, 256, 512, 1024, 2048, 4096.
+
+If omitted, 4096 is used as a default value.
+
+For example, if you pass `55` as size, Saleor will find the closest supported size, 64, and return an image that is at most 64 by 64 pixels.
+
+#### Format
+
+Supported formats:
+
+- `ORIGINAL`: the format the image was uploaded in.
+- `WEBP`: WebP format.
+- `AVIF`: AVIF format.
+
+If omitted, `ORIGINAL` is used as a default value.
+
+### Generating the thumbnails
+
+The thumbnails are generated on demand. When a client requests the thumbnail with the
+given size and format for the first time, a proxy URL is returned. When the proxy URL
+is accessed, the requested thumbnail is created and the client is redirected.
+Future requests return the thumbnail's URL directly.
+
+:::note
+Proxy URL will be constructed using a domain that Saleor is set to run on. This can be changed using
+[shopDomainUpdate](api-reference/shop/mutations/shop-domain-update.mdx) mutation.
+:::
+
+### Example
+
+Here is an example query for the category's background image with a size of 100px in WebP format:
+
+```graphql
+query {
+  category(id: "Q2F0ZWdvcnk6MjU=") {
+    name
+    backgroundImage(size: 100, format: WEBP) {
+      url
+      alt
+    }
+  }
+}
+```
+
+The query runs for the first time, and as a result, the response contains a proxy URL:
+
+```json
+{
+  "data": {
+    "category": {
+      "name": "Accessories",
+      "backgroundImage": {
+        "url": "https://localhost:8000/thumbnail/Q2F0ZWdvcnk6MjU=/128/webp/",
+        "alt": ""
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 1,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+After opening the link, the thumbnail with the `size` of `128`, and the `format` of `WEBP` is generated.
+The resolution is equal to 128 as this is the closest available size to the provided value.
+
+The next time we run the query, we receive the URL to the actual thumbnail.
+
+```json
+{
+  "data": {
+    "category": {
+      "name": "Accessories",
+      "backgroundImage": {
+        "url": "http://localhost:8000/media/thumbnails/category-backgrounds/20210809_181533_2240b122_thumbnail_128.webp",
+        "alt": ""
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 1,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```

@@ -1,0 +1,29 @@
+---
+title: Stock reservations
+---
+
+## Stock reservations
+
+While stock availability is checked at every step of the checkout process, no guarantee is made to the client that stock will not be sold out before checkout completion. In case an item with limited stock was added to multiple checkouts, it will be allocated to the first completed checkout. As a result, it will cause remaining checkouts to fail to advance to the next step even if they had been created before the completed one. The API will return the `INSUFFICIENT_STOCK` error.
+
+Saleor implements optional stock reservations feature where stock will be eagerly allocated to the checkout for configured time.
+
+### Enabling reservations
+
+To enable reservations, navigate to "Site settings" page in the dashboard. Here, in the "Checkout Configuration" section you'll find controls allowing you to enable stock reservations for authenticated and anonymous checkouts.
+
+To disable stock reservations, clear both controls.
+
+### Mechanism of action
+
+If user A adds the last two items to their checkout, those two items will become purchasable only by them for a given time.
+
+Those two items will also be subtracted from the available quantity displayed to other users in the store, giving them immediate feedback that the item they are interested in is currently unavailable, preventing them from adding this item to their checkouts.
+
+If user A completes their checkout within the given time, the temporary allocation will be converted into a permanent one. But if they don't complete their stock within the time limit, their stock reservation will expire, and the two items in their checkout will become available for other users to add to their checkouts.
+
+If no other user adds this item to their checkout, user A will still be able to complete their checkout. But suppose another user adds one or two items to their checkout. In that case, a new reservation will be created for them, reducing the quantity available to other users and preventing user A from completing their checkout.
+
+### Testing checkout for reservations
+
+`Checkout` type in GraphQL API has `stockReservationExpires` field which returns datetime of stock reservation expiration in ISO-8601 format or `null` when checkout has no active reservations.

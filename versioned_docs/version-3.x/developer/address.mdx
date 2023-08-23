@@ -1,0 +1,171 @@
+---
+title: Address Validation
+---
+
+## Introduction
+
+Address format varies between each country. Saleor has a backend validation library that helps you gather data required by postal services.
+
+:::note
+
+Validation is only performed on the format of address data. To check if the address exists or get the address auto-complete, use services like [Shippo](https://goshippo.com/) or [Loqate](https://www.loqate.com/en-us/).
+
+:::
+
+## Validation rules
+
+Using the [addressValidationRules](docs/api-reference/users/queries/address-validation-rules.mdx) query, API clients can fetch validation rules depending on the selected country. Based on the ruleset, some address fields can be hidden (e.g. `countryArea`).
+Saleor Core uses [Google i18n address](https://github.com/mirumee/google-i18n-address) under the hood, with a ruleset from [Google Address Data](https://chromium-i18n.appspot.com/ssl-address).
+
+```graphql
+query {
+  addressValidationRules(countryCode: PL) {
+    countryName
+    allowedFields
+    requiredFields
+    countryAreaType
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "addressValidationRules": {
+      "countryName": "POLAND",
+      "allowedFields": [
+        "city",
+        "streetAddress1",
+        "postalCode",
+        "streetAddress2",
+        "companyName",
+        "name"
+      ],
+      "requiredFields": ["streetAddress1", "city", "postalCode"],
+      "countryAreaType": "province"
+    }
+  }
+}
+```
+
+Depending on the country, not all `allowedFields` fields are necessary. Nevertheless, additional info can be helpful for postal services.
+
+## Setting up the address using the API
+
+As an example of the address validation API, we will set the billing address in the checkout. The operation can be made with [checkoutBillingAddressUpdate](docs/api-reference/checkout/mutations/checkout-billing-address-update.mdx):
+
+```graphql
+mutation {
+  checkoutBillingAddressUpdate(
+    billingAddress: {
+      country: PL
+      firstName: "John"
+      lastName: "Smith"
+      streetAddress1: "ul. Tęczowa 7"
+      postalCode: "53-030"
+      city: "Wroclaw"
+    }
+    token: "58f4ca17-9c6f-437b-8204-beb47bbee364"
+  ) {
+    checkout {
+      billingAddress {
+        firstName
+        lastName
+        streetAddress1
+        city
+        postalCode
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+Successful response:
+
+```json
+{
+  "data": {
+    "checkoutBillingAddressUpdate": {
+      "checkout": {
+        "billingAddress": {
+          "firstName": "John",
+          "lastName": "Smith",
+          "streetAddress1": "ul. Tęczowa 7",
+          "city": "WROCLAW",
+          "postalCode": "53-030"
+        }
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+### Errors
+
+Let's create an example of address validation errors. The address below is missing a few fields and has the wrong postal code:
+
+```graphql
+mutation {
+  checkoutBillingAddressUpdate(
+    billingAddress: {
+      country: PL
+      firstName: "John"
+      lastName: "Smith"
+      postalCode: "Wrong Code"
+    }
+    token: "58f4ca17-9c6f-437b-8204-beb47bbee364"
+  ) {
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "checkoutBillingAddressUpdate": {
+      "errors": [
+        {
+          "field": "city",
+          "message": "This field is required.",
+          "code": "REQUIRED"
+        },
+        {
+          "field": "postalCode",
+          "message": "This value is not valid for the address.",
+          "code": "INVALID"
+        },
+        {
+          "field": "streetAddress1",
+          "message": "This field is required.",
+          "code": "REQUIRED"
+        },
+        {
+          "field": "streetAddress2",
+          "message": "This field is required.",
+          "code": "REQUIRED"
+        }
+      ]
+    }
+  }
+}
+```
+
+Each field is validated separately, and each issue has a corresponding error code:
+
+- `postalCode` with the wrong format throws the `INVALID` error
+- missing fields mentioned in `requiredFields` throw the `REQUIRED` error

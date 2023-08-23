@@ -1,0 +1,70 @@
+---
+title: Installation with Docker
+sidebar_position: 3
+---
+
+Saleor is a [12-factor](https://12factor.net) application that is configured using environment variables. We recommend using **Docker** because it takes care of all necessary dependencies.
+
+## Prerequisites
+
+You need to install [Docker Desktop](https://www.docker.com/products/docker-desktop) and [Docker Compose](https://docs.docker.com/compose/install/) before following the instructions below.
+
+:::caution
+To install Docker Desktop on Windows Home, please follow the [instructions](https://docs.docker.com/docker-for-windows/install-windows-home/).
+:::
+
+## Installation
+
+The following steps need to be performed inside a terminal window (Windows users may prefer to use the [Windows Terminal](https://aka.ms/windowsterminal), but the Command Prompt will also work).
+
+Clone the repository and build Docker images:
+
+```shell
+git clone https://github.com/saleor/saleor-platform.git
+cd saleor-platform
+docker compose build
+```
+
+Saleor uses shared folders to enable live code reloading. If you're using **Windows** or **MacOS** you will need to:
+
+- Add the cloned `saleor-platform` directory to the list of shared directories in Docker (_Settings_ -> _Shared Drives_ or _Preferences_ -> _Resources_ -> _File sharing_).
+- Make sure that in Docker preferences, you have dedicated at least 5 GB of memory (_Settings_ -> _Advanced_ or _Preferences_ -> _Resources_ -> _Advanced_).
+
+Apply database migrations:
+
+```shell
+docker compose run --rm api python3 manage.py migrate
+```
+
+Optionally, populate the database with sample data and create the admin user:
+
+```shell
+docker compose run --rm api python3 manage.py populatedb
+```
+
+Finally, create an admin account:
+
+```shell
+docker compose run --rm api python3 manage.py createsuperuser
+```
+
+## Running the services
+
+Use the following command to run all Saleor containers (from within the `saleor-platform` directory):
+
+```shell
+docker compose up
+```
+
+The dashboard will now be available at [localhost:9000](http://localhost:9000).
+
+## Troubleshooting
+
+Make sure Docker and Docker Compose work before attempting to run Saleor. Unfortunately, we won't be able to assist with your Docker installation.
+
+Windows versions before Windows 10 are not officially supported.
+
+See also:
+
+- [Troubleshooting guide for `saleor-platform`](https://github.com/saleor/saleor-platform/blob/main/README.md#troubleshooting)
+- [Community support](developer/community/support.mdx)

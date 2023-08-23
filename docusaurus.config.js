@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+const isUpdate = process.env.UPDATE_SALEOR;
+
 module.exports = {
   title: "Documentation – Saleor Commerce",
   tagline:
@@ -358,6 +360,11 @@ module.exports = {
           position: "left",
         },
         {
+          type: "docsVersionDropdown",
+          position: "right",
+          dropdownActiveClassDisabled: true,
+        },
+        {
           to: "https://github.com/saleor/saleor-docs/issues/new",
           label: "Report an Issue",
           position: "right",
@@ -439,15 +446,23 @@ module.exports = {
             const sidebarItems = await defaultSidebarItemsGenerator(args);
             return sortSidebarItems(sidebarItems);
           },
-          // docs folder path relative to website dir.
-          path: "./docs",
-          lastVersion: "current",
-          versions: {
-            current: {
-              label: "3.x",
-              path: "3.x",
-            },
-          },
+          path: "docs",
+          lastVersion: isUpdate ? "current" : "3.x",
+          versions: isUpdate
+            ? {
+                current: {
+                  label: "Canary 🚧",
+                },
+              }
+            : {
+                "3.x": {
+                  label: "3.x",
+                  path: "3.x",
+                },
+                current: {
+                  label: "Canary 🚧",
+                },
+              },
           editUrl: function ({ version, versionDocsDirPath, docPath }) {
             if (version === "current") {
               return `https://github.com/saleor/saleor-docs/edit/main/docs/${docPath}`;
@@ -455,8 +470,7 @@ module.exports = {
               return `https://github.com/saleor/saleor-docs/edit/main/${versionDocsDirPath}/${docPath}`;
             }
           },
-          // sidebars file relative to website dir.
-          sidebarPath: require.resolve("./sidebars.js"),
+          sidebarPath: "sidebars.js",
         },
         // Google Analytics tracking ID to track page views.
         googleAnalytics: {

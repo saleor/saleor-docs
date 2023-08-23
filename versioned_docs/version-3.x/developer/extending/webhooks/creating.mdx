@@ -1,0 +1,147 @@
+---
+title: Creating Webhook
+---
+
+To subscribe to a webhook, we need to first create an App with proper permissions.
+
+## App creation
+
+Webhooks are available in Saleor to both Local and External Apps. Local App is an entity tightly integrated into Saleor whereas External App is an externally hosted application that can communicate with Saleor API and integrate into Saleor Dashboard.
+
+Saleor Local Apps are custom Webhooks & Token pairs that can be used to connect apps and access Saleor API. Defining webhooks through Saleor Local Apps allows Saleor API to send real-time notifications or data to another application or service. It enables communication between different systems by delivering event-based information from one system to another. Use Saleor's webhook functionality to receive notifications and trigger custom actions or integrations in response to specific events.
+
+<!-- ### Using CLI
+
+```bash
+saleor app create
+``` -->
+
+<!-- TODO -->
+<!-- ### Using Dashboard -->
+
+<!-- TODO -->
+<!-- ### Using GraphQL -->
+
+## Webhook creation
+
+<!-- Webhooks are an essential feature of Saleor that allow you to receive real-time notifications about specific events or actions occurring within your store. -->
+
+<!-- TODO describe how it works in CLI
+
+### Using CLI
+
+To create a new webhook use
+
+```bash
+saleor webhook create
+``` -->
+
+### Using Dashboard
+
+To create a webhook visit **Webhooks & Events** page which is available through the **Configuration** page. This page lists Local apps in your Saleor instance. Apps assign Permissions to the Webhooks & Tokens. Choose an App from the list or create a new one. On the App page click `Create Webhook` button which opens the Create Webhook form.
+
+Submitting the `Create Webhook` form triggers the [`webhookCreate`](api-reference/webhooks/mutations/webhook-create.mdx) mutation. For fields explanation please check [Using GraphQL](#using-graphql-1) section.
+
+### Using GraphQL
+
+Let's assume that we want to extend the order processing app. The App should receive notifications whenever new orders are created in Saleor. To do so, we'll create a new webhook using the [`webhookCreate`](api-reference/webhooks/mutations/webhook-create.mdx) mutation. The mutation takes the following input:
+
+- `name`: the name of the webhook.
+- `targetUrl`: the URL of a service that will receive webhooks requests.
+- `asyncEvents`: a list of the asynchronous events to subscribe to.
+- `syncEvents`: a list of the synchronous events to subscribe to.
+- `app`: the ID of the App to which the webhook belongs. Can be ommited, if the request has the `Authentication` header with the App access token.
+- `isActive`: whether to activate the webhook.
+- `secretKey` DEPRECATED, optional, the secret key used to create a hash signature with each payload.
+- `query`: subscription query used to define a webhook payload, check [Subscription Webhook Payloads](subscription-webhook-payloads) page for details.
+- `customHeaders`: custom headers, which will be added to HTTP request. There is a limitation of 5 headers per webhook and 998 characters per header. Only "X-_" and "Authorization_" keys are allowed.
+
+```graphql {2-22}
+mutation {
+  webhookCreate(
+    input: {
+      name: "New orders notification"
+      targetUrl: "https://order-processing-service.example.com"
+      asyncEvents: [ORDER_CREATED]
+      app: "QXBwOjk="
+      isActive: true
+      query: "
+        subscription {
+          event {
+            ... on OrderCreated {
+              order {
+                id
+                created
+              }
+            }
+          }
+        }
+      "
+      customHeaders: "{\"X-Key\": \"Value\"}"
+    }
+  ) {
+    webhook {
+      id
+    }
+    webhookErrors {
+      field
+      code
+    }
+  }
+}
+```
+
+If there are no errors in the response, the webhook is successfully created. From now on, whenever a new order is placed, the payload with the order data specified by subscription query will be sent to your `targetUrl`.
+
+## Managing app webhooks
+
+After installation, the App can create a webhook subscription. To manage its own webhooks, no additional permissions are needed. If requests contain the app token in the `Authentication` header, the `app` argument will be automatically populated with the corresponding App.
+
+### Custom payloads
+
+You can define webhook payloads in Saleor with GraphQL subscriptions. Subscription queries allow you to subscribe to different events and determine what fields should be returned in the payload. For details check [Subscription Webhook Payloads](subscription-webhook-payloads) page.
+
+### Updating a webhook
+
+To update a webhook (e.g. to deactivate it or change the permissions), use the `webhookUpdate` mutation. The mutation takes similar input fields as the `webhookCreate` mutation. The example below shows how to deactive a webhook:
+
+```graphql {2}
+mutation {
+  webhookUpdate(id: "V2ViaG9vazox", input: { isActive: false }) {
+    webhook {
+      isActive
+    }
+    webhookErrors {
+      field
+      code
+    }
+  }
+}
+```
+
+<!-- TODO describe how it works in CLI
+
+```bash
+saleor webhook update
+``` -->
+
+### Removing a webhook
+
+To fully remove a webhook, use the `webhookDelete` mutation:
+
+```graphql {2}
+mutation {
+  webhookDelete(id: "V2ViaG9vazox") {
+    webhookErrors {
+      field
+      code
+    }
+  }
+}
+```
+
+<!-- TODO describe how it works in CLI
+
+```bash
+saleor webhook remove
+``` -->

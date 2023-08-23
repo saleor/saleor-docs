@@ -1,0 +1,88 @@
+---
+title: Internationalization
+---
+
+## Overview
+
+Localizing a storefront consists of multiple steps:
+
+- Translating the **storefront** application.
+- Translating the **products catalog** and other data returned by the API.
+- Localizing display formats of **prices**, **dates**, and other data in the storefront.
+- Localizing **address** input.
+- Localizing **payment** and **shipping** methods.
+
+## Translating the storefront application
+
+For web applications, you can manage the frontend part using libraries like [Format.JS](https://formatjs.io). The resulting catalog files can be edited manually or using an external service like [Transifex](https://www.transifex.com).
+
+## Translating the product catalog
+
+For translating database data, Saleor delivers specialized translation objects that can you can modify in the dashboard or using the API.
+
+- [`ProductTranslation`](docs/api-reference/products/objects/product-translation.mdx)
+- [`CollectionTranslation`](docs/api-reference/products/objects/collection-translation.mdx)
+- [`CategoryTranslation`](docs/api-reference/products/objects/category-translation.mdx)
+- [`AttributeTranslation`](docs/api-reference/attributes/objects/attribute-translation.mdx)
+- [`AttributeValueTranslation`](docs/api-reference/attributes/objects/attribute-value-translation.mdx)
+- [`ProductVariantTranslation`](docs/api-reference/products/objects/product-variant-translation.mdx)
+- [`PageTranslation`](docs/api-reference/pages/objects/page-translation.mdx)
+- [`ShippingMethodTranslation`](docs/api-reference/shipping/objects/shipping-method-translation.mdx)
+- [`SaleTranslation`](docs/api-reference/discounts/objects/sale-translation.mdx)
+- [`VoucherTranslation`](docs/api-reference/discounts/objects/voucher-translation.mdx)
+- [`MenuItemTranslation`](docs/api-reference/menu/objects/menu-item-translation.mdx)
+
+### Fetching translated data
+
+Here's an example fetching the Polish translation of an existing category. A `translation` field in the [`Category`](docs/api-reference/products/objects/category.mdx) model takes a `languageCode` argument with one of the values defined by [`LanguageCodeEnum`](docs/api-reference/miscellaneous/enums/language-code-enum.mdx):
+
+```graphql
+query {
+  category(id: "Q2F0ZWdvcnk6OQ==") {
+    name
+    seoDescription
+    // highlight-next-line
+    translation(languageCode: PL) {
+      name
+      seoDescription
+    }
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "category": {
+      "name": "Shoes",
+      "seoDescription": "They go on your feet.",
+      "translation": {
+        "name": "Buty",
+        "seoDescription": null
+      }
+    }
+  }
+}
+```
+
+Fields that were not translated will return `null`, and it's up to you to implement the correct fallback mechanism.
+
+## Localizing prices and dates
+
+Prices and dates can be localized using [`Intl.NumberFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat) and [date-fns](https://date-fns.org).
+
+## Localizing address input
+
+Saleor provides an [`AddressInput`](docs/api-reference/miscellaneous/inputs/address-input.mdx) type that you can use to collect address data from the user. It offers fields to store the country, city, postal code, and street address. Which fields to show and how to label them can be determined by querying the address validation API.
+
+For more details, see documentation on [address validation](developer/address.mdx).
+
+## Localizing payment and shipping
+
+Payment and shipping methods are configured per channel, and you can use channels to model different combinations of payment and shipping.
+
+See the sections above for information on how to translate shipping method names.
+
+Most payment service providers support localization and will provide names and methods suitable for the user's locale. For example, Stripe automatically handles [payment method availability based on the user's country](https://stripe.com/docs/connect/payment-method-available-countries).

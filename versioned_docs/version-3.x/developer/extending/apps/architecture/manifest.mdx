@@ -1,0 +1,96 @@
+---
+title: App Manifest
+---
+
+The App manifest is a JSON file that describes the application, including its name, version, required permissions, and how it handles the store's data.
+
+Saleor expects the manifest to use the following format:
+
+```json
+{
+  "id": "example.app.wonderful",
+  "version": "1.0.0",
+  "requiredSaleorVersion": "^3.13",
+  "name": "My Wonderful App",
+  "author": "My Wonderful Company",
+  "about": "My Wonderful App is a wonderful App for Saleor.",
+
+  "permissions": ["MANAGE_USERS", "MANAGE_STAFF"],
+
+  "appUrl": "http://localhost:3001/app",
+  "configurationUrl": "htpp://localhost:3001/configuration",
+  "tokenTargetUrl": "http://localhost:3001/register",
+
+  "dataPrivacy": "Lorem ipsum",
+  "dataPrivacyUrl": "http://localhost:3001/app-data-privacy",
+  "homepageUrl": "http://localhost:3001/homepage",
+  "supportUrl": "http://localhost:3001/support",
+  "brand": {
+    "logo": {
+      "default": "http://localhost:3001/default-logo.png"
+    }
+  },
+  "extensions": [
+    {
+      "label": "Create with Sample app",
+      "mount": "PRODUCT_OVERVIEW_CREATE",
+      "target": "POPUP",
+      "permissions": ["MANAGE_PRODUCTS"],
+      "url": "https://example.com/extension/"
+    },
+    {
+      "label": "Create with App and redirect",
+      "mount": "PRODUCT_OVERVIEW_CREATE",
+      "target": "APP_PAGE",
+      "permissions": ["MANAGE_PRODUCTS"],
+      "url": "/extension/redirect"
+    }
+  ],
+  "webhooks": [
+    {
+      "name": "Order created",
+      "asyncEvents": ["ORDER_CREATED"],
+      "query": "subscription { event { ... on OrderCreated { order { id }}}}",
+      "targetUrl": "https://example.com/api/webhooks/order-created",
+      "isActive": false
+    },
+    {
+      "name": "Multiple order's events",
+      "asyncEvents": ["ORDER_CREATED", "ORDER_FULLY_PAID"],
+      "query": "subscription { event { ... on OrderCreated { order { id }} ... on OrderFullyPaid { order { id }}}}",
+      "targetUrl": "https://example.com/api/webhooks/order-event",
+      "isActive": true
+    }
+  ]
+}
+```
+
+- `id`: id of application used internally by Saleor
+- `version`: App version
+- `requiredSaleorVersion`: Version range, in the `semver` format, which specifies Saleor version required by the app. The field will be respected starting from Saleor 3.13
+- `name`: App name displayed in the dashboard
+- `author`: App author name displayed in the dashboard (starting from Saleor 3.13)
+- `about`: Description of the app displayed in the dashboard
+- `permissions`: Array of [permissions](developer/permissions.mdx#available-permissions) requested by the app
+- `appUrl`: App website rendered in the dashboard
+- `configurationUrl`: Address to the app configuration page, which is rendered in the dashboard (deprecated in Saleor 3.5, use `appUrl` instead)
+- `tokenTargetUrl`: Endpoint used during process of app installation, see [installing an app.](developer/extending/apps/installing-apps.mdx#installing-an-app)
+- `dataPrivacy`: Short description of privacy policy displayed in the dashboard (deprecated in Saleor 3.5, use `dataPrivacyUrl` instead)
+- `dataPrivacyUrl`: URL to the full privacy policy
+- `homepageUrl`: External URL to the app homepage
+- `supportUrl`: External URL to the page where app users can find support
+- `brand`: (Optional, introduced in Saleor 3.14) Contains branding information for the app
+  - `logo`: Contains links to logos for the app
+    - `default`: URL pointing to a PNG image representing the app's logo. The image should be square and should not exceed 10 megabytes in size
+- `extensions`: List of extensions that will be mounted in Saleor's dashboard. For details, please see the [extension section](developer/extending/apps/extending-dashboard-with-apps.mdx#key-concepts)
+- `webhooks`: List of webhooks that will be set. For details, please look at [asynchronous webhooks](developer/extending/webhooks/asynchronous-events.mdx), [synchronous-webhooks](developer/extending/webhooks/synchronous-events/overview.mdx) and [webhooks' subscription](developer/extending/webhooks/subscription-webhook-payloads.mdx) (be aware that subscription queries are required in manifest) sections.
+
+# Typings
+
+App Manifest is typed in TypeScript in [@saleor/app-sdk](https://github.com/saleor/saleor-app-sdk) package.
+
+Use it with
+
+```
+import { AppManifest } from '@saleor/app-sdk/types'
+```

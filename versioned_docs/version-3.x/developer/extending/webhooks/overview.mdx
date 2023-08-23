@@ -1,0 +1,89 @@
+---
+title: Overview
+---
+
+Saleor can send real-time notifications or data to another application or service using Webhooks.
+
+Webhooks are available in Saleor to both Local and External Apps. Local App is an entity tightly integrated into Saleor whereas External App is an externally hosted application that can communicate with Saleor API and integrate into Saleor Dashboard.
+
+If your external system or service needs to receive data based on events happening in Saleor you can use Webhooks through Local Apps. To do that you need to create Local App which can be used to define Webhooks.
+
+### Webhook creation
+
+To create a Webhook you need to create a Local App first. You can do that in the Saleor Dashboard by navigating to **Configuration** and clicking **Webhooks & Events**. When a Local App is created you can add a new Webhook by clicking **Create Webhook** button.
+
+Webhooks can be created using the Saleor Dashboard, Saleor GraphQL API or Saleor CLI. All of these methods trigger [`webhookCreate`](../../../api-reference/webhooks/mutations/webhook-create.mdx) mutation.
+
+Check [Creating Webhook](./creating.mdx) page for more details.
+
+### Webhook payload
+
+You can define the payload that will be sent to the Webhook. Saleor uses GraphQL subscription syntax to define the payload.
+
+To define a payload you need to provide a valid GraphQL subscription query. Here is an example that would enable listening to the `PRODUCT_UPDATED` event:
+
+```graphql
+subscription {
+  event {
+    ... on ProductUpdated {
+      product {
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+The payload is sent in the `data` field of the subscription response. The payload is a JSON object with the following structure:
+
+```json
+{
+  "event": "PRODUCT_UPDATED",
+  "data": {
+    "object": {
+      "id": "ID",
+      "name": "NAME"
+    }
+  }
+}
+```
+
+You can read more about GraphQL subscriptions in the [Subscription Webhook Payloads](./subscription-webhook-payloads.mdx) section.
+
+### Webhook headers
+
+In addition to the payload several headers are included:
+
+- `Saleor-Event` - defines an event that is assigned to the webhook
+- `Saleor-Domain` - defines a Saleor domain
+- `Saleor-Signature` - defines a signature to indicate that the request is verifiable
+
+:::warning
+In Saleor 4.0 all `X-Saleor-` headers will be removed and replaced with headers without `X-` prefix.
+
+Deprecated headers list:
+
+- `X-Saleor-Event` -> `Saleor-Event`
+- `X-Saleor-Domain` -> `Saleor-Domain`
+- `X-Saleor-Signature` -> `Saleor-Signature`
+
+:::
+
+Saleor gives you the option to add custom headers to the request (available since version 3.12). `Authorization*` and `X-*` keys are allowed, with limitations of 5 headers per webhook and 998 characters per header. To check how to add `customHeaders` go to [Creating webhook](./creating.mdx).
+
+### Payload signature
+
+Webhook payload signature refers to a mechanism for verifying the authenticity and integrity of webhook payloads received from Saleor. When Saleor sends webhook notifications to a specified Target URL (endpoint), it includes a signature along with the payload. The webhook payload signature allows the recipient to verify that the payload originated from Saleor and that it hasn't been tampered with during transit.
+
+Saleor uses the [HMAC](https://en.wikipedia.org/wiki/HMAC) algorithm to calculate the signature for each webhook payload. The HMAC algorithm requires a secret key as an input. The secret key is used to generate the signature and is known only to Saleor and the recipient of the webhook payload. The recipient uses the secret key to verify the signature and confirm that the payload originated from Saleor and that it hasn't been tampered with during transit.
+
+You can read more about payload signature in the [Payload signature](/docs/developer/extending/webhooks/payload-signature.mdx) section.
+
+### Events
+
+Saleor can send Webhooks for various events that happen in the system. Events can be divided into two categories: **synchronous** and **asynchronous**. Synchronous events are sent immediately after the event happens during GraphQL requests. Asynchronous events are sent after request processing is finished.
+
+The main and **most important difference** between synchronous and asynchronous events is that **synchronous events execution influences the response time of the request that triggered the event**. That said if you have a request that triggers a synchronous event and the event processing takes a long time, the request will take a long time to finish as well affecting the response time of the request.
+
+You can read more about asynchronous events in the [Asynchronous events](./asynchronous-events.mdx) section and about synchronous events in the [Synchronous events](./synchronous-events/overview.mdx) section.

@@ -1,0 +1,243 @@
+---
+title: NP Atobarai
+---
+
+:::note
+Saleor uses NP Atobarai's "Individual Real Time Registration Mode (Sync)". This means that each "Register transaction" API call
+is requesting only a single transaction and the credit check result is available immediately.
+:::
+
+## What is NP Atobarai?
+
+_NP Atobarai (japanese: NP 後払い)_ is a deferred payment method dedicated to the Japanese market.
+
+Net Protections, the gateway operator, performs a credit check when a transaction is registered. Once an order is placed, the customer receives a paper invoice (via a traditional post) that can pay up to 14 days, e.g. in a local convenience store.
+
+The merchant receives funds once as soon as the shipment is delivered, regardless of the payment status on the customer's end.
+
+## Configuration
+
+Go to _Configuration_ -> _Plugins_ -> _NP 後払い_ and fill in the fields:
+
+- **Merchant Code**, **SP Code**, **Terminal ID:** you will receive those credentials while enrolling in Net Protections
+
+- **Use sandbox:** when enabled, transactions will be targeting the Net Protections test environment.
+
+- **Fill missing address:** when enabled, the system will append required locality information based on a database of japanese postal codes.
+  Since `city` and `cityArea` are not valid fields for Japanese addresses, this information has to be part of `streetAddress1`/`streetAddress2`.
+  We recommend testing both options with your storefront implementation and pick the one that doesn't result in duplicate address information.
+
+- **Shipping company code:** this field indicates which shipping carrier should appear in the fulfillment reports.
+  For a list of available shipping carriers, please refer to the NP Atobarai documentation.
+  If you want to use multiple carriers, please refer to the developers section of the documentation.
+
+- **Product SKU as name:** by default, Saleor is using the product name as a description of the line item. You can use this option to use SKU instead.
+
+## Limitations
+
+There are several limitations:
+
+- The only supported currency are Japanese yen (`JPY`).
+
+- The customer needs a Japanese phone number and postal address in order to pass the credit check.
+
+- The shipment has to be fulfilled using one of the supported local carriers.
+
+- NP Atobarai payments are processed in full, even for partial fulfillments.
+
+- NP Atobarai are marked as fully charged once they receive a successful credit check. The actual transfer of funds happens later and is indicated in the order events section.
+
+## Using NP Atobarai
+
+### Preparing a checkout
+
+To prepare a checkout, you need to follow the steps described in
+[Creating a checkout session](developer/checkout/overview.mdx#creating-a-checkout-session) and
+[Selecting a shipping method](developer/checkout/address.mdx).
+
+Please note that NP Atobarai is only applicating to the Japanese market, as it requires:
+
+- a Japanese postal address
+- a Japanese phone number (country code: `+81`)
+- only supports payments in Japanese yen (`JPY`)
+- the shipment has to be fulfilled using one of the supported local carriers
+
+```graphql
+mutation {
+  checkoutCreate(
+    input: {
+      channel: "channel-jpy"
+      email: "OK@example.email"
+      lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6MjA4" }]
+      billingAddress: {
+        firstName: "John"
+        lastName: "Doe"
+        phone: "+81 03-1234-5678"
+        country: JP
+        postalCode: "102-0083"
+        countryArea: "東京都"
+        streetAddress1: "千代田区"
+        streetAddress2: "麹町４－２－６"
+      }
+      shippingAddress: {
+        firstName: "John"
+        lastName: "Doe"
+        phone: "+81 03-1234-5678"
+        country: JP
+        postalCode: "102-0083"
+        countryArea: "東京都"
+        city: ""
+        cityArea: ""
+        streetAdds1: "千代田区"
+        streetAddress2: "麹町４－２－６"
+      }
+    }
+  ) {
+    checkout {
+      token
+    }
+  }
+}
+```
+
+### Creating a payment
+
+The next step is to choose NP Atobarai as a payment gateway that we want to use to process checkout.
+For this gateway, we need to provide: `token`, `gateway` and `amount`.
+
+:::note
+Description of the `checkoutPaymentCreate` mutation can be found [here](developer/checkout/finalizing.mdx).
+:::
+
+```graphql
+mutation {
+  checkoutPaymentCreate(
+    checkoutId: "Q2hlY2tvdXQ6MWZiMmM1OGUtN2JhMy00YmY5LWI2ZDItNWY2ZWJiN2U3ZWJj"
+    input: { gateway: "saleor.payments.np-atobarai", amount: 45.61 }
+  ) {
+    payment {
+      id
+      chargeStatus
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+## Completing the checkout
+
+After we create a payment object for the NP Atobarai payment gateway,
+we can call the `checkoutComplete` mutation.
+
+```graphql
+mutation {
+  checkoutComplete(
+    checkoutId: "Q2hlY2tvdXQ6YjBhYTUzMWItYjc3NS00MzM3LTkxNzEtYTgzOTYwYThjMmVk"
+  ) {
+    order {
+      id
+      userEmail
+      created
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+If the credit check was successful, an order will be created.
+
+In case of errors, NP recommends to display an error according to the communication guidelines available in their documentation.
+Since customers most likely won't be able to fix that error, NP recommends offering your customers an alternative payment method.
+
+## Handling errors during checkout
+
+In order to allow translation of gateway-specific payment errors, the plugin is returning error codes instead
+of human-readable text in the `message` field. You can recognize gateway-specific errors by its code: `PAYMENT_ERROR`.
+
+This is an example response when attempting to complete a checkout with a non-japanese phone number.
+
+```json
+{
+  "checkoutComplete": {
+    "order": null,
+    "errors": [
+      {
+        "code": "PAYMENT_ERROR",
+        "message": "TR#E0100065"
+      }
+    ]
+  }
+}
+```
+
+The raw gateway codes returned by Saleor are prefixed by the operation name, e.g. `TR#` for transaction registration
+which is performed when the `checkoutComplete` mutation is invoked.
+
+For an up to date list of NP error codes please refer to the NP documentation.
+
+Saleor introduces several internal codes in order to allow consistent processing across internal and external errors,
+although most of them can be eliminated by validating data on the frontend.
+
+- _SALEORNP000_ - networking error occurred while communicating with the payment gateway
+- _SALEORNP001_ - missing billing address
+- _SALEORNP002_ - missing shipping address
+- _SALEORNP003_ - invalid billing address, this can happen for invalid post codes with the "Fill missing address" option switched on
+- _SALEORNP004_ - invalid shipping address, this can happen for invalid post codes with the "Fill missing address" option switched on
+- _SALEORNP005_ - payment has no pspReference
+- _SALEORNP006_ - payment with the given id could not be found
+- _SALEORNP007_ - tracking number is missing
+- _SALEORNP008_ - carrier company code is invalid
+
+For errors that cannot be parsed, we recommend to display a generic payment error.
+
+### Invalid address
+
+This is an example response when attempting to complete a checkout with an address that is not specific enough for NP.
+
+```json
+{
+  "checkoutComplete": {
+    "order": null,
+    "errors": [
+      {
+        "field": null,
+        "message": "TR#E0100065"
+      }
+    ]
+  }
+}
+```
+
+### Pending transaction
+
+This is an example response when transaction receives a pending status. In such a scenario, the transaction is
+cancelled and the customer should be advised to use another payment method. The reason code for the transaction
+being pending is returned as the error code.
+
+```json
+{
+  "checkoutComplete": {
+    "order": null,
+    "errors": [
+      {
+        "field": null,
+        "message": "TR#RE009\nTR#RE014"
+      }
+    ]
+  }
+}
+```
+
+### Supporting multiple shipping carriers
+
+For a single shipping carrier, it is sufficient to set up a global shipping company code in the plugin settings.
+
+In order to support dynamic carrier codes, the plugin supports a way of overriding the default code
+by specifying a custom code in `Fulfillment`'s private metadata under the `np-atobarai.pd-company-code` key.

@@ -1,0 +1,73 @@
+---
+title: Extending Dashboard with Apps
+---
+
+:::info
+
+This feature was introduced in **Saleor 3.1**.
+
+:::
+
+## Key concepts
+
+App extensions allow applications to alter the dashboard's interface by contributing custom buttons, menu items, screens, and modal overlays. It's a convenient way to add new features and capabilities without maintaining a custom dashboard application fork.
+
+All contributed views are embedded inside an `<iframe>` to protect against XSS attacks.
+
+## Manifest
+
+A single App can provide multiple extensions. You can add each extension by specifying it in the App's manifest.
+The example manifest below defines two extensions, one providing a custom product action that opens a modal overlay and the second one providing an alternative product creation page:
+
+```json
+{
+  ...
+  "extensions": [
+      {
+        "label": "Create with Sample app",
+        "mount": "PRODUCT_DETAILS_MORE_ACTIONS",
+        "target": "POPUP",
+        "permissions": [
+            "MANAGE_PRODUCTS"
+        ],
+        "url": "https://example.com/extension/"
+      },
+      {
+        "label": "Create with App and redirect",
+        "mount": "PRODUCT_OVERVIEW_CREATE",
+        "target": "APP_PAGE",
+        "permissions": [
+            "MANAGE_PRODUCTS"
+        ],
+        "url": "/extension/redirect"
+      }
+    ],
+}
+```
+
+- `label`: The name which will be displayed in the dashboard.
+- `mount`: The place where the extension will be mounted.
+- `target`: The method of presenting the interface (defaults to `POPUP`).
+  `POPUP` will present the interface in a modal overlay, `APP_PAGE` will navigate to the application page.
+- `permissions`: An array of [permissions](developer/permissions.mdx#app-permissions) required for a user to access the extension.
+- `url`: The URL of the view to display. You can skip the domain and protocol when `target` is set to `APP_PAGE`, or when your manifest defines an `appUrl`.
+  When `target` is set to `POPUP`, the `url` will be used to render an `<iframe>`.
+
+## Possible mounting places
+
+Saleor requires extensions to define a mounting place. The table below explains all mounting locations currently supported by Saleor.
+
+|             Mount             |                              Description                               |
+| :---------------------------: | :--------------------------------------------------------------------: |
+| PRODUCT_DETAILS_MORE_ACTIONS  | Mount extension on product's detail page under the more action button. |
+|    PRODUCT_OVERVIEW_CREATE    |    Mount extension on product's list page under the create button.     |
+| PRODUCT_OVERVIEW_MORE_ACTIONS |  Mount extension on product's list page under the more action button.  |
+|      NAVIGATION_CATALOG       |      Mount extension in `Catalogs` section in the navigation bar.      |
+|       NAVIGATION_ORDERS       |       Mount extension in `Orders` section in the navigation bar.       |
+|     NAVIGATION_CUSTOMERS      |     Mount extension in `Customers` section in the navigation bar.      |
+|     NAVIGATION_DISCOUNTS      |     Mount extension in `Discounts` section in the navigation bar.      |
+|    NAVIGATION_TRANSLATIONS    |    Mount extension in `Translations` section in the navigation bar.    |
+|       NAVIGATION_PAGES        |       Mount extension in `Pages` section in the navigation bar.        |
+|  ORDER_DETAILS_MORE_ACTIONS   |  Mount extension on order's detail page under the more action button.  |
+|     ORDER_OVERVIEW_CREATE     |     Mount extension on order's list page under the create button.      |
+|  ORDER_OVERVIEW_MORE_ACTIONS  |   Mount extension on order's list page under the more action button.   |

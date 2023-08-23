@@ -1,0 +1,395 @@
+---
+title: Manage Account as a Customer
+sidebar_label: Users
+---
+
+## Introduction
+
+This guide describes how to use the Saleor GraphQL API to register a new account as a customer and do everyday account management operations.
+
+## Multiple channels and users
+
+Creating a new account requires specifying a channel. It is needed because you can use different communication strategies for each channel (means of contact, templates used, etc.).
+
+User accounts are not restricted to a single channel. So, for example, a user registered in the `europe` channel can still log in and place an order through the `usa` channel.
+
+## Creating a new customer account
+
+Depending on the configuration of your Saleor backend instance, registering a new customer account may be a single-step operation, or it may require email confirmation to activate the account (see [`ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL`](setup/configuration.mdx#enable_account_confirmation_by_email)).
+
+```mermaid
+graph TD
+  R([Register an account]) --> CR{Activation required?}
+  CR -->|No| A([New account is active])
+  CR -->|Yes| E[Ask user to check their email]
+  E -.-|User clicks link with token| C[Confirm account using token]
+  C --> A
+```
+
+### Previous orders
+
+When an account is activated, existing anonymous orders using the same email address are automatically assigned to the new account.
+
+### Registration without email confirmation
+
+To create a new customer account, use the `accountRegister` mutation. The mutation takes the following input fields:
+
+- `email`: user's email address.
+- `password`: user's password.
+- `channel`: the slug of the channel used to sign up.
+
+```graphql {2-4}
+mutation {
+  accountRegister(
+    input: {
+      email: "customer@example.com"
+      password: "secret"
+      channel: "default-channel"
+    }
+  ) {
+    errors {
+      field
+      code
+    }
+    user {
+      email
+      isActive
+    }
+  }
+}
+```
+
+As a result, we get the data of the newly created user:
+
+```json
+{
+  "data": {
+    "accountRegister": {
+      "errors": [],
+      "user": {
+        "email": "customer@example.com",
+        "isActive": true
+      }
+    }
+  }
+}
+```
+
+The `isActive` flag informs that the account is active and the user can log in to their account.
+
+Examples above include `errors` field, which may return any [data-level errors](api-usage/error-handling.mdx#data-level-errors). Here is a response that would be returned if there is already an account registered for the given email:
+
+```json
+{
+  "data": {
+    "accountRegister": {
+      "errors": [
+        {
+          "field": "email",
+          "code": "UNIQUE"
+        }
+      ],
+      "user": null
+    }
+  }
+}
+```
+
+### Registration with email confirmation
+
+Registering an account with email confirmation consists of two steps, and it requires you to have a storefront view, where users will be redirected to confirm their email.
+First, you need to use the `accountRegister` mutation to create an inactive account and send an email with the confirmation link.
+The mutation takes the following input fields:
+
+- `email`: user's email address.
+- `password`: user's password.
+- `redirectUrl`: path to a view where the user should be redirected to confirm their email.
+- `channel`: the slug of the channel used to sign up.
+
+This example assumes that you're running the storefront locally with the default settings (running on port `3001`):
+
+```graphql {2-8}
+mutation {
+  accountRegister(
+    input: {
+      email: "customer@example.com"
+      password: "secret"
+      redirectUrl: "http://localhost:3001/account-confirm/"
+      channel: "default-channel"
+    }
+  ) {
+    errors {
+      field
+      code
+    }
+    user {
+      email
+      isActive
+    }
+  }
+}
+```
+
+As a result, we get the data of the newly created but yet inactive user:
+
+```json
+{
+  "data": {
+    "accountRegister": {
+      "errors": [],
+      "user": {
+        "email": "customer@example.com",
+        "isActive": false
+      }
+    }
+  }
+}
+```
+
+At the same time, the user `customer@example.com` should receive an email with a confirmation link based on the provided `redirectUrl` path, for example:
+
+```
+http://localhost:3001/account-confirm/?email=customer%40example.com&token=5fc-9f2116f96bdafd612cf4
+```
+
+The link contains two query parameters—`email` and `token` — which are required to proceed with the second mutation, `confirmAccount`:
+
+```graphql {2-5}
+mutation {
+  confirmAccount(
+    email: "customer@example.com"
+    token: "5fc-9f2116f96bdafd612cf4"
+  ) {
+    errors {
+      field
+      code
+    }
+    user {
+      email
+      isActive
+    }
+  }
+}
+```
+
+If the token is valid, the user will be successfully activated:
+
+```json
+{
+  "data": {
+    "confirmAccount": {
+      "errors": [],
+      "user": {
+        "email": "customer@example.com",
+        "isActive": true
+      }
+    }
+  }
+}
+```
+
+## Resetting the password
+
+Resetting the password is a two-step operation. First, you need to call a mutation to send an email with a unique link to reset the password.
+
+The mutation takes the following input fields:
+
+- `email`: user's email address.
+- `redirectUrl`: path to a view where the user should be redirected to reset the password.
+
+```graphql {2-5}
+mutation {
+  requestPasswordReset(
+    email: "customer@example.com"
+    redirectUrl: "http://localhost:3001/reset-password/"
+  ) {
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+
+As a result, if there are no errors in the response, the system sends an email to `customer@example.com` with a link to provide a new password, for example:
+
+```
+http://localhost:3001/reset-password/?email=customer%40example.com&token=5fc-9f2116f96bdafd612cf4
+```
+
+The link contains two query parameters—`email` and `token`—which are required to proceed with the second mutation, `setPassword`.
+
+The mutation takes the following input fields:
+
+- `token`: a unique token that was included in the link in the email.
+- `email`: user's email address.
+- `password`: the new password.
+
+```graphql {2-6}
+mutation {
+  setPassword(
+    token: "5fc-9f2116f96bdafd612cf4"
+    email: "customer@example.com"
+    password: "new-secret"
+  ) {
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+
+If there are no errors in the response, the password is successfully changed.
+
+## Changing the password
+
+If you wish to change your password as an authenticated customer, use the `passwordChange` mutation. The mutation takes the following input fields:
+
+- `oldPassword`: the current user's password.
+- `newPassword`: the new password.
+
+```graphql {2}
+mutation {
+  passwordChange(oldPassword: "secret", newPassword: "new-secret") {
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+
+If no errors are returned, the password has been changed successfully.
+
+This mutation requires the caller to be [authenticated](api-usage/authentication.mdx).
+
+## Changing the email address
+
+Changing the email address of the existing user accounts is a two-step operation. First, you need to call the `requestEmailChange` mutation.
+
+The mutation takes the following input fields:
+
+- `newEmail`: the new email address to set for the account.
+- `password`: the current user's password.
+- `redirectUrl`: path to a view where the user should be redirected to confirm the new email address.
+
+```graphql {2-6}
+mutation {
+  requestEmailChange(
+    newEmail: "new-address@example.com"
+    password: "secret"
+    redirectUrl: "http://localhost:3001/confirm-email/"
+  ) {
+    errors {
+      field
+      code
+    }
+    user {
+      email
+    }
+  }
+}
+```
+
+If there are no errors, the mutation sends an email to the `newEmail` address with a link to confirm the operation. In this example, we also return the `email` of the current user. As you can see in the response below, the email hasn't been updated yet.
+
+```json
+{
+  "data": {
+    "requestEmailChange": {
+      "errors": [],
+      "user": {
+        "email": "admin@example.com"
+      }
+    }
+  }
+}
+```
+
+The confirmation links include an additional query-string parameter `token` which is required to confirm the operation, e.g.:
+
+```
+http://localhost:3001/confirm-email/?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODYxNzY5OTQsIm9sZF9lbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwibmV3X2VtYWlsIjoibmV3LWFkZHJlc3NAZXhhbXBsZS5jb20iLCJ1c2VyX3BrIjoyMX0.aGAo28Ss_zOn_TwAzLCXdY1xENpf_-uw2khORoodKR8
+```
+
+To confirm the operation, we need to use the `confirmEmailChange` mutation, which accepts the following input:
+
+- `token`: a unique token that was included in the link in the email.
+
+```graphql {2-4}
+mutation {
+  confirmEmailChange(
+    token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODYxNzY5OTQsIm9sZF9lbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwibmV3X2VtYWlsIjoibmV3LWFkZHJlc3NAZXhhbXBsZS5jb20iLCJ1c2VyX3BrIjoyMX0.aGAo28Ss_zOn_TwAzLCXdY1xENpf_-uw2khORoodKR8"
+  ) {
+    errors {
+      field
+      code
+    }
+    user {
+      email
+    }
+  }
+}
+```
+
+If the token is valid the email should be now updated:
+
+```json
+{
+  "data": {
+    "confirmEmailChange": {
+      "errors": [],
+      "user": {
+        "email": "new-address@example.com"
+      }
+    }
+  }
+}
+```
+
+Both mutations require the caller to be [authenticated](api-usage/authentication.mdx).
+
+## Deleting the account
+
+If you wish to remove your own customer account, you can do so by using two mutations. First, you need to request to delete your account with the `accountRequestDeletion` mutation. This mutation takes the following input:
+
+- `redirectUrl`: path to a view where the user can confirm deleting the account.
+
+```graphql {2}
+mutation {
+  accountRequestDeletion(redirectUrl: "http://localhost:3001/confirm-delete/") {
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+As a result, if there are no errors, the user receives an email with a link to confirm deleting their account. The link includes the `token` query parameter that is required in the second mutation:
+
+```
+http://localhost:3001/confirm-delete/?token=5ff-b5818345d8b64331b068
+```
+
+To confirm deleting the account, use the `accountDelete` mutation which accepts the following input:
+
+- `token`: a unique token that was included in the link in the email.
+
+```graphql {2}
+mutation {
+  accountDelete(token: "5ff-b5818345d8b64331b068") {
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+As a result, the account is now deleted.
+
+Both mutations require the caller to be [authenticated](api-usage/authentication.mdx).

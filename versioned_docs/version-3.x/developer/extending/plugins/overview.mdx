@@ -1,0 +1,219 @@
+---
+title: Plugins Overview
+---
+
+:::caution
+We are in the process of deprecating plugins in favor of [apps](developer/extending/apps/overview.mdx). If you plan on building a new integration with Saleor, we recommend using apps instead.
+:::
+
+## Introduction
+
+Plugins offer a mechanism to extend Saleor's Python core with new functionality. They are loaded by the core process and use predefined callbacks to execute custom code in response to certain events.
+
+Saleor ships with some plugins included, you can find those in the `saleor/plugins/` and `saleor/payment/gateways/` directories of the core.
+
+## Built-in plugins
+
+By default Saleor installs with the following plugins:
+
+- _Adyen_
+- [_AdminEmails_](developer/app-store/available-plugins/admin-emails.mdx)
+- _Authorize.Net_
+- _Avalara_
+- _Braintree_
+- [_Dummy Credit Card_](developer/app-store/available-plugins/dummy-credit-card.mdx)
+- _Dummy Gateway_
+- _Invoicing_
+- _NP Atobarai_
+- [_OpenID Connect_](developer/app-store/available-plugins/oidc.mdx)
+- _Razorpay_
+- _Stripe_
+- [_UserEmails_](developer/app-store/available-plugins/user-emails.mdx)
+- _Vatlayer_
+- _Webhooks_
+
+## Base plugin class
+
+The `BasePlugin` class is located in the `saleor.plugins.base_plugin`. It's an abstract class implementing the entire API of callback methods available to plugins.
+
+Multiple plugins are executed as a pipeline. Each callback receives a `previous_value` parameter: the first plugin receives the default value, each consecutive plugin receives the value returned by the previous one.
+
+## Configuration
+
+Saleor allows you to change the configuration of any given plugin over API.
+
+`CONFIG_STRUCTURE` describes the _shape_ of the configuration: field names, their types, and labels to use in the user interface.
+
+`DEFAULT_CONFIGURATION` provides initial values for those fields.
+
+The plugin configuration can be further validated by overwriting the `validate_plugin_configuration` method like in the following example:
+
+```python
+# custom_tax/plugin.py
+
+from django.core.exceptions import ValidationError
+from saleor.plugins.base_plugin import BasePlugin, ConfigurationTypeField
+
+
+class TaxApiPlugin(BasePlugin):
+
+    PLUGIN_ID = "plugin.taxapi"  # plugin identifier
+    PLUGIN_NAME = "Tax API"  # display name of plugin
+    PLUGIN_DESCRIPTION = "Description of the plugin."
+    CONFIG_STRUCTURE = {
+        "login": {
+            "type": ConfigurationTypeField.STRING,
+            "help_text": "Provide your login name",
+            "label": "Username or account",
+        },
+        "password": {
+            "type": ConfigurationTypeField.STRING,
+            "help_text": "Provide your password or API token",
+            "label": "Password",
+        }
+    }
+    DEFAULT_CONFIGURATION = [
+        {"name": "login", "value": None},
+        {"name": "password", "value": None},
+    ]
+    DEFAULT_ACTIVE = False
+
+    @classmethod
+    def validate_plugin_configuration(cls, plugin_configuration: "PluginConfiguration"):
+        """Validate if provided configuration is correct."""
+        missing_fields = []
+        configuration = plugin_configuration.configuration
+        configuration = {item["name"]: item["value"] for item in configuration}
+        if not configuration["login"]:
+            missing_fields.append("username or account")
+        if not configuration["password"]:
+            missing_fields.append("password or API token")
+
+        if plugin_configuration.active and missing_fields:
+            error_msg = (
+                "To enable a plugin, you need to provide values for the "
+                "following fields: "
+            )
+            raise ValidationError(error_msg + ", ".join(missing_fields))
+```
+
+Saleor will use this data to create default configuration in DB which will be served by the API.
+
+## Writing a new plugin
+
+Make sure that each plugin inherits from the `BasePlugin` class and that it overwrites base methods.
+You can write your plugin as a class which has callable instances, like the one below:
+
+```python
+# custom_plugin/plugin.py
+
+from django.conf import settings
+from urllib.parse import urljoin
+
+from ..base_plugin import BasePlugin
+from .tasks import api_post_request_task
+
+
+class CustomPlugin(BasePlugin):
+    def postprocess_order_creation(self, order: "Order", previous_value: Any):
+        data = ...
+
+        transaction_url = urljoin(settings.CUSTOM_API_URL, "transactions/createoradjust")
+        api_post_request_task.delay(transaction_url, data)
+```
+
+:::note
+There is no need to implement all base methods as the `PluginsManager` will use default values for methods that are not implemented.
+:::
+
+### Loading your plugin
+
+Saleor uses the _entry points_ API of Python's `setuptools` to automatically discover installed plugins. To make a plugin discoverable, include a `saleor.plugins` entry point in your `setup()` call. The syntax is `package_name = package_name.path.to:PluginClass`:
+
+```python
+# setup.py
+from setuptools import setup
+
+setup(
+    ...,
+    entry_points={
+        "saleor.plugins": [
+            "my_plugin = my_plugin.plugin:MyPlugin"
+        ]
+    }
+)
+```
+
+If your plugin is a Django app, the package name (the part before the equal sign) will be added to Django's `INSTALLED_APPS` so you can take advantage of Django's features such as ORM integration and database migrations.
+
+### Background tasks
+
+Some plugin operations should be done asynchronously. Saleor uses Celery and will discover all Celery tasks declared in `tasks.py` in the plugin directories.
+
+```python
+# custom_plugin/plugin.py
+
+class MyPlugin(BasePlugin):
+    def postprocess_order_creation(self, order: "Order", previous_value: Any):
+        data = {}
+        transaction_url = urljoin(get_api_url(), "transactions/createoradjust")
+
+        api_post_request_task.delay(transaction_url, data)
+```
+
+```python
+# custom_plugin/tasks.py
+
+import json
+from celery import shared_task
+from typing import Any, Dict
+
+import requests
+from requests.auth import HTTPBasicAuth
+from django.conf import settings
+
+
+@shared_task
+def api_post_request_task(
+    url: str,
+    data: Dict[str, Any],
+):
+    try:
+        username = "username"
+        password = "password"
+        auth = HTTPBasicAuth(username, password)
+        requests.post(url, auth=auth, data=json.dumps(data), timeout=settings.TIMEOUT)
+    except requests.exceptions.RequestException:
+        return
+```
+
+### Webhook handler
+
+The `BasePlugin` has an abstract method `webhook`. The `webhook` method can be used for processing the payload received over HTTP. It is useful in case when a plugin can receive the data from the external services, like payment gateway or external notification system.
+
+```python
+# custom_plugin/plugin.py
+
+class MyPlugin(BasePlugin):
+    PLUGIN_ID = "my.plugin"
+    def webhook(self, request: WSGIRequest, path: str, previous_value) -> HttpResponse:
+        # check if plugin is active
+        # check signatures and headers.
+        if path == '/webhook/paid`:
+            # do something with the request
+            return JsonResponse(data={"paid":True})
+        return HttpResponseNotFound()
+
+```
+
+The above method will be called when we execute the request to `www.your.saleor.io/plugins/my.plugin/webhook/paid`.
+
+`PluginManager` will identify the owner of the request and will pass the data to the expected plugin. Everything in the URL path after the `PLUGIN_ID`(my.plugin) will be passed to the plugin as a `path` argument.
+
+:::note
+Plugin as a response needs to return the object of type inherited from `django.http.HttpResponse`.
+:::
+
+## Customizing the plugins manager
+
+The `PluginsManager` class is located in the `saleor.plugins.manager` module. It is a class responsible for handling all declared plugins and serving a response from them. Unless further customized this class is used to interface with the plugins. Should you need to use a custom sub-class (or an entirely new implementation), you can tell Saleor to use it by setting `settings.PLUGIN_MANAGER` to the Python path of your custom implementation.
