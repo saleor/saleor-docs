@@ -1,0 +1,106 @@
+---
+title: Twilio Segment
+sidebar_position: 3
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.tsx";
+
+<AppMetadata
+  minSaleorVersion="3.14"
+  roadmapUrl="https://github.com/saleor/apps/labels/App%3A%20Segment"
+  githubUrl="https://github.com/saleor/apps/tree/main/apps/segment"
+/>
+
+## Introduction
+
+This app integrates [Twilio Segment](https://segment.com/) with Saleor. The app will send events to Segment as a source.
+
+## Features
+
+- Send order-related events to Segment
+- Send custom event names matching built-in Saleor events
+
+## Assumptions & limitations
+
+- The app requires a [write key](https://segment.com/docs/connections/find-writekey/) to work.
+- The app is not validating if the write key is correct due to missing API on the Segment side. If the write key is incorrect, the app will not inform you about it.
+
+## Permissions
+
+The app requires `MANAGE_ORDERS` permission to listen to order events.
+
+To save app configuration, staff users must have `MANAGE_APPS` permission.
+
+## Application flow
+
+The app uses the following [events](../../../api-reference/webhooks/enums/webhook-event-type-async-enum#values) and maps them to Segment tracking events:
+
+| Saleor Event       | Segment event type       |
+| ------------------ | ------------------------ |
+| `ORDER_CREATED`    | "Saleor Order Created"   |
+| `ORDER_FULLY_PAID` | "Saleor Order Completed" |
+| `ORDER_REFUNDED`   | "Saleor Order Refunded"  |
+| `ORDER_UPDATED`    | "Saleor Order Updated"   |
+| `ORDER_CANCELLED`  | "Saleor Order Cancelled" |
+
+The event will contain properties mapped from the following GraphQL fragment:
+
+```graphql
+fragment OrderBase on Order {
+  id
+  user {
+    id
+    email
+  }
+  channel {
+    id
+    slug
+    name
+  }
+  userEmail
+  shippingMethodName
+  total {
+    gross {
+      amount
+      currency
+    }
+    net {
+      currency
+      amount
+    }
+  }
+  lines {
+    id
+    productVariantId
+    productSku
+    variantName
+  }
+  number
+}
+```
+
+## Prerequisites
+
+1. Create a [Segment account](https://app.segment.com)
+2. Create a new [connection source](https://segment.com/docs/connections/sources/) and set it to `Node.js`.
+3. Name the source, e.g., "Saleor Orders."
+4. Copy visible _Write Key_ and paste it into the app configuration.
+
+## Configuration
+
+The app requires configuring only one field - a [Segment Write Key](https://segment.com/docs/connections/find-writekey/).
+
+### Testing
+
+The easiest way to test if the app is configured correctly is to perform the following steps:
+
+1. Configure the app with a valid Segment Write Key generated with a connection source.
+2. Create a test order in Saleor.
+3. Open Segment -> Connections -> Sources -> Your source -> Debugger.
+4. Check if the order event is visible in the debugger.
+
+## Troubleshooting
+
+### Events are not showing in Segment Debugger
+
+Ensure the Segment write key is correct.
