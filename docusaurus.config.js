@@ -196,31 +196,31 @@ module.exports = {
           },
           {
             from: "/docs/3.x/developer/available-plugins/admin-emails",
-            to: "/docs/3.x/developer/app-store/available-plugins/admin-emails",
+            to: "/docs/3.x/developer/app-store/legacy-plugins/admin-emails",
           },
           {
             from: "/docs/3.x/developer/available-plugins/adyen",
-            to: "/docs/3.x/developer/app-store/available-plugins/adyen",
+            to: "/docs/3.x/developer/app-store/legacy-plugins/adyen",
           },
           {
             from: "/docs/3.x/developer/available-plugins/dummy-credit-card",
-            to: "/docs/3.x/developer/app-store/available-plugins/dummy-credit-card",
+            to: "/docs/3.x/developer/app-store/legacy-plugins/dummy-credit-card",
           },
           {
             from: "/docs/3.x/developer/available-plugins/np-atobarai",
-            to: "/docs/3.x/developer/app-store/available-plugins/np-atobarai",
+            to: "/docs/3.x/developer/app-store/legacy-plugins/np-atobarai",
           },
           {
             from: "/docs/3.x/developer/available-plugins/oidc",
-            to: "/docs/3.x/developer/app-store/available-plugins/oidc",
+            to: "/docs/3.x/developer/app-store/legacy-plugins/oidc",
           },
           {
             from: "/docs/3.x/developer/available-plugins/stripe",
-            to: "/docs/3.x/developer/app-store/available-plugins/stripe",
+            to: "/docs/3.x/developer/app-store/legacy-plugins/stripe",
           },
           {
             from: "/docs/3.x/developer/available-plugins/user-emails",
-            to: "/docs/3.x/developer/app-store/available-plugins/user-emails",
+            to: "/docs/3.x/developer/app-store/legacy-plugins/user-emails",
           },
           {
             from: "/docs/3.x/developer/app-store/development.mdx",
