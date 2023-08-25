@@ -23,8 +23,8 @@ In Next.js `pages` directory, create a page, e.g., `pages/api/webhooks/order-cre
 import { SaleorAsyncWebhook } from "@saleor/app-sdk/handlers/next";
 
 /**
-* Default body parser must be turned off - the raw body is needed to verify the signature
-*/
+ * Default body parser must be turned off - the raw body is needed to verify the signature
+ */
 export const config = {
   api: {
     bodyParser: false,
@@ -49,8 +49,8 @@ For `SaleorSyncWebhook`, it will be similar. Create e.g., `order-calculate-taxes
 import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
 
 /**
-* Default body parser must be turned off - the raw body is needed to verify the signature
-*/
+ * Default body parser must be turned off - the raw body is needed to verify the signature
+ */
 export const config = {
   api: {
     bodyParser: false,
@@ -132,25 +132,25 @@ type Options = {
  * To be type-safe, define payload from API. This should be imported from generated GraphQL code
  */
 type OrderPayload = {
- id: string;
+  id: string;
 };
 
 /**
-* Default body parser must be turned off - the raw body is needed to verify the signature
-*/
+ * Default body parser must be turned off - the raw body is needed to verify the signature
+ */
 export const config = {
- api: {
- bodyParser: false,
+  api: {
+    bodyParser: false,
   },
 };
 
 export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
- name: "Order Created",
- webhookPath: "api/webhooks/order-created",
- event: "ORDER_CREATED",
- isActive: true,
- apl: require("../lib/apl"),
- query: `
+  name: "Order Created",
+  webhookPath: "api/webhooks/order-created",
+  event: "ORDER_CREATED",
+  isActive: true,
+  apl: require("../lib/apl"),
+  query: `
  subscription {
  event {
  ... on OrderCreated {
@@ -161,18 +161,18 @@ export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
       }
     }
   `,
- onError(error: WebhookError | Error) {
+  onError(error: WebhookError | Error) {
     // Can be used to e.g. trace errors
- sentry.captureError(error);
+    sentry.captureError(error);
   },
- async formatErrorResponse(
- error: WebhookError | Error,
- req: NextApiRequest,
- res: NextApiResponse
+  async formatErrorResponse(
+    error: WebhookError | Error,
+    req: NextApiRequest,
+    res: NextApiResponse
   ) {
- return {
- code: 400,
- body: "My custom response",
+    return {
+      code: 400,
+      body: "My custom response",
     };
   },
 });
@@ -187,14 +187,14 @@ export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
  * To be type-safe, define payload from API. This should be imported from generated GraphQL code
  */
 type Payload = {
- taxBase: {
- currency: string;
+  taxBase: {
+    currency: string;
   };
 };
 
 /**
-* Default body parser must be turned off - the raw body is needed to verify the signature
-*/
+ * Default body parser must be turned off - the raw body is needed to verify the signature
+ */
 export const config = {
   api: {
     bodyParser: false,
@@ -236,13 +236,13 @@ export const orderCalculateTaxesWebhook = new SaleorAsyncWebhook<Payload>({
 
 ### Resources
 
-- Check available events [here](docs/developer/extending/webhooks/asynchronous-events.mdx#available-webhook-events)
+- Check available events [here](developer/extending/webhooks/asynchronous-events.mdx#available-webhook-events)
 - [Read more about APLs](./apl.md)
-- [Subscription query documentation](docs/developer/extending/webhooks/subscription-webhook-payloads.mdx)
+- [Subscription query documentation](developer/extending/webhooks/subscription-webhook-payloads.mdx)
 
 ### Extending app manifest
 
-Webhooks are created in Saleor when the App is installed. Saleor uses [AppManifest](docs/developer/extending/apps/architecture/manifest.mdx) to get information about webhooks to create.  
+Webhooks are created in Saleor when the App is installed. Saleor uses [AppManifest](developer/extending/apps/architecture/manifest.mdx) to get information about webhooks to create.
 `SaleorSyncWebhook` & `SaleorAsyncWebhook` utility can generate this manifest:
 
 ```typescript
