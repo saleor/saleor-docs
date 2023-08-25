@@ -3,9 +3,8 @@ require("dotenv").config();
 const isUpdate = process.env.UPDATE_SALEOR;
 
 module.exports = {
-  title: "Documentation – Saleor Commerce",
-  tagline:
-    "A modular, high performance e-commerce storefront built with Python, GraphQL, Django, and ReactJS.",
+  title: "Saleor Commerce Documentation",
+  tagline: "High performance, composable, headless commerce API.",
   url: "https://docs.saleor.io",
   baseUrl: "/",
 
@@ -393,6 +392,10 @@ module.exports = {
         {
           title: "Community",
           items: [
+            {
+              href: "https://discord.gg/H52JTZAtSH",
+              label: "Discord",
+            },
             {
               href: "https://github.com/saleor/saleor/discussions",
               label: "GitHub Discussions",

@@ -8,24 +8,35 @@ The process below describes the key milestones in the Saleor payment flow.
 Additional steps may also occur along the way; however, the purpose of this instruction is to
 deliver a base reference for the user to work with.
 
-Saleor distinguishes two different approaches to processing a payment:
+Saleor distinguishes two different approaches to processing payments:
 
-- By using a [Saleor App](developer/extending/apps/overview.mdx).
-- By using a [plugin](developer/extending/plugins/overview.mdx) embedded in the Saleor code.
+- By using a [Payment App](#payment-app).
+- By using a [Custom App](#custom-app).
+- By using a [Plugin](developer/extending/plugins/overview.mdx) embedded in the Saleor code (deprecated).
 
-## Saleor App
+:::note
 
-Saleor offers two ways to process payments using the Saleor app:
+If you're considering building a custom payment integration, please check if the payment provider you're interested in isn't already available [Saleor App Store](developer/app-store/apps/overview.mdx#built-in-apps-catalog).
 
-- [Saleor payment app](developer/payments.mdx#processing-a-payment-with-the-payment-app) - The communication between the storefront and payment app goes through Saleor.
-  Saleor allows the storefront to provide and receive data directly from the app. Based on the response received from the app,
-  Saleor can determine the current status of the payment and update it on its side.
-- [Saleor app with existing checkout app](developer/payments.mdx#processing-a-payment-with-checkout-app): This is recommended for more advanced use cases when a shop owner needs to provide more
-  validation before finalizing the checkout or to cover specific cases. The `CheckoutApp` handles the payment process on its side
-  and uses Saleor's mutation to report any changes that happen for a specific `transactionItem`.
-  The order can be created by protected mutation [orderCreateFromCheckout](api-reference/orders/mutations/order-create-from-checkout.mdx).
+:::
 
-### Processing a payment with the Payment App
+## Payment App
+
+### What is a Payment App
+
+Payment App is a Saleor App that handles the payment process for a specific payment provider.
+End users are unaware of the payment app's existence as they communicate only with Saleor via GraphQL API.
+Saleor then communicates with the app using synchronous webhooks, automatically [updates statuses and balances](developer/payments.mdx#recalculations-of-transaction-amounts), and returns the response to the storefront. Checkout is finalized with the [`checkoutComplete`](api-reference/checkout/mutations/checkout-complete.mdx) mutation.
+
+Payment apps are responsible for handling the implementation details of payments with a certain payment gateway (i.e. Adyen, Stripe) while Saleor hides the complexity of the payment process from the storefront under a consistent set of GraphQL queries and mutations.
+
+:::tip
+
+In this guide, we use the terms **Payment App** and **Payment Gateway** interchangeably.
+
+:::
+
+### Processing payments with the Payment App
 
 :::info
 
@@ -40,20 +51,22 @@ feedback. However, it is still undergoing development and is subject to modifica
 
 :::
 
-This section describes the flow for processing payments using the Payment App. The communication between the storefront and the Payment App
-goes through Saleor. Based on the Payment App's response, Saleor creates or updates the transaction with the appropriate status.
+This section describes the flow for processing payments using Payment Apps. The communication between the storefront and the Payment App
+goes through Saleor. Based on the Payment App's response, Saleor creates or updates the transactions with the appropriate [statuses and balances](developer/payments.mdx#recalculations-of-transaction-amounts).
 
-The described flow can be used with Order and Checkout.
+The following diagram shows the flow of processing a payment with a Payment App:
 
 ```mermaid
 sequenceDiagram
-  Front ->>+ Saleor: Mutation paymentGatewayInitialize,<br>amount, list of<br>payment gateways IDs<br>to initialize and <br>data, if<br>old ID provided, return<br>error
-  Saleor ->>+ PaymentApp: payment-gateway-initialize-session<br>webhook
-  PaymentApp ->>+ PaymentProvider: Initialize payment gateway
-  PaymentProvider -->>- PaymentApp: Data mandatory to<br>initialize the payment<br>on fronted
-  PaymentApp -->>- Saleor: PaymentGateway data with config
-  Saleor -->>- Front: List of PaymentGateway data and configs
-  Front ->>+ Saleor: TransactionInitialize<br> with amount and<br>payment gateway ID, data
+  Storefront ->>+ Saleor: Mutation paymentGatewayInitialize,<br>amount, list of<br>payment gateways IDs<br>to initialize and <br>data, if<br>old ID provided, return<br>error
+  par For each payment gateway
+    Saleor ->>+ PaymentApp: payment-gateway-initialize-session<br>webhook
+    PaymentApp ->>+ PaymentProvider: Initialize payment gateway
+    PaymentProvider -->>- PaymentApp: Data mandatory to<br>initialize the payment<br>on fronted
+    PaymentApp -->>- Saleor: PaymentGateway data with config
+  end
+  Saleor -->>- Storefront: List of PaymentGateway data and configs
+  Storefront ->>+ Saleor: TransactionInitialize<br> with amount and<br>payment gateway ID, data
   Saleor ->> Saleor: Create TransactionItem
   Saleor ->> Saleor: Request TransactionEvent created
   Saleor ->>+ PaymentApp: webhook transaction-initialize-session
@@ -61,43 +74,59 @@ sequenceDiagram
   PaymentProvider -->>- PaymentApp: Additional action from<br>customer required to finalize<br>the payment
   PaymentApp -->>- Saleor: mandatory data for processing<br>payment on the frontend
   Saleor ->> Saleor: TransactionEvent <br>created/TransactionEvent<br>request updated
-  Saleor -->>- Front: TransactionItem and payment details
-  Front ->>+ PaymentProvider: Process a payment
-  PaymentProvider -->>- Front: additional action required
-  Front ->>+ Saleor: TransactionProcess
-  Saleor ->>+ PaymentApp: transaction-process-session webhook
-  PaymentApp ->>+ PaymentProvider: Additional action details
-  PaymentProvider -->>- PaymentApp: Payment processed
-  PaymentApp -->>- Saleor: success
-  Saleor ->> Saleor: Create the TransactionEvent
-  Saleor -->>- Front: Return success
+  Saleor -->>- Storefront: TransactionItem and payment details
+  loop While additional actions required
+    Storefront ->>+ PaymentProvider: Process the payment
+    PaymentProvider -->>- Storefront: additional action required
+    Storefront ->> Storefront: Performs additional action
+    Storefront ->>+ Saleor: TransactionProcess
+    Saleor ->>+ PaymentApp: transaction-process-session webhook
+    PaymentApp ->>+ PaymentProvider: Additional action details
+    PaymentProvider -->>- PaymentApp: Payment processed
+    PaymentApp -->>- Saleor: success
+    Saleor ->> Saleor: Create the TransactionEvent
+    Saleor -->>- Storefront: Return success
+  end
+  Storefront ->>+ PaymentProvider: Process the payment
+  PaymentProvider -->>- Storefront: Payment successful
 ```
 
-#### Initialize payment gateway
+### Creating orders
 
-To initialize the payment app, call the [paymentGatewayInitialize](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation.
-The [data](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#code-style-fontweight-normal-paymentgatewaytoinitializebdatabcodejson--) provided in the
-[paymentGateways](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) will be sent to the payment app. Saleor will then return the [data](api-reference/payments/objects/payment-gateway-initialize.mdx#code-style-fontweight-normal-paymentgatewayinitializebgatewayconfigsbcodepaymentgatewayconfig---) received from each app as a response.
+Payment Apps support two distinct ways of processing checkouts:
 
-This step is useful when some data needs to be fetched from the Payment App, such as fetching the available payment methods for a specific checkout.
+- first payments, then order
+- first order, then payments
 
-The [paymentGatewayInitialize](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation requires the following arguments:
+The first approach is used by default. It means that the order can be only created after the checkout is fully paid. See [`allowUnpaidOrders`](api-reference/miscellaneous/objects/order-settings#code-style-fontweight-normal-ordersettingsballowunpaidordersbcodeboolean--) setting for more details.
 
-- `id` - ID of the `Checkout` or `Order`.
+In both cases, the order is created by calling the [`checkoutComplete`](api-reference/checkout/mutations/checkout-complete.mdx) mutation.
+
+### Initialize payment gateway
+
+To initialize the payment app, call the [`paymentGatewayInitialize`](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation.
+The [`data`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#code-style-fontweight-normal-paymentgatewaytoinitializebdatabcodejson--) provided in the
+[`paymentGateways`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) will be sent to the payment app. Saleor will then return the [`data`](api-reference/payments/objects/payment-gateway-initialize.mdx#code-style-fontweight-normal-paymentgatewayinitializebgatewayconfigsbcodepaymentgatewayconfig---) received from each app as a response.
+
+This step is useful when information needs to be obtained from the Payment App even before initializing the payment process. Typically used for getting the available payment methods for a specific checkout, or for fetching the payment form configuration to be rendered on the frontend. Multiple Payment Apps can be initialized with a single mutation call.
+
+The [`paymentGatewayInitialize`](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation requires the following arguments:
+
+- `id` - ID of the `Checkout` or `Order`
 - `amount` - The amount requested for initializing the payment gateway. If not provided, the difference between `checkout.total` and transactions that are already processed will be sent to the apps.
-- `paymentGateways` - A list of payment gateways to initialize. If not provided, all apps subscribed to the webhook [PAYMENT_GATEWAY_INITIALIZE_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_sessionbcode) will be used.
-- `paymentGateways.id` - The identifier of the payment gateway app to initialize.
-- `paymentGateway.data` - The data to be passed to the payment gateway.
+- `paymentGateways` - A list of Payment Apps to initialize. If not provided, all apps subscribed to the webhook [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_sessionbcode) will be used.
+- `paymentGateways.id` - The identifier of the Payment App to initialize.
+- `paymentGateways.data` - The data to be passed to the Payment App.
 
-The [paymentGatewayInitialize](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation returns the following response:
+The [`paymentGatewayInitialize`](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation returns the following response:
 
-- `gatewayConfigs` - A list of payment apps that were initialized.
+- `gatewayConfigs` - A list of Payment Apps that were initialized.
 - `gatewayConfigs.id` - The app identifier.
-- `gatewayConfigs.data` - The data required to initialize the payment gateway returned by the app.
+- `gatewayConfigs.data` - The data required to initialize the Payment App.
 - `gatewayConfigs.errors` - A list of errors related to the specific payment gateway app.
 - `errors` - Errors related to the mutation call.
 
-The following example shows how to use the [paymentGatewayInitialize](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation to initialize the payment gateways:
+The following example shows how to use the [`paymentGatewayInitialize`](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation to initialize the payment gateways:
 
 ```graphql
 mutation {
@@ -105,7 +134,7 @@ mutation {
     id: "Q2hlY2tvdXQ6ZmIxMzljMjgtYWY4OS00Mzk2LWEyMjgtZmM2ZDg0NGFhOWY3"
     amount: 100
     paymentGateways: [
-      { id: "payment.app", data: { details: { passed: "to-app" } } }
+      { id: "app.saleor.payment", data: { details: { passed: "to-app" } } }
     ]
   ) {
     gatewayConfigs {
@@ -126,7 +155,7 @@ mutation {
 }
 ```
 
-The response would look like this:
+The response:
 
 ```json
 {
@@ -134,7 +163,7 @@ The response would look like this:
     "paymentGatewayInitialize": {
       "gatewayConfigs": [
         {
-          "id": "payment.app",
+          "id": "app.saleor.payment",
           "data": {
             "json": "data-returned-by-app"
           },
@@ -147,45 +176,56 @@ The response would look like this:
 }
 ```
 
-The mutation will trigger the [PAYMENT_GATEWAY_INITIALIZE_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_sessionbcode) webhook.
-For more details about this webhook, please refer to its [documentation](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-payment-gateway-session).
+The mutation will trigger the [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_sessionbcode) webhook.
+For more details about this webhook, please refer to the [Transaction events guide](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-payment-gateway-session).
 
-#### Initialize transaction
+### Initialize transaction
 
-To initiate payment processing, call the [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation.
-The [data](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#code-style-fontweight-normal-paymentgatewaytoinitializebdatabcodejson--) provided in the
-[paymentGateways](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) field will be sent to the payment app, and Saleor will return the
-[data](api-reference/payments/objects/transaction-initialize.mdx#code-style-fontweight-normal-transactioninitializebdatabcodejson--) received from the app as a response.
-Based on the Payment App's response, Saleor will create or update the transaction with the appropriate status.
+To initiate payment processing, call the [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation.
+The [`data`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#code-style-fontweight-normal-paymentgatewaytoinitializebdatabcodejson--) provided in the
+[`paymentGateways`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) field will be sent to the payment app, and Saleor will return the
+[`data`](api-reference/payments/objects/transaction-initialize.mdx#code-style-fontweight-normal-transactioninitializebdatabcodejson--) received from the app as a response.
+Based on the Payment App's response, Saleor will create or update the transaction with the appropriate status and balance.
 
-The [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation accepts the following arguments:
+Depending on the implementation of the Payment App, the `transactionInitialize` may charge or authorize the customer.
+
+:::note
+
+The `transactionInitialize` mutation can be called only once for a given `Checkout` or `Order`.
+
+:::
+
+The [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation accepts the following arguments:
 
 - `id` - ID of the `Checkout` or `Order`.
 - `paymentGateway` - The payment gateway used to initiate payment processing.
 - `paymentGateway.id` - The identifier of the payment gateway app.
 - `paymentGateway.data` - The data to be passed to the payment gateway.
 - `amount` - The amount requested for the payment. If not provided, the difference between `checkout.total` and transactions that are already processed will be sent.
-- `action` - The expected action called for the transaction. By default, the `channel.defaultTransactionFlowStrategy` will be used. This field can be used only by an app that has `HANDLE_PAYMENTS` permission.
-- `customerIpAddress` - The customer's IP address. If not provided Saleor will try to determine the customer's IP address on its own. The customer's IP address will be passed to the payment app. The IP should be in ipv4 or ipv6 format. The field can be used only by an app that has `HANDLE_PAYMENTS` permission. This field was introduced in **Saleor 3.16**.
+- `action` - The expected action (charge or authorization). By default, the `channel.defaultTransactionFlowStrategy` will be used and can be configured from the Saleor Dashboard. The default value can be overridden only by an app that has `HANDLE_PAYMENTS` permission.
+- `customerIpAddress` - The customer's IP address. If not provided, Saleor will try to determine the customer's IP address on its own. The customer's IP address will be passed to the payment app. The IP should be in ipv4 or ipv6 format. The field can be used only by an app that has `HANDLE_PAYMENTS` permission. This field was introduced in **Saleor 3.16**.
 
-The [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation returns the following response:
+The [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation returns the following response:
 
 - `transaction` - The initialized transaction.
 - `transactionEvent` - The event created based on the response received from the payment app.
 - `data` - The data returned by the app.
 - `errors` - Errors related to the mutation call.
 
-The mutation will trigger the [TRANSACTION_INITIALIZE_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_initialize_sessionbcode) webhook.
-For more details about this webhook, please refer to its [documentation](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session).
+The mutation will trigger the [`TRANSACTION_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_initialize_sessionbcode) webhook.
+For more details about this webhook, please refer to the [Transaction events guide](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session).
 
-The following example demonstrates how to use the [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation to initiate payment processing:
+The following example demonstrates how to use the [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation to initiate payment processing:
 
 ```graphql
 mutation TransactionInitialize {
   transactionInitialize(
     amount: 100
     id: "Q2hlY2tvdXQ6MzE3NDk5MjgtZDFkMC00NjdjLTgxNjktMGRiZGM4ZGJhMGZh"
-    paymentGateway: { id: "payment.app", data: { details: "passed-to-app" } }
+    paymentGateway: {
+      id: "app.saleor.payment"
+      data: { details: "passed-to-app" }
+    }
   ) {
     transaction {
       id
@@ -203,7 +243,7 @@ mutation TransactionInitialize {
 }
 ```
 
-The response would look like this:
+The response:
 
 ```json
 {
@@ -225,40 +265,43 @@ The response would look like this:
 }
 ```
 
-The current status of a payment can be determined based on the value of [transactionEvent.type](api-reference/payments/enums/transaction-event-type-enum.mdx):
+The current status of payment can be determined based on the value of [`transactionEvent.type`](api-reference/payments/enums/transaction-event-type-enum.mdx):
 
 - `AUTHORIZATION_ACTION_REQUIRED` or `CHARGE_ACTION_REQUIRED` indicates that additional action is required from the
-  customer to finalize the payment. Calling [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) will be required to pass the result of the action to the app.
+  customer to finalize the payment (e.g. 3D Secure, mobile app confirmation, redirect to the payment provider page, etc.) Calling the [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) mutation is required in order to proceed.
 - `AUTHORIZATION_SUCCESS` indicates that funds have been authorized.
 - `AUTHORIZATION_FAILURE` indicates that authorization has failed.
-- `AUTHORIZATION_REQUEST` indicates that authorization is in a pending state.
+- `AUTHORIZATION_REQUEST` indicates that authorization is pending.
 - `CHARGE_SUCCESS` indicates that funds have been charged.
 - `CHARGE_FAILURE` indicates that charging has failed.
-- `CHARGE_REQUEST` indicates that charging is in a pending state.
+- `CHARGE_REQUEST` indicates that charging is pending.
 
-#### Process transaction
+Pending statuses are used when the Payment App requires additional time or a manual action on the payment provider side to process the payment.
+Depending on the implementation, the Payment App may report the final status of the payment later using the [`transactionEventReport`](developer/payments.mdx#reporting-actions-for-transaction) mutation.
 
-If [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) or [transactionProcess](api-reference/payments/mutations/transaction-process.mdx)
-returns `transactionEvent.type` equal to [AUTHORIZATION_ACTION_REQUIRED](api-reference/payments/enums/transaction-event-type-enum.mdx#code-style-fontweight-normal-transactioneventtypeenumbauthorization_action_requiredbcode)
-or [CHARGE_ACTION_REQUIRED](api-reference/payments/enums/transaction-event-type-enum.mdx#code-style-fontweight-normal-transactioneventtypeenumbcharge_action_requiredbcode), additional steps from the customer are required. To provide the app with the result of the additional action, call the [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation.
+### Process transaction
 
-The [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation accepts the following arguments:
+If [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) or [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx)
+returns `transactionEvent.type` equal to [`AUTHORIZATION_ACTION_REQUIRED`](api-reference/payments/enums/transaction-event-type-enum.mdx#code-style-fontweight-normal-transactioneventtypeenumbauthorization_action_requiredbcode)
+or [`CHARGE_ACTION_REQUIRED`](api-reference/payments/enums/transaction-event-type-enum.mdx#code-style-fontweight-normal-transactioneventtypeenumbcharge_action_requiredbcode), additional steps from the customer are required. After completing those steps, pass the results to the [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) mutation.
 
-- `id` - The ID of the transaction returned by [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx).
+The [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) mutation accepts the following arguments:
+
+- `id` - The ID of the transaction returned by [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx).
 - `data` - The data to be passed to the payment gateway.
-- `customerIpAddress` - The customer's IP address. If not provided Saleor will try to determine the customer's IP address on its own. The customer's IP address will be passed to the payment app. The IP should be in ipv4 or ipv6 format. The field can be used only by an app that has `HANDLE_PAYMENTS` permission. This field was introduced in **Saleor 3.16**.
+- `customerIpAddress` - The customer's IP address. If not provided, Saleor will try to determine the customer's IP address on its own. The customer's IP address will be passed to the payment app. The IP should be in ipv4 or ipv6 format. The field can be used only by an app that has `HANDLE_PAYMENTS` permission. This field was introduced in **Saleor 3.16**.
 
-The [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation returns:
+The [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) mutation returns:
 
 - `transaction` - The processed transaction.
 - `transactionEvent` - The event created based on the response received from the payment app.
 - `data` - The data returned by the app.
 - `errors` - Errors related to the mutation call.
 
-The mutation triggers the [TRANSACTION_PROCESS_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_process_sessionbcode) webhook.
-For more details about this webhook, refer to its [documentation](developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session).
+The mutation triggers the [`TRANSACTION_PROCESS_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_process_sessionbcode) webhook.
+For more details about this webhook, refer to the [Transaction events guide](developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session).
 
-The following example demonstrates how to use the [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation to process the payment:
+The following example demonstrates how to use the [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) mutation to process the payment:
 
 ```graphql
 mutation TransactionInitialize {
@@ -282,7 +325,7 @@ mutation TransactionInitialize {
 }
 ```
 
-The response would look like this:
+The response:
 
 ```json
 {
@@ -304,23 +347,26 @@ The response would look like this:
 }
 ```
 
-The current status of a payment can be determined based on the value of `transactionEvent.type`:
+The current status of payment can be determined based on the value of [`transactionEvent.type`](api-reference/payments/enums/transaction-event-type-enum.mdx).
+On some occasions, multiple calls to [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) may be required to proceed with the payment.
 
-- `AUTHORIZATION_ACTION_REQUIRED` or `CHARGE_ACTION_REQUIRED` indicates that additional action is required from the customer to
-  finalize the payment. Calling [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) will be required to pass the result of the action to the app.
-- `AUTHORIZATION_SUCCESS` indicates that funds have been authorized.
-- `AUTHORIZATION_FAILURE` indicates that authorization has failed.
-- `AUTHORIZATION_REQUEST` indicates that authorization is in a pending state.
-- `CHARGE_SUCCESS` indicates that funds have been charged.
-- `CHARGE_FAILURE` indicates that charging has failed.
-- `CHARGE_REQUEST` indicates that charging is in a pending state.
+## Custom App
 
-### Processing a payment with Checkout App
+### What is a Custom App
 
-This section describes the flow where the payment process is handled by an external Saleor App such as [Checkout](https://github.com/saleor/react-storefront/tree/canary/apps/checkout).
-In this case, Saleor expects to receive a result of the payment transaction processed by the Saleor App.
+In this guide, "Custom App" means a [Saleor App](developer/extending/apps/overview.mdx) that uses a custom logic for handling payments instead of listening for `PAYMENT_GATEWAY_INITIALIZE_SESSION`, `TRANSACTION_INITIALIZE_SESSION` and `TRANSACTION_PROCESS_SESSION` webhooks like Payment Apps do. End users need to communicate with the app directly and it's the app's responsibility to report back to Saleor.
 
-#### Creating transaction
+Custom apps handle the payment process and call Saleor mutations on their backend to report any changes that happen for a specific `transactionItem`.
+Orders can be created by a protected mutation [`orderCreateFromCheckout`](api-reference/orders/mutations/order-create-from-checkout.mdx).
+
+:::note
+
+Building a Custom App is only recommended if Saleor Payment Apps don't fit your needs and for more complex use cases. **For most of the payment providers, Saleor Payment Apps should be used instead.**
+When a custom app is used, Saleor won't be able to automatically update the status and balance of the payment and the app will be responsible for doing it.
+
+:::
+
+### Creating transactions
 
 :::info
 
@@ -337,21 +383,22 @@ feedback. However, it is still undergoing development and is subject to modifica
 
 Transaction stores details of a payment transaction attached to an order or a checkout:
 
-The [transactionCreate](../api-reference/payments/mutations/transaction-create) mutation takes the following arguments:
+The [`transactionCreate`](api-reference/payments/mutations/transaction-create.mdx) mutation takes the following arguments:
 
 - `id`: The ID of the checkout or order.
 - `transaction`: Input data required to create a new transaction object.
 - `transactionEvent`: Data that defines a transaction event. It can be used to provide more context about the current state of the transaction.
 
-The following example shows how you can use the [transactionCreate](../api-reference/payments/mutations/transaction-create) mutation to create a new transaction.
+:::info
+
+The [`transactionCreate`](api-reference/payments/mutations/transaction-create.mdx) can only be called by staff users or apps with the [`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
+
+:::
+
+The following example shows how you can use the [`transactionCreate`](../api-reference/payments/mutations/transaction-create) mutation to create a new transaction.
 
 The transaction was authorized, and the payment was made with a credit card. The actions that can be called from Saleor are: `CANCEL` and `CHARGE`.
 The authorized amount is **$99**.
-
-::: info
-The [transactionCreate] can only be called by staff users or app with
-[HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
-:::
 
 ##### Saleor 3.13+
 
@@ -375,7 +422,7 @@ mutation {
 }
 ```
 
-The response would look like this:
+The response:
 
 ```json
 {
@@ -421,7 +468,7 @@ mutation {
 }
 ```
 
-The response would look like this:
+The response:
 
 ```json
 {
@@ -443,12 +490,12 @@ The response would look like this:
 
 :::info
 
-- Transactions attached to the checkout are accessible via the [transactions](../api-reference/checkout/objects/checkout#code-style-fontweight-normal-checkoutbtransactionsbcodetransactionitem--) field.
-- Transactions attached to the order are accessible via the [transactions](../api-reference/orders/objects/order#code-style-fontweight-normal-orderbtransactionsbcodetransactionitem--) field.
+- Transactions attached to checkout are accessible via the [`checkout.transactions`](../api-reference/checkout/objects/checkout#code-style-fontweight-normal-checkoutbtransactionsbcodetransactionitem--) field.
+- Transactions attached to order are accessible via the [`order.transactions`](../api-reference/orders/objects/order#code-style-fontweight-normal-orderbtransactionsbcodetransactionitem--) field.
 
 :::
 
-#### Updating transaction
+### Updating transactions
 
 :::info
 
@@ -463,7 +510,7 @@ feedback. However, it is still undergoing development and is subject to modifica
 
 :::
 
-The [transactionUpdate](../api-reference/payments/mutations/transaction-update) mutation allows updating the transaction details.
+The [`transactionUpdate`](api-reference/payments/mutations/transaction-update.mdx) mutation allows updating the transaction details.
 It takes the following arguments:
 
 - `id`: The ID of the transaction.
@@ -472,14 +519,15 @@ It takes the following arguments:
 
 :::info
 
-The [transactionUpdate](../api-reference/payments/mutations/transaction-update) can only be called by staff users with
+The [`transactionUpdate`](api-reference/payments/mutations/transaction-update.mdx) can only be called by staff users with the
 [HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission
-or by App which is the owner of the transaction and has [HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
+or by the App that created the the transaction and has [`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
+
 :::
 
-The following example shows how you can use the [transactionUpdate](../api-reference/payments/mutations/transaction-create) mutation to update the transaction.
+The following example shows how you can use the [`transactionUpdate`](api-reference/payments/mutations/transaction-update.mdx) mutation to update the transaction.
 
-The available action is `REFUND`. The authorized funds are charged, so `amountAuthorized` is **$0**. `amountCharged` is equal to **$99**.
+The available action is `REFUND`. The authorized funds are charged, so `amountAuthorized` is **$0** and `amountCharged` is **$99**.
 
 ```graphql
 mutation {
@@ -505,7 +553,7 @@ mutation {
 }
 ```
 
-The response would look like this:
+The response:
 
 ```json
 {
@@ -526,8 +574,11 @@ The response would look like this:
 ```
 
 :::note
+
 During the update of transactions, all funds that go to a new state should be subtracted from the previous state.
 Assuming we have a transaction with `authorizedAmount` equal to 100 USD. Moving the `authorizedAmount` to `chargedAmount` requires setting the`authorizedAmount` to 0.
+
+This complexity is handled automatically when Payment Apps are used instead of a custom app.
 
 ```graphql
 mutation {
@@ -554,7 +605,17 @@ mutation {
 
 :::
 
-### Reporting action for transaction
+## Additional steps
+
+:::note
+
+This section applies to both Payment Apps and Custom Apps.
+
+:::
+
+This section describes additional steps that can be performed at different stages of the payment process.
+
+### Reporting actions for transactions
 
 :::info
 
@@ -569,10 +630,10 @@ feedback. However, it is still undergoing development and is subject to modifica
 
 :::
 
-The [transactionEventReport](../api-reference/payments/mutations/transaction-event-report) is used to
-report a new transaction event. The newly created event will be used to [recalculate](#re-calculations-of-transaction-amounts) the transaction's amounts.
-The mutation should be used in case of [asynchronously processing the requested action](#handling-an-action-request-for-a-transaction) or reporting any
-changes that happened on the payment provider side.
+The [`transactionEventReport`](../api-reference/payments/mutations/transaction-event-report) is used to
+report a new transaction event. The newly created event will be used to [recalculate](#recalculations-of-transaction-amounts) the transaction's amounts.
+The mutation should be used for handling [action requests](#handling-an-action-request-for-a-transaction) or reporting any
+changes that happened on the payment provider side (eg. asynchronous webhooks for delayed payment methods, chargebacks, disputes etc.).
 
 It takes the following arguments:
 
@@ -581,16 +642,16 @@ It takes the following arguments:
 - `amount`: The amount of the reported action.
 - `pspReference`: The reference assigned to the action.
 - `time`: The time of the action.
-- `externalUrl`: The URL that will allow redirecting the user to the payment provider page with action details.
+- `externalUrl`: The URL for the staff user to check the details of the action on the payment provider's page. This URL will be available in the Saleor Dashboard.
 - `message`: Message related to the action.
 - `availableActions`: Current list of actions available for the transaction.
 
 :::info
 
-The [transactionEventReport](../api-reference/payments/mutations/transaction-event-report) can only be called by staff users with
-[HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission
-or by App which is the owner of the transaction and has [HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
-The owner is the User or App that created the given transaction.
+The [`transactionEventReport`](../api-reference/payments/mutations/transaction-event-report) can only be called by staff users with
+[`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission
+or by the App that created the transaction and has [`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
+
 :::
 
 The following example shows how the [transactionEventReport](../api-reference/payments/mutations/transaction-event-report) mutation is used to report an event
@@ -598,7 +659,7 @@ that happened for a given transaction.
 The report is a success charge action, with 20 as an amount. The currency is the same as declared
 for the transaction. Available action that can proceed for a transaction is `REFUND`.
 The provided data will be used to create a new [TransactionEvent](../api-reference/payments/objects/transaction-event) object that will be included in the
-[re-calculation](#re-calculations-of-transaction-amounts) process.
+[recalculation](#recalculations-of-transaction-amounts) process.
 
 ```graphql
 mutation TransactionEventReport {
@@ -638,7 +699,7 @@ In the response, Saleor returns:
 - `transaction` - Transaction that has been updated based on the received report.
 - `transactionEvent` - [TransactionEvent](../api-reference/payments/objects/transaction-event) that has been created based on the received report.
 
-### Handling an action request for a transaction
+### Handling action requests for transactions
 
 :::info
 
@@ -653,45 +714,45 @@ feedback. However, it is still undergoing development and is subject to modifica
 
 :::
 
-An action request is called when a staff user or an app triggers a request for an action that should be called for a given transaction.
+An action request is called when a staff user or an app requests an action for a given transaction.
 
 #### Saleor 3.13+
 
-There are two mutations that can trigger the action on the app side:
+Two mutations can trigger the action on the app side:
 
-- Calling mutation [transactionRequestAction](../api-reference/payments/mutations/transaction-request-action) will also create a new
-  [TransactionEvent](../api-reference/payments/objects/transaction-event) with one of the request type ([AUTHORIZATION_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbauthorization_requestbcode),
-  [CHARGE_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcharge_requestbcode),
-  [REFUND_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode),
-  [CANCEL_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcancel_requestbcode)),
+- [`transactionRequestAction`](../api-reference/payments/mutations/transaction-request-action): will also create a new
+  [`TransactionEvent`](../api-reference/payments/objects/transaction-event) with one of the request type ([`AUTHORIZATION_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbauthorization_requestbcode),
+  [`CHARGE_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcharge_requestbcode),
+  [`REFUND_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode),
+  [`CANCEL_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcancel_requestbcode)),
   `amount` and the `owner` (User or App). Saleor will send a synchronous webhook dedicated to the action
-  [TRANSACTION_CHARGE_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
-  [TRANSACTION_CANCELATION_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
-  [TRANSACTION_REFUND_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode)
+  [`TRANSACTION_CHARGE_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
+  [`TRANSACTION_CANCELATION_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
+  [`TRANSACTION_REFUND_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode)
 
-- Calling mutation [transactionRequestRefundForGrantedRefund](../api-reference/payments/mutations/transaction-request-refund-for-granted-refund) will create a new [TransactionEvent](../api-reference/payments/objects/transaction-event) with
-  [REFUND_REQUEST](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode) type, `amount` and the `owner` (User or App).
-  Saleor will send a synchronous webhook [TRANSACTION_REFUND_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode).
-  [OrderGrantedRefund](api-reference/orders/objects/order-granted-refund.mdx) will be included in the webhook payload (if requested in a [subscription query](developer/extending/webhooks/subscription-webhook-payloads.mdx#custom-payloads) for the webhook).
-  The mutation is useful when the payment provider requires details about lines that are related to refund action.
+- [`transactionRequestRefundForGrantedRefund`](../api-reference/payments/mutations/transaction-request-refund-for-granted-refund): will create a new [`TransactionEvent`](../api-reference/payments/objects/transaction-event) with
+  [`REFUND_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode) type, `amount` and the `owner` (User or App).
+  Saleor will send a synchronous webhook [`TRANSACTION_REFUND_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode).
+  [`OrderGrantedRefund`](api-reference/orders/objects/order-granted-refund.mdx) will be included in the webhook payload (if requested in a [subscription query](developer/extending/webhooks/subscription-webhook-payloads.mdx#custom-payloads) for the webhook).
+  This mutation is useful when the payment provider requires details about lines that are related to refund action.
 
-The response should contain at least `pspReference` of the action. The `pspReference` will be placed in the previously created event of `_REQUEST` type.
+The response should contain at least `pspReference` of the action. The `pspReference` will be placed in the previously created event of `…_REQUEST` type.
 Optionally the response can contain the details of the completed action.
 
-More details about request webhook can be found [here](extending/webhooks/synchronous-events/transaction).
+More information about request webhooks can be found [in the synchronous webhooks for transactions guide](extending/webhooks/synchronous-events/transaction).
 
-:::caution
+:::note
 
-The webhook will be sent only to the app that is the owner of the transaction.
+The webhook will be sent only to the app that created the transaction.
 
 :::
 
-#### Asynchronously processing the action
+#### Asynchronously processing actions
 
-When action is processed asynchronously on the payment provider side, the app should call the [transactionActionRequest](../api-reference/payments/mutations/transaction-request-action)
+When action is processed asynchronously on the payment provider side, the app should call the [`transactionActionRequest`](../api-reference/payments/mutations/transaction-request-action)
 mutation once it receives a webhook notification from the payment provider.
 
-The below diagram shows an example of processing asynchronous refund action.
+The diagram below shows an example of processing asynchronous refund action.
 
 ```mermaid
 sequenceDiagram
@@ -715,9 +776,9 @@ sequenceDiagram
 #### Synchronously processing the action
 
 The app immediately receives the status of the requested action. It can provide the details of the action in response to the received Saleor webhook. The following webhook events
-can accept action details in the response:: [TRANSACTION_CHARGE_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
-[TRANSACTION_CANCELATION_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
-[TRANSACTION_REFUND_REQUESTED](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode).
+can accept action details in the response:: [`TRANSACTION_CHARGE_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
+[`TRANSACTION_CANCELATION_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
+[`TRANSACTION_REFUND_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode).
 
 The below diagram shows an example of processing synchronous refund action.
 
@@ -738,7 +799,7 @@ sequenceDiagram
 #### Saleor 3.4 (Deprecated)
 
 If your app should also process payment request actions (like charge, refund, or CANCEL) triggered by staff users on the Saleor dashboard side or by the app,
-make sure that your app subscribes to the [transaction-action-request](developer/extending/webhooks/sample-webhook-payloads.mdx#transaction-action-request) webhook.
+make sure that your app subscribes to the [`transaction-action-request`](developer/extending/webhooks/sample-webhook-payloads.mdx#transaction-action-request) webhook.
 
 The chart below shows a workflow for handling a `refund` request.
 
@@ -756,14 +817,14 @@ sequenceDiagram
     Saleor -->>- App: Updated transaction
 ```
 
-### Re-calculations of transaction amounts
+## Recalculations of transaction amounts
 
-The re-calculation will differ based on the value of the [TransactionEventTypeEnum](../api-reference/payments/enums/transaction-event-type-enum) provided as the field `type`
-used in the [transactionEventReport](#reporting-action-for-transaction) [transactionInitialize](#initialize-transaction), [transactionProcess](#process-transaction) mutations, [optionally in the webhook response](extending/webhooks/synchronous-events/transaction):
+The recalculation will differ based on the value of the [`TransactionEventTypeEnum`](../api-reference/payments/enums/transaction-event-type-enum) provided as the field `type`
+used in the [`transactionEventReport`](#reporting-action-for-transaction), [`transactionInitialize`](#initialize-transaction), and [`transactionProcess`](#process-transaction) mutations, or [optionally in the webhook response](extending/webhooks/synchronous-events/transaction):
 
-#### Event type explanation
+### Event types explanation
 
-##### AUTHORIZATION_SUCCESS
+#### AUTHORIZATION_SUCCESS
 
 Saleor assigns provided `amount` to `transaction.authorizedAmount`. If an `AUTHORIZATION_SUCCESS` event is related to an `AUTHORIZATION_REQUEST` event by `pspReference`, then the `transactionItem.authorizePendingAmount`
 will be reduced by the amount reported in the `AUTHORIZATION_SUCCESS` event.
@@ -771,86 +832,88 @@ You can’t have two successful authorizations for a single transaction.
 Each successful request after the first one will raise an exception. `AUTHORIZATION_ADJUSTMENT` should be used to change the `transaction.authorizedAmount`.
 
 :::info
+
 In the case of finding `AUTHORIZATION_SUCCESS` and `AUTHORIZATION_FAILURE` with the same `pspReference`,
-the re-calculation for `transaction.authorizedAmount` will not take into account the amount from
+the recalculation for `transaction.authorizedAmount` will not take into account the amount from
 `AUTHORIZATION_SUCCESS`, when `AUTHORIZATION_SUCCESS` is the older one.
+
 :::
 
-##### AUTHORIZATION_FAILURE
+#### AUTHORIZATION_FAILURE
 
 If an `AUTHORIZATION_FAILURE` event is related to an `AUTHORIZATION_REQUEST` event by `pspReference`, then the `transactionItem.authorizePendingAmount`
 will be reduced by the amount reported in the `AUTHORIZATION_FAILURE` event. If there is no related `AUTHORIZATION_REQUEST`, the failure event will only
 be used to provide the history of `transactionItem` actions.
 
-##### AUTHORIZATION_ADJUSTMENT
+#### AUTHORIZATION_ADJUSTMENT
 
 Saleor assigns the provided `amount` to the `transaction.authorizedAmount`.
 
-##### CHARGE_SUCCESS
+#### CHARGE_SUCCESS
 
 Adds the provided `amount` to the `transaction.chargedAmount`. Each next call will add the `amount` to the existing
 `transaction.chargedAmount` (`transaction.chargedAmount += amount`). If a `CHARGE_SUCCESS` event is related to a `CHARGE_REQUEST` event by `pspReference`, then the `transactionItem.chargePendingAmount`
 will be reduced by the amount reported in the `CHARGE_SUCCESS` event. If there is no related `CHARGE_REQUEST` event, the provided `amount` will reduce `transaction.authorizedAmount`.
 
 :::info
-In the case of finding `CHARGE_SUCCESS` and `CHARGE_FAILURE` with the same `pspReference`, the re-calculation
+In the case of finding `CHARGE_SUCCESS` and `CHARGE_FAILURE` with the same `pspReference`, the recalculation
 for `transaction.chargedAmount` will not take into account the amount from `CHARGE_SUCCESS`, when
 `CHARGE_SUCCESS` is the older one.
 :::
 
-##### CHARGE_FAILURE
+#### CHARGE_FAILURE
 
 If an `CHARGE_FAILURE` event is related to an `CHARGE_REQUEST` event by `pspReference`, then the `transactionItem.chargePendingAmount`
 will be reduced by the amount reported in the `CHARGE_FAILURE` event. If there is no related `CHARGE_REQUEST`, the failure event will only
 be used to provide the history of `transactionItem` actions.
 
-##### CHARGE_BACK
+#### CHARGE_BACK
 
 The provided `amount` will be used to reduce `transaction.chargedAmount`
 (`transaction.chargedAmount -= amount`).
 
-##### REFUND_SUCCESS
+#### REFUND_SUCCESS
 
 Adds provided `amount` to `transaction.refundedAmount`. Each next call will add the `amount` to the existing
 `transaction.refundedAmount` (`transaction.refundedAmount += amount`). If a `REFUND_SUCCESS` event is related to a `REFUND_REQUEST` event by `pspReference`, then the `transactionItem.refundPendingAmount`
 will be reduced by the amount reported in the `REFUND_SUCCESS` event. If there is no related `REFUND_REQUEST` event, the provided `amount` will reduce `transaction.chargedAmount`.
 
 :::info
-In the case of finding `REFUND_SUCCESS` and `REFUND_FAILURE` with the same `pspReference`, the re-calculation
+In the case of finding `REFUND_SUCCESS` and `REFUND_FAILURE` with the same `pspReference`, the recalculation
 for `transaction.refundedAmount` will not take into account the amount from `REFUND_SUCCESS`, when
 `REFUND_SUCCESS` is the older one.
 :::
 
-##### REFUND_FAILURE
+#### REFUND_FAILURE
 
 If an `REFUND_FAILURE` event is related to an `REFUND_REQUEST` event by `pspReference`, then the `transactionItem.refundPendingAmount`
 will be reduced by the amount reported in the `REFUND_FAILURE` event. If there is no related `REFUND_REQUEST`, the failure event will only
 be used to provide the history of `transactionItem` actions.
 
-##### REFUND_REVERSE
+#### REFUND_REVERSE
 
 The provided `amount` will be used to reduce `transaction.refundedAmount` (`transaction.refundedAmount -= amount`).
 The provided `amount` will increase `transaction.chargedAmount`.
 
-##### CANCEL_SUCCESS
+#### CANCEL_SUCCESS
 
 The provided `amount` will be added to `transaction.canceledAmount`
 (`transaction.canceledAmount += amount`). If a `CANCEL_SUCCESS` event is related to a `CANCEL_REQUEST` event by `pspReference`, then the `transactionItem.cancelPendingAmount`
 will be reduced by the amount reported in the `CANCEL_SUCCESS` event. If there is no related `CANCEL_REQUEST` event, the provided `amount` will reduce `transaction.authorizedAmount`.
 
 :::info
-In the case of finding `CANCEL_SUCCESS` and `CANCEL_FAILURE` with the same `pspReference`, the re-calculation
+In the case of finding `CANCEL_SUCCESS` and `CANCEL_FAILURE` with the same `pspReference`, the recalculation
 for `transaction.canceledAmount` will not take into account the amount from `CANCEL_SUCCESS`, when
 `CANCEL_SUCCESS` is the older one.
 :::
 
-##### CANCEL_FAILURE
+#### CANCEL_FAILURE
 
 If an `CANCEL_FAILURE` event is related to an `CANCEL_REQUEST` event by `pspReference`, then the `transactionItem.cancelPendingAmount`
 will be reduced by the amount reported in the `CANCEL_FAILURE` event. If there is no related `CANCEL_REQUEST`, the failure event will only
 be used to provide the history of `transactionItem` actions.
 
-#### Example of re-calculations
+### Example of recalculations
 
 The tables below show examples of transactions and their amounts when a given event is attached to the transaction.
 Depending on the event type, the amounts may change. The last columns show the current amounts assigned to the transaction after
@@ -918,7 +981,7 @@ Additionally, a `CHARGE_REQUEST` event is added to the transaction, and its amou
 The `transaction.authorizedAmount` is reduced by the amount from the `CHARGE_REQUEST` event.
 Finally, when a `CHARGE_SUCCESS` event occurs, the `transaction.chargedAmount` is updated with the event's amount, and the
 `transaction.chargePendingAmount` is reduced by the same amount. A `CHARGE_FAILURE` event with the same `pspReference` as `CHARGE_SUCCESS` is
-also attached to the transaction, `time` indicating that it is newer than the `CHARGE_SUCCESS`. The previous `CHARGE_SUCCESS` event is ignored during the re-calculation process.
+also attached to the transaction, `time` indicating that it is newer than the `CHARGE_SUCCESS`. The previous `CHARGE_SUCCESS` event is ignored during the recalculation process.
 
 ---
 
@@ -954,12 +1017,12 @@ and its amount is added to `transaction.chargedAmount`. Finally, the amount of t
 
 ---
 
-### Stored payment methods
+## Stored payment methods
 
-A stored payment method is a payment method that can be used later by customers without providing all payment details.
-Saleor uses synchronous webhooks to notify the payment app about actions (such as [list-stored-payment-method](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#list-stored-payment-methods)) requested by the customer.
+A stored payment method is a payment method saved by a customer for later use. It allows the user to use it without the need to provide all payment details again.
+Saleor uses synchronous webhooks to notify the Payment App about actions related to stored payment methods (such as [`LIST_STORED_PAYMENT_METHODS`](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#list-stored-payment-methods)) requested by the customer.
 
-#### Listing user's stored payment methods
+### Listing user's stored payment methods
 
 :::info
 
@@ -975,32 +1038,32 @@ feedback. However, it is still undergoing development and is subject to modifica
 :::
 
 :::info
+
 This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#code-style-fontweight-normal-apptypeenumbthirdpartybcode) apps.
+
 :::
 
-Requesting [checkout.storedPaymentMethods](api-storefront/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbstoredpaymentmethodsbcodestoredpaymentmethod--) or [User.storedPaymentMethod](api-storefront/users/objects/user.mdx#code-style-fontweight-normal-userbstoredpaymentmethodsbcodestoredpaymentmethod--)
-field will make a synchronous requests to each app subscribed to [LIST_STORED_PAYMENT_METHODS](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
-webhook. Saleor as a response will return a list of payment methods returned by subscribed apps. The stored payment methods can be used in further steps of processing the payment.
+Requesting [`checkout.storedPaymentMethods`](api-storefront/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbstoredpaymentmethodsbcodestoredpaymentmethod--) or [`User.storedPaymentMethod`](api-storefront/users/objects/user.mdx#code-style-fontweight-normal-userbstoredpaymentmethodsbcodestoredpaymentmethod--) field triggers synchronous requests to each app subscribed to [`LIST_STORED_PAYMENT_METHODS`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
+webhook. In response, Saleor returns a list of payment methods from the subscribed apps. Stored payment methods can be used in further steps of payment processing.
 
-All details related to [LIST_STORED_PAYMENT_METHODS](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
-webhook can be found [here](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#list-stored-payment-methods).
+All details related to [`LIST_STORED_PAYMENT_METHODS`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
+webhook can be found [in the Stored Payment Methods guide](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#list-stored-payment-methods).
 
-The diagram below shows the workflow of a fetching stored payment methods with a payment app:
+The diagram below shows the workflow of fetching stored payment methods with a Payment App:
 
 ```mermaid
 sequenceDiagram
     actor User
-    User->>Storefront: Request a stored payment methods
+    User->>Storefront: Ask for their stored payment methods
     Storefront->>Saleor: checkout.storedPaymentMethods query
-    loop Fetching from Payment Apps
-    Saleor->>Payment App: LIST_STORED_PAYMENT_METHODS webhook
-    Payment App->>Saleor: List of stored payment methods for the user
+    par For each payment gateway
+      Saleor->>Payment App: LIST_STORED_PAYMENT_METHODS webhook
+      Payment App->>Saleor: List of stored payment methods for the user
     end
-    Saleor->>Storefront: Views list of stored payment methods
+    Saleor->>Storefront: List of stored payment methods
     Storefront->>User: Sees a list of saved payment methods
 ```
 
-## Payment Plugin
+## Payment Plugin (deprecated)
 
-Using PaymentPlugin is strictly related to the checkout object and is explained in
-[Checkout](checkout/finalizing) section.
+Using PaymentPlugin is explained in [Checkout](checkout/finalizing) section.
