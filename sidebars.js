@@ -153,6 +153,7 @@ module.exports = {
                 "developer/extending/webhooks/synchronous-events/shipping",
                 "developer/extending/webhooks/synchronous-events/tax",
                 "developer/extending/webhooks/synchronous-events/transaction",
+                "developer/extending/webhooks/synchronous-events/stored-payment-method",
               ],
             },
           ],
