@@ -39,7 +39,7 @@ For values that should not be migrated during environment cloning (as private ke
 
 # MetadataManager
 
-Default manager used by the [App Template](docs/developer/extending/apps/developing-apps/app-template.mdx). Uses the app metadata as storage. Since the app developer can use any GraphQL client, the constructor must be parametrized with fetch and mutate functions:
+Default manager used by the [App Template](developer/extending/apps/developing-apps/app-template.mdx). Uses the app metadata as storage. Since the app developer can use any GraphQL client, the constructor must be parametrized with fetch and mutate functions:
 
 ```ts
 import { MetadataEntry } from "@saleor/app-sdk/settings-manager";
