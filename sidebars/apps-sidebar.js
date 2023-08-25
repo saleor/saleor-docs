@@ -11,6 +11,7 @@ module.exports = {
         "developer/extending/apps/architecture/manifest",
         "developer/extending/apps/architecture/app-requirements",
         "developer/extending/apps/architecture/communication-between-app-and-saleor",
+        "developer/extending/apps/architecture/server-and-client-side-calls",
         "developer/extending/apps/architecture/apl",
         // todo: add more content for app bridge
         // "developer/extending/apps/architecture/app-bridge",
