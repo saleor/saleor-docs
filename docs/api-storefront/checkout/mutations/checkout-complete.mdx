@@ -72,7 +72,20 @@ export const Details = ({
   );
 };
 
-Completes the checkout. As a result a new order is created and a payment charge is made. This action requires a successful payment before it can be performed. In case additional confirmation step as 3D secure is required confirmationNeeded flag will be set to True and no order created until payment is confirmed with second call of this mutation.
+Completes the checkout. As a result a new order is created. The mutation allows to create the unpaid order when setting `orderSettings.allowUnpaidOrders` for given `Channel` is set to `true`. When `orderSettings.allowUnpaidOrders` is set to `false`, checkout can be completed only when attached `Payment`/`TransactionItem`s fully cover the checkout's total. When processing the checkout with `Payment`, in case of required additional confirmation step like 3D secure, the `confirmationNeeded` flag will be set to True and no order will be created until payment is confirmed with second call of this mutation.
+
+Triggers the following webhook events:
+
+- SHIPPING_LIST_METHODS_FOR_CHECKOUT (sync): Optionally triggered when cached external shipping methods are invalid.
+- CHECKOUT_FILTER_SHIPPING_METHODS (sync): Optionally triggered when cached filtered shipping methods are invalid.
+- CHECKOUT_CALCULATE_TAXES (sync): Optionally triggered when checkout prices are expired.
+- ORDER_CREATED (async): Triggered when order is created.
+- NOTIFY_USER (async): A notification for order placement.
+- NOTIFY_USER (async): A staff notification for order placement.
+- ORDER_UPDATED (async): Triggered when order received the update after placement.
+- ORDER_PAID (async): Triggered when newly created order is paid.
+- ORDER_FULLY_PAID (async): Triggered when newly created order is fully paid.
+- ORDER_CONFIRMED (async): Optionally triggered when newly created order are automatically marked as confirmed.
 
 ```graphql
 checkoutComplete(
@@ -130,4 +143,17 @@ checkoutComplete(
 
 #### [`CheckoutComplete`](../../../api-storefront/checkout/objects/checkout-complete) <Badge class="badge badge--secondary" text="object"/>
 
-> Completes the checkout. As a result a new order is created and a payment charge is made. This action requires a successful payment before it can be performed. In case additional confirmation step as 3D secure is required confirmationNeeded flag will be set to True and no order created until payment is confirmed with second call of this mutation.
+> Completes the checkout. As a result a new order is created. The mutation allows to create the unpaid order when setting `orderSettings.allowUnpaidOrders` for given `Channel` is set to `true`. When `orderSettings.allowUnpaidOrders` is set to `false`, checkout can be completed only when attached `Payment`/`TransactionItem`s fully cover the checkout's total. When processing the checkout with `Payment`, in case of required additional confirmation step like 3D secure, the `confirmationNeeded` flag will be set to True and no order will be created until payment is confirmed with second call of this mutation.
+>
+> Triggers the following webhook events:
+>
+> - SHIPPING_LIST_METHODS_FOR_CHECKOUT (sync): Optionally triggered when cached external shipping methods are invalid.
+> - CHECKOUT_FILTER_SHIPPING_METHODS (sync): Optionally triggered when cached filtered shipping methods are invalid.
+> - CHECKOUT_CALCULATE_TAXES (sync): Optionally triggered when checkout prices are expired.
+> - ORDER_CREATED (async): Triggered when order is created.
+> - NOTIFY_USER (async): A notification for order placement.
+> - NOTIFY_USER (async): A staff notification for order placement.
+> - ORDER_UPDATED (async): Triggered when order received the update after placement.
+> - ORDER_PAID (async): Triggered when newly created order is paid.
+> - ORDER_FULLY_PAID (async): Triggered when newly created order is fully paid.
+> - ORDER_CONFIRMED (async): Optionally triggered when newly created order are automatically marked as confirmed.

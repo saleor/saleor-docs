@@ -88,6 +88,7 @@ type User implements Node, ObjectWithMetadata {
   lastName: String!
   isStaff: Boolean!
   isActive: Boolean!
+  isConfirmed: Boolean!
   addresses: [Address!]!
   checkout: Checkout @deprecated
   checkoutTokens(channel: String): [UUID!] @deprecated
@@ -119,6 +120,7 @@ type User implements Node, ObjectWithMetadata {
   lastLogin: DateTime
   dateJoined: DateTime!
   updatedAt: DateTime!
+  storedPaymentMethods(channel: String!): [StoredPaymentMethod!]
 }
 ```
 
@@ -126,7 +128,7 @@ type User implements Node, ObjectWithMetadata {
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>id</b></code>](#)<Bullet />[`ID!`](../../../api-storefront/miscellaneous/scalars/id) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
 
->
+> The ID of the user.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>privateMetadata</b></code>](#)<Bullet />[`[MetadataItem!]!`](../../../api-storefront/miscellaneous/objects/metadata-item) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="object"/>
 
@@ -140,8 +142,6 @@ type User implements Node, ObjectWithMetadata {
 >
 > <Badge text="Added in Saleor 3.3" class="secondary margin-bottom--sm" />
 >
-> <FeaturePreview />
->
 > ##### [<code style={{ fontWeight: 'normal' }}>User.privateMetafield.<b>key</b></code>](#)<Bullet />[`String!`](../../../api-storefront/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>privateMetafields</b></code>](#)<Bullet />[`Metadata`](../../../api-storefront/miscellaneous/scalars/metadata) <Badge class="badge badge--secondary" text="scalar"/>
@@ -149,8 +149,6 @@ type User implements Node, ObjectWithMetadata {
 > Private metadata. Requires staff permissions to access. Use `keys` to control which fields you want to include. The default is to include everything.
 >
 > <Badge text="Added in Saleor 3.3" class="secondary margin-bottom--sm" />
->
-> <FeaturePreview />
 >
 > ##### [<code style={{ fontWeight: 'normal' }}>User.privateMetafields.<b>keys</b></code>](#)<Bullet />[`[String!]`](../../../api-storefront/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="list"/> <Badge class="badge badge--secondary" text="scalar"/>
 
@@ -166,8 +164,6 @@ type User implements Node, ObjectWithMetadata {
 >
 > <Badge text="Added in Saleor 3.3" class="secondary margin-bottom--sm" />
 >
-> <FeaturePreview />
->
 > ##### [<code style={{ fontWeight: 'normal' }}>User.metafield.<b>key</b></code>](#)<Bullet />[`String!`](../../../api-storefront/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>metafields</b></code>](#)<Bullet />[`Metadata`](../../../api-storefront/miscellaneous/scalars/metadata) <Badge class="badge badge--secondary" text="scalar"/>
@@ -176,29 +172,33 @@ type User implements Node, ObjectWithMetadata {
 >
 > <Badge text="Added in Saleor 3.3" class="secondary margin-bottom--sm" />
 >
-> <FeaturePreview />
->
 > ##### [<code style={{ fontWeight: 'normal' }}>User.metafields.<b>keys</b></code>](#)<Bullet />[`[String!]`](../../../api-storefront/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="list"/> <Badge class="badge badge--secondary" text="scalar"/>
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>email</b></code>](#)<Bullet />[`String!`](../../../api-storefront/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
 
->
+> The email address of the user.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>firstName</b></code>](#)<Bullet />[`String!`](../../../api-storefront/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
 
->
+> The given name of the address.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>lastName</b></code>](#)<Bullet />[`String!`](../../../api-storefront/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
 
->
+> The family name of the address.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>isStaff</b></code>](#)<Bullet />[`Boolean!`](../../../api-storefront/miscellaneous/scalars/boolean) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
 
->
+> Determine if the user is a staff admin.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>isActive</b></code>](#)<Bullet />[`Boolean!`](../../../api-storefront/miscellaneous/scalars/boolean) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
 
+> Determine if the user is active.
+
+#### [<code style={{ fontWeight: 'normal' }}>User.<b>isConfirmed</b></code>](#)<Bullet />[`Boolean!`](../../../api-storefront/miscellaneous/scalars/boolean) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
+
+> Determines if user has confirmed email.
 >
+> <Badge text="Added in Saleor 3.15" class="secondary margin-bottom--sm" />
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>addresses</b></code>](#)<Bullet />[`[Address!]!`](../../../api-storefront/users/objects/address) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="object"/>
 
@@ -308,6 +308,8 @@ type User implements Node, ObjectWithMetadata {
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>avatar</b></code>](#)<Bullet />[`Image`](../../../api-storefront/miscellaneous/objects/image) <Badge class="badge badge--secondary" text="object"/>
 
+> The avatar of the user.
+>
 > ##### [<code style={{ fontWeight: 'normal' }}>User.avatar.<b>size</b></code>](#)<Bullet />[`Int`](../../../api-storefront/miscellaneous/scalars/int) <Badge class="badge badge--secondary" text="scalar"/>
 >
 > Desired longest side the image in pixels. Defaults to 4096. Images are never cropped. Pass 0 to retrieve the original size (not recommended).
@@ -320,7 +322,7 @@ type User implements Node, ObjectWithMetadata {
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>storedPaymentSources</b></code>](#)<Bullet />[`[PaymentSource!]`](../../../api-storefront/payments/objects/payment-source) <Badge class="badge badge--secondary" text="list"/> <Badge class="badge badge--secondary" text="object"/>
 
-> List of stored payment sources.
+> List of stored payment sources. The field returns a list of payment sources stored for payment plugins.
 >
 > ##### [<code style={{ fontWeight: 'normal' }}>User.storedPaymentSources.<b>channel</b></code>](#)<Bullet />[`String`](../../../api-storefront/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="scalar"/>
 >
@@ -332,11 +334,11 @@ type User implements Node, ObjectWithMetadata {
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>defaultShippingAddress</b></code>](#)<Bullet />[`Address`](../../../api-storefront/users/objects/address) <Badge class="badge badge--secondary" text="object"/>
 
->
+> The default shipping address of the user.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>defaultBillingAddress</b></code>](#)<Bullet />[`Address`](../../../api-storefront/users/objects/address) <Badge class="badge badge--secondary" text="object"/>
 
->
+> The default billing address of the user.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>externalReference</b></code>](#)<Bullet />[`String`](../../../api-storefront/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="scalar"/>
 
@@ -346,15 +348,27 @@ type User implements Node, ObjectWithMetadata {
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>lastLogin</b></code>](#)<Bullet />[`DateTime`](../../../api-storefront/miscellaneous/scalars/date-time) <Badge class="badge badge--secondary" text="scalar"/>
 
->
+> The date when the user last time log in to the system.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>dateJoined</b></code>](#)<Bullet />[`DateTime!`](../../../api-storefront/miscellaneous/scalars/date-time) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
 
->
+> The data when the user create account.
 
 #### [<code style={{ fontWeight: 'normal' }}>User.<b>updatedAt</b></code>](#)<Bullet />[`DateTime!`](../../../api-storefront/miscellaneous/scalars/date-time) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
 
+> The data when the user last update the account information.
+
+#### [<code style={{ fontWeight: 'normal' }}>User.<b>storedPaymentMethods</b></code>](#)<Bullet />[`[StoredPaymentMethod!]`](../../../api-storefront/payments/objects/stored-payment-method) <Badge class="badge badge--secondary" text="list"/> <Badge class="badge badge--secondary" text="object"/>
+
+> Returns a list of user's stored payment methods that can be used in provided channel. The field returns a list of stored payment methods by payment apps. When `amount` is not provided, 0 will be used as default value.
 >
+> <Badge text="Added in Saleor 3.15" class="secondary margin-bottom--sm" />
+>
+> <FeaturePreview />
+>
+> ##### [<code style={{ fontWeight: 'normal' }}>User.storedPaymentMethods.<b>channel</b></code>](#)<Bullet />[`String!`](../../../api-storefront/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/>
+>
+> Slug of a channel for which the data should be returned.
 
 ### Interfaces
 
