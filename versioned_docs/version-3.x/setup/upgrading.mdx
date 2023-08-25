@@ -2,6 +2,8 @@
 title: Upgrading Saleor
 ---
 
+## General upgrading steps
+
 No matter how you choose to install the software, you will need to upgrade it from time to time. Follow these steps to upgrade your installation:
 
 1. Download the latest release of Saleor and make sure it's connected to the same database that your existing installation was using.
@@ -25,3 +27,40 @@ No matter how you choose to install the software, you will need to upgrade it fr
 5. Start the Celery workers again.
 
 For instructions specific to upgrading between particular versions, see the [upgrade guides](../upgrade-guides/2-11-to-3-0).
+
+## Upgrading with zero-downtime
+
+For general knowledge of how zero-downtime migrations work, please check [writing zero-downtime migrations](docs/developer/community/zero-downtime-migrations.mdx).
+
+Zero-downtime migrations can only be achieved by upgrading Saleor minor version by minor version, that means, to upgrade Saleor from version 3.11 to 3.13, you need first upgrade your workers
+to version 3.12, then proceed with upgrading to version 3.13. By upgrading from version 3.11 directly to 3.13 you will not follow zero-downtime policy.
+
+The exact steps needed to be done:
+
+- Upgrade your current minor version to the newest patch of Saleor of that version, to do so follow [general steps](#general-upgrading-steps).
+
+- Upgrade your current minor version of Saleor to the next one. Again, remember to follow the steps stated in [general steps](#general-upgrading-steps).
+
+### Troubleshooting: Migration with Celery task fails
+
+It's safe to rerun failed migration tasks in case of an error. To do that, you can for example start a task from the Django shell:
+
+```bash
+python manage.py shell
+```
+
+And inside the shell just import the task and schedule it, e.g.:
+
+```python
+from saleor.order.migrations.tasks import task
+task.delay()
+```
+
+### Troubleshooting: Adding a new index fails
+
+Adding the index concurrently to the database can fail. The recommended recovery method in such a scenario will be:
+
+1. Drop indexes that were added in failed migration, if they exist in the database as concurrent index building can result in adding the index that will be marked as `INVALID`.
+   To check if the index is marked as `INVALID` you can use `psql \d` command, e.g. to check indexes of Order you can run `\d public.order_order`.
+2. Rerun the migration.
+3. Run again command `psql \d table` to check if indexes are added correctly. The index will be considered correct if is **not** `INVALID`

@@ -158,14 +158,15 @@ The [data](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#code-
 [data](api-reference/payments/objects/transaction-initialize.mdx#code-style-fontweight-normal-transactioninitializebdatabcodejson--) received from the app as a response.
 Based on the Payment App's response, Saleor will create or update the transaction with the appropriate status.
 
-The [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation requires the following arguments:
+The [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation accepts the following arguments:
 
 - `id` - ID of the `Checkout` or `Order`.
 - `paymentGateway` - The payment gateway used to initiate payment processing.
 - `paymentGateway.id` - The identifier of the payment gateway app.
 - `paymentGateway.data` - The data to be passed to the payment gateway.
-- `action` - The expected action called for the transaction. By default, the `channel.defaultTransactionFlowStrategy` will be used. This field can be used only by an app that has `HANDLE_PAYMENTS` permission.
 - `amount` - The amount requested for the payment. If not provided, the difference between `checkout.total` and transactions that are already processed will be sent.
+- `action` - The expected action called for the transaction. By default, the `channel.defaultTransactionFlowStrategy` will be used. This field can be used only by an app that has `HANDLE_PAYMENTS` permission.
+- `customerIpAddress` - The customer's IP address. If not provided Saleor will try to determine the customer's IP address on its own. The customer's IP address will be passed to the payment app. The IP should be in ipv4 or ipv6 format. The field can be used only by an app that has `HANDLE_PAYMENTS` permission. This field was introduced in **Saleor 3.16**.
 
 The [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx) mutation returns the following response:
 
@@ -241,10 +242,11 @@ If [transactionInitialize](api-reference/payments/mutations/transaction-initiali
 returns `transactionEvent.type` equal to [AUTHORIZATION_ACTION_REQUIRED](api-reference/payments/enums/transaction-event-type-enum.mdx#code-style-fontweight-normal-transactioneventtypeenumbauthorization_action_requiredbcode)
 or [CHARGE_ACTION_REQUIRED](api-reference/payments/enums/transaction-event-type-enum.mdx#code-style-fontweight-normal-transactioneventtypeenumbcharge_action_requiredbcode), additional steps from the customer are required. To provide the app with the result of the additional action, call the [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation.
 
-The [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation requires the following arguments:
+The [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation accepts the following arguments:
 
 - `id` - The ID of the transaction returned by [transactionInitialize](api-reference/payments/mutations/transaction-initialize.mdx).
 - `data` - The data to be passed to the payment gateway.
+- `customerIpAddress` - The customer's IP address. If not provided Saleor will try to determine the customer's IP address on its own. The customer's IP address will be passed to the payment app. The IP should be in ipv4 or ipv6 format. The field can be used only by an app that has `HANDLE_PAYMENTS` permission. This field was introduced in **Saleor 3.16**.
 
 The [transactionProcess](api-reference/payments/mutations/transaction-process.mdx) mutation returns:
 
