@@ -21,6 +21,7 @@ module.exports = {
             "developer/checkout/lines",
             "developer/checkout/stock",
             "developer/checkout/address",
+            "developer/checkout/problems",
             "developer/checkout/finalizing",
             "developer/checkout/order-to-checkout",
           ],
