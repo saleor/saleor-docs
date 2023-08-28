@@ -2,7 +2,258 @@
 title: Creating order
 ---
 
+## Finalizing checkout with Saleor App
+
+The flow where the payment process is handled by a Saleor App.
+Saleor expects to receive a result of the payment transaction processed by the Saleor App.
+
+There are two ways to process payments with the Saleor app:
+
+- Using Payment Apps (recommended): The communication between the storefront and the payment app goes through
+  Saleor. Based on the responses from the payment provider, Saleor creates or updates transactions with the [proper statuses and balances automatically](developer/payments.mdx#recalculations-of-transaction-amounts).
+  The API is public and can be accessed by the storefront directly.
+- Using a custom app: Storefront communicated with your App directly. The app handles the payment process and must update balances and statuses in Saleor. Moreover, it's also responsible for creating an order by
+  using the `orderCreateFromCheckout` API. The API is protected and requires an app token.
+
+Both flows support partial payments and two distinct ways of processing checkouts: "first payments, then order" and "first order, then payments".
+
+### Using the Payment app
+
+:::info
+
+This feature was introduced in **Saleor 3.13**.
+
+:::
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+
+The flow of communication between the storefront and the Payment App goes through Saleor. Based on the response, Saleor creates or updates the transaction with the proper status and balance, and returns it to the frontend.
+
+The diagram below shows the workflow of a checkout process with a payment app:
+
+```mermaid
+sequenceDiagram
+  Front->>+Saleor: Fetch <br>checkout.availablePaymentGateways
+  Saleor -->>- Front: List of the paymentGatewyas<br> with included payment app
+  Front ->>+ Saleor: Mutation paymentGatewayInitialize,<br>amount, list of<br>payment gateways IDs<br>to initialize and <br>data, if<br>old ID provided, return<br>error
+  Saleor ->>+ PaymentApp: payment-gateway-initialize-session<br>webhook
+  PaymentApp ->>+ PaymentProvider: Initialize payment gateway
+  PaymentProvider -->>- PaymentApp: Data mandatory to<br>initialize the payment<br>on fronted
+  PaymentApp -->>- Saleor: PaymentGateway data with config
+  Saleor -->>- Front: List of PaymentGateways
+  Front ->>+ Saleor: TransactionInitialize<br> with amount and<br>payment gateway ID, data
+  Saleor ->> Saleor: Create TransactionItem
+  Saleor ->> Saleor: Request TransactionEvent created
+  Saleor ->>+ PaymentApp: webhook transaction-initialize-session
+  PaymentApp ->>+ PaymentProvider: Initialize the payment
+  PaymentProvider -->>- PaymentApp: Additional action from<br>customer required to finalize<br>the payment
+  PaymentApp -->>- Saleor: mandatory data for processing<br>payment on the frontend
+  Saleor ->> Saleor: TransactionEvent <br>created/TransactionEvent<br>request updated
+  Saleor -->>- Front: TransactionItem and payment details
+  Front ->>+ PaymentProvider: Process a payment
+  PaymentProvider -->>- Front: additional action required
+  Front ->>+ Saleor: TransactionProcess
+  Saleor ->>+ PaymentApp: transaction-process-session webhook
+  PaymentApp ->>+ PaymentProvider: Additional action details
+  PaymentProvider -->>- PaymentApp: Payment processed
+  PaymentApp -->>- Saleor: success
+  Saleor ->> Saleor: Create the TransactionEvent
+  Saleor -->>- Front: Return success
+  Front ->>+ Saleor: call checkoutComplete
+  Saleor -->>- Front: Order created
+```
+
+#### Processing a payment
+
+All details related to processing and managing payments can be found [here](developer/payments.mdx#processing-a-payment-with-payment-app)
+
+:::note
+When the checkout is fully paid, the webhook [CHECKOUT_FULLY_PAID](api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#code-style-fontweight-normal-webhookeventtypeasyncenumbcheckout_fully_paidbcode) will be triggered.
+:::
+
+#### Completing the checkout
+
+The purpose of the operation is to ensure this checkout is correct. The validation consists of checking:
+
+1. The required addresses are valid.
+
+2. All selected products are in stock (while making the purchase, another user could already buy the last available item).
+
+3. The payments are processed
+
+If these are satisfied, the checkout is transformed into an order, and the customer receives a confirmation email.
+
+The [`checkoutComplete`](api-reference/checkout/mutations/checkout-complete.mdx) mutation requires the following input:
+
+- `id`: the ID of the checkout to complete
+
+It returns the following output:
+
+- `order`: an `Order` object created from the checkout object.
+- `errors`: a list of errors that occurred during mutation execution.
+
+Here is the example of a complete mutation:
+
+```graphql {2-4}
+mutation {
+  checkoutComplete(
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+  ) {
+    order {
+      id
+      status
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+A successful response would look like this:
+
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6MjU=",
+        "status": "UNFULFILLED"
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+### Using the Checkout app
+
+The flow where the payment process is handled by an external Saleor App such as [saleor-checkout](https://github.com/saleor/react-storefront/tree/canary/apps/checkout).
+
+:::note
+This flow is recommended when the implemented checkout has custom steps that need to be handled before creating
+the order or when you expect that the order needs to be created first.
+:::
+
+The below charts show the workflow of a checkout process.
+
+#### Case: Creating order before processing payment
+
+```mermaid
+sequenceDiagram
+    Customer->>+Checkout App: Finalize an order
+    Checkout App ->>+ Saleor: Create order from checkout
+    Saleor -->>- Checkout App: Unpaid order
+    Checkout App-->>-Customer: Order
+    Customer ->>+ Checkout App: Process payment
+    Checkout App ->>+ Payment provider: Process payment for order
+    Payment provider -->>- Checkout App: Payment with proper status
+    Checkout App ->>+ Saleor: Create transaction for order
+    Saleor -->>- Checkout App: Transaction created and <br>attached to order
+    Checkout App -->>- Customer: Order paid
+```
+
+#### Case: Processing payment before creating an order
+
+```mermaid
+sequenceDiagram
+    Customer ->>+ Checkout App: Process payment
+    Checkout App ->>+ Payment provider: Process payment for checkout
+    Payment provider -->>- Checkout App: Payment with proper status
+    Checkout App ->>+ Saleor: Create transaction for checkout
+    Saleor -->>- Checkout App: Transaction created and <br>attached to checkout
+    Checkout App -->>- Customer: Payment paid
+    Customer->>+Checkout App: Conver checkout into an order
+    Checkout App ->>+ Saleor: Create order from checkout
+    Saleor ->> Saleor: Attach checkout's transactions to order
+    Saleor -->>- Checkout App: Paid order
+    Checkout App-->>-Customer: Order
+```
+
+#### Creating order from checkout
+
+:::info
+
+This feature was introduced in **Saleor 3.2**.
+
+:::
+
+Pre-requirements for creating an order from checkout:
+
+- The required addresses are valid.
+- The shipping method is valid (if required).
+- All selected products are in stock.
+
+If these are satisfied, the checkout is transformed into an order, and the customer receives a confirmation email.
+The operation requires the `HANDLE_CHECKOUTS` permission and can be called only by the App. Calling `checkoutPaymentCreate` and `checkoutComplete` is not needed for this approach.
+The created order can be marked as a paid by staff customer/app with the `MANAGE_ORDERS` permission.
+
+The chart below shows a proposed flow where this operation can be used.
+
+```mermaid
+sequenceDiagram
+    Customer->>+Checkout App: Finalize an order
+    Checkout App ->>+ Saleor: Create order from checkout
+    Saleor -->>- Checkout App: Unpaid order
+    Checkout App-->>-Customer: Order
+```
+
+The [orderCreateFromCheckout](api-reference/orders/mutations/order-create-from-checkout.mdx) mutation takes the following arguments:
+
+- `id`: The ID of the checkout that should be used to create a new order.
+- `removeCheckout`: Determines if checkout should be removed after creating an order. Default `true`.
+
+The following example shows how the [orderCreateFromCheckout](api-reference/orders/mutations/order-create-from-checkout.mdx) mutation creates a new order and removes the checkout.
+
+```graphql
+mutation {
+  orderCreateFromCheckout(
+    id: "Q2hlY2tvdXQ6YTcxYjRjZDQtNzI1NS00ZjAyLWEzOTEtMDQxYWQ0MmNjZWNk"
+    removeCheckout: true
+  ) {
+    order {
+      id
+    }
+  }
+}
+```
+
+As a result, we get an order object:
+
+```json
+{
+  "data": {
+    "orderFromCheckoutCreate": {
+      "order": {
+        "id": "T3JkZXI6MjI="
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+#### Managing payments
+
+Saleor uses transaction flow to manage the payments attached to the checkout by Saleor apps.
+You can find more details about it [here](developer/payments.mdx#processing-a-payment-with-checkout-app).
+
 ## Finalizing checkout with Saleor's payment gateways
+
+:::caution
+We are in the process of deprecating payment plugins (payment gateways) in favor of [Payment Apps](developer/payments.mdx). If you plan on building a new integration with Saleor, we recommend using Payment Apps instead.
+:::
 
 The payment flow uses the Saleor's payment gateway or payment synchronous webhooks to process a payment.
 
@@ -319,255 +570,3 @@ Here are the example scenarios that may end up with payment refunding:
 - the processed payment became inactive
 
 :::
-
-## Finalizing checkout with Saleor App
-
-The flow where the payment process is handled by an external Saleor App.
-Saleor expects to receive a result of the payment transaction processed by Saleor App.
-
-There are two ways to process payments with the Saleor app:
-
-- Using the Checkout app: This external app handles the payment process and creates an order by
-  using the `orderCreateFromCheckout` API. The API is protected and requires an app token.
-  This flow supports two ways of processing checkout: first payments, then order and first order,
-  then payments. It also supports partial payments.
-
-- Using the Payment app: The communication between the storefront and payment app goes through
-  Saleor. Based on the response, Saleor creates or updates the transaction with the proper status.
-  The API is public. This flow allows you to handle the checkout process when payments are processed
-  first, then the order is created. It also supports partial payments.
-
-### Using the Payment app
-
-:::info
-
-This feature was introduced in **Saleor 3.13**.
-
-:::
-:::caution
-
-This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
-feedback. However, it is still undergoing development and is subject to modifications.
-
-:::
-
-:::info
-This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#code-style-fontweight-normal-apptypeenumbthirdpartybcode) apps.
-:::
-
-The flow of communication between the storefront and payment app goes through Saleor. Based on the response, Saleor creates or updates the transaction with the proper status and returns them to the frontend.
-
-The diagram below shows the workflow of a checkout process with a payment app:
-
-```mermaid
-sequenceDiagram
-  Front->>+Saleor: Fetch <br>checkout.availablePaymentGateways
-  Saleor -->>- Front: List of the paymentGatewyas<br> with included payment app
-  Front ->>+ Saleor: Mutation paymentGatewayInitialize,<br>amount, list of<br>payment gateways IDs<br>to initialize and <br>data, if<br>old ID provided, return<br>error
-  Saleor ->>+ PaymentApp: payment-gateway-initialize-session<br>webhook
-  PaymentApp ->>+ PaymentProvider: Initialize payment gateway
-  PaymentProvider -->>- PaymentApp: Data mandatory to<br>initialize the payment<br>on fronted
-  PaymentApp -->>- Saleor: PaymentGateway data with config
-  Saleor -->>- Front: List of PaymentGateways
-  Front ->>+ Saleor: TransactionInitialize<br> with amount and<br>payment gateway ID, data
-  Saleor ->> Saleor: Create TransactionItem
-  Saleor ->> Saleor: Request TransactionEvent created
-  Saleor ->>+ PaymentApp: webhook transaction-initialize-session
-  PaymentApp ->>+ PaymentProvider: Initialize the payment
-  PaymentProvider -->>- PaymentApp: Additional action from<br>customer required to finalize<br>the payment
-  PaymentApp -->>- Saleor: mandatory data for processing<br>payment on the frontend
-  Saleor ->> Saleor: TransactionEvent <br>created/TransactionEvent<br>request updated
-  Saleor -->>- Front: TransactionItem and payment details
-  Front ->>+ PaymentProvider: Process a payment
-  PaymentProvider -->>- Front: additional action required
-  Front ->>+ Saleor: TransactionProcess
-  Saleor ->>+ PaymentApp: transaction-process-session webhook
-  PaymentApp ->>+ PaymentProvider: Additional action details
-  PaymentProvider -->>- PaymentApp: Payment processed
-  PaymentApp -->>- Saleor: success
-  Saleor ->> Saleor: Create the TransactionEvent
-  Saleor -->>- Front: Return success
-  Front ->>+ Saleor: call checkoutComplete
-  Saleor -->>- Front: Order created
-```
-
-#### Processing a payment
-
-All details related to processing and managing payments can be found [here](developer/payments.mdx#processing-a-payment-with-payment-app)
-
-:::note
-When the checkout is fully paid, the webhook [CHECKOUT_FULLY_PAID](api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#code-style-fontweight-normal-webhookeventtypeasyncenumbcheckout_fully_paidbcode) will be triggered.
-:::
-
-#### Completing the checkout
-
-The purpose of the operation is to ensure this checkout is correct. The validation consists of checking:
-
-1. The required addresses are valid.
-
-2. All selected products are in stock (while making the purchase, another user could already buy the last available item).
-
-3. The payments are processed
-
-If these are satisfied, the checkout is transformed into an order, and the customer receives a confirmation email.
-
-The [`checkoutComplete`](api-reference/checkout/mutations/checkout-complete.mdx) mutation requires the following input:
-
-- `id`: the ID of the checkout to complete
-
-It returns the following output:
-
-- `order`: an `Order` object created from the checkout object.
-- `errors`: a list of errors that occurred during mutation execution.
-
-Here is the example of a complete mutation:
-
-```graphql {2-4}
-mutation {
-  checkoutComplete(
-    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
-  ) {
-    order {
-      id
-      status
-    }
-    errors {
-      field
-      message
-    }
-  }
-}
-```
-
-A successful response would look like this:
-
-```json
-{
-  "data": {
-    "checkoutComplete": {
-      "order": {
-        "id": "T3JkZXI6MjU=",
-        "status": "UNFULFILLED"
-      },
-      "errors": []
-    }
-  }
-}
-```
-
-### Using the Checkout app
-
-The flow where the payment process is handled by an external Saleor App such as [saleor-checkout](https://github.com/saleor/react-storefront/tree/canary/apps/checkout).
-
-:::note
-This flow is recommended when the implemented checkout has custom steps that need to be handled before creating
-the order or when you expect that the order needs to be created first.
-:::
-
-The below charts show the workflow of a checkout process.
-
-#### Case: Creating order before processing payment
-
-```mermaid
-sequenceDiagram
-    Customer->>+Checkout App: Finalize an order
-    Checkout App ->>+ Saleor: Create order from checkout
-    Saleor -->>- Checkout App: Unpaid order
-    Checkout App-->>-Customer: Order
-    Customer ->>+ Checkout App: Process payment
-    Checkout App ->>+ Payment provider: Process payment for order
-    Payment provider -->>- Checkout App: Payment with proper status
-    Checkout App ->>+ Saleor: Create transaction for order
-    Saleor -->>- Checkout App: Transaction created and <br>attached to order
-    Checkout App -->>- Customer: Order paid
-```
-
-#### Case: Processing payment before creating an order
-
-```mermaid
-sequenceDiagram
-    Customer ->>+ Checkout App: Process payment
-    Checkout App ->>+ Payment provider: Process payment for checkout
-    Payment provider -->>- Checkout App: Payment with proper status
-    Checkout App ->>+ Saleor: Create transaction for checkout
-    Saleor -->>- Checkout App: Transaction created and <br>attached to checkout
-    Checkout App -->>- Customer: Payment paid
-    Customer->>+Checkout App: Conver checkout into an order
-    Checkout App ->>+ Saleor: Create order from checkout
-    Saleor ->> Saleor: Attach checkout's transactions to order
-    Saleor -->>- Checkout App: Paid order
-    Checkout App-->>-Customer: Order
-```
-
-#### Creating order from checkout
-
-:::info
-
-This feature was introduced in **Saleor 3.2**.
-
-:::
-
-Pre-requirements for creating an order from checkout:
-
-- The required addresses are valid.
-- The shipping method is valid (if required).
-- All selected products are in stock.
-
-If these are satisfied, the checkout is transformed into an order, and the customer receives a confirmation email.
-The operation requires the `HANDLE_CHECKOUTS` permission and can be called only by the App. Calling `checkoutPaymentCreate` and `checkoutComplete` is not needed for this approach.
-The created order can be marked as a paid by staff customer/app with the `MANAGE_ORDERS` permission.
-
-The chart below shows a proposed flow where this operation can be used.
-
-```mermaid
-sequenceDiagram
-    Customer->>+Checkout App: Finalize an order
-    Checkout App ->>+ Saleor: Create order from checkout
-    Saleor -->>- Checkout App: Unpaid order
-    Checkout App-->>-Customer: Order
-```
-
-The [orderCreateFromCheckout](api-reference/orders/mutations/order-create-from-checkout.mdx) mutation takes the following arguments:
-
-- `id`: The ID of the checkout that should be used to create a new order.
-- `removeCheckout`: Determines if checkout should be removed after creating an order. Default `true`.
-
-The following example shows how the [orderCreateFromCheckout](api-reference/orders/mutations/order-create-from-checkout.mdx) mutation creates a new order and removes the checkout.
-
-```graphql
-mutation {
-  orderCreateFromCheckout(
-    id: "Q2hlY2tvdXQ6YTcxYjRjZDQtNzI1NS00ZjAyLWEzOTEtMDQxYWQ0MmNjZWNk"
-    removeCheckout: true
-  ) {
-    order {
-      id
-    }
-  }
-}
-```
-
-As a result, we get an order object:
-
-```json
-{
-  "data": {
-    "orderFromCheckoutCreate": {
-      "order": {
-        "id": "T3JkZXI6MjI="
-      }
-    }
-  },
-  "extensions": {
-    "cost": {
-      "requestedQueryCost": 0,
-      "maximumAvailable": 50000
-    }
-  }
-}
-```
-
-#### Managing payments
-
-Saleor uses transaction flow to manage the payments attached to the checkout by Saleor apps.
-You can find more details about it [here](developer/payments.mdx#processing-a-payment-with-checkout-app).

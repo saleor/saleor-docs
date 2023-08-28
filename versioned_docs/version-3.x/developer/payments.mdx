@@ -570,7 +570,7 @@ feedback. However, it is still undergoing development and is subject to modifica
 :::
 
 The [transactionEventReport](../api-reference/payments/mutations/transaction-event-report) is used to
-report a new transaction event. The newly created event will be used to [recalculate](#re-calculations-of-transaction-amounts) the transaction's amounts.
+report a new transaction event. The newly created event will be used to [recalculate](#recalculations-of-transaction-amounts) the transaction's amounts.
 The mutation should be used in case of [asynchronously processing the requested action](#handling-an-action-request-for-a-transaction) or reporting any
 changes that happened on the payment provider side.
 
@@ -598,7 +598,7 @@ that happened for a given transaction.
 The report is a success charge action, with 20 as an amount. The currency is the same as declared
 for the transaction. Available action that can proceed for a transaction is `REFUND`.
 The provided data will be used to create a new [TransactionEvent](../api-reference/payments/objects/transaction-event) object that will be included in the
-[re-calculation](#re-calculations-of-transaction-amounts) process.
+[recalculation](#recalculations-of-transaction-amounts) process.
 
 ```graphql
 mutation TransactionEventReport {
@@ -756,9 +756,9 @@ sequenceDiagram
     Saleor -->>- App: Updated transaction
 ```
 
-### Re-calculations of transaction amounts
+### Recalculations of transaction amounts
 
-The re-calculation will differ based on the value of the [TransactionEventTypeEnum](../api-reference/payments/enums/transaction-event-type-enum) provided as the field `type`
+The recalculation will differ based on the value of the [TransactionEventTypeEnum](../api-reference/payments/enums/transaction-event-type-enum) provided as the field `type`
 used in the [transactionEventReport](#reporting-action-for-transaction) [transactionInitialize](#initialize-transaction), [transactionProcess](#process-transaction) mutations, [optionally in the webhook response](extending/webhooks/synchronous-events/transaction):
 
 #### Event type explanation
@@ -772,7 +772,7 @@ Each successful request after the first one will raise an exception. `AUTHORIZAT
 
 :::info
 In the case of finding `AUTHORIZATION_SUCCESS` and `AUTHORIZATION_FAILURE` with the same `pspReference`,
-the re-calculation for `transaction.authorizedAmount` will not take into account the amount from
+the recalculation for `transaction.authorizedAmount` will not take into account the amount from
 `AUTHORIZATION_SUCCESS`, when `AUTHORIZATION_SUCCESS` is the older one.
 :::
 
@@ -793,7 +793,7 @@ Adds the provided `amount` to the `transaction.chargedAmount`. Each next call wi
 will be reduced by the amount reported in the `CHARGE_SUCCESS` event. If there is no related `CHARGE_REQUEST` event, the provided `amount` will reduce `transaction.authorizedAmount`.
 
 :::info
-In the case of finding `CHARGE_SUCCESS` and `CHARGE_FAILURE` with the same `pspReference`, the re-calculation
+In the case of finding `CHARGE_SUCCESS` and `CHARGE_FAILURE` with the same `pspReference`, the recalculation
 for `transaction.chargedAmount` will not take into account the amount from `CHARGE_SUCCESS`, when
 `CHARGE_SUCCESS` is the older one.
 :::
@@ -816,7 +816,7 @@ Adds provided `amount` to `transaction.refundedAmount`. Each next call will add 
 will be reduced by the amount reported in the `REFUND_SUCCESS` event. If there is no related `REFUND_REQUEST` event, the provided `amount` will reduce `transaction.chargedAmount`.
 
 :::info
-In the case of finding `REFUND_SUCCESS` and `REFUND_FAILURE` with the same `pspReference`, the re-calculation
+In the case of finding `REFUND_SUCCESS` and `REFUND_FAILURE` with the same `pspReference`, the recalculation
 for `transaction.refundedAmount` will not take into account the amount from `REFUND_SUCCESS`, when
 `REFUND_SUCCESS` is the older one.
 :::
@@ -839,7 +839,7 @@ The provided `amount` will be added to `transaction.canceledAmount`
 will be reduced by the amount reported in the `CANCEL_SUCCESS` event. If there is no related `CANCEL_REQUEST` event, the provided `amount` will reduce `transaction.authorizedAmount`.
 
 :::info
-In the case of finding `CANCEL_SUCCESS` and `CANCEL_FAILURE` with the same `pspReference`, the re-calculation
+In the case of finding `CANCEL_SUCCESS` and `CANCEL_FAILURE` with the same `pspReference`, the recalculation
 for `transaction.canceledAmount` will not take into account the amount from `CANCEL_SUCCESS`, when
 `CANCEL_SUCCESS` is the older one.
 :::
@@ -850,7 +850,7 @@ If an `CANCEL_FAILURE` event is related to an `CANCEL_REQUEST` event by `pspRefe
 will be reduced by the amount reported in the `CANCEL_FAILURE` event. If there is no related `CANCEL_REQUEST`, the failure event will only
 be used to provide the history of `transactionItem` actions.
 
-#### Example of re-calculations
+#### Example of recalculations
 
 The tables below show examples of transactions and their amounts when a given event is attached to the transaction.
 Depending on the event type, the amounts may change. The last columns show the current amounts assigned to the transaction after
@@ -918,7 +918,7 @@ Additionally, a `CHARGE_REQUEST` event is added to the transaction, and its amou
 The `transaction.authorizedAmount` is reduced by the amount from the `CHARGE_REQUEST` event.
 Finally, when a `CHARGE_SUCCESS` event occurs, the `transaction.chargedAmount` is updated with the event's amount, and the
 `transaction.chargePendingAmount` is reduced by the same amount. A `CHARGE_FAILURE` event with the same `pspReference` as `CHARGE_SUCCESS` is
-also attached to the transaction, `time` indicating that it is newer than the `CHARGE_SUCCESS`. The previous `CHARGE_SUCCESS` event is ignored during the re-calculation process.
+also attached to the transaction, `time` indicating that it is newer than the `CHARGE_SUCCESS`. The previous `CHARGE_SUCCESS` event is ignored during the recalculation process.
 
 ---
 
