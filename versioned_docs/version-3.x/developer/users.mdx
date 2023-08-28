@@ -15,20 +15,30 @@ User accounts are not restricted to a single channel. So, for example, a user re
 
 ## Creating a new customer account
 
-Depending on the configuration of your Saleor backend instance, registering a new customer account may be a single-step operation, or it may require email confirmation to activate the account (see [`ENABLE_ACCOUNT_CONFIRMATION_BY_EMAIL`](setup/configuration.mdx#enable_account_confirmation_by_email)).
+Depending on the configuration of your Saleor backend instance, registering a new customer account may be a single-step operation, or it may require email confirmation when the flag
+[`enableAccountConfirmationByEmail`](api-reference/miscellaneous/objects/shop.mdx#code-style-fontweight-normal-shopbenableaccountconfirmationbyemailbcodeboolean-) is set to `True`
+When `enableAccountConfirmationByEmail` is set to `True` you can now configure one of the following flows by setting a flag
+[`allowLoginWithoutConfirmation`](api-reference/miscellaneous/objects/shop.mdx#code-style-fontweight-normal-shopballowloginwithoutconfirmationbcodeboolean-):
+
+- allow users to log in without email confirmation
+- users can only log in after confirming their email
 
 ```mermaid
 graph TD
-  R([Register an account]) --> CR{Activation required?}
+  R([Register an account]) --> CR{Confirmation by email enabled?}
   CR -->|No| A([New account is active])
-  CR -->|Yes| E[Ask user to check their email]
-  E -.-|User clicks link with token| C[Confirm account using token]
+  CR --> |Yes| AL{Allow to log in without confirmation?}
+  AL --> |Yes| ANC([New account is active but not confirmed])
+  CR -->|No| E[Ask user to check their email]
+  E -.-|User clicks link with token| CA[Confirm account using token]
+  CA --> C([New account is confirmed])
   C --> A
+  ANC --> E
 ```
 
 ### Previous orders
 
-When an account is activated, existing anonymous orders using the same email address are automatically assigned to the new account.
+When an account is confirmed, existing anonymous orders using the same email address are automatically assigned to the new account.
 
 ### Registration without email confirmation
 
@@ -54,6 +64,7 @@ mutation {
     user {
       email
       isActive
+      isConfirmed
     }
   }
 }
@@ -68,14 +79,19 @@ As a result, we get the data of the newly created user:
       "errors": [],
       "user": {
         "email": "customer@example.com",
-        "isActive": true
+        "isActive": true,
+        "isConfirmed": false
       }
     }
   }
 }
 ```
 
-The `isActive` flag informs that the account is active and the user can log in to their account.
+The [`isActive`](api-reference/users/objects/user.mdx#code-style-fontweight-normal-userbisactivebcodeboolean--) flag informs that the account is active. If `active` is set to `False` the user can never log in.
+
+The [`isConfirmed`](api-reference/users/objects/user.mdx#code-style-fontweight-normal-userbisconfirmedbcodeboolean--) flag set to `false` means that the account was not confirmed. When you have disabled
+[`enableAccountConfirmationByEmail`](api-reference/miscellaneous/objects/shop.mdx#code-style-fontweight-normal-shopbenableaccountconfirmationbyemailbcodeboolean-), `isConfirmed` doesn't hold any meaning for users, they are treated as confirmed.
+The only difference is that in the confirmation flow, the user can get access to past orders, see [Previous orders](#previous-orders).
 
 Examples above include `errors` field, which may return any [data-level errors](api-usage/error-handling.mdx#data-level-errors). Here is a response that would be returned if there is already an account registered for the given email:
 
@@ -125,6 +141,7 @@ mutation {
     user {
       email
       isActive
+      isConfirmed
     }
   }
 }
@@ -139,7 +156,8 @@ As a result, we get the data of the newly created but yet inactive user:
       "errors": [],
       "user": {
         "email": "customer@example.com",
-        "isActive": false
+        "isActive": true,
+        "isConfirmed": false
       }
     }
   }
@@ -167,12 +185,13 @@ mutation {
     user {
       email
       isActive
+      isConfirmed
     }
   }
 }
 ```
 
-If the token is valid, the user will be successfully activated:
+If the token is valid, the user will be successfully confirmed:
 
 ```json
 {
@@ -181,7 +200,79 @@ If the token is valid, the user will be successfully activated:
       "errors": [],
       "user": {
         "email": "customer@example.com",
-        "isActive": true
+        "isActive": true,
+        "isConfirmed": true
+      }
+    }
+  }
+}
+```
+
+## Re-requesting email confirmation
+
+Resending email confirmation requires you to have a storefront view, where users will be redirected to confirm their email.
+You need to use the `sendConfirmationEmail` mutation to send an email with the confirmation link.
+The mutation takes the following input fields:
+
+- `redirectUrl`: path to a view where the user should be redirected to confirm their email.
+- `channel`: the slug of the channel used to sign up.
+
+This example assumes that you're running the storefront locally with the default settings (running on port `3001`):
+
+```graphql {2-8}
+mutation {
+  sendConfirmationEmail(
+    redirectUrl: "http://localhost:3001/account-confirm/"
+    channel: "default-channel"
+  ) {
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+
+This mutation requires the caller to be [authenticated](api-usage/authentication.mdx).
+
+At the same time, the authenticated user should receive an email with a confirmation link based on the provided `redirectUrl` path, for example:
+
+```
+http://localhost:3001/account-confirm/?email=customer%40example.com&token=5fc-9f2116f96bdafd612cf4
+```
+
+The link contains two query parameters—`email` and `token` — which are required to proceed with the second mutation, `confirmAccount`:
+
+```graphql {2-5}
+mutation {
+  confirmAccount(
+    email: "customer@example.com"
+    token: "5fc-9f2116f96bdafd612cf4"
+  ) {
+    errors {
+      field
+      code
+    }
+    user {
+      email
+      isActive
+      isConfirmed
+    }
+  }
+}
+```
+
+If the token is valid, the user will be successfully confirmed:
+
+```json
+{
+  "data": {
+    "confirmAccount": {
+      "errors": [],
+      "user": {
+        "email": "customer@example.com",
+        "isActive": true,
+        "isConfirmed": true
       }
     }
   }

@@ -1,0 +1,117 @@
+---
+title: Stored payment method events
+---
+
+# Introduction
+
+:::caution
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+:::
+
+A stored payment method is a payment method that can be used later by customers without providing all payment details.
+Saleor has synchronous webhooks that allow delegating the stored payment methods management to payment apps.
+
+## Key concepts
+
+The `HANDLE_PAYMENTS` permission is required for the App to receive store payment method webhooks.
+
+The usage of the webhook is strictly related to the usage of stored payment method.
+You can find more details about it in the [_Stored Payment Methods_](../../../payments#stored-payment-methods).
+
+:::info
+
+This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#code-style-fontweight-normal-apptypeenumbthirdpartybcode) apps.
+
+:::
+
+## List stored payment methods
+
+`LIST_STORED_PAYMENT_METHODS`
+
+:::info
+
+This feature was introduced in **Saleor 3.15**.
+
+:::
+
+A synchronous webhook is called when the user wants to fetch stored payment methods. Triggered when a
+customer requested a field [User.storedPaymentMethod](api-storefront/users/objects/user.mdx#code-style-fontweight-normal-userbstoredpaymentmethodsbcodestoredpaymentmethod--), [checkout.storedPaymentMethods](api-storefront/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbstoredpaymentmethodsbcodestoredpaymentmethod--).
+
+The webhook expects to return a list of payment methods that are assigned to the customer. The payment
+methods from the webhook response will be returned as a response for [User.storedPaymentMethod](api-storefront/users/objects/user.mdx#code-style-fontweight-normal-userbstoredpaymentmethodsbcodestoredpaymentmethod--), [checkout.storedPaymentMethods](api-storefront/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbstoredpaymentmethodsbcodestoredpaymentmethod--) fields.
+
+:::info
+
+To reduce the number of HTTP requests triggered to the payment app, the response is cached on
+Saleor side. Saleor will trigger a new request when the cache expires or becomes invalid.
+
+:::
+
+### Request
+
+Saleor will send a
+[LIST_STORED_PAYMENT_METHODS](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
+webhook by using the [ListStoredPaymentMethods](api-reference/payments/objects/list-stored-payment-methods.mdx) subscription type or with a pre-defined payload in case of a missing subscription query.
+
+You can find more details about building webhook subscription query
+[here](../../../extending/webhooks/subscription-webhook-payloads).
+
+The example below shows a sample webhook subscription defined to list stored payment methods:
+
+```graphql
+subscription {
+  event {
+    ... on ListStoredPaymentMethods {
+      user {
+        id
+      }
+      channel {
+        id
+      }
+    }
+  }
+}
+```
+
+The example below shows the pre-defined payload that will be used in the case when a subscription query is not provided:
+
+```json
+{
+  "user_id": "VXNlcjoyOA==",
+  "channel_slug": "main"
+}
+```
+
+### Response
+
+The app needs to return a list of stored payment methods that can be used by customer.
+
+The response in this case should have the following structure:
+
+```json
+{
+  "paymentMethods": [
+    {
+      "id": "<ID of stored payment method>",
+      "supportedPaymentFlows": "<list of supported flows that can be performed with this payment method>",
+      "type": "<type of the payment method. For example: Credit Card>",
+      // "creditCardInfo": [Optional] credit card information if the payment method is a credit card.
+      "creditCardInfo": {
+        "brand": "<credit card brand>",
+        "lastDigits": "<last digits>",
+        "expMonth": "<expiration month>",
+        "expYear": "<expiration year>",
+        "firstDigits": "<[Optional] first digits>"
+      },
+      "name": "<[Optional] name of the payment method. For example: last 4 digits of credit card, obfuscated email>",
+      "data": "<[Optional] JSON data that will be returned to storefront>"
+    }
+  ]
+}
+```
+
+Below are the possible `supportedPaymentFlows` values and their explanations:
+
+- `INTERACTIVE` - Payment method can be used for 1 click checkout - it's prefilled in checkout
+  form (might require additional authentication from user).
