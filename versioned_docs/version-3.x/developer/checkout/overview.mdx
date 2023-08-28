@@ -6,30 +6,30 @@ title: Overview
 
 The below process describes the key milestones in the checkout process flow in Saleor. Additional steps may also occur along the way; however, the purpose of this instruction is to deliver a base reference for the user to work with.
 
-You can run the code snippets in this section in the [Playground](api-usage/developer-tools.mdx) or your preferred GraphQL client.
+You can run the code snippets from this section in the [Playground](api-usage/developer-tools.mdx) or your preferred GraphQL client.
 
 ### Why is there no cart model?
 
-Saleor has no distinct object type for shopping carts and checkouts. We wanted the same features—like discounts, vouchers, address-specific taxes, and shipping estimates—to be available in the cart and the checkout, so we've decided to use the same object type for both.
-Checkout provides the interface for standard cart operations like adding products or promo codes. It can also be completed in almost any order, for example, saving a billing address before adding any items.
+Saleor has no distinct object type for shopping carts and checkouts. We wanted the same features – like discounts, vouchers, address-specific taxes, and shipping estimates – to be available in the cart and the checkout, so we've decided to use the same object type for both.
+Checkout provides the interface for standard cart operations like adding products or promo codes. It can also be processed in almost any order, for example, by saving a billing address before adding any items.
 
 ### Glossary
 
-- **Checkout**: an object which groups all the data needed for the checkout process and creating an order.
-- **Checkout Line**: items added to the checkout with quantity data. Each added variant has a separate line.
-- **Checkout Completion**: during this step, payments are processed and stocks reserved. If requirements are met, the order is created.
-- **Payment Method**: a payment provider. E.g., Stripe, Adyen.
-- **Payments**: this object contains status and additional data about payment.
-- **Shipping Methods**: the way orders will be sent. E.g., DHL courier, postal service.
-- **Collection Points**: places, where orders can be self-picked.
-- **Delivery Methods**: set, which is a union of shipping methods and collection points.
+- **Checkout**: Object that groups all the data needed for the checkout process and creating an order.
+- **Checkout Line**: Items added to the checkout with quantity data. Each added variant has a separate line.
+- **Checkout Completion**: During this step, payments may be processed and stocks may be reserved. If requirements are met, the order is created.
+- **Payment Gateway**: Payment App or plugin. e.g., [Stripe](developer/app-store/apps/stripe.mdx), [Adyen](developer/app-store/apps/adyen.mdx).
+- **Transaction**: Object containing status and additional data about payment.
+- **Shipping Methods**: The way orders will be sent. E.g., DHL courier, postal service.
+- **Collection Points**: Places where orders can be self-picked.
+- **Delivery Methods**: Union of shipping methods and collection points.
 
 ## Multiple channels and checkout
 
-Depending on the chosen channel, the user will have access to different objects. This will impact available:
+Depending on the chosen channel, the user will have access to different objects. This impacts available:
 
 - Products and Product Variants
-- Payment Methods
+- Payment Gateways
 - Shipping Methods
 - Collection Points
 - Discounts
@@ -38,24 +38,28 @@ Depending on the chosen channel, the user will have access to different objects.
 
 ## Permissions
 
-If the user is assigned the checkout permission, only this user and staff users with permission `MANAGE_CHECKOUTS` can query its data. Checkouts without assigned users can be queried and modified using the token without additional permissions.
+If a user is assigned to checkout, only that user and staff users with permission `MANAGE_CHECKOUTS` can query the checkout's data. Such checkout is "private".
+
+Checkout without an assigned user can be queried and modified without additional permissions – it's public for anyone who knows the checkout ID.
 
 ## Creating a checkout session
 
 :::note
+
 A [`Checkout`](api-reference/checkout/objects/checkout.mdx) object can be created for logged-in users and for anonymous (guest) users.
+
 :::
 
-- If you use the [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) mutation including the authentication token, this checkout is assigned to the user who is authenticated by this token. For more information on how to authenticate with our API, see the [Authentication](api-usage/authentication.mdx) topic.
+To create a [`Checkout`](api-reference/checkout/objects/checkout.mdx) object, use the [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) mutation.
+
+- If you call the `checkoutCreate` mutation and provide the Authorization header with a valid auth token, the created checkout will be assigned to the user who is authenticated by this token. For more information on how to authenticate with our API, see the [authentication guide](api-usage/authentication.mdx).
 
 - If no authentication token is provided, the checkout is created for an anonymous user,
   and an email address is used to identify such a [`Checkout`](api-reference/checkout/objects/checkout.mdx) object,
   linking it with the anonymous user.
   User email is not required at this stage but must be provided before adding a promo code, creating a payment, and completing checkout.
 
-To create a [`Checkout`](api-reference/checkout/objects/checkout.mdx) object, use the [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) mutation.
-
-This mutation takes the following [input](api-reference/checkout/inputs/checkout-create-input.mdx):
+`checkoutCreate` mutation takes the following [input](api-reference/checkout/inputs/checkout-create-input.mdx):
 
 - `channel`: Slug of a channel in which to create checkout.
 - `email`: the user's email address.
@@ -69,7 +73,7 @@ The resulting [`Checkout`](api-reference/checkout/objects/checkout.mdx) object c
 - `id`: a unique checkout ID.
 - `totalPrice`: the total price of the checkout lines and shipping costs.
 - `isShippingRequired`: denotes whether shipping is required for this checkout.
-- `availablePaymentGateways`: a list of payment gateways that are currently configured on your Saleor server and can be used to pay for the checkout. Only gateways which support the checkout currency are returned. For each gateway, API returns an ID, a name, and a config object, which for some gateways may return additional information required to process the payment in the frontend.
+- `availablePaymentGateways`: a list of [payment gateways](developer/payments.mdx) that are currently configured on your Saleor server and can be used to pay for the checkout. Only gateways that are enabled for a given channel and support the checkout currency are returned. For each gateway, the API returns an ID, a name, and a config object, which for some gateways may return additional information required to initialize or process the payment on the front-end.
 - `shippingMethods`: a list of all shipping methods for this checkout. If the items in the cart require shipment.
 - `availableCollectionPoints`: a list of available places for self-pickup. It is calculated based on the given country and available Stocks (for Warehouses which `clickAndCollectOption` field is not set to `DISABLED`).
 
@@ -80,7 +84,7 @@ In addition, the following fields are available in the mutation results:
 
 The following example shows how the [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) mutation creates the [`Checkout`](api-reference/checkout/objects/checkout.mdx) object and returns the checkout information:
 
-```graphql {2-25}
+```graphql
 mutation {
   checkoutCreate(
     input: {
@@ -144,7 +148,7 @@ mutation {
 }
 ```
 
-We get a newly created checkout object for which we return the ID, total price, and list of available shipping and payment methods:
+We get a newly created checkout object for which we receive the ID, total price, and list of available shipping and payment methods:
 
 ```json
 {
@@ -187,18 +191,9 @@ We get a newly created checkout object for which we return the ID, total price, 
         ],
         "availablePaymentGateways": [
           {
-            "id": "mirumee.payments.braintree",
-            "name": "Braintree",
-            "config": [
-              {
-                "field": "store_customer_card",
-                "value": "false"
-              },
-              {
-                "field": "client_token",
-                "value": "example_token_value"
-              }
-            ]
+            "id": "app.saleor.adyen",
+            "name": "Adyen",
+            "config": []
           }
         ]
       },
@@ -210,13 +205,13 @@ We get a newly created checkout object for which we return the ID, total price, 
 
 ## Checkout email
 
-When anonymous checkout without user email has been created, the email must be set before creating payment and completing checkout.
+When an anonymous checkout has been created without an email, the email must be set before creating payment and completing checkout.
 Use the [`CheckoutEmailUpdate`](api-reference/checkout/mutations/checkout-email-update.mdx) mutation to update checkout `email`.
 
 The operation requires the following inputs:
 
-- `id`: the checkout ID (the `id` field of the [`Checkout`](api-reference/checkout/objects/checkout.mdx) object),
-- `email`: the user email.
+- `id`: checkout ID (the `id` field of the [`Checkout`](api-reference/checkout/objects/checkout.mdx) object),
+- `email`: user email.
 
 ```graphql {2-4}
 mutation {
@@ -254,8 +249,7 @@ As a result, we get an updated checkout object with the new checkout email set:
 
 ## Removing old checkouts
 
-To avoid overloading the database, unfinished checkouts are deleted.
-Anonymous and unfinished checkouts are deleted after a specified period from its last modification:
+To avoid overloading the database, unfinished checkouts are automatically deleted after a specified period from its last modification:
 
 - anonymous checkouts (neither user nor email is set) after 30 days,
 - user checkouts (either user or email is set) after 90 days,
