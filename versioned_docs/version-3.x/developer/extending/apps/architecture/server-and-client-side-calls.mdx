@@ -1,0 +1,108 @@
+---
+title: Server and client side calls
+---
+
+Usually, apps are built on top of two communication methods - webhooks and API requests.
+While webhooks are always server-side (Saleor core calls the backend of your app),
+API requests from App to Saleor can be both server and client (frontend) sides.
+
+This article highlights main differences of both approaches.
+
+## Two types of tokens
+
+Saleor App API uses two types of tokens:
+
+- AppToken - used for server-side calls
+- AccessToken - used for client-side calls
+
+### AppToken
+
+AppToken is an infinite token generated when the App is being installed. Saleor will call `tokenTargetUrl` from the [App Manifest](./manifest.mdx) and the App needs to store the token in the safe place
+if it wants to consume the Saleor API. Official Saleor Apps and [app-sdk](../developing-apps/app-sdk/overview.mdx) uses [APL concept](./apl.mdx) to store the token.
+
+The AppToken is recommended to use for server-side calls.
+It represents App itself and doesn't store any user information. It doesn't expire, so it should not be exposed to the front end.
+
+### AccessToken
+
+AccessToken is a [JWT token](https://jwt.io/) that represents a user. It is generated once the user opens the App frontend in the Dashboard.
+The Dashboard provides the token to the App using [AppBridge](../developing-apps/app-sdk/app-bridge).
+
+This token expires, and the dashboard refreshes it in the background. In case of any leak, it will eventually expire and become useless.
+Hence it's better for client-side calls due to the security concerns.
+
+AccessToken is unique for the user - it stores user and permissions in its payload.
+Permissions of the token are an intersection of the user's and the app's permissions.
+This mechanism prevents the App from performing more operations than allowed.
+
+### Tokens comparison
+
+| Behavior  | AppToken                  | AuthToken                                                                   |
+| --------- | ------------------------- | --------------------------------------------------------------------------- |
+| Creation  | During installation       | When user opens the App                                                     |
+| Lifespan  | Infinite                  | Finite, configurable in Saleor. Automatically refreshed with Refresh Tokens |
+| User data | Doesn't store             | Stores user and user's permissions                                          |
+| Storage   | Should be stored securely | Stored in the memory automatically                                          |
+
+This should give us a basic understanding of the tokens and their usage now. Let's see how to use them in practice.
+
+## Saleor API calls - examples
+
+Let's cover a few popular scenarios and evaluate which token suits best to be used.
+
+### Safely submit app's configuration form
+
+Imagine your app contains 2 parts:
+
+1. Frontend with html `<form>` that contains configuration fields
+2. Api endpoint `POST /config` that saves the configuration
+
+How to prevent the rogue user from calling the endpoint directly and bypassing the front end?
+
+_AccessToken_ can help with that. The app frontend should attach AccessToken to the header and the backend can verify it.
+
+The app-sdk providers a helper function for this (Next.js only):
+
+```typescript
+// pages/config.tsx
+
+import { createProtectedHandler } from "@saleor/app-sdk/handlers/next";
+
+export default createProtectedHandler(
+  (req, res, ctx) => {
+    // Request is authenticated at this point.
+    // Additionally it checks if the user has MANAGE_ORDERS permission!
+
+    return res.status(200).json({ success: true });
+  },
+  saleorApp.apl,
+  ["MANAGE_ORDERS"]
+);
+```
+
+Read more in [app-sdk docs](../developing-apps/app-sdk/protected-handlers)
+
+### Call Saleor API during app installation
+
+Saleor app installation is a server-side process. Saleor calls the `tokenTargetUrl` and provides _AppToken_ in the payload.
+
+At this point, the app can call Saleor API using the AppToken.
+
+Since the front-end is not available to the user, there is no way to obtain AccessToken.
+
+### Call Saleor API from the webhook handler
+
+Webhooks are always server-side calls. If the app needs more data than it can obtain via subscription query, it can call Saleor API using _AppToken_.
+The app-sdk provides factories for webhooks that extract AppToken from the request and provides it to the handler.
+You can read more [here](../developing-apps/app-sdk/saleor-webhook)
+
+### Call Saleor API from the front-end and display the result
+
+Many apps will operate on the front-end. For example - the app that fetches many products and allows to edit them in bulk.
+
+If the app contains `MANAGE_PRODUCTS` permission, both _AuthToken_ and _AppToken_ will be permitted to read and write products from the API.
+
+At this point, it's up to you how to handle the request:
+
+1. Call Saleor directly using AuthToken. This is the easiest way.
+2. Call your own endpoint, which will call Saleor API using AppToken.
