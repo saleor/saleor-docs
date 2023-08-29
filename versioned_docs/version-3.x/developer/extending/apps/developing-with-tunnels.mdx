@@ -8,7 +8,7 @@ This article focuses on developing apps connected to Saleor hosted in the cloud.
 
 ## What is a tunnel, and why do you need one?
 
-The Saleor extendability model relies on the concept of Apps. If you want to read more about them, head to [the Apps page](developer/extending/apps/overview.mdx).
+The Saleor extendability model relies on the concept of Apps. If you want to read more about them, head to [the Apps Overview page](developer/extending/apps/overview.mdx).
 
 As you want Apps to react to events in your store, you reach for webhooks. However, webhooks pose a unique challenge: they can only communicate with public clients. If so, how are you supposed to develop your app on `localhost`?
 
@@ -52,21 +52,19 @@ A simplified process of using a tunnel to expose this app would look like this:
 
 ### Saleor App Tunnel
 
-:::caution
-We are keen on making Saleor App Tunnel flawless. Yet, issues with its stability may occur now and then. If that's the case, please look at [the alternatives](#alternatives).
-:::
+Saleor CLI provides a built-in tunneling solution. It is a wrapper around [ngrok](https://ngrok.com/), a popular tunneling service, and it provides additional features on top of it like automatic installation of thec Saleor App. It is the recommended way of tunneling your apps, as it simplifies the process and provides a better developer experience.
 
-To use Saleor App Tunnel, you must install [Saleor CLI](https://www.npmjs.com/package/@saleor/cli):
+To use Saleor App Tunnel, you must install [Saleor CLI](cli.mdx):
 
 ```bash
 npm i -g @saleor/cli
 ```
 
 :::note
-Run `saleor app tunnel --help` to check detailed usage, like changing the used port or automatic installation of the app.
+Run `saleor app tunnel --help` to check detailed usage, like changing the used port or forced installation of the App.
 :::
 
-To create a tunnel, run `saleor app tunnel` inside the app directory. After several seconds, the CLI should print a URL with the`.saleor.live` domain:
+To create a tunnel, run `saleor app tunnel` inside the App directory. After several seconds, the CLI should print a URL with the `ngrok` domain:
 
 ```bash
 $ saleor app tunnel
@@ -77,7 +75,7 @@ $ saleor app tunnel
 ─────────────────────────────────────────────────────────────────
 
      Saleor App Name: Your app
-     Saleor App URL: https://your-app-shop.saleor.live
+     Saleor App URL: https://your-app-shop.ngrok.app
 
      Saleor Dashboard: https://yourshop.eu.saleor.cloud/dashboard/
      GraphQL Playground: https://yourshop.eu.saleor.cloud/graphql/
@@ -102,19 +100,24 @@ While we encourage you to use Saleor App Tunnel, Saleor will work with any tunne
 The list of verified Saleor App Tunnel alternatives features:
 
 - [ngrok](https://ngrok.com/)
+- [localtunnel](https://localtunnel.github.io/www/)
 
 ## Installing the App in the Dashboard
 
-An extra feature of the Saleor CLI is installing Apps inside the Dashboard. This way, you can develop the App while displaying it inside your Saleor Dashboard.
-
-If your tunnel isn't already running, you can run the following command:
+By default, Saleor CLI with the `saleor app tunnel` command will install the Saleor App in the Dashboard. While developing Saleor Apps there will be times when you would need to install the App once again like after adding additional permissions or when your tunnel URL expires. In that case, use the `--force-install` flag which will reinstall the App in the Dashboard.
 
 ```bash
-saleor app tunnel --force-install # sets up the tunnel and installs the app
+saleor app tunnel --force-install # sets up the tunnel and re-installs the App
 ```
 
-If you have started the tunnel with a separate command, all you have to do is install it with:
+By convention Saleor CLI expects the manifest exposed by the App to be available at `/api/manifest`. You can change it by providing your custom manifest path to `--manifest-path` flag.
 
 ```bash
-saleor app install # installs the app
+saleor app tunnel --manifest-path=/manifest # sets up the manifest path and installs the App
+```
+
+If your Saleor App is already exposed on the internet, Saleor CLI allows the installation of the App in the Dashboard without setting up the tunnel. To do that use the `saleor app install` command.
+
+```bash
+saleor app install --manifest-URL=https://my-saleor-app.com/api/manifest # installs the App in the Dashboard
 ```
