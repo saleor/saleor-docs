@@ -1,0 +1,44 @@
+---
+title: Migrating from NOTIFY_USER to dedicated events
+---
+
+Starting from Saleor 3.16, the `NOTIFY_USER` webhook event will be deprecated. If your app uses this webhook, you should migrate to dedicated webhook events. The following is a list of webhook events that replace specific notifications. All webhook events that replace `NOTIFY_USER` support [subscription queries](developer/extending/webhooks/subscription-webhook-payloads.mdx#custom-payloads), which allow you to define the payload you want to receive for your notifications.
+
+The table below shows sub-types of `NOTIFY_USER` events (represented as the `notify_event` field in the legacy payloads), their GraphQL subscription replacements, and the Saleor version in which they were or will be introduced.
+
+| NOTIFY_USER event                | Subscription                                                                                                                                                                      | Saleor version |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| `ACCOUNT_CHANGE_EMAIL_CONFIRM`   | [AccountEmailChanged](api-reference/users/objects/account-email-changed.mdx)                                                                                                      | 3.15           |
+| `ACCOUNT_CHANGE_EMAIL_REQUEST`   | [AccountChangeEmailRequested](api-reference/users/objects/account-change-email-requested.mdx)                                                                                     | 3.15           |
+| `ACCOUNT_CONFIRMATION`           | [AccountConfirmationRequested](api-reference/users/objects/account-confirmation-requested.mdx)                                                                                    | 3.15           |
+| `ACCOUNT_DELETE`                 | [AccountDeleteRequested](api-reference/users/objects/account-delete-requested.mdx)                                                                                                | 3.15           |
+| `ACCOUNT_PASSWORD_RESET`         | [AccountSetPasswordRequested](api-reference/users/objects/account-set-password-requested.mdx)                                                                                     | 3.15           |
+| `ACCOUNT_SET_CUSTOMER_PASSWORD`  | [AccountSetPasswordRequested](api-reference/users/objects/account-set-password-requested.mdx)                                                                                     | 3.15           |
+| `ACCOUNT_SET_STAFF_PASSWORD`     | [StaffSetPasswordRequested](api-reference/users/objects/staff-set-password-requested.mdx)                                                                                         | 3.15           |
+| `ACCOUNT_STAFF_RESET_PASSWORD`   | [StaffSetPasswordRequested](api-reference/users/objects/staff-set-password-requested.mdx)                                                                                         | 3.15           |
+| `CSV_EXPORT_FAILED`              | [ProductExportCompleted](api-reference/products/objects/product-export-completed.mdx), [GiftCardExportCompleted](api-reference/gift-cards/objects/gift-card-export-completed.mdx) | 3.16           |
+| `CSV_EXPORT_SUCCESS`             | [ProductExportCompleted](api-reference/products/objects/product-export-completed.mdx), [GiftCardExportCompleted](api-reference/gift-cards/objects/gift-card-export-completed.mdx) | 3.16           |
+| `INVOICE_READY`                  | [InvoiceSent](api-reference/orders/objects/invoice-sent.mdx)                                                                                                                      | 3.2            |
+| `ORDER_CANCELED`                 | [OrderCancelled](api-reference/orders/objects/order-cancelled.mdx)                                                                                                                | 3.2            |
+| `ORDER_CONFIRMATION`             | [OrderCreated](api-reference/orders/objects/order-created.mdx)                                                                                                                    | 3.2            |
+| `ORDER_CONFIRMED`                | [OrderConfirmed](api-reference/orders/objects/order-confirmed.mdx)                                                                                                                | 3.2            |
+| `ORDER_FULFILLMENT_CONFIRMATION` | [FulfillmentCreated](api-reference/orders/objects/fulfillment-created.mdx)                                                                                                        | 3.4            |
+| `ORDER_FULFILLMENT_UPDATE`       | [FulfillmentTrackingNumberUpdated](api-reference/orders/objects/fulfillment-tracking-number-updated.mdx)                                                                          | 3.16           |
+| `ORDER_PAYMENT_CONFIRMATION`     | [OrderFullyPaid](api-reference/orders/objects/order-fully-paid.mdx)                                                                                                               | 3.2            |
+| `ORDER_REFUND_CONFIRMATION`      | [OrderRefunded](api-reference/orders/objects/order-refunded.mdx)                                                                                                                  | 3.14           |
+| `SEND_GIFT_CARD`                 | [GiftCardSent](api-reference/gift-cards/objects/gift-card-sent.mdx)                                                                                                               | 3.13           |
+| `STAFF_ORDER_CONFIRMATION`       | [OrderCreated](api-reference/orders/objects/order-created.mdx)                                                                                                                    | 3.2            |
+
+To migrate to new events, you need to create new webhooks in Saleor and provide subscription queries for the events you want to receive.
+
+## Payload changes
+
+Some fields that were available in the `NOTIFY_USER` payload are not available in subscription payloads of the new events:
+
+- `domain` - the domain of the Saleor instance, can be fetched from the API using the [shop](api-reference/miscellaneous/queries/shop.mdx) query.
+- `site_name` - same as above.
+- `logo_url` - if neded, apps should handle providing the logo URL themselves.
+
+## Deprecation of the `externalNotificationTrigger` mutation
+
+Starting from Saleor 3.16, the [externalNotificationTrigger](api-reference/miscellaneous/objects/external-notification-trigger.mdx) mutation will be deprecated. Apps that send custom notifications should implement their own logic for this purpose.
