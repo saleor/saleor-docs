@@ -72,7 +72,7 @@ type AppBridgeState = {
 
 ## AppBridgeProvider
 
-`AppBridgeProvider` and `useAppBridge` hook are exposed from `@saleor/app-sdk``:
+`AppBridgeProvider` and `useAppBridge` hook are exposed from `@saleor/app-sdk`:
 
 ```tsx
 // app.tsx
