@@ -330,8 +330,6 @@ module.exports = {
       },
     },
 
-    metadata: [{ name: "rank", content: "1" }],
-
     navbar: {
       hideOnScroll: true,
       logo: {
