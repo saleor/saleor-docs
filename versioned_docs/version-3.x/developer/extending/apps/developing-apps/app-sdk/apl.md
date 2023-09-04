@@ -1,4 +1,4 @@
-# Auth Persistence Layer
+# Auth Persistence Layer (APL)
 
 Auth Persistence Layer (APL) is a technology-agnostic interface for managing auth data of registered Apps. APL provides a common set of operations that can be used by your application and App SDK.
 
@@ -101,19 +101,10 @@ const getSavedAuthData = async () => {
 };
 ```
 
-And with middleware from the SDK:
+Or access it from the context of API helpers from the SDK:
 
-```ts
-import { withRegisteredSaleorDomainHeader } from "@saleor/app-sdk/middleware";
-import { redisAPL } from "./apl";
-
-const handler = async (request) => {
-  return Response.OK({ message: "If you see this, your app is registered!" });
-};
-
-// the middleware will reject the request if its domain has not been registered
-export default withRegisteredSaleorDomainHeader({ apl: redisAPL })(handler);
-```
+- [Protected API Handlers](./protected-handlers)
+- [Webhook Handlers](./saleor-webhook)
 
 ### Using different APL depending on the environment
 
@@ -137,7 +128,6 @@ Now you can use it for in your view:
 
 ```ts
 import { SALEOR_API_URL_HEADER } from "@saleor/app-sdk/const";
-import { withRegisteredSaleorDomainHeader } from "@saleor/app-sdk/middleware";
 import { NextApiHandler } from "next";
 
 // import created APL
