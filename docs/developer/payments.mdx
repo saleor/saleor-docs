@@ -12,7 +12,7 @@ Saleor distinguishes two different approaches to processing payments:
 
 - By using a [Payment App](#payment-app).
 - By using a [Custom App](#custom-app).
-- By using a [Plugin](developer/extending/plugins/overview.mdx) embedded in the Saleor code (deprecated).
+- By using a [Plugin](developer/extending/plugins/overview.mdx) embedded in the Saleor code (legacy).
 
 :::note
 
@@ -189,12 +189,6 @@ Based on the Payment App's response, Saleor will create or update the transactio
 
 Depending on the implementation of the Payment App, the `transactionInitialize` may charge or authorize the customer.
 
-:::note
-
-The `transactionInitialize` mutation can be called only once for a given `Checkout` or `Order`.
-
-:::
-
 The [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation accepts the following arguments:
 
 - `id` - ID of the `Checkout` or `Order`.
@@ -362,7 +356,7 @@ Orders can be created by a protected mutation [`orderCreateFromCheckout`](api-re
 :::note
 
 Building a Custom App is only recommended if Saleor Payment Apps don't fit your needs and for more complex use cases. **For most of the payment providers, Saleor Payment Apps should be used instead.**
-When a custom app is used, Saleor won't be able to automatically update the status and balance of the payment and the app will be responsible for doing it.
+When the custom app uses the `transactionUpdate` mutation, Saleor won't be able to automatically update the status and balance of the payment and the app will be responsible for doing it.
 
 :::
 
@@ -604,6 +598,16 @@ mutation {
 ```
 
 :::
+
+## Comparison of Payment Apps and Custom Apps
+
+|                        | Payment Apps                                                                                          | Custom Apps                                                                   |
+| ---------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Users communicate with | Saleor GraphQL API                                                                                    | The app directly                                                              |
+| Consistency            | The same set of queries and mutations for each Payment App                                            | Different APIs depending on the custom app implementation                     |
+| Transactions           | Created automatically by Saleor based on requests to payment apps and their responses                 | Need to be created manually by custom apps; depends on the app implementation |
+| Balances               | Always automatically calculated by Saleor                                                             | In some cases the balances need to be manually calculated by the custom app   |
+| Flexibility            | Limited by the set of predefined actions and mutations; designed to handle most of business scenarios | Almost anything is possible                                                   |
 
 ## Additional steps
 
@@ -1064,6 +1068,6 @@ sequenceDiagram
     Storefront->>User: Sees a list of saved payment methods
 ```
 
-## Payment Plugin (deprecated)
+## Payment Plugin (legacy)
 
 Using PaymentPlugin is explained in [Checkout](checkout/finalizing) section.
