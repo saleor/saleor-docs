@@ -311,3 +311,20 @@ def order_events_rename_transaction_void_events_task():
         update_type_to_transaction_cancel_requested(qs)
         order_events_rename_transaction_void_events_task.delay()
 ```
+
+### Task Autodiscovery in Zero Downtime Migrations
+
+In the context of zero downtime migrations, especially for data migrations, tasks might be scattered across different modules or might be version-specific. To ensure that Celery picks up all necessary tasks for execution without missing any, we use the concept of "Additional Autodiscovery with Specified Related Names."
+
+### Additional Autodiscovery with Specified Related Names
+
+This method of autodiscovery allows for targeted discovery of tasks from specific packages or modules, ensuring that migration tasks specific to certain versions or modules are correctly discovered and executed. For instance modify file `saleor/celeryconf.py`:
+
+```python
+app.autodiscover_tasks(
+    packages=[
+        "saleor.order.migrations.tasks",
+    ],
+    related_name="saleor3_15",
+)
+```
