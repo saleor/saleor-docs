@@ -71,19 +71,29 @@ import { APL, AuthData } from "@saleor/app-sdk/apl";
 const client = createClient();
 await client.connect();
 
+// If you intend to use the same Redis instance for multiple Apps,
+// add prefix to the keys you will keep AuthData:
+// - `APPID1:http://staging.saleor.io/graphql`
+// - `APPID1:http://demo.saleor.io/graphql`
+// - `APPID2:http://demo.saleor.io/graphql`
+const prepareKey = (apiUrl: string) => `${APP_ID}:${apiUrl}`;
+
 const redisAPL: APL = {
   get: async (saleorApiUrl: string) => {
-    const response = await client.get(saleorApiUrl);
+    const response = await client.get(prepareKey(saleorApiUrl));
     if (response) {
       return JSON.parse(response);
     }
     return;
   },
   set: async (authData: AuthData) => {
-    await client.set(authData.saleorApiUrl, JSON.stringify(authData));
+    await client.set(
+      prepareKey(authData.saleorApiUrl),
+      JSON.stringify(authData)
+    );
   },
   delete: async (saleorApiUrl: string) => {
-    await client.del(saleorApiUrl);
+    await client.del(prepareKey(saleorApiUrl));
   },
   getAll: async () => {
     throw new Exception("Not implemented.");
