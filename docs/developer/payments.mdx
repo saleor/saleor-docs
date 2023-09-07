@@ -1047,7 +1047,7 @@ This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enu
 
 :::
 
-Requesting [`checkout.storedPaymentMethods`](api-storefront/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbstoredpaymentmethodsbcodestoredpaymentmethod--) or [`User.storedPaymentMethod`](api-storefront/users/objects/user.mdx#code-style-fontweight-normal-userbstoredpaymentmethodsbcodestoredpaymentmethod--) field triggers synchronous requests to each app subscribed to [`LIST_STORED_PAYMENT_METHODS`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
+Requesting [`checkout.storedPaymentMethods`](api-storefront/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbstoredpaymentmethodsbcodestoredpaymentmethod--) or [`User.storedPaymentMethods`](api-storefront/users/objects/user.mdx#code-style-fontweight-normal-userbstoredpaymentmethodsbcodestoredpaymentmethod--) field triggers synchronous requests to each app subscribed to [`LIST_STORED_PAYMENT_METHODS`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
 webhook. In response, Saleor returns a list of payment methods from the subscribed apps. Stored payment methods can be used in further steps of payment processing.
 
 All details related to [`LIST_STORED_PAYMENT_METHODS`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
@@ -1067,6 +1067,69 @@ sequenceDiagram
     Saleor->>Storefront: List of stored payment methods
     Storefront->>User: Sees a list of saved payment methods
 ```
+
+#### Requesting deletion of stored payment method
+
+:::info
+
+This feature was introduced in **Saleor 3.16**.
+
+:::
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+
+:::info
+This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#code-style-fontweight-normal-apptypeenumbthirdpartybcode) apps.
+:::
+
+The user can request a deletion of their stored payment methods. Saleor doesn't store directly a user's payment methods or transmit payment method details.
+It is a part of the responsibility of the payment app. The request deletion will be sent to the payment app which owns the
+specific stored payment method.
+Saleor will also invalidate the cache of stored-payment-methods. Fetching [checkout.storedPaymentMethods](api-storefront/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbstoredpaymentmethodsbcodestoredpaymentmethod--)
+or [User.storedPaymentMethods](api-storefront/users/objects/user.mdx#code-style-fontweight-normal-userbstoredpaymentmethodsbcodestoredpaymentmethod--)
+will trigger the request to the payment app which was the owner of the
+payment method.
+
+```mermaid
+sequenceDiagram
+   actor User
+   User->>Storefront: Request a delete of<br>stored payment methods
+   Storefront->>Saleor: Mutation<br>storedPaymentMethodRequestDelete
+   Saleor->>Payment App: STORED_PAYMENT_METHOD_DELETE_REQUESTED<br>webhook
+   Payment App->>Saleor: Status of the request
+   Saleor->>Storefront: Return status and<br>message from app
+   Storefront->>User: Display result
+```
+
+The following example shows how to use the [storedPaymentMethodRequestDelete](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation to request deletion of stored payment method:
+
+```graphql
+mutation {
+  storedPaymentMethodRequestDelete(
+    id: "YXBwOmR1bW15LnBheW1lbnQ6cGF5bWVudC1tZXRob2Qx"
+    channel: "default-channel"
+  ) {
+    result
+    message
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+As a response, the mutation will return a [result](api-reference/payments/enums/stored-payment-method-request-delete-result.mdx) field which determines the status of the requested action.
+In case of a failure result, the [errors](api-reference/payments/objects/payment-method-request-delete-error.mdx) list will contain details of the failed action.
+
+The mutation will trigger the [STORED_PAYMENT_METHOD_DELETE_REQUESTED](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbstored_payment_method_delete_requestedbcode) webhook.
+For more details about this webhook, please refer to its [documentation](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#delete-stored-payment-method-requested).
 
 ## Payment Plugin (legacy)
 

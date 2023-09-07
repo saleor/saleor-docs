@@ -115,3 +115,75 @@ Below are the possible `supportedPaymentFlows` values and their explanations:
 
 - `INTERACTIVE` - Payment method can be used for 1 click checkout - it's prefilled in checkout
   form (might require additional authentication from user).
+
+## Delete stored payment method requested
+
+`STORED_PAYMENT_METHOD_DELETE_REQUESTED`
+
+:::info
+
+This feature was introduced in **Saleor 3.16**.
+
+:::
+
+A synchronous webhook [STORED_PAYMENT_METHOD_DELETE_REQUESTED](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbstored_payment_method_delete_requestedbcode) is called when the user requests the deletion of the stored payment method. User can request the deletion of the stored payment method by triggering the mutation [storedPaymentMethodRequestDelete](api-reference/payments/mutations/stored-payment-method-request-delete.mdx).
+More details about the flow can be found [here](developer/payments.mdx#requesting-deletion-of-stored-payment-method).
+
+### Request
+
+The example below shows a sample webhook subscription defined for
+[STORED_PAYMENT_METHOD_DELETE_REQUESTED](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbstored_payment_method_delete_requestedbcode)
+webhook:
+
+```graphql
+subscription {
+  event {
+    ... on StoredPaymentMethodDeleteRequested {
+      user {
+        id
+      }
+      paymentMethodId
+      channel {
+        currencyCode
+      }
+    }
+  }
+}
+```
+
+The example below shows the pre-defined payload that will be used in the case when a subscription query is not provided:
+
+```json
+{
+  "payment_method_id": "payment-method-id",
+  "user_id": "VXNlcjoyOA==",
+  "channel_slug": "main"
+}
+```
+
+### Response
+
+The app needs to return the status of the requested deletion.
+
+The response in this case should have the following structure:
+
+- Response that reports successful delete action
+
+```json
+{
+  "result": "SUCCESSFULLY_DELETED"
+}
+```
+
+- Response that reports failure to delete action
+
+```json
+{
+  "result": "FAILED_TO_DELETE",
+  "error": "Error message that will be passed to the frontend."
+}
+```
+
+The `result` field is an enum value of [StoredPaymentMethodRequestDeleteResult](api-reference/payments/enums/stored-payment-method-request-delete-result.mdx).
+In case of returning failure `result`, the `error` message will be attached
+to the [error](api-reference/payments/objects/payment-method-request-delete-error.mdx) returned by [storedPaymentMethodRequestDelete](api-reference/payments/mutations/stored-payment-method-request-delete.mdx) mutation.
