@@ -103,6 +103,7 @@ module.exports = {
             "developer/app-store/apps/invoices",
             "developer/app-store/apps/cms",
             "developer/app-store/apps/segment",
+            "developer/app-store/apps/search",
             {
               type: "category",
               label: "Emails and messages",
