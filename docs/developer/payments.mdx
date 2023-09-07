@@ -1164,8 +1164,8 @@ The diagram illustrates the general flow of tokenizing a payment method. The pro
 sequenceDiagram
   Storefront->>+Saleor: shop.availablePaymentGateways query
   Saleor-->>-Storefront: Returns a list of payment gateways
-  Storefront->>+Saleor: (If required) paymentGatewayInitialize<br>mutation to<br>initialize the paymentApp
-  Saleor->>PaymentApp: PAYMENT_GATEWAY_INITIALIZE_SESSION<br>webhook
+  Storefront->>+Saleor: (If required) paymentGatewayInitializeTokenization<br>mutation to<br>initialize the paymentApp
+  Saleor->>PaymentApp: PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION<br>webhook
   PaymentApp->>+PaymentProviderAPI: Process the request
   PaymentProviderAPI-->>-PaymentApp: OK
   PaymentApp-->>Saleor: Return data required to<br>start payment method<br>tokenization
@@ -1232,7 +1232,7 @@ More details about the triggered webhook [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATIO
 
 The [paymentMethodInitializeTokenization](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation starts the process of tokenizing the payment method. This mutation triggers the synchronous webhook [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_method_initialize_tokenization_sessionbcode), which is sent to the app with the provided [id](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx#code-style-fontweight-normal-paymentgatewayinitializetokenizationbidbcodestring--).
 
-The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](api-reference/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbavailablepaymentgatewaysbcodepaymentgateway--) or [shop.availablePaymentGateways](api-reference/miscellaneous/objects/shop.mdx#code-style-fontweight-normal-shopbavailablepaymentgatewaysbcodepaymentgateway--). The JSON [data](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx#code-style-fontweight-normal-paymentmethodinitializetokenizationbdatabcodejson-) is passed to the payment app via the synchronous webhook.
+The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](api-reference/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbavailablepaymentgatewaysbcodepaymentgateway--) or [shop.availablePaymentGateways](api-reference/miscellaneous/objects/shop.mdx#code-style-fontweight-normal-shopbavailablepaymentgatewaysbcodepaymentgateway--). The JSON [data](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx#code-style-fontweight-normal-paymentmethodinitializetokenizationbdatabcodejson-) is passed to the payment app via the synchronous webhook. The `paymentFlowToSupport` is a value from the [TokenizedPaymentFlowEnum](api-reference/payments/enums/tokenized-payment-flow-enum.mdx). It represents the requested payment flow that the payment method should follow.
 
 ```graphql
 mutation {
@@ -1264,7 +1264,7 @@ More details about the triggered [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION
 
 #### Processing additional actions required to tokenize the payment method
 
-The [paymentMethodProcessTokenization](api-reference/payments/mutations/payment-method-process-tokenization.mdx) mutation should be called when the payment app returns the `result` [PaymentMethodTokenizationResult.ADDITIONAL_ACTION_REQUIRED]. This mutation is dedicated to processing additional actions required to finalize the tokenization of the payment method.
+The [paymentMethodProcessTokenization](api-reference/payments/mutations/payment-method-process-tokenization.mdx) mutation should be called when the payment app returns the `result` [PaymentMethodTokenizationResult.ADDITIONAL_ACTION_REQUIRED](api-reference/payments/enums/payment-method-tokenization-result.mdx#code-style-fontweight-normal-paymentmethodtokenizationresultbadditional_action_requiredbcode). This mutation is dedicated to processing additional actions required to finalize the tokenization of the payment method.
 
 This mutation triggers the synchronous webhook [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_method_process_tokenization_sessionbcode).
 
