@@ -71,16 +71,20 @@ import { APL, AuthData } from "@saleor/app-sdk/apl";
 const client = createClient();
 await client.connect();
 
-// If you intend to use the same Redis instance for multiple Apps,
-// add prefix to the keys you will keep AuthData:
-// - `APPID1:http://staging.saleor.io/graphql`
-// - `APPID1:http://demo.saleor.io/graphql`
-// - `APPID2:http://demo.saleor.io/graphql`
-const prepareKey = (apiUrl: string) => `${APP_ID}:${apiUrl}`;
+/**
+ * The APL uses API URL as a key to store and retrieve AuthData.
+ * If you intend to use the same Redis instance for multiple Apps,
+ * add prefix to the keys to avoid overwriting the data by different apps.
+ * Keys will be formatted as below:
+ * - `APPID1:http://staging.saleor.io/graphql`
+ * - `APPID1:http://demo.saleor.io/graphql`
+ * - `APPID2:http://demo.saleor.io/graphql`
+ **/
+const prepareAuthDataKey = (apiUrl: string) => `${APP_ID}:${apiUrl}`;
 
 const redisAPL: APL = {
   get: async (saleorApiUrl: string) => {
-    const response = await client.get(prepareKey(saleorApiUrl));
+    const response = await client.get(prepareAuthDataKey(saleorApiUrl));
     if (response) {
       return JSON.parse(response);
     }
@@ -88,12 +92,12 @@ const redisAPL: APL = {
   },
   set: async (authData: AuthData) => {
     await client.set(
-      prepareKey(authData.saleorApiUrl),
+      prepareAuthDataKey(authData.saleorApiUrl),
       JSON.stringify(authData)
     );
   },
   delete: async (saleorApiUrl: string) => {
-    await client.del(prepareKey(saleorApiUrl));
+    await client.del(prepareAuthDataKey(saleorApiUrl));
   },
   getAll: async () => {
     throw new Exception("Not implemented.");
