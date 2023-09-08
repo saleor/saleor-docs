@@ -105,7 +105,7 @@ The response in this case should have the following structure:
         "firstDigits": "<[Optional] first digits>"
       },
       "name": "<[Optional] name of the payment method. For example: last 4 digits of credit card, obfuscated email>",
-      "data": "<[Optional] JSON data that will be returned to storefront>"
+      "data": "<[Optional] JSON data that will be returned to client>"
     }
   ]
 }
@@ -187,3 +187,258 @@ The response in this case should have the following structure:
 The `result` field is an enum value of [StoredPaymentMethodRequestDeleteResult](api-reference/payments/enums/stored-payment-method-request-delete-result.mdx).
 In case of returning failure `result`, the `error` message will be attached
 to the [error](api-reference/payments/objects/payment-method-request-delete-error.mdx) returned by [storedPaymentMethodRequestDelete](api-reference/payments/mutations/stored-payment-method-request-delete.mdx) mutation.
+
+## Initialize payment gateway session
+
+`PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION`
+
+:::info
+This feature was introduced in **Saleor 3.16**.
+:::
+
+The synchronous [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_tokenization_sessionbcode) webhook is triggered when a customer requests the initialization of the payment gateway to tokenize a payment method. This webhook is activated by executing the [paymentGatewayInitializeTokenization](api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx) mutation.
+
+The webhook payload includes details about the [customer](api-reference/payments/objects/payment-gateway-initialize-tokenization-session.mdx#code-style-fontweight-normal-paymentgatewayinitializetokenizationsessionbuserbcodeuser--), [channel](api-reference/payments/objects/payment-gateway-initialize-tokenization-session.mdx#code-style-fontweight-normal-paymentgatewayinitializetokenizationsessionbchannelbcodechannel--), and [data](api-reference/payments/objects/payment-gateway-initialize-tokenization-session.mdx#code-style-fontweight-normal-paymentgatewayinitializetokenizationsessionbdatabcodejson-). The [data](api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx#code-style-fontweight-normal-paymentgatewayinitializetokenizationbdatabcodejson-) field contains the JSON data provided as input in the [paymentGatewayInitializeTokenization](api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx) mutation.
+
+The response must adhere to the expected format and will be returned within the [paymentGatewayInitializeTokenization](api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx) mutation.
+
+### Request
+
+Saleor will send a [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_tokenization_sessionbcode) webhook using the [PaymentGatewayInitializeTokenizationSession](api-reference/payments/objects/payment-gateway-initialize-tokenization-session.mdx) subscription type or with a predefined payload in case of a missing subscription query.
+
+For more details on building webhook subscription queries, refer to [this documentation](../../../extending/webhooks/subscription-webhook-payloads).
+
+The example below demonstrates a sample webhook subscription defined to handle the initialization of the payment gateway for tokenizing a payment method:
+
+```graphql
+subscription {
+  event {
+    ... on PaymentGatewayInitializeTokenizationSession {
+      user {
+        id
+      }
+      channel {
+        id
+      }
+      data
+    }
+  }
+}
+```
+
+The following example illustrates the predefined payload that will be used if a subscription query is not provided:
+
+```json
+{
+  "user_id": "VXNlcjoyOA==",
+  "channel_slug": "main",
+  "data": { "data": "from-input" }
+}
+```
+
+### Response
+
+The application should return the status of the initialization and optionally `data` required to finalize the initialization on the client side.
+
+- Response indicating successful initialization:
+
+```json
+{
+  "result": "SUCCESSFULLY_INITIALIZED",
+  "data": { "data": "additional-data" }
+}
+```
+
+- Response indicating failed initialization:
+
+```json
+{
+  "result": "FAILED_TO_INITIALIZE",
+  "error": "Error message that will be passed to the frontend."
+}
+```
+
+The `result` field is an enum value of [PaymentGatewayInitializeTokenizationResultEnum](api-reference/payments/enums/payment-gateway-initialize-tokenization-result.mdx). In the event of returning a failure `result`, the `error` message will be attached to the [error](api-reference/payments/objects/payment-gateway-initialize-tokenization.mdx#code-style-fontweight-normal-paymentgatewayinitializetokenizationberrorsbcodepaymentgatewayinitializetokenizationerror--) returned by the [paymentGatewayInitializeTokenization](api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx) mutation.
+
+## Initialize payment method tokenization
+
+`PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION`
+
+:::info
+This feature was introduced in **Saleor 3.16**.
+:::
+
+The synchronous [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_method_initialize_tokenization_sessionbcode) webhook is triggered when a customer requests the tokenization of a payment method. This webhook is activated by executing the [paymentMethodInitializeTokenization](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation.
+
+The webhook payload includes details about the [customer](api-reference/payments/objects/payment-method-initialize-tokenization-session.mdx#code-style-fontweight-normal-paymentmethodinitializetokenizationsessionbuserbcodeuser--), [channel](api-reference/payments/objects/payment-method-initialize-tokenization-session.mdx#code-style-fontweight-normal-paymentmethodinitializetokenizationsessionbchannelbcodechannel--), and [data](api-reference/payments/objects/payment-method-initialize-tokenization-session.mdx#code-style-fontweight-normal-paymentmethodinitializetokenizationsessionbdatabcodejson-). The [data](api-reference/payments/objects/payment-method-initialize-tokenization-session.mdx#code-style-fontweight-normal-paymentmethodinitializetokenizationsessionbdatabcodejson-) field contains the JSON data provided as input in the [paymentMethodInitializeTokenization](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation.
+
+The response must conform to the expected format and will be returned within the [paymentMethodInitializeTokenization](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation.
+
+### Request
+
+Saleor will send a [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_method_initialize_tokenization_sessionbcode) webhook using the `PaymentMethodInitializeTokenizationSession` subscription type or with a predefined payload in case of a missing subscription query.
+
+For detailed information on building webhook subscription queries, please refer to [this documentation](../../../extending/webhooks/subscription-webhook-payloads).
+
+The following example demonstrates a sample webhook subscription defined to handle the tokenization of a payment method:
+
+```graphql
+subscription {
+  event {
+    ... on PaymentMethodInitializeTokenizationSession {
+      paymentFlowToSupport
+      user {
+        id
+      }
+      channel {
+        id
+      }
+      data
+    }
+  }
+}
+```
+
+The next example illustrates the predefined payload that will be used if a subscription query is not provided:
+
+```json
+{
+  "user_id": "VXNlcjoyOA==",
+  "channel_slug": "main",
+  "data": { "data": "from-input" },
+  "payment_flow_to_support": "interactive"
+}
+```
+
+### Response
+
+- A response indicating successful tokenization should include the `result`, the `id` of the stored payment method, and optionally `data` to be passed to the client:
+
+```json
+{
+  "result": "SUCCESSFULLY_TOKENIZED",
+  "id": "payment-method-id",
+  "data": { "data": "additional-data" }
+}
+```
+
+- A response indicating a required additional action should contain the expected `result`, the `id`, and optionally `data`:
+
+```json
+{
+  "result": "ADDITIONAL_ACTION_REQUIRED",
+  "id": "id",
+  "data": { "data": "additional-data" }
+}
+```
+
+- A response indicating a pending tokenization:
+
+```json
+{
+  "result": "PENDING",
+  "data": { "data": "additional-data" }
+}
+```
+
+- A response indicating a failed tokenization:
+
+```json
+{
+  "result": "FAILED_TO_TOKENIZE",
+  "error": "Error message that will be passed to the frontend."
+}
+```
+
+The `result` field is an enum value of [PaymentMethodTokenizationResultEnum](api-reference/payments/enums/payment-method-tokenization-result.mdx). In case of a failure `result`, the `error` message will be attached to the [error](api-reference/payments/objects/payment-method-initialize-tokenization.mdx#code-style-fontweight-normal-paymentmethodinitializetokenizationberrorsbcodepaymentmethodinitializetokenizationerror--) returned by the [paymentMethodInitializeTokenization](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation.
+
+## Process additional actions for payment method tokenization
+
+`PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION`
+
+:::info
+This feature was introduced in **Saleor 3.16**.
+:::
+
+The synchronous [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_method_process_tokenization_sessionbcode) webhook is triggered when a customer requests to process additional actions required for tokenizing the payment method. This webhook is activated by executing the `paymentMethodProcessTokenization` mutation.
+
+The webhook payload includes details about the [customer](api-reference/users/objects/user.mdx), [channel](api-reference/channels/objects/channel.mdx), and [data]. The `data` field contains the JSON data provided as input in the [paymentMethodProcessTokenization](api-reference/payments/mutations/payment-method-process-tokenization.mdx) mutation.
+
+The response must adhere to the expected format and will be returned within the [paymentMethodProcessTokenization](api-reference/payments/mutations/payment-method-process-tokenization.mdx) mutation.
+
+### Request
+
+Saleor will send a [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_method_process_tokenization_sessionbcode) webhook using the [PaymentMethodProcessTokenizationSession](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) subscription type or with a predefined payload in case of a missing subscription query.
+
+For detailed information on building webhook subscription queries, please refer to [this documentation](../../../extending/webhooks/subscription-webhook-payloads).
+
+The following example demonstrates a sample webhook subscription defined to handle the tokenization of a payment method:
+
+```graphql
+subscription {
+  event {
+    ... on PaymentMethodProcessTokenizationSession {
+      id
+      user {
+        id
+      }
+      channel {
+        id
+      }
+      data
+    }
+  }
+}
+```
+
+The next example illustrates the predefined payload that will be used if a subscription query is not provided:
+
+```json
+{
+  "user_id": "VXNlcjoyOA==",
+  "channel_slug": "main",
+  "data": { "data": "from-input" }
+}
+```
+
+### Response
+
+- A response indicating successful tokenization should include the `result`, the `id` of the stored payment method, and optionally `data` to be passed to the client:
+
+```json
+{
+  "result": "SUCCESSFULLY_TOKENIZED",
+  "id": "payment-method-id",
+  "data": { "data": "additional-data" }
+}
+```
+
+- A response indicating a required additional action should contain the expected `result`, an `id`, and optional `data`:
+
+```json
+{
+  "result": "ADDITIONAL_ACTION_REQUIRED",
+  "id": "payment-method-id",
+  "data": { "data": "additional-data" }
+}
+```
+
+- A response indicating a pending tokenization:
+
+```json
+{
+  "result": "PENDING",
+  "data": { "data": "additional-data" }
+}
+```
+
+- A response indicating a failed tokenization:
+
+```json
+{
+  "result": "FAILED_TO_TOKENIZE",
+  "error": "Error message that will be passed to the frontend."
+}
+```
+
+The `result` field is an enum value of [PaymentMethodTokenizationResultEnum](api-reference/payments/enums/payment-method-tokenization-result.mdx). In case of a failure `result`, the `error` message will be attached to the [error](api-reference/payments/objects/payment-method-process-tokenization.mdx#code-style-fontweight-normal-paymentmethodprocesstokenizationberrorsbcodepaymentmethodprocesstokenizationerror--) returned by the [paymentMethodProcessTokenization](api-reference/payments/objects/payment-method-process-tokenization.mdx#code-style-fontweight-normal-paymentmethodprocesstokenizationberrorsbcodepaymentmethodprocesstokenizationerror--) mutation.
