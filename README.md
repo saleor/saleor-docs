@@ -255,6 +255,57 @@ The script behind the scenes does several steps:
 1. The current references from `docs` folder are being removed and generated references in `.tmp` folder are moved to the `docs`.
 1. The code examples are being injected. The code examples from the `examples` folder are being put into corresponding files in the references folder.
 
+# Search
+
+Saleor Docs are using Algolia DocSearch for the website search.
+
+### Crawl interval
+
+DocSearch crawls the website once a week on Friday and aggregates all the content in an Algolia index. This content is then queried directly from the front-end using the Algolia API.
+
+### Ranking strategy
+
+The website's search results are meticulously ranked to enhance user relevance and experience. A custom ranking function, known as `pageRank`, is employed for this purpose. The ranking strategy prioritizes various content categories as follows:
+
+1. `metaPageRank`: This takes precedence and is determined by a custom meta attribute, providing a top-tier ranking for specific content.
+
+1. `Documentation Pages`: General documentation pages are next in line for ranking, excluding those generated based on schema API reference and API storefront.
+
+1. `API Reference Pages`: These pages are ranked differently based on the type of operation they represent.
+
+```
+function pageRank(url) {
+  if (metaPageRank) {
+    return metaPageRank;
+  }
+  if (!/\/api-reference\/|\/api-storefront\//.test(url.pathname)) {
+    // not part of API reference
+    return "40";
+  }
+  if (/\/mutations\//.test(url.pathname)) {
+    // mutation
+    return "30";
+  }
+  if (/\/queries\//.test(url.pathname)) {
+    // query
+    return "20";
+  }
+  return "10";
+}
+```
+
+### Manual Ranking Control
+
+For even finer control over search result rankings, you can manually influence the ranking of specified pages by adding a custom meta attribute - `rank` - to the page. The `rank` meta is configured to have the highest priority in Algolia.
+
+To assign a custom rank to a particular page, use the following code snippet:
+
+```
+<head>
+  <meta name="rank" content="50" />
+</head>
+```
+
 # Debugging
 
 In dev mode, Docusaurus serves a debug page with a list of all available routes and config at http://localhost:3000/\_\_docusaurus/debug.
