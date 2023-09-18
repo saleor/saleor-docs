@@ -197,7 +197,7 @@ operations = [
 ]
 ```
 
-### Adding index to the database
+### Adding the index to the database
 
 Creating an index can lock the table for several hours. To avoid such a scenario you need to create an index using the `concurrently` option.
 Example:
@@ -218,7 +218,54 @@ class Migration(migrations.Migration):
     ]
 ```
 
-Please note that line `atomic=False` is needed to proceed with concurrent index creation.
+Please note that line `atomic=False` is needed to proceed with concurrent index creation. Please don't use nonatomic for other migrations.
+
+### Removing the index from the database
+
+Similarly to adding the index to the database, removing the index also needs the `concurrently` option.
+
+```python
+from django.db import migrations
+from django.contrib.postgres.operations import RemoveIndexConcurrently
+
+class Migration(migrations.Migration):
+    atomic=False
+
+    operations = [
+        RemoveIndexConcurrently(
+            model_name="user",
+            name="account_user_city_id_index"
+        )
+    ]
+```
+
+Please note that line `atomic=False` is needed to proceed with concurrent index removal. Please don't use nonatomic for other migrations.
+
+### Adding foreign key to the database
+
+Adding a `ForeignKey` in Django creates an index on that field which is not specified explicitly in the Model definition. You can check that behavior by running `sqlmigrate` command.
+To avoid creating the index or to be able to manually change creation to concurrently as stated in [Adding the index to the database](#adding-the-index-to-the-database)
+You need to disable the creation of the index by setting `db_index=False` and move the creation of the index to `Meta.indexes`, e.g.:
+
+```python
+class OrderEvent(models.Model):
+    ...
+    related = models.ForeignKey(
+        "self",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="related_events",
+        db_index=False,
+    )
+
+    class Meta:
+        indexes = BTreeIndex(fields=["related"], name="order_orderevent_related_id_idx")
+
+```
+
+And with this, you can follow [Adding the index to the database](#adding-the-index-to-the-database).
+Migration containing the `ForeignKey` creation should be separated from migration that creates an index concurrently.
 
 ### Data migration
 
