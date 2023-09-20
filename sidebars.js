@@ -179,7 +179,6 @@ module.exports = {
         //   ],
         // },
         "developer/extending/apollo-federation",
-        "developer/metadata",
       ],
     },
     {
