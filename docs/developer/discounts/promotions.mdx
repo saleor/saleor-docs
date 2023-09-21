@@ -303,7 +303,80 @@ Below you can see the pricing of the variant included in the newly created promo
 
 As you can see, the variant is `onSale` and the price was reduced by half.
 
-## Events
+## Promotion events history
+
+We store the promotion history in events. Each action related to the creation, update,
+or deletion of promotions and promotion rules, and activation and deactivation of promotion
+is recorded in an event. You can check the list of all possible events [here] (TODO: link to PromotionEventsEnum).
+
+You can check promotion events by fetching `promotion.events`. As it's shown
+in the example below:
+
+```graphql
+query Promotion($id: ID!) {
+  promotion(id: $id) {
+    id
+    events {
+      ... on PromotionEventInterface {
+        type
+        date
+        createdBy {
+          ... on User {
+            id
+          }
+        }
+      }
+      ... on PromotionRuleEventInterface {
+        ruleId
+      }
+    }
+  }
+}
+```
+
+Query variable:
+
+```json
+{
+  "id": "UHJvbW90aW9uOmYxMWQ5ZWRiLTI5ZjktNDA5Yy05MjdlLTNjOGMzMDFjZjM2NA=="
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "promotion": {
+      "id": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA==",
+      "events": [
+        {
+          "type": "PROMOTION_CREATED",
+          "date": "2023-09-21T12:28:16.457902+00:00",
+          "createdBy": {
+            "id": "VXNlcjox"
+          }
+        },
+        {
+          "type": "PROMOTION_STARTED",
+          "date": "2023-09-21T12:28:16.464749+00:00",
+          "createdBy": {
+            "id": "VXNlcjox"
+          }
+        },
+        {
+          "type": "RULE_CREATED",
+          "date": "2023-09-21T12:30:17.520316+00:00",
+          "createdBy": {
+            "id": "VXNlcjox"
+          },
+          "ruleId": "UHJvbW90aW9uUnVsZTo1MjIwYmViZS02MjczLTRkNjUtYTNkZC1iYjNlYmI4MjllYjA="
+        }
+      ]
+    }
+  }
+}
+```
 
 ## Webhooks
 
