@@ -48,15 +48,18 @@ Channel query requires channel ID, but from Saleor 3.6 it can be executed with c
 Available fields:
 
 - `id`: Channel object ID
+- `slug`: When using channel-dependant queries, the slug is used to select the right one (for example, when requesting Product details)
 - `name`: Channel name
 - `isActive`: Flag signalling that the channel is available for shop customers.
-- `slug`: When using channel-dependant queries, the slug is used to select the right one (for example, when requesting Product details)
 - `currencyCode`: Currency code used by the channel.
-- `defaultCountry`: Default country for the channel. The default country will be used in checkout to determine the stock quantities or calculate taxes when the country was not explicitly provided, either as a query parameter or through a shipping address.
 - `hasOrders`: Returns `true` when there are already created orders using that channel. If that's the only channel using this currency, you won't be able to remove it.
+- `defaultCountry`: Default country for the channel. The default country will be used in checkout to determine the stock quantities or calculate taxes when the country was not explicitly provided, either as a query parameter or through a shipping address.
 - `warehouses`: Warehouses that are available in the given channel.
+- `countries`: List of shippable countries for the channel.
+- `availableShippingMethodsPerCountry`: Shipping methods that are available for the channel.
 - `stockSettings`: contains all stock-related settings,
-  f.e. the [allocation strategy](developer/stock-allocation.mdx#allocation-strategies) for the channel.
+  e.g. the [allocation strategy](developer/stock-allocation.mdx#allocation-strategies) for the channel.
+- `orderSettings`: Channel-specific order settings.
 
 Request:
 
@@ -64,19 +67,34 @@ Request:
 query {
   channel(slug: "mobile") {
     id
-    isActive
-    name
     slug
+    name
+    isActive
+    currencyCode
+    hasOrders
     defaultCountry {
       code
       country
     }
-    hasOrders
     warehouses {
       slug
     }
+    countries {
+      code
+      country
+    }
+    availableShippingMethodsPerCountry {
+      countryCode
+      shippingMethods {
+        id
+        name
+      }
+    }
     stockSettings {
       allocationStrategy
+    }
+    orderSettings {
+      allowUnpaidOrders
     }
   }
 }
@@ -89,15 +107,15 @@ Response:
   "data": {
     "channel": {
       "id": "Q2hhbm5lbDo0MzM=",
-      "isActive": false,
-      "name": "Mobile",
       "slug": "mobile",
+      "name": "Mobile",
+      "isActive": false,
       "currencyCode": "USD",
+      "hasOrders": true,
       "defaultCountry": {
         "code": "US",
         "country": "United States of America"
       },
-      "hasOrders": false,
       "warehouses": [
         {
           "slug": "oceania"
@@ -106,11 +124,39 @@ Response:
           "slug": "europe"
         }
       ],
+      "availableShippingMethodsPerCountry": [
+        {
+          "countryCode": "AD",
+          "shippingMethods": [
+            {
+              "id": "U2hpcHBpbmdNZXRob2Q6Mg==",
+              "name": "DHL"
+            },
+            {
+              "id": "U2hpcHBpbmdNZXRob2Q6Mw==",
+              "name": "UPS"
+            },
+            {
+              "id": "U2hpcHBpbmdNZXRob2Q6NA==",
+              "name": "Registered priority"
+            },
+            {
+              "id": "U2hpcHBpbmdNZXRob2Q6NQ==",
+              "name": "DB Schenker"
+            }
+          ]
+        }
+        // ... more countries
+      ],
       "stockSettings": {
         "allocationStrategy": "PRIORITIZE_HIGH_STOCK"
+      },
+      "orderSettings": {
+        "allowUnpaidOrders": false
       }
     }
   }
+}
 ```
 
 ## Creating a new channel
