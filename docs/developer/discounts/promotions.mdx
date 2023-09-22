@@ -497,20 +497,97 @@ You can learn more about webhooks [here](developer/extending/webhooks/asynchrono
 
 ## Completing checkout with a promotion discount
 
-In the case of a variant on sale, the applied discount is visible only on the order and lines
+In the case of a variant on promotion, the applied discount is visible only on the order and lines
 prices; the `order.discounts` field is empty. Let's see the following example,
-for completing the checkout with **two items** of the product included in the promotion.
+for completing the checkout with **two items** of the product included in the promotion
+that reduces the price of the single item by **$5**.
 
-```
-
+```json {18-36,48-63}
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6YzQ0YTAzNDgtZDlhYy00ZDkyLWFiZWUtMmNjNzg2OWJkOWQy",
+        "status": "UNFULFILLED",
+        "totalCaptured": {
+          "amount": 30.0
+        },
+        "subtotal": {
+          "net": {
+            "amount": 30.0
+          },
+          "gross": {
+            "amount": 30.0
+          }
+        },
+        "total": {
+          "currency": "USD",
+          "net": {
+            "amount": 30.0
+          },
+          "gross": {
+            "amount": 30.0
+          }
+        },
+        "undiscountedTotal": {
+          "currency": "USD",
+          "net": {
+            "amount": 40.0
+          },
+          "gross": {
+            "amount": 40.0
+          }
+        },
+        "discounts": [],
+        "lines": [
+          {
+            "quantity": 2,
+            "totalPrice": {
+              "gross": {
+                "amount": 30.0
+              },
+              "net": {
+                "amount": 30.0
+              }
+            },
+            "unitPrice": {
+              "gross": {
+                "amount": 15.0
+              },
+              "net": {
+                "amount": 15.0
+              }
+            },
+            "undiscountedUnitPrice": {
+              "gross": {
+                "amount": 20.0
+              },
+              "net": {
+                "amount": 20.0
+              }
+            },
+            "unitDiscount": {
+              "amount": 5.0
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
 ```
 
 :::info
 The promotion discount is not visible on `checkout.discount.amount`.
 :::
 
-To calculate the total applied discount, subtract the `line.undiscountedTotalPrice` from the `line.totalPrice`.
-To calculate the discount on one unit, subtract the `line.undiscountedUnitPrice` from the `line.unitPrice`.
+As you can see, the `order.discounts` field is empty, but there is a difference between
+`order.total` and `order.undiscountedTotal`. The applied discount can be checked
+on the unit level in the `order.lines.unitDiscount` field, as well as by comparing
+the `order.lines.undiscountedUnitPrice` and `order.lines.unitPrice`. The sum of line unit
+discounts multiplied by the quantity of the line gives the total discount, which is
+equal to the difference between `order.total` and `order.undiscountedTotal`.
 
 ## Catalogue Promotion and voucher
 
