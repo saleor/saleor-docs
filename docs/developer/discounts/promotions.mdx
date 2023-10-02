@@ -1,0 +1,594 @@
+---
+title: Promotions
+sidebar_label: Promotions
+---
+
+## Introduction
+
+Promotions enable price reductions based on specific conditions.
+These conditions are defined as predicates in the promotion rules.
+A promotion can consist of multiple rules, but each rule can only belong to one promotion.
+Promotion rules specify the criteria that must be met, as well as the discount or reward that will be applied.
+
+The discounts from rules with catalog predicates are automatically applied to all products that meet the conditions defined in the promotion.
+
+For instance, if a product is priced at **$9** and has a **10%** discount, it will be available for **$8.1**.
+The discount will be visible on `ProductVariant.pricing` - `priceUndiscounted` will be the price
+before the promotion discount, and `price` will have an applied discount.
+The promotion discount will be also visible on the checkout line prices after adding the discounted
+product to the card. The checkout subtotal is calculated as a sum of discounted prices of variants
+added to the cart.
+
+When multiple promotions apply to one product, the promotion with the greatest savings is used.
+The discounts from rules within the single promotion are summed up.
+
+:::note
+The catalogue discounts from promotions are calculated in the background. So the discounted
+price will be not visible just after promotion creation.
+:::
+
+### Examples of the use cases
+
+- Define the product fixed or parentage discounts based on certain conditions.
+- Define the discount available only for a specific period.
+
+### Permissions
+
+Managing promotions is available for users and apps with the MANAGE_DISCOUNTS permission.
+
+### Glossary
+
+- **Promotion:** Consists of promotion rules, and defines the start and end date when the discounts from the rules will be applied.
+- **Promotion rule:** Defines the reward that will be given when the specified conditions are met.
+- **Catalogue predicate:** Defines the conditions to be met on the catalogue level. When the conditions are met, the discount is applied automatically to corresponding variant prices.
+- **Reward:** Describe what kind of reward is given when the promotion rule conditions are met. Currently, only discount reward is available (percentage or fixed).
+
+## Rewards
+
+Rewards are defined on the promotion rule level and specify the discount type and value
+that will be applied when the defined conditions are met.
+Currently, there is only `FIXED` or `PRECENTAGE` discount available.
+
+## Predicates
+
+Predicates define the conditions to be met to apply the reward.
+Allows defining complex nested conditions in the same way as in `where` filters, with `AND` and `OR` operators,
+combined with operations (e.g. `eq`, `oneOf`).
+To get to know how to build complex conditions reach out to the [filters page](/api-usage/filtering.mdx#general-approach).
+
+Currently only predicates on catalogue levels are available,
+that allow to definition of the conditions for variants, products, collections and categories.
+
+### Catalogue discount examples
+
+Below, you can find examples of promotion rules with catalogue predicates that define a described catalogue discount.
+
+- 10% discount on collection X
+
+```json
+{
+  "promotionRule": {
+    "cataloguePredicate": {
+      "collectionPredicate": {
+        "ids": ["Q29sbGVjdGlvbjox"]
+      }
+    },
+    "rewardValueType": "PERCENTAGE",
+    "rewardValue": 10
+  }
+}
+```
+
+- 10% discount on category X
+
+```json
+{
+  "promotionRule": {
+    "cataloguePredicate": {
+      "categoryPredicate": {
+        "ids": ["Q29sbGVjdGlvbjox"]
+      }
+    },
+    "rewardValueType": "PERCENTAGE",
+    "rewardValue": 10
+  }
+}
+```
+
+- 10% discount on variant X
+
+```json
+{
+  "promotionRule": {
+    "cataloguePredicate": {
+      "variantPredicate": {
+        "ids": ["Q29sbGVjdGlvbjox"]
+      }
+    },
+    "rewardValueType": "PERCENTAGE",
+    "rewardValue": 10
+  }
+}
+```
+
+- 10% discount on product X
+
+```json
+{
+  "promotionRule": {
+    "cataloguePredicate": {
+      "productPredicate": {
+        "ids": ["Q29sbGVjdGlvbjox"]
+      }
+    },
+    "rewardValueType": "PERCENTAGE",
+    "rewardValue": 10
+  }
+}
+```
+
+- $10 discount on collection X, or category X, or variant X or product X
+
+```json
+{
+  "promotionRule": {
+    "cataloguePredicate": {
+      "OR": [
+        {
+          "collectionPredicate": {
+            "ids": ["Q2F0ZWdvcnk6OA=="]
+          }
+        },
+        {
+          "categoryPredicate": {
+            "ids": ["Q2F0ZWdvcnk6OA=="]
+          }
+        },
+        {
+          "variantPredicate": {
+            "ids": ["Q2F0ZWdvcnk6OA=="]
+          }
+        },
+        {
+          "productPredicate": {
+            "ids": ["Q2F0ZWdvcnk6OA=="]
+          }
+        }
+      ]
+    },
+    "rewardValueType": "FIXED",
+    "rewardValue": 10
+  }
+}
+```
+
+## Channel availability
+
+Each rule can have assigned channels in which the discount will be applied.
+Promotion rules without any channels will not apply anywhere.
+
+The promotion rule can have multiple channels assigned, but there is a restriction to that.
+When the rule reward value type is `FIXED`, all assigned channels must have the same currency.
+
+## Creating the promotion
+
+To create a promotion use [`promotionCreate`](../../api-reference/discounts/mutations/promotion-create) mutation.
+The mutation takes the following input:
+
+- `name`: name of the promotion;
+- `description`: optional description of the promotion;
+- `startDate`: defines when the promotion becomes active;
+- `endDate`: defines when the promotion becomes ends;
+- `rules`: optional list of promotion rules. The rules could be also created
+  by `promotionRuleCreate` mutation.
+
+### Defining the promotion
+
+Below is an example of promotion creation without any rules.
+
+```graphql
+mutation promotionCreate($input: PromotionCreateInput!) {
+  promotionCreate(input: $input) {
+    promotion {
+      id
+      name
+      description
+      startDate
+      endDate
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "input": {
+    "name": "Example sale",
+    "description": {
+      "blocks": [
+        {
+          "type": "paragraph",
+          "data": {
+            "text": "Test example sale."
+          }
+        }
+      ]
+    },
+    "startDate": "2023-06-06T00:00:00.00+00:00"
+  }
+}
+```
+
+As a response, we will get a newly created promotion:
+
+```json
+{
+  "data": {
+    "promotionCreate": {
+      "promotion": {
+        "id": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA==",
+        "name": "Example sale",
+        "description": {
+          "blocks": [
+            {
+              "type": "paragraph",
+              "data": {
+                "text": "Test example sale."
+              }
+            }
+          ]
+        },
+        "startDate": "2023-06-06T00:00:00+00:00",
+        "endDate": null
+      }
+    }
+  }
+}
+```
+
+### Adding promotion rule
+
+To add a promotion rule to the promotion use [`promotionRuleCreate`](../../api-reference/discounts/mutations/promotion-rule-create) mutation.
+
+The mutation takes the following input:
+
+- `name`: optional name of the promotion rule;
+- `description`: optional description of the promotion rule;
+- `promotion`: define to which promotion the rule should be part of;
+- `channels`: define in which channels the rule should be applicable;
+- `rewardValueType`: define the type of discount `PERCENTAGE`/`FIXED`;
+- `rewardValue`: define the value of the discount;
+- `cataloguePredicate`: defines the conditions to be met. Allows defining complex nested
+  conditions with `AND` and `OR` operators.
+
+The following example demonstrates the creation of a promotion rule that applies
+a 50% discount on all products from a collection and categories with specified IDs.
+The rule will be applicable on two channels.
+
+```graphql
+mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
+  promotionRuleCreate(input: $input) {
+    promotionRule {
+      id
+      name
+      description
+      promotion {
+        id
+      }
+      channels {
+        id
+      }
+      rewardValueType
+      rewardValue
+      cataloguePredicate
+    }
+  }
+}
+```
+
+To define such a discount the catalogue predicate with `OR` operator is used, to
+mark that any products from given collections or categories are included in this promotion.
+
+Query variables:
+
+```json
+{
+  "input": {
+    "name": "50% percentage discount",
+    "promotion": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA==",
+    "channels": ["Q2hhbm5lbDoy", "Q2hhbm5lbDo0"],
+    "rewardValueType": "PERCENTAGE",
+    "rewardValue": "50",
+    "cataloguePredicate": {
+      "OR": [
+        {
+          "categoryPredicate": {
+            "ids": ["Q2F0ZWdvcnk6MQ==", "Q2F0ZWdvcnk6NDQ="]
+          }
+        },
+        {
+          "collectionPredicate": {
+            "ids": ["Q29sbGVjdGlvbjo1"]
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+As a result, we get a newly created promotion:
+
+```json
+{
+  "data": {
+    "promotionRuleCreate": {
+      "promotionRule": {
+        "id": "UHJvbW90aW9uUnVsZTo0NThmMTFlZC04NTIxLTQ0YTgtYmM2YS1iNjNmNzg0Yzc0ZmM=",
+        "name": "50% percentage discount",
+        "description": null,
+        "promotion": {
+          "id": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA=="
+        },
+        "channels": [
+          {
+            "id": "Q2hhbm5lbDoy"
+          },
+          {
+            "id": "Q2hhbm5lbDo0"
+          }
+        ],
+        "rewardValueType": "PERCENTAGE",
+        "rewardValue": 50,
+        "cataloguePredicate": {
+          "OR": [
+            {
+              "categoryPredicate": {
+                "ids": ["Q2F0ZWdvcnk6MQ==", "Q2F0ZWdvcnk6NDQ="]
+              }
+            },
+            {
+              "collectionPredicate": {
+                "ids": ["Q29sbGVjdGlvbjo1"]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+## Discounted price recalculations
+
+:::info
+The discounts for specified catalogues are calculated asynchronously, so the discounted price
+will be not visible immediately after promotion creation or activation.
+:::
+
+The discounted price is visible on `ProductVariant.pricing`.
+Below you can see the pricing of the variant included in the newly created promotion:
+
+```json
+{
+  "data": {
+    "productVariant": {
+      "id": "UHJvZHVjdFZhcmlhbnQ6MzM1",
+      "pricing": {
+        "onSale": true,
+        "priceUndiscounted": {
+          "gross": {
+            "amount": 90.0
+          }
+        },
+        "price": {
+          "gross": {
+            "amount": 45.0
+          }
+        },
+        "discount": {
+          "gross": {
+            "amount": 45.0
+          }
+        }
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 2,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+As you can see, the variant is `onSale` and the price was reduced by half.
+
+## Promotion events history
+
+We store the promotion history in events. Each action related to the creation, update,
+or deletion of promotions and promotion rules, and activation and deactivation of promotion
+is recorded in an event. The list of possible events is represented by
+[PromotionEventsEnum](../../api-reference/discounts/enums/promotion-events-enum).
+
+You can check promotion events by fetching `promotion.events`. As it's shown
+in the example below:
+
+```graphql
+query Promotion($id: ID!) {
+  promotion(id: $id) {
+    id
+    events {
+      ... on PromotionEventInterface {
+        type
+        date
+        createdBy {
+          ... on User {
+            id
+          }
+        }
+      }
+      ... on PromotionRuleEventInterface {
+        ruleId
+      }
+    }
+  }
+}
+```
+
+Query variable:
+
+```json
+{
+  "id": "UHJvbW90aW9uOmYxMWQ5ZWRiLTI5ZjktNDA5Yy05MjdlLTNjOGMzMDFjZjM2NA=="
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "promotion": {
+      "id": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA==",
+      "events": [
+        {
+          "type": "PROMOTION_CREATED",
+          "date": "2023-09-21T12:28:16.457902+00:00",
+          "createdBy": {
+            "id": "VXNlcjox"
+          }
+        },
+        {
+          "type": "PROMOTION_STARTED",
+          "date": "2023-09-21T12:28:16.464749+00:00",
+          "createdBy": {
+            "id": "VXNlcjox"
+          }
+        },
+        {
+          "type": "RULE_CREATED",
+          "date": "2023-09-21T12:30:17.520316+00:00",
+          "createdBy": {
+            "id": "VXNlcjox"
+          },
+          "ruleId": "UHJvbW90aW9uUnVsZTo1MjIwYmViZS02MjczLTRkNjUtYTNkZC1iYjNlYmI4MjllYjA="
+        }
+      ]
+    }
+  }
+}
+```
+
+## Webhooks
+
+All promotion actions also generate asynchronous webhooks that can be used for reacting
+to the events emitted by Saleor, e.g. `PROMOTION_CREATED`, `PROMOTION_STARTED`, `PROMOTION_ENDED`.
+The [WebhookEventTypeAsyncEnum](/api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#values)
+represents the full list of asynchronous webhooks.
+
+You can learn more about webhooks [here](developer/extending/webhooks/asynchronous-events.mdx).
+
+## Completing checkout with a promotion discount
+
+In the case of a variant on promotion, the applied discount is visible only on the order and lines
+prices; the `order.discounts` field is empty. Let's see the following example,
+for completing the checkout with **two items** of the product included in the promotion
+that reduces the price of the single item by **$5**.
+
+```json {18-36,48-63}
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6YzQ0YTAzNDgtZDlhYy00ZDkyLWFiZWUtMmNjNzg2OWJkOWQy",
+        "status": "UNFULFILLED",
+        "totalCaptured": {
+          "amount": 30.0
+        },
+        "subtotal": {
+          "net": {
+            "amount": 30.0
+          },
+          "gross": {
+            "amount": 30.0
+          }
+        },
+        "total": {
+          "currency": "USD",
+          "net": {
+            "amount": 30.0
+          },
+          "gross": {
+            "amount": 30.0
+          }
+        },
+        "undiscountedTotal": {
+          "currency": "USD",
+          "net": {
+            "amount": 40.0
+          },
+          "gross": {
+            "amount": 40.0
+          }
+        },
+        "discounts": [],
+        "lines": [
+          {
+            "quantity": 2,
+            "totalPrice": {
+              "gross": {
+                "amount": 30.0
+              },
+              "net": {
+                "amount": 30.0
+              }
+            },
+            "unitPrice": {
+              "gross": {
+                "amount": 15.0
+              },
+              "net": {
+                "amount": 15.0
+              }
+            },
+            "undiscountedUnitPrice": {
+              "gross": {
+                "amount": 20.0
+              },
+              "net": {
+                "amount": 20.0
+              }
+            },
+            "unitDiscount": {
+              "amount": 5.0
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+:::info
+The promotion discount is not visible on `checkout.discount.amount`.
+:::
+
+As you can see, the `order.discounts` field is empty, but there is a difference between
+`order.total` and `order.undiscountedTotal`. The applied discount can be checked
+on the unit level in the `order.lines.unitDiscount` field, as well as by comparing
+the `order.lines.undiscountedUnitPrice` and `order.lines.unitPrice`. The sum of line unit
+discounts multiplied by the quantity of the line gives the total discount, which is
+equal to the difference between `order.total` and `order.undiscountedTotal`.
+
+## Catalogue Promotion and Voucher
+
+Catalogue promotions and vouchers can be combined. In this case, the voucher discount
+is applied to the price after the promotion discount.
+[Here](developer/discounts/vouchers.mdx/#catalogue-promotion-and-voucher-together) you can find the example of such scenario.
