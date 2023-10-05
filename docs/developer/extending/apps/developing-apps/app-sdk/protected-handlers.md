@@ -95,7 +95,7 @@ export const ClientComponent = () => {
 
   useEffect(() => {
     /**
-     * Auth headers are set up automatically, so you can just call the fetch function
+     * Auth headers are set up automatically, so you can call the fetch function
      */
     fetch("/api/protected");
   }, [fetch]);

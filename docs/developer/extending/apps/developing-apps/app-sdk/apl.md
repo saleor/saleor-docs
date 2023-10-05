@@ -192,9 +192,9 @@ Note: Recently, Vercel introduced [KV storage](https://vercel.com/docs/storage/v
 
 ### EnvAPL
 
-For very simple, static & single-tenant applications, you may want to set everything once, usually in env variables, and leave it.
+For static & single-tenant applications, you may want to set everything once, usually in env variables, and leave it.
 
-There is a simple APL for this use case: `EnvAPL`.
+There is an APL for this use case: `EnvAPL`.
 
 > **Warning**
 > Using this APL is highly discouraged in any production environment.
