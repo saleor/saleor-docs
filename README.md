@@ -232,6 +232,12 @@ Apply changes in `docs` folders.
 
 ## Releasing `Canary` to `3.x`
 
+### With the use of GitHub Action
+
+`update-stable-version` GitHub Action workflow checks on a daily basis the `saleor/saleor` repository's latest release in search for the attached `schema.graphql` file. Such an attachment suggests the need to update the `3.x` docs and if found it creates a PR updating `3.x` based on `canary`.
+
+### Manually
+
 1. Remove `versions.json` file or just `"3.x"` inside
 1. Run `UPDATE_SALEOR=true npx docusaurus docs:version 3.x`
 1. Commit changes and issue a PR
