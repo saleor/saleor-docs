@@ -76,9 +76,9 @@ await client.connect();
  * If you intend to use the same Redis instance for multiple Apps,
  * add prefix to the keys to avoid overwriting the data by different apps.
  * Keys will be formatted as below:
- * - `APPID1:http://staging.saleor.io/graphql`
- * - `APPID1:http://demo.saleor.io/graphql`
- * - `APPID2:http://demo.saleor.io/graphql`
+ * - `APPID1:https://other-example.saleor.cloud/graphql`
+ * - `APPID1:https://example.saleor.cloud/graphql/`
+ * - `APPID2:https://example.saleor.cloud/graphql/`
  **/
 const prepareAuthDataKey = (apiUrl: string) => `${APP_ID}:${apiUrl}`;
 
@@ -111,7 +111,7 @@ You'll be able to use it directly:
 import { redisAPL } from "./apl";
 
 const getSavedAuthData = async () => {
-  await redisAPL.get("https://demo.saleor.io/graphql/");
+  await redisAPL.get("https://example.saleor.cloud/graphql/");
 };
 ```
 
@@ -192,9 +192,9 @@ Note: Recently, Vercel introduced [KV storage](https://vercel.com/docs/storage/v
 
 ### EnvAPL
 
-For very simple, static & single-tenant applications, you may want to set everything once, usually in env variables, and leave it.
+For static & single-tenant applications, you may want to set everything once, usually in env variables, and leave it.
 
-There is a simple APL for this use case: `EnvAPL`.
+There is an APL for this use case: `EnvAPL`.
 
 > **Warning**
 > Using this APL is highly discouraged in any production environment.
