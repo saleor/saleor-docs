@@ -3,6 +3,21 @@ module.exports = {
     {
       Overview: [
         "overview/introduction",
+        {
+          type: "category",
+          label: "Why Saleor",
+          items: [
+            "overview/why-saleor/headless",
+            "overview/why-saleor/composable",
+            "overview/why-saleor/extensibility",
+            "overview/why-saleor/open-source",
+            "overview/why-saleor/graphql",
+            "overview/why-saleor/saas-self-host",
+            "overview/why-saleor/scalable",
+            "overview/why-saleor/multi-market",
+            "overview/why-saleor/comparison",
+          ],
+        },
         "overview/architecture",
         "overview/features",
         "overview/resources",
