@@ -179,6 +179,7 @@ module.exports = {
                 "developer/extending/webhooks/synchronous-events/stored-payment-method",
               ],
             },
+            "developer/extending/webhooks/ip-addresses",
           ],
         },
         // {
