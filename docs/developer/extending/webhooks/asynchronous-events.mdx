@@ -39,6 +39,25 @@ All webhooks with `targetUrl`, where the scheme is HTTP(S) will use this protoco
 
 While HTTPS webhooks are a familiar concept and may seem easy to implement, ensure your endpoint can handle the same level of concurrency that you expect from the monitored events. Saleor Cloud will do its best to deliver webhooks in real-time, which could mean more traffic than your servers can handle. Because of this and the possibility of losing events when the destination server is down, we recommend using a queue like Google Cloud Pub/Sub or AWS SQS (see below).
 
+#### Time limits
+
+Webhook endpoints must respond within 20 seconds, including the network latency.
+
+If your application performs long-running operations, consider using a [task queue](#task-queue) instead.
+
+#### Fault tolerance
+
+Event delivery will be retried up to 5 times with exponential backoff if:
+
+- the endpoint cannot be reached
+- the endpoint does not respond in time
+- the endpoint responds with a transient HTTP error code (5xx)
+
+Event delivery will not be reattempted if:
+
+- the endpoint responds with an HTTP redirect (3xx)
+- the endpoint responds with a non-transient HTTP error code (4xx)
+
 ### Google Cloud Pub/Sub
 
 All webhooks with the `gcpubsub` scheme will be treated as the Google Cloud Pub/Sub webhooks.

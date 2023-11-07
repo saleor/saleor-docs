@@ -32,12 +32,24 @@ sequenceDiagram
 
 To accept webhooks, your app must include public endpoints listening for HTTP POST requests. You have to also ensure the app [subscribes to the right events](developer/extending/webhooks/asynchronous-events.mdx).
 
-Event delivery will retry if:
+#### Time limits
 
-- the endpoint does not respond before timeout
-- the endpoint will respond with a non-200 status code
+Webhook endpoints must respond within 20 seconds, including the network latency.
 
-If your application performs long-running operations, you should consider using the task queue.
+If your application performs long-running operations, consider using a [task queue](#task-queue) instead.
+
+#### Fault tolerance
+
+Event delivery will be retried up to 5 times with exponential backoff if:
+
+- the endpoint cannot be reached
+- the endpoint does not respond in time
+- the endpoint responds with a transient HTTP error code (5xx)
+
+Event delivery will not be reattempted if:
+
+- the endpoint responds with an HTTP redirect (3xx)
+- the endpoint responds with a non-transient HTTP error code (4xx)
 
 ### Task queue
 
