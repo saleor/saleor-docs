@@ -15,7 +15,6 @@ module.exports = {
             "overview/why-saleor/saas-self-host",
             "overview/why-saleor/scalable",
             "overview/why-saleor/multi-market",
-            "overview/why-saleor/comparison",
           ],
         },
         "overview/architecture",
