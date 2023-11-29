@@ -4,8 +4,7 @@ module.exports = {
       Overview: [
         "overview/introduction",
         "overview/architecture",
-        "overview/features",
-        "overview/resources",
+        "overview/quickstart",
       ],
     },
     {
