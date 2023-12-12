@@ -4,8 +4,8 @@ import ExternalLinkIcon from "../../static/assets/icons/external-link.svg";
 
 type Props = {
   minSaleorVersion: string;
-  roadmapUrl: string;
-  githubUrl: string;
+  roadmapUrl?: string;
+  githubUrl?: string;
 };
 
 export const AppMetadata = ({
@@ -18,18 +18,22 @@ export const AppMetadata = ({
       <span>
         Saleor version required: <strong>{minSaleorVersion}</strong>
       </span>
-      <span>
-        Roadmap:{" "}
-        <a href={roadmapUrl}>
-          GitHub <ExternalLinkIcon />
-        </a>
-      </span>
-      <span>
-        Repository:{" "}
-        <a href={githubUrl}>
-          GitHub <ExternalLinkIcon />
-        </a>
-      </span>
+      {roadmapUrl && (
+        <span>
+          Roadmap:{" "}
+          <a href={roadmapUrl}>
+            GitHub <ExternalLinkIcon />
+          </a>
+        </span>
+      )}
+      {githubUrl && (
+        <span>
+          Repository:{" "}
+          <a href={githubUrl}>
+            GitHub <ExternalLinkIcon />
+          </a>
+        </span>
+      )}
     </div>
   );
 };
