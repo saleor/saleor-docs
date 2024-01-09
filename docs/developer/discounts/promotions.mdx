@@ -14,7 +14,7 @@ There are two type od promotions:
 
 - catalogue promotions - reduce the product price visible by the customer,
 - checkout and order promotions - applied on checkout / draft order when object fulfill
-  the rule conditions,
+  the rule conditions.
 
 ### Catalogue promotions
 
@@ -338,16 +338,21 @@ To add a promotion rule to the promotion use [`promotionRuleCreate`](../../api-r
 
 The mutation takes the following input:
 
-- `name`: optional name of the promotion rule;
-- `description`: optional description of the promotion rule;
-- `promotion`: define to which promotion the rule should be part of;
-- `channels`: define in which channels the rule should be applicable;
-- `rewardValueType`: define the type of discount `PERCENTAGE`/`FIXED`;
-- `rewardValue`: define the value of the discount;
-- `cataloguePredicate`: defines the conditions to be met. Allows defining complex nested
-  conditions with `AND` and `OR` operators.
+- `name`: optional name of the promotion rule.
+- `description`: optional description of the promotion rule.
+- `promotion`: define to which promotion the rule should be part of.
+- `channels`: define in which channels the rule should be applicable.
+- `rewardValueType`: define the type of discount `PERCENTAGE`/`FIXED`.
+- `rewardValue`: define the value of the discount.
+- `rewardType`: define the type of reward. Required for `checkoutAndOrder` promotion rules.
+- `cataloguePredicate`: defines the conditions to be met to apply catalogue discount.
+  Allows defining complex nested conditions with `AND` and `OR` operators.
+- `checkoutAndOrderPredicate`: defines the conditions to be met to apply checkout and order discount.
+  Allows defining complex nested conditions with `AND` and `OR` operators.
 
-The following example demonstrates the creation of a promotion rule that applies
+#### Creation of catalogue promotion rule
+
+The following example demonstrates the creation of a catalogue promotion rule that applies
 a 50% discount on all products from a collection and categories with specified IDs.
 The rule will be applicable on two channels.
 
@@ -380,7 +385,7 @@ Query variables:
 ```json
 {
   "input": {
-    "name": "50% percentage discount",
+    "name": "50% catalogue discount",
     "promotion": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA==",
     "channels": ["Q2hhbm5lbDoy", "Q2hhbm5lbDo0"],
     "rewardValueType": "PERCENTAGE",
@@ -403,7 +408,7 @@ Query variables:
 }
 ```
 
-As a result, we get a newly created promotion:
+As a result, we get a newly created promotion rule:
 
 ```json
 {
@@ -446,7 +451,63 @@ As a result, we get a newly created promotion:
 }
 ```
 
+#### Creation of checkout and order promotion rule
+
+The following example demonstrates the creation of a checkout and order promotion rule that
+gives **10%** total price discount on checkout/draft order that subtotal price is greatest
+than or equal to 20.
+
+```note
+Providing price based predicates is allow only for promotion rule that all assigned channels
+have the same currency.
+```
+
+```graphql
+mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
+  promotionRuleCreate(input: $input) {
+    promotionRule {
+      id
+      name
+      description
+      promotion {
+        id
+      }
+      channels {
+        id
+      }
+      rewardValueType
+      rewardValue
+      cataloguePredicate
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "input": {
+    "name": "10% percentage order discount",
+    "promotion": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA==",
+    "channels": ["Q2hhbm5lbDoy"],
+    "rewardValueType": "PERCENTAGE",
+    "rewardValue": "10",
+    "rewardType": "TOTAL_DISCOUNT",
+    "checkoutAndOrderPredicate": {
+      "discountedObjectPredicate": {
+        "subtotalPrice": {
+          "range": { "gte": 20 }
+        }
+      }
+    }
+  }
+}
+```
+
 ## Discounted price recalculations
+
+Discounted price are calculating based on catalogue promotions.
 
 :::info
 The discounts for specified catalogues are calculated asynchronously, so the discounted price
@@ -671,8 +732,26 @@ the `order.lines.undiscountedUnitPrice` and `order.lines.unitPrice`. The sum of 
 discounts multiplied by the quantity of the line gives the total discount, which is
 equal to the difference between `order.total` and `order.undiscountedTotal`.
 
+## Processing checkout with a applied checkout and order promotion
+
+## Catalogue and checkout and order promotions
+
+Catalogue and checkout and order promotions can be mixed together. In such case the
+checkout and order discount is applied on discounted price.
+Let's see the example:
+...
+
 ## Catalogue Promotion and Voucher
 
 Catalogue promotions and vouchers can be combined. In this case, the voucher discount
 is applied to the price after the promotion discount.
 [Here](developer/discounts/vouchers.mdx/#catalogue-promotion-and-voucher-together) you can find the example of such scenario.
+
+## Checkout and order Promotion and Voucher
+
+Checkout and order promotion cannot be mixed with Vouchers.
+When voucher code is added, the discount from checkout and order promotion is not applied.
+
+## Charts that show the discounts flow:
+
+...
