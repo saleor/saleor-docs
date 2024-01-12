@@ -8,12 +8,13 @@ sidebar_label: Promotions
 Promotions enable price reductions based on specific conditions.
 These conditions are defined as predicates in the promotion rules.
 A promotion can consist of multiple rules, but each rule can only belong to one promotion.
+All rules within promotion must be of one type (`CATALOGUE` or `ORDER`).
 Promotion rules specify the criteria that must be met, as well as the discount or reward that will be applied.
 
 There are two type od promotions:
 
 - catalogue promotions - reduce the product price visible by the customer,
-- checkout and order promotions - applied on checkout / draft order when object fulfill
+- order promotions - applied on checkout / draft order when object fulfill
   the rule conditions.
 
 ### Catalogue promotions
@@ -40,9 +41,11 @@ price will not be instantly visible after promotion creation.
 - Define the product fixed or parentage discounts based on certain conditions.
 - Define the discount available only for a specific period.
 
-### Checkout and order promotions
+### Order promotions
 
-Discounts from rules with the checkoutAndOrder predicate are automatically applied during checkout or draft order when certain conditions are met. Only the discount from the promotion rule that provides the maximum savings for the customer is applied. The checkout and order discounts can be combined, and in such cases, the discount is calculated based on the discounted price.
+Discounts from rules with the `ORDER` predicate are automatically applied during checkout or draft order when certain conditions are met.
+Only the discount from the promotion rule that provides the maximum savings for the customer is applied.
+The order discounts can be combined, and in such cases, the discount is calculated based on the discounted price.
 
 This kind of promotion discount required providing the `rewardType` that described what
 kind of discount will be applied after meeting the conditions.
@@ -50,14 +53,17 @@ kind of discount will be applied after meeting the conditions.
 Current available reward types are:
 
 - `SUBTOTAL_DISCOUNT` - applies the discount on subtotal price
-- `TOTAL_DISCOUNT` - applies the discount on total price
 
 For example, consider a checkout with only one product that is on catalogue discount, and the discounted price is **$12**.
 The best promotion rule for this checkout is giving **10%** discount on subtotal price.
-In this scenario, the checkout and order discount will be **10%** from **$12** resulting in a savings of **$1.2**.
+In this scenario, the order discount will be **10%** from **$12** resulting in a savings of **$1.2**.
 
 :::note
-For now, the checkout and order promotions are applicable only on checkouts, and don't to draft orders.
+For now, the order promotions are applicable only on checkouts, and don't to draft orders.
+:::
+
+:::info
+Number od `PromotionRule` with `ORDER` predicate type is limited to 100.
 :::
 
 ### Permissions
@@ -69,10 +75,11 @@ Managing promotions is available for users and apps with the MANAGE_DISCOUNTS pe
 - **Promotion:** Consists of promotion rules, and defines the start and end date when the discounts from the rules will be applied.
 - **Promotion rule:** Defines the reward that will be given when the specified conditions are met.
 - **Catalogue predicate:** Defines the conditions to be met on the catalogue level. When the conditions are met, the discount is applied automatically to corresponding variant prices.
-- **Checkout and order predicate:** Defines the conditions to be met by checkout or draft order. When the conditions are met, the discount is applied automatically.
+- **Order predicate:** Defines the conditions to be met by checkout or draft order. When the conditions are met, the discount is applied automatically.
 - **Reward value:** Defines the amount of the discount.
 - **Reward value type:** Describe if the provided reward value is the fixed or percentage discount.
-- **Reward type:** (Applicable only for checkout and order promotions) Describe what kind of reward is given when the promotion rule conditions are met.
+- **Reward type:** (Applicable only for order promotions) Describe what kind of reward is given when the promotion rule conditions are met.
+- **Predicate type:** Defines the type of the promotion rule predicate. Determine if the promotion rule reward will be applied on catalogue or order.
 
 ## Rewards value
 
@@ -82,9 +89,9 @@ Currently, there is only `FIXED` or `PRECENTAGE` discount available.
 
 ## Reward type
 
-Reward type is applicable only for checkout and order promotions and specify what kind of reward
+Reward type is applicable only for order promotions and specify what kind of reward
 will be given when the defined conditions are met.
-Currently, only discount `SUBTOTAL_DISCOUNT` and `TOTAL_DISCOUNT` is available.
+Currently, only `SUBTOTAL_DISCOUNT` is available so that the order subtotal price will be reduced.
 
 ## Predicates
 
@@ -96,10 +103,12 @@ To get to know how to build complex conditions reach out to the [filters page](/
 ### Catalogue predicate
 
 Catalogue level predicates allow to definition of the conditions for variants, products, collections and categories.
+Must be specified when `CATALOGUE` predicate type is set.
 
 ### Catalogue discount examples
 
 Below, you can find examples of promotion rules with catalogue predicates that define a described catalogue discount.
+Must be specified when `ORDER` predicate type is set.
 
 - 10% discount on collection X
 
@@ -200,22 +209,24 @@ Below, you can find examples of promotion rules with catalogue predicates that d
 }
 ```
 
-### Checkout and order predicate
+### Order predicate
 
-The checkout and order predicatesenable the definition of conditions for checkout and draft order objects based on their attributes. Currently, it is only possible to define conditions based on the total and subtotal price.
+The order predicates enable the definition of conditions for checkout and draft order objects based on their attributes.
+Currently, it is only possible to define conditions based on the base total and subtotal price.
 
-Catalogue and checkout and order promotion discounts can be combined. Therefore, during checkout or draft order qualification, the discounted price (after applying any catalogue discount) is utilized.
+Catalogue and order promotion discounts can be combined. Therefore, during checkout or draft order qualification,
+the discounted price (after applying any catalogue discount) is utilized.
 
-### Checkout and order discount examples
+### Order discount examples
 
 - **10%** discount applied when the subtotal price is above **$20** applied on subtotal price
 
 ```json
 {
   "promotionRule": {
-    "checkoutAndOrderPredicate": {
+    "orderPredicate": {
       "discountedObjectPredicate": {
-        "subtotalPrice": {
+        "baseSubtotalPrice": {
           "range": { "gte": 20 }
         }
       }
@@ -227,21 +238,21 @@ Catalogue and checkout and order promotion discounts can be combined. Therefore,
 }
 ```
 
-- **$5** discount applied when the total price is above **$50** applied on total price
+- **$5** discount applied when the total price is above **$50** applied on subtotal price
 
 ```json
 {
   "promotionRule": {
-    "checkoutAndOrderPredicate": {
+    "orderPredicate": {
       "discountedObjectPredicate": {
-        "totalPrice": {
+        "baseTotalPrice": {
           "range": { "gte": 50 }
         }
       }
     },
     "rewardValueType": "FIXED",
     "rewardValue": 5,
-    "rewardType": "TOTAL_DISCOUNT"
+    "rewardType": "SUBTOTAL_DISCOUNT"
   }
 }
 ```
@@ -345,9 +356,12 @@ The mutation takes the following input:
 - `rewardValueType`: define the type of discount `PERCENTAGE`/`FIXED`.
 - `rewardValue`: define the value of the discount.
 - `rewardType`: define the type of reward. Required for `checkoutAndOrder` promotion rules.
+- `predicateType`: define the type of predicate. Determine if the promotion rule is `catalogue` or `order` type.
 - `cataloguePredicate`: defines the conditions to be met to apply catalogue discount.
+  Required when `CATALOGUE` is provided as `predicateType`.
   Allows defining complex nested conditions with `AND` and `OR` operators.
-- `checkoutAndOrderPredicate`: defines the conditions to be met to apply checkout and order discount.
+- `orderPredicate`: defines the conditions to be met to apply order discount.
+  Required when `ORDER` is provided as `predicateType`.
   Allows defining complex nested conditions with `AND` and `OR` operators.
 
 #### Creation of catalogue promotion rule
@@ -379,6 +393,8 @@ mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
 
 To define such a discount the catalogue predicate with `OR` operator is used, to
 mark that any products from given collections or categories are included in this promotion.
+For this kind of promotion rule, you must provide `cataloguePredicate`
+and set `CATALOGUE` as predicate type.
 
 Query variables:
 
@@ -390,6 +406,7 @@ Query variables:
     "channels": ["Q2hhbm5lbDoy", "Q2hhbm5lbDo0"],
     "rewardValueType": "PERCENTAGE",
     "rewardValue": "50",
+    "predicateType": "CATALOGUE",
     "cataloguePredicate": {
       "OR": [
         {
@@ -431,6 +448,7 @@ As a result, we get a newly created promotion rule:
         ],
         "rewardValueType": "PERCENTAGE",
         "rewardValue": 50,
+        "predicateType": "CATALOGUE",
         "cataloguePredicate": {
           "OR": [
             {
@@ -451,11 +469,13 @@ As a result, we get a newly created promotion rule:
 }
 ```
 
-#### Creation of checkout and order promotion rule
+#### Creation of order promotion rule
 
-The following example demonstrates the creation of a checkout and order promotion rule that
-gives **10%** total price discount on checkout/draft order that subtotal price is greatest
+The following example demonstrates the creation of a order promotion rule that
+gives **10%** subtotal price discount on checkout/draft order that subtotal price is greatest
 than or equal to 20.
+For this kind of promotion rule, you must provide `orderPredicate`
+and set `ORDER` as predicate type.
 
 ```note
 Providing price based predicates is allow only for promotion rule that all assigned channels
@@ -477,7 +497,7 @@ mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
       }
       rewardValueType
       rewardValue
-      cataloguePredicate
+      orderPredicate
     }
   }
 }
@@ -493,10 +513,11 @@ Query variables:
     "channels": ["Q2hhbm5lbDoy"],
     "rewardValueType": "PERCENTAGE",
     "rewardValue": "10",
-    "rewardType": "TOTAL_DISCOUNT",
-    "checkoutAndOrderPredicate": {
+    "rewardType": "SUBTOTAL_DISCOUNT",
+    "predicateType": "ORDER",
+    "orderPredicate": {
       "discountedObjectPredicate": {
-        "subtotalPrice": {
+        "baseSubtotalPrice": {
           "range": { "gte": 20 }
         }
       }
@@ -732,12 +753,12 @@ the `order.lines.undiscountedUnitPrice` and `order.lines.unitPrice`. The sum of 
 discounts multiplied by the quantity of the line gives the total discount, which is
 equal to the difference between `order.total` and `order.undiscountedTotal`.
 
-## Processing checkout with a applied checkout and order promotion
+## Processing checkout with a applied order promotion
 
-## Catalogue and checkout and order promotions
+## Catalogue and order promotions
 
-Catalogue and checkout and order promotions can be mixed together. In such case the
-checkout and order discount is applied on discounted price.
+Catalogue and order promotions can be mixed together. In such case the
+order discount is applied on discounted price.
 Let's see the example:
 ...
 
@@ -747,10 +768,10 @@ Catalogue promotions and vouchers can be combined. In this case, the voucher dis
 is applied to the price after the promotion discount.
 [Here](developer/discounts/vouchers.mdx/#catalogue-promotion-and-voucher-together) you can find the example of such scenario.
 
-## Checkout and order Promotion and Voucher
+## Order Promotion and Voucher
 
-Checkout and order promotion cannot be mixed with Vouchers.
-When voucher code is added, the discount from checkout and order promotion is not applied.
+Order promotion cannot be mixed with Vouchers.
+When voucher code is added, the discount from order promotion is not applied.
 
 ## Charts that show the discounts flow:
 
