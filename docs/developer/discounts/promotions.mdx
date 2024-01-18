@@ -8,8 +8,6 @@ sidebar_label: Promotions
 Promotions enable price reductions based on specific conditions.
 These conditions are defined as predicates in the promotion rules.
 A promotion can consist of multiple rules, but each rule can only belong to one promotion.
-All rules within promotion must be of one type (`CATALOGUE` or `ORDER`).
-Promotion rules specify the criteria that must be met, as well as the discount or reward that will be applied.
 
 There are two type od promotions:
 
@@ -17,9 +15,15 @@ There are two type od promotions:
 - order promotions - applied on checkout / draft order when object fulfill
   the rule conditions.
 
+All rules within promotion must be of one type `CATALOGUE` or `ORDER`.
+The type of rule is determine by the promotion to which the rule is assigned to.
+The `CATALOGUE` promotion consists only of `CATALOGUE` rules with `cataloguePredicate` defined,
+and `ORDER` promotion consists only of `ORDER` rules with `orderPredicate` defined.
+Promotion rules specify the criteria that must be met, as well as the discount or reward that will be applied.
+
 ### Catalogue promotions
 
-The discounts from rules with catalog predicates are automatically applied to all products that meet the conditions defined in the promotion.
+The discounts from catalogue rules are automatically applied to all products that meet the conditions defined in the promotion.
 
 For instance, if a product is priced at **$9** and has a **10%** discount, it will be available for **$8.1**.
 The discount will be visible on `ProductVariant.pricing` - `priceUndiscounted` will be the price
@@ -43,7 +47,7 @@ price will not be instantly visible after promotion creation.
 
 ### Order promotions
 
-Discounts from rules with the `ORDER` predicate are automatically applied during checkout or draft order when certain conditions are met.
+The discounts from order rules are automatically applied during checkout or draft order when certain conditions are met.
 Only the discount from the promotion rule that provides the maximum savings for the customer is applied.
 The order discounts can be combined, and in such cases, the discount is calculated based on the discounted price.
 
@@ -73,6 +77,7 @@ Managing promotions is available for users and apps with the MANAGE_DISCOUNTS pe
 ### Glossary
 
 - **Promotion:** Consists of promotion rules, and defines the start and end date when the discounts from the rules will be applied.
+- **Promotion type:** Determine the type of promotion - `CATALOGUE` or `ORDER`.
 - **Promotion rule:** Defines the reward that will be given when the specified conditions are met.
 - **Catalogue predicate:** Defines the conditions to be met on the catalogue level. When the conditions are met, the discount is applied automatically to corresponding variant prices.
 - **Order predicate:** Defines the conditions to be met by checkout or draft order. When the conditions are met, the discount is applied automatically.
@@ -80,6 +85,12 @@ Managing promotions is available for users and apps with the MANAGE_DISCOUNTS pe
 - **Reward value type:** Describe if the provided reward value is the fixed or percentage discount.
 - **Reward type:** (Applicable only for order promotions) Describe what kind of reward is given when the promotion rule conditions are met.
 - **Predicate type:** Defines the type of the promotion rule predicate. Determine if the promotion rule reward will be applied on catalogue or order.
+
+## Promotion type
+
+Promotion type determine if giving the `CATALOGUE` or `ORDER` discount.
+The `CATALOGUE` type determine that all rules within the promotion must have
+the `cataloguePredicate` defined, and for `ORDER` type the `orderPredicate`.
 
 ## Rewards value
 
@@ -271,6 +282,7 @@ To create a promotion use [`promotionCreate`](../../api-reference/discounts/muta
 The mutation takes the following input:
 
 - `name`: name of the promotion;
+- `type`: type of the promotion;
 - `description`: optional description of the promotion;
 - `startDate`: defines when the promotion becomes active;
 - `endDate`: defines when the promotion becomes ends;
@@ -287,6 +299,7 @@ mutation promotionCreate($input: PromotionCreateInput!) {
     promotion {
       id
       name
+      type
       description
       startDate
       endDate
@@ -301,6 +314,7 @@ Query variables:
 {
   "input": {
     "name": "Example sale",
+    "type: "CATALOGUE",
     "description": {
       "blocks": [
         {
@@ -325,6 +339,7 @@ As a response, we will get a newly created promotion:
       "promotion": {
         "id": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA==",
         "name": "Example sale",
+        "type": "CATALOGUE",
         "description": {
           "blocks": [
             {
@@ -356,7 +371,6 @@ The mutation takes the following input:
 - `rewardValueType`: define the type of discount `PERCENTAGE`/`FIXED`.
 - `rewardValue`: define the value of the discount.
 - `rewardType`: define the type of reward. Required for `checkoutAndOrder` promotion rules.
-- `predicateType`: define the type of predicate. Determine if the promotion rule is `catalogue` or `order` type.
 - `cataloguePredicate`: defines the conditions to be met to apply catalogue discount.
   Required when `CATALOGUE` is provided as `predicateType`.
   Allows defining complex nested conditions with `AND` and `OR` operators.
@@ -393,8 +407,8 @@ mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
 
 To define such a discount the catalogue predicate with `OR` operator is used, to
 mark that any products from given collections or categories are included in this promotion.
-For this kind of promotion rule, you must provide `cataloguePredicate`
-and set `CATALOGUE` as predicate type.
+For this kind of promotion rule, you must provide `cataloguePredicate`,
+it can be defined only for promotion with `CATALOGUE` type.
 
 Query variables:
 
@@ -406,7 +420,6 @@ Query variables:
     "channels": ["Q2hhbm5lbDoy", "Q2hhbm5lbDo0"],
     "rewardValueType": "PERCENTAGE",
     "rewardValue": "50",
-    "predicateType": "CATALOGUE",
     "cataloguePredicate": {
       "OR": [
         {
@@ -474,8 +487,8 @@ As a result, we get a newly created promotion rule:
 The following example demonstrates the creation of a order promotion rule that
 gives **10%** subtotal price discount on checkout/draft order that subtotal price is greatest
 than or equal to 20.
-For this kind of promotion rule, you must provide `orderPredicate`
-and set `ORDER` as predicate type.
+For this kind of promotion rule, you must provide `orderPredicate` abd `rewardType`,
+it can be defined only for promotion with `ORDER` type.
 
 ```note
 Providing price based predicates is allow only for promotion rule that all assigned channels
@@ -514,7 +527,6 @@ Query variables:
     "rewardValueType": "PERCENTAGE",
     "rewardValue": "10",
     "rewardType": "SUBTOTAL_DISCOUNT",
-    "predicateType": "ORDER",
     "orderPredicate": {
       "discountedObjectPredicate": {
         "baseSubtotalPrice": {
@@ -753,7 +765,7 @@ the `order.lines.undiscountedUnitPrice` and `order.lines.unitPrice`. The sum of 
 discounts multiplied by the quantity of the line gives the total discount, which is
 equal to the difference between `order.total` and `order.undiscountedTotal`.
 
-## Processing checkout with a applied order promotion
+## Processing checkout with an applied order promotion
 
 ## Catalogue and order promotions
 
@@ -773,6 +785,6 @@ is applied to the price after the promotion discount.
 Order promotion cannot be mixed with Vouchers.
 When voucher code is added, the discount from order promotion is not applied.
 
-## Charts that show the discounts flow:
+## Charts that show the discounts flow
 
 ...
