@@ -72,7 +72,7 @@ Number od `PromotionRule` with `ORDER` predicate type is limited to 100.
 
 ### Permissions
 
-Managing promotions is available for users and apps with the MANAGE_DISCOUNTS permission.
+Managing promotions is available for users and apps with the `MANAGE_DISCOUNTS` permission.
 
 ### Glossary
 
@@ -83,14 +83,13 @@ Managing promotions is available for users and apps with the MANAGE_DISCOUNTS pe
 - **Order predicate:** Defines the conditions to be met by checkout or draft order. When the conditions are met, the discount is applied automatically.
 - **Reward value:** Defines the amount of the discount.
 - **Reward value type:** Describe if the provided reward value is the fixed or percentage discount.
-- **Reward type:** (Applicable only for order promotions) Describe what kind of reward is given when the promotion rule conditions are met.
-- **Predicate type:** Defines the type of the promotion rule predicate. Determine if the promotion rule reward will be applied on catalogue or order.
+- **Reward type:** Describe what kind of reward is given when the promotion rule conditions are met. (Applicable only for order promotions).
 
 ## Promotion type
 
-Promotion type determine if giving the `CATALOGUE` or `ORDER` discount.
-The `CATALOGUE` type determine that all rules within the promotion must have
-the `cataloguePredicate` defined, and for `ORDER` type the `orderPredicate`.
+The type of promotion determines whether to give the `CATALOGUE` or `ORDER` discount.
+For the `CATALOGUE` type, all rules within the promotion must have the `cataloguePredicate` defined,
+while for the `ORDER` type, the `orderPredicate` must be defined.
 
 ## Rewards value
 
@@ -119,7 +118,6 @@ Must be specified when `CATALOGUE` predicate type is set.
 ### Catalogue discount examples
 
 Below, you can find examples of promotion rules with catalogue predicates that define a described catalogue discount.
-Must be specified when `ORDER` predicate type is set.
 
 - 10% discount on collection X
 
@@ -223,14 +221,14 @@ Must be specified when `ORDER` predicate type is set.
 ### Order predicate
 
 The order predicates enable the definition of conditions for checkout and draft order objects based on their attributes.
-Currently, it is only possible to define conditions based on the base total and subtotal price.
+Currently, it is only possible to define conditions based on the base total and base subtotal price.
 
 Catalogue and order promotion discounts can be combined. Therefore, during checkout or draft order qualification,
 the discounted price (after applying any catalogue discount) is utilized.
 
 ### Order discount examples
 
-- **10%** discount applied when the subtotal price is above **$20** applied on subtotal price
+- **10%** discount applied when the subtotal price is above **$20**, applied on subtotal price
 
 ```json
 {
@@ -249,7 +247,7 @@ the discounted price (after applying any catalogue discount) is utilized.
 }
 ```
 
-- **$5** discount applied when the total price is above **$50** applied on subtotal price
+- **$5** discount applied when the total price is above **$50**, applied on subtotal price
 
 ```json
 {
@@ -372,16 +370,16 @@ The mutation takes the following input:
 - `rewardValue`: define the value of the discount.
 - `rewardType`: define the type of reward. Required for `checkoutAndOrder` promotion rules.
 - `cataloguePredicate`: defines the conditions to be met to apply catalogue discount.
-  Required when `CATALOGUE` is provided as `predicateType`.
+  **Required for rule that belong to `CATALOGUE` promotion.**
   Allows defining complex nested conditions with `AND` and `OR` operators.
 - `orderPredicate`: defines the conditions to be met to apply order discount.
-  Required when `ORDER` is provided as `predicateType`.
+  **Required for rule that belong to `ORDER` promotion.**
   Allows defining complex nested conditions with `AND` and `OR` operators.
 
 #### Creation of catalogue promotion rule
 
 The following example demonstrates the creation of a catalogue promotion rule that applies
-a 50% discount on all products from a collection and categories with specified IDs.
+a **50%** discount on all products from a collection and categories with specified IDs.
 The rule will be applicable on two channels.
 
 ```graphql
@@ -408,7 +406,7 @@ mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
 To define such a discount the catalogue predicate with `OR` operator is used, to
 mark that any products from given collections or categories are included in this promotion.
 For this kind of promotion rule, you must provide `cataloguePredicate`,
-it can be defined only for promotion with `CATALOGUE` type.
+the rule must be part of `CATALOGUE` promotion.
 
 Query variables:
 
@@ -446,7 +444,7 @@ As a result, we get a newly created promotion rule:
     "promotionRuleCreate": {
       "promotionRule": {
         "id": "UHJvbW90aW9uUnVsZTo0NThmMTFlZC04NTIxLTQ0YTgtYmM2YS1iNjNmNzg0Yzc0ZmM=",
-        "name": "50% percentage discount",
+        "name": "50% catalogue discount",
         "description": null,
         "promotion": {
           "id": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA=="
@@ -486,14 +484,13 @@ As a result, we get a newly created promotion rule:
 
 The following example demonstrates the creation of a order promotion rule that
 gives **10%** subtotal price discount on checkout/draft order that subtotal price is greatest
-than or equal to 20.
+than or equal to **20**.
 For this kind of promotion rule, you must provide `orderPredicate` abd `rewardType`,
 it can be defined only for promotion with `ORDER` type.
 
-```note
-Providing price based predicates is allow only for promotion rule that all assigned channels
-have the same currency.
-```
+:::info
+Price-based predicates are only allowed for promotion rules in which all assigned channels have the same currency.
+:::
 
 ```graphql
 mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
@@ -573,12 +570,6 @@ Below you can see the pricing of the variant included in the newly created promo
           }
         }
       }
-    }
-  },
-  "extensions": {
-    "cost": {
-      "requestedQueryCost": 2,
-      "maximumAvailable": 50000
     }
   }
 }
@@ -678,7 +669,7 @@ prices; the `order.discounts` field is empty. Let's see the following example,
 for completing the checkout with **two items** of the product included in the promotion
 that reduces the price of the single item by **$5**.
 
-```json {18-36,48-63}
+```json
 {
   "data": {
     "checkoutComplete": {
@@ -748,7 +739,7 @@ equal to the difference between `order.total` and `order.undiscountedTotal`.
 ## Processing checkout with an applied order promotion
 
 Below you can see an example of checkout data with applied order discount from order promotion
-that applied $5 discount on objects with subtotal above $20.
+that applied **$5** discount on objects with subtotal above **$20**.
 
 ```json
 {
@@ -829,8 +820,8 @@ that applied $5 discount on objects with subtotal above $20.
 }
 ```
 
-The discount is visible on `discount.amount` field on checkout level, but also on
-line prices. The line prices are discounted.
+The discount is visible on the discount.amount field at the checkout level,
+as well as on the line prices, which are discounted.
 
 After completing the checkout we get an order with discounted prices:
 
@@ -894,12 +885,6 @@ After completing the checkout we get an order with discounted prices:
         ]
       },
       "errors": []
-    }
-  },
-  "extensions": {
-    "cost": {
-      "requestedQueryCost": 2,
-      "maximumAvailable": 50000
     }
   }
 }
@@ -994,12 +979,13 @@ Let's see the example:
 }
 ```
 
-The **$5** discount visible on `checkout.discount.amount` is from order promotion.
-The line discounted prices contains both catalogue and order discount. To check what
-was the catalogue discount check `checkout.lines.variant.prices`. In this example
-the catalogue discount is **$6** per 1 quantity, so the total discount is
-**$6** \* 2 quantity + **$5** from order discount which gives **$17** discount in total.
-Which match the difference between line `undiscountedTotalPrice` and `totalPrice`.
+The **$5** discount shown on `checkout.discount.amount` is a result of the order promotion.
+The line displaying discounted prices includes both the catalogue discount and the order discount.
+To verify the catalogue discount, refer to `checkout.lines.variant.prices`.
+In this example, the catalogue discount is $6 for each quantity of 1,
+resulting in a total discount of **$6** \* 2 quantities. Additionally, there is a **$5** discount
+from the order discount, making a total discount of **$17**.
+This amount matches the difference between the `undiscountedTotalPrice` and `totalPrice`.
 
 An order with discounted prices after completing the checkout:
 
@@ -1081,4 +1067,24 @@ When voucher code is added, the discount from order promotion is not applied.
 
 ## Charts that show the discounts flow
 
-...
+#### Following chart is showing an order in which discounts apply:
+
+```mermaid
+graph TD
+    A(Base undiscounted price) --> B[Apply catalogue discounts]
+    B --> Z{Voucher code added?}
+    Z --> |No| K[Apply `checkoutAndOrder` discount]
+    K --> E
+    Z --> |Yes| C[Apply lines vouchers - `ONCE_PER_ORDER`, `SPECIFIC_PRODUCT`]
+    C --> D[Apply `ENTIRE_ORDER` voucher]
+    D --> E[Apply taxes]
+```
+
+#### Below chart is showing the process of applying `ORDER` promotion discount
+
+```mermaid
+graph TD
+    A(Base discounted price) --> B[Collect all `ORDER` promotion rules that apply]
+    B --> C[Choose the promotion rule hat gives the best saving for user]
+    C --> D[Apply chosen promotion rule on discounted price]
+```
