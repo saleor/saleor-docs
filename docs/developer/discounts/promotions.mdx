@@ -314,7 +314,7 @@ Query variables:
 {
   "input": {
     "name": "Example sale",
-    "type: "CATALOGUE",
+    "type": "CATALOGUE",
     "description": {
       "blocks": [
         {
@@ -689,27 +689,16 @@ that reduces the price of the single item by **$5**.
           "amount": 30.0
         },
         "subtotal": {
-          "net": {
-            "amount": 30.0
-          },
           "gross": {
             "amount": 30.0
           }
         },
         "total": {
-          "currency": "USD",
-          "net": {
-            "amount": 30.0
-          },
           "gross": {
             "amount": 30.0
           }
         },
         "undiscountedTotal": {
-          "currency": "USD",
-          "net": {
-            "amount": 40.0
-          },
           "gross": {
             "amount": 40.0
           }
@@ -721,24 +710,15 @@ that reduces the price of the single item by **$5**.
             "totalPrice": {
               "gross": {
                 "amount": 30.0
-              },
-              "net": {
-                "amount": 30.0
               }
             },
             "unitPrice": {
               "gross": {
                 "amount": 15.0
-              },
-              "net": {
-                "amount": 15.0
               }
             },
             "undiscountedUnitPrice": {
               "gross": {
-                "amount": 20.0
-              },
-              "net": {
                 "amount": 20.0
               }
             },
@@ -767,12 +747,326 @@ equal to the difference between `order.total` and `order.undiscountedTotal`.
 
 ## Processing checkout with an applied order promotion
 
+Below you can see an example of checkout data with applied order discount from order promotion
+that applied $5 discount on objects with subtotal above $20.
+
+```json
+{
+  "data": {
+    "checkout": {
+      "id": "Q2hlY2tvdXQ6YzJlNTlmNTUtZjYzOS00MTc2LWI0ZjMtMGFjYWE1Y2FiZDlm",
+      "email": "customer@example.com",
+      "token": "c2e59f55-f639-4176-b4f3-0acaa5cabd9f",
+      "channel": {
+        "slug": "default-channel"
+      },
+      "voucherCode": null,
+      "discount": {
+        "amount": 5.0
+      },
+      "discountName": "Example order promo: order rule",
+      "totalPrice": {
+        "gross": {
+          "amount": 42.5,
+          "currency": "USD"
+        }
+      },
+      "subtotalPrice": {
+        "gross": {
+          "amount": 35.0,
+          "currency": "USD"
+        }
+      },
+      "shippingPrice": {
+        "gross": {
+          "amount": 7.5,
+          "currency": "USD"
+        }
+      },
+      "deliveryMethod": {
+        "id": "U2hpcHBpbmdNZXRob2Q6MQ=="
+      },
+      "lines": [
+        {
+          "id": "Q2hlY2tvdXRMaW5lOjkzOTk0OTgxLThmNWItNDg1OS04NzZmLTM1MmY5YjEyMTJlMg==",
+          "quantity": 2,
+          "undiscountedTotalPrice": {
+            "amount": 40.0
+          },
+          "totalPrice": {
+            "gross": {
+              "amount": 35.0
+            }
+          },
+          "unitPrice": {
+            "gross": {
+              "amount": 17.5
+            }
+          },
+          "undiscountedUnitPrice": {
+            "amount": 20.0
+          },
+          "variant": {
+            "pricing": {
+              "onSale": false,
+              "discount": null,
+              "priceUndiscounted": {
+                "gross": {
+                  "amount": 20.0
+                }
+              },
+              "price": {
+                "gross": {
+                  "amount": 20.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+The discount is visible on `discount.amount` field on checkout level, but also on
+line prices. The line prices are discounted.
+
+After completing the checkout we get an order with discounted prices:
+
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6ZWVjNTFjZWItZTlkZi00ZmYzLTgxYWUtYzQ4ODYyNjQwNWQ1",
+        "status": "UNFULFILLED",
+        "totalCaptured": {
+          "amount": 42.5
+        },
+        "subtotal": {
+          "gross": {
+            "amount": 35.0
+          }
+        },
+        "total": {
+          "gross": {
+            "amount": 42.5
+          }
+        },
+        "undiscountedTotal": {
+          "gross": {
+            "amount": 47.5
+          }
+        },
+        "discounts": [
+          {
+            "name": "Example order promo: order rule",
+            "type": "ORDER_PROMOTION",
+            "valueType": "FIXED",
+            "amount": {
+              "amount": 5.0
+            }
+          }
+        ],
+        "lines": [
+          {
+            "quantity": 2,
+            "totalPrice": {
+              "gross": {
+                "amount": 35.0
+              }
+            },
+            "unitPrice": {
+              "gross": {
+                "amount": 17.5
+              }
+            },
+            "undiscountedUnitPrice": {
+              "gross": {
+                "amount": 20.0
+              }
+            },
+            "unitDiscount": {
+              "amount": 2.5
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 2,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
 ## Catalogue and order promotions
 
 Catalogue and order promotions can be mixed together. In such case the
 order discount is applied on discounted price.
 Let's see the example:
-...
+
+```json
+{
+  "data": {
+    "checkout": {
+      "id": "Q2hlY2tvdXQ6NjA1YWU2NWYtNjYwZC00OGY1LWI5MzMtMjVjYjEzM2U1MWU3",
+      "email": "admin@example.com",
+      "token": "605ae65f-660d-48f5-b933-25cb133e51e7",
+      "channel": {
+        "slug": "default-channel"
+      },
+      "voucherCode": null,
+      "discount": {
+        "amount": 5.0
+      },
+      "discountName": "Example order promo: order rule",
+      "totalPrice": {
+        "gross": {
+          "amount": 30.5,
+          "currency": "USD"
+        }
+      },
+      "subtotalPrice": {
+        "gross": {
+          "amount": 23.0,
+          "currency": "USD"
+        }
+      },
+      "shippingPrice": {
+        "gross": {
+          "amount": 7.5,
+          "currency": "USD"
+        }
+      },
+      "deliveryMethod": {
+        "id": "U2hpcHBpbmdNZXRob2Q6MQ=="
+      },
+      "lines": [
+        {
+          "id": "Q2hlY2tvdXRMaW5lOjgwYTk5YmE5LWY4YTUtNDhhZS1hN2FlLWMyMDRmY2MxNDEzNw==",
+          "quantity": 2,
+          "undiscountedTotalPrice": {
+            "amount": 40.0
+          },
+          "totalPrice": {
+            "gross": {
+              "amount": 23.0
+            }
+          },
+          "unitPrice": {
+            "gross": {
+              "amount": 11.5
+            }
+          },
+          "undiscountedUnitPrice": {
+            "amount": 20.0
+          },
+          "variant": {
+            "pricing": {
+              "onSale": true,
+              "discount": {
+                "gross": {
+                  "amount": 6.0
+                }
+              },
+              "priceUndiscounted": {
+                "gross": {
+                  "amount": 20.0
+                }
+              },
+              "price": {
+                "gross": {
+                  "amount": 14.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+The **$5** discount visible on `checkout.discount.amount` is from order promotion.
+The line discounted prices contains both catalogue and order discount. To check what
+was the catalogue discount check `checkout.lines.variant.prices`. In this example
+the catalogue discount is **$6** per 1 quantity, so the total discount is
+**$6** \* 2 quantity + **$5** from order discount which gives **$17** discount in total.
+Which match the difference between line `undiscountedTotalPrice` and `totalPrice`.
+
+An order with discounted prices after completing the checkout:
+
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6OTM3ZDkxMjUtMjA0Ny00ZjE2LWE1MzItZTAwMTUyOWMyYmEz",
+        "status": "UNFULFILLED",
+        "totalCaptured": {
+          "amount": 30.5
+        },
+        "subtotal": {
+          "gross": {
+            "amount": 23.0
+          }
+        },
+        "total": {
+          "gross": {
+            "amount": 30.5
+          }
+        },
+        "undiscountedTotal": {
+          "gross": {
+            "amount": 47.5
+          }
+        },
+        "discounts": [
+          {
+            "name": "Example order promo: order rule",
+            "type": "ORDER_PROMOTION",
+            "valueType": "FIXED",
+            "amount": {
+              "amount": 5.0
+            }
+          }
+        ],
+        "lines": [
+          {
+            "quantity": 2,
+            "totalPrice": {
+              "gross": {
+                "amount": 23.0
+              }
+            },
+            "unitPrice": {
+              "gross": {
+                "amount": 11.5
+              }
+            },
+            "undiscountedUnitPrice": {
+              "gross": {
+                "amount": 20.0
+              }
+            },
+            "unitDiscount": {
+              "amount": 8.5
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
 
 ## Catalogue Promotion and Voucher
 
