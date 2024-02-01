@@ -1355,7 +1355,7 @@ When a voucher code is added, the discount from the order promotion is not appli
 graph TD
     A(Base undiscounted price) --> B[Apply catalogue discounts]
     B --> Z{Voucher code added?}
-    Z --> |No| K[Apply `checkoutAndOrder` discount]
+    Z --> |No| K[Apply `order` discount]
     K --> E
     Z --> |Yes| C[Apply lines vouchers - `ONCE_PER_ORDER`, `SPECIFIC_PRODUCT`]
     C --> D[Apply `ENTIRE_ORDER` voucher]
@@ -1364,11 +1364,13 @@ graph TD
 
 #### Below the chart shows the process of applying the `ORDER` promotion discount
 
-TODO: update with gift reward
-
 ```mermaid
 graph TD
     A(Base discounted price) --> B[Collect all `ORDER` promotion rules that apply]
-    B --> C[Choose the promotion rule that gives the best saving for the user]
-    C --> D[Apply chosen promotion rule on discounted price]
+    B --> C[For gift promotion rules chose the available product variant from the assigned gifts, with the highest discounted price]
+    C --> E[Compare the potential gift prices with other possible discounts]
+    E --> F[Choose the promotion rule that gives the best saving for the user]
+    F --> G{Choosen promotion rule is a gift promotion?}
+    G -->|No| D[Apply chosen promotion rule on discounted price]
+    G -->|Yes| H[Create a gift line with 0 unit and total price]
 ```
