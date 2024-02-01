@@ -293,7 +293,7 @@ the discounted price (after applying any catalogue discount) is utilized.
 }
 ```
 
-- possible gift reward when the total price is above **$50**
+- gift reward when the total price is above **$50**
 
 ```json
 {
@@ -584,6 +584,59 @@ Query variables:
 
 #### Creation of order promotion rule with gift reward
 
+The following example demonstrates the creation of a gift order promotion rule that
+gives add a gift to checkout/draft order that subtotal price is greater
+than or equal to **20**.
+For this kind of promotion rule, you must provide `orderPredicate`, `rewardType`, and `gifts`,
+it can be defined only for promotion with `ORDER` type.
+For this kind of promotion rule, the `rewardValue` and `rewardValueType` is empty.
+
+:::info
+Price-based predicates are only allowed for promotion rules in which all assigned channels have the same currency.
+:::
+
+```graphql
+mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
+  promotionRuleCreate(input: $input) {
+    promotionRule {
+      id
+      name
+      description
+      promotion {
+        id
+      }
+      channels {
+        id
+      }
+      rewardValueType
+      rewardValue
+      orderPredicate
+      giftIds
+    }
+  }
+}
+```
+
+Query variables:
+
+````json
+{
+  "input": {
+    "name": "Gift order rule",
+    "promotion": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA==",
+    "channels": ["Q2hhbm5lbDoy"],
+    "rewardType": "GIFT",
+    "orderPredicate": {
+      "discountedObjectPredicate": {
+        "baseSubtotalPrice": {
+          "range": { "gte": 20 }
+        }
+      }
+    },
+    "gifts": ["UHJvZHVjdFZhcmlhbnQ6MzQ4", "UHJvZHVjdFZhcmlhbnQ6NDAw"],
+  }
+}
+
 ## Discounted price recalculations
 
 Discounted prices are calculated based on catalogue promotions.
@@ -622,7 +675,7 @@ Below you can see the pricing of the variant included in the newly created promo
     }
   }
 }
-```
+````
 
 As you can see, the variant is `onSale` and the price was reduced by half.
 
@@ -939,7 +992,7 @@ After completing the checkout we get an order with discounted prices:
 }
 ```
 
-## Catalogue and order promotions with subtotal discount
+## Catalogue and order promotions
 
 Catalogue and order promotions can be mixed. In such cases the
 order discount is applied on the discounted price.
@@ -1103,7 +1156,185 @@ An order with discounted prices after completing the checkout:
 }
 ```
 
-## Catalogue and order promotions with gift reward
+## Completing checkout with gift reward
+
+Below you can see an example of checkout data with an applied gift reward from an order promotion
+that applies on objects with subtotal above **$20**.
+
+```json
+{
+  "data": {
+    "checkout": {
+      "id": "Q2hlY2tvdXQ6NTdkZjViYjUtNWY3My00NTZjLTg4YjgtOTgwZGQ3OWZiZmE5",
+      "email": "admin@example.com",
+      "token": "57df5bb5-5f73-456c-88b8-980dd79fbfa9",
+      "channel": {
+        "slug": "default-channel"
+      },
+      "voucherCode": null,
+      "discount": {
+        "amount": 0.0
+      },
+      "discountName": null,
+      "totalPrice": {
+        "gross": {
+          "amount": 40.0
+        }
+      },
+      "subtotalPrice": {
+        "gross": {
+          "amount": 40.0
+        }
+      },
+      "shippingPrice": {
+        "gross": {
+          "amount": 0.0
+        }
+      },
+      "deliveryMethod": null,
+      "lines": [
+        {
+          "id": "Q2hlY2tvdXRMaW5lOmU5ZmI3YjY3LTA4ZjctNDQzZi1iMWNjLWE1ZmJlNGU0NjcxMg==",
+          "quantity": 2,
+          "undiscountedTotalPrice": {
+            "amount": 40.0
+          },
+          "totalPrice": {
+            "gross": {
+              "amount": 40.0
+            },
+            "net": {
+              "amount": 40.0
+            }
+          },
+          "unitPrice": {
+            "gross": {
+              "amount": 20.0
+            },
+            "net": {
+              "amount": 20.0
+            }
+          },
+          "undiscountedUnitPrice": {
+            "amount": 20.0
+          }
+        },
+        {
+          "id": "Q2hlY2tvdXRMaW5lOmMwNzhjNGQyLWI1MzUtNDhkMy04MDlmLTA1ZDUyYjY3MWFiNQ==",
+          "quantity": 1,
+          "undiscountedTotalPrice": {
+            "amount": 50.0
+          },
+          "totalPrice": {
+            "gross": {
+              "amount": 0.0
+            },
+            "net": {
+              "amount": 0.0
+            }
+          },
+          "unitPrice": {
+            "gross": {
+              "amount": 0.0
+            },
+            "net": {
+              "amount": 0.0
+            }
+          },
+          "undiscountedUnitPrice": {
+            "amount": 50.0
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+We can see extra line added to checkout which is marked with `isGift` flag.
+The unit and total price of this line is set to 0.
+The checkout `discount.amount` is 0.
+
+After completing the checkout we get an order with the gift line:
+
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6YTAxYjEzMWQtZjA0Ny00ZWM3LTk3OWUtZWUyMGEzYzBjNDk2",
+        "status": "UNFULFILLED",
+        "totalCaptured": {
+          "amount": 47.5
+        },
+        "subtotal": {
+          "gross": {
+            "amount": 40.0
+          }
+        },
+        "total": {
+          "currency": "USD",
+          "gross": {
+            "amount": 47.5
+          }
+        },
+        "undiscountedTotal": {
+          "currency": "USD",
+          "gross": {
+            "amount": 547.5
+          }
+        },
+        "discounts": [],
+        "lines": [
+          {
+            "quantity": 2,
+            "totalPrice": {
+              "gross": {
+                "amount": 40.0
+              }
+            },
+            "unitPrice": {
+              "gross": {
+                "amount": 20.0
+              }
+            },
+            "undiscountedUnitPrice": {
+              "gross": {
+                "amount": 20.0
+              }
+            },
+            "unitDiscount": {
+              "amount": 0.0
+            }
+          },
+          {
+            "quantity": 1,
+            "totalPrice": {
+              "gross": {
+                "amount": 0.0
+              }
+            },
+            "unitPrice": {
+              "gross": {
+                "amount": 0.0
+              }
+            },
+            "undiscountedUnitPrice": {
+              "gross": {
+                "amount": 500.0
+              }
+            },
+            "unitDiscount": {
+              "amount": 500.0
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
 
 ## Catalogue Promotion and Voucher
 
