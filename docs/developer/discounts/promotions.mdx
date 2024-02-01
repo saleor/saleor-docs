@@ -57,11 +57,24 @@ kind of discount will be applied after meeting the conditions.
 
 Currently available reward types are:
 
-- `SUBTOTAL_DISCOUNT` - applies the discount on the subtotal price
+- `SUBTOTAL_DISCOUNT` - applies the discount on the subtotal price,
+- `GIFT` - adds a gift to the order from available gifts.
 
-For example, consider a checkout with only one product that is on catalogue discount, and the discounted price is **$12**.
-The best promotion rule for this checkout is giving a **10%** discount on the subtotal price.
-In this scenario, the order discount will be **10%** from **$12** resulting in a savings of **$1.2**.
+For gift reward, the promotion rule must specify the available gifts as product variants
+that can be added to checkout or draft orders. During calculations, the discounted prices
+of these variants (marked as possible gifts) are compared, and the variant with the
+highest discounted price is selected. This price is then compared to the savings offered
+by other promotion rules, such as those that apply discounts based on the subtotal price.
+
+The gift is created as a new checkout or order line, with both its unit and total price set to 0.
+
+For example, let's consider a checkout with only one product that is on catalogue discount, and the discounted price is **$12**.
+There are two promotion rules applied to this checkout.
+
+- **Promotion Rule A** offers a **10%** discount on the subtotal price. In this scenario, the discount will be **10%** of **$12**, resulting in a savings of **$1.2**.
+- **Promotion Rule B** adds a gift worth **$5**, which provides more savings compared to Promotion Rule A.
+
+As a result, the gift worth **$5** will be added to the checkout. The total price of the line is 0, so the total price of the checkout remains unchanged.
 
 :::note
 For now, the order promotions are applicable only on checkouts, and not on draft orders.
@@ -86,6 +99,7 @@ Managing promotions is available for users and apps with the `MANAGE_DISCOUNTS` 
 - **Reward value type:** Describe if the provided reward value is the fixed or percentage discount.
 - **Reward type:** Describe what kind of reward is given when the promotion rule conditions are met. (Applicable only for order promotions).
 - **Base prices:** Prices after applying catalogue promotions, do not include vouchers or order discounts.
+- **Gift:** The checkout or order line that is added to checkout or draft order as a reward from order promotions.
 
 ## Promotion type
 
@@ -110,6 +124,11 @@ Currently, only `SUBTOTAL_DISCOUNT` is available so the order subtotal price wil
 Base prices are the prices after applying for catalogue promotions and do not include vouchers or order discounts.
 The subtotal price is the sum of the discounted total price of lines, the total price is subtotal
 plus the base delivery price.
+
+## Gift
+
+A gift is a checkout or order line that is added as a reward from the order promotion rule. The price of this line is set to 0.
+The possible gifts are defined on `PromotionRule` with `GIFT` reward type.
 
 ## Predicates
 
@@ -270,6 +289,26 @@ the discounted price (after applying any catalogue discount) is utilized.
     "rewardValueType": "FIXED",
     "rewardValue": 5,
     "rewardType": "SUBTOTAL_DISCOUNT"
+  }
+}
+```
+
+- possible gift reward when the total price is above **$50**
+
+```json
+{
+  "promotionRule": {
+    "orderPredicate": {
+      "discountedObjectPredicate": {
+        "baseTotalPrice": {
+          "range": { "gte": 50 }
+        }
+      }
+    },
+    "rewardValueType": null,
+    "rewardValue": null,
+    "rewardType": "GIFT",
+    "giftIds": ["UHJvZHVjdFZhcmlhbnQ6MzQ4", "UHJvZHVjdFZhcmlhbnQ6NDAw"]
   }
 }
 ```
@@ -488,7 +527,7 @@ As a result, we get a newly created promotion rule:
 }
 ```
 
-#### Creation of order promotion rule
+#### Creation of order promotion rule with subtotal discount
 
 The following example demonstrates the creation of an order promotion rule that
 gives **10%** subtotal price discount on checkout/draft order that subtotal price is greater
@@ -542,6 +581,8 @@ Query variables:
   }
 }
 ```
+
+#### Creation of order promotion rule with gift reward
 
 ## Discounted price recalculations
 
@@ -898,7 +939,7 @@ After completing the checkout we get an order with discounted prices:
 }
 ```
 
-## Catalogue and order promotions
+## Catalogue and order promotions with subtotal discount
 
 Catalogue and order promotions can be mixed. In such cases the
 order discount is applied on the discounted price.
@@ -1062,6 +1103,8 @@ An order with discounted prices after completing the checkout:
 }
 ```
 
+## Catalogue and order promotions with gift reward
+
 ## Catalogue Promotion and Voucher
 
 Catalogue promotions and vouchers can be combined. In this case, the voucher discount
@@ -1089,6 +1132,8 @@ graph TD
 ```
 
 #### Below the chart shows the process of applying the `ORDER` promotion discount
+
+TODO: update with gift reward
 
 ```mermaid
 graph TD
