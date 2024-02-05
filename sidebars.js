@@ -266,6 +266,7 @@ module.exports = {
             "upgrade-guides/3-13-to-3-14",
             "upgrade-guides/3-16-to-3-17",
             "upgrade-guides/3-17-to-3-18",
+            "upgrade-guides/3-18-to-3-19",
             "upgrade-guides/notify-user-deprecation",
           ],
         },
