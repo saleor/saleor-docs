@@ -1,0 +1,225 @@
+---
+title: How to update app webhooks
+---
+
+## Problem
+
+Imagine you have an app that notifies an external service whenever a new order is created. The app registers the `ORDER_CREATED` webhook based on the subscription webhook payload from the `OrderCreatedSubscription.graphql` file:
+
+```graphql
+# OrderCreatedSubscription.graphql
+subscription OrderCreated {
+  event {
+    ... on OrderCreated {
+      order {
+        id
+        created
+        number
+      }
+    }
+  }
+}
+```
+
+You can then draw the data from the payload and send it to an external service:
+
+```js
+const payload = {
+  id: order.id,
+  created: order.created,
+  number: order.number,
+};
+
+service.notifyOrderCreated(payload);
+```
+
+After some time, you realize you need an additional order field: `status.` In the next app release, you add it to the subscription webhook payload:
+
+```graphql
+# OrderCreatedSubscription.graphql
+subscription OrderCreated {
+  event {
+    ... on OrderCreated {
+      order {
+        id
+        created
+        number
+        // highlight-next-line
+        status
+      }
+    }
+  }
+}
+```
+
+With your new fields, you modify the code to:
+
+```js
+const payload = {
+  id: order.id,
+  created: order.created,
+  number: order.number,
+  // highlight-next-line
+  status: order.status,
+};
+
+service.notifyOrderCreated(payload);
+```
+
+You deploy the app and trigger the `ORDER_CREATED` webhook. Perhaps surprised, you see a type error: `order.status is not defined`. What happened?
+
+Although you did modify your `OrderCreatedSubscription.graphql` file, **Saleor still uses the original subscription from the app installation manifest.**
+
+:::info
+
+Whenever your app starts using a new field from the subscription, you must manually update the app's [webhook `query` field](../../../api-reference/webhooks/inputs/webhook-update-input#code-style-fontweight-normal-webhookupdateinputbquerybcodestring-).
+:::
+
+## Example solution: App migration script
+
+A solution we can recommend is writing migration scripts. Those scripts should, ideally, execute before your app deployment (e.g., in CI). This way, you can ensure the app has all the required subscription fields without downtime.
+
+If you are using [`@saleor/app-sdk`](/developer/extending/apps/developing-apps/app-sdk/overview) for your app development, you can use some of the helpers provided by it in your migrations.
+
+Here is what your migration script might look like:
+
+### 1. Authenticate app
+
+To authenticate app-related API calls, you need to get the app token from its [`authData`](/developer/extending/apps/developing-apps/app-sdk/apl#authdata).
+
+Where you get your `authData` will depend on your [APL](/developer/extending/apps/developing-apps/app-sdk/apl) implementation.
+
+Let's assume you are using the [`UpstashAPL`](https://github.com/saleor/app-sdk/blob/6527b0e308cc66fce11956be827464f2ff12d185/src/APL/upstash-apl.ts)provided in app-sdk:
+
+```ts
+import { UpstashAPL } from "@saleor/app-sdk/APL";
+
+export const getAppAuthData = async () => {
+  // Requires `UPSTASH_URL` and `UPSTASH_TOKEN` environment variables
+  // Initialize UpstashAPL
+  const apl = new UpstashAPL();
+
+  // Get authData of all registered apps
+  const apps = await apl.getAll();
+
+  // Assuming there is only one app, return its authData
+  return apps[0];
+};
+```
+
+### 2. Create a webhook manifest
+
+To provide an option to roll back the migration, we will create a new, updated webhook and remove the old one. If something goes wrong during the migration, you can restore the old webhook.
+
+Generate the input needed for the `webhookCreate` mutation from the webhook manifest, which you can obtain from the `getWebhookManifest` function in the `SaleorAsyncWebhook` or `SaleorSyncWebhook` class:
+
+```ts
+// api/webhooks/order-created.ts
+import { saleorApp } from "@/saleor-app";
+import { SaleorAsyncWebhook } from "@saleor/app-sdk/handlers/next";
+import {
+  OrderCreatedDocument,
+  OrderCreatedSubscriptionPayloadFragment,
+} from "@/generated/graphql";
+
+export const orderCreatedWebhookManifest =
+  new SaleorAsyncWebhook<OrderCreatedSubscriptionPayloadFragment>({
+    name: "Order Created",
+    webhookPath: "api/webhooks/order-created",
+    event: "ORDER_CREATED",
+    apl: saleorApp.apl,
+    query: OrderCreatedDocument,
+  });
+```
+
+This webhook manifest object was used during the initial installation of the app in your `manifest.ts`:
+
+```ts
+// pages/api/manifest.ts
+import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
+import { AppManifest } from "@saleor/app-sdk/types";
+import { orderCreatedWebhook } from "./webhooks/order-created";
+
+export default createManifestHandler({
+  async manifestFactory({ appBaseUrl }) {
+    const manifest = {
+      // ...
+      webhooks: [orderCreatedWebhook.getWebhookManifest(appBaseUrl)],
+    };
+    return manifest;
+  },
+});
+```
+
+Now, regenerate it to update our webhook later:
+
+```ts
+import { orderCreatedWebhook } from "./pages/api/webhooks/order-created";
+
+const runMigration = async () => {
+  const authData = await getAppAuthData();
+
+  // Regenerate orderCreated webhook manifest with updated state
+  const webhookManifest = orderCreatedWebhook.getWebhookManifest(
+    authData.saleorApiUrl
+  );
+};
+```
+
+### 3. Run `webhookCreate` mutation
+
+Once we have our `webhookManifest` object, we can create a new webhook in the Saleor API.
+
+In the next code example, we will assume the existence of:
+
+- `createGraphQLClient` - a function that returns a GraphQL client
+- `AppWebhookManager` - a class that takes in the GraphQL client and makes calls to the Saleor API. It has two methods:
+  - `createWebhook` - runs [`webhookCreate`](../../../api-reference/webhooks/mutations/webhook-create) mutation
+  - `deleteWebhook` - runs [`webhookDelete`](../../../api-reference/webhooks/mutations/webhook-delete) mutation
+
+```ts
+const runMigration = async () => {
+  // ...
+
+  // highlight-start
+  // Imaginary function that creates a GraphQL client for your API calls. This can be Apollo Client, Urql Client, etc.
+  const client = createGraphQLClient({
+    saleorApiUrl: authData.saleorApiUrl,
+    token: authData.token,
+  });
+
+  // Imaginary class that takes in GraphQL client and makes calls to the Saleor API
+  const appWebhookManager = new AppWebhookManager({
+    client,
+  });
+
+  // appWebhookManager.createWebhook runs `webhookCreate` mutation
+  await appWebhookManager.createWebhook({
+    appId: authData.appId,
+    name: webhookManifest.name,
+    query: webhookManifest.query,
+    // ...
+  });
+  // highlight-end
+};
+```
+
+### 4. Delete the old webhook
+
+After successfully creating a new webhook, delete the old one:
+
+```ts
+const runMigration = async () => {
+  // ...
+
+  // highlight-start
+  // Before you delete the webhook, make sure the create operation was successful
+  await appWebhookManager.deleteWebhook({
+    appId: authData.appId,
+    webhookId: webhookManifest.id,
+  });
+  // highlight-end
+};
+```
+
+While your implementation may differ, the process will roughly stay the same. If you need further inspiration, feel free to peak into [saleor/apps repository](https://github.com/saleor/apps/tree/main/apps/taxes/scripts/migrations).
