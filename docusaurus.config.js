@@ -265,7 +265,7 @@ module.exports = {
           sidebarPath: "sidebars.js",
         },
         googleTagManager: {
-          containerId: "GTM-WC5R92LK",
+          containerId: "G-EFBGVHP3T0",
         },
         // Google Analytics tracking ID to track page views.
         googleAnalytics: {
