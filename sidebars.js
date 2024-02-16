@@ -107,6 +107,7 @@ module.exports = {
         "developer/export/export-overview",
         "developer/export/export-products",
         "developer/export/export-gift-cards",
+        "developer/export/export-voucher-codes",
       ],
     },
     {
