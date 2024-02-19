@@ -24,6 +24,7 @@ module.exports = {
         "developer/extending/apps/quickstart",
         "developer/extending/apps/installing-apps",
         "developer/extending/apps/updating-apps",
+        "developer/extending/apps/updating-app-webhooks",
         "developer/extending/apps/developing-with-tunnels",
         "developer/extending/apps/local-app-development",
         "developer/extending/apps/extending-dashboard-with-apps",
