@@ -219,8 +219,12 @@ const runMigration = async () => {
 };
 ```
 
----
+## Next steps
 
-A production-ready migration process can be more extensive. For example, you can first deactivate the old webhook, create a new one, confirm it's working, and only then remove the old webhook. This gives you option to roll back the migration if something goes wrong.
+For most cases, the above script should be enough to update the webhook. However, if you can't afford to have any downtime, you should consider a more complex migration process that factors in:
 
-If you need the full picture view on migration scripts, feel free to peak into [saleor/apps repository](https://github.com/saleor/apps/tree/main/apps/taxes/scripts/migrations).
+- **Rollback** - If the migration fails, you should be able to roll back to the previous state. This can be achieved by deactivating the old webhook, creating a new webhook, testing it, and only then removing the old one.
+- **Queued events** - [Saleor puts events in a queue](developer/extending/apps/architecture/communication-between-app-and-saleor.mdx#task-queue) and processes them asynchronously. This means that even if you update the webhook, the events that were put in the queue before will still be sent with the old query. Your app should be able to work with both old and new queries until the migration is complete.
+- **Safe query modification** - If you add a new field to the query, you should ensure that the app can handle the absence of this field in the old events. If you remove a field, you should ensure that the app can handle the presence of this field in the old events.
+
+If you need the full-picture view of migration scripts, feel free to peak into [saleor/apps repository](https://github.com/saleor/apps/tree/main/apps/taxes/scripts/migrations).
