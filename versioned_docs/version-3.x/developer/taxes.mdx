@@ -22,8 +22,9 @@ The tax configuration object has several properties, including:
   - product level in the [ProductPricingInfo.displayGrossPrices](api-reference/products/objects/product-pricing-info.mdx) field - use it when rendering product listings or product details pages
   - checkout level in the [Checkout.displayGrossPrices](api-reference/checkout/objects/checkout.mdx) field - use it when rendering the cart or checkout pages
 - `pricesEnteredWithTax` - Determine whether product prices are entered with tax included (typical for B2C in EU) or not (typical for US and B2B).
+- `taxAppId` - Specify which Tax App should be responsible for tax calculation when tax apps are used as a calculation strategy. To be able to see, which apps can be assigned please check [Shop.availableTaxApps](/api-reference/miscellaneous/objects/shop.mdx#code-style-fontweight-normal-shopbavailabletaxappsbcodeapp--)
 
-Additionally, the following properties can be overridden for specific countries within the channel: `chargeTaxes`, `taxCalculationStrategy`, `displayGrossPrices`. This allows for handling various situations where a store operates in different countries with different tax rules.
+Additionally, the following properties can be overridden for specific countries within the channel: `chargeTaxes`, `taxCalculationStrategy`, `displayGrossPrices` and `taxAppId`. This allows for handling various situations where a store operates in different countries with different tax rules.
 
 ### Fetching tax configurations
 
@@ -42,6 +43,7 @@ query TaxConfigurations {
         displayGrossPrices
         pricesEnteredWithTax
         taxCalculationStrategy
+        taxAppId
       }
     }
   }
@@ -329,7 +331,7 @@ To enable dynamic taxes in a channel use:
 mutation {
   taxConfigurationUpdate(
     id: "VGF4Q29uZmlndXJhdGlvbjox"
-    input: { taxCalculationStrategy: TAX_APP }
+    input: { taxCalculationStrategy: TAX_APP, taxAppId: "saleor.tax" }
   ) {
     errors {
       field
@@ -341,6 +343,12 @@ mutation {
   }
 }
 ```
+
+If you decide to set `taxAppId` [checkoutComplete](api-reference/checkout/mutations/checkout-complete.mdx) and [draftOrderComplete](api-reference/orders/mutations/draft-order-complete.mdx) mutations will fail if your Tax App doesn't respond or provide invalid data.
+From Saleor 4.0 forward `taxAppId` will become mandatory when `TAX_APP` is set as `taxCalculationStrategy`.
+
+If you use the `TAX_APP` calculation strategy and decide not to set `taxAppId` then Saleor will try to iterate through all installed Apps and return the first result.
+In case when any app doesn't respond, [checkoutComplete](api-reference/checkout/mutations/checkout-complete.mdx) and [draftOrderComplete](api-reference/orders/mutations/draft-order-complete.mdx) mutations will proceed without errors.
 
 ## Tax exemption
 
