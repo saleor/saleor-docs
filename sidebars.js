@@ -137,6 +137,7 @@ module.exports = {
             "developer/app-store/apps/adyen",
             "developer/app-store/apps/invoices",
             "developer/app-store/apps/cms",
+            "developer/app-store/apps/products-feed",
             "developer/app-store/apps/segment",
             "developer/app-store/apps/search",
             {

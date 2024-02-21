@@ -1,0 +1,95 @@
+---
+title: Products Feed
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.tsx";
+
+<AppMetadata
+  minSaleorVersion="3.10"
+  githubUrl="https://github.com/saleor/apps/tree/main/apps/products-feed"
+/>
+
+## Overview
+
+_Products Feed_ app allows to generation of an XML file with products and their details. The file can be used as a feed source for Google Merchant Center.
+
+## Features
+
+- Generate XML file with products and their details
+- Allow to store feed file in S3 bucket
+- Generating separate feeds for each channel
+- Possibility to map Saleor categories to pre-defined Google categories
+- Map Saleor attributes to Google attributes
+
+## Limitations
+
+- The app uses a serverless function to handle feed generation. It means that the app is limited by a serverless function maximum execution time, which might cause a timeout when the product catalogue is big.
+
+## Permissions
+
+The app requires `MANAGE_PRODUCTS` permission to listen to product events.
+
+To save app configuration, staff users must have `MANAGE_PRODUCTS` permission.
+
+## Configuration
+
+### S3 bucket
+
+In case you want to send generated file to S3 bucket, you need to provide the following details:
+
+- `AWS Access Key ID`
+- `AWS Secret`
+- `AWS S3 Bucket Name`
+- `AWS S3 Bucket Region`
+
+You can test the connection to S3 bucket by clicking `Test connection` button.
+
+### Channels
+
+You can generate separate feed for each channel. To do that, you need to provide the following details:
+
+- `Storefront URL`
+- `Storefront product URL`
+
+You can use `Handerbars` format to customize product URL. For example, you can use `{{ productSlug }}` to generate a product URL with slug.
+
+You can use variables like this:
+
+```
+{{ variant.product.slug }} - product `slug`
+{{ variant.id }} - product variant id
+```
+
+#### Example:
+
+For this url `https://my-shop.com/p/{{ variant.product.slug}/{{ variant.id }}` will produce `https://my-shop.com/p/t-shirt/Xyp2asZ`
+
+### Item title
+
+You can use `Handerbars` format to customize the product title. For example, you can use `{{variant.product.name}} - {{variant.name}}` to generate product title.
+
+### Categories mapping
+
+You can map Saleor categories to pre-defined Google categories, but this is optional.
+Google automatically assign a category to a product, but in some cases, Google allows to override it.
+You can find more information [here](https://support.google.com/merchants/answer/6324436?hl=en)
+
+### Attributes mapping
+
+Choose which product attributes should be used for the feed.
+
+Supported attributes:
+
+- `brand`
+- `color`
+- `material`
+- `pattern`
+- `size`
+- `gtin`
+
+## Testing
+
+- In the channel configuration section, select channel for which you want to generate a feed
+- Provide required URLs for storefront and product
+- Below in the same section, in `Test your feed` subsection click on button `Open feed in a new tab`
+- New tab should open, wait a couple seconds for the generated feed
