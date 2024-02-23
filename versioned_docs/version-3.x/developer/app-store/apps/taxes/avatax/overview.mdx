@@ -59,13 +59,13 @@ After entering, the address must be verified by clicking the _Verify_ button tha
 
 ## Mapping transaction fields
 
-When an order is confirmed, the Taxes App [creates a transaction in AvaTax](https://developer.avalara.com/api-reference/avatax/rest/v2/methods/Transactions/CreateTransaction/). The transaction contains fields that are mapped from the webhook payload. For several fields, you can provide custom values with [`privateMetadata`](api-usage/metadata.mdx#private-and-public-metadata). You have to make sure to set the value before confirming the order (e.g. when the order is still a draft).
+When an order is confirmed, the Taxes App [creates a transaction in AvaTax](https://developer.avalara.com/api-reference/avatax/rest/v2/methods/Transactions/CreateTransaction/). The transaction contains fields that are mapped from the webhook payload. For several fields, you can provide custom values with [`metadata`](api-usage/metadata.mdx#private-and-public-metadata). You have to make sure to set the value before confirming the order (e.g. when the order is still a draft or in checkout).
 
-The mutation for setting the private metadata is:
+The mutation for setting the metadata is:
 
 ```graphql
-mutation UpdatePrivateMetadata {
-  updatePrivateMetadata(
+mutation UpdateMetadata {
+  updateMetadata(
     id: "OBJECT_ID"
     input: { key: "METADATA_KEY", value: "METADATA_VALUE" }
   ) {
@@ -90,7 +90,7 @@ Taxes App supports the following mappings:
 
 By default, the [document code](https://developer.avalara.com/erp-integration-guide/sales-tax-badge/transactions/cert-document-codes/) is set to be equal to Saleor [`order`](api-storefront/orders/objects/order.mdx) id.
 
-If you want to override it, you can do so by providing a value for the order `privateMetadata` field `avataxDocumentCode`.
+If you want to override it, you can do so by providing a value for the order `metadata` field `avataxDocumentCode`.
 
 :::caution
 Due to AvaTax API restrictions, the document code will be sliced to be under 20 characters.
@@ -105,7 +105,7 @@ AvaTax supports [`entityUseCode`](https://developer.avalara.com/erp-integration-
 
 Let's say you have a draft order that was filled by tax-exempted US government entity. In AvaTax, the code for a "FEDERAL_GOV" entity is "A".
 
-To map the entity type, you need to provide the value for the `entityUseCode` field of the order `privateMetadata` field of key `avataxEntityCode` and the value of "A".
+To map the entity type, you need to provide the value for the `entityUseCode` field of the order `metadata` field of key `avataxEntityCode` and the value of "A".
 
 ### Tax calculation date
 
@@ -114,7 +114,7 @@ To map the entity type, you need to provide the value for the `entityUseCode` fi
 
 By default, the [tax calculation date](https://developer.avalara.com/erp-integration-guide/sales-tax-badge/transactions/cert-tax-calc-date/) is set to be equal to the order creation date from Saleor [`order`](api-storefront/orders/objects/order.mdx).
 
-If you want to override it, you can do so by providing a value for the order `privateMetadata` field `avataxTaxCalculationDate`.
+If you want to override it, you can do so by providing a value for the order `metadata` field `avataxTaxCalculationDate`.
 
 :::info
 The value of the `avataxTaxCalculationDate` field must be a valid UTC datetime string.
@@ -127,7 +127,7 @@ The value of the `avataxTaxCalculationDate` field must be a valid UTC datetime s
 
 If the user is logged in, the Taxes App will use the user's id as the [customer code](https://developer.avalara.com/erp-integration-guide/sales-tax-badge/transactions/simple-transactions/customer-codes/). If the user is not logged in, [a dummy customer code will be used](https://developer.avalara.com/ecommerce-integration-guide/sales-tax-badge/transactions/simple-transactions/).
 
-If you want to override it, you can do so by providing a value for the user `privateMetadata` field `avataxCustomerCode`. The app will pick it up when found on the `user` that placed the order.
+If you want to override it, you can do so by providing a value for the user `metadata` field `avataxCustomerCode`. The app will pick it up when found on the `user` that placed the order.
 
 ## Troubleshooting
 
