@@ -2,16 +2,90 @@
 title: App permissions
 ---
 
-App permissions are defined on a per-app basis. Access can be assigned during the app installation and modified later using the [appUpdate](api-reference/apps/mutations/app-update.mdx) mutation.
-The apps don't have channel restrictions, so all channels data can be visible by the app with the proper permission.
+## Overview
+
+[Permissions](developer/permissions.mdx) are a way to control what operations can be performed by an app.
+
+TODO: explain
+
+## Managing permissions
+
+When you install an app, Saleor grants it a set of permissions. The initial app permissions are drawn from [the app's manifest file](developer/extending/apps/architecture/manifest.mdx) and stored in the [`App`](api-reference/apps/objects/app.mdx) object under the `permissions` field.
+
+Permissions can also be modified after the app is installed. You can change them using the [appUpdate](api-reference/apps/mutations/app-update.mdx) mutation:
+
+```graphql
+mutation UpdateAppPermissions($id: ID!) {
+  appUpdate(id: $id, input: { permissions: [MANAGE_ORDERS] }) {
+    app {
+      permissions {
+        name
+        code
+      }
+    }
+  }
+}
+```
+
+## Using the app
+
+Apps are only visible for the users who have the `MANAGE_APPS` permission.
 
 :::info
 
-The user needs the `MANAGE_APPS` permission to display any app. To install, deactivate or delete an app, the user needs to have both the `MANAGE_APPS`, as well as all the same permissions as the app.
+To install, deactivate or delete an app, the user must have the `MANAGE_APPS` permission, as well as all the app permissions.
 
 :::
 
-To illustrate it, let's say you have a Tax App that requires the `HANDLE_TAXES` permission. You also have two permission groups: _Accountants_ and _Developers_. The accountants should be able to use the Tax App, but not delete or deactivate it. This is for the developers to handle. The permissions for these groups would look like this:
+To distinguish between two types of users: the ones who can use the app and the ones who can manage it, let's use an example of Orders App that sends orders to an external service. The app requires the `MANAGE_ORDERS` permission.
 
-- Accountants: `MANAGE_APPS` (_needed to display the app_)
-- Developers: `HANDLE_TAXES`, `MANAGE_APPS` (_needed to display the app, as well as to manage it_)
+A user who only has the `MANAGE_APPS` permission can open the installed app, but they won't be able to deactivate or delete it.
+
+In this case, only the user who has both the `MANAGE_APPS` and `MANAGE_ORDERS` permissions can install, deactivate or delete the app.
+
+## Access scopes
+
+When using an app, two types of access scope apply: user scope (which applies on the client-side) and app scope (which applies on the server-side).
+
+The user using the app is still restricted by their own permissions.
+
+Coming back to our Orders App example, let's imagine it features a table of orders. The table can be used to determine which orders have been synchronized with the external service.
+
+### Client-side
+
+Our table is populated by the result of the [`orders` query](api-reference/orders/queries/orders.mdx). This query requires the `MANAGE_ORDERS` permission. The call is executed on the client side, where the user scope applies. It means that the user without the `MANAGE_ORDERS` permission will fail to execute the query.
+
+:::tip
+
+You can check if the user has the required permissions using the [`useAppBridge` hook](developer/extending/apps/developing-apps/app-sdk/app-bridge.mdx#useappbridge-hook):
+
+```jsx
+import { useAppBridge } from "@saleor/app-sdk";
+
+const Component = () => {
+  const { appBridgeState } = useAppBridge();
+
+  const hasPermission =
+    appBridgeState.user.permissions.includes("MANAGE_ORDERS");
+
+  return hasPermission ? (
+    <OrdersTable />
+  ) : (
+    <p>You don't have the required permissions</p>
+  );
+};
+```
+
+:::
+
+### Server-side
+
+On the server-side of our app, the app scope applies. It means that as long as the app has the `MANAGE_ORDERS` permission, it can execute the `orders` query.
+
+If you want to render the table for all the users, not just the ones with the `MANAGE_ORDERS` permission, you need to execute the `orders` query on the server-side and pass the result to the client-end.
+
+:::info
+
+We have an entire article about the app's [Server and client-side calls](developer/extending/apps/architecture/server-and-client-side-calls.mdx).
+
+:::
