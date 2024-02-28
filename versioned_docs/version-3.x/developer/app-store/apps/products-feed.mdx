@@ -1,0 +1,95 @@
+---
+title: Products Feed
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.tsx";
+
+<AppMetadata
+  minSaleorVersion="3.10"
+  githubUrl="https://github.com/saleor/apps/tree/main/apps/products-feed"
+/>
+
+:::info
+
+You can find more information how to modify product feed in [Google Merchant Center](https://shoppingsolutions.withgoogle.com/expertise/merchant-center-modify/).
+
+:::
+
+## Overview
+
+_Products Feed_ app allows generating an XML file file with products and their details. The file can be used as a feed source for Google Merchant Center.
+
+## Features
+
+- Generate XML file with products and their details
+- Allow to store feed file in S3 bucket
+- Generating separate feeds for each channel
+- Possibility to map Saleor categories to pre-defined Google categories
+- Map Saleor attributes to Google attributes
+
+## Limitations
+
+- The app uses a serverless function to handle feed generation. It means that the app is limited by a serverless function maximum execution time, which might cause a timeout when the product catalogue is big.
+
+## Permissions
+
+The app requires `MANAGE_PRODUCTS` permission to listen to product events.
+
+To save app configuration, staff users must have `MANAGE_PRODUCTS` permission.
+
+## Configuration
+
+### S3 bucket
+
+In case you want to send the generated file to the S3 bucket, you need to provide the following details:
+
+- `AWS Access Key ID`
+- `AWS Secret`
+- `AWS S3 Bucket Name`
+- `AWS S3 Bucket Region`
+
+You can test the connection to the S3 bucket by clicking the `Test connection` button.
+
+### Channels
+
+You can generate a separate feed for each channel. To do that, you need to provide the following details:
+
+- `Storefront URL`
+- `Storefront product URL`
+
+### Item title
+
+You can use the [`Handerbars`](https://handlebarsjs.com/) format to customize the product URL with context-aware templates.
+
+You can use variables like this:
+
+#### Example:
+
+For this url `https://my-shop.com/p/{{ variant.product.slug }}/{{ variant.id }}` will produce `https://my-shop.com/p/t-shirt/Xyp2asZ`
+
+### Categories mapping
+
+You can map Saleor categories to pre-defined Google categories, but this is optional.
+Selected Google Category Id will be saved in Category public metadata.
+Google automatically assigns a category to a product, but in some cases, Google allows to override it.
+You can find more information [here](https://support.google.com/merchants/answer/6324436?hl=en)
+
+### Attributes mapping
+
+Choose which product attributes should be used for the feed.
+
+Supported attributes:
+
+- `brand`
+- `color`
+- `material`
+- `pattern`
+- `size`
+- `gtin`
+
+## Testing
+
+- In the channel configuration section, select a channel for which you want to generate a feed
+- Provide required URLs for storefront and product
+- Below in the same section, in the `Test your feed` subsection click on the button `Open feed in a new tab`
+- New tab should open, wait a couple of seconds for the generated feed
