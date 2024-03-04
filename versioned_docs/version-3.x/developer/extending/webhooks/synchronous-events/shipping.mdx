@@ -10,11 +10,26 @@ This feature was introduced in **Saleor 3.1**.
 
 :::
 
-Synchronous webhooks for shipping methods allow Saleor Apps to control shipping methods available for checkouts and draft orders.
+Synchronous webhooks for shipping methods allow Saleor Apps to control shipping methods available for checkouts and draft orders. Diagram below shows example flow of requests between your store customer, Saleor and shipping app.
+
+```mermaid
+sequenceDiagram
+    Customer->>+Saleor: checkoutCreate
+    Saleor->>+Shipping App: ShippingListMethodsForCheckout
+    Shipping App-->>-Saleor: getInitialShippingMethodsForCheckout
+    Saleor-->>-Customer: shippingMethods
+    Customer->>+Saleor: checkoutDeliveryMethodUpdate
+    Saleor->>+Shipping App: ShippingListMethodsForCheckout
+    Shipping App-->>-Saleor: getShippingMethodsForAddressForCheckout
+    Saleor-->>-Customer: shippingMethods
+    Customer->>+Saleor: checkoutComplete
+    Saleor->>+Shipping App: OrderCreated
+    Shipping App-->>-Saleor: setShippingMethodForOrder
+```
 
 ### Required permissions
 
-- `HANDLE_SHIPPING`
+- `MANAGE_SHIPPING`
 - `MANAGE_ORDERS`
 - `MANAGE_CHECKOUTS`
 
@@ -31,7 +46,7 @@ shipping methods are queried for a checkout object.
 
 ```graphql
 {
-  checkout(token: "checkout-uuid-token") {
+  checkout(id: "checkout-id") {
     shippingMethods {
       id
       name
@@ -48,7 +63,7 @@ This is an example response from the application:
 [
   {
     "type": "Checkout",
-    "token": "Q2hlY2tvdXQ6ZGU1N2Q2M2UtNWVkZS00MmE2LWFmOTEtZDE2NmE1ZTE4MmE5",
+    "id": "Q2hlY2tvdXQ6dXVpZA==",
     "channel": {
       "type": "Channel",
       "id": "Q2hhbm5lbDox",
@@ -152,16 +167,24 @@ This is an example response from the application:
 ]
 ```
 
+Where:
+
+- `id` **(required)** is id of external shipping method e.g `dhl-exp`. It will be converted by Saleor to `app:<app-database-id>:<id-returned-by-webhook>` and decoded in Base64 format.
+- `name` **(required)** of shipping method e.g `DHL Express`.
+- `amount` **(required)** is price that customer needs to pay for delivery with shipping method.
+- `currency` **(required)** is ISO currency code for amount.
+- `maximum_delivery_days` is maximum delivery days for delivery promise of shipping carrier.
+
 #### Selecting shipping methods
 
-External shipping methods have an ID of the following format: `app:<app-database-id>:<id-returned-by-webhook>`
+External shipping methods have an ID of the following format: `app:<app-database-id>:<id-returned-by-webhook>` decoded in Base64.
 
 They are selected using the same mutations as internal shipping methods, e.g.:
 
 ```graphql
 mutation {
   checkoutDeliveryMethodUpdate(
-    token: "915d9405-629f-4ef2-98f4-8480d5cf827f"
+    id: "Q2hlY2tvdXQ6dXVpZA=="
     deliveryMethodId: "YXBwOjEyMzQ6c29tZS1pZA=="
   ) {
     checkout {
@@ -203,7 +226,7 @@ Example request for `CHECKOUT_FILTER_SHIPPING_METHODS`:
 {
   "checkout": {
     "type": "Checkout",
-    "token": "Q2hlY2tvdXQ6YzczOGEyYzUtMDliMy00MTE3LWFiYmEtY2ZhYzJiNDBhZWRl",
+    "id": "Q2hlY2tvdXQ6dXVpZA==",
     "channel": {
       "type": "Channel",
       "id": "Q2hhbm5lbDox",
@@ -383,3 +406,7 @@ This is an example response from the application:
 Even though external methods are also subject to filtering, we recommend integrating only one of the two approaches,
 as every single synchronous webhook affects the response time of your Saleor API.
 :::
+
+### Community resources
+
+- [Demo shipping app](https://github.com/krzysztofzuraw/dummy-shipping-app)
