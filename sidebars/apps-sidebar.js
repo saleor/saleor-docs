@@ -47,6 +47,7 @@ module.exports = {
         "developer/extending/apps/developing-apps/app-template",
         "developer/extending/apps/developing-apps/app-examples",
         "developer/extending/apps/developing-apps/troubleshooting",
+        "developer/extending/apps/developing-apps/macaw-ui",
         {
           type: "category",
           label: "Patterns",
