@@ -81,7 +81,7 @@ module.exports = {
     {
       type: "category",
       label: "Saleor Cloud",
-      items: ["cloud"],
+      items: ["cloud", "restricting-api-access"],
     },
     {
       type: "category",
