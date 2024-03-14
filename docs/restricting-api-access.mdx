@@ -3,31 +3,37 @@ title: Restricting API access
 sidebar_position: 2
 ---
 
-Even though Saleor [implements complex authorization and authentication](/api-usage/authentication.mdx) mechanisms, you might want to restrict access to the API for specific use cases.
+Even though Saleor [implements complex authorization and authentication](/api-usage/authentication.mdx) mechanisms, you might want to restrict access to your Saleor Cloud instance for specific use cases.
 
 Below, we explore two ways Saleor Cloud allows you to restrict access to the API, as well as a practical example of how to use them.
 
 ## Allowed API origins
 
-Most times, the list of the origins you expect to call your API is known in advance (and it includes your storefronts). By specifying the allowed origins, you can prevent unauthorized access to your API.
+Most times, the list of the origins you expect to call your API is known in advance (and it includes your storefront/-s). By specifying the allowed origins, you can prevent unauthorized access to your API.
 
 In the project view of your Saleor Cloud dashboard, you can customize the allowed origins. The default option is to "Allow all", but you can also specify a list of origins or set it to "Dashboard only".
 
 ## API Password Protection
 
-TODO
+Another way to restrict access to your Saleor Cloud instance is to protect it with a password through [Basic Auth](https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#basic_authentication_scheme). This way, you can ensure that only those who know the credentials can access the API.
+
+:::important
+
+The users trying to open the Saleor Dashboard will be prompted to enter the username and password as well.
+
+:::
 
 ## Example: Password protected API proxy
 
 ### Overview
 
-Let's imagine you have a storefront that communicates with Saleor API. Your storefront, naturally, implements some sort of a checkout flow. In Saleor, creating and managing a checkout doesn't require an authenticated user. It is done so by design - you want to allow users to add items to their cart without being logged in.
+Let's imagine you have a storefront that communicates with Saleor API. Your storefront, naturally, implements some sort of a checkout flow. In Saleor, some checkout actions don't require an authenticated user. It is done so by design - you want to allow users to add items to their cart without being logged in.
 
 After some time, you realize your checkout flow requires some custom logic. Normally, you would utilize the synchronous webhooks executed during the checkout (e.g., the [transaction events](/developer/extending/webhooks/synchronous-events/transaction.mdx) for payment processing). However, for some reason, your use-case doesn't fit into the synchronous webhooks model. You need to execute it "aside" from the Saleor checkout flow.
 
-By introducing this custom piece of code, Saleor is no longer the source of truth for the checkout process. Given the open access to the Checkout API, the user can just call the API directly and bypass your custom logic.
+By introducing this custom piece of code, Saleor is no longer the source of truth for the checkout process. Given the open access to the [Checkout API](developer/checkout/overview.mdx), the user can just call the API directly and bypass your custom logic.
 
-To prevent this, you can obstruct the access to the Saleor API by protecting it with a password. You can then create a proxy server that will know the password and will be able to access the Saleor API. This way, you can ensure that only your proxy server can access the Saleor API.
+To prevent this, you can obstruct the access to the Saleor API by protecting it with a password. You can then create a proxy server that will know the credentials and the address and will be able to access the Saleor API. This way, you can ensure that only your proxy server can access the Saleor API.
 
 Here is how it may look in practice on the example of a simple Next.js Apollo application that used to call the Saleor API directly:
 
@@ -35,76 +41,71 @@ Here is how it may look in practice on the example of a simple Next.js Apollo ap
 
 #### Step 1: Protect the Saleor API with a password
 
-Set up "API Password Protection" in the Saleor Cloud dashboard as described above.
+Set up "API Password Protection" in the Saleor Cloud dashboard as [described above](#api-password-protection).
 
 #### Step 2: Visit your current implementation
 
-In the current implementation, your Next.js application directly calls the Saleor API through an Apollo GraphQL client.
-
-The queries may look like this:
+In the current implementation, your Next.js application calls the Saleor API directly:
 
 ```jsx
-import { ApolloClient, InMemoryCache, gql, useQuery } from "@apollo/client";
+async function getProducts() {
+  const response = await fetch("https://your-store.saleor.cloud/graphql", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: `
+          query GetProducts {
+            products(first: 10) {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+      `,
+    }),
+  });
 
-const client = new ApolloClient({
-  uri: "https://your-store.saleor.cloud/graphql/", // Calling the Saleor API directly
-  cache: new InMemoryCache(),
-});
+  const data = await response.json();
 
-const GET_PRODUCTS = gql`
-  query GetProducts {
-    products(first: 10) {
-      edges {
-        node {
-          id
-        }
-      }
-    }
-  }
-`;
-
-const Home = ({ products }) => {
-  const { data, loading, error } = useQuery(GET_PRODUCTS);
-
-  return (
-    <div>
-      <h1>Products</h1>
-      <ul>
-        {products.map((product) => (
-          <li key={product.id}>{product.id}</li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+  return data;
+}
 ```
 
 Our goal is to change as little as possible in the code above when introducing the proxy server.
 
 #### Step 3: Create a proxy API route
 
+In most cases, you would call the Saleor GraphQL API straight from the React component. However, given that we want to obscure the Saleor API behind a basic auth, we can't just pass the credentials to the client. They would be easily accessible to anyone who inspects the code.
+
+Instead, we will create a proxy API route that will know the credentials and the address and will be able to access the Saleor API. This way, we can ensure that only our proxy server can access the Saleor API.
+
+Inside the API route, we can further execute the custom logic that we need to introduce.
+
+Here is how the proxy API route may look:
+
 ```jsx
 // pages/api/saleor.js
-
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
-
 export default async (req, res) => {
-  const username = process.env.SALEOR_API_USERNAME; // Using the Basic Auth username
-  const password = process.env.SALEOR_API_PASSWORD; // Using the Basic Auth password
-  const token = Buffer.from(`${username}:${password}`).toString("base64");
+  const username = process.env.SALEOR_API_USERNAME; // Take the Basic Auth username from an environment variable
+  const password = process.env.SALEOR_API_PASSWORD; // Take the Basic Auth password from an environment variable
+  const token = Buffer.from(`${username}:${password}`).toString("base64"); // Encode the credentials to Base64
 
-  const client = new ApolloClient({
-    uri: "https://your-store.saleor.cloud/graphql/",
-    cache: new InMemoryCache(),
+  // You can execute the custom logic here
+  const response = await fetch("https://your-store.saleor.cloud/graphql", {
+    method: "POST",
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Basic ${token}`, // Using the Basic Auth header to authenticate the Saleor API
     },
-  });
-
-  const { data } = await client.query({
-    query: gql`
-      # Read the query from the request body
-    `,
+    body: JSON.stringify({
+      query: `
+        // Read the query from the request body
+      `,
+    }),
   });
 
   res.status(200).json(data);
@@ -113,11 +114,22 @@ export default async (req, res) => {
 
 #### Step 4: Update the Next.js application to use the proxy
 
-```jsx
-import { ApolloClient, InMemoryCache, gql, useQuery } from "@apollo/client";
+Our last step will be to update the Next.js application to use the proxy server instead of calling the Saleor API directly:
 
-const client = new ApolloClient({
-  uri: "/api/saleor", // Calling the proxy server
-  cache: new InMemoryCache(),
-});
+```jsx
+async function getProducts() {
+  // highlight-next-line
+  const response = await fetch("/api/saleor", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    // ...
+  });
+  // ...
+}
 ```
+
+TODO: check if it works or do you need more for an endpoint to be GraphQL endpoint
+
+#### Further considerations
