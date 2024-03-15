@@ -9,31 +9,25 @@ Below, we explore two ways Saleor Cloud allows you to restrict access to the API
 
 ## Allowed API origins
 
-Most times, the list of the origins you expect to call your API is known in advance. By specifying the allowed origins, you can prevent unauthorized access to your API.
+If the list of the origins you expect to call your API is known in advance, you can automatically reject the unknown ones.
 
-In the project view of your Saleor Cloud dashboard, you can customize the allowed origins. The default option is to "Allow all", but you can also specify a list of origins or set it to "Dashboard only".
+In the project view of your Saleor Cloud dashboard, you can customize the allowed origins. The default option is to "Allow all" but you can also specify a list of origins or set it to "Dashboard only".
 
 :::info
 
-Changing the settings to only allow the selected origins can affect the installed apps. If you want your app to call the Saleor API from the client, you need to add the app's origin to the list of allowed origins. You can read more about app's access scopes in the [App permissions](developer/extending/apps/architecture/app-permissions.mdx#access-scopes) document.
+Changing the settings to only allow the selected origins can affect the installed apps. If you want your app to call the Saleor API from the client, you need to add the app's origin to the list of allowed origins. You can read more about the app's access scopes in the [App permissions](developer/extending/apps/architecture/app-permissions.mdx#access-scopes) document.
 
 :::
-
-Here is how an example list of allowed origins may look:
-
-- `https://your-storefront.com` - your storefront
-- `https://your-app-1.com` - your first app (if it is calling the Saleor API from the client)
-- `https://your-app-2.com` - your second app (if it is calling the Saleor API from the client)
 
 You don't need to specify the Saleor Cloud dashboard origin, as it is always allowed to call the Saleor API.
 
 ## API Password Protection
 
-Another way to restrict access to your Saleor Cloud instance is to protect it with a password through [Basic Auth](https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#basic_authentication_scheme). This way, you can ensure that only those who know the credentials can access the API.
+Another way to restrict access to your Saleor Cloud instance is to protect it with a password through [Basic Auth](https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication#basic_authentication_scheme). This way, you can ensure that only those with the credentials can access the API.
 
 :::important
 
-After enabling password protection, users trying to open the Saleor Dashboard will be prompted to enter the Basic Auth username and password, besides their own Saleor Cloud credentials.
+After enabling password protection, users trying to open the Saleor Dashboard will be prompted to enter the Basic Auth username and password besides their own Saleor Cloud credentials.
 
 :::
 
@@ -43,15 +37,11 @@ Combined with a server-side proxy, this can be a powerful tool to obscure the Sa
 
 ### Overview
 
-Let's imagine you have a storefront that communicates with Saleor API. Your storefront, naturally, implements some sort of a checkout flow. In Saleor, most checkout actions don't require the user to be authenticated. It is done so by design - you want to allow users to manage their cart without being logged in.
+By default, Saleor exposes some parts of its API publicly, like products catalog or checkout. This behavior doesn't have to align with the requirements of your business. However, Saleor Cloud allows you to restrict access to the API by setting up a Basic Auth.
 
-After some time, you realize your checkout flow requires some custom logic. Normally, you would utilize either the synchronous (e.g., the [transaction events](/developer/extending/webhooks/synchronous-events/transaction.mdx) for payment processing) or asynchronous (e.g., the [checkout events](/api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#code-style-fontweight-normal-webhookeventtypeasyncenumbcheckout_createdbcode)) webhooks. However, let's assume your use case doesn't fit into the webhooks model. You need to execute the logic "aside" from the Saleor checkout flow.
+Imagine you don't want your products to be publicly accessible. To achieve this, we will create a proxy server that will know the credentials and the API URL and thus be able to access the Saleor API. The only way to get to the Saleor API will be through that proxy server.
 
-By introducing this custom piece of code, Saleor is no longer the source of truth for the checkout process. Given the open access to the [Checkout API](developer/checkout/overview.mdx), the user can just call the API directly and bypass your custom logic.
-
-To prevent this, you can obstruct access to the Saleor API by protecting it with a password. You can then create a proxy server that will know the credentials and the address and thus, will be able to access the Saleor API. The only way to get to the Saleor API will be through the proxy server.
-
-Here is how it may look in practice on the example of a simple Next.js application. At the moment, it calls the Saleor API directly:
+Here is how it may look in practice in the example of a simple Next.js application. At the moment, it calls the Saleor API directly:
 
 ### Implementation
 
@@ -65,7 +55,7 @@ In the current implementation, your Next.js application calls the Saleor API dir
 
 :::note
 
-In a production-grade Next.js application, you most likely would use some GraphQL client (like [Apollo Client](https://www.apollographql.com/docs/react/)) to fetch the data from the Saleor API. However, for the sake of simplicity, we will use the native `fetch` API in this example.
+In a production-grade Next.js application, you most likely would use some GraphQL client (like [Apollo Client](https://www.apollographql.com/docs/react/)) to fetch the data from the Saleor API. However, for simplicity, we will use the native `fetch` API in this example.
 
 :::
 
@@ -112,11 +102,9 @@ Our goal is to change the code above as little as possible when introducing the 
 
 #### Step 3: Create a proxy API route
 
-In most cases, you would call the Saleor GraphQL API straight from the React component. However, given that we want to obscure the Saleor API behind a basic auth, we can't just pass the credentials to the client. They would be easily accessible to anyone who inspects the code.
+In most cases, you would call the Saleor GraphQL API straight from the React component. However, given that we want to obscure the Saleor API behind Basic Auth, we can't just pass the credentials to the client. They would be easily accessible to anyone who inspects the code.
 
-Instead, we will create a proxy API route that will know the credentials and the address of our GraphQL endpoint. As long as we don't expose the credentials to the client, we can ensure that our proxy server is the only one that can access the Saleor API directly.
-
-What's more is that inside the API route, we can further execute the custom logic that we needed to introduce in the first place.
+Instead, we will create a proxy API route that will know our GraphQL endpoint's credentials and address. As long as we don't expose the credentials to the client, we are sure that our proxy server is the only one that can access the Saleor API directly.
 
 Here is how the proxy API route may look:
 
@@ -126,8 +114,6 @@ export default async (req, res) => {
   const username = process.env.SALEOR_API_USERNAME; // Take the Basic Auth username from an environment variable
   const password = process.env.SALEOR_API_PASSWORD; // Take the Basic Auth password from an environment variable
   const token = Buffer.from(`${username}:${password}`).toString("base64"); // Encode the credentials to Base64
-
-  // 👉 You can execute the custom logic here 👈
 
   const response = await fetch("https://your-store.saleor.cloud/graphql", {
     method: "POST",
@@ -166,4 +152,4 @@ async function getProducts() {
 
 #### Further considerations
 
-This is a simple example of how you can use a proxy server to obscure the Saleor API behind a basic auth. In a real-world scenario, you would most likely use a GraphQL client to fetch the data from the Saleor API. In that case, the effort to introduce the proxy server without modifying too much of the client code could be substantial.
+That was a simple example of using a proxy server to obscure the Saleor API behind a basic auth. In a real-world scenario, you would most likely use a GraphQL client to fetch the data from the Saleor API. In that case, the effort to introduce the proxy server without modifying too much of the client code could be substantial.
