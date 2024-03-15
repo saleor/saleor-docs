@@ -1,6 +1,6 @@
 module.exports = {
   type: "category",
-  label: "Extending dashboard",
+  label: "Apps",
   items: [
     "developer/extending/apps/overview",
     {
@@ -20,12 +20,11 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Developing Apps",
+      label: "Development",
       items: [
         "developer/extending/apps/quickstart",
         "developer/extending/apps/installing-apps",
         "developer/extending/apps/updating-apps",
-        "developer/extending/apps/updating-app-webhooks",
         "developer/extending/apps/developing-with-tunnels",
         "developer/extending/apps/local-app-development",
         "developer/extending/apps/extending-dashboard-with-apps",
@@ -48,18 +47,19 @@ module.exports = {
         "developer/extending/apps/developing-apps/app-examples",
         "developer/extending/apps/developing-apps/troubleshooting",
         "developer/extending/apps/developing-apps/macaw-ui",
-        {
-          type: "category",
-          label: "Patterns",
-          link: {
-            type: "doc",
-            id: "developer/extending/apps/developing-apps/apps-patterns/apps-patterns",
-          },
-          items: [
-            "developer/extending/apps/developing-apps/apps-patterns/handling-external-webhooks",
-            "developer/extending/apps/developing-apps/apps-patterns/persistence-with-metadata-manager",
-          ],
-        },
+      ],
+    },
+    {
+      type: "category",
+      label: "Guides",
+      link: {
+        type: "doc",
+        id: "developer/extending/apps/developing-apps/apps-patterns/apps-patterns",
+      },
+      items: [
+        "developer/extending/apps/updating-app-webhooks",
+        "developer/extending/apps/developing-apps/apps-patterns/handling-external-webhooks",
+        "developer/extending/apps/developing-apps/apps-patterns/persistence-with-metadata-manager",
       ],
     },
     // {
