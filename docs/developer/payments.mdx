@@ -852,6 +852,199 @@ sequenceDiagram
     Saleor -->>- App: Updated transaction
 ```
 
+### Processing refunds for Order
+
+There are two ways to process refunds:
+
+- Manual refund: This method involves directly refunding the payment through the payment app.
+- Refund based on `OrderGrantedRefund`: This method triggers the refund request based on the details stored in `OrderGrantedRefund`.
+
+#### Manual refund
+
+Manual refund can be triggered by calling `transactionRequestAction`. If the refund is successful, the `transaction.chargedAmount` will be reduced. The order's `authorizeStatus`, `chargeStatus`, and `totalBalance` will also be recalculated based on the new values of `chargedAmount` and `refundedAmount`. This method is useful when handling overcharged orders.
+
+Below example shows how to trigger manual refund:
+
+```graphql {3-5}
+mutation {
+  transactionRequestAction(
+    id: "VHJhbnNhY3Rpb25JdGVtOjljY2NkYTYyLTllMjktNGE0OC05NzIyLWRlYzAwOTRmZmY5Yg=="
+    actionType: REFUND
+    amount: "10"
+  ) {
+    transaction {
+      events {
+        id
+        message
+        pspReference
+        amount {
+          amount
+        }
+        type
+      }
+    }
+  }
+}
+```
+
+The mutation accepts below arguments:
+
+- `id` - ID of the transaction which will be used to trigger the refund action.
+- `actionType` - The type of action to be performed on the requested `TransactionItem`. For a refund action, use `REFUND`.
+- `amount` - The amount of the action. If not provided Saleor will use `TransactionItem.chargedAmount`.
+
+#### Refund based on OrderGrantedRefund
+
+When processing a refund based on `OrderGrantedRefund`, there are two steps involved. Firstly, an order must be granted a refund, which defines what should be refunded. This step requires the `MANAGE_ORDERS` permission. Secondly, a refund needs to be requested based on the created order granted refund. This step requires the `HANDLE_PAYMENTS` permission.
+
+A granted refund contains all the details related to the refund, such as the list of refunded lines, the amount, and the included shipping costs. This is useful when handling refunds based on the products returned by the customer.
+
+The current status of the `orderGrantedRefund` is represented by the `status` field. The possible statuses are:
+
+- `NONE`: No refund request has been triggered for the granted refund.
+- `PENDING`: The refund request has been triggered, but the payment app has not provided the final result.
+- `SUCCESS`: The refund has been successfully processed.
+- `FAILURE`: The last refund request failed.
+
+The `status` is calculated based on the latest refund `TransactionEvent`s assigned to the `OrderGrantedRefund`. The events can be accessed via the `OrderGrantedRefund.transactionEvents` field. The assigned `TransactionItem` can be accessed via the `OrderGrantedRefund.transaction` field.
+
+The `OrderGrantedRefund` has an impact on the `authorizeStatus`, `chargeStatus`, and `totalBalance`, as it reduces the total value used to calculate the `totalBalance`. For example, if an order has a total of 100 USD and a single `TransactionItem` with a `chargedAmount` of 100 USD, the `totalBalance` would be 0, as `chargedAmount` - `order.total` results in 0. Adding a granted refund with an amount of 10 USD would result in a `totalBalance` of 10, as `chargedAmount` - (`order.total` - `grantedRefund.amount`) gives 10. The `chargeStatus` will be `OVERCHARGED`. If a refund request is made based on the defined granted refund and is successfully processed by the payment app, it will reduce the `chargedAmount`. The `totalBalance` will be 0, as `chargedAmount` (90USD) - (`order.total` - `grantedRefund.amount`) gives 0. The `chargeStatus` will be changed to `FULL`.
+
+The following example shows how to create the granted refund with assigned `TransactionItem` for the order.
+
+```graphql {3-19}
+mutation {
+  orderGrantRefundCreate(
+    id: "T3JkZXI6NWZlOTE5NzItYjg3OC00Y2QyLTkyN2UtZTQwZDJjZDRjMmEz"
+    input: {
+      transactionId: "VHJhbnNhY3Rpb25JdGVtOmUzOTVjNzdmLWFmNjQtNDRmZC05NmRiLThkZmNkMDYwNmZmOA=="
+      lines: [
+        {
+          id: "T3JkZXJMaW5lOjdlNzg5NzY0LTUyZWMtNDU3Mi05NWNkLTM5ZjQ0OTJmZDk4ZA=="
+          quantity: 5
+          reason: "Line reason"
+        }
+        {
+          id: "T3JkZXJMaW5lOjdlNzg5NzY0LTUyZWMtNDU3Mi05NWNkLTM5ZjQ0OTJmZDk4Z1=="
+          quantity: 5
+        }
+      ]
+      grantRefundForShipping: true
+      amount: 10
+      reason: "Returned by customer"
+    }
+  ) {
+    grantedRefund {
+      id
+    }
+    order {
+      id
+    }
+    errors {
+      field
+      code
+      message
+      lines {
+        lineId
+        field
+        message
+        code
+      }
+    }
+  }
+}
+```
+
+The mutation accepts below arguments:
+
+- `id` - ID of the `Order` to which granted refund should be assigned.
+- `input`:
+  - `lines` - List of lines related to the planned refund action:
+    - `id` - ID of the `OrderLine`.
+    - `quantity` - The quantity of the specific lines planned to refund.
+    - `reason` - Reason of the refund related to the specific line.
+  - `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
+  - `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
+  - `transactionId` - ID of `TransactionItem` that will be used to process the refund. If `amount` is provided in the input, the `transaction.chargedAmount` needs to be equal to or greater than the provided `amount`. If `amount` is not provided in the input and calculated automatically by Saleor, the `min(calculatedAmount, transaction.chargedAmount)` will be used. This field was added in Saleor 3.20, and it will be a mandatory input field starting from Saleor 3.21.
+
+Below example shows how to update existing granted refund
+
+```graphql {3-15}
+mutation {
+  orderGrantRefundUpdate(
+    id: "T3JkZXJHcmFudGVkUmVmdW5kOjE="
+    input: {
+      addLines: [
+        {
+          id: "T3JkZXJMaW5lOjgzYmZmZWI3LTVkNjEtNDMzZS1iOGFkLTFhMTE1NWI2ZTgwNg=="
+          quantity: 3
+        }
+      ]
+      removeLines: []
+      transactionId: "VHJhbnNhY3Rpb25JdGVtOmUzOTVjNzdmLWFmNjQtNDRmZC05NmRiLThkZmNkMDYwNmZmOA=="
+      amount: 10
+      grantRefundForShipping: false
+      reason: "New reason"
+    }
+  ) {
+    grantedRefund {
+      id
+    }
+    errors {
+      addLines {
+        field
+        message
+        code
+        lineId
+      }
+      field
+      code
+    }
+  }
+}
+```
+
+The mutation accepts below arguments:
+
+- `id` - ID of the `OrderGrantedRefund` which should be updated
+- `input`:
+  - `addLines`: Lines that should be added to `OrderGrantedrefund`
+    - `id` - ID of the `OrderLine`.
+    - `quantity` - The quantity of the specific lines planned to refund.
+    - `reason` - Reason of the planned refund related to the specific line.
+  - `removeLines` - List of `OrderGrantedRefundLine`'s IDs which should be removed from `OrderGrantedRefund`.
+  - `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
+  - `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
+  - `transactionId` - ID of `TransactionItem` that will be used to process the refund. If `amount` is provided in the input, the `transaction.chargedAmount` needs to be equal to or greater than the provided `amount`. If `amount` is not provided in the input and calculated automatically by Saleor, the `min(calculatedAmount, transaction.chargedAmount)` will be used. This field was added in Saleor 3.20, and it will be a mandatory input field starting from Saleor 3.21.
+
+:::info
+
+When `OrderGrantedRefund.status` is `SUCCESS` or `PENDING`, only `reason` can be updated.
+
+:::
+
+Below example shows how to trigger the refund based on `OrderGrantedRefund`:
+
+```graphql {2}
+mutation {
+  transactionRequestRefundForGrantedRefund(
+    grantedRefundId: "T3JkZXJHcmFudGVkUmVmdW5kOjE="
+  ) {
+    transaction {
+      id
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+To request a refund, you need to provide the `grantedRefundId` field. The mandatory refund details are stored as `OrderGrantedRefund`, so the refund request will be created based on this data.
+The `OrderGrantedRefund.status` field will be updated based on the result of the refund action. The `TransactionEvent`s related to requested action will be accessible via `OrderGrantedRefund.transactionEvents` field.
+
 ## Recalculations of transaction amounts
 
 The recalculation will differ based on the value of the [`TransactionEventTypeEnum`](../api-reference/payments/enums/transaction-event-type-enum) provided as the field `type`
