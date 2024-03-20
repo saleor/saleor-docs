@@ -36,12 +36,14 @@ In order to use Saleor Auth SDK in React Server Components, the client needs to 
 import { createSaleorAuthClient } from "@saleor/auth-sdk";
 import { getNextServerCookiesStorage } from "@saleor/auth-sdk/next/server";
 
-const nextServerCookiesStorage = getNextServerCookiesStorage();
-const saleorAuthClient = createSaleorAuthClient({
-  saleorApiUrl: "…",
-  refreshTokenStorage: nextServerCookiesStorage,
-  accessTokenStorage: nextServerCookiesStorage,
-});
+export const getServerAuthClient = () => {
+  const nextServerCookiesStorage = getNextServerCookiesStorage();
+  return createSaleorAuthClient({
+    saleorApiUrl,
+    refreshTokenStorage: nextServerCookiesStorage,
+    accessTokenStorage: nextServerCookiesStorage,
+  });
+};
 ```
 
 Logging in can be implemented via Server Actions:
@@ -52,7 +54,7 @@ Logging in can be implemented via Server Actions:
   action={async (formData) => {
     "use server";
 
-    await saleorAuthClient.signIn(
+    await getServerAuthClient().signIn(
       {
         email: formData.get("email").toString(),
         password: formData.get("password").toString(),
@@ -65,9 +67,13 @@ Logging in can be implemented via Server Actions:
 </form>
 ```
 
-Then, you can use `saleorAuthClient.fetchWithAuth` directly for any queries and mutations.
+Then, you can use `getServerAuthClient().fetchWithAuth` for any queries and mutations.
 
-For a full working example see the [Saleor Auth SDK example](https://github.com/saleor/example-auth-sdk/blob/5babda35969c35f423680b47d1446466b18b2461/app/ssr/page.tsx).
+For a full working example, see the [Saleor Auth SDK example](https://github.com/saleor/example-auth-sdk/tree/main/app/ssr/page.tsx).
+
+> :::caution
+> Make sure a new instance of auth client is created for each request.
+> :::
 
 ### Next.js (Pages Router) with Apollo Client
 
