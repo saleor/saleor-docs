@@ -98,15 +98,15 @@ Payment Apps support two distinct ways of processing checkouts:
 - first payments, then order
 - first order, then payments
 
-The first approach is used by default. It means that the order can be only created after the checkout is fully paid. See [`allowUnpaidOrders`](api-reference/miscellaneous/objects/order-settings.mdx#code-style-fontweight-normal-ordersettingsballowunpaidordersbcodeboolean--) setting for more details.
+The first approach is used by default. It means that the order can be only created after the checkout is fully paid. See [`allowUnpaidOrders`](api-reference/miscellaneous/objects/order-settings.mdx#ordersettingsallowunpaidordersboolean--) setting for more details.
 
 In both cases, the order is created by calling the [`checkoutComplete`](api-reference/checkout/mutations/checkout-complete.mdx) mutation.
 
 ### Initialize payment gateway
 
 To initialize the payment app, call the [`paymentGatewayInitialize`](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation.
-The [`data`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#code-style-fontweight-normal-paymentgatewaytoinitializebdatabcodejson--) provided in the
-[`paymentGateways`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) will be sent to the payment app. Saleor will then return the [`data`](api-reference/payments/objects/payment-gateway-initialize.mdx#code-style-fontweight-normal-paymentgatewayinitializebgatewayconfigsbcodepaymentgatewayconfig---) received from each app as a response.
+The [`data`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#paymentgatewaytoinitializedatajson-) provided in the
+[`paymentGateways`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) will be sent to the payment app. Saleor will then return the [`data`](api-reference/payments/objects/payment-gateway-initialize.mdx#paymentgatewayinitializegatewayconfigspaymentgatewayconfig--) received from each app as a response.
 
 This step is useful when information needs to be obtained from the Payment App even before initializing the payment process. Typically used for getting the available payment methods for a specific checkout, or for fetching the payment form configuration to be rendered on the frontend. Multiple Payment Apps can be initialized with a single mutation call.
 
@@ -114,7 +114,7 @@ The [`paymentGatewayInitialize`](api-reference/payments/mutations/payment-gatewa
 
 - `id` - ID of the `Checkout` or `Order`
 - `amount` - The amount requested for initializing the payment gateway. If not provided, the difference between `checkout.total` and transactions that are already processed will be sent to the apps.
-- `paymentGateways` - A list of Payment Apps to initialize. If not provided, all apps subscribed to the webhook [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_sessionbcode) will be used.
+- `paymentGateways` - A list of Payment Apps to initialize. If not provided, all apps subscribed to the webhook [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_gateway_initialize_session) will be used.
 - `paymentGateways.id` - The identifier of the Payment App to initialize.
 - `paymentGateways.data` - The data to be passed to the Payment App.
 
@@ -176,15 +176,15 @@ The response:
 }
 ```
 
-The mutation will trigger the [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_sessionbcode) webhook.
+The mutation will trigger the [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_gateway_initialize_session) webhook.
 For more details about this webhook, please refer to the [Transaction events guide](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-payment-gateway-session).
 
 ### Initialize transaction
 
 To initiate payment processing, call the [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation.
-The [`data`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#code-style-fontweight-normal-paymentgatewaytoinitializebdatabcodejson--) provided in the
+The [`data`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#paymentgatewaytoinitializedatajson-) provided in the
 [`paymentGateways`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) field will be sent to the payment app, and Saleor will return the
-[`data`](api-reference/payments/objects/transaction-initialize.mdx#code-style-fontweight-normal-transactioninitializebdatabcodejson--) received from the app as a response.
+[`data`](api-reference/payments/objects/transaction-initialize.mdx#transactioninitializedatajson-) received from the app as a response.
 Based on the Payment App's response, Saleor will create or update the transaction with the appropriate status and balance.
 
 Depending on the implementation of the Payment App, the `transactionInitialize` may charge or authorize the customer.
@@ -233,7 +233,7 @@ The [`transactionInitialize`](api-reference/payments/mutations/transaction-initi
 - `data` - The data returned by the app.
 - `errors` - Errors related to the mutation call.
 
-The mutation will trigger the [`TRANSACTION_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_initialize_sessionbcode) webhook.
+The mutation will trigger the [`TRANSACTION_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_initialize_session) webhook.
 For more details about this webhook, please refer to the [Transaction events guide](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session).
 
 The following example demonstrates how to use the [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation to initiate payment processing:
@@ -298,13 +298,13 @@ The current status of payment can be determined based on the value of [`transact
 - `CHARGE_REQUEST` indicates that charging is pending.
 
 Pending statuses are used when the Payment App requires additional time or a manual action on the payment provider side to process the payment.
-Depending on the implementation, the Payment App may report the final status of the payment later using the [`transactionEventReport`](developer/payments.mdx#reporting-actions-for-transaction) mutation.
+Depending on the implementation, the Payment App may report the final status of the payment later using the [`transactionEventReport`](developer/payments.mdx#reporting-actions-for-transactions) mutation.
 
 ### Process transaction
 
 If [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) or [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx)
-returns `transactionEvent.type` equal to [`AUTHORIZATION_ACTION_REQUIRED`](api-reference/payments/enums/transaction-event-type-enum.mdx#code-style-fontweight-normal-transactioneventtypeenumbauthorization_action_requiredbcode)
-or [`CHARGE_ACTION_REQUIRED`](api-reference/payments/enums/transaction-event-type-enum.mdx#code-style-fontweight-normal-transactioneventtypeenumbcharge_action_requiredbcode), additional steps from the customer are required. After completing those steps, pass the results to the [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) mutation.
+returns `transactionEvent.type` equal to [`AUTHORIZATION_ACTION_REQUIRED`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumauthorization_action_required)
+or [`CHARGE_ACTION_REQUIRED`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_action_required), additional steps from the customer are required. After completing those steps, pass the results to the [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) mutation.
 
 The [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) mutation accepts the following arguments:
 
@@ -319,7 +319,7 @@ The [`transactionProcess`](api-reference/payments/mutations/transaction-process.
 - `data` - The data returned by the app.
 - `errors` - Errors related to the mutation call.
 
-The mutation triggers the [`TRANSACTION_PROCESS_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_process_sessionbcode) webhook.
+The mutation triggers the [`TRANSACTION_PROCESS_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_process_session) webhook.
 For more details about this webhook, refer to the [Transaction events guide](developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session).
 
 The following example demonstrates how to use the [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) mutation to process the payment:
@@ -416,7 +416,7 @@ The [`transactionCreate`](api-reference/payments/mutations/transaction-create.md
 
 :::info
 
-The [`transactionCreate`](api-reference/payments/mutations/transaction-create.mdx) can only be called by staff users or apps with the [`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
+The [`transactionCreate`](api-reference/payments/mutations/transaction-create.mdx) can only be called by staff users or apps with the [`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#permissionenumhandle_payments) permission.
 
 :::
 
@@ -515,8 +515,8 @@ The response:
 
 :::info
 
-- Transactions attached to checkout are accessible via the [`checkout.transactions`](../api-reference/checkout/objects/checkout#code-style-fontweight-normal-checkoutbtransactionsbcodetransactionitem--) field.
-- Transactions attached to order are accessible via the [`order.transactions`](../api-reference/orders/objects/order#code-style-fontweight-normal-orderbtransactionsbcodetransactionitem--) field.
+- Transactions attached to checkout are accessible via the [`checkout.transactions`](../api-reference/checkout/objects/checkout#checkouttransactionstransactionitem--) field.
+- Transactions attached to order are accessible via the [`order.transactions`](../api-reference/orders/objects/order#ordertransactionstransactionitem--) field.
 
 :::
 
@@ -545,8 +545,8 @@ It takes the following arguments:
 :::info
 
 The [`transactionUpdate`](api-reference/payments/mutations/transaction-update.mdx) can only be called by staff users with the
-[HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission
-or by the App that created the the transaction and has [`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
+[HANDLE_PAYMENTS](api-storefront/users/enums/permission-enum.mdx#permissionenumhandle_payments) permission
+or by the App that created the the transaction and has [`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#permissionenumhandle_payments) permission.
 
 :::
 
@@ -667,7 +667,7 @@ feedback. However, it is still undergoing development and is subject to modifica
 
 The [`transactionEventReport`](../api-reference/payments/mutations/transaction-event-report) is used to
 report a new transaction event. The newly created event will be used to [recalculate](#recalculations-of-transaction-amounts) the transaction's amounts.
-The mutation should be used for handling [action requests](#handling-an-action-request-for-a-transaction) or reporting any
+The mutation should be used for handling [action requests](#handling-action-requests-for-transactions) or reporting any
 changes that happened on the payment provider side (eg. asynchronous webhooks for delayed payment methods, chargebacks, disputes etc.).
 
 It takes the following arguments:
@@ -684,8 +684,8 @@ It takes the following arguments:
 :::info
 
 The [`transactionEventReport`](../api-reference/payments/mutations/transaction-event-report) can only be called by staff users with
-[`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission
-or by the App that created the transaction and has [`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#code-style-fontweight-normal-permissionenumbhandle_paymentsbcode) permission.
+[`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#permissionenumhandle_payments) permission
+or by the App that created the transaction and has [`HANDLE_PAYMENTS`](api-storefront/users/enums/permission-enum.mdx#permissionenumhandle_payments) permission.
 
 :::
 
@@ -729,7 +729,7 @@ In the response, Saleor returns:
   If there is an event with the same `pspReference`, `amount`, and `type` as the ones provided in the input
   mutation, Saleor will return it instead of creating a new one, and the flag will be set
   to `true`. If the event with provided `pspReference` and `type` was already reported but with a
-  different amount, the error with code [INCORRECT_DETAILS](../api-reference/payments/enums/transaction-event-report-error-code#code-style-fontweight-normal-transactioneventreporterrorcodebincorrect_detailsbcode)
+  different amount, the error with code [INCORRECT_DETAILS](../api-reference/payments/enums/transaction-event-report-error-code#transactioneventreporterrorcodeincorrect_details)
   will be raised.
 - `transaction` - Transaction that has been updated based on the received report.
 - `transactionEvent` - [TransactionEvent](../api-reference/payments/objects/transaction-event) that has been created based on the received report.
@@ -756,18 +756,18 @@ An action request is called when a staff user or an app requests an action for a
 Two mutations can trigger the action on the app side:
 
 - [`transactionRequestAction`](../api-reference/payments/mutations/transaction-request-action): will also create a new
-  [`TransactionEvent`](../api-reference/payments/objects/transaction-event) with one of the request type ([`AUTHORIZATION_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbauthorization_requestbcode),
-  [`CHARGE_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcharge_requestbcode),
-  [`REFUND_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode),
-  [`CANCEL_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbcancel_requestbcode)),
+  [`TransactionEvent`](../api-reference/payments/objects/transaction-event) with one of the request type ([`AUTHORIZATION_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumauthorization_request),
+  [`CHARGE_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcharge_request),
+  [`REFUND_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumrefund_request),
+  [`CANCEL_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcancel_request)),
   `amount` and the `owner` (User or App). Saleor will send a synchronous webhook dedicated to the action
-  [`TRANSACTION_CHARGE_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
-  [`TRANSACTION_CANCELATION_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
-  [`TRANSACTION_REFUND_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode)
+  [`TRANSACTION_CHARGE_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_charge_requested),
+  [`TRANSACTION_CANCELATION_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_cancelation_requested),
+  [`TRANSACTION_REFUND_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_refund_requested)
 
 - [`transactionRequestRefundForGrantedRefund`](../api-reference/payments/mutations/transaction-request-refund-for-granted-refund): will create a new [`TransactionEvent`](../api-reference/payments/objects/transaction-event) with
-  [`REFUND_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#code-style-fontweight-normal-transactioneventtypeenumbrefund_requestbcode) type, `amount` and the `owner` (User or App).
-  Saleor will send a synchronous webhook [`TRANSACTION_REFUND_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode).
+  [`REFUND_REQUEST`](../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumrefund_request) type, `amount` and the `owner` (User or App).
+  Saleor will send a synchronous webhook [`TRANSACTION_REFUND_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_refund_requested).
   [`OrderGrantedRefund`](api-reference/orders/objects/order-granted-refund.mdx) will be included in the webhook payload (if requested in a [subscription query](developer/extending/webhooks/subscription-webhook-payloads.mdx#custom-payloads) for the webhook).
   This mutation is useful when the payment provider requires details about lines that are related to refund action.
 
@@ -811,9 +811,9 @@ sequenceDiagram
 #### Synchronously processing the action
 
 The app immediately receives the status of the requested action. It can provide the details of the action in response to the received Saleor webhook. The following webhook events
-can accept action details in the response:: [`TRANSACTION_CHARGE_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode),
-[`TRANSACTION_CANCELATION_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode),
-[`TRANSACTION_REFUND_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode).
+can accept action details in the response:: [`TRANSACTION_CHARGE_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_charge_requested),
+[`TRANSACTION_CANCELATION_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_cancelation_requested),
+[`TRANSACTION_REFUND_REQUESTED`](../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_refund_requested).
 
 The below diagram shows an example of processing synchronous refund action.
 
@@ -855,7 +855,7 @@ sequenceDiagram
 ## Recalculations of transaction amounts
 
 The recalculation will differ based on the value of the [`TransactionEventTypeEnum`](../api-reference/payments/enums/transaction-event-type-enum) provided as the field `type`
-used in the [`transactionEventReport`](#reporting-action-for-transaction), [`transactionInitialize`](#initialize-transaction), and [`transactionProcess`](#process-transaction) mutations, or [optionally in the webhook response](extending/webhooks/synchronous-events/transaction):
+used in the [`transactionEventReport`](#reporting-actions-for-transactions), [`transactionInitialize`](#initialize-transaction), and [`transactionProcess`](#process-transaction) mutations, or [optionally in the webhook response](extending/webhooks/synchronous-events/transaction):
 
 ### Event types explanation
 
@@ -1074,14 +1074,14 @@ feedback. However, it is still undergoing development and is subject to modifica
 
 :::info
 
-This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#code-style-fontweight-normal-apptypeenumbthirdpartybcode) apps.
+This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#apptypeenumthirdparty) apps.
 
 :::
 
-Requesting [`checkout.storedPaymentMethods`](api-storefront/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbstoredpaymentmethodsbcodestoredpaymentmethod--) or [`User.storedPaymentMethods`](api-storefront/users/objects/user.mdx#code-style-fontweight-normal-userbstoredpaymentmethodsbcodestoredpaymentmethod--) field triggers synchronous requests to each app subscribed to [`LIST_STORED_PAYMENT_METHODS`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
+Requesting [`checkout.storedPaymentMethods`](api-storefront/checkout/objects/checkout.mdx#checkoutstoredpaymentmethodsstoredpaymentmethod--) or [`User.storedPaymentMethods`](api-storefront/users/objects/user.mdx#userstoredpaymentmethodsstoredpaymentmethod--) field triggers synchronous requests to each app subscribed to [`LIST_STORED_PAYMENT_METHODS`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumlist_stored_payment_methods)
 webhook. In response, Saleor returns a list of payment methods from the subscribed apps. Stored payment methods can be used in further steps of payment processing.
 
-All details related to [`LIST_STORED_PAYMENT_METHODS`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumblist_stored_payment_methodsbcode)
+All details related to [`LIST_STORED_PAYMENT_METHODS`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumlist_stored_payment_methods)
 webhook can be found [in the Stored Payment Methods guide](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#list-stored-payment-methods).
 
 The diagram below shows the workflow of fetching stored payment methods with a Payment App:
@@ -1115,14 +1115,14 @@ feedback. However, it is still undergoing development and is subject to modifica
 :::
 
 :::info
-This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#code-style-fontweight-normal-apptypeenumbthirdpartybcode) apps.
+This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#apptypeenumthirdparty) apps.
 :::
 
 The user can request a deletion of their stored payment methods. Saleor doesn't store directly a user's payment methods or transmit payment method details.
 It is a part of the responsibility of the payment app. The request deletion will be sent to the payment app which owns the
 specific stored payment method.
-Saleor will also invalidate the cache of stored-payment-methods. Fetching [checkout.storedPaymentMethods](api-storefront/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbstoredpaymentmethodsbcodestoredpaymentmethod--)
-or [User.storedPaymentMethods](api-storefront/users/objects/user.mdx#code-style-fontweight-normal-userbstoredpaymentmethodsbcodestoredpaymentmethod--)
+Saleor will also invalidate the cache of stored-payment-methods. Fetching [checkout.storedPaymentMethods](api-storefront/checkout/objects/checkout.mdx#checkoutstoredpaymentmethodsstoredpaymentmethod--)
+or [User.storedPaymentMethods](api-storefront/users/objects/user.mdx#userstoredpaymentmethodsstoredpaymentmethod--)
 will trigger the request to the payment app which was the owner of the
 payment method.
 
@@ -1159,7 +1159,7 @@ mutation {
 As a response, the mutation will return a [result](api-reference/payments/enums/stored-payment-method-request-delete-result.mdx) field which determines the status of the requested action.
 In case of a failure result, the [errors](api-reference/payments/objects/payment-method-request-delete-error.mdx) list will contain details of the failed action.
 
-The mutation will trigger the [STORED_PAYMENT_METHOD_DELETE_REQUESTED](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbstored_payment_method_delete_requestedbcode) webhook.
+The mutation will trigger the [STORED_PAYMENT_METHOD_DELETE_REQUESTED](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumstored_payment_method_delete_requested) webhook.
 For more details about this webhook, please refer to its [documentation](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#delete-stored-payment-method-requested).
 
 ### Tokenizing a new payment method
@@ -1178,7 +1178,7 @@ feedback. However, it is still undergoing development and is subject to modifica
 :::
 
 :::info
-This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#code-style-fontweight-normal-apptypeenumbthirdpartybcode) apps.
+This feature is dedicated to [third-party](api-reference/apps/enums/app-type-enum.mdx#apptypeenumthirdparty) apps.
 :::
 
 :::info
@@ -1225,9 +1225,9 @@ sequenceDiagram
 
 The [paymentGatewayInitializeTokenization](api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx) mutation should be used when the payment gateway needs to be initialized first. For example, when retrieving the data required to initialize the drop-in on the storefront side.
 
-This mutation triggers the synchronous webhook [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_tokenization_sessionbcode). The webhook is sent to the app with the provided [id](api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx#code-style-fontweight-normal-paymentgatewayinitializetokenizationbidbcodestring--).
+This mutation triggers the synchronous webhook [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_gateway_initialize_tokenization_session). The webhook is sent to the app with the provided [id](api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx#paymentgatewayinitializetokenizationidstring--).
 
-The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](api-reference/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbavailablepaymentgatewaysbcodepaymentgateway--) or `shop.availablePaymentGateways`. The JSON `data` is passed to the payment app via the synchronous webhook.
+The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](api-reference/checkout/objects/checkout.mdx#checkoutavailablepaymentgatewayspaymentgateway--) or `shop.availablePaymentGateways`. The JSON `data` is passed to the payment app via the synchronous webhook.
 
 ```graphql
 mutation PaymentGatewayInitializeTokenization(
@@ -1257,13 +1257,13 @@ In the response, Saleor returns:
 - `data`: The JSON `data` returned by the payment app.
 - `id`: The ID of the payment method.
 
-More details about the triggered webhook [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_tokenization_sessionbcode) can be found [here](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#initialize-payment-gateway-session).
+More details about the triggered webhook [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_gateway_initialize_tokenization_session) can be found [here](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#initialize-payment-gateway-session).
 
 #### Initializing payment method tokenization
 
-The [paymentMethodInitializeTokenization](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation starts the process of tokenizing the payment method. This mutation triggers the synchronous webhook [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_method_initialize_tokenization_sessionbcode), which is sent to the app with the provided [id](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx#code-style-fontweight-normal-paymentgatewayinitializetokenizationbidbcodestring--).
+The [paymentMethodInitializeTokenization](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation starts the process of tokenizing the payment method. This mutation triggers the synchronous webhook [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_method_initialize_tokenization_session), which is sent to the app with the provided [id](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx#paymentmethodinitializetokenizationidstring--).
 
-The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](api-reference/checkout/objects/checkout.mdx#code-style-fontweight-normal-checkoutbavailablepaymentgatewaysbcodepaymentgateway--) or [shop.availablePaymentGateways](api-reference/miscellaneous/objects/shop.mdx#code-style-fontweight-normal-shopbavailablepaymentgatewaysbcodepaymentgateway--). The JSON [data](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx#code-style-fontweight-normal-paymentmethodinitializetokenizationbdatabcodejson-) is passed to the payment app via the synchronous webhook. The `paymentFlowToSupport` is a value from the [TokenizedPaymentFlowEnum](api-reference/payments/enums/tokenized-payment-flow-enum.mdx). It represents the requested payment flow that the payment method should follow.
+The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](api-reference/checkout/objects/checkout.mdx#checkoutavailablepaymentgatewayspaymentgateway--) or [shop.availablePaymentGateways](api-reference/miscellaneous/objects/shop.mdx#shopavailablepaymentgatewayspaymentgateway--). The JSON [data](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx#paymentmethodinitializetokenizationdatajson-) is passed to the payment app via the synchronous webhook. The `paymentFlowToSupport` is a value from the [TokenizedPaymentFlowEnum](api-reference/payments/enums/tokenized-payment-flow-enum.mdx). It represents the requested payment flow that the payment method should follow.
 
 ```graphql
 mutation {
@@ -1291,13 +1291,13 @@ In the response, Saleor returns:
 - `data`: The JSON `data` returned by the payment app.
 - `id`: The ID of the payment method.
 
-More details about the triggered [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_method_initialize_tokenization_sessionbcode) webhook can be found [here](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#initialize-payment-method-tokenization).
+More details about the triggered [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_method_initialize_tokenization_session) webhook can be found [here](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#initialize-payment-method-tokenization).
 
 #### Processing additional actions required to tokenize the payment method
 
-The [paymentMethodProcessTokenization](api-reference/payments/mutations/payment-method-process-tokenization.mdx) mutation should be called when the payment app returns the `result` [PaymentMethodTokenizationResult.ADDITIONAL_ACTION_REQUIRED](api-reference/payments/enums/payment-method-tokenization-result.mdx#code-style-fontweight-normal-paymentmethodtokenizationresultbadditional_action_requiredbcode). This mutation is dedicated to processing additional actions required to finalize the tokenization of the payment method.
+The [paymentMethodProcessTokenization](api-reference/payments/mutations/payment-method-process-tokenization.mdx) mutation should be called when the payment app returns the `result` [PaymentMethodTokenizationResult.ADDITIONAL_ACTION_REQUIRED](api-reference/payments/enums/payment-method-tokenization-result.mdx#paymentmethodtokenizationresultadditional_action_required). This mutation is dedicated to processing additional actions required to finalize the tokenization of the payment method.
 
-This mutation triggers the synchronous webhook [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_method_process_tokenization_sessionbcode).
+This mutation triggers the synchronous webhook [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_method_process_tokenization_session).
 
 The `id` is the ID received as a response from [paymentMethodInitializeTokenization](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) or previous [paymentMethodProcessTokenization](api-reference/payments/mutations/payment-method-process-tokenization.mdx) calls. The JSON `data` is passed to the payment app via the synchronous webhook.
 
@@ -1326,7 +1326,7 @@ In the response, Saleor returns:
 - `data`: The JSON `data` returned by the payment app.
 - `id`: The ID of the payment method.
 
-More details about the triggered [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_method_process_tokenization_sessionbcode) webhook can be found [here](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#process-additional-actions-for-payment-method-tokenization).
+More details about the triggered [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_method_process_tokenization_session) webhook can be found [here](developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#process-additional-actions-for-payment-method-tokenization).
 
 ## Payment Plugin (legacy)
 
