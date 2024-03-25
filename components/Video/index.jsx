@@ -8,9 +8,8 @@ const Video = ({ src }) => {
       <iframe
         src={src}
         title="YouTube video player"
-        frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen
+        allowFullScreen
         className={styles.iframe}
       ></iframe>
     </div>

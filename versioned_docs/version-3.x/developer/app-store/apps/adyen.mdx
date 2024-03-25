@@ -28,18 +28,18 @@ Adyen App uses Adyen [Checkout API v70](https://docs.adyen.com/api-explorer/#/Ch
 
 ## Capabilities
 
-The Adyen App implements the following [Saleor sync webhooks related to transactions](../../extending/webhooks/synchronous-events/transaction):
+The Adyen App implements the following [Saleor sync webhooks related to transactions](../../extending/webhooks/synchronous-events/transaction.mdx):
 
-- [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbpayment_gateway_initialize_sessionbcode)
-- [`TRANSACTION_INITIALIZE_SESSION`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_initialize_sessionbcode)
-- [`TRANSACTION_PROCESS_SESSION`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_process_sessionbcode)
-- [`TRANSACTION_CHARGE_REQUESTED`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_charge_requestedbcode)
-- [`TRANSACTION_CANCEL_REQUESTED`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_cancelation_requestedbcode)
-- [`TRANSACTION_REFUND_REQUESTED`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum#code-style-fontweight-normal-webhookeventtypesyncenumbtransaction_refund_requestedbcode)
+- [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_gateway_initialize_session)
+- [`TRANSACTION_INITIALIZE_SESSION`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_initialize_session)
+- [`TRANSACTION_PROCESS_SESSION`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_process_session)
+- [`TRANSACTION_CHARGE_REQUESTED`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_charge_requested)
+- [`TRANSACTION_CANCEL_REQUESTED`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_cancelation_requested)
+- [`TRANSACTION_REFUND_REQUESTED`](../../../api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_refund_requested)
 
 Furthermore, it's also prepared to handle [async Adyen webhooks](https://docs.adyen.com/development-resources/webhooks).
 
-Adyen App follows the flow described in detail in the [Saleor Payment App documentation](../../payments#saleor-payment-app).
+Adyen App follows the flow described in detail in the [Saleor Payment App documentation](../../payments#payment-app).
 
 ## Limitations
 
@@ -52,13 +52,13 @@ If Adyen surpasses this limit, the App will return a FAILURE status with an appr
 
 ### Maximum timeout for Saleor API calls is 5 seconds
 
-The apps restricts Saleor API response time to 5 seconds for [`TransactionInitializeSession`](../../extending/webhooks/synchronous-events/transaction#initialize-transaction-session) and [`TransactionProcessSession`](../../extending/webhooks/synchronous-events/transaction#process-transaction-session) subscriptions. If Saleor API surpasses this limit, the App will gracefully continue processing.
+The apps restricts Saleor API response time to 5 seconds for [`TransactionInitializeSession`](../../extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session) and [`TransactionProcessSession`](../../extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session) subscriptions. If Saleor API surpasses this limit, the App will gracefully continue processing.
 
-If such timeout happens, the created [`TransactionItem`](../../../api-reference/payments/objects/transaction-item) will not have the metadata from Adyen on `additionalDetails` object, that include payment method type, credit card brand, etc.
+If such timeout happens, the created [`TransactionItem`](../../../api-reference/payments/objects/transaction-item.mdx) will not have the metadata from Adyen on `additionalDetails` object, that include payment method type, credit card brand, etc.
 
 ## Configuration
 
-For Adyen to appear as [available payment gateway](../../checkout/finalizing#listing-available-payment-gateways), you need to [install it in the Saleor Dashboard](../overview#usage). You must obtain the API key from Adyen and paste it into the Adyen App configuration form. Then, a wizard will guide you through the process of configuring the Adyen App, setting up the webhook to receive notifications from Adyen, generating the HMAC key, and adding allowed origins for the Client Key that's used on your Storefront.
+For Adyen to appear as [available payment gateway](../../checkout/finalizing.mdx#listing-available-payment-gateways), you need to [install it in the Saleor Dashboard](../overview#usage). You must obtain the API key from Adyen and paste it into the Adyen App configuration form. Then, a wizard will guide you through the process of configuring the Adyen App, setting up the webhook to receive notifications from Adyen, generating the HMAC key, and adding allowed origins for the Client Key that's used on your Storefront.
 
 ### Configuring Adyen
 
@@ -131,7 +131,7 @@ import AdyenScreenshot from "./adyen-web-drop-in.png";
 
 ### Getting payment gateways
 
-The first step is to fetch the Checkout object including [`availablePaymentGateways`](../../../api-reference/checkout/objects/checkout#code-style-fontweight-normal-checkoutbavailablepaymentgatewaysbcodepaymentgateway---) field. The `availablePaymentGateways` field contains a list of payment gateways available for given checkout. The Adyen App should be one of the payment gateways available in the list. Its `id` is [`app.saleor.adyen`](https://adyen.saleor.app/api/manifest) - defined in app's manifest.
+The first step is to fetch the Checkout object including [`availablePaymentGateways`](../../../api-reference/checkout/objects/checkout.mdx#checkoutavailablepaymentgatewayspaymentgateway--) field. The `availablePaymentGateways` field contains a list of payment gateways available for given checkout. The Adyen App should be one of the payment gateways available in the list. Its `id` is [`app.saleor.adyen`](https://adyen.saleor.app/api/manifest) - defined in app's manifest.
 
 ```graphql
 query {
@@ -163,13 +163,13 @@ The response:
 
 :::note
 
-`availablePaymentGateways` may contain other Payment Apps as well as [legacy Plugins](../../../developer/extending/payment-gateways) configured in the Dashboard. You should ignore the ones that you don't want to use for a specific checkout.
+`availablePaymentGateways` may contain other Payment Apps as well as [legacy Plugins](../../../developer/extending/payment-gateways.mdx) configured in the Dashboard. You should ignore the ones that you don't want to use for a specific checkout.
 
 :::
 
 ### Obtaining Adyen payment methods
 
-Next, you need to fetch configured payment methods from Adyen. To do that, use the [`paymentGatewayInitialize`](../../../api-reference/payments/mutations/payment-gateway-initialize) mutation. The mutation returns a `PaymentGatewayInitialize` object with `data` field containing a list of payment methods. The `data` field is an object with the following fields:
+Next, you need to fetch configured payment methods from Adyen. To do that, use the [`paymentGatewayInitialize`](../../../api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation. The mutation returns a `PaymentGatewayInitialize` object with `data` field containing a list of payment methods. The `data` field is an object with the following fields:
 
 ```ts
 {
@@ -248,7 +248,7 @@ For instructions on how to add, remove or constraint payment methods from Adyen,
 
 ### Paying with Adyen
 
-After a user has interacted with the Adyen Drop-in and entered payment details, [Drop-in event data along with other information](https://docs.adyen.com/online-payments/web-drop-in/additional-use-cases/advanced-flow#step-3-make-a-payment) should be passed to the [`transactionInitialize`](../../../api-reference/payments/mutations/transaction-initialize) mutation as the `paymentGateway.data` field. The mutation returns the `TransactionInitialize` object with a `data` field containing the following fields:
+After a user has interacted with the Adyen Drop-in and entered payment details, [Drop-in event data along with other information](https://docs.adyen.com/online-payments/web-drop-in/additional-use-cases/advanced-flow#step-3-make-a-payment) should be passed to the [`transactionInitialize`](../../../api-reference/payments/mutations/transaction-initialize.mdx) mutation as the `paymentGateway.data` field. The mutation returns the `TransactionInitialize` object with a `data` field containing the following fields:
 
 ```ts
 {
@@ -359,7 +359,7 @@ Response:
 
 ### Performing additional actions (_optional_)
 
-Optionally, additional actions may be required: authentication of payment with 3D Secure, scan of a QR code, or logging in to the bank to complete the payment. In this case, [`transactionProcess`](../../../api-reference/payments/mutations/transaction-process) mutation should be used.
+Optionally, additional actions may be required: authentication of payment with 3D Secure, scan of a QR code, or logging in to the bank to complete the payment. In this case, [`transactionProcess`](../../../api-reference/payments/mutations/transaction-process.mdx) mutation should be used.
 
 ```graphql
 mutation AdyenTransactionProcess($id: ID!, $data: JSON) {
@@ -399,7 +399,7 @@ Repeat the step until the payment is successful or fails.
 
 :::caution
 
-Many payment methods are not settled synchronously. Sometimes it takes seconds, minutes, hours, or even days for a payment to go through. Adyen App will automatically handle Adyen webhook notifications and create transaction events in Saleor (see [`transactionEventReport`](../../../api-reference/payments/mutations/transaction-event-report)).
+Many payment methods are not settled synchronously. Sometimes it takes seconds, minutes, hours, or even days for a payment to go through. Adyen App will automatically handle Adyen webhook notifications and create transaction events in Saleor (see [`transactionEventReport`](../../../api-reference/payments/mutations/transaction-event-report.mdx)).
 
 :::
 
