@@ -1,0 +1,295 @@
+---
+title: Storefront
+---
+
+## Navigation
+
+To get navigation data you can use Saleor's built-in object Menu that can store hierarchical structures pointing to collections, categories, products and other resources.
+
+```graphql
+query {
+  menu(channel: "default-channel", name: "navbar") {
+    name
+    slug
+    items {
+      id
+      name
+      category {
+        id
+      }
+    }
+  }
+}
+```
+
+Alternatively you can discover all collections or categories:
+
+```graphql
+query {
+  collections(first: 100) {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+```graphql
+query {
+  categories(first: 100) {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+## Product lists
+
+Get products of a specific category (same can be achieved with collection):
+
+```graphql
+query {
+  category(id: "Q2F0ZWdvcnk6Mjc=") {
+    products(first: 10) {
+      edges {
+        node {
+          name
+          media {
+            url
+          }
+          thumbnail {
+            url
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Filter products of first 10 collections:
+
+```graphql
+query {
+  collections(first: 100, channel: "usd") {
+    edges {
+      node {
+        products(
+          first: 10
+          filter: { stockAvailability: IN_STOCK, price: { gte: 20 } }
+        ) {
+          edges {
+            node {
+              id
+              name
+              media {
+                url
+              }
+              thumbnail {
+                url
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## Product description
+
+Description of the product including all variants:
+
+```graphql
+query {
+  product(slug: "apple-juice", channel: "default-channel") {
+    id
+    name
+    slug
+    description
+    seoTitle
+    seoDescription
+
+    # You can pass locale from device settings or URL
+    translation(languageCode: ES) {
+      name
+      description
+      seoTitle
+      seoDescription
+    }
+
+    # Provide size and format to render optimmal image for the device resolution
+    thumbnail(size: 100, format: WEBP) {
+      url
+      alt
+    }
+
+    # Get specific attribute of a product
+    attribute(slug: "color") {
+      values {
+        name
+        slug
+      }
+    }
+
+    variants {
+      id
+      name
+
+      attributes(variantSelection: VARIANT_SELECTION) {
+        values {
+          name
+          slug
+        }
+      }
+
+      pricing {
+        price {
+          currency
+          gross {
+            amount
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## Cart
+
+This mutation is typically called when user doesn't have a cart and presses "Add to cart" for the first time. It is not adviced to create checkouts without products for every session.
+
+```graphql
+mutation {
+  checkoutCreate(
+    input: {
+      channel: "default-channel"
+      lines: [{ variantId: "UHJvZHVjdFZhcmlhbnQ6MzQ2", quantity: 1 }]
+    }
+  ) {
+    checkout {
+      id
+      lines {
+        id
+        quantity
+        variant {
+          name
+          sku
+          product {
+            thumbnail(size: 100, format: WEBP) {
+              url
+              alt
+            }
+          }
+        }
+      }
+    }
+    errors {
+      message
+      field
+      code
+    }
+  }
+}
+```
+
+Use `checkoutLinesAdd` to add new lines to basket or increase quantity of existing line
+
+```graphql
+mutation {
+  checkoutLinesAdd(
+    checkoutId: "Q2hlY2tvdXQ6ZDFkMzM1MTEtMmE0Yi00YmZiLTk4ODctOWU0MWI0ODQ5MmNm"
+    lines: [{ variantId: "UHJvZHVjdFZhcmlhbnQ6MzQ2", quantity: 1 }]
+  ) {
+    checkout {
+      lines {
+        quantity
+      }
+    }
+  }
+}
+```
+
+To retrieve checkout you would need `checkoutId` which is typically stored in cookies or persistent storage of your device. Users can have multiple checkouts, devices can advantage of that by storing checkouts per channel for example, to allow users to shop independently in multiple regions and currencies.
+
+```graphql
+query {
+  checkout(id: "Q2hlY2tvdXQ6ZDFkMzM1MTEtMmE0Yi00YmZiLTk4ODctOWU0MWI0ODQ5MmNm") {
+    lines {
+      id
+      quantity
+    }
+    shippingAddress {
+      country {
+        code
+        country
+      }
+    }
+  }
+}
+```
+
+Checkouts can be attached to authenticated users and retrieved:
+
+```graphql
+query {
+  me {
+    checkoutIds
+    checkouts(first: 10) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+```
+
+## Customer account
+
+Register:
+
+```graphql
+mutation {
+  accountRegister(
+    input: {
+      email: "user@example.com"
+      password: "dASdyjfa@4123"
+      languageCode: EN
+    }
+  ) {
+    requiresConfirmation
+    errors {
+      code
+      field
+    }
+  }
+}
+```
+
+Password reset:
+
+```graphql
+mutation {
+  requestPasswordReset(
+    channel: "USD"
+    email: "user@example.com"
+    redirectUrl: "example-store.com/password-reset"
+  ) {
+    errors {
+      field
+      message
+    }
+  }
+}
+```

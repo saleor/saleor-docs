@@ -70,6 +70,16 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Cookbook",
+      items: [
+        {
+          Saleor: ["cookbook/saleor/storefront"],
+          Storefront: ["cookbook/storefront/checklist"],
+        },
+      ],
+    },
+    {
+      type: "category",
       label: "API Usage",
       items: [
         {
