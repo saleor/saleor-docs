@@ -277,12 +277,7 @@ module.exports = {
   customFields: {
     sentryDSN: process.env.SENTRY_DSN,
   },
-  scripts: [
-    {
-      src: "https://cdn.segment.com/analytics.js/v1/JlfojBlUjPv2SgxOBkDAwpmshEaC97t4/analytics.min.js",
-      async: true,
-    },
-  ],
+  scripts: [],
 };
 
 // Sort sidebar items with localeCompare
