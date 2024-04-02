@@ -12,7 +12,8 @@ if (sentryDSN) {
   Sentry.init({
     dsn: sentryDSN,
     integrations: [new BrowserTracing()],
-    tracesSampleRate: 1.0,
+    tracesSampleRate: 0,
+    enableTracing: false,
   });
 }
 
