@@ -8,7 +8,7 @@ import {
   containsLineNumbers,
   useCodeWordWrap,
 } from "@docusaurus/theme-common/internal";
-import Highlight, { defaultProps } from "prism-react-renderer";
+import { Highlight } from "prism-react-renderer";
 import Line from "@theme/CodeBlock/Line";
 import CopyButton from "@theme/CodeBlock/CopyButton";
 import WordWrapButton from "@theme/CodeBlock/WordWrapButton";
@@ -69,12 +69,7 @@ export default function CodeBlockString({
           codeBlockExpanded && styles.expanded
         )}
       >
-        <Highlight
-          {...defaultProps}
-          theme={prismTheme}
-          code={code}
-          language={language ?? "text"}
-        >
+        <Highlight theme={prismTheme} code={code} language={language ?? "text"}>
           {({ className, tokens, getLineProps, getTokenProps }) => (
             <pre
               /* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */
