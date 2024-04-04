@@ -4,9 +4,17 @@ import * as fs from "node:fs/promises";
 
 const extractPermissions = (description?: string) => {
   const match = (description || "").match(/following permissions: (.*)\./);
-  const permissions = match ? match[1].split(",") : [];
+  const permissions = match ? match[1].split(",").map((p) => p.trim()) : [];
 
   return permissions;
+};
+
+const hasStorefrontPermissions = (permissions: string[]) => {
+  const allowedPermissions = ["IS_OWNER", "AUTHENTICATED_USER"];
+  const checker = (value) =>
+    allowedPermissions.some((element) => value.includes(element));
+
+  return permissions.filter(checker).length > 0;
 };
 
 const extractType = (type) => {
@@ -111,13 +119,13 @@ const getStorefrontSchema = async () => {
   const publicSchema = visit(ast, {
     FieldDefinition(node) {
       const permissions = extractPermissions(node.description?.value || "");
-      if (permissions.length > 0) {
+      if (permissions.length > 0 && !hasStorefrontPermissions(permissions)) {
         return null;
       }
     },
     ObjectTypeDefinition(node) {
       const permissions = extractPermissions(node.description?.value || "");
-      if (permissions.length > 0) {
+      if (permissions.length > 0 && !hasStorefrontPermissions(permissions)) {
         return null;
       }
     },
