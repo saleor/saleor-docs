@@ -32,6 +32,9 @@ module.exports = {
         loaders: {
           GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
         },
+        printTypeOptions: {
+          useApiGroup: false,
+        },
         groupByDirective: {
           directive: "doc",
           field: "category",
@@ -50,6 +53,9 @@ module.exports = {
         linkRoot: "../../../",
         loaders: {
           GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
+        },
+        printTypeOptions: {
+          useApiGroup: false,
         },
         groupByDirective: {
           directive: "doc",
