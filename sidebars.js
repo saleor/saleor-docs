@@ -122,7 +122,7 @@ module.exports = {
             "developer/app-store/apps/overview",
             {
               type: "category",
-              label: "Avatax",
+              label: "AvaTax",
               items: [
                 "developer/app-store/apps/avatax/overview",
                 "developer/app-store/apps/avatax/architecture",
