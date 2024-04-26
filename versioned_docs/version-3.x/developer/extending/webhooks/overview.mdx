@@ -87,3 +87,16 @@ Saleor can send Webhooks for various events that happen in the system. Events ca
 The main and **most important difference** between synchronous and asynchronous events is that **synchronous events execution influences the response time of the request that triggered the event**. That said if you have a request that triggers a synchronous event and the event processing takes a long time, the request will take a long time to finish as well affecting the response time of the request.
 
 You can read more about asynchronous events in the [Asynchronous events](./asynchronous-events.mdx) section and about synchronous events in the [Synchronous events](./synchronous-events/overview.mdx) section.
+
+### Time limits
+
+Both synchronous and asynchronous webhook requests are time-limited. Saleor will wait a maximum of 20 seconds for the complete HTTP request round trip: up to 2 seconds for the network connection and up to 18 seconds for a response.
+
+Some operations can result in more than one synchronous webhook invocation. While individual calls can take up to 20 seconds and succeed, stacking them up may cause Saleor's API to time out.
+
+You can follow some good practices to avoid webhook timeouts:
+
+- Use queues instead of HTTP endpoints for asynchronous events. Saleor will send events straight to the queue, and your application can process them at its own pace without blocking Saleor.
+- If you're using serverless functions to accept webhooks, be aware of cold starts. Make sure the application is fast to respond even if it was not invoked in a while.
+- If you use Serverless environment consider migrating to Edge runtime (e.g. Cloudflare Workers, Vercel Edge Runtime, Deno Deploy) which has much lower cold starts (close to 0)
+- The 20-second limit is there to act as a fail-safe mechanism. We recommend ensuring your application never gets close to that limit, even under heavy load. For some events, even a one-second delay can result in a poor user experience.
