@@ -58,13 +58,32 @@ Event delivery will not be reattempted if:
 - the endpoint responds with an HTTP redirect (3xx)
 - the endpoint responds with a non-transient HTTP error code (4xx)
 
+#### Sending webhooks to Azure Service Bus
+
+You can use HTTP webhooks to deliver messages to Azure System Bus queues.
+
+To do this, set the endpoint address to the HTTP endpoint of the Azure Service Bus queue or topic.
+
+The structure of `targetUrl` should be as below:
+
+```
+https://<service-namespace>.servicebus.windows.net/<queue-or-topic>/messages
+```
+
+Then, add the following custom headers according to the [Azure System Bus documentation](https://learn.microsoft.com/en-us/rest/api/servicebus/send-message-to-queue#request-headers):
+
+- `Authorization`
+- `BrokerProperties`
+
+Note that `Content-Type` cannot be specified as a custom header and will be filled by Saleor when sending the webhook.
+
 ### Google Cloud Pub/Sub
 
 All webhooks with the `gcpubsub` scheme will be treated as the Google Cloud Pub/Sub webhooks.
 The structure of the `targetUrl` scheme should be as below:
 
 ```
-gcpubsub://cloud.google.com/projects/<yourproject>/topics/<yourtopic>
+gcpubsub://cloud.google.com/projects/<your-project>/topics/<your-topic>
 ```
 
 To use the Google Cloud Pub/Sub properly, you need to set the [`GOOGLE_APPLICATION_CREDENTIALS` environment variable](https://cloud.google.com/pubsub/docs/quickstart-client-libraries).
@@ -76,12 +95,12 @@ All webhooks with the `awssqs` scheme will be treated as AWS SQS webhooks.
 The structure of `targetUrl` should be as below:
 
 ```
-awssqs://<access_key_id>:<secret_access_key>@sqs.<region>.amazonaws.com/<account_id>/<queue_name>
+awssqs://<access-key-id>:<secret-access-key>@sqs.<region>.amazonaws.com/<account-id>/<queue-name>
 ```
 
 :::note
 FIFO queues (ending in `.fifo`) must be configured to have `ContentBasedDeduplication` enabled.
-`MessageGroupID` will be set to current [`Site`](https://docs.djangoproject.com/en/dev/ref/contrib/sites/)'s domain name.
+`MessageGroupID` will be set to Saleor's domain name.
 :::
 
 ## Available webhook events
