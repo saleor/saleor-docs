@@ -100,7 +100,7 @@ module.exports = {
         {
           type: "docSidebar",
           sidebarId: "api",
-          label: "Admin API",
+          label: "API Reference",
           position: "left",
         },
         {
