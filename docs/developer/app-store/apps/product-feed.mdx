@@ -1,142 +1,95 @@
+---
+title: Product Feed
+---
+
 import { AppMetadata } from "/components/AppMetadata/AppMetadata.tsx";
-
-# Product feed
-
-## Metadata
 
 <AppMetadata
   minSaleorVersion="3.10"
-  roadmapUrl="https://github.com/saleor/apps/labels/App%3A%20Product%20Feed"
   githubUrl="https://github.com/saleor/apps/tree/main/apps/products-feed"
 />
 
-## Introduction
+:::info
 
-The app generates XML files in Google Merchant feed format.
+You can find more information how to modify product feed in [Google Merchant Center](https://shoppingsolutions.withgoogle.com/expertise/merchant-center-modify/).
+
+:::
+
+## Overview
+
+_Product Feed_ app allows generating an XML file file with products and their details. The file can be used as a feed source for Google Merchant Center.
 
 ## Features
 
-- Generate feed in the [Google Merchant format](https://support.google.com/merchants/answer/7439882)
-- Map your catalog structure to Google Merchant format
-- Upload files to the AWS S3 bucket
-- Download the file and
-- Set a scheduler in Google Merchant Center
-- Separate feed for each of the channels
-- Map Saleor attributes to fields like size, material, brand
+- Generate XML file with products and their details
+- Allow to store feed file in S3 bucket
+- Generating separate feeds for each channel
+- Possibility to map Saleor categories to pre-defined Google categories
+- Map Saleor attributes to Google attributes
 
-## Assumptions & limitations
+## Limitations
 
-- Each item in the feed is equivalent to a single Product Variant in Saleor
-- For catalogs bigger than 200 product variants an AWS S3 bucket is recommended
-- Translations are not supported - product data are generated using the default language
-- Only the public data are used to generate the feed. It means that not published products will not be included
-- The feed is generated upon visiting the feed URL, which can be found in the app configuration
-- Once generated feed, it will be cached for one day. [Update your scheduled fetches accordingly](https://support.google.com/merchants/answer/7371671).
-- Data displayed in Google Merchant Center do not update in real-time. This is a limitation of GMC. It may take [up to 3 business days](https://support.google.com/merchants/answer/188477) to update.
-
-## Glossary
-
-- [**Google Merchant Center**](https://www.google.com/intl/en_us/retail/solutions/merchant-center/): Service used to share product data in search results and ads
-- [**AWS S3 Bucket**](https://aws.amazon.com/s3/): File hosting service created by Amazon
-- [**Handlebars**](https://handlebarsjs.com/): Language used for creating templates. The app uses it for generating dynamic titles and URLs based on product data
+- The app uses a serverless function to handle feed generation. It means that the app is limited by a serverless function maximum execution time, which might cause a timeout when the product catalogue is big.
 
 ## Permissions
 
-The app requires `MANAGE_PRODUCTS` permission.
+The app requires `MANAGE_PRODUCTS` permission to listen to product events.
 
-The staff user configuring the App must have `MANAGE_APPS` permission.
-
-## Application flow
-
-The app will subscribe for webhooks:
-
-- Product created
-- Product deleted
-- Product updated
-- Product variant created
-- Product variant deleted
-- Product variant updated
-
-When the webhook is received, the application will update it's cache:
-
-```mermaid
-sequenceDiagram
-   participant Saleor as Saleor API
-   participant App as Product Feed App
-   Saleor ->>+ App: Product changed
-   App ->>+ Saleor: Fetch data for all products
-   Saleor ->>- App: Product data
-   App ->> App: Update feed generation cache
-   App ->>- Saleor:
-```
-
-The cache is used for faster feed generation when a request for a feed file is received. If the feed was generated last time no longer than 5 minutes ago, the app will return the link to the existing file:
-
-```mermaid
-sequenceDiagram
-   participant Saleor as Saleor API
-   participant App as Product Feed App
-   participant Google as Google Merchant Center
-   Google ->>+ App: Request products feed
-   App ->>+ Saleor: Fetch all products detail
-   Saleor ->>- App: Product details data
-   App ->> App: Generate a file
-   App ->> App: Upload file to the AWS S3
-   App ->>- Google: Link to the generated file
-
-   Google ->>+ App: Request products feed
-   App ->> App: Check if there is feed generated lately
-   App ->>- Google: Link to the generated file
-
-
-```
-
-## Pre-requisites
-
-- AWS S3 bucket with write access token and public read of the object
-- Google Merchant account
+To save app configuration, staff users must have `MANAGE_PRODUCTS` permission.
 
 ## Configuration
 
-### AWS S3 bucket
+### S3 bucket
 
-### URL configuration
+In case you want to send the generated file to the S3 bucket, you need to provide the following details:
 
-- using handlebars
+- `AWS Access Key ID`
+- `AWS Secret`
+- `AWS S3 Bucket Name`
+- `AWS S3 Bucket Region`
+
+You can test the connection to the S3 bucket by clicking the `Test connection` button.
+
+### Channels
+
+You can generate a separate feed for each channel. To do that, you need to provide the following details:
+
+- `Storefront URL`
+- `Storefront product URL`
 
 ### Item title
 
-- using handlebars
+You can use the [`Handerbars`](https://handlebarsjs.com/) format to customize the product URL with context-aware templates.
 
-### Item attributes
+You can use variables like this:
 
-- which attributes can be used
-- multi-value attributes
+#### Example:
 
-### Using the Handlebars templating
+For this url `https://my-shop.com/p/{{ variant.product.slug }}/{{ variant.id }}` will produce `https://my-shop.com/p/t-shirt/Xyp2asZ`
 
-Example data:
-// Put JSON here
+### Categories mapping
 
-// Example template
+You can map Saleor categories to pre-defined Google categories, but this is optional.
+Selected Google Category Id will be saved in Category public metadata.
+Google automatically assigns a category to a product, but in some cases, Google allows to override it.
+You can find more information [here](https://support.google.com/merchants/answer/6324436?hl=en)
 
-// Where to test
-[playground](https://handlebarsjs.com/playground.html#format=1&currentExample=%7B%22template%22%3A%22%7B%7B%20variant.product.name%20%7D%7D%20-%20%7B%7B%20variant.name%20%7D%7D%5Cn%22%2C%22partials%22%3A%5B%5D%2C%22input%22%3A%22%7B%5Cn%20%20variant%3A%20%7B%5Cn%20%20%20%20id%3A%20%5C%22UHJvZHVjdFZhcmlhbnQ6MzYx%5C%22%2C%5Cn%20%20%20%20name%3A%20%5C%22M%5C%22%2C%5Cn%20%20%20%20sku%3A%20%5C%22218223580%5C%22%2C%5Cn%20%20%20%20pricing%3A%20%7B%5Cn%20%20%20%20%20%20price%3A%20%7B%5Cn%20%20%20%20%20%20%20%20gross%3A%20%7B%5Cn%20%20%20%20%20%20%20%20%20%20currency%3A%20%5C%22USD%5C%22%2C%5Cn%20%20%20%20%20%20%20%20%20%20amount%3A%2045%2C%5Cn%20%20%20%20%20%20%20%20%7D%2C%5Cn%20%20%20%20%20%20%7D%2C%5Cn%20%20%20%20%7D%2C%5Cn%20%20%20%20quantityAvailable%3A%2050%2C%5Cn%20%20%20%20attributes%3A%20%5B%5Cn%20%20%20%20%20%20%7B%5Cn%20%20%20%20%20%20%20%20attribute%3A%20%7B%5Cn%20%20%20%20%20%20%20%20%20%20id%3A%20%5C%22QXR0cmlidXRlOjM4%5C%22%2C%5Cn%20%20%20%20%20%20%20%20%7D%2C%5Cn%20%20%20%20%20%20%20%20values%3A%20%5B%5Cn%20%20%20%20%20%20%20%20%20%20%7B%5Cn%20%20%20%20%20%20%20%20%20%20%20%20value%3A%20%5C%22%5C%22%2C%5Cn%20%20%20%20%20%20%20%20%20%20%20%20name%3A%20%5C%22M%5C%22%2C%5Cn%20%20%20%20%20%20%20%20%20%20%7D%2C%5Cn%20%20%20%20%20%20%20%20%5D%2C%5Cn%20%20%20%20%20%20%7D%2C%5Cn%20%20%20%20%5D%2C%5Cn%20%20%20%20product%3A%20%7B%5Cn%20%20%20%20%20%20id%3A%20%5C%22UHJvZHVjdDoxMzc%3D%5C%22%2C%5Cn%20%20%20%20%20%20name%3A%20%5C%22Blue%20Polygon%20Shirt%5C%22%2C%5Cn%20%20%20%20%20%20slug%3A%20%5C%22blue-polygon-shirt%5C%22%2C%5Cn%20%20%20%20%20%20description%3A%5Cn%20%20%20%20%20%20%20%20'%7B%5C%22time%5C%22%3A%201653425319677%2C%20%5C%22blocks%5C%22%3A%20%5B%7B%5C%22id%5C%22%3A%20%5C%22sMEIn2NR8s%5C%22%2C%20%5C%22data%5C%22%3A%20%7B%5C%22text%5C%22%3A%20%5C%22%3Cb%3EEver%20have%20those%20days%20where%20you%20feel%20a%20bit%20geometric%3F%3C%2Fb%3E%20Can%5C%5C't%20quite%20shape%20yourself%20up%20right%3F%20Show%20your%20different%20sides%20with%20a%20Saleor%20styles.%5C%22%7D%2C%20%5C%22type%5C%22%3A%20%5C%22paragraph%5C%22%7D%5D%2C%20%5C%22version%5C%22%3A%20%5C%222.22.2%5C%22%7D'%2C%5Cn%20%20%20%20%20%20seoDescription%3A%20%5C%22%5C%22%2C%5Cn%20%20%20%20%20%20attributes%3A%20%5B%5Cn%20%20%20%20%20%20%20%20%7B%5Cn%20%20%20%20%20%20%20%20%20%20attribute%3A%20%7B%5Cn%20%20%20%20%20%20%20%20%20%20%20%20id%3A%20%5C%22QXR0cmlidXRlOjM2%5C%22%2C%5Cn%20%20%20%20%20%20%20%20%20%20%7D%2C%5Cn%20%20%20%20%20%20%20%20%20%20values%3A%20%5B%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%7B%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%20%20value%3A%20%5C%22%5C%22%2C%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%20%20name%3A%20%5C%22Cotton%5C%22%2C%5Cn%20%20%20%20%20%20%20%20%20%20%20%20%7D%2C%5Cn%20%20%20%20%20%20%20%20%20%20%5D%2C%5Cn%20%20%20%20%20%20%20%20%7D%2C%5Cn%20%20%20%20%20%20%5D%2C%5Cn%20%20%20%20%20%20thumbnail%3A%20%7B%5Cn%20%20%20%20%20%20%20%20url%3A%20%5C%22https%3A%2F%2Fexample.eu.saleor.cloud%2Fmedia%2Fthumbnails%2Fproducts%2Fsaleor-blue-polygon-tee-front_thumbnail_256.png%5C%22%2C%5Cn%20%20%20%20%20%20%7D%2C%5Cn%20%20%20%20%20%20category%3A%20%7B%5Cn%20%20%20%20%20%20%20%20id%3A%20%5C%22Q2F0ZWdvcnk6Mzk%3D%5C%22%2C%5Cn%20%20%20%20%20%20%20%20name%3A%20%5C%22T-shirts%5C%22%2C%5Cn%20%20%20%20%20%20%20%20googleCategoryId%3A%20%5C%2242%5C%22%2C%5Cn%20%20%20%20%20%20%7D%2C%5Cn%20%20%20%20%7D%2C%5Cn%20%20%7D%5Cn%7D%22%2C%22output%22%3A%22Blue%20Polygon%20Shirt%20-%20M%5Cn%22%2C%22preparationScript%22%3A%22%22%2C%22handlebarsVersion%22%3A%224.7.8%22%7D)
+### Attributes mapping
 
-## Troubleshooting
+Choose which product attributes should be used for the feed.
 
-- Accessing the feed URL results in a configuration error
+Supported attributes:
 
-  - you have to configure URLs in the channel configuration
+- `brand`
+- `color`
+- `material`
+- `pattern`
+- `size`
+- `gtin`
 
-- Can't access the file uploaded to the S3
+## Testing
 
-  - test S3 credentials in the App configuration. If the token is no longer valid, the test will fail
-  - check S3 bucket configuration - the files generated by the feed should be assigned as availably publicly
-
-- Some products are not displayed in the feed
-  - make sure products are available in the channel assigned to this feed
-
-## Development
-
-Visit the [development guide](../../extending/apps/developing-apps/app-examples) to learn more about App Store app development.
+- In the channel configuration section, select a channel for which you want to generate a feed
+- Provide required URLs for storefront and product
+- Below in the same section, in the `Test your feed` subsection click on the button `Open feed in a new tab`
+- New tab should open, wait a couple of seconds for the generated feed
