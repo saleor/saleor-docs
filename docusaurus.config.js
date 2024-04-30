@@ -39,25 +39,6 @@ module.exports = {
         },
       },
     ],
-    [
-      "@graphql-markdown/docusaurus",
-      {
-        id: "storefront",
-        schema: "./schema-storefront.graphql",
-        rootPath: "./docs", // docs will be generated under rootPath/baseURL
-        baseURL: "api-storefront",
-        homepage: "./template/storefront/api-reference.mdx",
-        linkRoot: "../../../",
-        loaders: {
-          GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
-        },
-        groupByDirective: {
-          directive: "doc",
-          field: "category",
-          fallback: "Miscellaneous",
-        },
-      },
-    ],
   ],
 
   webpack: {
@@ -119,13 +100,7 @@ module.exports = {
         {
           type: "docSidebar",
           sidebarId: "api",
-          label: "Admin API",
-          position: "left",
-        },
-        {
-          type: "docSidebar",
-          sidebarId: "storefrontApi",
-          label: "Storefront API",
+          label: "API Reference",
           position: "left",
         },
         {

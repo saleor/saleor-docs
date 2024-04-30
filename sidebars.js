@@ -284,7 +284,4 @@ module.exports = {
     },
   ],
   api: [...require("./docs/api-reference/sidebar-schema.js").schemaSidebar],
-  storefrontApi: [
-    ...require("./docs/api-storefront/sidebar-schema.js").schemaSidebar,
-  ],
 };
