@@ -17,39 +17,33 @@ Below is a diagram that shows the possible states of an order and the transition
 The order is initiated either by creating a draft version or completing a checkout.
 
 ```mermaid
-stateDiagram-v2
-    state if_state_fulfillments <<choice>>
-    state if_state_returns <<choice>>
-    state if_state_automatic_confirmation <<choice>>
+flowchart TD
+    CreatedDraft[Draft order created] --> DRAFT(DRAFT)
+    CheckoutCompleted[Checkout Completed]
 
-    [*] --> DRAFT: Draft order created
+    DRAFT -->|Confirm order| UNFULFILLED(UNFULFILLED)
 
-    DRAFT --> UNFULFILLED: Confirmed
-    [*] --> if_state_automatic_confirmation: Checkout completed
-    if_state_automatic_confirmation --> UNFULFILLED: With automatic confirmation
-    if_state_automatic_confirmation --> UNCONFIRMED: Without automatic confirmation
+    CheckoutCompleted --> isAutomated{Is automated \norder confirmation turned on?}
+    isAutomated -->|Yes| UNFULFILLED
+    isAutomated -->|No| UNCONFIRMED(UNCONFIRMED)
 
 
-    UNCONFIRMED --> UNFULFILLED: Confirmed
-    UNCONFIRMED --> EXPIRED: Expire time overdue
-    UNFULFILLED --> if_state_fulfillments: Fulfillment created
-    PARTIALLY_FULFILLED --> FULFILLED: All products fulfilled
-    if_state_fulfillments --> FULFILLED: All products fulfilled
-    if_state_fulfillments --> PARTIALLY_FULFILLED: Subset of products fulfilled
-    PARTIALLY_FULFILLED --> if_state_returns: Products returned
+    UNCONFIRMED -->|Expire time overdue| EXPIRED(EXPIRED)
+    UNCONFIRMED -->|Confirm order| UNFULFILLED
 
+    UNFULFILLED -->|Create fulfillment| isNotFulfilled{Are there unfulfilled\n order lines?}
+    isNotFulfilled -->|Yes| PARTIALLY_FULFILLED(PARTIALLY_FULFILLED)
+    isNotFulfilled -->|No| FULFILLED(FULFILLED)
+    UNFULFILLED -->|Cancel order| CANCELLED(CANCELLED)
 
-    UNFULFILLED --> if_state_returns: Products returned
-    FULFILLED --> if_state_returns: Products returned
-    PARTIALLY_RETURNED --> RETURNED: All products returned
-    if_state_returns --> RETURNED: All products returned
-    if_state_returns --> PARTIALLY_RETURNED: Subset of products returned
+    PARTIALLY_FULFILLED -->|Create fulfillment| isNotFulfilled
+    PARTIALLY_FULFILLED -->|Return products| isNotReturned{Are there unreturned\n order lines?}
 
-    UNFULFILLED --> CANCELED: Cancel
+    FULFILLED -->|Return products| isNotReturned
+    isNotReturned -->|Yes| PARTIALLY_RETURNED(PARTIALLY_RETURNED)
+    isNotReturned -->|No| RETURNED(RETURNED)
 
-    CANCELED --> [*]
-    EXPIRED --> [*]
-    RETURNED --> [*]
+    PARTIALLY_RETURNED -->|Return products| isNotReturned
 ```
 
 ### DRAFT
