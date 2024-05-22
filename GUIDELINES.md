@@ -1,10 +1,15 @@
 # Writing documentation guidelines
 
 ## Tooling
-- [Grammarly](https://grammarly.com/) - everything you write goes through our editing process, but we would appreciate it if you used Grammarly for spell-checking. We recommend installing the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=znck.grammarly). If you are a Saleor team member, login with your work email to join the organization. 
+
+- [Grammarly](https://grammarly.com/) - everything you write goes through our editing process, but we would appreciate it if you used Grammarly for spell-checking. We recommend installing the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=znck.grammarly). If you are a Saleor team member, login with your work email to join the organization.
 - [Hemingway App](https://hemingwayapp.com/) - for extra clarity, we recommend using the excellent Hemingway App. It mainly helps with evaluating the complexity of sentences.
 
 ## Content
+
+### Titles
+
+Titles should follow [The Chicago Manual of Style](https://en.wikipedia.org/wiki/Title_case#Chicago_Manual_of_Style). This includes both the sidebar labels and the titles of the pages.
 
 ### Avoid using passive voice
 
@@ -16,10 +21,13 @@ We are writing tutorials and instructions, so it's more suitable to talk directl
 ```
 
 ### Screenshots
+
 Try not to use screenshots. Screenshots come at a high maintenance cost because they tend to go out of date quickly. If we need a screenshot to explain something, it's possible we could be doing a better job at describing it, or our UX could be better. Only if we can't do anything about it, a screenshot is fine.
 
 ## Checklist
+
 Things to check before publishing:
+
 - [ ] - proper nouns are capitalized. Some common cases include:
   - **GraphQL**, not graphql, Graphql, graphQl
   - **GitHub**, not Github, github
