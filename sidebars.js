@@ -141,7 +141,7 @@ module.exports = {
             "developer/app-store/apps/search",
             {
               type: "category",
-              label: "Emails and messages",
+              label: "Emails and Messages",
               items: [
                 "developer/app-store/apps/emails-and-messages/overview",
                 "developer/app-store/apps/emails-and-messages/sendgrid",
@@ -183,7 +183,7 @@ module.exports = {
             "developer/extending/webhooks/asynchronous-events",
             {
               type: "category",
-              label: "Synchronous events",
+              label: "Synchronous Events",
               items: [
                 "developer/extending/webhooks/synchronous-events/overview",
                 "developer/extending/webhooks/synchronous-events/payment",
