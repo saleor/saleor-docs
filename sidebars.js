@@ -28,7 +28,7 @@ module.exports = {
         "developer/attributes",
         {
           type: "category",
-          label: "Checkout",
+          label: "Checkout and Orders",
           items: [
             "developer/checkout/overview",
             "developer/checkout/lines",
