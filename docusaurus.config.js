@@ -195,6 +195,7 @@ module.exports = {
           customCss: [require.resolve("./src/css/theme.css")],
         },
         docs: {
+          breadcrumbs: false,
           async sidebarItemsGenerator({
             defaultSidebarItemsGenerator,
             ...args
