@@ -265,8 +265,7 @@ When the product is added to checkout, Saleor will use the 8% tax rate.
 
 :::tip
 You can assign tax classes to products directly, or you can assign them to product types using the `productTypeUpdate` mutation. When a product type has a tax class assigned, all products of this type will use it, as long as they don’t have their own tax rates assigned.
-
-:::tip
+:::
 
 ### Assigning tax rate to a shipping method
 
@@ -394,3 +393,42 @@ mutation {
 ```
 
 For orders, pass the order ID as an argument and adjust the query to fetch the order data in the `taxableObject` field. To re-enable tax charging, pass `taxExemption: false`.
+
+## Address for tax calculation
+
+The process of determining the country code follows this sequence:
+
+1. Shipping address
+2. Billing address
+3. The channel's default country
+
+:::note
+The table provides examples to help understand how tax calculation is determined based on the address.
+:::
+
+|             | Store Address | Shipping Address | Billing Address | Warehouse Address |
+| ----------- | ------------- | ---------------- | --------------- | ----------------- |
+| Country     | US            | US               | US              | US                |
+| CountryArea | LA            | VA               | TX              | VT                |
+
+### Example for shipable products
+
+- Create a checkout with channel and lines. Since the shipping and billing addresses are empty, taxes are calculated based on the store address (Country US, state LA)
+- Update the billing address. The shipping address is still empty, but since the billing address is now available, taxes are calculated based on it (Country US, state TX)
+- Update the shipping address. Taxes are now calculated based on the shipping address (Country US, state VA).
+
+### Example for digital products
+
+- Create a checkout with channel and non-shippable lines. Since the shipping and billing addresses are empty, taxes are calculated based on the store address (Country US, state LA)
+- Update the billing address. Taxes are calculated based on it (Country US, state TX)
+
+:::warning
+It's possible to set shipping address in the checkoutCreate mutation. In this case, the shipping address will be used for tax calculation since we always prioritize shipping address over billing address.
+:::
+
+### Example for click and collect shipping
+
+- Create a checkout with channel and lines. Since the shipping address is empty, taxes are calculated based on the store address (Country US, state LA)
+- Update the billing address. Taxes are calculated based on the billing address (Country US, state TX)
+- Update the shipping address. Taxes are calculated based on the shipping address (Country US, state VA).
+- Update the delivery method with the ID of availableCollectionPoint. The shipping address has been changed to the warehouse address. Taxes are now calculated based on the warehouse address. (Country US, state VT)
