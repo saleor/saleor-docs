@@ -148,6 +148,15 @@ module.exports = {
                 "developer/app-store/apps/emails-and-messages/troubleshooting",
               ],
             },
+            {
+              type: "category",
+              label: "SMTP",
+              items: [
+                "developer/app-store/apps/smtp/overview",
+                "developer/app-store/apps/smtp/configuration",
+                "developer/app-store/apps/smtp/troubleshooting",
+              ],
+            },
           ],
         },
         {
