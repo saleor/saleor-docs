@@ -89,6 +89,7 @@ module.exports = {
         alt: "Saleor",
         src: "img/logo.svg",
         srcDark: "img/logo-white.svg",
+        className: "saleor-logo",
       },
       items: [
         {
