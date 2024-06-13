@@ -350,3 +350,33 @@ export const productUpdatedWebhook =
     query: ExampleProductUpdatedSubscription, // Or use plain string
   });
 ```
+
+### Saleor schema version inside context
+
+From version 0.50.0 of `@saleor-sdk` have new field: `schemaVersion` inside context for `createHandler`:
+
+```ts
+export default orderCreatedWebhook.createHandler((req, res, context) => {
+  const { schemaVersion } = context;
+
+  console.log(schemaVersion);
+
+  // End with status 200
+  return res.status(200).end();
+});
+```
+
+This field can be used to enable some feature based on the Saleor version. Before you use it make sure that your subscription have `version` field defined. If not `schemaVersion` will be `null`:
+
+```diff
+subscription {
+  event {
++   version
+    ... on CalculateTaxes {
+      taxBase {
+        currency
+      }
+    }
+  }
+}
+```
