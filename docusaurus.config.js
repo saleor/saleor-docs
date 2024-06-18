@@ -100,6 +100,18 @@ module.exports = {
         },
         {
           type: "docSidebar",
+          sidebarId: "concepts",
+          label: "Core Concepts",
+          position: "left",
+        },
+        {
+          type: "docSidebar",
+          sidebarId: "appStore",
+          label: "App Store",
+          position: "left",
+        },
+        {
+          type: "docSidebar",
           sidebarId: "api",
           label: "API Reference",
           position: "left",
@@ -197,15 +209,8 @@ module.exports = {
         },
         docs: {
           breadcrumbs: false,
-          async sidebarItemsGenerator({
-            defaultSidebarItemsGenerator,
-            ...args
-          }) {
-            const sidebarItems = await defaultSidebarItemsGenerator(args);
-            return sortSidebarItems(sidebarItems);
-          },
-          path: "docs",
           lastVersion: isUpdate ? "current" : "3.x",
+          path: "docs",
           versions: isUpdate
             ? {
                 current: {
@@ -250,35 +255,3 @@ module.exports = {
     },
   ],
 };
-
-// Sort sidebar items with localeCompare
-function sortSidebarItems(items) {
-  const sort = (items) => {
-    return items.sort((a, b) => {
-      // sort by generated id or label
-      if (a.id) {
-        return a.id.localeCompare(b.id || b.label);
-      }
-
-      return a.label.localeCompare(b.label || b.id);
-    });
-  };
-
-  const result = sort(items).map((item) => {
-    if (item.type === "category") {
-      return { ...item, items: sortSidebarItems(item.items) };
-    }
-    return item;
-  });
-
-  return result.map((item) => {
-    if (item.items) {
-      return {
-        ...item,
-        items: sort(item.items),
-      };
-    }
-
-    return item;
-  });
-}
