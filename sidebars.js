@@ -23,7 +23,17 @@ module.exports = {
     },
     {
       Guides: [
-        "developer/channels",
+        {
+          type: "category",
+          label: "Channels",
+          items: [
+            "developer/channels/overview",
+            "developer/channels/configuration",
+            "developer/channels/lifecycle",
+            "developer/channels/troubleshooting",
+            "developer/channels/api",
+          ],
+        },
         "developer/products",
         "developer/attributes",
         {
