@@ -23,7 +23,8 @@ Saleor allows to finalize transactions without payment (order first, then paymen
 
 ## Configuration
 
-To set the expiration of orders, enable the `automaticallyConfirmAllNewOrders` option in the channel settings and set after how many minutes the orders should expire `expireOrdersAfter`. You can also set after how many days expired orders should be deleted `deleteExpiredOrdersAfter`.
+To set the expiration of orders, turn on the `automaticallyConfirmAllNewOrders` option in the channel settings and specify the number of minutes after which the orders should expire by setting `expireOrdersAfter`.
+Additionally, you can modify `deleteExpiredOrdersAfter`. By default, this is set to 60 days, but you can change this value to anywhere between 1 and 120 days.
 
 ```graphql
 mutation ChannelUpdate {
@@ -80,9 +81,11 @@ mutation ChannelUpdate {
 
 ## How it works
 
-Once an unpaid order is created (via [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) or [`orderCreateFromCheckout`](api-reference/orders/mutations/order-create-from-checkout.mdx)), it remains in `UNCONFIRMED` status. If the customer does not complete the payment within X minutes after that, the status will change to `EXPIRED` and stocks allocation will be released.
-If `deleteExpiredOrdersAfter` is not null then after Y days orders in `EXPIRED` status will be deleted and disappear from the order list.
+Once an unpaid order is created (via [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) or [`orderCreateFromCheckout`](api-reference/orders/mutations/order-create-from-checkout.mdx)), it remains in `UNCONFIRMED` status. If the customer does not complete the payment within `expireOrdersAfter` minutes after that, the status will change to `EXPIRED` and stocks allocation will be released.
+After `deleteExpiredOrdersAfter` days orders in `EXPIRED` status will be deleted and disappear from the order list.
 
 ## How to disable order expiration
 
 To disable order expiration, set `expireOrdersAfter` to 0.
+
+When `expireOrdersAfter` is set to 0, the order will not expire and will not be deleted.
