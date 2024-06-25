@@ -1,0 +1,90 @@
+---
+title: Order Expiration
+---
+
+:::info
+
+expireOrdersAfter was introduced in **Saleor 3.13**
+
+deleteExpiredOrdersAfter was introduced in **Saleor 3.14**
+
+:::
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+
+## Introduction
+
+Saleor allows to finalize transactions without payment (order first, then payment). If the customer cancel payment process and order remains unpaid for some time, there is possibility to set automatic stock releases and remove order.
+
+## Configuration
+
+To set the expiration of orders, enable the `automaticallyConfirmAllNewOrders` option in the channel settings and set after how many minutes the orders should expire `expireOrdersAfter`. You can also set after how many days expired orders should be deleted `deleteExpiredOrdersAfter`.
+
+```graphql
+mutation ChannelUpdate {
+  channelUpdate(
+    id: "Q2hhbm5lbDoyMjQz"
+    input: {
+      orderSettings: {
+        expireOrdersAfter: 360
+        deleteExpiredOrdersAfter: 30
+        automaticallyConfirmAllNewOrders: true
+      }
+    }
+  ) {
+    channel {
+      id
+      orderSettings {
+        expireOrdersAfter
+        deleteExpiredOrdersAfter
+        automaticallyConfirmAllNewOrders
+      }
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+```json
+{
+  "data": {
+    "channelUpdate": {
+      "channel": {
+        "id": "Q2hhbm5lbDoyMjQz",
+        "orderSettings": {
+          "expireOrdersAfter": 360,
+          "deleteExpiredOrdersAfter": 30,
+          "automaticallyConfirmAllNewOrders": true
+        }
+      },
+      "errors": []
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+## How it works
+
+Once an unpaid order is created (via [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) or [`orderCreateFromCheckout`](api-reference/orders/mutations/order-create-from-checkout.mdx)), it remains in `UNCONFIRMED` status. If the customer does not complete the payment within X minutes after that, the status will change to `EXPIRED` and stocks will be released.
+If `deleteExpiredOrdersAfter` is not null then after Y days orders in `EXPIRED` status will be deleted and disappear from the order list.
+
+## How to disable order expiration
+
+To disable order expiration, set `expireOrdersAfter` to 0 or null.
+
+To disable order deletion, set `deleteExpiredOrdersAfter` to 0 or null.

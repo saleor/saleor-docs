@@ -49,6 +49,7 @@ module.exports = {
             "developer/checkout/order-to-checkout",
             "developer/order-status",
             "developer/payment-status",
+            "developer/order-expiration",
           ],
         },
         "developer/payments",
