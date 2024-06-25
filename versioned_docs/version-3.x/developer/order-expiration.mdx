@@ -19,23 +19,21 @@ feedback. However, it is still undergoing development and is subject to modifica
 
 ## Introduction
 
-Saleor allows to finalize transactions without payment (order first, then payment). If the customer cancel payment process and order remains unpaid for some time, there is possibility to set automatic stock releases and remove order.
+Saleor allows finalizing checkout without payment. This can be achieved by setting `orderSettings.allowUnpaidOrders` for a given `Channel` to `true` and calling `checkoutComplete` without any payment/transaction object or by using the `orderCreateFromCheckout` mutation with first order then payment flow.
+
+If the payment process is canceled by the customer and the order remains unpaid for some time, it is possible to set automatic stock releases and remove the order.
 
 ## Configuration
 
-To set the expiration of orders, turn on the `automaticallyConfirmAllNewOrders` option in the channel settings and specify the number of minutes after which the orders should expire by setting `expireOrdersAfter`.
-Additionally, you can modify `deleteExpiredOrdersAfter`. By default, this is set to 60 days, but you can change this value to anywhere between 1 and 120 days.
+To set the expiration of orders, specify the number of minutes after which the orders should expire by setting `expireOrdersAfter`.
+Additionally, the `deleteExpiredOrdersAfter` value can be modified. By default, this is set to 60 days, but it can be changed to anywhere between 1 and 120 days.
 
 ```graphql
 mutation ChannelUpdate {
   channelUpdate(
     id: "Q2hhbm5lbDoyMjQz"
     input: {
-      orderSettings: {
-        expireOrdersAfter: 360
-        deleteExpiredOrdersAfter: 30
-        automaticallyConfirmAllNewOrders: true
-      }
+      orderSettings: { expireOrdersAfter: 360, deleteExpiredOrdersAfter: 30 }
     }
   ) {
     channel {
@@ -43,7 +41,6 @@ mutation ChannelUpdate {
       orderSettings {
         expireOrdersAfter
         deleteExpiredOrdersAfter
-        automaticallyConfirmAllNewOrders
       }
     }
     errors {
@@ -63,8 +60,7 @@ mutation ChannelUpdate {
         "id": "Q2hhbm5lbDoyMjQz",
         "orderSettings": {
           "expireOrdersAfter": 360,
-          "deleteExpiredOrdersAfter": 30,
-          "automaticallyConfirmAllNewOrders": true
+          "deleteExpiredOrdersAfter": 30
         }
       },
       "errors": []
@@ -88,4 +84,4 @@ After `deleteExpiredOrdersAfter` days orders in `EXPIRED` status will be deleted
 
 To disable order expiration, set `expireOrdersAfter` to 0.
 
-When `expireOrdersAfter` is set to 0, the order will not expire and will not be deleted.
+When `expireOrdersAfter` is set to 0, the orders will not expire. Since there will be no orders with status `EXPIRED` Saleor will not automatically delete such orders.
