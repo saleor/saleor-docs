@@ -7,7 +7,7 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import S from "@site/components/Steps/";
 
-Getting familiar with basic APIs and Webhooks. This guide assumes basic knowledge of GraphQL.
+Getting familiar with basic APIs and Webhooks. This guide assumes basic knowledge of [GraphQL](https://graphql.org/).
 
 <S>
     <S.Step>
@@ -410,7 +410,7 @@ mutation {
             ### Update checkout
             Lets add user address and billing address to the checkout and assign it to anonymous user.
 
-            Notice that we can add two mutations in a single request.
+            Notice that we can add two mutations in a single request. In the last mutation we update the email address of the checkout and request back the shipping methods available for the checkout.
         </S.Details>
         <S.Code>
             <Tabs>
@@ -457,35 +457,9 @@ mutation {
     email: "test@test.com"
   ) {
     checkout {
-      shippingAddress {
-        streetAddress1
-        city
-        cityArea
-        companyName
-        countryArea
-        firstName
-        country {
-          country
-          code
-        }
+      shippingMethods {
         id
-        isDefaultBillingAddress
-        isDefaultShippingAddress
-        lastName
-        postalCode
-        phone
-      }
-      billingAddress {
-        city
-        cityArea
-        companyName
-        countryArea
-        firstName
-        id
-        lastName
-        phone
-        postalCode
-        streetAddress1
+        name
       }
     }
     errors {
@@ -510,44 +484,194 @@ mutation {
     },
     "checkoutEmailUpdate": {
       "checkout": {
-        "shippingAddress": {
-          "streetAddress1": "8066 Madison St.",
-          "city": "BROOKLYN",
-          "cityArea": "",
-          "companyName": "",
-          "countryArea": "NY",
-          "firstName": "First",
-          "country": {
-            "country": "United States of America",
-            "code": "US"
+        "shippingMethods": [
+          {
+            "id": "U2hpcHBpbmdNZXRob2Q6MQ==",
+            "name": "Default"
           },
-          "id": "QWRkcmVzczo2Mg==",
-          "isDefaultBillingAddress": null,
-          "isDefaultShippingAddress": null,
-          "lastName": "Last",
-          "postalCode": "11237",
-          "phone": ""
-        },
-        "billingAddress": {
-          "city": "BROOKLYN",
-          "cityArea": "",
-          "companyName": "",
-          "countryArea": "NY",
-          "firstName": "First",
-          "id": "QWRkcmVzczo2Mw==",
-          "lastName": "Last",
-          "phone": "",
-          "postalCode": "11237",
-          "streetAddress1": "8066 Madison St."
-        }
+          {
+            "id": "U2hpcHBpbmdNZXRob2Q6MTU=",
+            "name": "FedEx"
+          },
+          {
+            "id": "U2hpcHBpbmdNZXRob2Q6MTQ=",
+            "name": "UPS"
+          },
+          {
+            "id": "U2hpcHBpbmdNZXRob2Q6MTY=",
+            "name": "EMS"
+          },
+          {
+            "id": "U2hpcHBpbmdNZXRob2Q6MTM=",
+            "name": "DHL"
+          }
+        ]
       },
       "errors": []
     }
   },
   "extensions": {
     "cost": {
-      "requestedQueryCost": 2,
+      "requestedQueryCost": 1,
       "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+                </TabItem>
+            </Tabs>
+        </S.Code>
+    </S.Step>
+
+<S.Step>
+    <S.Details>
+        ### Select shipping method
+        Lets select the default shipping method for the checkout that was retrieved in the previous step.
+    </S.Details>
+    <S.Code>
+        <Tabs>
+            <TabItem value="graphql" label="GraphQL">
+
+```graphql
+mutation {
+  checkoutDeliveryMethodUpdate(
+    id: "Q2hlY2tvdXQ6NmUzMzRlMjMtOWJiNS00MWUwLTk1NzYtZDc0NmJmMzQ4NDc1"
+    deliveryMethodId: "U2hpcHBpbmdNZXRob2Q6MQ=="
+  ) {
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+            </TabItem>
+            <TabItem value="json" label="Result">
+
+```json
+{
+  "data": {
+    "checkoutDeliveryMethodUpdate": {
+      "errors": []
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+            </TabItem>
+        </Tabs>
+    </S.Code>
+
+</S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Add webhook
+            Before placing an order we would like to add a webhook to notify our system about the order so we can
+            dispatch email, create an export to ERP system or any other custom action.
+
+            For simplicity of the steps, lets do it via dashboard:
+            * Open Saleor dashboard
+            * Go to _Settings_ -> _Create App_
+            * App name ```My App```
+            * Enable Permissions ```HANDLE_CHECKOUT``` and ```MANAGE_ORDERS```
+            * Copy generated token somewhere safe
+            * Create a webhook with the following details:
+                * Name: ```Order webhook```
+                * Target URL: For simplicity of the test go to ```https://webhook.site/``` and copy ```Your unique URL```
+                value
+                * App: ```My App```
+                * Select Event: Asynchronous -> ```ORDER``` -> ```CREATED```
+
+        </S.Details>
+        <S.Code>
+            <Tabs>
+                <TabItem value="graphql" label="Subscription query">
+
+```graphql
+subscription {
+  event {
+    ... on OrderCreated {
+      __typename
+      order {
+        id
+        shippingAddress {
+          streetAddress1
+          city
+          cityArea
+          companyName
+          countryArea
+          firstName
+          country {
+            country
+            code
+          }
+          id
+          lastName
+          postalCode
+          phone
+        }
+      }
+    }
+  }
+}
+```
+
+                </TabItem>
+            </Tabs>
+        </S.Code>
+    </S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Create an order
+
+            For simplicity of the steps, we will skip the [payment step](/developer/payments.mdx) and create an order directly.
+
+            Creating an order without payment requires admin or app permission. Add the app token copied in the previous step to the headers in the playground.
+            If you forgot or lost token from the previous step you can create another one in the app settings.
+
+            Now we can create an order from the checkout we created in the previous steps.
+
+        </S.Details>
+
+        <S.Code>
+            <Tabs>
+                <TabItem value="headers" label="Headers">
+
+```json
+{
+  "authorization": "Bearer YOUR_TOKEN"
+}
+```
+
+                </TabItem>
+                <TabItem value="graphql" label="Mutation">
+
+```graphql
+mutation {
+  orderCreateFromCheckout(
+    id: "Q2hlY2tvdXQ6NmUzMzRlMjMtOWJiNS00MWUwLTk1NzYtZDc0NmJmMzQ4NDc1"
+  ) {
+    order {
+      id
+      status
+      lines {
+        variantName
+        quantity
+      }
+    }
+    errors {
+      field
+      message
     }
   }
 }
