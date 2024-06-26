@@ -1,0 +1,34 @@
+---
+sidebar_position: 2
+title: Architecture
+---
+
+## Webhook events
+
+The Adyen App implements the following [Saleor sync webhooks related to transactions](developer/extending/webhooks/synchronous-events/transaction.mdx):
+
+- [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_gateway_initialize_session)
+- [`TRANSACTION_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_initialize_session)
+- [`TRANSACTION_PROCESS_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_process_session)
+- [`TRANSACTION_CHARGE_REQUESTED`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_charge_requested)
+- [`TRANSACTION_CANCEL_REQUESTED`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_cancelation_requested)
+- [`TRANSACTION_REFUND_REQUESTED`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_refund_requested)
+
+Furthermore, it's also prepared to handle [async Adyen webhooks](https://docs.adyen.com/development-resources/webhooks).
+
+The Adyen App follows the flow described in detail in the [Saleor Payment App documentation](developer/payments.mdx#payment-app).
+
+## Limitations
+
+This section contains known limitations of this App.
+
+### Maximum timeout for Adyen calls is 15 seconds
+
+Saleor synchronous webhooks have a maximum response time limit of 20 seconds. The app restricts the Adyen response time to 15 seconds to allow graceful error handling.
+If Adyen surpasses this limit, the App will return a FAILURE status with an appropriate error message (Timeout Error).
+
+### Maximum timeout for Saleor API calls is 5 seconds
+
+The app restricts Saleor API response time to 5 seconds for [`TransactionInitializeSession`](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session) and [`TransactionProcessSession`](developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session) subscriptions. If Saleor API surpasses this limit, the App will gracefully continue processing.
+
+If such timeout happens, the created [`TransactionItem`](api-reference/payments/objects/transaction-item.mdx) will not have the metadata from Adyen on `additionalDetails` object, which includes payment method type, credit card brand, etc.
