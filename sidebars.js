@@ -48,6 +48,7 @@ module.exports = {
             "developer/checkout/finalizing",
             "developer/checkout/order-to-checkout",
             "developer/order-status",
+            "developer/payment-status",
           ],
         },
         "developer/payments",
