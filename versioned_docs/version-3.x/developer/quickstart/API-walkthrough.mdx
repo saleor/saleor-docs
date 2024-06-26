@@ -1,0 +1,418 @@
+---
+title: API walkthrough
+hide_table_of_contents: true
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import S from "@site/components/Steps/";
+
+Getting familiar with basic APIs and Webhooks. This guide assumes basic knowledge of GraphQL.
+
+<S>
+    <S.Step>
+        <S.Details>
+            ### Use sample dataset
+
+            To make it easier to follow this guide, we recommend using sample dataset to ensure that IDs used in example queries and mutations are identical.
+
+            For Saleor Cloud: Go to instance settings and choose _"Replace database with a sample"_.
+
+            For local development follow this [step](developer/quickstart/running-locally.mdx#add-sample-data).
+        </S.Details>
+    </S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Open GraphQL playground
+
+            Saleor comes with GraphQL pre-installed which can be accessed two ways:
+
+            **Saleor Dashboard:** The dashboard is available at use ```cmd+'``` to open the playground. All queries will be on behalf of the authenticated user, therefore the queries will be limited to the user's permissions.
+
+            **Public playground:** Each instance has ```/graphql/``` endpoint available for public access. For example
+            ```https://{your_store}.saleor.cloud/graphql/```
+            or ```http://localhost:9000/graphql/```
+            All queries will be via public access, unless app token headers are provided specified.
+
+            For this tutorial we will use the public playground to paste queries to the follow the steps. But you can use the dashboard playground as well as it will not require for additional credentials (assuming you are the admin).
+        </S.Details>
+    </S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Fetch products
+            Retrieve a list of 10 products with a minimal price between 10 and 100.
+
+            In the result tab we get a [paginated list](api-usage/pagination.mdx) of products with their names and categories.
+
+            Each query also returns the [cost of the query](/api-usage/usage-limits.mdx#query-cost).
+        </S.Details>
+        <S.Code>
+
+
+            <Tabs>
+                <TabItem value="graphql" label="GraphQL">
+
+```graphql
+{
+  products(
+    first: 10
+    channel: "default-channel"
+    where: { minimalPrice: { range: { gte: 10, lte: 100 } } }
+  ) {
+    edges {
+      node {
+        id
+        name
+        category {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+                </TabItem>
+                <TabItem value="json" label="Result">
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": [
+        {
+          "node": {
+            "id": "UHJvZHVjdDoxMzQ=",
+            "name": "Monospace Tee",
+            "category": {
+              "id": "Q2F0ZWdvcnk6Mzk=",
+              "name": "T-shirts"
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDoxMzA=",
+            "name": "Paul's Balance 420",
+            "category": {
+              "id": "Q2F0ZWdvcnk6Mjg=",
+              "name": "Sneakers"
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDoxNDU=",
+            "name": "Battle-tested at brands like Lush",
+            "category": {
+              "id": "Q2F0ZWdvcnk6MjY=",
+              "name": "Audiobooks"
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDoxMzI=",
+            "name": "Blue Hoodie",
+            "category": {
+              "id": "Q2F0ZWdvcnk6Mjk=",
+              "name": "Sweatshirts"
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDoxMjg=",
+            "name": "Blue Plimsolls",
+            "category": {
+              "id": "Q2F0ZWdvcnk6Mjg=",
+              "name": "Sneakers"
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDoxMzc=",
+            "name": "Blue Polygon Shirt",
+            "category": {
+              "id": "Q2F0ZWdvcnk6Mzk=",
+              "name": "T-shirts"
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDoxNjE=",
+            "name": "Cubes Fountain Tee",
+            "category": {
+              "id": "Q2F0ZWdvcnk6Mzk=",
+              "name": "T-shirts"
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDoxMzY=",
+            "name": "Darko Polo",
+            "category": {
+              "id": "Q2F0ZWdvcnk6NDA=",
+              "name": "Polo shirts"
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDoxMzg=",
+            "name": "Dark Polygon Tee",
+            "category": {
+              "id": "Q2F0ZWdvcnk6Mzk=",
+              "name": "T-shirts"
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDoxMjk=",
+            "name": "Dash Force",
+            "category": {
+              "id": "Q2F0ZWdvcnk6Mjg=",
+              "name": "Sneakers"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 20,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+                </TabItem>
+            </Tabs>
+        </S.Code>
+    </S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Get specific product
+            Retrieve the first product id from the previous query and fetch the product details.
+
+            It is possible to fetch many fields associated with products, to conveniently explore the fields that can be added to the query, use the auto-complete by using ```cmd+space``` or ```ctrl+space``` on Windows.
+            Or use the folder icon in the left side panel to explore the fields and interactively add them to the query.
+
+            Note that some fields are private and require specific permissions to access them, which we will cover in the later steps.
+        </S.Details>
+        <S.Code>
+
+
+            <Tabs>
+                <TabItem value="graphql" label="GraphQL">
+
+```graphql
+{
+  product(id: "UHJvZHVjdDoxMzQ=", channel: "default-channel") {
+    id
+    seoTitle
+    seoDescription
+    availableForPurchaseAt
+    created
+    externalReference
+    isAvailable(address: { country: US })
+    media(sortBy: { direction: ASC, field: ID }) {
+      id
+      alt
+    }
+    name
+    variants {
+      created
+      id
+      media {
+        alt
+      }
+    }
+  }
+}
+```
+
+                </TabItem>
+                <TabItem value="json" label="Result">
+
+```json
+{
+  "data": {
+    "product": {
+      "id": "UHJvZHVjdDoxMzQ=",
+      "seoTitle": "",
+      "seoDescription": "",
+      "availableForPurchaseAt": "2022-05-13T21:22:42.298000+00:00",
+      "created": "2023-12-29T09:47:45.467273+00:00",
+      "externalReference": null,
+      "isAvailable": true,
+      "media": [
+        {
+          "id": "UHJvZHVjdE1lZGlhOjE3",
+          "alt": ""
+        },
+        {
+          "id": "UHJvZHVjdE1lZGlhOjE4",
+          "alt": ""
+        }
+      ],
+      "name": "Monospace Tee",
+      "variants": [
+        {
+          "created": "2023-12-29T09:47:45.931645+00:00",
+          "id": "UHJvZHVjdFZhcmlhbnQ6MzQ4",
+          "media": [
+            {
+              "alt": ""
+            }
+          ]
+        },
+        {
+          "created": "2023-12-29T09:47:45.942318+00:00",
+          "id": "UHJvZHVjdFZhcmlhbnQ6MzQ5",
+          "media": [
+            {
+              "alt": ""
+            }
+          ]
+        },
+        {
+          "created": "2023-12-29T09:47:45.952070+00:00",
+          "id": "UHJvZHVjdFZhcmlhbnQ6MzUw",
+          "media": [
+            {
+              "alt": ""
+            }
+          ]
+        },
+        {
+          "created": "2023-12-29T09:47:45.961975+00:00",
+          "id": "UHJvZHVjdFZhcmlhbnQ6MzUx",
+          "media": [
+            {
+              "alt": ""
+            }
+          ]
+        },
+        {
+          "created": "2023-12-29T09:47:45.971912+00:00",
+          "id": "UHJvZHVjdFZhcmlhbnQ6MzUy",
+          "media": [
+            {
+              "alt": ""
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 4,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+                </TabItem>
+            </Tabs>
+        </S.Code>
+    </S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Create a checkout
+            Lets create a checkout with a product variant we fetched in the previous step.
+
+            Checkout only accepts the variant ID not the product, as variants have [inventory and pricing information](/developer/products.mdx).
+
+
+        </S.Details>
+        <S.Code>
+
+
+            <Tabs>
+                <TabItem value="graphql" label="GraphQL">
+
+```graphql
+mutation {
+  checkoutCreate(
+    input: {
+      channel: "default-channel"
+      lines: { quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6MzQ4" }
+    }
+  ) {
+    checkout {
+      id
+      lines {
+        id
+        variant {
+          name
+        }
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+                </TabItem>
+                <TabItem value="json" label="Result">
+
+```json
+{
+  "data": {
+    "checkoutCreate": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6NmUzMzRlMjMtOWJiNS00MWUwLTk1NzYtZDc0NmJmMzQ4NDc1",
+        "lines": [
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjEwMGFkMTUwLWNhZTktNDVlMi1hZDIxLTE3MDVmZDAxZWM3NQ==",
+            "variant": {
+              "name": "S"
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 1,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+                </TabItem>
+            </Tabs>
+        </S.Code>
+    </S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Update checkout
+            Lets add user address and billing address to the checkout and assign it to anonymous user.
+
+            Notice that we can add two mutations in a single request.
+        </S.Details>
+
+    </S.Step>
+
+</S>
