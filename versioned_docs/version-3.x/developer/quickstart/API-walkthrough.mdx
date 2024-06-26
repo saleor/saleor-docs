@@ -639,8 +639,7 @@ subscription {
             Creating an order without payment requires admin or app permission. Add the app token copied in the previous step to the headers in the playground.
             If you forgot or lost token from the previous step you can create another one in the app settings.
 
-            Now we can create an order from the checkout we created in the previous steps.
-
+            After executing mutation you should be able to see the order in the dashboard and see a payload in the https://webhook.site/ with the order details provided in the subscription query.
         </S.Details>
 
         <S.Code>
@@ -678,8 +677,98 @@ mutation {
 ```
 
                 </TabItem>
+                <TabItem value={"json"} label={"Result"}>
+
+```json
+{
+  "data": {
+    "orderCreateFromCheckout": {
+      "order": {
+        "id": "T3JkZXI6MzYwNWE2MWYtNDc4OC00ZjZlLWJiYzktZjEwMjJhOGFlOGYw",
+        "status": "UNCONFIRMED",
+        "lines": [
+          {
+            "variantName": "S",
+            "quantity": 1
+          }
+        ]
+      },
+      "errors": []
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 1,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+                </TabItem>
+            </Tabs>
+        </S.Code>
+    </S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Marking order as paid
+
+            We can mark the order as paid manually in the dashboard, but lets proceed via API, as this is the main feature of headless API is that we can automate anything via API.
+
+        </S.Details>
+
+        <S.Code>
+            <Tabs>
+                <TabItem value="headers" label="Mutation">
+
+```graphql
+mutation {
+  orderMarkAsPaid(
+    id: "T3JkZXI6MzYwNWE2MWYtNDc4OC00ZjZlLWJiYzktZjEwMjJhOGFlOGYw"
+  ) {
+    order {
+      id
+      totalBalance {
+        amount
+      }
+    }
+  }
+}
+```
+
+                </TabItem>
+                <TabItem value="graphql" label="Result">
+
+```graphql
+{
+  "data": {
+    "order": {
+      "id": "T3JkZXI6MzYwNWE2MWYtNDc4OC00ZjZlLWJiYzktZjEwMjJhOGFlOGYw",
+      "totalBalance": {
+        "amount": 0
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 1,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+                </TabItem>
+
             </Tabs>
         </S.Code>
     </S.Step>
 
 </S>
+
+## Next steps
+
+To learn more about Saleor APIs interactively you can inspect GraphQL operations using browser's native network inspector or [GraphQL inspector](https://chromewebstore.google.com/detail/graphql-network-inspector/) while using the dashboard.
+
+- Learn more about [Devtools](/api-usage/developer-tools)
