@@ -176,7 +176,14 @@ module.exports = {
     image: "img/og-image.png",
 
     prism: {
-      theme: themes.oceanicNext,
+      defaultLanguage: "graphql",
+      plugins: ["line-numbers", "show-language"],
+      theme: {
+        ...themes.vsDark,
+        plain: {
+          ...themes.vsDark.plain,
+        },
+      },
       additionalLanguages: [
         "json",
         "bash",
