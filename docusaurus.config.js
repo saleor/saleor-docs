@@ -1,6 +1,5 @@
 require("dotenv").config();
 
-const isUpdate = process.env.UPDATE_SALEOR;
 const { themes } = require("prism-react-renderer");
 
 module.exports = {
@@ -116,11 +115,11 @@ module.exports = {
           label: "API Reference",
           position: "left",
         },
-        {
-          type: "docsVersionDropdown",
-          position: "right",
-          dropdownActiveClassDisabled: true,
-        },
+        // {
+        //   type: "docsVersionDropdown",
+        //   position: "right",
+        //   dropdownActiveClassDisabled: true,
+        // },
         {
           to: "https://github.com/saleor/saleor-docs/issues/new",
           label: "Report an Issue",
@@ -209,23 +208,13 @@ module.exports = {
         },
         docs: {
           breadcrumbs: false,
-          lastVersion: isUpdate ? "current" : "3.x",
           path: "docs",
-          versions: isUpdate
-            ? {
-                current: {
-                  label: "Canary 🚧",
-                },
-              }
-            : {
-                "3.x": {
-                  label: "3.x",
-                  path: "3.x",
-                },
-                current: {
-                  label: "Canary 🚧",
-                },
-              },
+          versions: {
+            current: {
+              label: "3.x",
+              path: "3.x",
+            },
+          },
           editUrl: function ({ version, versionDocsDirPath, docPath }) {
             if (version === "current") {
               return `https://github.com/saleor/saleor-docs/edit/main/docs/${docPath}`;
