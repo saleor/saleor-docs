@@ -2,10 +2,12 @@ require("dotenv").config();
 
 const { themes } = require("prism-react-renderer");
 
+const isProd = process.env.NEXT_PUBLIC_SITE_URL === "https://docs.saleor.io";
+
 module.exports = {
   title: "Saleor Commerce Documentation",
   tagline: "High performance, composable, headless commerce API.",
-  url: "https://docs.saleor.io",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   baseUrl: "/",
 
   // Used for publishing and more
@@ -55,7 +57,7 @@ module.exports = {
     algolia: {
       appId: "P1Y4DTZUZN",
       apiKey: "e4b2fbb46f8e998981100702d37da551",
-      indexName: "saleor",
+      indexName: isProd ? "saleor" : "canary_saleor",
       placeholder: "Search Saleor Documentation",
     },
 
@@ -115,11 +117,14 @@ module.exports = {
           label: "API Reference",
           position: "left",
         },
-        // {
-        //   type: "docsVersionDropdown",
-        //   position: "right",
-        //   dropdownActiveClassDisabled: true,
-        // },
+        {
+          type: "docsVersionDropdown",
+          position: "right",
+          dropdownItemsAfter: isProd
+            ? [{ to: "https://canary.docs.saleor.io/", label: "Canary" }]
+            : [{ to: "https://docs.saleor.io/", label: "3.x" }],
+          dropdownActiveClassDisabled: true,
+        },
         {
           to: "https://github.com/saleor/saleor-docs/issues/new",
           label: "Report an Issue",
@@ -210,10 +215,16 @@ module.exports = {
           breadcrumbs: false,
           path: "docs",
           versions: {
-            current: {
-              label: "3.x",
-              path: "3.x",
-            },
+            current: isProd
+              ? {
+                  label: "3.x",
+                  path: "3.x",
+                }
+              : {
+                  label: "Canary",
+                  path: "",
+                  banner: "unreleased",
+                },
           },
           editUrl: function ({ version, versionDocsDirPath, docPath }) {
             if (version === "current") {
