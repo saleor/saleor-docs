@@ -9,6 +9,7 @@ module.exports = {
   tagline: "High performance, composable, headless commerce API.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   baseUrl: "/",
+  noIndex: !isProd,
 
   // Used for publishing and more
   projectName: "saleor-docs",
