@@ -37,10 +37,6 @@ module.exports = {
         },
       ],
     },
-    { type: "ref", id: "developer/index" },
-    { type: "ref", id: "developer/app-store/overview" },
-    { type: "ref", id: "api-reference/api-reference" },
-    { type: "html", value: "<hr/>" },
     {
       type: "category",
       label: "Saleor Cloud",
