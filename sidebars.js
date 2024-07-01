@@ -175,6 +175,19 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Products",
+      collapsible: false,
+      items: [
+        "developer/products/overview",
+        "developer/products/configuration",
+        "developer/products/lifecycle",
+        "developer/products/troubleshooting",
+        "developer/products/cookbook",
+        "developer/products/api",
+      ],
+    },
+    {
+      type: "category",
       label: "Attributes",
       collapsible: false,
       items: [
