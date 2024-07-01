@@ -7,9 +7,15 @@
 
 const React = require("react");
 import { Redirect } from "@docusaurus/router";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 
 const Index = () => {
-  return <Redirect to="/docs/3.x/" />;
+  const {
+    siteConfig: { url },
+  } = useDocusaurusContext();
+  const path = url === "https://docs.saleor.io" ? "/docs/3.x/" : "/docs/";
+
+  return <Redirect to={path} />;
 };
 
 export default Index;

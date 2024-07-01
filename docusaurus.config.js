@@ -1,13 +1,15 @@
 require("dotenv").config();
 
-const isUpdate = process.env.UPDATE_SALEOR;
 const { themes } = require("prism-react-renderer");
+
+const isProd = process.env.NEXT_PUBLIC_SITE_URL === "https://docs.saleor.io";
 
 module.exports = {
   title: "Saleor Commerce Documentation",
   tagline: "High performance, composable, headless commerce API.",
-  url: "https://docs.saleor.io",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   baseUrl: "/",
+  noIndex: !isProd,
 
   // Used for publishing and more
   projectName: "saleor-docs",
@@ -55,8 +57,8 @@ module.exports = {
   themeConfig: {
     algolia: {
       appId: "P1Y4DTZUZN",
-      apiKey: "e4b2fbb46f8e998981100702d37da551",
-      indexName: "saleor",
+      apiKey: "10d596baf2b3482e0ae033711c45c544",
+      indexName: isProd ? "saleor" : "canary_saleor",
       placeholder: "Search Saleor Documentation",
     },
 
@@ -119,6 +121,9 @@ module.exports = {
         {
           type: "docsVersionDropdown",
           position: "right",
+          dropdownItemsAfter: isProd
+            ? [{ to: "https://canary.docs.saleor.io/", label: "Canary" }]
+            : [{ to: "https://docs.saleor.io/", label: "3.x" }],
           dropdownActiveClassDisabled: true,
         },
         {
@@ -209,26 +214,22 @@ module.exports = {
         },
         docs: {
           breadcrumbs: false,
-          lastVersion: isUpdate ? "current" : "3.x",
           path: "docs",
-          versions: isUpdate
-            ? {
-                current: {
-                  label: "Canary 🚧",
-                },
-              }
-            : {
-                "3.x": {
+          versions: {
+            current: isProd
+              ? {
                   label: "3.x",
                   path: "3.x",
+                }
+              : {
+                  label: "Canary",
+                  path: "",
+                  banner: "unreleased",
                 },
-                current: {
-                  label: "Canary 🚧",
-                },
-              },
+          },
           editUrl: function ({ version, versionDocsDirPath, docPath }) {
             if (version === "current") {
-              return `https://github.com/saleor/saleor-docs/edit/main/docs/${docPath}`;
+              return `https://github.com/saleor/saleor-docs/edit/3.19/docs/${docPath}`;
             } else {
               return `https://github.com/saleor/saleor-docs/edit/main/${versionDocsDirPath}/${docPath}`;
             }
@@ -248,10 +249,4 @@ module.exports = {
   customFields: {
     sentryDSN: process.env.SENTRY_DSN,
   },
-  scripts: [
-    {
-      src: "https://cdn.segment.com/analytics.js/v1/JlfojBlUjPv2SgxOBkDAwpmshEaC97t4/analytics.min.js",
-      async: true,
-    },
-  ],
 };
