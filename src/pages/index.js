@@ -13,7 +13,7 @@ const Index = () => {
   const {
     siteConfig: { url },
   } = useDocusaurusContext();
-  const path = url === "https://docs.saleor.io" ? "/docs/" : "/docs/";
+  const path = url === "https://docs.saleor.io" ? "/docs/3.x/" : "/docs/";
 
   return <Redirect to={path} />;
 };
