@@ -5,26 +5,25 @@ hide_table_of_contents: true
 
 import S from "@site/components/Steps/";
 
-This guide will help you set up a Saleor storefront in your local environment.
+<S.Column>
+    This guide will help you set up a [Saleor storefront](https://github.com/saleor/storefront/) in your local environment.
+
+    The storefront is a Next.js application. However, the Checkout page can be extracted from any React application as it is designed to be a standalone component.
+
+</S.Column>
 
 <S>
     <S.Step>
         <S.Details>
-            ### Get backend instance
-            To quickly get started with the backend, use a free developer account at Saleor Cloud.
-            Alternatively you can run Saleor locally using docker.
-        </S.Details>
-
-    </S.Step>
-    <S.Step>
-        <S.Details>
-            ### Install dependencies
-            Install or update to the latest version of the Saleor CLI by running the following command:
+            ### Install project
+            Clone repo and install dependencies
 
         </S.Details>
         <S.Code>
-            ```js
-            npm i -g @saleor/cli@latest
+            ```bash
+            git clone https://github.com/saleor/storefront.git saleor-storefront
+            cd saleor-storefront
+            pnpm i
             ```
         </S.Code>
     </S.Step>
@@ -43,16 +42,84 @@ This guide will help you set up a Saleor storefront in your local environment.
 
     <S.Step>
         <S.Details>
-            ### Add backend address
+            ### Add backend URL
+            Use a [free developer account](quickstart/cloud.mdx#signup) at Saleor Cloud to start quickly with the backend.
+            Alternatively, you can [run Saleor locally](/quickstart/running-locally.mdx) using docker.
+        </S.Details>
 
-            Make sure to add trailing slash to the backend address:
+        <S.Code>
+            ```bash title=".env"
+            # Add backend address
+            # Make sure to add slash at the end:
+            NEXT_PUBLIC_SALEOR_API_URL=https://{your_domain}.saleor.cloud/graphql/
+
+            # Local example
+            # NEXT_PUBLIC_SALEOR_API_URL=http://localhost:9000/graphql/
+            ```
+        </S.Code>
+    </S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Run project
+
+            Run the development server.
         </S.Details>
         <S.Code>
             ```bash
-            # Example
-            NEXT_PUBLIC_SALEOR_API_URL=http://localhost:8000/graphql/
+            pnpm run dev
+            ```
+        </S.Code>
+    </S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Edit a product
+            1. Find any product page in the storefront
+            2. Go to the dashboard of your Saleor instance and change that product information, such as name, price, or description.
+            3. Refresh the product page in the storefront; notice that information has not changed due to Next.js caching.
+            4. Visit ```http://{your-host}/api/draft``` (e.g. [http://localhost:3000/api/draft](http://localhost:3000/api/draft)) to see the changes. This endpoint bypasses the cache by setting a [special next.js cookie](https://nextjs.org/docs/pages/building-your-application/configuring/preview-mode).
+        </S.Details>
+    </S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Edit a query
+            1. In ```src/graphql``` folder, find a query you want to edit. For example add field ```isAvailable``` to ```ProductDetails.graphql```.
+            2. Generate types and queries by running the following command:
+
+            This would update types and queries for the new field, which we will use in the next step.
+        </S.Details>
+        <S.Code>
+            ```bash
+            pnpm run generate
+            ```
+        </S.Code>
+    </S.Step>
+
+    <S.Step>
+        <S.Details>
+            ### Update product page
+            1. Open ```src/app/[channel]/[main]/Products/[slug].tsx``` file.
+            2. You will be able now to render the newly added field ```isAvailable``` in the product page. Notice that the new field can be autocompleted by Typescript.
+        </S.Details>
+        <S.Code>
+            ```jsx title="src/app/[channel]/[main]/Products/[slug].tsx"
+
+            export default async function Page(){
+                // ...
+                const isAvailable = data.product.isAvailable;
+                // ...
+            }
             ```
         </S.Code>
     </S.Step>
 
 </S>
+
+### Next steps:
+
+<S.Column>
+  Follow [API guide](/quickstart/api.mdx) to learn how to interact with the
+  Saleor API.
+</S.Column>
