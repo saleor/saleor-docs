@@ -3,15 +3,16 @@ module.exports = {
     "index",
     {
       type: "category",
-      label: "About Saleor",
+      label: "Quick Start",
       collapsible: false,
       items: [
-        "overview/introduction",
-        "overview/architecture",
-        "cloud",
-        "overview/quickstart",
+        "quickstart/cloud",
+        "quickstart/running-locally",
+        "quickstart/api",
+        "quickstart/storefront",
       ],
     },
+    { type: "html", value: "<hr/>" },
     {
       type: "category",
       label: "Why Saleor",
