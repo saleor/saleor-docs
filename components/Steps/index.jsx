@@ -31,8 +31,13 @@ const Code = ({ children }) => {
   return <div className={styles.code}>{children}</div>;
 };
 
+const Column = ({ children }) => {
+  return <div className={styles.column}>{children}</div>;
+};
+
 Guide.Step = Step;
 Guide.Details = Details;
 Guide.Code = Code;
+Guide.Column = Column;
 
 export default Guide;
