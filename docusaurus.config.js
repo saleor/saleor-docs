@@ -95,30 +95,6 @@ module.exports = {
       },
       items: [
         {
-          type: "docSidebar",
-          sidebarId: "main",
-          label: "Docs",
-          position: "left",
-        },
-        {
-          type: "docSidebar",
-          sidebarId: "concepts",
-          label: "Core Concepts",
-          position: "left",
-        },
-        {
-          type: "docSidebar",
-          sidebarId: "appStore",
-          label: "App Store",
-          position: "left",
-        },
-        {
-          type: "docSidebar",
-          sidebarId: "api",
-          label: "API Reference",
-          position: "left",
-        },
-        {
           type: "docsVersionDropdown",
           position: "right",
           dropdownItemsAfter: isProd
