@@ -2,14 +2,11 @@ require("dotenv").config();
 
 const { themes } = require("prism-react-renderer");
 
-const isProd = process.env.NEXT_PUBLIC_SITE_URL === "https://docs.saleor.io";
-
 module.exports = {
   title: "Saleor Commerce Documentation",
   tagline: "High performance, composable, headless commerce API.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   baseUrl: "/",
-  noIndex: !isProd,
 
   // Used for publishing and more
   projectName: "saleor-docs",
@@ -66,7 +63,7 @@ module.exports = {
     algolia: {
       appId: "P1Y4DTZUZN",
       apiKey: "10d596baf2b3482e0ae033711c45c544",
-      indexName: isProd ? "saleor" : "canary_saleor",
+      indexName: "saleor",
       placeholder: "Search Saleor Documentation",
     },
 
@@ -103,14 +100,6 @@ module.exports = {
       },
       items: [
         {
-          type: "docsVersionDropdown",
-          position: "right",
-          dropdownItemsAfter: isProd
-            ? [{ to: "https://canary.docs.saleor.io/", label: "Canary" }]
-            : [{ to: "https://docs.saleor.io/", label: "3.x" }],
-          dropdownActiveClassDisabled: true,
-        },
-        {
           to: "https://github.com/saleor/saleor-docs/issues/new",
           label: "Report an Issue",
           position: "right",
@@ -145,16 +134,10 @@ module.exports = {
           breadcrumbs: false,
           path: "docs",
           versions: {
-            current: isProd
-              ? {
-                  label: "3.x",
-                  path: "3.x",
-                }
-              : {
-                  label: "Canary",
-                  path: "",
-                  banner: "unreleased",
-                },
+            current: {
+              label: "3.x",
+              path: "3.x",
+            },
           },
           editUrl: function ({ version, versionDocsDirPath, docPath }) {
             if (version === "current") {
