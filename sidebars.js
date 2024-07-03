@@ -4,7 +4,6 @@ module.exports = {
     {
       type: "category",
       label: "Quick Start",
-      collapsible: false,
       items: [
         "quickstart/cloud",
         "quickstart/running-locally",
@@ -12,7 +11,6 @@ module.exports = {
         "quickstart/storefront",
       ],
     },
-    { type: "html", value: "<hr/>" },
     {
       type: "category",
       label: "Why Saleor",
@@ -27,7 +25,30 @@ module.exports = {
         "overview/why-saleor/multi-market",
       ],
     },
-    { type: "html", value: "<hr/>" },
+
+    {
+      type: "html",
+      value: "Product",
+      className: "menu__group-label",
+    },
+
+    {
+      type: "category",
+      label: "Cloud",
+      items: ["restricting-api-access"],
+    },
+    { type: "ref", id: "developer/index" },
+
+    {
+      type: "html",
+      value: "API",
+      customProps: {
+        sidebar_is_group_divider: true,
+      },
+      className: "menu__group-label",
+    },
+
+    { type: "ref", id: "api-reference/api-reference" },
     {
       type: "category",
       label: "GraphQL",
@@ -38,18 +59,15 @@ module.exports = {
         },
       ],
     },
-    { type: "ref", id: "developer/index" },
-    { type: "ref", id: "developer/app-store/overview" },
-    { type: "ref", id: "api-reference/api-reference" },
-    { type: "html", value: "<hr/>" },
     {
-      type: "category",
-      label: "Saleor Cloud",
-      items: ["restricting-api-access"],
+      type: "html",
+      value: "Customizing",
+      className: "menu__group-label",
     },
+    { type: "ref", label: "Apps", id: "developer/app-store/overview" },
     {
       type: "category",
-      label: "Extending Saleor",
+      label: "Extending",
       items: [
         "developer/extending/overview",
         require("./sidebars/apps-sidebar"),
@@ -98,6 +116,12 @@ module.exports = {
         "developer/extending/apollo-federation",
       ],
     },
+    {
+      type: "html",
+      value: "Additional resources",
+      className: "menu__group-label",
+    },
+
     {
       type: "category",
       label: "Self-hosting",
