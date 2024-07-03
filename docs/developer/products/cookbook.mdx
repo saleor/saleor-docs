@@ -1,0 +1,39 @@
+---
+title: Products cookbook
+sidebar_label: Cookbook
+description: Learn how to create product bundles, custom price calculations, and link products in Saleor.
+---
+
+### Product bundles
+
+There are many ways to create a product bundle. Here is an example of creating a product bundle with a discount.
+
+- Create attribute `Bundle` of type `Product reference`.
+- Create product type `Bundle` and assign the `Bundle` attribute.
+- Create a product of type `Bundle` and link products in the `Bundle` attribute.
+- In variant settings, remove "Track inventory"; stock must be calculated programmatically via API.
+- Create a discount for the bundle.
+- Swap the bundle with individual products During the order export to ERP.
+
+### Custom price calculation
+
+It is possible to overwrite the product price on the checkout level for configurators and other non-static price calculations.
+For reference use [Custom prices with next.js](https://github.com/saleor/saleor-app-checkout-prices) repository.
+
+### Linking products or creating a recommendation
+
+Here is an example of linking products to create a _Similar products_ feature.
+
+1. In `Configuration` create an attribute `Similar products` of type `References` and `Entity`.
+2. Assign the `Similar products` attribute to the desired `Product type` on the product level.
+3. Products will now show `Similar fields` to link other products.
+
+### Stock synchronization
+
+If Saleor is not the source of truth for the stock information, then the variant stock levels should be updated via API.
+There are a few ways to update stock information:
+
+- [Stock update mutation](api-reference/products/mutations/product-variant-stocks-update.mdx) - useful for updating a single product variant.
+- [Stock bulk update](api-reference/products/mutations/stock-bulk-update.mdx) - useful when your external system doesn't provide events for individual stock updates and you must pull data in batches. It can also be used for massive data updates since bulk mutations are more efficient.
+
+Tracking should be disabled in the [variant settings](developer/products/configuration.mdx#variant-settings) to prevent Saleor from decrementing stock levels automatically and creating race conditions.
