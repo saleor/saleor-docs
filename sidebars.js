@@ -368,5 +368,10 @@ module.exports = {
     "developer/community/faq",
     "developer/community/support",
   ],
-  cloud: [backToHome, "cloud", "quickstart/cloud", "restricting-api-access"],
+  cloud: [
+    backToHome,
+    "cloud",
+    { type: "ref", id: "quickstart/cloud" },
+    "restricting-api-access",
+  ],
 };
