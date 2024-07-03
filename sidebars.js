@@ -59,7 +59,7 @@ module.exports = {
 
     { type: "ref", id: "developer/index" },
 
-    title("Customizing"),
+    title("API"),
 
     ref("api-reference/api-reference"),
 
