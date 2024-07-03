@@ -1,0 +1,23 @@
+import { title } from "./utils";
+
+export const extending = [
+  "developer/extending/overview",
+
+  title("Webhooks"),
+  "developer/extending/webhooks/overview",
+  "developer/extending/webhooks/creating",
+  "developer/extending/webhooks/subscription-webhook-payloads",
+  "developer/extending/webhooks/payload-signature",
+  "developer/extending/webhooks/asynchronous-events",
+
+  title("Synchronous events"),
+  "developer/extending/webhooks/synchronous-events/overview",
+  "developer/extending/webhooks/synchronous-events/payment",
+  "developer/extending/webhooks/synchronous-events/shipping",
+  "developer/extending/webhooks/synchronous-events/tax",
+  "developer/extending/webhooks/synchronous-events/transaction",
+  "developer/extending/webhooks/synchronous-events/stored-payment-method",
+
+  title("Security"),
+  "developer/extending/webhooks/ip-addresses",
+];
