@@ -18,7 +18,7 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Quick Start",
+      label: "Quickstart",
       items: [
         "quickstart/cloud",
         "quickstart/running-locally",
