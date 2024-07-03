@@ -10,8 +10,19 @@ export const coreConcepts = [
   "developer/channels/troubleshooting",
   "developer/channels/api",
 
-  "developer/products",
-  "developer/attributes",
+  title("Products"),
+  "developer/products/overview",
+  "developer/products/configuration",
+  "developer/products/lifecycle",
+  "developer/products/troubleshooting",
+  "developer/products/cookbook",
+  "developer/products/api",
+
+  title("Attributes"),
+  "developer/attributes/overview",
+  "developer/attributes/configuration",
+  "developer/attributes/lifecycle",
+  "developer/attributes/api",
 
   title("Checkout and Orders"),
   "developer/checkout/overview",
