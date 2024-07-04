@@ -53,6 +53,9 @@ module.exports = {
         "overview/why-saleor/scalable",
         "overview/why-saleor/multi-market",
       ],
+      customProps: {
+        icon: "star",
+      },
     },
 
     title("Product"),
