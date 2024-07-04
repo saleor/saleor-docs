@@ -23,6 +23,9 @@ module.exports = {
       type: "doc",
       id: "index",
       label: "Overview",
+      customProps: {
+        icon: "home",
+      },
     },
     {
       type: "category",
@@ -33,6 +36,9 @@ module.exports = {
         "quickstart/api",
         "quickstart/storefront",
       ],
+      customProps: {
+        icon: "play",
+      },
     },
     {
       type: "category",
@@ -50,21 +56,21 @@ module.exports = {
     },
 
     title("Product"),
-    ref("cloud", "Cloud"),
-    ref("developer/index"),
+    ref("cloud", "Cloud", "cloud"),
+    ref("developer/index", "Core concepts", "guides"),
 
     title("API"),
-    ref("api-reference/api-reference"),
-    ref("api-usage/overview", "GraphQL"),
+    ref("api-reference/api-reference", "API reference", "api"),
+    ref("api-usage/overview", "GraphQL", "graphql"),
 
     title("Customizing"),
-    ref("developer/app-store/overview", "Apps and integrations"),
-    ref("developer/extending/apps/overview", "Building apps"),
-    ref("developer/extending/overview", "Extending"),
+    ref("developer/app-store/overview", "Apps and integrations", "apps"),
+    ref("developer/extending/apps/overview", "Building apps", "buildApp"),
+    ref("developer/extending/overview", "Extending", "cli"),
 
     title("Additional resources"),
-    ref("setup/overview", "Self-hosting"),
-    ref("developer/community/contributing", "Community"),
+    ref("setup/overview", "Self-hosting", "selfHost"),
+    ref("developer/community/contributing", "Community", "community"),
   ],
   concepts: [backToHome, ...coreConcepts],
   appStore: [backToHome, ...appStore],
