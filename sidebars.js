@@ -50,42 +50,21 @@ module.exports = {
     },
 
     title("Product"),
-
-    {
-      type: "ref",
-      label: "Cloud",
-      id: "cloud",
-    },
-
-    { type: "ref", id: "developer/index" },
+    ref("cloud", "Cloud"),
+    ref("developer/index"),
 
     title("API"),
-
     ref("api-reference/api-reference"),
-
-    { type: "ref", label: "GraphQL", id: "api-usage/overview" },
+    ref("api-usage/overview", "GraphQL"),
 
     title("Customizing"),
-
-    ref("developer/extending/overview"),
-    {
-      type: "ref",
-      label: "Building apps",
-      id: "developer/extending/apps/overview",
-    },
-    { type: "ref", label: "Extending", id: "developer/extending/overview" },
+    ref("developer/app-store/overview", "Apps and integrations"),
+    ref("developer/extending/apps/overview", "Building apps"),
+    ref("developer/extending/overview", "Extending"),
 
     title("Additional resources"),
-    {
-      type: "ref",
-      label: "Self-hosting",
-      id: "setup/overview",
-    },
-    {
-      type: "ref",
-      label: "Community",
-      id: "developer/community/contributing",
-    },
+    ref("setup/overview", "Self-hosting"),
+    ref("developer/community/contributing", "Community"),
   ],
   concepts: [backToHome, ...coreConcepts],
   appStore: [backToHome, ...appStore],
