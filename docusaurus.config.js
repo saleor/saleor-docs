@@ -19,6 +19,14 @@ module.exports = {
 
   markdown: {
     mermaid: true,
+    parseFrontMatter: async (params) => {
+      const result = await params.defaultParseFrontMatter(params);
+
+      result.frontMatter.pagination_prev = null;
+      result.frontMatter.pagination_next = null;
+
+      return result;
+    },
   },
   themes: ["@docusaurus/theme-mermaid"],
 
@@ -95,30 +103,6 @@ module.exports = {
       },
       items: [
         {
-          type: "docSidebar",
-          sidebarId: "main",
-          label: "Docs",
-          position: "left",
-        },
-        {
-          type: "docSidebar",
-          sidebarId: "concepts",
-          label: "Core Concepts",
-          position: "left",
-        },
-        {
-          type: "docSidebar",
-          sidebarId: "appStore",
-          label: "App Store",
-          position: "left",
-        },
-        {
-          type: "docSidebar",
-          sidebarId: "api",
-          label: "API Reference",
-          position: "left",
-        },
-        {
           type: "docsVersionDropdown",
           position: "right",
           dropdownItemsAfter: isProd
@@ -130,61 +114,6 @@ module.exports = {
           to: "https://github.com/saleor/saleor-docs/issues/new",
           label: "Report an Issue",
           position: "right",
-        },
-      ],
-    },
-
-    footer: {
-      // This copyright info is used in /core/Footer.js and blog RSS/Atom feeds.
-      copyright: `Copyright © 2018–${new Date().getFullYear()} <a href="https://saleor.io/">Saleor Commerce</a>. All rights reserved.`,
-      links: [
-        {
-          title: "Saleor Commerce",
-          items: [
-            { href: "https://saleor.io", label: "Home" },
-            {
-              href: "https://saleor.io/legal/terms/",
-              label: "Terms of use",
-            },
-            {
-              href: "https://saleor.io/legal/privacy/",
-              label: "Privacy policy",
-            },
-          ],
-        },
-        {
-          title: "Community",
-          items: [
-            {
-              href: "https://discord.gg/H52JTZAtSH",
-              label: "Discord",
-            },
-            {
-              href: "https://github.com/saleor/saleor/discussions",
-              label: "GitHub Discussions",
-            },
-            {
-              href: "https://stackoverflow.com/questions/tagged/saleor",
-              label: "Stack Overflow",
-            },
-          ],
-        },
-        {
-          title: "More",
-          items: [
-            {
-              href: "https://saleor.io/blog/",
-              label: "Blog",
-            },
-            {
-              href: "https://github.com/saleor/saleor/",
-              label: "GitHub",
-            },
-            {
-              href: "https://twitter.com/getsaleor",
-              label: "Twitter",
-            },
-          ],
         },
       ],
     },
