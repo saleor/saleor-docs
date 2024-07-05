@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import clsx from "clsx";
 import {
   prefersReducedMotion,
@@ -48,7 +48,6 @@ export default function DocRootLayoutSidebar({
     name === "main" ? "forward" : "back"
   );
 
-  console.log(name);
   return (
     <aside
       className={clsx(
@@ -75,14 +74,14 @@ export default function DocRootLayoutSidebar({
           timeout={200}
           classNames={direction}
         >
-          <div ref={nodeRef}>
-            <ResetOnSidebarChange>
-              <div
-                className={clsx(
-                  styles.sidebarViewport,
-                  hiddenSidebar && styles.sidebarViewportHidden
-                )}
-              >
+          <ResetOnSidebarChange>
+            <div
+              className={clsx(
+                styles.sidebarViewport,
+                hiddenSidebar && styles.sidebarViewportHidden
+              )}
+            >
+              <div ref={nodeRef}>
                 <DocSidebar
                   sidebar={sidebar}
                   path={pathname}
@@ -93,8 +92,8 @@ export default function DocRootLayoutSidebar({
                   <ExpandButton toggleSidebar={toggleSidebar} />
                 )}
               </div>
-            </ResetOnSidebarChange>
-          </div>
+            </div>
+          </ResetOnSidebarChange>
         </CSSTransition>
       </SwitchTransition>
     </aside>
