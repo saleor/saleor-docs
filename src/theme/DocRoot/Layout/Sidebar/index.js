@@ -71,7 +71,7 @@ export default function DocRootLayoutSidebar({
           addEndListener={(node, done) => {
             setDirection(name === "main" ? "forward" : "back");
           }}
-          timeout={200}
+          timeout={150}
           classNames={direction}
         >
           <ResetOnSidebarChange>
