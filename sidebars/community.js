@@ -1,6 +1,9 @@
+import { chapterTitle, hr } from "./utils";
+
 export const community = [
-  "developer/community/contributing",
-  "developer/community/zero-downtime-migrations",
+  chapterTitle("developer/community/contributing", "Contributing", "community"),
+  hr(),
   "developer/community/faq",
+  "developer/community/zero-downtime-migrations",
   "developer/community/support",
 ];
