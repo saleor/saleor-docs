@@ -1,5 +1,10 @@
+import { chapterTitle, hr } from "./utils";
+
 export const appStore = [
-  "developer/app-store/overview",
+  chapterTitle("developer/app-store/overview", "Apps", "apps"),
+
+  hr(),
+
   {
     type: "category",
     label: "Adyen",

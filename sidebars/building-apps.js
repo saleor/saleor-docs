@@ -1,7 +1,7 @@
-const { title } = require("./utils");
+import { title, hr, chapterTitle } from "./utils";
 
 export const buildingApps = [
-  "developer/extending/apps/overview",
+  chapterTitle("developer/extending/apps/overview", "Build apps", "buildApp"),
 
   title("Architecture"),
   "developer/extending/apps/architecture/overview",

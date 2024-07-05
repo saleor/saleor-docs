@@ -1,7 +1,7 @@
-import { title } from "./utils";
+import { chapterTitle, hr, title } from "./utils";
 
 export const extending = [
-  "developer/extending/overview",
+  chapterTitle("developer/extending/overview", "Extending", "cli"),
 
   title("Webhooks"),
   "developer/extending/webhooks/overview",

@@ -6,7 +6,6 @@ import Link from "@docusaurus/Link";
 import isInternalUrl from "@docusaurus/isInternalUrl";
 import IconExternalLink from "@theme/Icon/ExternalLink";
 import styles from "./styles.module.css";
-import { Icon } from "../../../../components/Icons/icons";
 export default function DocSidebarItemLink({
   item,
   onItemClick,
@@ -15,18 +14,9 @@ export default function DocSidebarItemLink({
   index,
   ...props
 }) {
-  const { href, label, className, autoAddBaseUrl, customProps } = item;
+  const { href, label, className, autoAddBaseUrl } = item;
   const isActive = isActiveSidebarItem(item, activePath);
   const isInternalLink = isInternalUrl(href);
-
-  const isTitle = customProps?.isTitle;
-
-  const icon = customProps?.icon ? (
-    <div className="menu__sidebar-icon">
-      <Icon name={customProps.icon} />
-    </div>
-  ) : null;
-
   return (
     <li
       className={clsx(
@@ -53,16 +43,8 @@ export default function DocSidebarItemLink({
         })}
         {...props}
       >
-        <span
-          className={clsx(
-            `menu__link--wrapper`,
-            isTitle && `menu__link--title`
-          )}
-        >
-          {icon}
-          {label}
-          {!isInternalLink && <IconExternalLink />}
-        </span>
+        {label}
+        {!isInternalLink && <IconExternalLink />}
       </Link>
     </li>
   );

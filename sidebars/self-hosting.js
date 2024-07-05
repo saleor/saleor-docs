@@ -1,7 +1,8 @@
-import { title } from "./utils";
+import { chapterTitle, title, hr } from "./utils";
 
 export const selfHosting = [
-  "setup/overview",
+  chapterTitle("setup/overview", "Self-hosting", "selfHost"),
+  hr(),
   "setup/docker-compose",
   "setup/docker-images",
   "setup/configuration",

@@ -1,7 +1,7 @@
-import { title } from "./utils";
+import { chapterTitle, hr, title } from "./utils";
 
 export const coreConcepts = [
-  "developer/index",
+  chapterTitle("developer/index", "Core concepts", "guides"),
 
   title("Channels"),
   "developer/channels/overview",
