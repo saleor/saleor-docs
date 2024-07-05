@@ -1,4 +1,4 @@
-const { title, ref } = require("./sidebars/utils");
+const { title, ref, chapterTitle, hr } = require("./sidebars/utils");
 const { buildingApps } = require("./sidebars/building-apps");
 const { appStore } = require("./sidebars/app-store");
 const { coreConcepts } = require("./sidebars/core-concepts");
@@ -6,6 +6,7 @@ const { community } = require("./sidebars/community");
 const { selfHosting } = require("./sidebars/self-hosting");
 const { extending } = require("./sidebars/extending");
 const { graphqlSidebar } = require("./sidebars/graphql");
+const { cloudSidebar } = require("./sidebars/cloud");
 
 const backToHome = {
   type: "ref",
@@ -90,10 +91,5 @@ module.exports = {
   extending: [backToHome, ...extending],
   selfHosting: [backToHome, ...selfHosting],
   community: [backToHome, ...community],
-  cloud: [
-    backToHome,
-    "cloud",
-    { type: "ref", id: "quickstart/cloud" },
-    "restricting-api-access",
-  ],
+  cloud: [backToHome, ...cloudSidebar],
 };
