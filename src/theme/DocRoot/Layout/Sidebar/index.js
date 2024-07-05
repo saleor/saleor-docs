@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import clsx from "clsx";
 import {
   prefersReducedMotion,
@@ -9,6 +9,8 @@ import { useLocation } from "@docusaurus/router";
 import DocSidebar from "@theme/DocSidebar";
 import ExpandButton from "@theme/DocRoot/Layout/Sidebar/ExpandButton";
 import styles from "./styles.module.css";
+import { SwitchTransition, CSSTransition } from "react-transition-group";
+
 // Reset sidebar state when sidebar changes
 // Use React key to unmount/remount the children
 // See https://github.com/facebook/docusaurus/issues/3414
@@ -26,6 +28,7 @@ export default function DocRootLayoutSidebar({
   setHiddenSidebarContainer,
 }) {
   const { pathname } = useLocation();
+  const { name } = useDocsSidebar();
   const [hiddenSidebar, setHiddenSidebar] = useState(false);
   const toggleSidebar = useCallback(() => {
     if (hiddenSidebar) {
@@ -38,6 +41,14 @@ export default function DocRootLayoutSidebar({
     }
     setHiddenSidebarContainer((value) => !value);
   }, [setHiddenSidebarContainer, hiddenSidebar]);
+
+  const nodeRef = useRef(null);
+
+  const [direction, setDirection] = useState(
+    name === "main" ? "forward" : "back"
+  );
+
+  console.log(name);
   return (
     <aside
       className={clsx(
@@ -54,22 +65,38 @@ export default function DocRootLayoutSidebar({
         }
       }}
     >
-      <ResetOnSidebarChange>
-        <div
-          className={clsx(
-            styles.sidebarViewport,
-            hiddenSidebar && styles.sidebarViewportHidden
-          )}
+      <SwitchTransition>
+        <CSSTransition
+          key={name}
+          nodeRef={nodeRef}
+          addEndListener={(node, done) => {
+            setDirection(name === "main" ? "forward" : "back");
+          }}
+          timeout={200}
+          classNames={direction}
         >
-          <DocSidebar
-            sidebar={sidebar}
-            path={pathname}
-            onCollapse={toggleSidebar}
-            isHidden={hiddenSidebar}
-          />
-          {hiddenSidebar && <ExpandButton toggleSidebar={toggleSidebar} />}
-        </div>
-      </ResetOnSidebarChange>
+          <div ref={nodeRef}>
+            <ResetOnSidebarChange>
+              <div
+                className={clsx(
+                  styles.sidebarViewport,
+                  hiddenSidebar && styles.sidebarViewportHidden
+                )}
+              >
+                <DocSidebar
+                  sidebar={sidebar}
+                  path={pathname}
+                  onCollapse={toggleSidebar}
+                  isHidden={hiddenSidebar}
+                />
+                {hiddenSidebar && (
+                  <ExpandButton toggleSidebar={toggleSidebar} />
+                )}
+              </div>
+            </ResetOnSidebarChange>
+          </div>
+        </CSSTransition>
+      </SwitchTransition>
     </aside>
   );
 }
