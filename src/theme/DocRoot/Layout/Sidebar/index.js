@@ -80,18 +80,15 @@ export default function DocRootLayoutSidebar({
                 styles.sidebarViewport,
                 hiddenSidebar && styles.sidebarViewportHidden
               )}
+              ref={nodeRef}
             >
-              <div ref={nodeRef}>
-                <DocSidebar
-                  sidebar={sidebar}
-                  path={pathname}
-                  onCollapse={toggleSidebar}
-                  isHidden={hiddenSidebar}
-                />
-                {hiddenSidebar && (
-                  <ExpandButton toggleSidebar={toggleSidebar} />
-                )}
-              </div>
+              <DocSidebar
+                sidebar={sidebar}
+                path={pathname}
+                onCollapse={toggleSidebar}
+                isHidden={hiddenSidebar}
+              />
+              {hiddenSidebar && <ExpandButton toggleSidebar={toggleSidebar} />}
             </div>
           </ResetOnSidebarChange>
         </CSSTransition>
