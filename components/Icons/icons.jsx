@@ -106,8 +106,7 @@ const paths = {
     />
   ),
 };
-
-export const Icon = ({ name }) => {
+export const Icon = ({ name, size = 16 }) => {
   switch (name) {
     case "arrow-down":
   }
@@ -118,7 +117,7 @@ export const Icon = ({ name }) => {
   }
 
   return (
-    <div style={{ width: 16, height: 16 }}>
+    <div style={{ width: size, height: size }} className="icon">
       <svg viewBox={`0 0 16 16`} xmlns="http://www.w3.org/2000/svg" fill="none">
         {path}
       </svg>
