@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import s from "./tiles.module.css";
 
@@ -7,14 +7,42 @@ const range = (start, end) => {
 };
 
 const Tiles = () => {
-  return (
-    <div className={s.container}>
-      {range(0, 100).map((index) => {
-        const isHighlighted = Math.sin(index) > 0.9 ? s.highlight : "";
+  const [t, setT] = React.useState(0);
 
-        return <div className={`${s.tile} ${isHighlighted}`} key={index}></div>;
-      })}
-    </div>
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setT((prev) => prev + 1);
+    }, 700);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <>
+      <div className={s.container}>
+        {range(0, 100).map((index) => {
+          const isHighlighted = Math.random() < 0.15 ? s.highlight : "";
+          return (
+            <div
+              className={`${s.tile} ${isHighlighted}`}
+              style={{ transitionDelay: `${Math.random()}s` }}
+              key={index}
+            ></div>
+          );
+        })}
+      </div>
+      <div className={s.meteorContainer}>
+        {range(0, 10).map((index) => {
+          return (
+            <div
+              className={s.meteor}
+              style={{
+                animationDelay: `${index}s`,
+              }}
+            ></div>
+          );
+        })}
+      </div>
+    </>
   );
 };
 
