@@ -62,18 +62,18 @@ module.exports = {
 
     title("Product"),
     ref("cloud", "Cloud", "cloud"),
-    ref("developer/index", "Core concepts", "guides"),
+    ref("developer/index", "Core Concepts", "guides"),
 
     title("API"),
-    ref("api-reference/api-reference", "API reference", "api"),
+    ref("api-reference/api-reference", "API Reference", "api"),
     ref("api-usage/overview", "GraphQL", "graphql"),
 
     title("Customizing"),
-    ref("developer/app-store/overview", "Apps and integrations", "apps"),
-    ref("developer/extending/apps/overview", "Building apps", "buildApp"),
+    ref("developer/app-store/overview", "Apps and Integrations", "apps"),
+    ref("developer/extending/apps/overview", "Building Apps", "buildApp"),
     ref("developer/extending/overview", "Extending", "cli"),
 
-    title("Additional resources"),
+    title("Additional Resources"),
     ref("setup/overview", "Self-hosting", "selfHost"),
     ref("developer/community/contributing", "Community", "community"),
   ],
