@@ -70,7 +70,7 @@ const Apps = () => {
         <Shell color={"rgb(99, 91, 255)"} title={"Stripe"}>
           <Stripe />
         </Shell>
-        <Shell color={"rgb(86, 189, 104)"} title={"Taxjar"}>
+        <Shell color={"rgb(86, 189, 104)"} title={"TaxJar"}>
           <TaxJar />
         </Shell>
       </div>
