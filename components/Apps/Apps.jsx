@@ -29,49 +29,51 @@ const Shell = ({ color, title, children, href = "" }) => {
 };
 const Apps = () => {
   return (
-    <div className={s.container}>
-      <Shell color={"rgb(10, 191, 83)"} title={"Adyen"}>
-        <Adyen />
-      </Shell>
-      <Shell color={"rgb(223, 110, 44)"} title={"Avatax"}>
-        <Taxes />
-      </Shell>
-      <Shell color={"rgb(39, 180, 118)"} title={"CMS"}>
-        <CMS />
-      </Shell>
-      <Shell color={"rgb(137, 82, 255)"} title={"CRM"}>
-        <CRM />
-      </Shell>
-      <Shell color={"rgb(59, 213, 121)"} title={"Data importer"}>
-        <Data />
-      </Shell>
-      <Shell color={"rgb(227, 149, 60)"} title={"Invoices"}>
-        <Invoices />
-      </Shell>
-      <Shell color={"rgb(58, 86, 199)"} title={"Klaviyo"}>
-        <Placeholder />
-      </Shell>{" "}
-      <Shell color={"rgb(122, 150, 176)"} title={"Product Feed"}>
-        <ProductFeed />
-      </Shell>
-      <Shell color={"rgb(199, 58, 63)"} title={"Search"}>
-        <Search />
-      </Shell>
-      <Shell color={"rgb(37, 195, 101)"} title={"Twilio Segment"}>
-        <Segment />
-      </Shell>
-      <Shell color={"rgb(95, 58, 199)"} title={"Slack"}>
-        <Placeholder />
-      </Shell>
-      <Shell color={"rgb(199, 159, 58)"} title={"SMTP"}>
-        <Notification />
-      </Shell>
-      <Shell color={"rgb(99, 91, 255)"} title={"Stipe"}>
-        <Stripe />
-      </Shell>
-      <Shell color={"rgb(86, 189, 104)"} title={"Taxjar"}>
-        <TaxJar />
-      </Shell>
+    <div className={s.root}>
+      <div className={s.container}>
+        <Shell color={"rgb(10, 191, 83)"} title={"Adyen"}>
+          <Adyen />
+        </Shell>
+        <Shell color={"rgb(223, 110, 44)"} title={"Avatax"}>
+          <Taxes />
+        </Shell>
+        <Shell color={"rgb(39, 180, 118)"} title={"CMS"}>
+          <CMS />
+        </Shell>
+        <Shell color={"rgb(137, 82, 255)"} title={"CRM"}>
+          <CRM />
+        </Shell>
+        <Shell color={"rgb(59, 213, 121)"} title={"Data importer"}>
+          <Data />
+        </Shell>
+        <Shell color={"rgb(227, 149, 60)"} title={"Invoices"}>
+          <Invoices />
+        </Shell>
+        <Shell color={"rgb(58, 86, 199)"} title={"Klaviyo"}>
+          <Placeholder />
+        </Shell>{" "}
+        <Shell color={"rgb(122, 150, 176)"} title={"Product Feed"}>
+          <ProductFeed />
+        </Shell>
+        <Shell color={"rgb(199, 58, 63)"} title={"Search"}>
+          <Search />
+        </Shell>
+        <Shell color={"rgb(37, 195, 101)"} title={"Twilio Segment"}>
+          <Segment />
+        </Shell>
+        <Shell color={"rgb(95, 58, 199)"} title={"Slack"}>
+          <Placeholder />
+        </Shell>
+        <Shell color={"rgb(199, 159, 58)"} title={"SMTP"}>
+          <Notification />
+        </Shell>
+        <Shell color={"rgb(99, 91, 255)"} title={"Stipe"}>
+          <Stripe />
+        </Shell>
+        <Shell color={"rgb(86, 189, 104)"} title={"Taxjar"}>
+          <TaxJar />
+        </Shell>
+      </div>
     </div>
   );
 };
