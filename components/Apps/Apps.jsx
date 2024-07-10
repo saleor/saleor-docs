@@ -10,6 +10,7 @@ import ProductFeed from "../../static/img/apps/app-products-feed.svg";
 import Search from "../../static/img/apps/search-hub.svg";
 import Segment from "../../static/img/apps/segment.svg";
 import Notification from "../../static/img/apps/notification-hub.svg";
+import Link from "@docusaurus/Link";
 import Stripe from "../../static/img/apps/app-payment-stripe.svg";
 import TaxJar from "../../static/img/apps/app-taxes.svg";
 
@@ -17,14 +18,14 @@ import s from "./apps.module.css";
 
 const Shell = ({ color, title, children, href = "" }) => {
   return (
-    <a
+    <Link
       className={`${s.app} arrow-pointer`}
       href={href}
       style={{ "--hover-color": color }}
     >
       <div className={s.shell}>{children}</div>
       <span>{title}</span>
-    </a>
+    </Link>
   );
 };
 const Apps = () => {
