@@ -34,7 +34,7 @@ const Apps = () => {
         <Shell color={"rgb(10, 191, 83)"} title={"Adyen"}>
           <Adyen />
         </Shell>
-        <Shell color={"rgb(223, 110, 44)"} title={"Avatax"}>
+        <Shell color={"rgb(223, 110, 44)"} title={"AvaTax"}>
           <Taxes />
         </Shell>
         <Shell color={"rgb(39, 180, 118)"} title={"CMS"}>
