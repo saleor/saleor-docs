@@ -43,7 +43,7 @@ const Apps = () => {
         <Shell color={"rgb(137, 82, 255)"} title={"CRM"}>
           <CRM />
         </Shell>
-        <Shell color={"rgb(59, 213, 121)"} title={"Data importer"}>
+        <Shell color={"rgb(59, 213, 121)"} title={"Data Importer"}>
           <Data />
         </Shell>
         <Shell color={"rgb(227, 149, 60)"} title={"Invoices"}>
