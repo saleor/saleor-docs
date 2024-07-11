@@ -239,7 +239,7 @@ export const Icon = ({ name, size = 16 }) => {
   }
 
   return (
-    <div style={{ width: size, height: size }} className="icon">
+    <div style={{ width: size, height: size }}>
       <svg viewBox={`0 0 16 16`} xmlns="http://www.w3.org/2000/svg" fill="none">
         {path}
       </svg>
@@ -255,7 +255,7 @@ export const Icon32 = ({ name, size = 32 }) => {
   }
 
   return (
-    <div style={{ width: size, height: size }} className={"icon"}>
+    <div style={{ width: size, height: size }}>
       <svg viewBox={`0 0 32 32`} xmlns="http://www.w3.org/2000/svg" fill="none">
         {path}
       </svg>
