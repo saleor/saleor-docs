@@ -1,10 +1,10 @@
 import React from "react";
 
-import styles from "./styles.module.css";
+import s from "./styles.module.css";
 
-const CardGrid = ({ children, home = false }) => (
-  <section className={styles.cardGrid}>
-    <div className={styles.container}>
+const Chapters = ({ children, home = false }) => (
+  <section className={s.root}>
+    <div className={s.grid}>
       {"map" in children ? (
         children.map((child, idx) => <article key={idx}>{child}</article>)
       ) : (
@@ -14,4 +14,4 @@ const CardGrid = ({ children, home = false }) => (
   </section>
 );
 
-export default CardGrid;
+export default Chapters;

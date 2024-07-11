@@ -5,6 +5,8 @@ import { useDoc } from "@docusaurus/theme-common/internal";
 import TagsListInline from "@theme/TagsListInline";
 import EditMetaRow from "@theme/EditMetaRow";
 
+import { Pencil, LifeBuoy, MessageSquareMore } from "lucide-react";
+
 import s from "./styles.module.css";
 
 export default function DocItemFooter() {
@@ -32,17 +34,29 @@ export default function DocItemFooter() {
           </div>
         </div>
       )}
-      {canDisplayEditMetaRow && (
-        <EditMetaRow
-          className={clsx(
-            "margin-top--sm",
-            ThemeClassNames.docs.docFooterEditMetaRow
-          )}
-          editUrl={editUrl}
-          lastUpdatedAt={lastUpdatedAt}
-          lastUpdatedBy={lastUpdatedBy}
-        />
-      )}
+      <div className={s.actions}>
+        {canDisplayEditMetaRow && (
+          <a href={editUrl} target={"_blank"}>
+            <Pencil size={12} />
+            Edit this page
+          </a>
+        )}
+
+        <a
+          href={"https://github.com/saleor/saleor/discussions"}
+          target={"_blank"}
+        >
+          <LifeBuoy size={12} />
+          Help
+        </a>
+        <a
+          href={"https://github.com/saleor/saleor-docs/issues"}
+          target={"_blank"}
+        >
+          <MessageSquareMore size={12} />
+          Feedback
+        </a>
+      </div>
 
       <div className={s.links}>
         Copyright © 2018–{new Date().getFullYear()}{" "}
