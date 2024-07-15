@@ -130,3 +130,163 @@ Finally, start the app:
 ```bash
 pnpm dev
 ```
+
+## Implementing the First Webhook
+
+### App Manifest
+
+Our first step will be visiting the `src/pages/api/manifest.ts` directory, where the App Manifest lives.
+
+:::info
+
+[App Manifest](developer/extending/apps/architecture/manifest.mdx) is the source of truth for all the app-related metadata, including its webhooks. The `/manifest` API route is called by Saleor during the app installation to provide all the necessary information about the app.
+
+:::
+
+The `webhooks` array of the App Manifest should be filled with the webhook manifests:
+
+```ts
+import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
+import { AppManifest } from "@saleor/app-sdk/types";
+
+export default createManifestHandler({
+  async manifestFactory({ appBaseUrl, request }) {
+    // ...
+
+    const manifest: AppManifest = {
+      name: "Dummy Payment App",
+      // ...
+      webhooks: [], // 👈 provide webhook manifests here
+      // ...
+    };
+  },
+});
+```
+
+Luckily, we don't need to do that manually.
+
+[Saleor App SDK](developer/extending/apps/developing-apps/app-sdk/overview.mdx), a package included in the template, already provides helper classes for generating the webhooks: `SaleorSyncWebhook` and `SaleorAsyncWebhook`. These webhook instances have the `getWebhookManifest` method, which we can use to generate the webhook manifest.
+
+### Declaring `SaleorSyncWebhook` Instance
+
+In this step, we will be implementing a handler for our first webhook: `TRANSACTION_INITIALIZE_SESSION`.
+
+Let's start by creating a new file in the `src/pages/api/webhooks` directory called `transaction-initialize-session.ts`. Then, initialize the `SaleorSyncWebhook` instance (since `TRANSACTION_INITIALIZE_SESSION` is a synchronous webhook):
+
+```ts
+import { SaleorAsyncWebhook } from "@saleor/app-sdk/handlers/next";
+import { saleorApp } from "../../../saleor-app";
+
+export const transactionInitializeSessionWebhook =
+  new SaleorSyncWebhook<unknown /* TODO: Add the payload type */>({
+    name: "Transaction Initialize Session",
+    webhookPath: "api/webhooks/transaction-initialize-session",
+    event: "TRANSACTION_INITIALIZE_SESSION",
+    apl: saleorApp.apl,
+    query: "", // TODO: Add the subscription query
+  });
+```
+
+Let's go through all the constructor parameters of the `SaleorSyncWebhook` class:
+
+- `name` - The name of the webhook. It will be used during the webhook registration process.
+- `webhookPath` - The path to the webhook. It will be used to create the webhook URL.
+  `event` - The [synchronous webhook event](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#values) that the handler will be listening to.
+- `apl` - The reference to the app's [APL](developer/extending/apps/developing-apps/app-sdk/apl). Saleor App Template exports it from `src/saleor-app.ts`.
+- `query` - The query needed to generate the [subscription webhook payload](developer/extending/webhooks/subscription-webhook-payloads.mdx). It is currently empty because we don't have our subscription query yet.
+- `unknown` generic attribute - The type of the payload that the webhook will receive. Since we don't have the subscription query yet, we don't know what the payload will look like.
+
+### Building the Subscription Query
+
+With Subscription Webhook Payload, you can define the shape of the payload that the webhook will receive. [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) and the Saleor App SDK makes sure that the payload is correctly typed.
+
+Let's define a subscription query for the `TRANSACTION_INITIALIZE_SESSION` handler:
+
+```ts
+import { gql } from "urql";
+
+// 💡 We suggest keeping the payload in a fragment. It is easier this way to retrieve individual fields from the subscription.
+const TransactionInitializeSessionPayload = gql`
+  fragment TransactionInitializeSessionPayload on TransactionInitializeSession {
+    action {
+      amount
+      currency
+      actionType
+    }
+  }
+`;
+
+const TransactionInitializeSessionSubscription = gql`
+  # Payload fragment must be included in the root query
+  ${TransactionInitializeSessionPayload}
+  subscription TransactionInitializeSession {
+    event {
+      ...TransactionInitializeSessionPayload
+    }
+  }
+`;
+```
+
+:::warning
+
+Remember that adding a new field to the subscription query requires re-registering the webhook in Saleor API. You can read more about this behavior in [How to Update App Webhooks](developer/extending/apps/updating-app-webhooks.mdx).
+
+:::
+
+Then, let's run the following command to generate the types:
+
+```bash
+pnpm generate
+```
+
+When the command finishes, you should be able to import the type for the declared subscription query. With those two pieces, you can now update the `SaleorSyncWebhook` instance:
+
+```ts
+import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
+import { saleorApp } from "../../../saleor-app";
+import { TransactionInitializeSessionPayloadFragment } from "../../../../generated/graphql";
+
+export const transactionInitializeSessionWebhook =
+  new SaleorSyncWebhook<TransactionInitializeSessionPayloadFragment /* 💾 Updated with the payload type */>(
+    {
+      name: "Transaction Initialize Session",
+      webhookPath: "api/webhooks/transaction-initialize-session",
+      event: "TRANSACTION_INITIALIZE_SESSION",
+      apl: saleorApp.apl,
+      query: TransactionInitializeSessionSubscription, // 💾 Updated with the subscription query
+    }
+  );
+```
+
+### Creating the Webhook Handler
+
+The last step is to create the webhook handler. The handler is a function that will be called when the webhook is triggered. `saleor-app-sdk` handler is a decorated Next.js API ([pages](https://nextjs.org/docs/pages)) route handler. The extra bit is the Saleor context that is passed to the handler.
+
+Let's extend our `transaction-initialize-session.ts` file with the handler boilerplate:
+
+```ts
+export default transactionInitializeSessionWebhook.createHandler(
+  (req, res, ctx) => {
+    const { payload, event, baseUrl, authData } = ctx;
+
+    // TODO: Implement the handler
+
+    return res.status(200).end();
+  }
+);
+```
+
+The `ctx` object contains the following properties:
+
+- `payload` - The type-safe payload received from the webhook.
+- `event` - Name of the event that triggered the webhook.
+- `baseUrl` - The base URL of the app. If you need to register the app or webhook in an externak service, you can use this URL.
+- `authData` - The [authentication data](developer/extending/apps/developing-apps/app-sdk/apl#authdata) passed from Saleor to the app. Among other things, it contains the `token` that can be used to query Saleor API.
+
+## Testing the Webhook
+
+TODO
+
+## Implementing Transaction Process Session
+
+TODO
