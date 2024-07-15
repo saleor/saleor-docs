@@ -92,7 +92,7 @@ There are two reasons for why **we are not going** with the `TRANSACTION_CHARGE_
 1. It is designed for the staff users to manually charge the payment. Since we want a checkout user (possibly unauthenticated) to be able to pay for the order, it is not a good fit.
 2. It does not allow to return the `CHARGE_ACTION_REQUIRED` event status.
 
-That leaves us with the `TRANSACTION_INITIALIZE_SESSION` webhook. It is triggered on the [`transactionInitializeSession`](api-reference/payments/mutations/transaction-initialize.mdx) mutation which can be used without any permissions. It can emit the `CHARGE_ACTION_REQUIRED` event status, as required.
+That leaves us with the `TRANSACTION_INITIALIZE_SESSION` webhook. It is triggered on the [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation which can be used without any permissions. It can emit the `CHARGE_ACTION_REQUIRED` event status, as required.
 
 When `TRANSACTION_INITIALIZE_SESSION` returns the `CHARGE_ACTION_REQUIRED`, the app needs to have a way of processing the additional action. Based on the result of that operation, we will either transition to the `CHARGE_SUCCESS` or `CHARGE_FAILURE` event status. This is where the second webhook is needed: [`TRANSACTION_PROCESS_SESSION`](developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session).
 
@@ -165,13 +165,13 @@ export default createManifestHandler({
 
 Luckily, we don't need to do that manually.
 
-[Saleor App SDK](developer/extending/apps/developing-apps/app-sdk/overview.mdx), a package included in the template, already provides helper classes for generating the webhooks: `SaleorSyncWebhook` and `SaleorAsyncWebhook`. These webhook instances have the `getWebhookManifest` method, which we can use to generate the webhook manifest.
+[Saleor App SDK](developer/extending/apps/developing-apps/app-sdk/overview.mdx), a package included in the template, already provides helper classes for generating the webhooks: `SaleorSyncWebhook` and `SaleorAsyncWebhook`. Webhook instances created from these classes have the `getWebhookManifest` method, which we can use to generate the webhook manifest.
 
 ### Declaring `SaleorSyncWebhook` Instance
 
-In this step, we will be implementing a handler for our first webhook: `TRANSACTION_INITIALIZE_SESSION`.
+In this step, we begin the process of implementing a handler for our first webhook: `TRANSACTION_INITIALIZE_SESSION`.
 
-Let's start by creating a new file in the `src/pages/api/webhooks` directory called `transaction-initialize-session.ts`. Then, initialize the `SaleorSyncWebhook` instance (since `TRANSACTION_INITIALIZE_SESSION` is a synchronous webhook):
+The first thing we need is a new file in the `src/pages/api/webhooks` directory, called `transaction-initialize-session.ts`. Then, initialize the `SaleorSyncWebhook` instance (since `TRANSACTION_INITIALIZE_SESSION` is a synchronous webhook):
 
 ```ts
 import { SaleorAsyncWebhook } from "@saleor/app-sdk/handlers/next";
@@ -198,7 +198,9 @@ Let's go through all the constructor parameters of the `SaleorSyncWebhook` class
 
 ### Building the Subscription Query
 
-With Subscription Webhook Payload, you can define the shape of the payload that the webhook will receive. [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) and the Saleor App SDK makes sure that the payload is correctly typed.
+The next step will be filling that empty `query` attribute with an actual subscription query.
+
+With [subscription webhook payloads](developer/extending/webhooks/subscription-webhook-payloads.mdx), you can define the shape of the payload that the webhook will receive. [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) and the Saleor App SDK makes sure that the payload is correctly typed.
 
 Let's define a subscription query for the `TRANSACTION_INITIALIZE_SESSION` handler:
 
@@ -233,7 +235,7 @@ Remember that adding a new field to the subscription query requires re-registeri
 
 :::
 
-Then, let's run the following command to generate the types:
+Then, let's regenerate the types (they were initially generated during the dependencies installation):
 
 ```bash
 pnpm generate
@@ -283,10 +285,97 @@ The `ctx` object contains the following properties:
 - `baseUrl` - The base URL of the app. If you need to register the app or webhook in an externak service, you can use this URL.
 - `authData` - The [authentication data](developer/extending/apps/developing-apps/app-sdk/apl#authdata) passed from Saleor to the app. Among other things, it contains the `token` that can be used to query Saleor API.
 
+Since we are implementing the Dummy Payment Gateway, our handler doesn't need to call any external APIs or perform any complex operations. We will just log the payload and return the `CHARGE_ACTION_REQUIRED` event status. However, we need to remember that the webhook response must adhere to the [webhook response format](developer/extending/webhooks/synchronous-events/transaction.mdx#response-4):
+
+```ts
+export default transactionInitializeSessionWebhook.createHandler(
+  (req, res, ctx) => {
+    const { payload, event, baseUrl, authData } = ctx;
+
+    console.log("Transaction Initialize Session payload:", payload);
+
+    const randomPspReference = crypto.randomUUID(); // Generate a random PSP reference
+
+    return res.status(200).json({
+      result: "CHARGE_ACTION_REQUIRED",
+      amount: payload.action.amount,
+      pspReference: randomPspReference,
+      //   TODO: CHECK IF OTHER FIELDS ARE NEEDED
+    });
+  }
+);
+```
+
+Note that we are generating a random PSP reference. In a real-world scenario, this would be a transaction identifier returned by the payment provider.
+
+## Installing the App
+
+Now that we have implemented the first webhook, we can install the app in Saleor. To do that, we need to expose our local development environment to the internet via a tunneling service. You can follow the [Tunneling Apps](developer/extending/apps/developing-with-tunnels.mdx) guide to learn how to do that.
+
 ## Testing the Webhook
 
-TODO
+Assuming that the app is installed in Saleor, we can now test the webhook. To do that, we need to trigger the `TRANSACTION_INITIALIZE_SESSION` event. We can do that by calling the `transactionInitialize` mutation from GraphQL Playground. Here is what the mutation looks like:
+
+```graphql
+mutation TransactionInitialize($checkoutId: ID!, $paymentGateway: String!) {
+  transactionInitialize(
+    id: $checkoutId
+    paymentGateway: { id: $paymentGateway }
+  ) {
+    transaction {
+      id
+    }
+    transactionEvent {
+      id
+      type
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+The mutation requires two variables: `checkoutId` and `paymentGateway`. The `checkoutId` is the ID of the checkout that we want to pay for. The `paymentGateway` is the ID of the payment gateway that we want to use.
+
+We can see what payment gateways are available for the checkout by requesting the `availablePaymentGateways` field on the `checkout` query:
+
+```graphql
+query GetCheckout($id: ID!) {
+  checkout(id: $id) {
+    availablePaymentGateways {
+      id
+      name
+    }
+  }
+}
+```
+
+If we installed the app correctly, we should see the `Dummy Payment Gateway` in the list of available payment gateways. The `id` will be drawn from the App Manifest's `id` field.
+
+If we have the `checkoutId` and `paymentGateway`, we can now call the `transactionInitialize` mutation. In the response, we should see the created transaction and the transaction event with the `CHARGE_ACTION_REQUIRED` type:
+
+<!-- TODO: ADD REAL RESPONSE -->
+
+```json
+{
+  "data": {
+    "transactionInitialize": {
+      "transaction": {
+        "id": "UHJvamVjdFRy"
+      },
+      "transactionEvent": {
+        "id": "UHJvamVjdFRy",
+        "type": "CHARGE_ACTION_REQUIRED"
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+The app's console should also log the payload received from the webhook.
 
 ## Implementing Transaction Process Session
-
-TODO
