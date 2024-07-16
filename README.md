@@ -58,7 +58,6 @@ npm run serve
 - `/docusaurus2-graphql-doc-generator` GraphQL API Reference plugin code.
 - `/sidebars.js` Sidebar menu structure.
 - `/static` Styling and other static files.
-- `/versioned_docs` & `/versioned_sidebars` Tagged versions of documentation matching the latest Saleor release.
 
 ## Formatting
 
