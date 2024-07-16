@@ -36,6 +36,63 @@ subscription {
 }
 ```
 
+### Filterable subscription query
+
+:::info
+
+This feature was introduced in **Saleor 3.20**.
+
+:::
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+
+For some webhook events, you can create a filterable subscription. A filterable subscription means the event will be delivered only when the filter input matches the object.
+
+All filterable events are available as a top-level subscription field, on the same level as the [event](api-reference/miscellaneous/subscriptions/event.mdx) field.
+
+:::note
+Only one top field can be requested as a filterable subscription query. This means that in a single subscription, you cannot define more than one filterable event or mix it with the `event` field. In that case, a new webhook with a new subscription should be created.
+:::
+
+The example below is a subscription query that filters out newly created orders that do not belong to the channels with slugs: `uk`, `pl`:
+
+```graphql
+subscription {
+  orderCreated(channels: ["uk", "pl"]) {
+    order {
+      id
+      lines {
+        id
+      }
+    }
+  }
+}
+```
+
+The above subscription will generate the following webhook payload:
+
+```json
+{
+  "data": {
+    "orderCreated": {
+      "order": {
+        "id": "T3JkZXI6YzhmY2FjMTgtMWQ5Yy00NWRkLTgxMGYtMGIzMTJiYTNjZDYz",
+        "lines": [
+          {
+            "id": "T3JkZXJMaW5lOjkzYTFjZGMxLTQxMzAtNDE4ZC05YTAxLTQyY2I5N2E3ZjIxMw=="
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
 ## Creating webhook with subscription query
 
 To create a webhook that will have its payload generated using a subscription, you need to use the same mutation as with standard webhooks. The only difference is passing the `query` field as an input with a subscription query converted to a string.
