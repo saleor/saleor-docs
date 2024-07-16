@@ -1,0 +1,58 @@
+---
+title: Updating Apps
+---
+
+During the installation, Saleor will register the app based on its [manifest](developer/extending/apps/architecture/manifest.mdx).
+Besides some basic information, the manifest also includes a list of [permissions](developer/permissions.mdx#app-permissions) and a [subscription webhook payload](/developer/extending/webhooks/subscription-webhook-payloads.mdx) that the app needs to work.
+
+## Updating the app
+
+Currently, Saleor doesn't support automatic app updates. This means that if the permissions, webhooks, or any other manifest field changes, they will not be automatically fetched or reflected in Saleor.
+
+However, there are a few ways how to update the app manually after it is installed:
+
+### Reinstall the app
+
+Reinstalling the app is probably the fastest way to update its manifest. To do that, you need to first remove the old one and then install it again.
+
+Pros of this approach:
+
+- Saleor updates all fields, registers all webhooks again, and provides the new token to the app
+
+Cons of this approach:
+
+- App must support multiple installations - the new token will be generated, and the app must be able to store it.
+- If the app stores its settings in the metadata (`app.privateMetadata`), it will be removed, and the app must be configured again.
+- Enqueued webhooks from Saleor will fail to be delivered.
+
+This approach works best during development.
+
+## Updating webhooks via mutations
+
+If only webhooks must be updated, the `webhookUpdate` mutation can be used.
+
+Pros of this approach:
+
+- App doesn't have to be reinstalled
+
+Cons of this approach:
+
+- App's manifest will be out of sync, so new installations will revert such mutations. That's why you should also update the manifest
+
+The process of updating the webhooks is described in the [How to update app webhooks](developer/extending/apps/updating-app-webhooks.mdx) guide.
+
+## Updating manifest fields
+
+Some of the manifest fields can be updated via `appUpdate` mutation:
+
+- `name` of the app
+- `identifier` of the app
+- `permissions` of the app
+
+You can use this mutation to update these fields after the app is installed.
+
+:::warning
+
+Updating `permissions` require token of the user containing `MANAGE_APPS` permission. Effectively, it can't be used by the app itself.
+
+:::

@@ -1,0 +1,111 @@
+---
+title: Exporting Voucher Codes
+---
+
+## Introduction
+
+Exporting voucher codes allows downloading a list of voucher codes to a CSV or an XLSX file.
+You can export all codes from selected voucher or voucher codes with specific IDs.
+The link to download the file is sent by email to the requestor. An email with information about the problems is sent if any error occurs.
+
+### Export file structure
+
+The exported file contains one column with a `code` header in the first row and voucher codes in the following rows, as shown below.
+
+| code       |
+| ---------- |
+| winter2022 |
+| voucher123 |
+| spring2023 |
+
+## Exporting voucher codes
+
+:::note
+Voucher codes can be exported only by logged users with `MANAGE_DISCOUNTS` permission.
+:::
+
+To export voucher codes, use `exportVoucherCodes` mutation.
+
+This mutation takes the following input:
+
+- `voucherId`: a ID of the voucher whose codes we want to export. This field is optional.
+- `ids`: a list of voucher codes IDs to export. This field is optional.
+- `fileType`: defines exported file type. You can choose between `CSV` and `XLSX` file.
+
+One of the arguments `voucherId` or `ids` has to be provided.
+.
+As a result, this mutation returns `ExportFile` object which is a `Job` instance.
+For details, look at [export mutations descriptions](export-overview#mutations).
+
+### Exporting all codes for selected voucher
+
+The following example shows how to export all codes from selected voucher to a CSV file.
+
+```graphql {2}
+mutation {
+  exportVoucherCodes(input: { voucherId: "R2lmdENhcmQ6MjU=", fileType: CSV }) {
+    exportFile {
+      id
+      status
+      createdAt
+      updatedAt
+      url
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+In the response, we get the workers information:
+
+```json
+{
+  "data": {
+    "exportVoucherCodes": {
+      "exportFile": {
+        "id": "RXhwb3J0RmlsZTox",
+        "status": "PENDING",
+        "createdAt": "2020-06-05T09:15:42.924676+00:00",
+        "updatedAt": "2020-06-05T09:16:27.691838+00:00",
+        "url": ""
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+Once the task is finished, the `url` field will contain the URL address of the exported file. If the `User` triggers export, the link to the file will be sent by email to the requestor.
+To check if the URL is ready, you can fetch [ExportFile](export-overview#fetching-exportfile-instance).
+
+### Exporting voucher codes with specified IDs
+
+To export only voucher codes with provided IDs.
+
+```graphql {4}
+mutation {
+  exportVoucherCodes(
+    input: {
+      ids: ["R2lmdENhcmQ6MjU=", "R2lmdENhcmQ6MjY=", "R2lmdENhcmQ6Mjc="]
+      fileType: CSV
+    }
+  ) {
+    exportFile {
+      id
+      status
+      createdAt
+      updatedAt
+      url
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```

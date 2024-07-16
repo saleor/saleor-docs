@@ -1,0 +1,571 @@
+---
+title: Filtering
+---
+
+:::info
+
+The `where` filtering approach was introduced in **Saleor 3.11**. For now, it's only
+available on the:
+
+- `Attribute` type (added in **Saleor 3.11**)
+- `Product` type (added in **Saleor 3.15**)
+
+:::
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+
+## Introduction
+
+The `where` filtering allows specifying more complex conditions with the use of `AND` and `OR` operators,
+combined with operations like equal (`eq`), one of, and range. It's available under the `where` option,
+for now, only on the [attributes](api-reference/attributes/queries/attributes.mdx) query.
+
+### General approach
+
+- Currently only `AND` and `OR` operators are available.
+  (See the example for [AND](#filtering-with-the-and-operator) and [OR](#filtering-with-the-or-operator) operator usage).
+- Each provided value is treated explicitly, which means that filtering by null value for a non-nullable field will result in returning empty list.
+  ([See the examples](#filtering-by-empty-values)).
+- You can filter by flat fields and specify operators, but you cannot mix these two approaches.
+  ([See the example](#mixing-flat-field-filter-and-operator-and-or)).
+- When only flat fields are provided, the conditions are mixed with the `AND` operator. ([See the example](#filtering-with-flat-fields)).
+- At each level, you can specify only one operator. ([See the example](#mixing-operators-on-the-same-level)).
+- In the new `where` approach, each field of a given type has a corresponding filter option.
+  As a result, the `search` filter is now located at the top level. ([See the example](#search-filtering)).
+- The filter input type corresponds to the property name in the API type.
+- The string, enum, date, and all numeric type fields have specific input types
+  with available operations options. Currently, there is an option to filter by specific
+  value ([example](#filtering-by-a-specific-value)) and list of values ([example](#filtering-by-a-list-of-values)).
+- You can only specify one operation. Using `eq` or `oneOf` is acceptable, but using both will result in an error. ([See the example](#mixing-different-operations)).
+- You cannot provide both `filter` and `where` options at the same time. ([See the example](#mixing-filter-and-where-options)).
+
+## Examples
+
+To use new filters you need to specify the `where` option.
+The following examples will be presented on the `attributes` query.
+
+### Filtering by a specific value
+
+To filter by a specific value, use the `eq` operation. Only object with the exact match
+will be returned.
+
+> **_Example:_** _Return attributes that have `Flavor` name._
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+        name
+        inputType
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": { "type": { "eq": "Flavor" } }
+}
+```
+
+### Filtering by a list of values
+
+To filter by a list of values use the `oneOf` operator. All objects that have a matching value
+specified in the list are returned.
+
+> **_Example_**: _Return attributes that input type is `DATE`, or `DATE_TIME`._
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+        name
+        inputType
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": { "inputType": { "oneOf": ["DATE", "DATE_TIME"] }
+}
+```
+
+### Filtering with the `AND` operator
+
+The `AND` operator allows for defining a list of conditions that must be met.
+
+> **_Example:_** _Return attributes that have `Author` name, and slug "tom" or "james"._
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "AND": [
+      { "name": { "eq": "Author" } },
+      { "slug": { "oneOf": ["tom", "james"] } }
+    ]
+  }
+}
+```
+
+### Filtering with the `OR` operator
+
+The `OR` operator allows you to define a list of conditions, of which at least one must be fulfilled.
+
+> **_Example:_** _Return attributes that have `Author` name, or input type `DATE` or `DATE_TIME`._
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "OR": [
+      { "name": { "eq": "Author" } }
+      { "inputType": { "oneOf": ["DATE", "DATE_TIME"] } }
+    ]
+  }
+}
+```
+
+### Filtering with flat fields
+
+If no operator is given, the provided conditions are combined with an `AND` operator.
+
+> **_Example:_** _Return attributes that have `Author` name, and slug "tom" or "james"._
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": { "name": { "eq": "Author" }, "slug": { "oneOf": ["tom", "james"] } }
+}
+```
+
+:::note
+
+Note that this is equivalent to the [example](#filtering-with-the-and-operator) with the AND operator.
+
+:::
+
+### Nested conditions
+
+The operators can be nested, but it's not allowed to combine operators at the same level.
+
+> **_Example:_** _Return attributes that are `PRODUCT_TYPE` type, and the `id` is `QXR0cmlidXRlOjIx` or `QXR0cmlidXRlOjI3`, or the attribute `name` is `Size`._
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "AND": [
+      { "type": { "eq": "PRODUCT_TYPE" } }
+      {
+        "OR": [
+          { "ids": ["QXR0cmlidXRlOjIx", "QXR0cmlidXRlOjI3"] }
+          { "name": { "eq": "Size" } }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Filtering by empty values
+
+Each provided value in filters is treated explicitly.
+
+#### Providing an empty list for a list input field will result in returning an empty list.
+
+> **_Example:_** _Filtering products by empty list of `ids`._
+
+Query:
+
+```graphql
+query getProducts($where: ProductWhereInput) {
+  products(where: $where, first: 10) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "ids": []
+  }
+}
+```
+
+Result:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": []
+    }
+  }
+}
+```
+
+#### Providing the `null` value for a non-nullable field will result in returning an empty list.
+
+> **_Example:_** _Filtering products by `null` value for `name` field._
+
+```graphql
+query getProducts($where: ProductWhereInput) {
+  products(where: $where, first: 10) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "name": { "eq": null }
+  }
+}
+```
+
+Result:
+
+```json
+{
+  "data": {
+    "products": {
+      "edges": []
+    }
+  }
+}
+```
+
+#### Providing an empty value for a nullable field will return the instances with empty value
+
+> **_Example:_** _Filtering attributes whose unit is null._
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        unit
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "unit": { "eq": null }
+  }
+}
+```
+
+Result:
+
+```json
+{
+  "data": {
+    "attributes": {
+      "edges": [
+        {
+          "node": {
+            "unit": null,
+            "id": "QXR0cmlidXRlOjQx",
+            "name": "EBook Format"
+          }
+        },
+        {
+          "node": {
+            "unit": null,
+            "id": "QXR0cmlidXRlOjQw",
+            "name": "Flavor"
+          }
+        },
+        {
+          "node": {
+            "unit": null,
+            "id": "QXR0cmlidXRlOjM2",
+            "name": "Material"
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+### Search filtering
+
+To use the full-text search capabilities, use the root-level `search` argument.
+
+> **_Example:_** _Search attributes by `size` value_
+
+```graphql {2}
+query {
+  attributes(first: 20, search: "size") {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+## Invalid examples
+
+### Mixing flat field filter and operator `AND`, `OR`
+
+> **_Example:_** _Return attributes that name is `Author` and type is `PRODUCT-TYPE`._
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "type": { "eq": "PRODUCT_TYPE}" },
+    "AND": [{ "name": { "eq": "Author" } }]
+  }
+}
+```
+
+**INSTEAD:** Join both conditions into one `AND` filter input
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "AND": [
+      { "name": { "eq": "Author" } },
+      { "type": { "eq": "PRODUCT_TYPE" } }
+    ]
+  }
+}
+```
+
+### Mixing operators on the same level
+
+> **_Example:_** _Return attributes that have `DROPDOWN` input type,
+> and the `slug` is `blue` or `green`, or the attribute `name` is `Size`._
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "AND": [{ "inputType": { "eq": "DROPDOWN" } }]
+    "OR": [{ "slug": { "oneOf": ["blue", "green"] } }, { "name": { "eq": "Size" } }]
+  }
+}
+```
+
+**INSTEAD:** Nest `OR` condition inside `AND`
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+      "AND": [
+        { "inputType": { "eq": "DROPDOWN" } }
+        {
+          "OR": [{ "slug": { "oneOf": ["blue", "green"] } }, { "name": { "eq": "Size" } }]
+        }
+      ]
+    }
+}
+```
+
+### Mixing `filter` and `where` options
+
+```graphql
+query getAttributes(
+  $where: AttributeWhereInput
+  $filter: AttributeFilterInput
+) {
+  attributes(first: 20, where: $where, filter: $filter) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": { "AND": [{ "name": { "eq": "Author" } }] },
+  "filter": { "type": "PRODUCT_TYPE" }
+}
+```
+
+**INSTEAD:** Use `filter` or `where`
+
+### Mixing different operations
+
+```graphql
+query getAttributes($where: AttributeWhereInput) {
+  attributes(first: 20, where: $where) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+Query variables:
+
+```json
+{
+  "where": {
+    "AND": [{ "name": { "eq": "Author", "oneOf": ["Author", "Juice"] } }]
+  }
+}
+```
+
+**INSTEAD:** Use the `eq` or `oneOf` operation.

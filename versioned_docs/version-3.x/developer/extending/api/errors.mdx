@@ -1,0 +1,98 @@
+---
+title: Errors
+---
+
+## Key concepts
+
+There are several error types in the GraphQL API and you may come across different ones depending on the operations you are trying to perform. This document describes how to add new error types.
+
+## Add new error type
+
+### Step 1: Create new error enum
+
+To create new error codes, add `error_codes.py` in the target module. Inside this module create an enum with wanted error codes.
+
+```python
+from enum import Enum
+
+class ExampleErrorCode(Enum):
+    ALREADY_EXISTS = "already_exists"
+    GRAPHQL_ERROR = "graphql_error"
+    INVALID = "invalid"
+    NOT_FOUND = "not_found"
+    REQUIRED = "required"
+    UNIQUE = "unique"
+```
+
+### Step 2: Register newly created error code enum
+
+To differentiate between built-in Django's error codes and the custom ones, add the error class to the `SALEOR_ERROR_CODE_ENUMS` list in `saleor/graphql/core/utils/error_codes.py`.
+
+```python
+SALEOR_ERROR_CODE_ENUMS = [
+    ExampleErrorCode,
+    AccountErrorCode,
+    AppErrorCode,
+    ...
+```
+
+### Step 3: Add error codes to GraphQL enums
+
+To add error codes to GraphQL enums you should add an entry in `saleor/graphql/core/enums.py`.
+
+```python
+ExampleErrorCode = graphene.Enum.from_enum(error_codes.ExampleErrorCode)
+```
+
+### Step 4: Create error class
+
+To allow usage error code in mutation, add error class in `saleor/graphql/core/types/common.py`.
+
+```python
+class ExampleError(Error):
+    code = ExampleErrorCode(description="The error code.", required=True)
+```
+
+### Step 5: Assign error codes to mutation
+
+To use an new error codes in mutation, add `error_type_class` and `error_type_field` to `Meta` inside mutation.
+
+```python
+class ExampleMutation(BaseMutation):
+    class Meta:
+        error_type_class = ExampleError
+        error_type_field = "example_errors"
+```
+
+## Add custom field to an error type
+
+### Step 1: Add new fields to error class
+
+To return more information inside error, add a new field to target error class in `saleor/graphql/core/types/common.py`.
+
+```python
+class ExampleError(Error):
+    code = ExampleErrorCode(description="The error code.", required=True)
+    example_int_value = graphene.Int(description="Example int value.")
+    example_string_value =  graphene.String(description="Example string value.")
+```
+
+### Step 2: Raise error with custom values
+
+To return error with custom values, raise an error in target mutation.
+
+```python
+error_params = {
+    "example_int_value": 1234,
+    "example_string_value": "Example error value",
+}
+raise ValidationError(
+    {
+        "example_field": ValidationError(
+            message="Example message for debugging",
+            code=ExampleErrorCode.EXAMPLE,
+            params=error_params,
+        )
+    }
+)
+```

@@ -1,0 +1,39 @@
+---
+title: Usage Limits
+---
+
+## Rate limits
+
+Saleor Cloud **sandboxes** are currently limited to **120 requests/minute**. The limit is applied to all API requests, including GraphQL and Storefront API and is calculated for the entire environment, not per individual IP address. You will receive a **HTTP 429** response code if you exceed the limit. The limit resets every 60 seconds and is not a moving window.
+
+Saleor Cloud **production** environments and on-premise deployments have **no rate limiting in place** for the API.
+
+## Query cost
+
+The GraphQL API calculates the number of requested objects to determine the cost of a query. The cost is calculated based on the number of objects requested, not the number of objects returned. For example, a query that requests 10 products will cost the same even if there are only 5 products in the database.
+
+Certain fields may impose an additional cost. For example, fields that return unfiltered lists of objects and fields that can return large JSON structures.
+
+Saleor will refuse to execute queries that exceed the maximum cost allowed by the server.
+
+You can find the cost of each query and the maximum cost allowed by the server in the `extensions.cost` field of the response.
+
+```json title="Response"
+{
+  "data": {
+    // ...
+  },
+  "extensions": {
+    // highlight-start
+    "cost": {
+      "requestedQueryCost": 5,
+      "maximumAvailable": 50000
+    }
+    // highlight-end
+  }
+}
+```
+
+## Individual field limits
+
+Fields that use pagination (`first`/`last`/`before`/`after`) are limited to 100 items per page. See [pagination](./pagination.mdx) for details on how to paginate through results.

@@ -1,0 +1,103 @@
+---
+title: Invoices
+sidebar_position: 4
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.tsx";
+
+<AppMetadata
+  minSaleorVersion="3.10"
+  githubUrl="https://github.com/saleor/apps/tree/main/apps/invoices"
+/>
+
+## Introduction
+
+The Invoices app allows you to generate simple PDF invoice files for every order in your store.
+
+## Features
+
+Generates a PDF file when an invoice is requested (in the Dashboard or with an API). Then attaches it to the order.
+
+The invoice shop address can be inherited from the [Shop](../../../api-reference/miscellaneous/objects/shop) settings or configured manually per channel.
+
+## Assumptions & limitations
+
+- The PDF template is fixed and can't be changed by the user.
+- The PDF template is in English only.
+
+## Permissions
+
+The App requires `MANAGE_ORDERS` permission to be able to:
+
+- Receive the `INVOICE_REQUESTED` webhook
+- Read order data to generate the invoice
+- Attach the invoice to the order
+
+The staff user configuring the App must have `MANAGE_APPS` and `MANAGE_ORDERS` permissions.
+
+## Application flow
+
+The App reacts on a single webhook, and it ends its flow once a PDF file is attached to the order.
+
+See the detailed flow below:
+
+```mermaid
+sequenceDiagram
+    Saleor->>+App: Trigger INVOICE_REQUESTED
+    App->>+App: Generate a PDF file in memory
+    App->>+Saleor: Upload a PDF file
+    Saleor->>+App: Provide a link to the PDF file
+    App->>+Saleor: Attach a link to the PDF file to the Order
+```
+
+## Configuration
+
+The app allows to configure a shop address per each channel separately.
+
+If the channel is not configured, the app will fetch the Shop address from settings and use it.
+
+### Testing
+
+To verify if the app works:
+
+1. Ensure the "Invoices" legacy plugin is disabled; otherwise, duplicated invoices can be generated.
+2. Ensure the App is installed and enabled.
+3. Optionally configure the custom address. If the custom address is not configured, fill [Shop address](../../../api-reference/miscellaneous/objects/shop) in the Dashboard settings.
+4. Find any order in the Dashboard, find the "Invoices" section, and click the "Generate" button.
+5. Wait a couple of seconds and refresh the dashboard.
+6. The invoice should be attached to the order in the "Invoices" section.
+
+## Troubleshooting
+
+- During development with Saleor running locally, there are file uploading issues; see [this issue](https://github.com/saleor/apps/issues/285).
+
+Check [Github issues](https://github.com/saleor/apps/labels/App%3A%20Invoices) to see up to date list of known issues or to report a new one.
+
+## Development
+
+Visit the [development guide](../../extending/apps/developing-apps/app-examples) to learn more about App Store app development.
+
+### Env variables
+
+Apart from common env variables, the Invoice app accepts the following:
+
+- `TEMP_PDF_STORAGE_DIR=` - a temp directory where the PDF files will be stored. In Vercel, set `/tmp`. Add it to `.gitignore`
+
+## Migration from the _Invoicing_ plugin
+
+The Invoices App covers the functionality of the plugin. In the future, plugins will be deprecated and replaced by apps. To migrate from plugin to app, follow the steps below:
+
+1. Install the Invoices App from the App Store (Dashboard -> Apps).
+2. Open the installed App.
+3. Verify the default shop billing address. It will be fetched from [Shop Settings](../../../api-reference/miscellaneous/objects/shop).
+4. Verify per-channel shop address settings. It will use the default one but can be overridden.
+5. Open a test order in the Dashboard.
+6. Click the "Generate" button in the "Invoices" section.
+7. Wait for two PDF files to generate: one from the plugin and the second from the app. You may need to refresh the page.
+8. Compare generated PDF files, and ensure all required information is available on the app-generated invoice.
+9. Disable the Invoicing plugin.
+
+### Differences between the plugin and the app
+
+- The invoice name is different. The plugin uses the _invoice_ creation date; the app uses the _order_ creation date.
+- The invoice template is different. The app additionally displays the Seller (shop) address. The shipping is displayed as a line item.

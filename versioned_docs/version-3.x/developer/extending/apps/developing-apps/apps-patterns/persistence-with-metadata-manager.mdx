@@ -1,0 +1,113 @@
+---
+title: How to Store App Data
+---
+
+Apps usually have configuration data that can be changed by the user during runtime:
+
+- access keys to the external APIs (e.g. a key to a payment gateway)
+- preferences like how the app should look (e.g. customized messages)
+- optional features which can be turned off or on (e.g. if an additional notification should be sent to the user)
+
+Depending on the type of app you are creating, you might need a dedicated database for such data. However, in most cases, a simpler solution will be perfectly fine.
+
+A solution built-in in Saleor is [`privateMetadata`](api-usage/metadata.mdx).
+
+## What is Metadata and what are its features
+
+Apps are one of the classes implementing [ObjectWithMetadata](api-reference/miscellaneous/interfaces/object-with-metadata.mdx) interface, which can be used to store additional data in the Saleor database.
+
+`privateMetadata` field in the `app` object can be accessed only by the app itself or the users with `MANAGE_APPS` permission. The field returns a list of key and value pairs that can contain any string, including stringified JSON.
+
+From the app developer's perspective there are a few pros in using it:
+
+- you don't need additional infrastructure to keep the data
+- it plays well with the multi-tenant approach; each registered Saleor instance has its own preferences
+- when the app is uninstalled, the data is automatically removed
+
+## Using the Metadata
+
+You can access the API directly, or use the utils provided by the SDK.
+
+### With GraphQL API
+
+To get private metadata, run the query:
+
+```graphql
+query {
+  app {
+    privateMetadata {
+      key
+      value
+    }
+  }
+}
+```
+
+:::note ID argument
+If you run the query with the app registration token, you don't need to specify the `ID` argument in the `app` query.
+:::
+
+Which will return:
+
+```json
+{
+  "data": {
+    "app": {
+      "privateMetadata": [
+        {
+            "key": "Example key",
+            "value": "example value"
+        }
+      ]
+    }
+  },
+```
+
+Setting new keys or updating the existing ones:
+
+```graphql
+mutation {
+  updateMetadata(
+    id: "QXBwOjE3OA=="
+    input: [{ key: "new metadata", value: "example value" }]
+  ) {
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+### With App SDK `MetadataManager`
+
+:::note
+The full documentation of the manager can be found in the [App SDK docs](https://github.com/saleor/saleor-app-sdk/blob/main/docs/settings-manager.md#metadatamanager).
+:::
+
+Using this abstraction will give you a nicer interface to interact with and additional caching to improve performance.
+
+Entries in the manager are stored using the structure:
+
+```
+  key: string;
+  value: string;
+  domain?: string;
+```
+
+:::note Optional `domain` field
+Since metadata will be copied if you clone the database of your Saleor instance, we recommend adding the parameter `domain` to prevent misusing secret keys from different domains.
+:::
+
+Interacting with the API is done with the methods:
+
+- `get: (key: string, domain?: string) => Promise<string | undefined>`
+- `set: (settings: SettingsValue[] | SettingsValue) => Promise<void>`
+
+#### `EncryptedMetadataManager`
+
+If you want to keep secrets, like non-public API keys, we recommend using `EncryptedMetadataManager`. It will encrypt the values for the additional layer of security. `get` and `set` methods have the same interface.
+
+:::note
+If you prefer to see the managers in action, there is an [example repository](https://github.com/saleor/saleor-app-template/tree/examples-metadata-manager) which comes with UI implementation and API endpoints.
+:::

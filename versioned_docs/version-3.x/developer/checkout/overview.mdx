@@ -1,0 +1,307 @@
+---
+sidebar_label: Overview
+title: Checkout and Orders
+---
+
+## Introduction
+
+The below process describes the key milestones in the checkout process flow in Saleor. Additional steps may also occur along the way; however, the purpose of this instruction is to deliver a base reference for the user to work with.
+
+You can run the code snippets from this section in the [Playground](api-usage/developer-tools.mdx) or your preferred GraphQL client.
+
+### Why is there no cart model?
+
+Saleor has no distinct object type for shopping carts and checkouts. We wanted the same features – like discounts, vouchers, address-specific taxes, and shipping estimates – to be available in the cart and the checkout, so we've decided to use the same object type for both.
+Checkout provides the interface for standard cart operations like adding products or promo codes. It can also be processed in almost any order, for example, by saving a billing address before adding any items.
+
+### Glossary
+
+- **Checkout**: Object that groups all the data needed for the checkout process and creating an order.
+- **Checkout Line**: Items added to the checkout with quantity data. Each added variant has a separate line.
+- **Checkout Completion**: During this step, payments may be processed and stocks may be reserved. If requirements are met, the order is created.
+- **Payment Gateway**: Payment App or legacy plugin. e.g., [Adyen](developer/app-store/apps/adyen/overview.mdx).
+- **Transaction**: Object containing status and additional data about payment.
+- **Shipping Methods**: The way orders will be sent. E.g., DHL courier, postal service.
+- **Collection Points**: Places where orders can be self-picked.
+- **Delivery Methods**: Union of shipping methods and collection points.
+
+## Multiple channels and checkout
+
+Depending on the chosen channel, the user will have access to different objects. This impacts available:
+
+- Products and Product Variants
+- Payment Gateways
+- Shipping Methods
+- Collection Points
+- Discounts
+
+[Learn more about using multiple channels](developer/channels/overview.mdx).
+
+## Permissions
+
+If a user is assigned to checkout, only that user and staff users with permission `MANAGE_CHECKOUTS` can query the checkout's data. Such checkout is "private".
+
+Checkout without an assigned user can be queried and modified without additional permissions – it's public for anyone who knows the checkout ID.
+
+## Creating a checkout session
+
+:::note
+
+A [`Checkout`](api-reference/checkout/objects/checkout.mdx) object can be created for logged-in users and for anonymous (guest) users.
+
+:::
+
+To create a [`Checkout`](api-reference/checkout/objects/checkout.mdx) object, use the [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) mutation.
+
+- If you call the `checkoutCreate` mutation and provide the Authorization header with a valid auth token, the created checkout will be assigned to the user who is authenticated by this token. For more information on how to authenticate with our API, see the [authentication guide](api-usage/authentication.mdx).
+
+- If no authentication token is provided, the checkout is created for an anonymous user,
+  and an email address is used to identify such a [`Checkout`](api-reference/checkout/objects/checkout.mdx) object,
+  linking it with the anonymous user.
+  User email is not required at this stage but must be provided before adding a promo code, creating a payment, and completing checkout.
+
+`checkoutCreate` mutation takes the following [input](api-reference/checkout/inputs/checkout-create-input.mdx):
+
+- `channel`: Slug of a channel in which to create checkout.
+- `email`: the user's email address.
+- `shippingAddress`: the shipping address (if needed).
+- `billingAddress`: the billing address.
+- `lines`: a list of checkout lines, each checkout line contains a product variant ID and its quantity.
+- `validationRules`: the checkout validation rules that can be changed.
+
+The resulting [`Checkout`](api-reference/checkout/objects/checkout.mdx) object contains the following fields:
+
+- `id`: a unique checkout ID.
+- `totalPrice`: the total price of the checkout lines and shipping costs.
+- `isShippingRequired`: denotes whether shipping is required for this checkout.
+- `availablePaymentGateways`: a list of [payment gateways](developer/payments.mdx) that are currently configured on your Saleor server and can be used to pay for the checkout. Only gateways that are enabled for a given channel and support the checkout currency are returned. For each gateway, the API returns an ID, a name, and a config object, which for some gateways may return additional information required to initialize or process the payment on the front-end.
+- `shippingMethods`: a list of all shipping methods for this checkout. If the items in the cart require shipment.
+- `availableCollectionPoints`: a list of available places for self-pickup. It is calculated based on the given country and available Stocks (for Warehouses which `clickAndCollectOption` field is not set to `DISABLED`).
+
+In addition, the following fields are available in the mutation results:
+
+- `created`: a boolean flag indicating whether a new checkout object was created, or an existing one was used.
+- `errors`: a list of errors that occurred during mutation execution.
+
+The following example shows how the [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) mutation creates the [`Checkout`](api-reference/checkout/objects/checkout.mdx) object and returns the checkout information:
+
+```graphql
+mutation {
+  checkoutCreate(
+    input: {
+      channel: "default-channel"
+      email: "customer@example.com"
+      lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjk3" }]
+      shippingAddress: {
+        firstName: "John"
+        lastName: "Doe"
+        streetAddress1: "1470  Pinewood Avenue"
+        city: "Michigan"
+        postalCode: "49855"
+        country: US
+        countryArea: "MI"
+      }
+      billingAddress: {
+        firstName: "John"
+        lastName: "Doe"
+        streetAddress1: "1470  Pinewood Avenue"
+        city: "Michigan"
+        postalCode: "49855"
+        country: US
+        countryArea: "MI"
+      }
+    }
+  ) {
+    checkout {
+      id
+      totalPrice {
+        gross {
+          amount
+          currency
+        }
+      }
+      isShippingRequired
+      shippingMethods {
+        id
+        name
+        active
+        message
+      }
+      availableCollectionPoints {
+        id
+        name
+        clickAndCollectOption
+      }
+      availablePaymentGateways {
+        id
+        name
+        config {
+          field
+          value
+        }
+      }
+    }
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+
+We get a newly created checkout object for which we receive the ID, total price, and list of available shipping and payment methods:
+
+```json
+{
+  "data": {
+    "checkoutCreate": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk",
+        "totalPrice": {
+          "gross": {
+            "amount": 20,
+            "currency": "USD"
+          }
+        },
+        "isShippingRequired": true,
+        "shippingMethods": [
+          {
+            "id": "U2hpcHBpbmdNZXRob2Q6MTM=",
+            "name": "UPS",
+            "active": true,
+            "message": ""
+          },
+          {
+            "id": "U2hpcHBpbmdNZXRob2Q6MTI=",
+            "name": "DHL",
+            "active": false,
+            "message": "Not available."
+          }
+        ],
+        "availableCollectionPoints": [
+          {
+            "id": "V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OQ==",
+            "name": "Local Store"
+            "clickAndCollectOption": "LOCAL"
+          },
+          {
+            "id": "=V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OA==",
+            "name": "Company HQ"
+            "clickAndCollectOption": "ALL"
+          }
+        ],
+        "availablePaymentGateways": [
+          {
+            "id": "app.saleor.adyen",
+            "name": "Adyen",
+            "config": []
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+## Checkout email
+
+When an anonymous checkout has been created without an email, the email must be set before creating payment and completing checkout.
+Use the [`CheckoutEmailUpdate`](api-reference/checkout/mutations/checkout-email-update.mdx) mutation to update checkout `email`.
+
+The operation requires the following inputs:
+
+- `id`: checkout ID (the `id` field of the [`Checkout`](api-reference/checkout/objects/checkout.mdx) object),
+- `email`: user email.
+
+```graphql {2-4}
+mutation {
+  checkoutEmailUpdate(
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+    email: "test_customer@example.com"
+  ) {
+    checkout {
+      id
+      email
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+As a result, we get an updated checkout object with the new checkout email set:
+
+```json {6}
+{
+  "data": {
+    "checkoutDeliveryMethodUpdate": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+        "email": "test_customer@example.com"
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+## Removing old checkouts
+
+To avoid overloading the database, unfinished and unpaid checkouts are automatically deleted after a specified period from their last modification:
+
+- checkouts without lines after 6 hours,
+- anonymous checkouts (neither user nor email is set) with lines after 30 days,
+- user checkouts (either user or email is set) with lines after 90 days.
+
+## Releasing funds for abandoned checkouts
+
+:::info
+
+This feature was introduced in **Saleor 3.14**.
+
+:::
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications.
+
+:::
+
+:::info
+
+This flow is only related to the checkouts processed with [Saleor App](developer/checkout/finalizing.mdx#finalizing-checkout-with-saleor-app).
+
+:::
+
+The payments for items left in the cart by a customer who did not complete the purchase will be refunded to the customer's account.
+
+Abandoned checkout is the checkout that hasn't been changed in a specific period. The TTL is controlled by the environment variable: [CHECKOUT_TTL_BEFORE_RELEASING_FUNDS](setup/configuration.mdx#checkout_ttl_before_releasing_funds), a default set to 6 hours.
+
+For any [transactionItem](api-reference/payments/objects/transaction-item.mdx) with processed funds (`authorizedAmount` or `chargeAmount`) assigned to abandoned checkout, Saleor will trigger the release action.
+
+The release action is:
+
+- webhook with the event:`TRANSACTION_CANCELATION_REQUESTED` triggered when [transactionItem](api-reference/payments/objects/transaction-item.mdx) contains authorized funds
+- webhook with the event: `TRANSACTION_REFUND_REQUESTED` triggered when [transactionItem](api-reference/payments/objects/transaction-item.mdx) contains charged funds.
+
+Release action is triggered only once. In case of a missing subscription for a release event or failure in processing the action by app. The release action needs to be handled manually.
+
+To fetch paid checkouts, use the below query:
+
+```graphql {4}
+{
+  checkouts(first: 10, filter: { authorizeStatus: [PARTIAL, FULL] }) {
+    edges {
+      node {
+        totalBalance {
+          amount
+        }
+      }
+    }
+  }
+}
+```
