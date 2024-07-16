@@ -44,6 +44,9 @@ module.exports = {
           field: "category",
           fallback: "Miscellaneous",
         },
+        printTypeOptions: {
+          useApiGroup: false,
+        },
       },
     ],
   ],
