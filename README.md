@@ -16,7 +16,7 @@
 
 # Get Started in 5 Minutes
 
-1. Make sure you are using Node in version 12+:
+1. Make sure you are using Node in version 20+:
 
 ```sh
 node --version
@@ -58,7 +58,6 @@ npm run serve
 - `/docusaurus2-graphql-doc-generator` GraphQL API Reference plugin code.
 - `/sidebars.js` Sidebar menu structure.
 - `/static` Styling and other static files.
-- `/versioned_docs` & `/versioned_sidebars` Tagged versions of documentation matching the latest Saleor release.
 
 ## Formatting
 
