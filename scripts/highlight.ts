@@ -2,10 +2,7 @@ const fg = require("fast-glob");
 import * as fs from "node:fs/promises";
 
 const highlight = async () => {
-  const files = await fg([
-    ".tmp/api-reference/**/*.mdx",
-    ".tmp/api-storefront/**/*.mdx",
-  ]);
+  const files = await fg([".tmp/api-reference/**/*.mdx"]);
 
   for (const file of files) {
     const content = await fs.readFile(file);
@@ -37,7 +34,7 @@ const highlightSaleorVersion = (file: string): string => {
         const re = new RegExp(`^${escapeString(versionLine)}$`, "gm");
         return newContent.replace(
           re,
-          `${block}<Badge text="${badgeText}" class="secondary margin-bottom--sm" />`
+          `${block}<Badge text="${badgeText}" class="badge badge--secondary margin-bottom--sm" />`
         );
       }
 
@@ -45,7 +42,7 @@ const highlightSaleorVersion = (file: string): string => {
       return newContent.replace(
         re,
         `${block}
-<Badge text="${badgeText}" class="secondary margin-bottom--sm" />
+<Badge text="${badgeText}" class="badge badge--secondary margin-bottom--sm" />
 `
       );
     }, file);
