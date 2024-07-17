@@ -134,11 +134,7 @@ module.exports = {
           breadcrumbs: false,
           path: "docs",
           editUrl: function ({ version, versionDocsDirPath, docPath }) {
-            if (version === "current") {
-              return `https://github.com/saleor/saleor-docs/edit/3.19/docs/${docPath}`;
-            } else {
-              return `https://github.com/saleor/saleor-docs/edit/main/${versionDocsDirPath}/${docPath}`;
-            }
+            return `https://github.com/saleor/saleor-docs/edit/main/docs/${docPath}`;
           },
           sidebarPath: "sidebars.js",
         },
