@@ -5,7 +5,7 @@ const { themes } = require("prism-react-renderer");
 module.exports = {
   title: "Saleor Commerce Documentation",
   tagline: "High performance, composable, headless commerce API.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url: "https://docs.saleor.io",
   baseUrl: "/",
 
   // Used for publishing and more
