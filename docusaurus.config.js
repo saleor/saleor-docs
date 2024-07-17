@@ -107,9 +107,6 @@ module.exports = {
       ],
     },
 
-    // Open Graph and Twitter card images.
-    image: "img/og-image.png",
-
     prism: {
       theme: themes.oceanicNext,
       additionalLanguages: [
