@@ -132,6 +132,7 @@ module.exports = {
         },
         docs: {
           breadcrumbs: false,
+          routeBasePath: "/",
           path: "docs",
           editUrl: function ({ version, versionDocsDirPath, docPath }) {
             return `https://github.com/saleor/saleor-docs/edit/main/docs/${docPath}`;
