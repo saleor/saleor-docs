@@ -4,11 +4,11 @@ title: How to Build a Payment App
 
 ## Overview
 
-In this tutorial, you will learn how to create a basic Payment App with [Transactions API](developer/extending/webhooks/synchronous-events/transaction.mdx).
+This tutorial will guide you through creating a basic Payment App with [Transactions API](developer/extending/webhooks/synchronous-events/transaction.mdx).
 
 :::note
 
-We will be integrating with a fictional **Dummy Payment Gateway**. The Dummy Payment Gateway will mimic a real payment gateway but not actually process any payments.
+We will integrate with a fictional **Dummy Payment Gateway**. This gateway will simulate real payment processing without handling actual payments.
 
 :::
 
@@ -20,13 +20,13 @@ We will be integrating with a fictional **Dummy Payment Gateway**. The Dummy Pay
 
 ### What is a Payment App
 
-Payment App is [a Saleor App](developer/extending/apps/overview.mdx) that implements a standard payment interface. It allows Saleor to recognize the app as a payment provider and delegate the payment process to it.
+A Payment App is [a Saleor App](developer/extending/apps/overview.mdx) that follows a standard payment interface, enabling Saleor to identify the app as a payment gateway and manage payments through it.
 
 That interface consists of [synchronous webhooks](developer/extending/webhooks/synchronous-events/overview.mdx). This feature allows Saleor to suspend the resolution of an API call until Saleor receives a response from the app in the correct format. Saleor can then pass that response as a result of the API call. We will look at what webhooks we must implement in [the "Webhooks" section](#webhooks).
 
-Given that each payment service comes with its unique payment flow, Saleor must provide an API flexible enough to accommodate all of them. That was the key principle behind the [Transactions API](developer/extending/webhooks/synchronous-events/transaction.mdx), which we will be using for processing the payments.
+Each payment service has its unique payment flow, so Saleor needs a flexible API to support them. This flexibility is the core idea behind the [Transactions API](developer/extending/webhooks/synchronous-events/transaction.mdx), which we will use for processing payments.
 
-Our simple, fictional payment gateway won't make us cover the entire API surface. Keep in mind that in case of integrating with a real payment provider, you will need to implement more webhooks and mutations.
+Our fictional payment gateway simplifies the implementation, so we won't cover the entire API. For real payment providers, you'll need to implement additional webhooks and mutations.
 
 :::info
 
@@ -67,7 +67,7 @@ Before starting any Payment App implementation, consider the transaction events 
 
 The first step in building our Payment App does not involve any code. To avoid further rework, we need to understand the transaction flow we want to model. The goal is to have a list of events produced by the app and their corresponding webhooks.
 
-Let's extract two crucial details from the [Dummy Payment Gateway flow](#dummy-payment-gateway-flow):
+Let's highlight two key details from the [Dummy Payment Gateway flow](#dummy-payment-gateway-flow):
 
 - We want to charge the payment successfully.
 - We can't charge the payment without the user's confirmation (3D Secure).
@@ -87,7 +87,7 @@ Now, we can assign Saleor transaction event statuses to steps of the [Dummy Paym
 
 ### Webhooks
 
-Since we know what transaction events we want to capture, we can now choose the right webhooks to implement.
+Now that we've identified the transaction events, we can select the appropriate webhooks to implement.
 
 When exploring the [Transaction Events](developer/extending/webhooks/synchronous-events/transaction.mdx) documentation, you may notice that two webhooks can result in the `CHARGE_SUCCESS` event: [`TRANSACTION_CHARGE_REQUESTED`](developer/extending/webhooks/synchronous-events/transaction.mdx#transaction-charge) and [`TRANSACTION_INITIALIZE_SESSION`](developer/extending/webhooks/synchronous-events/transaction.mdx#request-4).
 
@@ -215,7 +215,7 @@ Let's go through all the constructor parameters of the `SaleorSyncWebhook` class
 
 ### Defining the Subscription Query
 
-The next step will be filling that empty `query` attribute with an actual subscription query.
+Next, we'll fill in the empty `query` attribute with an actual subscription query.
 
 With [subscription webhook payloads](developer/extending/webhooks/subscription-webhook-payloads.mdx), you can define the shape of the payload the webhook will receive. [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) and the Saleor App SDK ensure the payload is correctly typed.]
 
@@ -458,7 +458,7 @@ The `transactionProcess` mutation will only reach the app if the previous call t
 
 :::
 
-When successfully called, our first webhook handler returned the `CHARGE_ACTION_REQUIRED` event status. Now, we need to implement the second webhook handler, `TRANSACTION_PROCESS_SESSION`, to transition the status to either `CHARGE_SUCCESS` or `CHARGE_FAILURE`.
+After our first webhook handler returns the `CHARGE_ACTION_REQUIRED` status, we need to implement the `TRANSACTION_PROCESS_SESSION` webhook handler to update the status to either `CHARGE_SUCCESS` or `CHARGE_FAILURE`.
 
 We will start by repeating the steps from the previous section. Let's create a new file in the `src/pages/api/webhooks` directory, called `transaction-process-session.ts`.
 
