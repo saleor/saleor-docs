@@ -283,3 +283,9 @@ In dev mode, Docusaurus serves a debug page with a list of all available routes 
 # Full Docusaurus Documentation
 
 Full documentation can be found on the [website](https://docusaurus.io/).
+
+# Resources for technical writers
+
+[Communicating with precision](https://pressbooks.bccampus.ca/technicalwriting/chapter/communicatingprecision/)
+
+[Avoid redundancy](https://web.uvic.ca/~gkblank/wordiness.html)
