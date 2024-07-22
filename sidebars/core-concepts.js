@@ -24,17 +24,25 @@ export const coreConcepts = [
   "developer/attributes/lifecycle",
   "developer/attributes/api",
 
-  title("Checkout and Orders"),
+  title("Checkout"),
   "developer/checkout/overview",
   "developer/checkout/lines",
-  "developer/checkout/stock",
   "developer/checkout/address",
   "developer/checkout/problems",
   "developer/checkout/finalizing",
-  "developer/checkout/order-to-checkout",
+
+  title("Orders"),
   "developer/checkout/order-status",
-  "developer/checkout/payment-status",
   "developer/checkout/order-expiration",
+  "developer/checkout/order-to-checkout",
+
+  title("Payments"),
+  "developer/payments",
+  "developer/checkout/payment-status",
+
+  title("Stock"),
+  "developer/checkout/stock",
+  "developer/stock-allocation",
 
   title("Discounts"),
   "developer/discounts/overview",
@@ -43,8 +51,6 @@ export const coreConcepts = [
   "developer/discounts/sales",
 
   title("Miscellaneous"),
-  "developer/payments",
-  "developer/stock-allocation",
 
   "developer/gift-cards",
   "developer/address",
