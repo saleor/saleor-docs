@@ -42,7 +42,7 @@ export const coreConcepts = [
   "developer/payments/transactions",
   "developer/payments/lifecycle",
   "developer/payments/refunds",
-  "developer/payments/legacy",
+  "developer/payments/deprecated",
 
   title("Stock"),
   "developer/checkout/stock",
