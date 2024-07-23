@@ -3,17 +3,15 @@ title: Payments Overview
 sidebar_label: Overview
 ---
 
-## Introduction
+There are few ways to work with payments in Saleor:
 
-The process below describes the key milestones in the Saleor payment flow.
-Additional steps may also occur along the way; however, the purpose of this instruction is to
-deliver a base reference for the user to work with.
+### Payment apps
 
-Saleor distinguishes two different approaches to processing payments:
+Payment apps allow to process payments with external payment providers, without communicating with them directly, which is specially convenient for front-end development.
 
-- By using a [Payment App](#payment-app).
-- By using a [Custom App](#custom-app).
-- By using a [Plugin](developer/extending/plugins/overview.mdx) embedded in the Saleor code (legacy).
+- Using [payment app](#payment-app).
+
+- Guide to [building payment apps](/developer/extending/apps/building-payment-app.mdx).
 
 :::note
 
@@ -21,12 +19,25 @@ If you're considering building a custom payment integration, please check if the
 
 :::
 
-## Comparison of Payment Apps and Custom Apps
+### Using plugins included in core
 
-|                        | Payment Apps                                                                                          | Custom Apps                                                                   |
-| ---------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Users communicate with | Saleor GraphQL API                                                                                    | The app directly                                                              |
-| Consistency            | The same set of queries and mutations for each Payment App                                            | Different APIs depending on the custom app implementation                     |
-| Transactions           | Created automatically by Saleor based on requests to payment apps and their responses                 | Need to be created manually by custom apps; depends on the app implementation |
-| Balances               | Always automatically calculated by Saleor                                                             | In some cases the balances need to be manually calculated by the custom app   |
-| Flexibility            | Limited by the set of predefined actions and mutations; designed to handle most of business scenarios | Almost anything is possible                                                   |
+Using payment plugins is similar to using payment apps, with few key differences:
+
+- Payment plugins are included in core, so it is discouraged to modify them.
+- Building your own payment plugins is discouraged, and relies on undocumented APIs which will be deprecated.
+- Payment plugins are not as flexible as payment apps, and do not support multiple transactions on a single order.
+
+**Should you use payment plugins?**
+
+In case you need to use a payment provider that is not [available as a payment app](developer/app-store/apps/overview.mdx#built-in-apps-catalog), you can use a payment plugin. In case such provider will be available in the future swapping plugin with app would require refactoring of the checkout flow.
+
+### Payment APIs via Backend
+
+Payment apps should cover most of the cases for processing payments, but in some cases you might need to build a custom payment flow or payment related automation logic, in such case your backend can directly interact with transaction objects.
+
+Example of such use case:
+
+- Product Subscriptions, where backend logic is responsible for creating transactions for each subscription period.
+- Your app needs to automate refunds based on some business logic.
+- Your don't want to route your storefront via Saleor to interact with payment gateway, instead it will work directly with your app.
+- Integrating with payment orchestration platforms
