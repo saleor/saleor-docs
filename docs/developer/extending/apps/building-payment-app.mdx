@@ -25,11 +25,17 @@ A Payment App is [a Saleor App](developer/extending/apps/overview.mdx) that foll
 
 That interface consists of [synchronous webhooks](developer/extending/webhooks/synchronous-events/overview.mdx). This feature allows Saleor to suspend the resolution of an API call until Saleor receives a response from the app in the correct format. Saleor can then pass that response as the value of the requested field.
 
+:::info
+
+Saleor supports two types of webhooks: synchronous and asynchronous. Synchronous events are sent immediately after the event happens during GraphQL requests. Asynchronous events are sent after request processing is finished. You can read more about them in the [Webhooks](developer/extending/webhooks/overview.mdx) article.
+
+:::
+
 We will look at what webhooks we must implement in [the "Webhooks" section](#webhooks).
 
 Each payment service has its unique payment flow, so Saleor needs a flexible API to support them. This flexibility is the core idea behind the [Transactions API](developer/extending/webhooks/synchronous-events/transaction.mdx), which we will use for processing payments.
 
-Our fictional payment gateway is a simple one, so we won't cover the entire API in this tutorial. For real payment providers, you may need to implement additional webhooks and mutations.
+Our fictional payment gateway is a simple one, so we won't cover the entire API in this tutorial. For real payment providers, the flow may differ. Gateway X may require multiple webhooks to capture the payment process, while Gateway Y may only need one.
 
 :::info
 
@@ -43,7 +49,7 @@ If you need a reference point for integrating with real payment providers, you c
 
 ### What is a Transaction
 
-A transaction represents a payment event that happened in Order or Checkout. These events include actions like charging a payment, authorizing or refunding it. You can see the complete list of events in the [`TransactionEventTypeEnum`](api-reference/payments/enums/transaction-event-type-enum.mdx).
+A transaction represents a payment instance created in Order or Checkout. It holds a list of events that make up the payment process. Each event has a type that describes the action taken on the transaction. You can see the complete list of events in the [`TransactionEventTypeEnum`](api-reference/payments/enums/transaction-event-type-enum.mdx).
 
 Besides the events, a transaction also contains other payment information, like the amount or currency.
 
@@ -66,7 +72,7 @@ Here is how it looks:
 
 ### Checkout
 
-In Saleor, the payment process is a part of [checkout](developer/checkout/overview.mdx). In this tutorial, we will focus on the payment part only. We will assume that the checkout is already created and the user is ready to pay.
+Transaction API can be used both in Checkout and Order. In this tutorial, we will focus on the payment part only and assume that [the checkout is already created](developer/checkout/overview.mdx#creating-a-checkout-session) and the user is ready to pay.
 
 ## Modeling the Transaction Flow
 
@@ -106,14 +112,16 @@ Now that we understand the key Saleor transaction event statuses, let's align th
 
 With our transaction events mapped out, let's determine which webhooks we need to implement to handle these events.
 
-When exploring the [Transaction Events](developer/extending/webhooks/synchronous-events/transaction.mdx) documentation, you may notice that two webhooks can result in the `CHARGE_SUCCESS` event: [`TRANSACTION_CHARGE_REQUESTED`](developer/extending/webhooks/synchronous-events/transaction.mdx#transaction-charge) and [`TRANSACTION_INITIALIZE_SESSION`](developer/extending/webhooks/synchronous-events/transaction.mdx#request-4).
+When exploring the [Transaction Events](developer/extending/webhooks/synchronous-events/transaction.mdx) documentation, you may notice that three webhooks can result in the `CHARGE_SUCCESS` event: [`TRANSACTION_CHARGE_REQUESTED`](developer/extending/webhooks/synchronous-events/transaction.mdx#transaction-charge), [`TRANSACTION_INITIALIZE_SESSION`](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session) and [`TRANSACTION_PROCESS_SESSION`](developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session).
 
 There are two reasons for why **we are not going** with the `TRANSACTION_CHARGE_REQUESTED` webhook:
 
 1. It is designed for the staff users to charge the payment manually. Since we want a checkout user (possibly unauthenticated) to be able to pay for the order, it is not a good fit.
 2. It does not allow the return of the `CHARGE_ACTION_REQUIRED` event status.
 
-That leaves us with the `TRANSACTION_INITIALIZE_SESSION` webhook. It is triggered on the [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation which can be used without any permissions. It can result in the `CHARGE_ACTION_REQUIRED` event status, as required.
+`TRANSACTION_PROCESS_SESSION` is also not a match. It is triggered when `transactionProcess` mutation is called, but only when the `TRANSACTION_INITIALIZE_SESSION` was called first and returned `CHARGE_ACTION_REQUIRED` or `AUTHORIZE_ACTION_REQUIRED` event status. This webhook will be useful for the second step of our payment process.
+
+That leaves us with the `TRANSACTION_INITIALIZE_SESSION` webhook. It is triggered on the [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation which can be used without any permissions (unless you are using [the `action` field](api-reference/payments/mutations/transaction-initialize.mdx#transactioninitializeactiontransactionflowstrategyenum-)). It can result in the `CHARGE_ACTION_REQUIRED` event status, as required.
 
 #### Transaction Process Session
 
@@ -127,17 +135,18 @@ The final sequence of webhooks and their corresponding mutations in our payment 
 
 ```mermaid
 sequenceDiagram
- participant Storefront as Storefront
- participant Saleor as Saleor
- participant App as Dummy Payment App
+ participant Storefront
+ participant Saleor
+ participant Dummy Payment App
  Storefront->>Saleor: transactionInitialize
- Saleor->>App: TRANSACTION_INITIALIZE_SESSION
- App-->>Saleor: { result: CHARGE_ACTION_REQUIRED }
+ Saleor->>Dummy Payment App: TRANSACTION_INITIALIZE_SESSION
+ Dummy Payment App-->>Saleor: { result: CHARGE_ACTION_REQUIRED }
  Saleor->>Storefront: { type: CHARGE_ACTION_REQUIRED, ... }
  Storefront->>Saleor: transactionProcess
- Saleor->>App: TRANSACTION_PROCESS_SESSION
- App-->>Saleor: {result: CHARGE_SUCCESS / CHARGE_FAILURE }
+ Saleor->>Dummy Payment App: TRANSACTION_PROCESS_SESSION
+ Dummy Payment App-->>Saleor: {result: CHARGE_SUCCESS / CHARGE_FAILURE }
  Saleor->>Storefront: { type: CHARGE_SUCCESS / CHARGE_FAILURE, ... }
+ Note over Dummy Payment App: This process is modeled after a 3D Secure flow.
 ```
 
 ## Creating a Saleor App from Template
@@ -328,18 +337,18 @@ In the [Calling the `transactionInitialize` Mutation](#calling-the-transactionin
 ```ts
 const TransactionInitializeSessionPayload = gql`
   fragment TransactionInitializeSessionPayload on TransactionInitializeSession {
- action {
- amount
- currency
- actionType
- }
- // highlight-next-line
- data
- }
+    action {
+      amount
+      currency
+      actionType
+    }
+    // highlight-next-line
+    data
+  }
 `;
 ```
 
-Make sure to regenerate the types after adding the `data` field to the payload fragment.
+Make sure to regenerate the types (by calling `pnpm generate`) after adding the `data` field to the payload fragment.
 
 #### Updating the App Webhooks in the Manifest
 
@@ -432,7 +441,6 @@ export default transactionInitializeSessionWebhook.createHandler(
       result: "CHARGE_ACTION_REQUIRED",
       amount: payload.action.amount, // `payload` is typed thanks to the generated types
       pspReference: randomPspReference,
-      //   TODO: CHECK IF OTHER FIELDS ARE NEEDED
     });
   }
 );
@@ -722,7 +730,7 @@ Once again, our handler is simple. We only log the payload and return the `CHARG
 A real-world `TRANSACTION_PROCESS_SESSION` webhook handler might:
 
 - Call the payment provider API to confirm the payment status.
-- Return either `CHARGE_SUCCESS` or `CHARGE_FAILURE` based on the response.
+- Return either `CHARGE_SUCCESS`, `CHARGE_FAILURE` or `CHARGE_ACTION_REQUIRED` (if there are multiple checks required).
 
 :::
 
@@ -743,7 +751,6 @@ export default transactionProcessSessionWebhook.createHandler(
       return res.status(200).json({
         result: "CHARGE_SUCCESS",
         amount: payload.action.amount,
-        // TODO: CHECK IF THESE ARE THE SAME PSP REFERENCES
         pspReference: crypto.randomUUID(),
       });
     } catch (error) {
