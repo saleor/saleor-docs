@@ -2,32 +2,7 @@
 title: Transactions
 ---
 
-In this guide, "Custom App" means a [Saleor App](developer/extending/apps/overview.mdx) that uses a custom logic for handling payments instead of listening for `PAYMENT_GATEWAY_INITIALIZE_SESSION`, `TRANSACTION_INITIALIZE_SESSION` and `TRANSACTION_PROCESS_SESSION` webhooks like Payment Apps do. End users need to communicate with the app directly and it's the app's responsibility to report back to Saleor.
-
-Custom apps handle the payment process and call Saleor mutations on their backend to report any changes that happen for a specific `transactionItem`.
-Orders can be created by a protected mutation [`orderCreateFromCheckout`](api-reference/orders/mutations/order-create-from-checkout.mdx).
-
-:::note
-
-Building a Custom App is only recommended if Saleor Payment Apps don't fit your needs and for more complex use cases. **For most of the payment providers, Saleor Payment Apps should be used instead.**
-When the custom app uses the `transactionUpdate` mutation, Saleor won't be able to automatically update the status and balance of the payment and the app will be responsible for doing it.
-
-:::
-
 ### Creating transactions
-
-:::info
-
-This feature was introduced in **Saleor 3.4**.
-
-:::
-
-:::caution
-
-This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
-feedback. However, it is still undergoing development and is subject to modifications.
-
-:::
 
 Transaction stores details of a payment transaction attached to an order or a checkout:
 
@@ -90,73 +65,14 @@ The response:
 }
 ```
 
-##### Saleor 3.4 (deprecated)
-
-```graphql
-mutation {
-  transactionCreate(
-    id: "Q2hlY2tvdXQ6MWQzNmU5YzctYWEwYS00NzM5LTk0MGQtNzdjNmU4Mjc5YmQ0"
-    transaction: {
-      status: "Authorized"
-      type: "Credit card"
-      reference: "PSP-ref123"
-      availableActions: [CANCEL, CHARGE]
-      amountAuthorized: { currency: "USD", amount: 99 }
-    }
-    transactionEvent: {
-      status: SUCCESS
-      name: "Authorized credit card"
-      reference: "PSP-ref123"
-    }
-  ) {
-    transaction {
-      id
-    }
-  }
-}
-```
-
-The response:
-
-```json
-{
-  "data": {
-    "transactionCreate": {
-      "transaction": {
-        "id": "VHJhbnNhY3Rpb25JdGVtOjE="
-      }
-    }
-  },
-  "extensions": {
-    "cost": {
-      "requestedQueryCost": 0,
-      "maximumAvailable": 50000
-    }
-  }
-}
-```
-
 :::info
 
-- Transactions attached to checkout are accessible via the [`checkout.transactions`](/api-reference/checkout/objects/checkout#checkouttransactionstransactionitem--) field.
+- Transactions attached to the checkout are accessible via the [`checkout.transactions`](/api-reference/checkout/objects/checkout#checkouttransactionstransactionitem--) field.
 - Transactions attached to order are accessible via the [`order.transactions`](/api-reference/orders/objects/order#ordertransactionstransactionitem--) field.
 
 :::
 
 ### Updating transactions
-
-:::info
-
-This feature was introduced in **Saleor 3.4**.
-
-:::
-
-:::caution
-
-This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
-feedback. However, it is still undergoing development and is subject to modifications.
-
-:::
 
 The [`transactionUpdate`](api-reference/payments/mutations/transaction-update.mdx) mutation allows updating the transaction details.
 It takes the following arguments:
@@ -255,19 +171,6 @@ mutation {
 
 ### Reporting actions for transactions
 
-:::info
-
-This feature was introduced in **Saleor 3.13**.
-
-:::
-
-:::caution
-
-This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
-feedback. However, it is still undergoing development and is subject to modifications.
-
-:::
-
 The [`transactionEventReport`](/api-reference/payments/mutations/transaction-event-report) is used to
 report a new transaction event. The newly created event will be used to [recalculate](#recalculations-of-transaction-amounts) the transaction's amounts.
 The mutation should be used for handling [action requests](#handling-action-requests-for-transactions) or reporting any
@@ -338,19 +241,6 @@ In the response, Saleor returns:
 - `transactionEvent` - [TransactionEvent](/api-reference/payments/objects/transaction-event) that has been created based on the received report.
 
 ### Handling action requests for transactions
-
-:::info
-
-This feature was introduced in **Saleor 3.4**.
-
-:::
-
-:::caution
-
-This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
-feedback. However, it is still undergoing development and is subject to modifications.
-
-:::
 
 An action request is called when a staff user or an app requests an action for a given transaction.
 
