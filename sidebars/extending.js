@@ -12,7 +12,6 @@ export const extending = [
 
   title("Synchronous Events"),
   "developer/extending/webhooks/synchronous-events/overview",
-  "developer/extending/webhooks/synchronous-events/payment",
   "developer/extending/webhooks/synchronous-events/shipping",
   "developer/extending/webhooks/synchronous-events/tax",
   "developer/extending/webhooks/synchronous-events/transaction",
@@ -20,4 +19,7 @@ export const extending = [
 
   title("Security"),
   "developer/extending/webhooks/ip-addresses",
+
+  title("Legacy Webhooks"),
+  "developer/extending/webhooks/synchronous-events/payment",
 ];
