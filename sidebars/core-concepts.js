@@ -41,7 +41,6 @@ export const coreConcepts = [
   "developer/payments/payment-apps",
   "developer/payments/transactions",
   "developer/payments/lifecycle",
-  "developer/payments/payment-status",
   "developer/payments/refunds",
   "developer/payments/legacy",
 
