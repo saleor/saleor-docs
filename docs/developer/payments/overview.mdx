@@ -3,41 +3,46 @@ title: Payments Overview
 sidebar_label: Overview
 ---
 
-There are few ways to work with payments in Saleor:
+## Interacting with transactions
 
-### Payment apps
+You can interact with transactions via your backend to build any type of payment flow, automation or business logic you wish using CRUD operation, see [Transaction API](/developer/payments/transactions.mdx).
 
-Payment apps allow to process payments with external payment providers, without communicating with them directly, which is specially convenient for front-end development.
+Use case examples:
 
-- Using [payment app](/developer/payments/payment-apps.mdx).
+- Automate refund logic
+- Recurring subscription logic
+- Custom payment flow, where **your backend** works directly with **your frontend** and only writes orders and payments to Saleor without using Saleor's checkout and payment APIs.
 
-- Guide to [building payment apps](/developer/extending/apps/building-payment-app.mdx).
+## Existing payment integrations
 
-:::note
+Payment integrations are front-end friendly APIs that allow you to process payments without the need to interact with payment providers directly without a backend. In this setup, Saleor [acts as a middleware](/developer/payments/payment-apps.mdx#processing-payments-with-the-payment-app) between your frontend and the payment app which talks to payment provider.
 
-If you're considering building a custom payment integration, please check if the payment provider you're interested in isn't already available [Saleor App Store](developer/app-store/apps/overview.mdx#built-in-apps-catalog).
+The vendor team and partners have a larger collection of payment integrations, which would eventually be documented. Currently, Saleor provides guides for the following:
 
-:::
+-[Adyen guide](/developer/app-store/apps/adyen/overview.mdx)
 
-### Using plugins included in core
+-[Stripe guide](/developer/app-store/legacy-plugins/stripe.mdx)
 
-Using payment plugins is similar to using payment apps, with few key differences:
+If you wish to use a different payment provider, please contact [our team](mailto:hello@saleor.io).
 
-- Payment plugins are included in core, so it is discouraged to modify them.
-- Building your own payment plugins is discouraged, and relies on undocumented APIs which will be deprecated.
-- Payment plugins are not as flexible as payment apps, and do not support multiple transactions on a single order.
+## Custom payment integrations
 
-**Should you use payment plugins?**
+There are two main approaches (or mix of both) to build custom payment integrations:
 
-In case you need to use a payment provider that is not [available as a payment app](developer/app-store/apps/overview.mdx#built-in-apps-catalog), you can use a payment plugin. In case such provider will be available in the future swapping plugin with app would require refactoring of the checkout flow.
+### Saleor as middleware
 
-### Payment APIs via Backend
+Using [Saleor as middleware](/developer/payments/payment-apps.mdx) to communicate between **your storefront** and **your payment apps**.
+This approach provides the following advantages:
 
-Payment apps should cover most of the cases for processing payments, but in some cases you might need to build a custom payment flow or payment related automation logic, in such case your backend can directly interact with transaction objects.
+- A generic interface for interacting with apps, making them interchangeable. For example, your Stripe and Paypal integrations can be swapped without changing your storefront.
+- Front-end developers or other microservices will not need to interact with your payment logic directly, which simplifies documentation and the need for additional endpoints.
 
-Example of such use case:
+Guides:
 
-- Product Subscriptions, where backend logic is responsible for creating transactions for each subscription period.
-- Your app needs to automate refunds based on some business logic.
-- Your don't want to route your storefront via Saleor to interact with payment gateway, instead it will work directly with your app.
-- Integrating with payment orchestration platforms
+-[Using payment apps](/developer/payments/payment-apps.mdx)
+
+-[Building payment apps](/developer/extending/apps/building-payment-app.mdx)
+
+### Your backend
+
+Your own backend that interacts with payment providers and your storefront. [Transaction API](/developer/payments/transactions.mdx) is only used to update `Transactions` in `Orders`. This way, you can create any logic or flow you wish, but it will cost more ownership.
