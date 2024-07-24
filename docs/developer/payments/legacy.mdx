@@ -1,0 +1,29 @@
+---
+title: Legacy (Deprecated)
+sidebar_label: Legacy
+---
+
+## Payment Plugin (legacy)
+
+Using PaymentPlugin is explained in [Checkout](checkout/finalizing) section.
+
+#### Saleor 3.4 (Deprecated)
+
+If your app should also process payment request actions (like charge, refund, or CANCEL) triggered by staff users on the Saleor dashboard side or by the app,
+make sure that your app subscribes to the [`transaction-action-request`](developer/extending/webhooks/sample-webhook-payloads.mdx#transaction-action-request) webhook.
+
+The chart below shows a workflow for handling a `refund` request.
+
+```mermaid
+sequenceDiagram
+    Staff->>+Dashboard: Click refund button<br> for single transaction
+    Dashboard->>+Saleor: Call transactionActionRequest<br> with action - refund
+    Saleor -->>- Dashboard: OK
+    Dashboard -->>- Staff: Triggered
+    Saleor ->>+ App: Send webhook<br>transaction-action-request<br> with all details related<br> to action and transaction
+    App -->>- Saleor: OK
+    App ->>+ PaymentProvider: Execute refund <br>action
+    PaymentProvider -->>- App: Refunded
+    App ->>+ Saleor: Call transactionUpdate <br>to update transaction with<br> a result received after <br>requested action
+    Saleor -->>- App: Updated transaction
+```

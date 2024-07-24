@@ -37,8 +37,13 @@ export const coreConcepts = [
   "developer/checkout/order-to-checkout",
 
   title("Payments"),
-  "developer/payments",
-  "developer/checkout/payment-status",
+  "developer/payments/overview",
+  "developer/payments/payment-apps",
+  "developer/payments/transactions",
+  "developer/payments/lifecycle",
+  "developer/payments/payment-status",
+  "developer/payments/refunds",
+  "developer/payments/legacy",
 
   title("Stock"),
   "developer/checkout/stock",
