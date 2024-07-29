@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const { themes } = require("prism-react-renderer");
+const remarkCapitalize = require("remark-capitalize");
 
 module.exports = {
   title: "Saleor Commerce Documentation",
@@ -134,6 +135,7 @@ module.exports = {
           breadcrumbs: false,
           routeBasePath: "/",
           path: "docs",
+          remarkPlugins: [remarkCapitalize],
           editUrl: function ({ version, versionDocsDirPath, docPath }) {
             return `https://github.com/saleor/saleor-docs/edit/main/docs/${docPath}`;
           },
