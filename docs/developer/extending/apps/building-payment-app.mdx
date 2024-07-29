@@ -4,46 +4,9 @@ title: How to Build a Payment App
 
 ## Overview
 
-This tutorial will guide you through creating a basic Payment App with [Transactions API](developer/extending/webhooks/synchronous-events/transaction.mdx).
+This tutorial will demonstrate how to build a [Payment App](/developer/payments/payment-apps.mdx) using dummy payment (without a real payment provider) as an example.
 
-:::note
-
-We will integrate with a fictional **Dummy Payment Gateway**. This gateway will simulate real payment processing without handling actual payments.
-
-:::
-
-:::note
-
-If you're considering building a custom payment integration, please check if the payment provider you're interested in isn't already available [Saleor App Store](developer/app-store/apps/overview.mdx#built-in-apps-catalog).
-
-:::
-
-### Prerequisites
-
-- Basic understanding of [Saleor Apps](developer/extending/apps/overview.mdx)
-- Familiarity with [Next.js](https://nextjs.org/)
-- `node >=18.17.0 <=20`
-- `pnpm >=9`
-
-### What is a Payment App
-
-A Payment App is [a Saleor App](developer/extending/apps/overview.mdx) that follows a standard payment interface, enabling Saleor to identify the app as a payment gateway and manage payments through it.
-
-That interface consists of [synchronous webhooks](developer/extending/webhooks/synchronous-events/overview.mdx). This feature allows Saleor to suspend the resolution of an API call until Saleor receives a response from the app in the correct format. Saleor can then pass that response as the value of the requested field.
-
-:::info
-
-Saleor supports two types of webhooks: synchronous and asynchronous. Synchronous events are sent immediately after the event happens during GraphQL requests. Asynchronous events are sent after request processing is finished. You can read more about them in the [Webhooks](developer/extending/webhooks/overview.mdx) article.
-
-:::
-
-We will look at what webhooks we must implement in [the "Webhooks" section](#webhooks).
-
-Each payment service has its unique payment flow, so Saleor needs a flexible API to support them. This flexibility is the core idea behind the [Transactions API](developer/extending/webhooks/synchronous-events/transaction.mdx), which we will use for processing payments.
-
-Our fictional payment gateway is a simple one, so we won't cover the entire API in this tutorial. For real payment providers, the flow may differ. Gateway X may require multiple webhooks to capture the payment process, while Gateway Y may only need one.
-
-:::info
+For simplicity, this tutorial will not cover the entire API as a real-world implementation would, where some gateways might require multiple webhooks to capture the payment process.
 
 If you need a reference point for integrating with real payment providers, you can check out the following examples:
 
@@ -51,111 +14,63 @@ If you need a reference point for integrating with real payment providers, you c
 - [Example Authorize.net App](https://github.com/saleor/saleor-app-payment-authorize.net)
 - [Example Klarna App](https://github.com/saleor/saleor-app-payment-klarna)
 
-:::
+### Prerequisites
 
-### What is a Transaction
+- Understanding of [Payment Apps Usage](/developer/payments/payment-apps)
+- Understanding of [Transactions](/developer/payments/transactions.mdx)
 
-A transaction represents a payment instance created in Order or Checkout. It holds a list of events that make up the payment process. Each event has a type that describes the action taken on the transaction. You can see the complete list of events in the [`TransactionEventTypeEnum`](api-reference/payments/enums/transaction-event-type-enum.mdx).
+### What Will We Build
 
-Besides the events, a transaction also contains other payment information, like the amount or currency.
+We will build a _Dummy Gateway_ that will simulate a typical 3D secure flow:
 
-Transactions can be created and managed using the [Transactions API](developer/extending/webhooks/synchronous-events/transaction.mdx).
+1. A Drop-in payment UI will create a token when the user initiates the payment.
+2. Ask for payment confirmation (e.g., redirect the user to the 3D Secure page).
+3. Charge the payment on the 3D Secure page.
+4. Redirect the user to the result (success or failure) page.
 
-### Dummy Payment Gateway Flow
+Transaction API can be used both in Checkout and Order. In this tutorial, we will cover only payment steps for [existing checkout](developer/checkout/overview.mdx#creating-a-checkout-session).
 
-We want Dummy Payment Gateway to feel like a real payment provider. To achieve that, we will model the payment process after a typical 3D Secure flow.
+### Event Flow
 
-Here is how it looks:
-
-> Dummy Payment Gateway offers a drop-in payment UI that returns a token when the user starts the payment. The token should be used to confirm the payment on the backend.
->
-> The payment process flow consists of the following steps:
->
-> 1. Initiate the payment process in the drop-in.
-> 2. Ask for payment confirmation (e.g., redirect the user to the 3D Secure page).
-> 3. Charge the payment on the 3D Secure page.
-> 4. Redirect the user to the result (success or failure) page.
-
-### Checkout
-
-Transaction API can be used both in Checkout and Order. In this tutorial, we will focus on the payment part only and assume that [the checkout is already created](developer/checkout/overview.mdx#creating-a-checkout-session) and the user is ready to pay.
-
-## Modeling the Transaction Flow
-
-### Transaction Events
-
-The first step in building our Payment App does not involve any code. To avoid further rework, we need to understand the transaction flow we want to model. The goal is to have a list of events produced by the app and their corresponding webhooks.
-
-Let's highlight two key details from the [Dummy Payment Gateway flow](#dummy-payment-gateway-flow):
-
-- The desired result is charging the payment successfully.
-- We can't charge the payment without the user's confirmation (3D Secure).
-
-In Saleor Transactions API, a successfully charged payment is represented by the [`CHARGE_SUCCESS`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_success) event status. If the payment fails, the status is [`CHARGE_FAILURE`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_failure).
-
-However, before the payment can be charged, we need to confirm it via 3D Secure. This additional action is represented by the [`CHARGE_ACTION_REQUIRED`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_action_required) event status.
-
-:::note
-
-There is a setting in Saleor that can affect this behavior. [Transaction Flow Strategy](api-reference/payments/enums/transaction-flow-strategy-enum.mdx) can be set to `CHARGE` or `AUTHORIZATION`. The `CHARGE` strategy allows the payment to be charged immediately, while the `AUTHORIZATION` strategy will require the funds to be authorized first. You can decide on the strategy on per channel basis in the _Configuration_ → _Channels_ → your channel page.
-
-:::
-
-Now that we understand the key Saleor transaction event statuses, let's align them with our [Dummy Payment Gateway flow](#dummy-payment-gateway-flow). This mapping will show how each step in our payment process corresponds to a specific Saleor transaction status:
-
-| Step                                           | Status                                                                                                                                  | Description                                                                                                        |
-| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| 1. Initiate the payment process in the drop-in | ---                                                                                                                                     | ---                                                                                                                |
-| 2. Confirm the payment via 3D Secure           | [`CHARGE_ACTION_REQUIRED`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_action_required) | The payment requires additional action to be completed. **The drop-in token is needed to initialize the payment.** |
-| 3. Charge the payment                          | ---                                                                                                                                     | ---                                                                                                                |
-| 3a. Charge successful                          | [`CHARGE_SUCCESS`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_success)                 | The payment was successful.                                                                                        |
-| 3b. Charge failed                              | [`CHARGE_FAILURE`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_failure)                 | The payment failed, for example, due to insufficient funds.                                                        |
-| 4. Redirect the user to the result page        | ---                                                                                                                                     | ---                                                                                                                |
-
-### Webhooks
-
-#### Transaction Initialize Session
-
-With our transaction events mapped out, let's determine which webhooks we need to implement to handle these events.
-
-When exploring the [Transaction Events](developer/extending/webhooks/synchronous-events/transaction.mdx) documentation, you may notice that three webhooks can result in the `CHARGE_SUCCESS` event: [`TRANSACTION_CHARGE_REQUESTED`](developer/extending/webhooks/synchronous-events/transaction.mdx#transaction-charge), [`TRANSACTION_INITIALIZE_SESSION`](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session) and [`TRANSACTION_PROCESS_SESSION`](developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session).
-
-There are two reasons for why **we are not going** with the `TRANSACTION_CHARGE_REQUESTED` webhook:
-
-1. It is designed for the staff users to charge the payment manually. Since we want a checkout user (possibly unauthenticated) to be able to pay for the order, it is not a good fit.
-2. It does not allow the return of the `CHARGE_ACTION_REQUIRED` event status.
-
-`TRANSACTION_PROCESS_SESSION` is also not a match. It is triggered when `transactionProcess` mutation is called, but only when the `TRANSACTION_INITIALIZE_SESSION` was called first and returned `CHARGE_ACTION_REQUIRED` or `AUTHORIZE_ACTION_REQUIRED` event status. This webhook will be useful for the second step of our payment process.
-
-That leaves us with the `TRANSACTION_INITIALIZE_SESSION` webhook. It is triggered on the [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation which can be used without any permissions (unless you are using [the `action` field](api-reference/payments/mutations/transaction-initialize.mdx#transactioninitializeactiontransactionflowstrategyenum-)). It can result in the `CHARGE_ACTION_REQUIRED` event status, as required.
-
-#### Transaction Process Session
-
-When `TRANSACTION_INITIALIZE_SESSION` returns `CHARGE_ACTION_REQUIRED`, the app must execute this additional action. Depending on the outcome, we want the status to change to either `CHARGE_SUCCESS` or `CHARGE_FAILURE`.
-
-The additional [`TRANSACTION_PROCESS_SESSION`](developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session) webhook will be responsible for this transition.
-
-#### Webhook Sequence
-
-The final sequence of webhooks and their corresponding mutations in our payment process is as follows:
+Here is the complete webhooks and their corresponding mutations:
 
 ```mermaid
 sequenceDiagram
  participant Storefront
  participant Saleor
  participant Dummy Payment App
- Storefront->>Saleor: transactionInitialize
- Saleor->>Dummy Payment App: TRANSACTION_INITIALIZE_SESSION
+ Storefront->>Saleor: mutation: transactionInitialize
+ Saleor->>Dummy Payment App: webhook: TRANSACTION_INITIALIZE_SESSION
  Dummy Payment App-->>Saleor: { result: CHARGE_ACTION_REQUIRED }
  Saleor->>Storefront: { type: CHARGE_ACTION_REQUIRED, ... }
- Storefront->>Saleor: transactionProcess
- Saleor->>Dummy Payment App: TRANSACTION_PROCESS_SESSION
+ Storefront->>Saleor: mutation: transactionProcess
+ Saleor->>Dummy Payment App: webhook TRANSACTION_PROCESS_SESSION
  Dummy Payment App-->>Saleor: {result: CHARGE_SUCCESS / CHARGE_FAILURE }
  Saleor->>Storefront: { type: CHARGE_SUCCESS / CHARGE_FAILURE, ... }
  Note over Dummy Payment App: This process is modeled after a 3D Secure flow.
 ```
 
-## Creating a Saleor App from Template
+#### Flow Breakdown
+
+1. Storefront will initiate the payment intent by calling the [`transactionInitialize`](/developer/payments/payment-apps.mdx#initialize-transaction) mutation, triggering the -> [`TRANSACTION_INITIALIZE_SESSION`](/developer/extending/webhooks/synchronous-events/transaction#initialize-transaction-session) webhook. The app will return [`CHARGE_ACTION_REQUIRED`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_action_required) as `action_type` to signal the storefront that 3D secure confirmation is required.
+
+2. Storefront will pass 3D secure confirmation data to the [`transactionProcess`](/developer/payments/payment-apps.mdx#process-transaction) mutation which will trigger [`TRANSACTION_PROCESS_SESSION`](/developer/extending/webhooks/synchronous-events/transaction#process-transaction-session) webhook.
+   In this step we simulate the attempt of charging payment gateway by returning [`CHARGE_SUCCESS`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_success) or [`CHARGE_FAILURE`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_failure) back from the app.
+
+:::warning
+[Transaction Flow Strategy](api-reference/payments/enums/transaction-flow-strategy-enum.mdx) setting can alter the behaviour of `transactionProcess` mutation. When set to `CHARGE` strategy, payments will be charged immediately, when it set `AUTHORIZATION` additional authorization step would be necessary. You can decide on the strategy on per channel basis in the _Configuration_ → _Channels_ → your channel page. For this tutorial, we will assume the `CHARGE` strategy is used.
+:::
+
+## Building Saleor App from Template
+
+#### Install Dependencies
+
+- Basic understanding of [Saleor Apps](developer/extending/apps/overview.mdx)
+- Familiarity with [Next.js](https://nextjs.org/)
+- `node >=18.17.0 <=20`
+- `pnpm >=9`
+
+#### Getting Started
 
 Any app with server-side capabilities can be considered a Saleor App if it matches the requirements described in the [App Requirements](developer/extending/apps/architecture/app-requirements.mdx) document. Thanks to the [App Template](developer/extending/apps/developing-apps/app-template.mdx), we won't have to check all the boxes manually.
 
@@ -867,3 +782,9 @@ Its scope doesn't have to end here. You can further extend the app with addition
 - If your payment provider requires additional operation before the payment is even initialized (for example, to render the drop-in), you might be interested in reading about the [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](/developer/payments/payment-apps.mdx#initialize-payment-gateway) webhook.
 - To allow users to save their payment methods for future use, you should implement the [Stored Payment Methods API](developer/payments/stored-payments.mdx).
 - If your payment provider needs to report the transaction status to Saleor asynchronously, you can use the [`transactionEventReport` mutation](developer/payments/transactions.mdx#reporting-actions-for-transactions).
+
+## Related Resources
+
+- [Using Payment Apps](/developer/payments/payment-apps)
+- [Transactions API](/developer/payments/transactions)
+- [Transactions Webhooks](/developer/extending/webhooks/synchronous-events/transaction)
