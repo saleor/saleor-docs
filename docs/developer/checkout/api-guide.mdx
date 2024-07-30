@@ -8,10 +8,10 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import TwoColumn from "@site/components/Layout";
 
-## Creating a Checkout Session
-
 <TwoColumn>
 <div>
+## Creating a Checkout Session
+
 A [`Checkout`](/api-reference/checkout/objects/checkout.mdx) object can be created for logged-in users and for anonymous (guest) users.
 
 To create a [`Checkout`](api-reference/checkout/objects/checkout.mdx) object, use the [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) mutation.
@@ -22,7 +22,7 @@ To create a [`Checkout`](api-reference/checkout/objects/checkout.mdx) object, us
   and an email address is used to identify such a [`Checkout`](api-reference/checkout/objects/checkout.mdx) object,
   linking it with the **anonymous user**.
   User email is not required at this stage but must be provided before adding a promo code, creating a payment or completing checkout.
-</div>
+  </div>
 
 <Tabs>
 <TabItem value="GraphQL">
@@ -147,10 +147,9 @@ mutation {
 </Tabs>
 </TwoColumn>
 
-## Set Email
-
 <TwoColumn>
 <div>
+## Set Email
 When an anonymous checkout has been created without an email, the email must be set using [`CheckoutEmailUpdate`](api-reference/checkout/mutations/checkout-email-update.mdx) before creating payment and completing the checkout.
 </div>
 
@@ -190,6 +189,245 @@ mutation {
 }
 ```
 
+</TabItem>
+</Tabs>
+</TwoColumn>
+
+<TwoColumn>
+<div>
+## Managing Lines
+To add an item to the cart, use [`checkoutLinesAdd`](api-reference/checkout/mutations/checkout-lines-add.mdx). The total price will be updated automatically.
+
+See also [`checkoutLinesDelete`](/api-reference/checkout/mutations/checkout-lines-delete.mdx) and [`checkoutLinesUpdate`](api-reference/checkout/mutations/checkout-lines-update.mdx).
+
+If the quantity is changed to **`0`**, it wll be removed from checkout.
+
+</div>
+
+<Tabs>
+<TabItem value={"GraphQL"}>
+```graphql {4}
+mutation {
+  checkoutLinesAdd(
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+    lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0" }]
+  ) {
+    checkout {
+      lines {
+        id
+        variant {
+          name
+        }
+        quantity
+      }
+      totalPrice {
+        gross {
+          currency
+          amount
+        }
+      }
+    }
+  }
+}
+```
+</TabItem>
+<TabItem value={"Response"}>
+```json {16-17}
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "lines": [
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1Mw=="
+            "variant": {
+              "name": "XL"
+            },
+            "quantity": 1
+          }
+        ],
+        "totalPrice": {
+          "gross": {
+            "currency": "USD",
+            "amount": 5
+          }
+        }
+      }
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+</TwoColumn>
+
+<TwoColumn>
+<div>
+## Creating Two Lines Using a Single Variant
+
+By default if a single variant is added multiple times, the quantity of the variant is increased without adding a new line.
+To add the same variant as a separate line, use the `forceNewLine` flag.
+
+When `forceNewLine` is not used and the variant exists in multiple lines - **Saleor will create a new line with provided quantity**
+
+</div>
+<Tabs>
+<TabItem value={"GraphQL"}>
+```graphql {5}
+mutation {
+  checkoutLinesAdd(
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+    lines: [
+      { quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0", forceNewLine: true }
+      { quantity: 2, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0" }
+    ]
+  ) {
+    checkout {
+      lines {
+        id
+        variant {
+          name
+        }
+        quantity
+      }
+      totalPrice {
+        gross {
+          currency
+          amount
+        }
+      }
+    }
+  }
+}
+```
+</TabItem>
+<TabItem value={"Response"}>
+ ```json
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "lines": [
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1Mw==",
+            "variant": {
+              "name": "XL"
+            },
+            "quantity": 1
+          },
+          {
+            "id": "Q2hlY2tvdXRMaW5lOjI1Mw==",
+            "variant": {
+              "name": "XL"
+            },
+            "quantity": 2
+          }
+        ],
+        "totalPrice": {
+          "gross": {
+            "currency": "USD",
+            "amount": 15
+          }
+        }
+      }
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+</TwoColumn>
+
+<TwoColumn>
+<div>
+## Setting Custom Line Prices
+
+This feature is **only available for apps** with `HANDLE_CHECKOUTS` permission.
+
+The variant price of any item in checkout can be overridden.
+The provided price will be treated as the base price of the variant.
+If you apply a voucher or sale in checkout, it will be used on top of the overridden price.
+
+The custom price can be set with the `price` field in the
+[`CheckoutLineInput`](api-reference/checkout/inputs/checkout-line-input.mdx)
+in the following mutations:
+
+- [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx),
+- [`checkoutLinesAdd`](api-reference/checkout/mutations/checkout-lines-add.mdx) – when adding
+  a variant that already exists in the checkout, the corresponding line gets overridden – the quantity is incremented and the price is updated.
+- [`checkoutLinesUpdate`](api-reference/checkout/mutations/checkout-lines-update.mdx) – overrides
+  the existing line with the price provided in the mutation.
+  </div>
+<Tabs>
+<TabItem value={"GraphQL"}>
+
+```graphql {5}
+mutation {
+  checkoutLinesAdd(
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+    lines: [
+      { quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6MzA2", price: 16.22 }
+    ]
+  ) {
+    checkout {
+      id
+      lines {
+        variant {
+          id
+        }
+        quantity
+        totalPrice {
+          gross {
+            amount
+            currency
+          }
+          net {
+            amount
+            currency
+          }
+        }
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+        "lines": [
+          {
+            "variant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6MzA2"
+            },
+            "quantity": 2,
+            "totalPrice": {
+              "gross": {
+                "amount": 32.44,
+                "currency": "USD"
+              },
+              "net": {
+                "amount": 32.44,
+                "currency": "USD"
+              }
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
 </TabItem>
 </Tabs>
 </TwoColumn>
