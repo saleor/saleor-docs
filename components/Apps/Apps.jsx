@@ -1,18 +1,14 @@
+import Link from "@docusaurus/Link";
 import React from "react";
 import Adyen from "../../static/img/apps/adyen.svg";
-import Taxes from "../../static/img/apps/app-taxes.svg";
-import CMS from "../../static/img/apps/cms-hub.svg";
 import CRM from "../../static/img/apps/app-crm.svg";
-import Data from "../../static/img/apps/app-data-importer.svg";
 import Invoices from "../../static/img/apps/app-invoices.svg";
-import Placeholder from "../../static/img/apps/placeholder.svg";
 import ProductFeed from "../../static/img/apps/app-products-feed.svg";
+import Avatax from "../../static/img/apps/avatax.svg";
+import CMS from "../../static/img/apps/cms-hub.svg";
+import Notification from "../../static/img/apps/notification-hub.svg";
 import Search from "../../static/img/apps/search-hub.svg";
 import Segment from "../../static/img/apps/segment.svg";
-import Notification from "../../static/img/apps/notification-hub.svg";
-import Link from "@docusaurus/Link";
-import Stripe from "../../static/img/apps/app-payment-stripe.svg";
-import TaxJar from "../../static/img/apps/app-taxes.svg";
 
 import s from "./apps.module.css";
 
@@ -44,7 +40,7 @@ const Apps = () => {
           title={"Avatax"}
           href={"developer/app-store/apps/avatax/overview"}
         >
-          <Taxes />
+          <Avatax />
         </Shell>
         <Shell
           color={"rgb(39, 180, 118)"}
