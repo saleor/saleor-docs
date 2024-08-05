@@ -43,6 +43,9 @@ The mutation accepts below arguments:
 
 ### Grant refunds
 
+A granted refund refers to the process where a customer receives their money back after a refund request has been approved.
+Once a refund is granted, the customer is reimbursed for the purchase, typically due to issues such as product defects, unmet expectations, or compliance with return policies.
+
 When processing a refund based on `OrderGrantedRefund`, there are two steps involved. Firstly, an order must be granted a refund, which defines what should be refunded. This step requires the `MANAGE_ORDERS` permission. Secondly, a refund needs to be requested based on the created `OrderGrantedRefund`. This step requires the `HANDLE_PAYMENTS` permission.
 
 A granted refund contains all the details related to the refund, such as the list of refunded lines, the amount, and the included shipping costs. This is useful when handling refunds based on the products returned by the customer.
@@ -57,6 +60,10 @@ The current status of the `OrderGrantedRefund` is represented by the `status` fi
 The `status` is calculated based on the latest refund `TransactionEvent`s assigned to the `OrderGrantedRefund`. The events can be accessed via the `OrderGrantedRefund.transactionEvents` field. The assigned `TransactionItem` can be accessed via the `OrderGrantedRefund.transaction` field.
 
 The `OrderGrantedRefund` has an impact on the `authorizeStatus`, `chargeStatus`, and `totalBalance`, as it reduces the total value used to calculate the `totalBalance`.
+
+:::note
+The maximum `amount` of `OrderGrantedRefund` is the `order.total`.
+:::
 
 For example:
 
@@ -204,3 +211,28 @@ mutation {
 
 To request a refund, you need to provide the `grantedRefundId` field. The mandatory refund details are stored as `OrderGrantedRefund`, so the refund request will be created based on this data.
 The `OrderGrantedRefund.status` field will be updated based on the result of the refund action. The `TransactionEvent`s related to the requested action will be accessible via `OrderGrantedRefund.transactionEvents` field.
+
+#### Total remaining grant calculations
+
+The amount specified in the `OrderGrantedRefund` determines the portion of the `order.total` that should be refunded to the customer.
+The `order.totalRemainingGrant` specifies the amount that still needs to be refunded
+to achieve a state where the total charged amount equals the `order.total` minus the granted refund amount.
+
+The `order.totalRemainingGrant` amount is calculated based on the following formula:
+
+```Python
+totalRemainingGrant = totalGrantedRefund - (totalRefunded - overchargedAmount)
+```
+
+where
+
+- `totalGrantedRefund` is a sum of all `amount` from all `OrderGrantedRefund`
+- `totalRefunded` is a sum of `amount` from all transactions with refunded or pending refunds amount
+- `overchargedAmount` defines the `amount` that has been charged over the `order.total` value. It's calculated
+  as a sum of all processed amounts (excluding cancel amounts) minus the `order.total`.
+
+```info
+When `orderTotalGranted.amount` is above `order.total`, it's replaced with `order.total`.
+```
+
+Below is an example order with multiple transactions and `totalRemainingGrant` on each of the stage.
