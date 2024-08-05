@@ -37,7 +37,7 @@ const Apps = () => {
         </Shell>
         <Shell
           color={"rgb(223, 110, 44)"}
-          title={"Avatax"}
+          title={"AvaTax"}
           href={"developer/app-store/apps/avatax/overview"}
         >
           <Avatax />
