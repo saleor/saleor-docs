@@ -44,7 +44,7 @@ The mutation accepts below arguments:
 ### Grant refunds
 
 A granted refund refers to the process where a customer receives their money back after a refund request has been approved.
-Once a refund is granted, the customer is reimbursed for the purchase, typically due to issues such as product defects, unmet expectations, or compliance with return policies.
+Once a refund is granted, the customer is reimbursed for the purchase.
 
 When processing a refund based on `OrderGrantedRefund`, there are two steps involved. Firstly, an order must be granted a refund, which defines what should be refunded. This step requires the `MANAGE_ORDERS` permission. Secondly, a refund needs to be requested based on the created `OrderGrantedRefund`. This step requires the `HANDLE_PAYMENTS` permission.
 
@@ -221,18 +221,63 @@ to achieve a state where the total charged amount equals the `order.total` minus
 The `order.totalRemainingGrant` amount is calculated based on the following formula:
 
 ```Python
-totalRemainingGrant = totalGrantedRefund - (totalRefunded - overchargedAmount)
+totalRemainingGrant = totalGrantedRefund - alreadyGrantedRefund
 ```
 
 where
 
-- `totalGrantedRefund` is a sum of all `amount` from all `OrderGrantedRefund`
+- `alreadyGrantedRefund` is the difference between already refunded and overcharged amounts
+  ```python
+  alreadyGrantedRefund = max((totalRefunded - overchargedAmount), 0)
+  ```
+- `totalGrantedRefund` is a sum of all `amount` from all `OrderGrantedRefund`. The maximum value is `order.total`, when the value is above,
+  it's replaced with the `order.total`.
+  ```python
+  totalGrantedRefund = max(sum(orderTotalGranted.amount), order.total)
+  ```
 - `totalRefunded` is a sum of `amount` from all transactions with refunded or pending refunds amount
+  ```python
+  totalRefunded = sum(amountRefunded + amountRefundPending)
+  ```
 - `overchargedAmount` defines the `amount` that has been charged over the `order.total` value. It's calculated
   as a sum of all processed amounts (excluding cancel amounts) minus the `order.total`.
 
-```info
-When `orderTotalGranted.amount` is above `order.total`, it's replaced with `order.total`.
-```
+  ```python
+  processedAmount = sum(amountCharged + amountRefunded + amountAuthorized + amountChargePending + amountRefundPending + amountAuthorizePending)
 
-Below is an example order with multiple transactions and `totalRemainingGrant` on each of the stage.
+  overchargedAmount = processedAmount - order.total
+  ```
+
+Below is an example order with multiple transactions and `totalRemainingGrant` on each of the stage:
+
+1. An order has a total of 100 USD and two `TransactionItem`s, one with a `chargedAmount` of 100 USD, and the second with `chargedAmount` of 60 USD.
+   The `totalBalance` would be 60, as `chargedAmount` - `order.total` results in 60. The `chargeStatus` is `OVERCHARGED`.
+2. Adding a granted refund with an amount of 10 USD would increase in a `totalBalance` of 10.
+   The `totalRemainingGrant` will be `10`. As `totalRefundedAmount` is 0.
+3. The second transaction was refunded for amount of 50.
+   After this operation, the `totalBalance` is 20, the order is still `OVERCHARGED`. The `totalChargedAmount` is reduced, `totalRefundedAmount` increased,
+   the `totalRemainingGrant` is still 10, as we still have `overchargedAmount` compared to the original `order.total`.
+   `overchargedAmount = totalChargedAmount + totalRefundedAmount - order.total = 110 + 50 - 100 = 60`
+   `totalRefunded =   `max(totalGrantedRefund - (totalRefunded - overchargedAmount), 0) = max(10 - max(50 - 60, 0)) = 10 - 0 = 10`
+4. In the next step the first transaction was refunded for 15 USD. We are finally below the `order.total` value so the `totalRemainingGrant` is reduced.
+5. Finally, the last refund for 5 USD has been proceed, the `totalBalance` is 0, `chargeStatus` is `FULL` and `totalRemainingGrant` is 0, as well.
+
+| Step Nr | total | totalBalance | authorizeStatus | chargeStatus | totalChargedAmount | totalRefundedAmount | orderGrantedRefund.amount | totalRemainingGrant.amount |
+| ------- | ----- | ------------ | --------------- | ------------ | ------------------ | ------------------- | ------------------------- | -------------------------- |
+| 1       | 100   | 60           | FULL            | OVERCHARGED  | 160                | 0                   | 0                         | 0                          |
+| 2       | 100   | 70           | FULL            | OVERCHARGED  | 160                | 0                   | 10                        | 10                         |
+| 3       | 100   | 20           | FULL            | OVERCHARGED  | 110                | 50                  | 10                        | 10                         |
+| 4       | 100   | 5            | FULL            | OVERCHARGED  | 95                 | 65                  | 10                        | 5                          |
+| 5       | 100   | 0            | FULL            | FULL         | 90                 | 70                  | 10                        | 0                          |
+
+> **Note:**
+>
+> - `totalChargedAmount` - is the sum of charged amounts from all transactions
+> - `totalRefundedAmount` - is the sum of all refunded or pending refunds amount from all transactions
+
+:::info
+
+- Pending amounts are treated as they were processed, so are included in all processed amounts.
+  It also means that `totalChargedAmount` includes `amountChargePending`, and `totalRefundedAmount` includes `amountRefundPending`.
+- Authorized amounts, including `amountAuthorized` and `amountAuthorizePending`, are also considered processed. These amounts will contribute to the overall processed totals and impact the `overchargedAmount`.
+  :::
