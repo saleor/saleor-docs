@@ -248,19 +248,24 @@ where
   overchargedAmount = processedAmount - order.total
   ```
 
-Below is an example order with multiple transactions and `totalRemainingGrant` on each of the stage:
+Below is an example order with multiple transactions and `totalRemainingGrant` at each stage:
 
-1. An order has a total of 100 USD and two `TransactionItem`s, one with a `chargedAmount` of 100 USD, and the second with `chargedAmount` of 60 USD.
+1. An order has a total of 100 USD and two `TransactionItem`s: one with a `chargedAmount` of 100 USD and the second with `chargedAmount` of 60 USD.
    The `totalBalance` would be 60, as `chargedAmount` - `order.total` results in 60. The `chargeStatus` is `OVERCHARGED`.
-2. Adding a granted refund with an amount of 10 USD would increase in a `totalBalance` of 10.
-   The `totalRemainingGrant` will be `10`. As `totalRefundedAmount` is 0.
-3. The second transaction was refunded for amount of 50.
-   After this operation, the `totalBalance` is 20, the order is still `OVERCHARGED`. The `totalChargedAmount` is reduced, `totalRefundedAmount` increased,
-   the `totalRemainingGrant` is still 10, as we still have `overchargedAmount` compared to the original `order.total`.
-   `overchargedAmount = totalChargedAmount + totalRefundedAmount - order.total = 110 + 50 - 100 = 60`
-   `totalRefunded =   `max(totalGrantedRefund - (totalRefunded - overchargedAmount), 0) = max(10 - max(50 - 60, 0)) = 10 - 0 = 10`
-4. In the next step the first transaction was refunded for 15 USD. We are finally below the `order.total` value so the `totalRemainingGrant` is reduced.
-5. Finally, the last refund for 5 USD has been proceed, the `totalBalance` is 0, `chargeStatus` is `FULL` and `totalRemainingGrant` is 0, as well.
+2. Adding a granted refund of 10 USD would increase in a `totalBalance` of 10.
+   The `totalRemainingGrant` becomes 10, as the `totalRefundedAmount` is 0.
+3. The second transaction is refunded for an amount of 50 USD.
+   After this operation, the `totalBalance` is 20, and the order remains `OVERCHARGED`. The `totalChargedAmount` decreases, and the `totalRefundedAmount` increases.
+   The `totalRemainingGrant` remains 10 because the `overchargedAmount` still exceeds the original order.total.
+
+   ```python
+   overchargedAmount = totalChargedAmount + totalRefundedAmount - order.total = 110 + 50 - 100 = 60
+
+   totalRefunded = max(totalGrantedRefund - (totalRefunded - overchargedAmount), 0) = max(10 - max(50 - 60, 0)) = 10 - 0 = 10
+   ```
+
+4. In the next step the first transaction was refunded for 15 USD. This brings the total below the `order.total` value, reducing the `totalRemainingGrant`.
+5. Finally, the last refund of 5 USD is processed, resulting in a `totalBalance` of 0. The `chargeStatus` is `FULL`, and the `totalRemainingGrant` is 0.
 
 | Step Nr | total | totalBalance | authorizeStatus | chargeStatus | totalChargedAmount | totalRefundedAmount | orderGrantedRefund.amount | totalRemainingGrant.amount |
 | ------- | ----- | ------------ | --------------- | ------------ | ------------------ | ------------------- | ------------------------- | -------------------------- |
