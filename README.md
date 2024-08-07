@@ -276,6 +276,11 @@ To assign a custom rank to a particular page, use the following code snippet:
 </head>
 ```
 
+# Linting
+
+Run `npm run lint` to check for any linting errors on staged (modified) files.
+Note that capitalization rules don't work well with front matter so you can ignore error messages located in the top `---` section.
+
 # Debugging
 
 In dev mode, Docusaurus serves a debug page with a list of all available routes and config at http://localhost:3000/\_\_docusaurus/debug.
