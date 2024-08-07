@@ -26,10 +26,12 @@ export const coreConcepts = [
 
   title("Checkout"),
   "developer/checkout/overview",
-  "developer/checkout/lines",
+  "developer/checkout/lifecycle",
+  "developer/checkout/api-guide",
   "developer/checkout/address",
   "developer/checkout/problems",
   "developer/checkout/finalizing",
+  "developer/checkout/troubleshooting",
 
   title("Orders"),
   "developer/checkout/order-status",
