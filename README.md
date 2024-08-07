@@ -225,6 +225,29 @@ The script behind the scenes does several steps:
 1. The current references from `docs` folder are being removed and generated references in `.tmp` folder are moved to the `docs`.
 1. The code examples are being injected. The code examples from the `examples` folder are being put into corresponding files in the references folder.
 
+# Creating links
+
+Tip: To enable autocomplete in VSCode open `docs` folder in the workspace.
+
+- Use only absolute paths, which is easier to maintain when moving files around or requires global search and replace.
+- Use the `.mdx` extension.
+- Start paths with `/`.
+- Don't use `/docs` as root path.
+
+Don't:
+
+`[Attributes](developer/attributes.mdx)`
+
+`[Attributes](/developer/attributes)`
+
+`[Attributes](../../attributes)`
+
+`[Attributes](/docs/developer/attributes)`
+
+Do:
+
+`[Attributes](/developer/attributes.mdx)`
+
 # Search
 
 Saleor Docs are using Algolia DocSearch for the website search.
