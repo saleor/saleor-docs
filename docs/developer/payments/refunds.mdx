@@ -7,7 +7,7 @@ There are two ways to process refunds:
 - Manual refund: This method involves directly refunding the payment through the payment app.
 - Refund based on `OrderGrantedRefund`: This method triggers the refund request based on the details stored in `OrderGrantedRefund`.
 
-### Manual refund
+## Manual refund
 
 The manual refund can be triggered by calling `transactionRequestAction`. If the refund is successful, the `transaction.chargedAmount` will be reduced. The order's `authorizeStatus`, `chargeStatus`, and `totalBalance` will also be recalculated based on the new values of `chargedAmount` and `refundedAmount`. This method is useful when handling overcharged orders.
 
@@ -41,7 +41,10 @@ The mutation accepts below arguments:
 - `actionType` - The type of action to be performed on the requested `TransactionItem`. For a refund action, use `REFUND`.
 - `amount` - The amount of the action. The amount is rounded based on the given currency precision. If not provided Saleor will use `TransactionItem.chargedAmount`.
 
-### Grant refunds
+## Grant refunds
+
+A granted refund refers to the process where a customer receives their money back after a refund request has been approved.
+Once a refund is granted, the customer is reimbursed for the purchase.
 
 When processing a refund based on `OrderGrantedRefund`, there are two steps involved. Firstly, an order must be granted a refund, which defines what should be refunded. This step requires the `MANAGE_ORDERS` permission. Secondly, a refund needs to be requested based on the created `OrderGrantedRefund`. This step requires the `HANDLE_PAYMENTS` permission.
 
@@ -57,6 +60,10 @@ The current status of the `OrderGrantedRefund` is represented by the `status` fi
 The `status` is calculated based on the latest refund `TransactionEvent`s assigned to the `OrderGrantedRefund`. The events can be accessed via the `OrderGrantedRefund.transactionEvents` field. The assigned `TransactionItem` can be accessed via the `OrderGrantedRefund.transaction` field.
 
 The `OrderGrantedRefund` has an impact on the `authorizeStatus`, `chargeStatus`, and `totalBalance`, as it reduces the total value used to calculate the `totalBalance`.
+
+:::note
+The maximum `amount` of `OrderGrantedRefund` is the `order.total`.
+:::
 
 For example:
 
@@ -204,3 +211,83 @@ mutation {
 
 To request a refund, you need to provide the `grantedRefundId` field. The mandatory refund details are stored as `OrderGrantedRefund`, so the refund request will be created based on this data.
 The `OrderGrantedRefund.status` field will be updated based on the result of the refund action. The `TransactionEvent`s related to the requested action will be accessible via `OrderGrantedRefund.transactionEvents` field.
+
+### Total remaining grant calculations
+
+The amount specified in the `OrderGrantedRefund` determines the portion of the `order.total` that should be refunded to the customer.
+The `order.totalRemainingGrant` specifies the amount that still needs to be refunded
+to achieve a state where the total charged amount equals the `order.total` minus the granted refund amount.
+
+The `order.totalRemainingGrant` amount is calculated based on the following formula:
+
+```Python
+totalRemainingGrant = totalGrantedRefund - alreadyGrantedRefund
+```
+
+where
+
+- `alreadyGrantedRefund` is the difference between already refunded and overcharged amounts
+  ```python
+  alreadyGrantedRefund = max((totalRefunded - overchargedAmount), 0)
+  ```
+- `totalGrantedRefund` is a sum of all `amount` from all `OrderGrantedRefund`. The maximum value is `order.total`, when the value is above,
+  it's replaced with the `order.total`.
+  ```python
+  totalGrantedRefund = max(sum(orderTotalGranted.amount), order.total)
+  ```
+- `totalRefunded` is a sum of `amount` from all transactions with refunded or pending refunds amount
+  ```python
+  totalRefunded = sum(amountRefunded + amountRefundPending)
+  ```
+- `overchargedAmount` defines the `amount` that has been charged over the `order.total` value. It's calculated
+  as a sum of all processed amounts (excluding cancel amounts) minus the `order.total`.
+
+  ```python
+  processedAmount = sum(amountCharged + amountRefunded + amountAuthorized + amountChargePending + amountRefundPending + amountAuthorizePending)
+
+  overchargedAmount = processedAmount - order.total
+  ```
+
+Below is an example order with multiple transactions and `totalRemainingGrant` at each stage:
+
+1. An order has a total of 100 USD and two `TransactionItem`s: one with a `chargedAmount` of 100 USD and the second with `chargedAmount` of 60 USD.
+   The `totalBalance` would be 60, as `chargedAmount` - `order.total` results in 60, and we do not have any granted refunds. The `chargeStatus` is `OVERCHARGED`.
+2. Adding a granted refund of 10 USD increases the `totalBalance` to 70, as it widens the difference between the total charged amount and the new expected order total.
+   Here's the calculation:
+   ```python
+   totalBalance = totalCharged - (order.total - totalGrantedRefunds) = 160 - (100 - 10) = 70
+   ```
+   The `totalRemainingGrant` becomes 10, as the `totalRefundedAmount` is 0.
+3. The second transaction is refunded for an amount of 50 USD.
+   After this operation, the `totalBalance` is 20, and the order remains `OVERCHARGED`. The `totalChargedAmount` decreases, and the `totalRefundedAmount` increases.
+   The `totalRemainingGrant` remains 10 because the `overchargedAmount` still exceeds the original order.total.
+
+   ```python
+   overchargedAmount = totalChargedAmount + totalRefundedAmount - order.total = 110 + 50 - 100 = 60
+
+   totalRefunded = max(totalGrantedRefund - (totalRefunded - overchargedAmount), 0) = max(10 - max(50 - 60, 0)) = 10 - 0 = 10
+   ```
+
+4. In the next step the first transaction was refunded for 15 USD. This brings the total below the `order.total` value, reducing the `totalRemainingGrant`.
+5. Finally, the last refund of 5 USD is processed, resulting in a `totalBalance` of 0. The `chargeStatus` is `FULL`, and the `totalRemainingGrant` is 0.
+
+| Step Nr | total | totalBalance | authorizeStatus | chargeStatus | totalChargedAmount | totalRefundedAmount | orderGrantedRefund.amount | totalRemainingGrant.amount |
+| ------- | ----- | ------------ | --------------- | ------------ | ------------------ | ------------------- | ------------------------- | -------------------------- |
+| 1       | 100   | 60           | FULL            | OVERCHARGED  | 160                | 0                   | 0                         | 0                          |
+| 2       | 100   | 70           | FULL            | OVERCHARGED  | 160                | 0                   | 10                        | 10                         |
+| 3       | 100   | 20           | FULL            | OVERCHARGED  | 110                | 50                  | 10                        | 10                         |
+| 4       | 100   | 5            | FULL            | OVERCHARGED  | 95                 | 65                  | 10                        | 5                          |
+| 5       | 100   | 0            | FULL            | FULL         | 90                 | 70                  | 10                        | 0                          |
+
+> **Note:**
+>
+> - `totalChargedAmount` - is the sum of charged amounts from all transactions
+> - `totalRefundedAmount` - is the sum of all refunded or pending refunds amount from all transactions
+
+:::info
+**In case of calculating total remaining grant:**
+
+- Pending amounts are treated as they were processed, so are included in all processed amounts.
+  It also means that `totalChargedAmount` includes `amountChargePending`, and `totalRefundedAmount` includes `amountRefundPending`.
+- Authorized amounts, including `amountAuthorized` and `amountAuthorizePending`, are also considered processed. These amounts will contribute to the overall processed totals and impact the `overchargedAmount`.
+  :::
