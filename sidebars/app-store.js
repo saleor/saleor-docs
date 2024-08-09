@@ -69,4 +69,5 @@ export const appStore = [
       "developer/app-store/legacy-plugins/user-emails",
     ],
   },
+  "developer/example-apps",
 ];
