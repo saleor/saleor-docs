@@ -37,3 +37,21 @@ Adyen App uses Adyen [Checkout API v70](https://docs.adyen.com/api-explorer/#/Ch
 :::
 
 If you want to self-host the Adyen app, reach out to [our team <Mail size={12}/>](mailto:hello@saleor.io).
+
+## Assumptions
+
+- App will return `CHARGE_ACTION_REQUIRED` or `AUTHORIZATION_ACTION_REQUIRED` as the transaction result when the response from Adyen to [initialize transaction session webhook](/developer/extending/webhooks/synchronous-events/transaction#initialize-transaction-session) or [process transaction session webhook](developer/extending/webhooks/synchronous-events/transaction#process-transaction-session) webhooks does not include `pspReference` or `action`. This is because Saleor don't require `pspReference` in app response for this transaction result.
+- App will not return `pspReference` for:
+  - [Transaction refund webhook](/developer/extending/webhooks/synchronous-events/transaction#transaction-refund) with transaction status of `REFUND_FAILURE`
+  - [Transaction charge webhook](/developer/extending/webhooks/synchronous-events/transaction#transaction-charge) with transaction status of `CHARGE_FAILURE`
+  - [Transaction cancelation webhook](/developer/extending/webhooks/synchronous-events/transaction#transaction-cancelation) with transaction status of `CANCEL_FAILURE`
+  - [Initialize transaction session webhook](/developer/extending/webhooks/synchronous-events/transaction#initialize-transaction-session) with transaction status of:
+    - `CHARGE_ACTION_REQUIRED`
+    - `AUTHORIZATION_ACTION_REQUIRED`
+    - `CHARGE_FAILURE`
+    - `AUTHORIZATION_FAILURE`
+  - [Process transaction session webhook](developer/extending/webhooks/synchronous-events/transaction#process-transaction-session) with transaction status of:
+    - `CHARGE_ACTION_REQUIRED`
+    - `AUTHORIZATION_ACTION_REQUIRED`
+    - `CHARGE_FAILURE`
+    - `AUTHORIZATION_FAILURE`
