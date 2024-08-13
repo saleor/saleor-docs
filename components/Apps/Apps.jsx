@@ -49,24 +49,10 @@ const Apps = () => {
         >
           <CMS />
         </Shell>
-        <Shell
-          color={"rgb(137, 82, 255)"}
-          title={"CRM"}
-          href={"developer/app-store/apps/crm"}
-        >
-          <CRM />
-        </Shell>
         {/*missing docs*/}
         {/*<Shell color={"rgb(59, 213, 121)"} title={"Data importer"}>*/}
         {/*  <Data />*/}
         {/*</Shell>*/}
-        <Shell
-          color={"rgb(227, 149, 60)"}
-          title={"Invoices"}
-          href={"developer/app-store/apps/invoices"}
-        >
-          <Invoices />
-        </Shell>
 
         {/*missing docs*/}
         {/*<Shell color={"rgb(58, 86, 199)"} title={"Klaviyo"}>*/}
@@ -86,13 +72,6 @@ const Apps = () => {
           href={"developer/app-store/apps/search"}
         >
           <Search />
-        </Shell>
-        <Shell
-          color={"rgb(37, 195, 101)"}
-          title={"Twilio Segment"}
-          href={"developer/app-store/apps/segment"}
-        >
-          <Segment />
         </Shell>
 
         {/*missing docs*/}
