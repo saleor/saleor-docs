@@ -31,6 +31,7 @@ export const coreConcepts = [
   "developer/checkout/address",
   "developer/checkout/problems",
   "developer/checkout/finalizing",
+  "developer/checkout/cookbook",
   "developer/checkout/troubleshooting",
 
   title("Orders"),

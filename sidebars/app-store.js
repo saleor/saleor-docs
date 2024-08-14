@@ -64,6 +64,7 @@ export const appStore = [
       "developer/app-store/legacy-plugins/adyen",
       "developer/app-store/legacy-plugins/dummy-credit-card",
       "developer/app-store/legacy-plugins/stripe",
+      "developer/app-store/legacy-plugins/braintree",
       "developer/app-store/legacy-plugins/oidc",
       "developer/app-store/legacy-plugins/np-atobarai",
       "developer/app-store/legacy-plugins/user-emails",
