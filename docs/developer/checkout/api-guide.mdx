@@ -465,22 +465,23 @@ mutation checkoutShippingAddressUpdate($checkoutId: ID!, $shippingAddress: Addre
 }
 
 fragment AddressFragment on Address {
-    id
-    city
-    phone
-    postalCode
-    companyName
-    cityArea
-    streetAddress1
-    streetAddress2
-    countryArea
-    country {
-        country
-        code
-    }
-    firstName
-    lastName
+id
+city
+phone
+postalCode
+companyName
+cityArea
+streetAddress1
+streetAddress2
+countryArea
+country {
+country
+code
 }
+firstName
+lastName
+}
+
 ````
 </TabItem>
 <TabItem value={"Variables"}>
@@ -575,6 +576,7 @@ Use [`checkoutDeliveryMethodUpdate`](/api-reference/checkout/mutations/checkout-
 Notice that the return type in `checkout.deliveryMethod` can be either `Warehouse` or `ShippingMethod`, so we need to use [union type](https://graphql.org/learn/schema/#union-types).
 
 Learn more about [delivery methods](/developer/checkout/address#selecting-the-delivery-method.mdx).
+
 </div>
 <Tabs>
 <TabItem value={"Mutation"}>
@@ -624,6 +626,51 @@ mutation {
     "cost": {
       "requestedQueryCost": 0,
       "maximumAvailable": 50000
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+</TwoColumn>
+
+<TwoColumn>
+<div>
+## Completing checkout
+Checkout can be completed if all [requirements are satisfied](/developer/checkout/lifecycle#completing-checkout).
+
+When the checkout is fully paid, the webhook [`CHECKOUT_FULLY_PAID`](api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#webhookeventtypeasyncenumcheckout_fully_paid) will be triggered.
+
+</div>
+<Tabs>
+<TabItem value={"GraphQL"}>
+```graphql {2-4}
+mutation {
+  checkoutComplete(
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+  ) {
+    order {
+      id
+      status
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+</TabItem>
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6MjU=",
+        "status": "UNFULFILLED"
+      },
+      "errors": []
     }
   }
 }
