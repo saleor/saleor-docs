@@ -98,3 +98,32 @@ mutation {
 ```
 </TabItem>
 </Tabs>
+
+
+## Partial/Split payments
+
+Common use cases of splitting payments on a single order are:
+
+- Charging only for part of the order and another part after the fulfillment.
+- Orders are split into fulfillments paid separately to each vendor.
+- Authorize part of the basket as a pre-order payment (without charging) and change it immediately before fulfillment.
+
+#### Possible Approach
+Prepare two transactions, one that is only authorized and one that is charged immediately.
+
+1. **Initialize transactions:**
+
+For the authorized-only transaction:
+- Checkout passes `amount` to the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize.mdx) mutation, and desired action such as `AUTHORIZE`.
+- In the `TRANSACTION_INITIALIZE_SESSION` webhook the payment app validates the split (e.g. if it is allowed) and includes `AUTHORIZE` in [allowed actions](/developer/extending/webhooks/synchronous-events/transaction#response-4).
+
+Remaining amount:
+- Checkout passes the remaining `amount` to the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize.mdx) mutation and desired action such as `CHARGE`.
+- In the `TRANSACTION_INITIALIZE_SESSION` webhook, the payment app validates the split (e.g., if it is allowed) and includes `CHARGE` in [allowed actions](/developer/extending/webhooks/synchronous-events/transaction#response-4).
+
+2. **Process transactions:**
+ - Calling [`transactionProcess`](/api-reference/payments/mutations/transaction-process.mdx) with `action` set to `AUTHORIZE` for the first transaction and `CHARGE` for the second transaction.
+
+:::note
+While it is possible to call `transactionInitialize` and `transactionProcess` directly from the storefront (client-side), it is recommended that these operations be executed from the backend (server-side), which would be more resilient and maintainable.
+:::
