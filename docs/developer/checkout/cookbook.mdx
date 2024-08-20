@@ -148,5 +148,45 @@ The [`metdafields`](/api-reference/orders/objects/order-line.mdx#orderlinemetafi
 Additional steps might be required to process such fields in the fulfillment process, such as:
 
 - Pass the fields to the ERP system
-- Listen to [`webhook`](/developer/extending/webhooks/overview.mdx) such as [`ORDER_CREATED`](/developer/extending/webhooks/synchronous-events/order#order-created) to process the fields
+- Listen to [`webhook`](/developer/extending/webhooks/overview.mdx) such as [`ORDER_CREATED`](/developer/extending/webhooks/synchronous-events/order.mdx#order-created) to process the fields
+- [Custom pricing](#custom-pricing)
+
+## Custom product pricing
+
+To set prices on checkout lines dynamically you can use the [`checkoutLinesUpdate`](/api-reference/checkout/inputs/checkout-line-update-input.mdx#checkoutlineupdateinputpricepositivedecimal--) mutation.
+Checkout lines can have custom prices set by the app
+
+
+## Using phone number instead as identity
+
+In some cases, you might want to use a phone number instead of an email address for customer identification. While Saleor always requires email to create orders, you can email field as a phone number or other semantic meaning. For example: `123456789@phone`.
+
+## Order approvals and quotes
+
+Example order approval flow:
+- Customer places an order without payment
+- Admin reviews the order and provides a final price in the form of a discount
+- Customer pays the final price
+- The order is shipped
+
+[Channel setting](/developer/channels/configuration.mdx#allow-unpaid-orders) should enable [`allowUnpaidOrders`](/api-reference/orders/inputs/order-settings-input.mdx#ordersettingsinputallowunpaidordersboolean--) to create orders without payments, (settings can be set via [API](/api-reference/channels/mutations/channel-update.mdx) or _Dashboard -> Order -> Order settings cogwheel_).
+
+To require manual approval of orders in the dashboard, set the [`automaticallyConfirmAllNewOrders`](/api-reference/orders/inputs/order-settings-input.mdx#ordersettingsinputautomaticallyconfirmallnewordersboolean--) to `false`
+(can be set via the dashboard _Configuration -> Channel_).
+
+To arrange communication between flow between admin see Order related [`webhooks`](/api-reference/webhooks/enums/webhook-sample-event-type-enum.mdx).
+
+
+## Subscriptions
+
+Common use cases of subscriptions are:
+
+- Create a subscription for a product that gets fulfilled periodically.
+- Create membership subscriptions that do not require fulfillment.
+
+A subscription service can be implemented as a standalone service that communicates with Saleor to write orders, update payments, and fulfill orders.
+If your admins need to manage subscriptions, you can use Saleor's dashboard to create a dedicated UI in the Saleor dashboard that will talk to your subscription service.
+
+
+
 
