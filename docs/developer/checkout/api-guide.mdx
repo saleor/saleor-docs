@@ -22,9 +22,12 @@ To create a [`Checkout`](api-reference/checkout/objects/checkout.mdx) object, us
   and an email address is used to identify such a [`Checkout`](api-reference/checkout/objects/checkout.mdx) object,
   linking it with the **anonymous user**.
   User email is not required at this stage but must be provided before adding a promo code, creating a payment or completing checkout.
+
+[`checkout.channel.countries`](/api-reference/channels/objects/channel#channelcountriescountrydisplay---) provides a list of countries to which shipping is available, which is derived from all shipping methods assigned to a channel of the checkout. This can be useful to render country picker at the checkout view.
 </div>
 <Tabs>
 <TabItem value="GraphQL">
+
 ```graphql
 mutation {
   checkoutCreate(
@@ -88,7 +91,9 @@ mutation {
   }
 }
 ```
+
     </TabItem>
+
 <TabItem value={"Result"}>
 ```json
 {
@@ -345,7 +350,7 @@ This feature is **only available for apps** with `HANDLE_CHECKOUTS` permission.
 
 The variant price of any item in checkout can be overridden.
 The provided price will be treated as the base price of the variant.
-If you apply a voucher or sale in checkout, it will be used on top of the overridden price.
+Applying a voucher or sale in checkout will be used on top of the overridden price.
 
 The custom price can be set with the `price` field in the
 [`CheckoutLineInput`](api-reference/checkout/inputs/checkout-line-input.mdx)
@@ -430,3 +435,254 @@ mutation {
 </TabItem>
 </Tabs>
 </TwoColumn>
+
+<TwoColumn>
+<div>
+
+## Update Shipping Address
+
+Use [`checkoutShippingAddressUpdate`](/api-reference/checkout/mutations/checkout-shipping-address-update.mdx) and [`checkoutBillingAddressUpdate`](api-reference/checkout/mutations/checkout-billing-address-update.mdx) mutations to set the destination address.
+
+Keep in mind that address affects the availability of the products.
+
+</div>
+<Tabs>
+<TabItem value={"Mutation"}>
+```graphql
+mutation checkoutShippingAddressUpdate($checkoutId: ID!, $shippingAddress: AddressInput!) {
+  checkoutShippingAddressUpdate(
+    id: $checkoutId
+    shippingAddress: $shippingAddress
+  ) {
+    checkout {
+      id
+      shippingAddress {
+        ...AddressFragment
+      }
+      billingAddress {
+        ...AddressFragment
+      }
+    }
+  }
+}
+
+fragment AddressFragment on Address {
+    id
+    city
+    phone
+    postalCode
+    companyName
+    cityArea
+    streetAddress1
+    streetAddress2
+    countryArea
+    country {
+        country
+        code
+    }
+    firstName
+    lastName
+}
+````
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "checkoutId": "Q2hlY2tvdXQ6MDk1MmNiNWUtMzZkYi00YTQ5LThhN2MtZjAyNGE2M2Y1NzNj",
+  "shippingAddress": {
+    "city": "New York",
+    "cityArea": "",
+    "companyName": "",
+    "country": "US",
+    "countryArea": "NY",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "",
+    "postalCode": "10019",
+    "streetAddress1": "11 W 53rd St, New York, NY",
+    "streetAddress2": ""
+  }
+}
+````
+
+</TabItem>
+
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "checkoutShippingAddressUpdate": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6MDk1MmNiNWUtMzZkYi00YTQ5LThhN2MtZjAyNGE2M2Y1NzNj",
+        "shippingAddress": {
+          "id": "QWRkcmVzczoxMjc=",
+          "city": "NEW YORK",
+          "phone": "",
+          "postalCode": "10019",
+          "companyName": "",
+          "cityArea": "",
+          "streetAddress1": "11 W 53rd St, New York, NY",
+          "streetAddress2": "",
+          "countryArea": "NY",
+          "country": {
+            "country": "United States of America",
+            "code": "US",
+            "__typename": "CountryDisplay"
+          },
+          "firstName": "First Name",
+          "lastName": "Last Name",
+          "__typename": "Address"
+        },
+        "billingAddress": {
+          "id": "QWRkcmVzczoxMjg=",
+          "city": "NEW YORK",
+          "phone": "",
+          "postalCode": "10019",
+          "companyName": "",
+          "cityArea": "",
+          "streetAddress1": "11 W 53rd St, New York, NY",
+          "streetAddress2": "",
+          "countryArea": "NY",
+          "country": {
+            "country": "United States of America",
+            "code": "US",
+            "__typename": "CountryDisplay"
+          },
+          "firstName": "First Name",
+          "lastName": "Last Name",
+          "__typename": "Address"
+        }
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 2,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+</TwoColumn>
+
+<TwoColumn>
+<div>
+## Update Delivery Method
+
+Use [`checkoutDeliveryMethodUpdate`](/api-reference/checkout/mutations/checkout-delivery-method-update.mdx) to pass the delivery method returned by the `checkout` query.
+
+Notice that the return type in `checkout.deliveryMethod` can be either `Warehouse` or `ShippingMethod`, so we need to use [union type](https://graphql.org/learn/schema/#union-types).
+
+Learn more about [delivery methods](/developer/checkout/address#selecting-the-delivery-method.mdx).
+
+</div>
+<Tabs>
+<TabItem value={"Mutation"}>
+```graphql
+mutation {
+  checkoutDeliveryMethodUpdate(
+    id: "Q2hlY2tvdXQ6MDk1MmNiNWUtMzZkYi00YTQ5LThhN2MtZjAyNGE2M2Y1NzNj"
+    deliveryMethodId: "U2hpcHBpbmdNZXRob2Q6MTU="
+  ) {
+    errors {
+      message
+      field
+    }
+    checkout {
+      deliveryMethod{
+        ...on Warehouse{
+          id
+          name
+        }
+        ... on ShippingMethod{
+          id
+          name
+        }
+      }
+    }
+    __typename
+  }
+}
+```
+</TabItem>
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "checkoutDeliveryMethodUpdate": {
+      "errors": [],
+      "checkout": {
+        "deliveryMethod": {
+          "id": "U2hpcHBpbmdNZXRob2Q6MTU=",
+          "name": "FedEx"
+        }
+      },
+      "__typename": "CheckoutDeliveryMethodUpdate"
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+</TwoColumn>
+
+<TwoColumn>
+<div>
+## Completing checkout
+Checkout can be completed if all [requirements are satisfied](/developer/checkout/lifecycle#completing-checkout).
+
+When the checkout is fully paid, the webhook [`CHECKOUT_FULLY_PAID`](api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#webhookeventtypeasyncenumcheckout_fully_paid) will be triggered.
+
+</div>
+<Tabs>
+<TabItem value={"GraphQL"}>
+```graphql {2-4}
+mutation {
+  checkoutComplete(
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+  ) {
+    order {
+      id
+      status
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+</TabItem>
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6MjU=",
+        "status": "UNFULFILLED"
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+</TwoColumn>
+
+
+### Other Mutations and Queries
+
+- [`checkoutAddPromoCode`](api-reference/checkout/mutations/checkout-add-promo-code.mdx) - Add a promo code to the checkout.
+- [`customerAttach`](/api-reference/checkout/mutations/checkout-customer-attach.mdx) - Attach a user to the checkout.
+- [`customerDetach`](/api-reference/checkout/mutations/checkout-customer-detach) - Detach a user from the checkout.

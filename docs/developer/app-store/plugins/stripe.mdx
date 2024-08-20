@@ -36,12 +36,69 @@ To create a payment properly, you need to follow the steps described in
 [Creating a checkout session](developer/checkout/overview.mdx#creating-a-checkout-session) and
 [Selecting a shipping method](developer/checkout/address.mdx).
 
-The next step is to choose Stripe as a payment gateway that we want to use to process checkout.
-For the Stripe payment gateway, we need to provide: `checkoutId`, and `input` with `gateway` and `amount`.
+The payment flow would follow these steps:
 
-:::note
-Description of the `checkoutPaymentCreate` mutation can be found [here](developer/checkout/finalizing.mdx).
-:::
+```mermaid
+sequenceDiagram
+  Client ->>+ Saleor: getPaymentMethods
+  Saleor -->>- Client: available PaymentMethods
+  Client ->>+ Saleor: checkoutPaymentCreate
+  Saleor -->>- Client: payment created
+```
+
+Available payment gateways can be listed from the `Checkout.availablePaymentGateways` field:
+
+```graphql
+query {
+  checkout(id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw") {
+    availablePaymentGateways {
+      id
+      name
+      config {
+        field
+        value
+      }
+    }
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "checkout": {
+      "availablePaymentGateways": [
+        {
+          "id": "mirumee.payments.stripe",
+          "name": "Stripe",
+          "config": [
+            {
+              "field": "api_key",
+              "value": "pk_test_SkWEusCNFdSgxGGmd23z7JC1FHh3uNufNuX"
+            },
+            {
+              "field": "store_customer_card",
+              "value": "false"
+            }
+          ]
+        },
+        {
+          "id": "mirumee.payments.dummy",
+          "name": "Dummy",
+          "config": [
+            {
+              "field": "store_customer_card",
+              "value": "false"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
 
 ```graphql
 mutation {
@@ -62,6 +119,18 @@ mutation {
 ```
 
 ## Completing the checkout
+
+The purpose of the operation is to ensure this checkout is correct. The validation consists of checking:
+
+1. The required addresses are valid.
+
+2. All selected products are in stock (while making the purchase, another user could already buy the last available item), except variants that have disabled stock tracking which can have zero or negative stock.
+
+3. The payment creation succeeded.
+
+4. No additional actions are required by the PSP.
+
+If these are satisfied, the checkout is transformed into an order, and the customer receives a confirmation email.
 
 After we create a payment object for the Stripe payment gateway,
 we can call the `checkoutComplete` mutation. The first call of `checkoutComplete` for checkout
@@ -167,6 +236,72 @@ As a result we get order object.
   }
 }
 ```
+
+### Payment requiring additional action
+
+```mermaid
+sequenceDiagram
+  Client ->>+ Saleor: checkoutComplete
+  Saleor ->>+ Payment Service Provider: process payment
+  Payment Service Provider -->>- Saleor: action needed
+  Saleor -->>- Client: action needed
+  Client ->>+ Payment Service Provider: perform confirmation
+  Payment Service Provider -->>- Client: confirmation data
+  Client ->>+ Saleor: checkoutComplete
+  Saleor ->>+ Payment Service Provider: confirm payment
+  Payment Service Provider -->>- Saleor: payment confirmed
+  Saleor -->>- Client: order data
+```
+
+An example of additional action is 3D Secure confirmation required by payment providers.
+
+An example of a complete mutation where the payment gateway requires additional steps from the user:
+
+```graphql {2-5}
+mutation{
+  checkoutComplete(
+    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+    paymentData: "{\"encryptedAdditionalAction\": \"eka...\"}"
+){
+     confirmationNeeded
+     confirmationData
+     order
+     errors{
+       field
+       message
+       code
+     }
+}
+```
+
+A response would look like this:
+
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": null,
+      "confirmationNeeded": true,
+      "confirmationData": "{\"paymentData\":\"Ab02b4c...\", \"paymentMethodType\":\"scheme\", \"token\":\"eyJ0aHJlZURTTWV0aG9kTm9...\", \"type\":\"threeDS2Fingerprint\"}",
+      "errors": []
+    }
+  }
+}
+```
+
+:::caution
+
+When any error is raised during the checkout completion or the payment
+will become inactive, processed payment will be refunded or voided (in case the payment wasn't charged yet).
+
+Here are the example scenarios that may end up with payment refunding:
+
+- the shipping method became invalid
+- the checkout is not fully paid
+- some products became unavailable od there is not enough stock of them
+- the processed payment became inactive
+
+:::
 
 ## Saving card in Stripe for future payments
 
