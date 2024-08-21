@@ -48,6 +48,7 @@ export const coreConcepts = [
 
   title("Stock"),
   "developer/checkout/stock",
+  "developer/stock-tracking",
   "developer/stock-allocation",
 
   title("Discounts"),
