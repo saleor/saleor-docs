@@ -47,8 +47,9 @@ export const coreConcepts = [
   "developer/payments/stored-payments",
 
   title("Stock"),
-  "developer/checkout/stock",
-  "developer/stock-allocation",
+  "developer/stock/stock-reservation",
+  "developer/stock/stock-tracking",
+  "developer/stock/stock-allocation",
 
   title("Discounts"),
   "developer/discounts/overview",
