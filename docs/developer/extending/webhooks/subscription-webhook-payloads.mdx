@@ -36,7 +36,7 @@ subscription {
 }
 ```
 
-### Filterable subscription query
+### Filtering webhooks
 
 :::info
 
@@ -51,19 +51,99 @@ feedback. However, it is still undergoing development and is subject to modifica
 
 :::
 
-For some webhook events, you can create a filterable subscription. A filterable subscription means the event will be delivered only when the filter input matches the object.
+For some webhook events, you can create a filterable subscription. A filterable subscription means the event will be delivered only when the filter input matches the object. This can be useful in below cases:
+
+- The app is responsible for additional actions for orders that come from a specific channel. For example: `US` channel requires to receive information that payment was charged, whereas the rest of the channels have auto-capture.
+- Making a separation between different markets. For example: `US` channel doesn't need to receive order events from `UK` market.
+- Reducing the traffic between Saleor and apps. Instead of sending each event to each app, the traffic will be reduced as only events for defined channels will be delivered.
 
 All filterable events are available as a top-level subscription field, on the same level as the [event](api-reference/miscellaneous/subscriptions/event.mdx) field.
 
+Below events can be filtered:
+
+- [draftOrderCreated](api-reference/miscellaneous/subscriptions/draft-order-created.mdx)
+- [draftOrderDeleted](api-reference/miscellaneous/subscriptions/draft-order-deleted.mdx)
+- [draftOrderUpdated](api-reference/miscellaneous/subscriptions/draft-order-updated.mdx)
+- [orderBulkCreated](api-reference/miscellaneous/subscriptions/order-bulk-created.mdx)
+- [orderCancelled](api-reference/miscellaneous/subscriptions/order-cancelled.mdx)
+- [orderCreated](api-reference/miscellaneous/subscriptions/order-created.mdx)
+- [orderExpired](api-reference/miscellaneous/subscriptions/order-expired.mdx)
+- [orderFulfilled](api-reference/miscellaneous/subscriptions/order-fulfilled.mdx)
+- [orderFullyPaid](api-reference/miscellaneous/subscriptions/order-fully-paid.mdx)
+- [orderFullyRefunded](api-reference/miscellaneous/subscriptions/order-fully-refunded.mdx)
+- [orderMetadataUpdated](api-reference/miscellaneous/subscriptions/order-metadata-updated.mdx)
+- [orderPaid](api-reference/miscellaneous/subscriptions/order-paid.mdx)
+- [orderRefunded](api-reference/miscellaneous/subscriptions/order-refunded.mdx)
+- [orderUpdated](api-reference/miscellaneous/subscriptions/order-updated.mdx)
+
 :::note
 Only one top field can be requested as a filterable subscription query. This means that in a single subscription, you cannot define more than one filterable event or mix it with the `event` field. In that case, a new webhook with a new subscription should be created.
-:::
 
-The example below is a subscription query that filters out newly created orders that do not belong to the channels with slugs: `uk`, `pl`:
+Subscription queries like the below will raise validation error:
 
 ```graphql
 subscription {
-  orderCreated(channels: ["uk", "pl"]) {
+  orderUpdated(channels: ["different-channel"]) {
+    order {
+      lines {
+        id
+        variant {
+          id
+          product {
+            id
+          }
+        }
+      }
+    }
+  }
+  orderCreated(channels: ["default-channel"]) {
+    order {
+      lines {
+        id
+        variant {
+          id
+          product {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+```graphql
+subscription {
+  event {
+    ... on OrderCreated {
+      order {
+        id
+      }
+    }
+  }
+  orderCreated(channels: ["default-channel"]) {
+    order {
+      lines {
+        id
+        variant {
+          id
+          product {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+:::
+
+The example below is a subscription query that triggers a webhook only for orders that belong to given channels: `uk`, `us`:
+
+```graphql
+subscription {
+  orderCreated(channels: ["uk", "us"]) {
     order {
       id
       lines {
@@ -73,6 +153,10 @@ subscription {
   }
 }
 ```
+
+:::note
+The input `channels` will accept a maximally 500 values. Exceeding this value will cause a validation error.
+:::
 
 The above subscription will generate the following webhook payload:
 
