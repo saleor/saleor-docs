@@ -4,6 +4,5 @@ export const cloudSidebar = [
   chapterTitle("cloud/overview", "Cloud overview", "cloud"),
   hr(),
   "cloud/environment",
-  "cloud/features",
   "cloud/restricting-api-access",
 ];
