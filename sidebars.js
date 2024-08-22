@@ -61,7 +61,7 @@ module.exports = {
     },
 
     title("Product"),
-    ref("cloud", "Cloud", "cloud"),
+    ref("cloud/overview", "Cloud", "cloud"),
     ref("developer/index", "Core Concepts", "guides"),
 
     title("API"),
