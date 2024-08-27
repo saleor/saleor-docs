@@ -299,6 +299,10 @@ To assign a custom rank to a particular page, use the following code snippet:
 </head>
 ```
 
+# Deployment
+
+The main branch is automatically released to [docs.saleor.io](https://docs.saleor.io/), which is handled by [Vercel](https://vercel.com/saleorcommerce/saleor-docs/settings/domains).
+
 # Linting
 
 Run `npm run lint` to check for any linting errors on staged (modified) files.
