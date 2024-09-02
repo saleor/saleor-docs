@@ -508,6 +508,10 @@ This field shouldn't be used by any external system, as it can change at any tim
 
 Should be called when the user removes a payment method in a pending Adyen order, for example when there was already a partial charge for a gift card but the user decided to use a different payment method.
 
+Canceling order automatically reports new event on `TransactionItem` with it's `type` set to either `REFUND_REQUEST` (when charge flow was used) or `CANCEL_REQUEST` (when authorization flow was used). This is done in order to prevent order creation once user requested a refund.
+
+In case `TransactionItem` status cannot be updated, request to Adyen won't be sent in order to prevent fraudulent orders.
+
 To call the `/orders/cancel` endpoint, similarly to `onBalanceCheck`, use the `paymentGatewayInitialize` mutation and pass the following `$data`:
 
 ```json
@@ -534,6 +538,9 @@ The response from that mutation will be:
   }
 }
 ```
+
+
+#### Example
 
 The `onOrderCancel` implementation in TypeScript could look like this (depending on your GraphQL client):
 
@@ -574,10 +581,11 @@ The three mutations described above may return `data.errors` field. The existenc
 The `code` field is a string identifying the error. One of the following values is allowed:
 
 - `UnknownError`
-- `JsonSchemaError`
-- `MissingSaleorApiUrlError`
-- `MissingAuthDataError`
-- `HttpClientError`
+- **`JsonSchemaError`**
+- **`MissingSaleorApiUrlError`**
+- **`MissingAuthDataError`** - when app was incorrectly installed / uninstalled and token to communicate with Saleor cannot be found
+- **`HttpClientError`**
+- **`InvalidDataError`** - when `data` field provded by storefront is invalid
 
 :::note
 
@@ -587,7 +595,11 @@ This list may be extended in the future. Make sure your app handles unknown erro
 
 The `message` field is a human-readable message describing the error.
 
-The `details` field is an object containing additional information about the error. It may contain two fields:
+The `details` field is an object containing additional information about the error. It will contain different fields, depending on error code.
+
+### Adyen API erorrs
+
+Error `details` will contain two fields:
 
 - `errorCode` – [Adyen error code](https://docs.adyen.com/development-resources/error-codes)
 - `statusCode` – [Adyen HTTP status code](https://docs.adyen.com/development-resources/response-handling)
@@ -619,6 +631,57 @@ Example:
         ],
         "paymentResponse": {}
       },
+      "errors": []
+    }
+  }
+}
+```
+
+### Incorrect input data
+
+When making request with any `action` described in "Additional endpoints" section, app might return `errors` field with a list of payment methods, just like when making "Obtain Adyen payment methods" request, rather than performing the requested action. This might happen when `data` requested by storefront was in invalid format.
+
+In that case a single `InvalidDataError` error will be included in `errors` array with `message` field that explains what went wrong and with `details` field that contains contain `fieldErrors` that describe error for each field required in the request:
+
+```json
+{
+  "data": {
+    "paymentGatewayInitialize": {
+      "gatewayConfigs": [
+        {
+          "id": "app.saleor.adyen",
+          "data": {
+            "paymentMethodsResponse": {
+              "paymentMethods": [
+                {
+                  "brands": ["visa", "mc"],
+                  "name": "Credit Card",
+                  "type": "scheme"
+                }
+              ]
+            },
+            "clientKey": "test_AHSJKADHK12731KDSALD11DSADASA003",
+            "environment": "TEST"
+          },
+          "errors": [
+            {
+              "code": "InvalidDataError",
+              "message": "Invalid action data was provided in PaymentGatewayInitializeSession request: orderData: Required, pspReference: Required. Please check documentation for required parameters",
+              "details": {
+                "formErrors": [],
+                "fieldErrors": {
+                  "orderData": [
+                    "Required"
+                  ],
+                  "pspReference": [
+                    "Required"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ],
       "errors": []
     }
   }
