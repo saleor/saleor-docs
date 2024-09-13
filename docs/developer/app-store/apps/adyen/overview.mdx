@@ -60,13 +60,23 @@ If you want to self-host the Adyen app, reach out to [our team <Mail size={12}/>
 
 ## Limitations & troubleshooting
 
-### Broken channel-configuration mapping
+### Changing channel to configuration mapping in production
 
 App stores it's configuration assigned to specific Saleor channel.
 
-If you change the assignment, all enqueued notifications (pending notifications from Adyen) that were related to such configuration will be not found by the app, causing the request to fail.
+Each payment in Adyen stores `channelId` in it's metadata, in order to get proper configuration from the app once app receives notification from Adyen.
 
-Before you change the configuration mapping, ensure that Adyen webhooks are not pending.
+If you change the this channel to configuration mapping, all enqueued notifications (pending notifications from Adyen) that were related such channel will be not handled properly by the app, causing the request to fail.
+
+Before you change the configuration mapping, make sure that you do one of the following (listed in order of least intrusive changes):
+- **Create new channel in Saleor** and create a new config so that you don't change mappings at all. This way you can gradually accept new orders on new merchant account and keep handling changes related to orders created on old merchant account.
+- **Use the same webhook settings** for the new configuration (HMAC key, username, password).
+  - You can re-use old HMAC key in Adyen webhook, by choosing it from the list while creating the webhook.
+  - Keep in mind that if you change merchant account app will not be able to request changes on existing Transactions, but it will report changes made in Adyen Dashboard. To do that webhook needs to have selected previous merchant account in ["include specific merchant account" setting](https://docs.adyen.com/development-resources/webhooks/#set-up-webhooks-in-your-customer-area).
+  - If you want to use new HMAC key, remember to first create new configuration in app with the old HMAC key, and then change it in both new and old configuration, then you can save changes in Adyen. This way no notification will be rejected by app due to invalid HMAC signature
+- **Not recomended**: Make sure you **don't have any pending notifications** in the Adyen queue. You can achieve that by disabling payments for your merchant account for a while and then migrating it.
+  - Keep in mind that if you request _any_ action on already created Transactions (refund, charge, cancel), they will fail.
+  - Any payment modifications requested in Adyen Dashboard will also not not be reflected in Saleor.
 
 ### Flooded Adyen webhook queue
 
