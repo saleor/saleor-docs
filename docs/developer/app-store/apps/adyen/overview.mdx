@@ -57,3 +57,21 @@ If you want to self-host the Adyen app, reach out to [our team <Mail size={12}/>
     - `AUTHORIZATION_ACTION_REQUIRED`
     - `CHARGE_FAILURE`
     - `AUTHORIZATION_FAILURE`
+
+## Limitations & troubleshooting
+
+### Broken channel-configuration mapping
+
+App stores it's configuration assigned to specific Saleor channel.
+
+If you change the assignment, all enqueued notifications (pending notifications from Adyen) that were related to such configuration will be not found by the app, causing the request to fail.
+
+Before you change the configuration mapping, ensure that Adyen webhooks are not pending.
+
+### Flooded Adyen webhook queue
+
+Adyen uses a queue to deliver notifications to the app. The more unexpected error occur (app returning non-200 to Adyen), the more events will be marked as "error" in the Adyen queue.
+
+After some (arbitrary) limit is reached on the Adyen's side, there is a risk that Adyen will stop sending notifications until error is fixed or notification dropped.
+
+This situation is abnormal, but to ensure smooth process, you should regularly monitor Adyen's webhook queue and drop broken events if needed
