@@ -87,3 +87,26 @@ After some arbitrary limit set by Adyen is reached for specific webhook events, 
 This situation is abnormal, but to ensure smooth process, you should regularly monitor Adyen's webhook queue and drop broken events if needed
 
 In order to drop notifications (e.g. due to a change in channel to configuration mapping in App) refer to [Adyen Docs](https://docs.adyen.com/development-resources/webhooks/troubleshoot/#ignore-notification). Keep in mind that if notification is dropeed it's current status won't be reflected in Saleor. You need to drop each broken notification separately by refreshing page in Adyen Dashboard.
+
+### Duplicated `chargedAmount` in Saleor
+
+If you have `chargedAmount` that's duplicated due to two `CHARGE_SUCCESS` event being created in Transaction history, make sure that you've disabled "Delayed capture" webhook setting in Adyen Dashboard.
+
+:::info
+This setting causes app to receive two webhooks for each payment that uses `CHARGE` flow (capture delay in merchant account settings is set to "immediate" or "x days" and [`channel.paymentSettings.defaultTransactionFlowStrategy`](/api-reference/payments/inputs/payment-settings-input.mdx) is set to [`TransactionFlowStrategyEnum.CHARGE`](/api-reference/payments/enums/transaction-flow-strategy-enum.mdx):
+
+- First `AUTHORIZED` webhook is sent when payment is first created, it's an authorization (funds locked on customer payment method)
+- Then `CAPTURE` webhook is sent when transaction is charged (this happens automatically by Adyen) and funds are transferred to you.
+
+Adyen app currently assumes that `AUTHORIZED` webhook is used for both charge and captures and identifies which flow was used based on your Saleor and Adyen merchant account settings.
+
+`CHARGE` webhook is currently used only when reporting charges on previously authorized payment when you use either [`TransactionFlowStrategyEnum.AUTHORIZATION`](/api-reference/payments/enums/transaction-flow-strategy-enum.mdx) in your Saleor channel or you set Capture delay to "manual" in merchant account settings.
+:::
+
+To disable this setting that go to the `Dashboard > Developers > Webhooks`. In upper corner click `Settings` button:
+
+![Adyen dashboard webhooks page, where "Settings" button is located](./adyen_webhook_settings_delayed_capture_1.png)
+
+On the Webhook settings page make sure to uncheck "Delayed Capture" setting:
+
+![Adyen dashboard webhook settings page, where Delayed Capture setting is available, the checkbox is unchecked](./adyen_webhook_settings_delayed_capture_2.png)
