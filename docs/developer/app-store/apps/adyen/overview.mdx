@@ -79,6 +79,63 @@ Before you change the configuration mapping, make sure that you do one of the fo
   - Keep in mind that if you request _any_ action on already created Transactions (refund, charge, cancel), they will fail.
   - Any payment modifications requested in Adyen Dashboard will also not not be reflected in Saleor.
 
+### Rejected Adyen webhook
+
+Adyen webhook notifications might get rejected by Adyen app for various reasons. You can investigate them by checking response returned by app in Adyen webhook logs.
+
+Here are some common reasons for rejected Adyen webhook
+
+#### Invalid HMAC signature or username or password
+
+Adyen notifications content is signed using the HMAC key generated at the time of webhook configuration (to learn more about configuration see [Configuration docs page](./configuration.mdx)).
+
+App stores each HMAC key in it's configuration that's based on `channelId` which in turn is stored in Adyen payment metadata.
+
+```
+Adyen payment -> Notification item -> Metadata channelId -> Channel x configuration mapping in app settings -> Configuration -> HMAC key
+```
+
+When signature is invalid, it can mean either that:
+- You've changed HMAC key in your Adyen webhook settings, but didn't update it in app settings
+- You've changed HMAC key in your app configuration, but HMAC wasn't changed on Adyen side
+- You've channged a channel to configuration mapping in app, but new configuration has different HMAC key configured
+
+Same principle applies to webhook's `username` and `password`.
+
+If you detect such issue, we recommend you to check current configuration if it matches your expecatations (accidental mapping change). If so, then you can rotate HMAC key by going to Adyen settings, generating new HMAC key and updating it in Adyen app.
+
+Once you save changes, app will now store two (or more) HMAC keys which will be used to check incoming notifications.
+
+Note that notifications which were already queued by Adyen, will still be rejected by app, as they were signed using old HMAC key. You'll need to update Transaction status manually in Saleor and ignore these notifications on Adyen side.
+
+If number of enqueued webhooks is too high for manual ignore, you can also create brand new webhook, and new configuration in Adyen app. See [Configuration docs page](./configuration.mdx) to see how this can be done.
+
+#### Missing configuration for channel
+
+As described in [Invalid HMAC signature section](#invalid-hmac-signature) notifications are dependant on your channel to configuration mapping. If you do one of the following:
+- delete configuration that was assigned to a channel
+- unset channel to configuration mapping
+
+Any notification for Transactions created in that channel will be rejected by app.
+
+To fix this, assign correct channel to configuration mapping.
+
+Keep in mind that if you decide to create new configuration and use a new HMAC key, previously enqueued notifications in Adyen will still be rejected, as they were signed using old HMAC key.
+
+#### Receiving notifications for transactions not started in Adyen app
+
+If you use the same merchant account in Adyen for multiple purposes (e.g. multiple Saleor instances, subscription payments done by other app, in store POS payments) Adyen app might reject these notifications, which will impact delivery of other notifiactions that were meant for Adyen app.
+
+In order to prevent this from happening you should:
+- Treat merchant account used for Adyen app payments as dedicated only to the app, meaning if you want to process other payments, you will create new merchant accounts for any other use case
+- **Only if above cannot be done**: make sure that you do not include any metadata in Adyen payment that could be used to identify it as a Saleor payment. This way Adyen app will not be able to identify it as a Saleor payment and will not reject it. Here are some common fields that are used to identify Saleor payment:
+    - `metadata.channelId`
+    - `metadata.transactionId`
+
+#### Changed `saleorApiUrl`
+
+If you change your Saleor instance domain, then you should also update webhook URL in Adyen app. To do that go to Adyen app settings, copy new webhook URL and update it in Adyen dashboard.
+
 ### Flooded Adyen webhook queue
 
 Adyen uses a queue to deliver notifications to the app. The more unexpected error occur (app returning non-200 to Adyen), the more events will be marked as "error" in the Adyen queue. Adyen will keep retrying notifications delivery up to 30 days.
