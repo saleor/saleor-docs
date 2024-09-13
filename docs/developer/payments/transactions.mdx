@@ -194,6 +194,9 @@ It takes the following arguments:
 - `id`: The id of the transaction.
 - `type`: Type of the reported action.
 - `amount`: The amount of the reported action. The amount is rounded based on the given currency precision.
+It is mandatory for all `REQUEST`, `SUCCESS`, `ACTION_REQUIRED`, and `REQUEST` events. For other events,
+if the amount is not provided, it will be calculated based on previous events with the same pspReference.
+If the amount cannot be determined, an error will be raised. (Refer to the additional details [below](#amount-calculations-for-reporting-an-action-with-missing-amount-value) ).
 - `pspReference`: The reference assigned to the action.
 - `time`: The time of the action.
 - `externalUrl`: The URL for the staff user to check the details of the action on the payment provider's page. This URL will be available in the Saleor Dashboard.
@@ -252,6 +255,33 @@ In the response, Saleor returns:
   will be raised.
 - `transaction` - Transaction that has been updated based on the received report.
 - `transactionEvent` - [TransactionEvent](/api-reference/payments/objects/transaction-event) that has been created based on the received report.
+
+#### Amount calculations for reporting an action with missing amount value
+The `amount` value is required for the following event `type`s:
+- [`AUTHORIZATION_SUCCESS`](/api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumauthorization_success),
+- [`AUTHORIZATION_ADJUSTMENT`](/api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumauthorization_adjustment),
+- [`AUTHORIZATION_REQUEST`](/api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumauthorization_request),
+- [`CHARGE_ACTION_REQUIRED`](/api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcharge_action_required),
+- [`CHARGE_SUCCESS`](/api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcharge_success),
+- [`CHARGE_REQUEST`](/api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcharge_request),
+- [`REFUND_SUCCESS`](/api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumrefund_success),
+- [`REFUND_REQUEST`](/api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumrefund_request),
+- [`CANCEL_SUCCESS`](/api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcancel_success),
+- [`CANCEL_REQUEST`](/api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcancel_request).
+
+It's optional for the rest of the events. In case of missing `amount` value the following rules are used to
+calculate the `amount`:
+- In case of missing amount for event `INFO`, the 0 is used.
+- In case of missing amount for all `*_FAILURE`, the amount is taken from the corresponding `*_SUCCESS` or `*_REQUEST` event with the same `pspReference`.
+In case of multiple events, the value from the newest event is taken:
+  - for `REFUND_FAILURE` the `amount` is taken from the newest event of one of the following types: `REFUND_SUCCESS`, `REFUND_REQUEST`, `CHARGE_SUCCESS`, `CHARGE_FAILURE`, `CHARGE_REQUEST`;
+  - for `CHARGE_FAILURE` the `amount` is taken from the newest event of one of the following types: `CHARGE_SUCCESS`, `CHARGE_REQUEST`, `AUTHORIZATION_SUCCESS`, `AUTHORIZATION_FAILURE`, `AUTHORIZATION_REQUEST`;
+  - for `AUTHORIZATION_FAILURE` the `amount` is taken from the newest event of one of the following types: `AUTHORIZATION_SUCCESS`, `AUTHORIZATION_REQUEST`;
+  - for `CANCEL_FAILURE` the `amount` is taken from the newest event of one of the following types: `CANCEL_SUCCESS`, `CANCEL_REQUEST`, `AUTHORIZATION_SUCCESS`, `AUTHORIZATION_FAILURE`, `AUTHORIZATION_REQUEST`.
+- In case of `REFUND_REVERSE` the `amount` is taken from the `REFUND_SUCCESS` event with the same `pspReference`.
+- In case of `CHARGEBACK` the `amount` is taken from the `CHARGE_SUCCESS` event with the same `pspReference`.
+- If the specific event for the pspReference doesn't exist, the error will be raised.
+
 
 ### Handling action requests for transactions
 
