@@ -61,3 +61,81 @@ In other cases app will not send `lineItems` to Adyen.
 A granted refund is initiated using the [`transactionRequestRefundForGrantedRefund`](/api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) mutation.
 
 When granted refund is requested, app will map `grantedRefund.lines.orderLines` to `lineItems` reported to Adyen. Additionally, if `grantedRefund.shippingCostIncluded` is set to true, the app will include a shipping line in the lineItems sent to Adyen.
+
+## TransactionItem metadata
+
+App sets metadata on each `TransactionItem` it creates in Saleor. Metadata is set when app receives asynchronous confirmation from Adyen via webhook.
+
+### Configuring fields included in metadata
+
+Adyen app sets fields on metadata from `NotificationItem.additionalData` object it receives from Adyen. To configure which fields are included by Adyen go to `Developres > Additional data` and select your preffered fields.
+
+:::caution
+Remember to always include following fields for proper notification handling:
+- `Authorization amount`
+- `Authorisation amount (dynamic zero authorisation)`
+- `Recurring details`
+- `Merchant reference`
+:::
+
+For example if you want to have data abuot used payment method and it's variant choose:
+- `Subvariant`
+- `Variant`
+- `Co-brand`
+- `Expiry date`
+- `Card summary`
+
+
+After choosing these fields you will have following fields set on your `TransactionItem` metadata:
+
+```json
+{
+  "cardSummary": "1111",
+  "expiryDate": "8/2018",
+  "paymentMethodVariant": "visadebit",
+  "paymentMethod": "visa",
+  "coBrandedWith": "visa",
+  "authorisedAmountCurrency": "EUR",
+  "authorisedAmountValue": "1000",
+  "recurring.shopperReference": "testshopper",
+  "recurring.recurringDetailReference": "1111111111111111",
+  "merchantReference": "ref_1234"
+}
+```
+
+### Subscribing to metadata changes
+
+The best way to check metadata updates on TransactionItem is to subscribe to [`TRANSACTION_ITEM_METADATA_UPDATED`](/api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#webhookeventtypeasyncenumtransaction_item_metadata_updated) async webhook event. This way you can be sure that metadata is up-to-date in your external system (e.g. if you use metadata to store which payment method was used for tax purposes).
+
+If you include `metafields` or `metadata` from `TransactionItem` in any other subscription it might not be set at all, or be out-of-date.
+
+:::note
+For example if you use `ORDER_CREATED` webhook to check `TransactionItem.metadata` then if your customer has completed checkout very quickly, metadata might not yet be set on `TransactionItem`. This means it won't be included in a notification from Saleor.
+:::
+
+#### Example
+
+Here's an example subscription query that listens to metadata changes
+
+```graphql
+subscription {
+  event {
+    ... on TransactionItemMetadataUpdated {
+      __typename
+      issuingPrincipal {
+        ... on App {
+          identifier
+        }
+      }
+      transaction {
+        id
+        pspReference
+        order {
+          id
+        }
+        metafields
+      }
+    }
+  }
+}
+```
