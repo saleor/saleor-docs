@@ -139,3 +139,39 @@ subscription {
   }
 }
 ```
+
+## Capture delay
+
+All payment methods that have "separate capture" feature available (to check availability refer to [Adyen docs](https://docs.adyen.com/payment-methods/) and look for methods with "Separate captures" listed in the features) are impacted by capture delay setting in merchant account.
+
+Capture is a transfer of previously locked funds to the merchant. In Adyen, you can either:
+- capture funds immediately after authorization: `captureDelay: immediate`
+- delay it for a certain period of time: `captureDelay: x hours`
+- disable automatic capture and always do it manually: `captureDelay: manual`
+
+:::tip
+Remember that capture can expire after certain period of time if it is not extended. This depends on used payment method. For example, most credit cards authorizations expire after 28 days.
+
+To see expiration time for specific payment methods [see this documentation page in Adyen docs](https://docs.adyen.com/online-payments/adjust-authorisation/#validity)
+
+Expired payments can be re-authorized, although this somes with some risk. [See Adyen docs for more infomration](https://docs.adyen.com/account/manage-payments/#reauthorize-a-payment)
+:::
+
+The delay can be set in the Adyen dashboard in the merchant account settings.
+
+### TransactionFlowStrategy
+
+Saleor channel settings include a [`paymentSettings.defaultTransactionFlowStrategy`](/api-reference/payments/inputs/payment-settings-input.mdx) setting. Here's how it impacts payments done via Adyen App:
+
+- **`TransactionFlowStrategyEnum.CHARGE`** - Behavior of merchant account capture delay settings will be used, no change is made by app:
+  - If capture delay is set to **immediate**, capture will be created, there won't be authorization event in Transaction history
+  - If capture delay is set to **x hours**, first authorization will be made, then a Transaction will be automatically captured after x hours
+  - If capture delay is set to **manual**, authorization will be done insetad of a charge, which must be captuerd either in Saleor Dashboard or Adyen Dashboard
+- **`TransactionFlowStrategyEnum.AUTHORIZE`** - App will use [`manualCapture: true`](https://docs.adyen.com/online-payments/capture/?tab=1#enable-manual-capture) field when making payments, it behaves the same way as if `captureDelay: manual` was set in Adyen merchant account settings
+  - If capture delay is set to **immediate**, behavior is changed, this setting will be ignored and authorization will be done instead
+  - If capture delay is set to **x hours**, behavior is changed, this setting will be ignored and authorization will be done instead
+  - If capture delay is set to **manual**, there is no change in behavior, authorization will be created
+
+:::note
+If payment method doesn't support "separate capture" feature, it will always be charged, no matter any setting in Adyen or Saleor.
+:::
