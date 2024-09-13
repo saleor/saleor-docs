@@ -226,6 +226,8 @@ and its amount is added to `transaction.chargedAmount`. Finally, the amount of t
 
 ## Transaction event types
 
+### Authorization events
+
 #### `AUTHORIZATION_SUCCESS`
 
 Saleor assigns provided `amount` to `transaction.authorizedAmount`. If an `AUTHORIZATION_SUCCESS` event is related to an `AUTHORIZATION_REQUEST` event by `pspReference`, then the `transactionItem.authorizePendingAmount`
@@ -251,6 +253,8 @@ be used to provide the history of `transactionItem` actions.
 
 Saleor assigns the provided `amount` to the `transaction.authorizedAmount`.
 
+### Charge events
+
 #### `CHARGE_SUCCESS`
 
 Adds the provided `amount` to the `transaction.chargedAmount`. Each next call will add the `amount` to the existing
@@ -274,6 +278,14 @@ be used to provide the history of `transactionItem` actions.
 The provided `amount` will be used to reduce `transaction.chargedAmount`
 (`transaction.chargedAmount -= amount`).
 
+### Refund events
+
+:::warning
+Refund events should only be triggered if the transaction has been previously charged.
+Triggering a refund for uncharged transactions can lead to negative `chargedAmount`.
+Refund events modify both the `refundedAmount` and `chargedAmount` values, so if the transaction wasn’t charged beforehand, it may result in data inconsistencies.
+:::
+
 #### `REFUND_SUCCESS`
 
 Adds provided `amount` to `transaction.refundedAmount`. Each next call will add the `amount` to the existing
@@ -296,6 +308,14 @@ be used to provide the history of `transactionItem` actions.
 
 The provided `amount` will be used to reduce `transaction.refundedAmount` (`transaction.refundedAmount -= amount`).
 The provided `amount` will increase `transaction.chargedAmount`.
+
+### Cancel events
+
+:::warning
+Refund events should only be triggered if the transaction has been previously authorized.
+Triggering a refund for uncharged transactions can lead to negative `authorizedAmount`.
+Refund events modify both the `refundedAmount` and `authorizedAmount` values, so if the transaction wasn’t authorized beforehand, it may result in data inconsistencies.
+:::
 
 #### `CANCEL_SUCCESS`
 
