@@ -1,0 +1,37 @@
+---
+sidebar_position: 3
+title: Migration guides
+---
+
+This page contains notable functional changes introduced in the Adyen App.
+
+:::note
+We do our best to avoid breaking changes. However, some changes are required. Depending on how the system is configured,
+some functional changes may be breaking.
+:::
+
+Below is the list of changes introduced in Adyen App releases
+
+## v0.24.0 (September 2024)
+
+This release changes when Transaction metadata will be set, based on Adyen response.
+
+### Before this release:
+
+Transaction metadata was updated in `transaction-initialize-session`, `transaction-process-session` webhooks and Adyen webhook handler.
+
+In first two webhooks (sync) metadata was set eagerly, but not complete. It was possible that race condition occurred, causing incomplete metadata overwriting the complete one.
+In the final Adyen webhook, metadata was delayed, but was complete.
+
+### In this release:
+
+Metadata will not be updated in `transaction-initialize-session` and `transaction-process-session` webhooks. Adyen webhook behavior will stay the same.
+
+Metadata will be set only once, and it will be set lazy. Metadata will be complete.
+
+### Migration guide
+
+Prior to this release, you may have been listening to `ORDER_UPDATED` event to access the Transaction metadata.
+
+To ensure you listen to proper events, subscribe to `TRANSACTION_ITEM_METADATA_UPDATED`. This webhook will execute exactly when metadata is set by Adyen.
+
