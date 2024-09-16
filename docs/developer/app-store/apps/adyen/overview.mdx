@@ -42,11 +42,11 @@ If you want to self-host the Adyen app, reach out to [our team <Mail size={12}/>
 
 - If Adyen doesn't respond to app request for [initialize transaction session](/developer/extending/webhooks/synchronous-events/transaction#initialize-transaction-session) or [process transaction session](/developer/extending/webhooks/synchronous-events/transaction#process-transaction-session) with `pspReference`:
   - App will return `CHARGE_ACTION_REQUIRED` or `AUTHORIZATION_ACTION_REQUIRED` as the transaction result. This is because Saleor doesn't require `pspReference` in app response for these transaction results.
-  - App can also return this status if an action is required to be performed on the storefront, this is incicated by an `action` object being included in the Adyen response.
+  - App can also return this status if an action is required to be performed on the storefront, this is indicated by an `action` object being included in the Adyen response.
 - App might not return `pspReference` for:
   - [Transaction refund webhook](/developer/extending/webhooks/synchronous-events/transaction#transaction-refund) with transaction status of `REFUND_FAILURE`
   - [Transaction charge webhook](/developer/extending/webhooks/synchronous-events/transaction#transaction-charge) with transaction status of `CHARGE_FAILURE`
-  - [Transaction cancelation webhook](/developer/extending/webhooks/synchronous-events/transaction#transaction-cancelation) with transaction status of `CANCEL_FAILURE`
+  - [Transaction cancellation webhook](/developer/extending/webhooks/synchronous-events/transaction#transaction-cancelation) with transaction status of `CANCEL_FAILURE`
   - [Initialize transaction session webhook](/developer/extending/webhooks/synchronous-events/transaction#initialize-transaction-session) with transaction status of:
     - `CHARGE_ACTION_REQUIRED`
     - `AUTHORIZATION_ACTION_REQUIRED`
@@ -63,21 +63,21 @@ If you want to self-host the Adyen app, reach out to [our team <Mail size={12}/>
 
 ### Changing channel to configuration mapping in production
 
-App stores it's configuration assigned to specific Saleor channel.
+App stores its configuration assigned to specific Saleor channel.
 
-Each payment in Adyen stores `channelId` in it's metadata, in order to get proper configuration from the app once app receives notification from Adyen.
+Each payment in Adyen stores `channelId` in its metadata, in order to get proper configuration from the app once app receives notification from Adyen.
 
-If you change the this channel to configuration mapping, all enqueued notifications (pending notifications from Adyen) that were related such channel will be not handled properly by the app, causing the request to fail.
+If you change the channel to configuration mapping, all enqueued notifications (pending notifications from Adyen) that were related such channel will be not handled properly by the app, causing the request to fail.
 
-Before you change the configuration mapping, make sure that you do one of the following (listed in order of least intrusive changes):
+Before you change the configuration mapping, make sure that you do one of the following (listed in order of the least intrusive changes):
 - **Create new channel in Saleor** and create a new config so that you don't change mappings at all. This way you can gradually accept new orders on new merchant account and keep handling changes related to orders created on old merchant account.
 - **Use the same webhook settings** for the new configuration (HMAC key, username, password).
   - You can re-use old HMAC key in Adyen webhook, by choosing it from the list while creating the webhook.
   - Keep in mind that if you change merchant account app will not be able to request changes on existing Transactions, but it will report changes made in Adyen Dashboard. To do that webhook needs to have selected previous merchant account in ["include specific merchant account" setting](https://docs.adyen.com/development-resources/webhooks/#set-up-webhooks-in-your-customer-area).
   - If you want to use new HMAC key, remember to first create new configuration in app with the old HMAC key, and then change it in both new and old configuration, then you can save changes in Adyen. This way no notification will be rejected by app due to invalid HMAC signature
-- **Not recomended**: Make sure you **don't have any pending notifications** in the Adyen queue. You can achieve that by disabling payments for your merchant account for a while and then migrating it.
+- **Not recommended**: Make sure you **don't have any pending notifications** in the Adyen queue. You can achieve that by disabling payments for your merchant account for a while and then migrating it.
   - Keep in mind that if you request _any_ action on already created Transactions (refund, charge, cancel), they will fail.
-  - Any payment modifications requested in Adyen Dashboard will also not not be reflected in Saleor.
+  - Any payment modifications requested in Adyen Dashboard will also not be reflected in Saleor.
 
 ### Rejected Adyen webhook
 
@@ -87,9 +87,9 @@ Here are some common reasons for rejected Adyen webhook
 
 #### Invalid HMAC signature or username or password
 
-Adyen notifications content is signed using the HMAC key generated at the time of webhook configuration (to learn more about configuration see [Configuration docs page](./configuration.mdx)).
+Adyen's notifications content is signed using the HMAC key generated at the time of webhook configuration (to learn more about configuration see [Configuration docs page](./configuration.mdx)).
 
-App stores each HMAC key in it's configuration that's based on `channelId` which in turn is stored in Adyen payment metadata.
+App stores each HMAC key in its configuration that's based on `channelId` which in turn is stored in Adyen payment metadata.
 
 ```
 Adyen payment -> Notification item -> Metadata channelId -> Channel x configuration mapping in app settings -> Configuration -> HMAC key
@@ -98,21 +98,21 @@ Adyen payment -> Notification item -> Metadata channelId -> Channel x configurat
 When signature is invalid, it can mean either that:
 - You've changed HMAC key in your Adyen webhook settings, but didn't update it in app settings
 - You've changed HMAC key in your app configuration, but HMAC wasn't changed on Adyen side
-- You've channged a channel to configuration mapping in app, but new configuration has different HMAC key configured
+- You've changed a channel to configuration mapping in app, but new configuration has different HMAC key configured
 
 Same principle applies to webhook's `username` and `password`.
 
-If you detect such issue, we recommend you to check current configuration if it matches your expecatations (accidental mapping change). If so, then you can rotate HMAC key by going to Adyen settings, generating new HMAC key and updating it in Adyen app.
+If you detect such issue, we recommend you to check current configuration if it matches your expectations (accidental mapping change). If so then you can rotate HMAC key by going to Adyen settings, generating new HMAC key and updating it in Adyen app.
 
 Once you save changes, app will now store two (or more) HMAC keys which will be used to check incoming notifications.
 
 Note that notifications which were already queued by Adyen, will still be rejected by app, as they were signed using old HMAC key. You'll need to update Transaction status manually in Saleor and ignore these notifications on Adyen side.
 
-If number of enqueued webhooks is too high for manual ignore, you can also create brand new webhook, and new configuration in Adyen app. See [Configuration docs page](./configuration.mdx) to see how this can be done.
+If number of enqueued webhooks is too high for manual ignore, you can also create brand-new webhook, and new configuration in Adyen app. See [Configuration docs page](./configuration.mdx) to see how this can be done.
 
 #### Missing configuration for channel
 
-As described in [Invalid HMAC signature section](#invalid-hmac-signature) notifications are dependant on your channel to configuration mapping. If you do one of the following:
+As described in [Invalid HMAC signature section](#invalid-hmac-signature) notifications are dependent on your channel to configuration mapping. If you do one of the following:
 - delete configuration that was assigned to a channel
 - unset channel to configuration mapping
 
@@ -124,7 +124,7 @@ Keep in mind that if you decide to create new configuration and use a new HMAC k
 
 #### Receiving notifications for transactions not started in Adyen app
 
-If you use the same merchant account in Adyen for multiple purposes (e.g. multiple Saleor instances, subscription payments done by other app, in store POS payments) Adyen app might reject these notifications, which will impact delivery of other notifiactions that were meant for Adyen app.
+If you use the same merchant account in Adyen for multiple purposes (e.g. multiple Saleor instances, subscription payments done by other app, in store POS payments) Adyen app might reject these notifications, which will impact delivery of other notifications that were meant for Adyen app.
 
 In order to prevent this from happening you should:
 - Treat merchant account used for Adyen app payments as dedicated only to the app, meaning if you want to process other payments, you will create new merchant accounts for any other use case
@@ -144,14 +144,14 @@ After some arbitrary limit set by Adyen is reached for specific webhook events, 
 
 This situation is abnormal, but to ensure smooth process, you should regularly monitor Adyen's webhook queue and drop broken events if needed
 
-In order to drop notifications (e.g. due to a change in channel to configuration mapping in App) refer to [Adyen Docs](https://docs.adyen.com/development-resources/webhooks/troubleshoot/#ignore-notification). Keep in mind that if notification is dropeed it's current status won't be reflected in Saleor. You need to drop each broken notification separately by refreshing page in Adyen Dashboard.
+In order to drop notifications (e.g. due to a change in channel to configuration mapping in App) refer to [Adyen Docs](https://docs.adyen.com/development-resources/webhooks/troubleshoot/#ignore-notification). Keep in mind that if notification is dropped its current status won't be reflected in Saleor. You need to drop each broken notification separately by refreshing page in Adyen Dashboard.
 
 ### Duplicated `chargedAmount` in Saleor
 
 If you have `chargedAmount` that's duplicated due to two `CHARGE_SUCCESS` event being created in Transaction history, make sure that you've disabled "Delayed capture" webhook setting in Adyen Dashboard.
 
 :::info
-This setting causes app to receive two webhooks for each payment that uses `CHARGE` flow (capture delay in merchant account settings is set to "immediate" or "x days" and [`channel.paymentSettings.defaultTransactionFlowStrategy`](/api-reference/payments/inputs/payment-settings-input.mdx) is set to [`TransactionFlowStrategyEnum.CHARGE`](/api-reference/payments/enums/transaction-flow-strategy-enum.mdx):
+This setting causes app to receive two webhooks for each payment that uses `CHARGE` flow (capture delay in merchant account settings is set to "immediate" or "x days" and [`channel.paymentSettings.defaultTransactionFlowStrategy`](/api-reference/payments/inputs/payment-settings-input.mdx) is set to [`TransactionFlowStrategyEnum.CHARGE`](/api-reference/payments/enums/transaction-flow-strategy-enum.mdx)):
 
 - First `AUTHORIZED` webhook is sent when payment is first created, it's an authorization (funds locked on customer payment method)
 - Then `CAPTURE` webhook is sent when transaction is charged (this happens automatically by Adyen) and funds are transferred to you.
