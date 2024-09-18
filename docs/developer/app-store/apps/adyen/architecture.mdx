@@ -39,18 +39,24 @@ The app restricts Saleor API response time to 5 seconds for [`TransactionInitial
 
 If such timeout happens, the created [`TransactionItem`](api-reference/payments/objects/transaction-item.mdx) will not have the metadata from Adyen on `additionalDetails` object, which includes payment method type, credit card brand, etc.
 
-### Granted refunds vs manual refunds
+### Refund with line items vs refund with manual amount
+
+:::note
+In Saleor Dashboard you can choose between two types of refunds that use different Saleor APIs:
+- **"Refund with line items"** - creates [OrderGrantedRefund](/api-reference/orders/objects/order-granted-refund.mdx) and sends a refund to Adyen App using [`transactionRequestRefundForGrantedRefund`](/api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx)
+- **"Refund with manual amount"** - sends refund request to Adyen App using [`transactionRequestAction`](api-reference/payments/mutations/transaction-request-action.mdx)
+:::
 
 There are differences in how refunds are handled depending on whether a [`OrderGrantedRefund`](/api-reference/orders/objects/order-granted-refund.mdx) was created in Saleor and a refund via [`transactionRequestRefundForGrantedRefund`](api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) mutation was requested, or a "manual refund" sent via [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action.mdx) mutation was requested. The differences are in how [`lineItems`](https://docs.adyen.com/api-explorer/Checkout/71/post/payments/_paymentPspReference_/refunds#request-lineItems.mdx) are reported to Adyen
 
-#### Manual refund
+#### Refund with manual amount
 
-A manual refund is initiated using the [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action.mdx) mutation.
+This refund is initiated using the [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action.mdx) mutation.
 
 When a manual refund is requested, the app will send `lineItems` to Adyen if the `amount` is equal to or greater than the Order's total gross amount.
 In other cases' app will not send `lineItems` to Adyen.
 
-#### Granted refund
+#### Refund with line items
 
 
  <Badge
@@ -58,9 +64,9 @@ In other cases' app will not send `lineItems` to Adyen.
    class="badge badge--secondary margin-bottom--sm"
  />
 
-A granted refund is initiated using the [`transactionRequestRefundForGrantedRefund`](/api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) mutation.
+This refund is initiated using the [`transactionRequestRefundForGrantedRefund`](/api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) mutation.
 
-When granted refund is requested, app will map `grantedRefund.lines.orderLines` to `lineItems` reported to Adyen. Additionally, if `grantedRefund.shippingCostIncluded` is set to true, the app will include a shipping line in the `lineItems` sent to Adyen.
+When refund for granted refund is requested, app will map `grantedRefund.lines.orderLines` to `lineItems` reported to Adyen. Additionally, if `grantedRefund.shippingCostIncluded` is set to true, the app will include a shipping line in the `lineItems` sent to Adyen.
 
 ## TransactionItem metadata
 
