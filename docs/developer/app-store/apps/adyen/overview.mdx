@@ -58,6 +58,35 @@ If you want to self-host the Adyen app, reach out to [our team <Mail size={12}/>
     - `CHARGE_FAILURE`
     - `AUTHORIZATION_FAILURE`
 - [Webhook settings > Delayed Capture](#duplicated-chargedamount-in-saleor) is disabled in Adyen Dashboard
+- App supports following notification events from Adyen, other types of events will be ignored:
+  - [`Authorisation`](https://docs.adyen.com/api-explorer/Webhooks/1/post/AUTHORISATION)
+  - [`AuthorisationAdjustment`](https://docs.adyen.com/api-explorer/Webhooks/1/post/AUTHORISATION_ADJUSTMENT)
+  - [`Cancellation`](https://docs.adyen.com/api-explorer/Webhooks/1/post/CANCELLATION)
+  - [`CancelOrRefund`](https://docs.adyen.com/api-explorer/Webhooks/1/post/CANCEL_OR_REFUND)
+  - [`Capture`](https://docs.adyen.com/api-explorer/Webhooks/1/post/CAPTURE)
+  - [`CaptureFailed`](https://docs.adyen.com/api-explorer/Webhooks/1/post/CAPTURE_FAILED)
+  - [`Expire`](https://docs.adyen.com/api-explorer/Webhooks/1/post/EXPIRE)
+  - [`OrderClosed`](https://docs.adyen.com/api-explorer/Webhooks/1/post/ORDER_CLOSED)
+  - [`Refund`](https://docs.adyen.com/api-explorer/Webhooks/1/post/REFUND)
+  - [`RefundFailed`](https://docs.adyen.com/api-explorer/Webhooks/1/post/REFUND_FAILED)
+  - [`RefundedReversed`](https://docs.adyen.com/api-explorer/Webhooks/1/post/REFUNDED_REVERSED)
+  - [`RefundWithData`](https://docs.adyen.com/api-explorer/Webhooks/1/post/REFUND_WITH_DATA)
+  - [`VoidPendingRefund`](https://docs.adyen.com/api-explorer/Webhooks/1/post/VOID_PENDING_REFUND)
+  - [`Chargeback`](https://docs.adyen.com/api-explorer/Webhooks/1/post/CHARGEBACK)
+  - [`SecondChargeback`](https://docs.adyen.com/api-explorer/Webhooks/1/post/SECOND_CHARGEBACK)
+  - [`ChargebackReversed`](https://docs.adyen.com/api-explorer/Webhooks/1/post/CHARGEBACK_REVERSED)
+  - Following events will be mapped to `INFO` event in Saleor, it will not change amounts on `TransactionItem`:
+    - `HandledExternally`
+    - `PostponedRefund` 
+    - `NotificationOfFraud`
+    - `NotificationOfChargeback`
+    - `PrearbitrationLost`
+    - `PrearbitrationWon`
+    - `RequestForInformation`
+    - `ManualReviewAccept`
+    - `ManualReviewReject`
+- Notifications from Adyen must include `metadata` set by the app, during payment. Payments made without using Adyen App that do not include this metadata will be ignored ([see more details](#receiving-notifications-for-transactions-not-started-in-adyen-app)).
+- Before [user cancels a payment](./storefront.mdx#onordercancel), App will update `TransactionItem` in Saleor, so that it has either `REFUND_REQUEST` or `CANCEL_REQUEST` event. If update in Saleor fails, user won't be able to cancel payment. This prevents fraudulent orders from being created.
 
 ## Limitations & troubleshooting
 
