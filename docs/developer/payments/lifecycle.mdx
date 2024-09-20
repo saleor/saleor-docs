@@ -225,6 +225,8 @@ and its amount is added to `transaction.chargedAmount`. Finally, the amount of t
 
 ## Transaction event types
 
+### Authorization events
+
 #### `AUTHORIZATION_SUCCESS`
 
 Saleor assigns provided `amount` to `transaction.authorizedAmount`. If an `AUTHORIZATION_SUCCESS` event is related to an `AUTHORIZATION_REQUEST` event by `pspReference`, then the `transactionItem.authorizePendingAmount`
@@ -250,6 +252,8 @@ be used to provide the history of `transactionItem` actions.
 
 Saleor assigns the provided `amount` to the `transaction.authorizedAmount`.
 
+### Charge events
+
 #### `CHARGE_SUCCESS`
 
 Adds the provided `amount` to the `transaction.chargedAmount`. Each next call will add the `amount` to the existing
@@ -272,6 +276,14 @@ be used to provide the history of `transactionItem` actions.
 
 The provided `amount` will be used to reduce `transaction.chargedAmount`
 (`transaction.chargedAmount -= amount`).
+
+### Refund events
+
+:::warning
+Refund events should only be triggered if the transaction has been previously charged.
+Triggering a refund for uncharged transactions can lead to negative `chargedAmount`.
+Refund events modify both the `refundedAmount` and `chargedAmount` values, so if the transaction wasn’t charged beforehand, it may result in data inconsistencies.
+:::
 
 #### `REFUND_SUCCESS`
 
@@ -296,6 +308,14 @@ be used to provide the history of `transactionItem` actions.
 The provided `amount` will be used to reduce `transaction.refundedAmount` (`transaction.refundedAmount -= amount`).
 The provided `amount` will increase `transaction.chargedAmount`.
 
+### Cancel events
+
+:::warning
+Refund events should only be triggered if the transaction has been previously authorized.
+Triggering a refund for uncharged transactions can lead to negative `authorizedAmount`.
+Refund events modify both the `refundedAmount` and `authorizedAmount` values, so if the transaction wasn’t authorized beforehand, it may result in data inconsistencies.
+:::
+
 #### `CANCEL_SUCCESS`
 
 The provided `amount` will be added to `transaction.canceledAmount`
@@ -313,3 +333,39 @@ for `transaction.canceledAmount` will not take into account the amount from `CAN
 If an `CANCEL_FAILURE` event is related to an `CANCEL_REQUEST` event by `pspReference`, then the `transactionItem.cancelPendingAmount`
 will be reduced by the amount reported in the `CANCEL_FAILURE` event. If there is no related `CANCEL_REQUEST`, the failure event will only
 be used to provide the history of `transactionItem` actions.
+
+
+## Transaction event flow
+
+Transaction events modify the amount fields, which define the state of the transaction.
+We do not require any specific order of incoming events, the transaction amounts will be calculated
+based on the rules described [above](#transaction-event-types).
+But to maintain accuracy and integrity, it is important that events are triggered in a valid order.
+The chart below illustrates the possible sequence of events that can follow one another.
+Failure to adhere to these guidelines may result in negative values and data inconsistencies.
+
+- Transaction flow strategy: `Authorization`
+```mermaid
+stateDiagram-v2
+ direction LR
+
+ AUTHORIZATION
+ CHARGE
+ CANCEL
+ REFUND
+
+ AUTHORIZATION --> CHARGE
+ CHARGE --> REFUND
+ AUTHORIZATION --> CANCEL
+```
+
+- Transaction flow strategy: `Charge`
+```mermaid
+stateDiagram-v2
+ direction LR
+
+ CHARGE
+ REFUND
+
+ CHARGE --> REFUND
+```
