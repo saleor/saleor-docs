@@ -39,18 +39,24 @@ The app restricts Saleor API response time to 5 seconds for [`TransactionInitial
 
 If such timeout happens, the created [`TransactionItem`](api-reference/payments/objects/transaction-item.mdx) will not have the metadata from Adyen on `additionalDetails` object, which includes payment method type, credit card brand, etc.
 
-### Granted refunds vs manual refunds
+### Refund with line items vs refund with manual amount
 
-There are differences in how refunds are handled depending on wether an [`OrderGrantedRefund`](/api-reference/orders/objects/order-granted-refund.mdx) was created in Saleor and a refund via [`transactionRequestRefundForGrantedRefund`](api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) mutation was requested, or a "manual refund" sent via [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action.mdx) mutation was requested. The differences is in how [`lineItems`](https://docs.adyen.com/api-explorer/Checkout/71/post/payments/_paymentPspReference_/refunds#request-lineItems.mdx) are reported to Adyen
+:::note
+In Saleor Dashboard you can choose between two types of refunds that use different Saleor APIs:
+- **"Refund with line items"** - creates [OrderGrantedRefund](/api-reference/orders/objects/order-granted-refund.mdx) and sends a refund to Adyen App using [`transactionRequestRefundForGrantedRefund`](/api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx)
+- **"Refund with manual amount"** - sends refund request to Adyen App using [`transactionRequestAction`](api-reference/payments/mutations/transaction-request-action.mdx)
+:::
 
-#### Manual refund
+There are differences in how refunds are handled depending on whether a [`OrderGrantedRefund`](/api-reference/orders/objects/order-granted-refund.mdx) was created in Saleor and a refund via [`transactionRequestRefundForGrantedRefund`](api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) mutation was requested, or a "manual refund" sent via [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action.mdx) mutation was requested. The differences are in how [`lineItems`](https://docs.adyen.com/api-explorer/Checkout/71/post/payments/_paymentPspReference_/refunds#request-lineItems.mdx) are reported to Adyen
 
-A manual refund is initiated using the [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action.mdx) mutation.
+#### Refund with manual amount
 
-When manual refund is requested, the app will send `lineItems` to Adyen if the `amount` is equal to or greater than Order's total gross amount.
-In other cases app will not send `lineItems` to Adyen.
+This refund is initiated using the [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action.mdx) mutation.
 
-#### Granted refund
+When a manual refund is requested, the app will send `lineItems` to Adyen if the `amount` is equal to or greater than the Order's total gross amount.
+In other cases' app will not send `lineItems` to Adyen.
+
+#### Refund with line items
 
 
  <Badge
@@ -58,6 +64,120 @@ In other cases app will not send `lineItems` to Adyen.
    class="badge badge--secondary margin-bottom--sm"
  />
 
-A granted refund is initiated using the [`transactionRequestRefundForGrantedRefund`](/api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) mutation.
+This refund is initiated using the [`transactionRequestRefundForGrantedRefund`](/api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) mutation.
 
-When granted refund is requested, app will map `grantedRefund.lines.orderLines` to `lineItems` reported to Adyen. Additionally, if `grantedRefund.shippingCostIncluded` is set to true, the app will include a shipping line in the lineItems sent to Adyen.
+When refund for granted refund is requested, app will map `grantedRefund.lines.orderLines` to `lineItems` reported to Adyen. Additionally, if `grantedRefund.shippingCostIncluded` is set to true, the app will include a shipping line in the `lineItems` sent to Adyen.
+
+## TransactionItem metadata
+
+App sets metadata on each `TransactionItem` it creates in Saleor. Metadata is set when app receives asynchronous confirmation from Adyen via webhook.
+
+### Configuring fields included in metadata
+
+Adyen app sets fields on metadata from `NotificationItem.additionalData` object it receives from Adyen. To configure which fields are included by Adyen go to `Developres > Additional data` and select your preferred fields.
+
+:::caution
+Remember to always include the following fields for proper notification handling:
+- `Authorization amount`
+- `Authorisation amount (dynamic zero authorisation)`
+- `Recurring details`
+- `Merchant reference`
+:::
+
+For example, if you want to have data about used payment method, and it's variant choose:
+- `Subvariant`
+- `Variant`
+- `Co-brand`
+- `Expiry date`
+- `Card summary`
+
+
+After choosing these settings, you will have the following fields set on your `TransactionItem` metadata:
+
+```json
+{
+  "cardSummary": "1111",
+  "expiryDate": "8/2018",
+  "paymentMethodVariant": "visadebit",
+  "paymentMethod": "visa",
+  "coBrandedWith": "visa",
+  "authorisedAmountCurrency": "EUR",
+  "authorisedAmountValue": "1000",
+  "recurring.shopperReference": "testshopper",
+  "recurring.recurringDetailReference": "1111111111111111",
+  "merchantReference": "ref_1234"
+}
+```
+
+### Subscribing to metadata changes
+
+The best way to check metadata updates on TransactionItem is to subscribe to [`TRANSACTION_ITEM_METADATA_UPDATED`](/api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#webhookeventtypeasyncenumtransaction_item_metadata_updated) async webhook event. This way you can be sure that metadata is up-to-date in your external system (e.g. if you use metadata to store which payment method was used for tax purposes).
+
+If you include `metafields` or `metadata` from `TransactionItem` in any other subscription, it might not be set at all, or be out-of-date.
+
+:::note
+For example, if you use `ORDER_CREATED` webhook to check `TransactionItem.metadata` then if your customer has completed checkout very quickly, metadata might not yet be set on `TransactionItem`. This means it won't be included in a notification from Saleor.
+:::
+
+#### Example
+
+Here's an example subscription query that listens to metadata changes
+
+```graphql
+subscription {
+  event {
+    ... on TransactionItemMetadataUpdated {
+      __typename
+      issuingPrincipal {
+        ... on App {
+          identifier
+        }
+      }
+      transaction {
+        id
+        pspReference
+        order {
+          id
+        }
+        metafields
+      }
+    }
+  }
+}
+```
+
+## Capture delay
+
+All payment methods that have "separate capture" feature available (to check availability, refer to [Adyen docs](https://docs.adyen.com/payment-methods/) and look for methods with "Separate captures" listed in the features) are impacted by capture delay setting in merchant account.
+
+Capture is a transfer of previously locked funds to the merchant. In Adyen, you can either:
+- capture funds immediately after authorization: `captureDelay: immediate`
+- delay it for a certain period of time: `captureDelay: x hours`
+- disable automatic capture and always do it manually: `captureDelay: manual`
+
+:::tip
+Remember that capture can expire after a certain period of time if it is not extended. This depends on used payment method. For example, most credit cards authorizations expire after 28 days.
+
+To see expiration time for specific payment methods, [see this documentation page in Adyen docs](https://docs.adyen.com/online-payments/adjust-authorisation/#validity)
+
+Expired payments can be re-authorized, although this comes with some risk. [See Adyen docs for more information](https://docs.adyen.com/account/manage-payments/#reauthorize-a-payment)
+:::
+
+The delay can be set in the Adyen dashboard in the merchant account settings.
+
+### TransactionFlowStrategy
+
+Saleor channel settings include a [`paymentSettings.defaultTransactionFlowStrategy`](/api-reference/payments/inputs/payment-settings-input.mdx) setting. Here's how it impacts payments done via Adyen App:
+
+- **`TransactionFlowStrategyEnum.CHARGE`** - Behavior of merchant account capture delay settings will be used, no change is made by app:
+  - If capture delay is set to **immediate**, capture will be created, there won't be authorization event in Transaction history
+  - If capture delay is set to **x hours**, first authorization will be made, then a Transaction will be automatically captured after x hours
+  - If capture delay is set to **manual**, authorization will be done instead of a charge, which must be captured either in Saleor Dashboard or Adyen Dashboard
+- **`TransactionFlowStrategyEnum.AUTHORIZE`** - App will use [`manualCapture: true`](https://docs.adyen.com/online-payments/capture/?tab=1#enable-manual-capture) field when making payments, it behaves the same way as if `captureDelay: manual` was set in Adyen merchant account settings
+  - If capture delay is set to **immediate**, behavior is changed, this setting will be ignored and authorization will be done instead
+  - If capture delay is set to **x hours**, behavior is changed, this setting will be ignored and authorization will be done instead
+  - If capture delay is set to **manual**, there is no change in behavior, authorization will be created
+
+:::note
+If payment method doesn't support "separate capture" feature, it will always be charged, no matter any setting in Adyen or Saleor.
+:::
