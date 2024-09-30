@@ -3,6 +3,10 @@ title: Price Calculation
 sidebar_label: Price Calculation
 ---
 
+:::note
+The calculations described in this section are aplicable both to checkout and order. 
+:::
+
 ## Introduction
 
 There are multiple factors affecting the final price of an order.
@@ -11,16 +15,16 @@ then applies all discounts, and finally calculates taxes.
 
 ```mermaid
 sequenceDiagram
-    Undiscounted Price->>+Base Price: apply catalogue promotion
-    Undiscounted Price->>+Base Price: apply line-level voucher
-    Undiscounted Price->>+Base Price: apply manual line discount
-    Base Price->>+ Untaxed Price: apply order promotion
-    Base Price->>+ Untaxed Price: apply order-level voucher
-    Base Price->>+ Untaxed Price: apply manual line discount
-    Untaxed Price->>+ Final Price: apply taxes
+    Undiscounted price->>+Base price: apply catalogue promotion
+    Undiscounted price->>+Base price: apply line-level voucher
+    Undiscounted price->>+Base price: apply manual line discount
+    Base price->>+ Untaxed price: apply order promotion
+    Base price->>+ Untaxed price: apply order-level voucher
+    Base price->>+ Untaxed price: apply manual line discount
+    Untaxed price->>+ Final price: apply taxes
 ```
 
-### Undiscounted Price
+## Undiscounted price
 
 ​​Firstly, Saleor is looking for a variant price and shipping cost for a specific channel.
 There is an option to override the prices by providing a `price` argument in
@@ -30,9 +34,9 @@ or [checkoutLineUpdateInput](api-reference/checkout/inputs/checkout-line-update-
 In case of checkout mutations, overriding prices can be done only by app with `HANDLE_CHECKOUTS` permission.
 Whether the price was taken directly from the channel or overridden, it is reflected as an undiscounted price.
 
-### Discount Application
+## Discount application
 
-#### Base Price
+### Base price
 
 We first apply [`line-level discounts`](developer/discounts/overview.mdx#level) which decrease unit prices, resulting in the so-called `base price`. The application is done in the following order:
 
@@ -45,7 +49,7 @@ Some of the line discounts are mutually exclusive:
 * manual line discount can't be combined and overrides all other line discounts
 * only one voucher can be applied
 
-#### Untaxed Price
+### Untaxed price
 
 Having line-level discounts applied, we can sum up all the lines and calculate the base subtotal, which will be the basis for applying [`order-level discounts`](developer/discounts/overview.mdx#level):
 
@@ -62,19 +66,18 @@ All order-level discounts are mutually exclusive and can't be combined.
 After the application, when using flat rates or Avatx plugin tax strategies, the discounts are proportionally propagated to the order lines.
 When a custom tax app is used to calculate taxes, this is done by the app itself.
 
-### Tax Calculation
+## Tax calculation
 
 After handling the discounts, Saleor calculates taxes to reflect gross prices (or net if [pricesEnteredWithTax](developer/taxes.mdx#tax-configuration) is set to True).
 Tax calculation can be omitted by [chargeTaxes](developer/taxes.mdx#tax-configuration) setting or [tax exemption API](developer/taxes.mdx#tax-exemption).
+Saleor offers three tax calculation strategies.
 
-Saleor offers three tax calculation strategies:
-
-#### Flat Rates
+### Flat rates
 
 When using [`flat rates`](developer/taxes.mdx#flat-rates), all the calculations are done by Saleor itself.
 It applies static tax rates, defined by the user, associated with products, product types, shipping methods or countries.
 
-#### Tax App
+### Tax app
 
 Over [CHECKOUT_CALCULATE_TAXES](developer/extending/webhooks/synchronous-events/tax.mdx#checkout-taxes) 
 and [ORDER_CALCULATE_TAXES](developer/extending/webhooks/synchronous-events/tax.mdx#order-taxes) sync webhooks,
@@ -83,7 +86,7 @@ In return, Saleor expects final line prices and shipping price, with all discoun
 The prices obtained from the tax app are considered final and take precedence over both net and gross prices.
 The only thing Saleor calculates are undiscounted gross prices based on received tax rates.
 
-#### Avatax Plugin
+### Avatax plugin
 
 Avatax plugin is a built-in integration with Avalara. Similar to custom tax apps, final data relies on extrenal tax service,
 but in this case Saleor is responsible for handling Avalara response data and applying it to the prices.
