@@ -56,10 +56,6 @@ const Apps = () => {
         >
           <CRM />
         </Shell>
-        {/*missing docs*/}
-        {/*<Shell color={"rgb(59, 213, 121)"} title={"Data importer"}>*/}
-        {/*  <Data />*/}
-        {/*</Shell>*/}
         <Shell
           color={"rgb(227, 149, 60)"}
           title={"Invoices"}
