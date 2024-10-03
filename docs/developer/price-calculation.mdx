@@ -40,24 +40,28 @@ Whether the price was taken directly from the channel or overridden, it is refle
 
 We first apply [`line-level discounts`](developer/discounts/overview.mdx#level) which decrease unit prices, resulting in the so-called `base price`. The application is done in the following order:
 
-`base_unit_price` = `undiscounted_price` - ((`catalogue_promotion` + `line-level_voucher`) or `manual_line_discount`)
+`base_unit_price` = `undiscounted_price` - (`manual_line_discount` or (`catalogue_promotion` + `line-level_voucher`))
 
 `base_shipping_price` = `undiscounted_shipping_price` - `shipping_voucher`
 
+:::warning
 Some of the line discounts are mutually exclusive:
-
-* manual line discount can't be combined and overrides all other line discounts
+* manual line discount overrides all other line discounts
 * only one voucher can be applied
+:::
 
 ### Untaxed price
 
 Having line-level discounts applied, we can sum up all the lines and calculate the base subtotal, which will be the basis for applying [`order-level discounts`](developer/discounts/overview.mdx#level):
 
-`untaxed_subtotal` = `base_subtotal` - (`entire_order_voucher` or `order_promotion` or `manual_discount`)
+`untaxed_subtotal` = `base_subtotal` - (`manual_discount` or `entire_order_voucher` or `order_promotion`)
 
 `untaxed_shipping` = `base_shipping_price` - `manual_discount`
 
+:::warning
 All order-level discounts are mutually exclusive and can't be combined.
+:::
+
 
 * The entire order voucher decreases the subtotal price and doesn't affect the shipping price.
 * The order promotion can either decrease the subtotal or grant a gift, which will be added to the order as an extra order line with zero price.
@@ -88,9 +92,9 @@ The only thing Saleor calculates are undiscounted gross prices based on received
 
 ### Avatax plugin
 
+:::warning
+The Avatax plugin will be removed in Saleor 4.0.
+:::
+
 Avatax plugin is a built-in integration with Avalara. Similar to custom tax apps, final data relies on extrenal tax service,
 but in this case Saleor is responsible for handling Avalara response data and applying it to the prices.
-
-:::warning
-The Avatax plugin will be deprecated in Saleor 4.0.
-:::
