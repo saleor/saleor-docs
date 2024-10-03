@@ -367,6 +367,53 @@ sequenceDiagram
 
 Follow [Transactions Webhook Events](/developer/extending/webhooks/synchronous-events/transaction.mdx) guide.
 
+### Automatic checkout completion
+
+The checkout process can be automatically completed based on the transaction events, once the full payment is made.
+
+A checkout is considered fully paid when the [`checkout.charge_status`](/api-reference/checkout/objects/checkout#checkoutchargestatuscheckoutchargestatusenum---) 
+is set to `FULL`.
+This occurs when the total of the [`chargedAmount`](/api-reference/payments/objects/transaction-item#transactionitemchargedamountmoney---) 
+and [`chargePendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemchargependingamountmoney---)
+from all transactions covers the [`checkout.totalPrice`](/api-reference/checkout/objects/checkout#checkoutsubtotalpricetaxedmoney---).
+
+To enable automatic checkout completion, update the channel checkout settings using the configuration example below:
+```graphql
+mutation UpdateChannel($id: ID!,$input: ChannelUpdateInput!){
+  channelUpdate(id: $id, input: $input){
+    channel{
+      id
+      checkoutSettings {
+        automaticallyCompleteFullyPaidCheckouts
+      }
+    }
+    errors{
+      field
+      code
+      message
+    }
+  }
+}
+```
+Query variables:
+```json
+{
+  "id": "Q2hhbm5lbDox",
+  "input": {
+    "checkoutSettings": {
+      "automaticallyCompleteFullyPaidCheckouts": true
+    }
+  }
+}
+```
+
+:::info
+Enabling automatic checkout completion will not disrupt storefront functionality.
+If `checkoutComplete` is called for a checkout that has already been converted to an order,
+the corresponding `Order` instance will be return.
+:::
+
+
 ## Related resources
 
 - [Building Payment Apps](/developer/extending/apps/building-payment-app.mdx)
