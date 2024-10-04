@@ -69,7 +69,7 @@ stateDiagram-v2
 
 ```
 
-Charge status depends on:
+Authorize status depends on:
 
 - the sum of **charged** transactions
 - the sum of **authorized** transactions
@@ -77,6 +77,34 @@ Charge status depends on:
 - the `order.total` value
 
 The difference between `total` and `totalGrantedRefund` is compared with the sum of **charged** and **authorized** transactions. The result is one of the statuses: `PARTIAL`, `FULL`. If no transaction has been charged, the status is `NONE`.
+
+#### Authorization status calculation for Checkout
+
+The status is calculated based on all transactions assigned to the `Checkout`. 
+
+For a checkout, authorization means that funds have been either authorized or charged (or a combination of partially charged and partially authorized).
+The status takes into account the following fields: `authorizedAmount`, `chargedAmount`, `authorizePendingAmount`, and `chargePendingAmount`:
+
+- **NONE**: No funds have been authorized.
+- **PARTIAL**: The available funds do not fully cover the checkout's total amount.
+- **FULL**: The funds fully cover the checkout's total amount. At this point, `checkoutComplete` can be called to convert the checkout into an order. 
+
+Note that pending amounts (success or failure) will be confirmed later by the payment app. This means the system can create an order that may remain unpaid if the pending amounts eventually fail.
+
+#### Available transitions
+
+- Status is updated on operations that change the checkout's `total`, or transactions.
+
+#### Authorization status calculation for Order
+
+The status is calculated based on all transactions assigned to the `Order`.
+Authorization means that funds have been either fully or partially authorized or charged.
+Unlike checkout, this status does not consider pending amounts.
+It uses the fields `authorizedAmount` and `chargedAmount`, and the calculation is adjusted by subtracting `order.totalGrantedRefund` from the total.
+
+- **NONE**: No funds have been authorized.
+- **PARTIAL**: The authorized and charged funds do not fully cover the amount of `order.total - order.totalGrantedRefund`.
+- **FULL**: The authorized and charged funds fully cover the amount of `order.total - order.totalGrantedRefund`.
 
 #### Available transitions
 
@@ -109,6 +137,32 @@ Charge status depends on:
 - the `order.total` value
 
 The difference between `total` and `totalGrantedRefund` is compared with **charged** transactions, and the result is one of the statuses: `PARTIAL`, `FULL`, `OVERCHARGED`. If no transaction has been charged, the status is `NONE`.
+
+#### Charge status calculations for Checkout
+
+The status is calculated based on all transactions assigned to the checkout.
+It takes into account the fields: `chargedAmount` and `chargePendingAmount`.
+
+- **NONE**: No funds have been charged.
+- **PARTIAL**: The charged funds do not fully cover the checkout's total amount.
+- **FULL**: The charged funds fully cover the checkout's total. At this point, `checkoutComplete` can be called to convert the checkout into an order.
+However, pending amounts (success/failure) will be confirmed later by the payment app, which means the created order could still remain unpaid if the pending amounts fail.
+- **OVERCHARGED**: The charged funds exceed the checkout's total. In this case, `checkoutComplete` can still be called to convert the checkout into an order.
+
+#### Available transitions
+
+- Status is updated on operations that change the checkouts `total`, or transactions.
+
+#### Charge status calculations for Order
+
+The status is calculated based on all transactions assigned to the order.
+It uses the field `chargedAmount` and does not consider **pending amounts** (which differs from the charge status of the checkout).
+The amount used for the status calculation is reduced by `order.totalGrantedRefund`.
+
+- **NONE**: No funds have been charged.
+- **PARTIAL**: The charged funds do not fully cover the amount of `order.total - order.totalGrantedRefund`.
+- **FULL**: The charged funds fully cover the amount of `order.total - order.totalGrantedRefund`.
+- **OVERCHARGED**: The charged funds exceed the amount of `order.total - order.totalGrantedRefund`.
 
 #### Available transitions
 
