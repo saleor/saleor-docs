@@ -38,9 +38,13 @@ Whether the price was taken directly from the channel or overridden, it is refle
 
 ### Base price
 
-We first apply [`line-level discounts`](developer/discounts/overview.mdx#level) which decrease unit prices, resulting in the so-called `base price`. The application is done in the following order:
+We first apply [`line-level discounts`](developer/discounts/overview.mdx#level) which decrease unit prices, resulting in the so-called `base price`:
 
 `base_unit_price` = `undiscounted_price` - (`manual_line_discount` or (`catalogue_promotion` + `line-level_voucher`))
+
+`base_line_price` = `base_unit_price` * `quantity`
+
+`base_subtotal` = `Σ(base_line_priceS)`
 
 `base_shipping_price` = `undiscounted_shipping_price` - `shipping_voucher`
 
@@ -54,9 +58,9 @@ Some of the line discounts are mutually exclusive:
 
 Having line-level discounts applied, we can sum up all the lines and calculate the base subtotal, which will be the basis for applying [`order-level discounts`](developer/discounts/overview.mdx#level):
 
-`untaxed_subtotal` = `base_subtotal` - (`manual_discount` or `entire_order_voucher` or `order_promotion`)
+`untaxed_subtotal` = `base_subtotal` - (`manual_order_discount` or `entire_order_voucher` or `order_promotion`)
 
-`untaxed_shipping` = `base_shipping_price` - `manual_discount`
+`untaxed_shipping` = `base_shipping_price` - `manual_order_discount`
 
 :::warning
 All order-level discounts are mutually exclusive and can't be combined.

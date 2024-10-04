@@ -7,12 +7,14 @@ sidebar_label: Manual Discounts
 Manual discounts can be applied by staff users to orders with `DRAFT` or `UNCONFIRMED` status.
 The discount can be applied to the order to decrease its subtotal and shipping price (manual order discount), 
 or to the order line to reduce its unit price (manual line discount). 
-These discounts cannot be combined with other discounts associated with the same object (order or line) and override any existing ones.
+These discounts are not combined with other discounts associated with the same object (order or line).
+Manual discount takes precedence and overrides any existing ones.
 
 ### Manual line discount
 The manual line discount can be applied with [`orderLineDiscountUpdate`](api-reference/orders/mutations/order-line-discount-update.mdx) mutation.
 This discount reduces the unit price of the order line. The calculation is based on the undiscounted unit price, 
 which means that any other unit price reductions, such as catalogue promotions or specific product vouchers, will be overridden.
+If the discount exceeds undiscounted unit price, it is set to 0 and don't have an impact on other lines.
 
 #### Example
 
@@ -26,15 +28,8 @@ Let's apply **20%** manual line discount to the **line 1**:
 Request:
 
 ```graphql
-mutation OrderLineDiscountUpdate {
-  orderLineDiscountUpdate(
-    orderLineId: "T3JkZXJMaW5lOmFlYTBmNjMzLWU0MTItNDkwZS1hODhhLThlMTg3YzQ3N2ZkNQ==", 
-    input: {
-        valueType: PERCENTAGE,
-        value: 20,
-        reason: "staff line discount"
-  }
-  ) {
+mutation OrderLineDiscountUpdate($orderLineId: ID!, $input: OrderDiscountCommonInput!) {
+  orderLineDiscountUpdate(orderLineId: $orderLineId, input: $input) {
     order {
       id
       undiscountedTotal{
@@ -78,6 +73,17 @@ mutation OrderLineDiscountUpdate {
         }
       }
     }
+  }
+}
+```
+
+```json
+{
+  "orderLineId": "T3JkZXJMaW5lOmFlYTBmNjMzLWU0MTItNDkwZS1hODhhLThlMTg3YzQ3N2ZkNQ==",
+  "input": {
+    "valueType": "PERCENTAGE",
+    "value": 20,
+    "reason": "staff line discount"
   }
 }
 ```
@@ -183,24 +189,12 @@ We have draft order with total price of **150$**, of which:
 * **line 2** with quantity **1**, unit price **30$** and total **30$**
 * shipping price **20$**
 
-Let's apply **20%** manual order discount to the order:
+Let's apply **15$** manual order discount to the order:
 
 Request:
 ```graphql
-mutation OrderDiscountAdd{
-  orderDiscountAdd(
-    orderId: "T3JkZXI6NDhkYWNmYTMtZmE1Mi00N2FiLTk0ZGUtODE5NjFmNjllNzBi", 
-    input: {
-        valueType: PERCENTAGE,
-        value: 20,
-        reason: "staff order discount"
-    }
-  ) {
-    errors {
-        message
-        field
-        code
-    }
+mutation OrderDiscountAdd($id: ID!, $input: OrderDiscountCommonInput!) {
+  orderDiscountAdd(orderId: $id, input: $input) {
     order {
       id
       undiscountedTotal{
@@ -256,6 +250,18 @@ mutation OrderDiscountAdd{
 }
 ```
 
+```json
+{
+  "id": "T3JkZXI6NDhkYWNmYTMtZmE1Mi00N2FiLTk0ZGUtODE5NjFmNjllNzBi",
+  "input": {
+    "valueType": "FIXED",
+    "value": 15,
+    "reason": "staff order discount"
+  }
+}
+```
+
+
 Response:
 ```json
 {
@@ -271,20 +277,17 @@ Response:
                 },
                 "total": {
                     "net": {
-                        "amount": 120.0
+                        "amount": 135.0
                     }
                 },
                 "subtotal": {
                     "net": {
-                        "amount": 104.0
+                        "amount": 117.0
                     }
-                },
-                "undiscountedShippingPrice": {
-                    "amount": 20.0
                 },
                 "shippingPrice": {
                     "net": {
-                        "amount": 16.0
+                        "amount": 18.0
                     }
                 },
                 "lines": [
@@ -296,7 +299,7 @@ Response:
                         },
                         "totalPrice": {
                             "net": {
-                                "amount": 80.0
+                                "amount": 90.0
                             }
                         },
                         "undiscountedUnitPrice": {
@@ -306,7 +309,7 @@ Response:
                         },
                         "unitPrice": {
                             "net": {
-                                "amount": 40.0
+                                "amount": 45.0
                             }
                         },
                         "unitDiscount": {
@@ -321,7 +324,7 @@ Response:
                         },
                         "totalPrice": {
                             "net": {
-                                "amount": 24.0
+                                "amount": 27.0
                             }
                         },
                         "undiscountedUnitPrice": {
@@ -331,7 +334,7 @@ Response:
                         },
                         "unitPrice": {
                             "net": {
-                                "amount": 24.0
+                                "amount": 27.0
                             }
                         },
                         "unitDiscount": {
@@ -345,4 +348,6 @@ Response:
 }
 ```
 
-As a result the order's subtotal and shipping price were both reduced by 20%.
+As a result the order's total was reduced by **15$**. Since base shipping price accounts for 13.33% (20$ / 150$) of base total, the shipping price was reduced by *2$* (20 / 150 * 15).
+The rest of the discount, **13$** was applied to the subtotal and next propagated to the line prices. Since the first line accounts for 77% (100$ / 130$) of subtotal,
+its price was discounted by 10$ (100 / 130 * 13).
