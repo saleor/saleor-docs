@@ -1,5 +1,6 @@
 import Link from "@docusaurus/Link";
 import React from "react";
+
 import Adyen from "../../static/img/apps/adyen.svg";
 import CRM from "../../static/img/apps/app-crm.svg";
 import Invoices from "../../static/img/apps/app-invoices.svg";
@@ -9,7 +10,6 @@ import CMS from "../../static/img/apps/cms-hub.svg";
 import Notification from "../../static/img/apps/notification-hub.svg";
 import Search from "../../static/img/apps/search-hub.svg";
 import Segment from "../../static/img/apps/segment.svg";
-
 import s from "./apps.module.css";
 
 const Shell = ({ color, title, children, href = "" }) => {

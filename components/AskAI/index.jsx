@@ -115,7 +115,9 @@ const AskAI = () => {
               const parts = startText.split(STREAM_SEPARATOR);
               try {
                 refs = JSON.parse(parts[0]);
-              } catch {}
+              } catch {
+                /* empty */
+              }
               setAnswer((prev) => prev + parts[1]);
               didHandleHeader = true;
             }
@@ -304,10 +306,10 @@ const AskAI = () => {
               </div>
             </div>
 
-            <footer class="DocSearch-Footer">
-              <ul class="DocSearch-Commands">
+            <footer className="DocSearch-Footer">
+              <ul className="DocSearch-Commands">
                 <li>
-                  <kbd class="DocSearch-Commands-Key">
+                  <kbd className="DocSearch-Commands-Key">
                     <svg
                       width="15"
                       height="15"
@@ -325,10 +327,10 @@ const AskAI = () => {
                       </g>
                     </svg>
                   </kbd>
-                  <span class="DocSearch-Label">to select</span>
+                  <span className="DocSearch-Label">to select</span>
                 </li>
                 <li>
-                  <kbd class="DocSearch-Commands-Key">
+                  <kbd className="DocSearch-Commands-Key">
                     <svg
                       width="15"
                       height="15"
@@ -346,7 +348,7 @@ const AskAI = () => {
                       </g>
                     </svg>
                   </kbd>
-                  <span class="DocSearch-Label">to close</span>
+                  <span className="DocSearch-Label">to close</span>
                 </li>
               </ul>
             </footer>

@@ -1,15 +1,16 @@
-import React, { useState, useCallback, useRef } from "react";
-import clsx from "clsx";
+import { useLocation } from "@docusaurus/router";
 import {
   prefersReducedMotion,
   ThemeClassNames,
 } from "@docusaurus/theme-common";
 import { useDocsSidebar } from "@docusaurus/theme-common/internal";
-import { useLocation } from "@docusaurus/router";
-import DocSidebar from "@theme/DocSidebar";
 import ExpandButton from "@theme/DocRoot/Layout/Sidebar/ExpandButton";
+import DocSidebar from "@theme/DocSidebar";
+import clsx from "clsx";
+import React, { useCallback, useRef, useState } from "react";
+import { CSSTransition, SwitchTransition } from "react-transition-group";
+
 import styles from "./styles.module.css";
-import { SwitchTransition, CSSTransition } from "react-transition-group";
 
 // Reset sidebar state when sidebar changes
 // Use React key to unmount/remount the children
@@ -68,7 +69,7 @@ export default function DocRootLayoutSidebar({
         <CSSTransition
           key={name}
           nodeRef={nodeRef}
-          addEndListener={(node, done) => {
+          addEndListener={() => {
             setDirection(name === "main" ? "forward" : "back");
           }}
           timeout={150}

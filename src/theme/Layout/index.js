@@ -1,10 +1,9 @@
-import React from "react";
-import Layout from "@theme-original/Layout";
-
+import ErrorBoundary from "@docusaurus/ErrorBoundary";
+import siteConfig from "@generated/docusaurus.config";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
-import siteConfig from "@generated/docusaurus.config";
-import ErrorBoundary from "@docusaurus/ErrorBoundary";
+import Layout from "@theme-original/Layout";
+import React from "react";
 
 const sentryDSN = siteConfig.customFields.sentryDSN;
 

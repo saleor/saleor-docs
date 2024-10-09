@@ -1,6 +1,7 @@
-import React from "react";
-import clsx from "clsx";
 import { useDocsSidebar } from "@docusaurus/theme-common/internal";
+import clsx from "clsx";
+import React from "react";
+
 import styles from "./styles.module.css";
 export default function DocRootLayoutMain({
   hiddenSidebarContainer,

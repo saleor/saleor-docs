@@ -1,7 +1,7 @@
 const fg = require("fast-glob");
 import * as fs from "node:fs/promises";
 
-function filePathToPascalCase(path: string): string {
+function filePathToPascalCase(path) {
   const nameRe = /\/(\w+)\.mdx/;
   const name = (path.match(nameRe) || ["", ""])[1];
   const camelCaseStr = name.replace(/-([a-z])/g, function (g) {
