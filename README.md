@@ -271,7 +271,7 @@ function pageRank(url) {
   if (metaPageRank) {
     return metaPageRank;
   }
-  if (!/\/api-reference\/|\/api-storefront\//.test(url.pathname)) {
+  if (!/\/api-reference\//.test(url.pathname)) {
     // not part of API reference
     return "40";
   }

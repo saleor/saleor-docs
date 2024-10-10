@@ -1,17 +1,17 @@
 import Link from "@docusaurus/Link";
 import {
+  findFirstSidebarItemLink,
+  isActiveSidebarItem,
+  useDocSidebarItemsExpandedState,
+} from "@docusaurus/plugin-content-docs/client";
+import {
   Collapsible,
   ThemeClassNames,
   useCollapsible,
   usePrevious,
   useThemeConfig,
 } from "@docusaurus/theme-common";
-import {
-  findFirstSidebarItemLink,
-  isActiveSidebarItem,
-  isSamePath,
-  useDocSidebarItemsExpandedState,
-} from "@docusaurus/theme-common/internal";
+import { isSamePath } from "@docusaurus/theme-common/internal";
 import { translate } from "@docusaurus/Translate";
 import useIsBrowser from "@docusaurus/useIsBrowser";
 import DocSidebarItems from "@theme/DocSidebarItems";

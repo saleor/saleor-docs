@@ -1,4 +1,4 @@
-import { useDocsSidebar } from "@docusaurus/theme-common/internal";
+import { useDocsSidebar } from "@docusaurus/plugin-content-docs/client";
 import clsx from "clsx";
 import React from "react";
 
