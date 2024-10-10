@@ -7,7 +7,7 @@ module.exports = {
   tagline: "High performance, composable, headless commerce API.",
   url: "https://docs.saleor.io",
   baseUrl: "/",
-
+  onBrokenAnchors: "throw",
   // Used for publishing and more
   projectName: "saleor-docs",
   organizationName: "saleor",

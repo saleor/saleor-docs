@@ -17,7 +17,7 @@ In this guide, we use the terms **Payment App** and **Payment Gateway** intercha
 ### Processing Payments With the Payment App
 
 This section describes the flow for processing payments using Payment Apps. The communication between the storefront and the Payment App
-goes through Saleor. Based on the Payment App's response, Saleor creates or updates the transactions with the appropriate [statuses and balances](developer/payments/overview.mdx#recalculations-of-transaction-amounts).
+goes through Saleor. Based on the Payment App's response, Saleor creates or updates the transactions with the appropriate [statuses and balances](developer/payments/lifecycle.mdx#transactions-recalculation-of-amounts).
 
 The following diagram shows the flow of processing a payment with a Payment App:
 
@@ -63,15 +63,15 @@ Payment Apps support two distinct ways of processing checkouts:
 - first payments, then order
 - first order, then payments
 
-The first approach is used by default. It means that the order can be only created after the checkout is fully paid. See [`allowUnpaidOrders`](api-reference/miscellaneous/objects/order-settings.mdx#ordersettingsallowunpaidordersboolean--) setting for more details.
+The first approach is used by default. It means that the order can be only created after the checkout is fully paid. See [`allowUnpaidOrders`](api-reference/miscellaneous/objects/order-settings.mdx#ordersettingsallowunpaidordersboolean---) setting for more details.
 
 In both cases, the order is created by calling the [`checkoutComplete`](api-reference/checkout/mutations/checkout-complete.mdx) mutation.
 
 ### Initialize Payment Gateway
 
 To initialize the payment app, call the [`paymentGatewayInitialize`](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation.
-The [`data`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#paymentgatewaytoinitializedatajson-) provided in the
-[`paymentGateways`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) will be sent to the payment app. Saleor will then return the [`data`](api-reference/payments/objects/payment-gateway-initialize.mdx#paymentgatewayinitializegatewayconfigspaymentgatewayconfig--) received from each app as a response.
+The [`data`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#paymentgatewaytoinitializedatajson--) provided in the
+[`paymentGateways`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) will be sent to the payment app. Saleor will then return the [`data`](api-reference/payments/objects/payment-gateway-initialize.mdx#paymentgatewayinitializegatewayconfigspaymentgatewayconfig---) received from each app as a response.
 
 This step is useful when information needs to be obtained from the Payment App even before initializing the payment process. Typically used for getting the available payment methods for a specific checkout, or for fetching the payment form configuration to be rendered on the frontend. Multiple Payment Apps can be initialized with a single mutation call.
 
@@ -147,9 +147,9 @@ For more details about this webhook, please refer to the [Transaction events gui
 ### Initialize Transaction
 
 To initiate payment processing, call the [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation.
-The [`data`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#paymentgatewaytoinitializedatajson-) provided in the
+The [`data`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx#paymentgatewaytoinitializedatajson--) provided in the
 [`paymentGateways`](api-reference/payments/inputs/payment-gateway-to-initialize.mdx) field will be sent to the payment app, and Saleor will return the
-[`data`](api-reference/payments/objects/transaction-initialize.mdx#transactioninitializedatajson-) received from the app as a response.
+[`data`](api-reference/payments/objects/transaction-initialize.mdx#transactioninitializedatajson--) received from the app as a response.
 Based on the Payment App's response, Saleor will create or update the transaction with the appropriate status and balance.
 
 Depending on the implementation of the Payment App, the `transactionInitialize` may charge or authorize the customer.
@@ -263,7 +263,7 @@ The current status of payment can be determined based on the value of [`transact
 - `CHARGE_REQUEST` indicates that charging is pending.
 
 Pending statuses are used when the Payment App requires additional time or a manual action on the payment provider side to process the payment.
-Depending on the implementation, the Payment App may report the final status of the payment later using the [`transactionEventReport`](developer/payments/overview.mdx#reporting-actions-for-transactions) mutation.
+Depending on the implementation, the Payment App may report the final status of the payment later using the `transactionEventReport` mutation.
 
 ### Process Transaction
 

@@ -321,3 +321,35 @@ Full documentation can be found on the [website](https://docusaurus.io/).
 [Communicating with precision](https://pressbooks.bccampus.ca/technicalwriting/chapter/communicatingprecision/)
 
 [Avoid redundancy](https://web.uvic.ca/~gkblank/wordiness.html)
+
+### Recommended VSCode settings
+
+Create `settings.json` under `.vscode` folder with:
+
+```json
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "eslint.debug": true,
+  "eslint.options": {
+    "extensions": [".js", ".jsx", ".md", ".mdx", ".ts", ".tsx"]
+  },
+  "eslint.runtime": "node",
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "markdown",
+    "mdx"
+  ],
+  "editor.formatOnSave": true
+}
+```
+
+### Recommended VSCode extensions:
+
+- [MDX](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx)
+- [Eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+- [Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
