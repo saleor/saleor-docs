@@ -52,8 +52,8 @@ npm run serve
 
 ## Directory Structure
 
-- `/docs` Current `Canary` developer documentation.
-- `/docs/api-reference` Automatically generated API reference.
+- `/docs` Main docs content directory.
+- `/docs/api-reference` API reference generated from schema.graphql
 - `/docusaurus.config.js` Docusaurus configuration file.
 - `/docusaurus2-graphql-doc-generator` GraphQL API Reference plugin code.
 - `/sidebars.js` Sidebar menu structure.
