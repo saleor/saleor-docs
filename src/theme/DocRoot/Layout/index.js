@@ -1,4 +1,4 @@
-import { useDocsSidebar } from "@docusaurus/theme-common/internal";
+import { useDocsSidebar } from "@docusaurus/plugin-content-docs/client";
 import BackToTopButton from "@theme/BackToTopButton";
 import DocRootLayoutMain from "@theme/DocRoot/Layout/Main";
 import DocRootLayoutSidebar from "@theme/DocRoot/Layout/Sidebar";
