@@ -18,7 +18,7 @@ const highlight = async () => {
   }
 };
 
-const highlightSaleorVersion = (file: string): string => {
+const highlightSaleorVersion = (file) => {
   const re = /^.*Added in Saleor.*\d\.$/gm;
 
   if (file.match(re)) {
@@ -27,7 +27,7 @@ const highlightSaleorVersion = (file: string): string => {
     const newContent = versions.reduce((newContent, versionLine) => {
       const [_, block, version] = versionLine.match(
         /(^.*)(Added in Saleor.*\d)\.$/
-      )!;
+      );
       const badgeText = version.replace(/\.$/, "");
 
       if (block.startsWith(">")) {
@@ -53,7 +53,7 @@ const highlightSaleorVersion = (file: string): string => {
   return file;
 };
 
-const highlightPermissions = (file: string): string => {
+const highlightPermissions = (file) => {
   const permissionsLineRe =
     /Requires( one of)? the following permissions(.*): (.*?)\./gi;
   const importStr = `
@@ -84,7 +84,7 @@ import Permissions from "@site/components/Permissions";
   return file;
 };
 
-const highlightFeaturePreview = (file: string): string => {
+const highlightFeaturePreview = (file) => {
   const previewStr =
     "Note: this API is currently in Feature Preview and can be subject to changes at later point.";
   const importStr = `
@@ -100,7 +100,7 @@ import FeaturePreview from "@site/components/FeaturePreview";
   return file;
 };
 
-const escapeString = (str: string): string => {
+const escapeString = (str) => {
   return str.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&");
 };
 

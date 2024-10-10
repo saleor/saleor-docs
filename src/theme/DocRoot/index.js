@@ -1,5 +1,3 @@
-import React from "react";
-import clsx from "clsx";
 import {
   HtmlClassNameProvider,
   ThemeClassNames,
@@ -10,6 +8,8 @@ import {
 } from "@docusaurus/theme-common/internal";
 import DocRootLayout from "@theme/DocRoot/Layout";
 import NotFoundContent from "@theme/NotFound/Content";
+import clsx from "clsx";
+import React from "react";
 export default function DocRoot(props) {
   const currentDocRouteMetadata = useDocRootMetadata(props);
   if (!currentDocRouteMetadata) {

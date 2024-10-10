@@ -1,4 +1,4 @@
-const { title, ref, chapterTitle, hr } = require("./sidebars/utils");
+const { title, ref } = require("./sidebars/utils");
 const { buildingApps } = require("./sidebars/building-apps");
 const { appStore } = require("./sidebars/app-store");
 const { coreConcepts } = require("./sidebars/core-concepts");

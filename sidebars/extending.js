@@ -1,4 +1,4 @@
-import { chapterTitle, hr, title } from "./utils";
+import { chapterTitle, title } from "./utils";
 
 export const extending = [
   chapterTitle("developer/extending/overview", "Extending", "cli"),

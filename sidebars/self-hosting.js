@@ -1,4 +1,4 @@
-import { chapterTitle, title, hr } from "./utils";
+import { chapterTitle, hr, title } from "./utils";
 
 export const selfHosting = [
   chapterTitle("setup/overview", "Self-hosting", "selfHost"),

@@ -1,8 +1,8 @@
-import { parse, print, visit } from "graphql";
-
 import * as fs from "node:fs/promises";
 
-const extractPermissions = (description?: string) => {
+import { parse, print, visit } from "graphql";
+
+const extractPermissions = (description) => {
   const match = (description || "").match(/following permissions: (.*)\./);
   const permissions = match ? match[1].split(",") : [];
 

@@ -1,24 +1,25 @@
-import React, { useEffect, useMemo } from "react";
-import clsx from "clsx";
+import Link from "@docusaurus/Link";
 import {
-  ThemeClassNames,
-  useThemeConfig,
-  usePrevious,
   Collapsible,
+  ThemeClassNames,
   useCollapsible,
+  usePrevious,
+  useThemeConfig,
 } from "@docusaurus/theme-common";
 import {
-  isActiveSidebarItem,
   findFirstSidebarItemLink,
-  useDocSidebarItemsExpandedState,
+  isActiveSidebarItem,
   isSamePath,
+  useDocSidebarItemsExpandedState,
 } from "@docusaurus/theme-common/internal";
-import Link from "@docusaurus/Link";
 import { translate } from "@docusaurus/Translate";
 import useIsBrowser from "@docusaurus/useIsBrowser";
 import DocSidebarItems from "@theme/DocSidebarItems";
-import styles from "../Link/styles.module.css";
+import clsx from "clsx";
+import React, { useEffect, useMemo } from "react";
+
 import { Icon } from "../../../../components/Icons/icons";
+
 // If we navigate to a category and it becomes active, it should automatically
 // expand itself
 function useAutoExpandActiveCategory({ isActive, collapsed, updateCollapsed }) {

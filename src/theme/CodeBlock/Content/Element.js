@@ -1,6 +1,7 @@
-import React from "react";
-import clsx from "clsx";
 import Container from "@theme/CodeBlock/Container";
+import clsx from "clsx";
+import React from "react";
+
 import styles from "./styles.module.css";
 // <pre> tags in markdown map to CodeBlocks. They may contain JSX children. When
 // the children is not a simple string, we just return a styled block without
