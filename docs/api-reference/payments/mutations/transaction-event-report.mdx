@@ -3,94 +3,52 @@ id: transaction-event-report
 title: transactionEventReport
 ---
 
-export const Bullet = () => (
-  <>
-    <span
-      style={{
-        fontWeight: "normal",
-        fontSize: ".5em",
-        color: "var(--ifm-color-secondary-darkest)",
-      }}
-    >
-      &nbsp;●&nbsp;
-    </span>
-  </>
+export const Bullet = () => <><span style={{ fontWeight: 'normal', fontSize: '.5em', color: 'var(--ifm-color-secondary-darkest)' }}>&nbsp;●&nbsp;</span></>
+
+export const SpecifiedBy = (props) => <>Specification<a className="link" style={{ fontSize:'1.5em', paddingLeft:'4px' }} target="\_blank" href={props.url} title={'Specified by ' + props.url}>⎘</a></>
+
+export const Badge = (props) => <><span className={props.class}>{props.text}</span></>
+
+import { useState } from 'react';
+
+export const Details = ({ dataOpen, dataClose, children, startOpen = false }) => {
+const [open, setOpen] = useState(startOpen);
+return (
+<details {...(open ? { open: true } : {})} className="details" style={{ border:'none', boxShadow:'none', background:'var(--ifm-background-color)' }}>
+<summary
+onClick={(e) => {
+e.preventDefault();
+setOpen((open) => !open);
+}}
+style={{ listStyle:'none' }} >
+{open ? dataOpen : dataClose}
+</summary>
+{open && children}
+</details>
 );
-
-export const SpecifiedBy = (props) => (
-  <>
-    Specification
-    <a
-      className="link"
-      style={{ fontSize: "1.5em", paddingLeft: "4px" }}
-      target="\_blank"
-      href={props.url}
-      title={"Specified by " + props.url}
-    >
-      ⎘
-    </a>
-  </>
-);
-
-export const Badge = (props) => (
-  <>
-    <span className={props.class}>{props.text}</span>
-  </>
-);
-
-import { useState } from "react";
-
-export const Details = ({
-  dataOpen,
-  dataClose,
-  children,
-  startOpen = false,
-}) => {
-  const [open, setOpen] = useState(startOpen);
-  return (
-    <details
-      {...(open ? { open: true } : {})}
-      className="details"
-      style={{
-        border: "none",
-        boxShadow: "none",
-        background: "var(--ifm-background-color)",
-      }}
-    >
-      <summary
-        onClick={(e) => {
-          e.preventDefault();
-          setOpen((open) => !open);
-        }}
-        style={{ listStyle: "none" }}
-      >
-        {open ? dataOpen : dataClose}
-      </summary>
-      {open && children}
-    </details>
-  );
 };
 
 Report the event for the transaction.
 
-<Badge
-  text="Added in Saleor 3.13"
-  class="badge badge--secondary margin-bottom--sm"
-/>
+
+<Badge text="Added in Saleor 3.13" class="badge badge--secondary margin-bottom--sm" />
+
 
 <FeaturePreview />
 
-<Permissions
-  permissions={
-    "OWNER and HANDLE_PAYMENTS for apps,HANDLE_PAYMENTS for staff users"
-  }
-  text={"Requires the following permissions"}
-/>
-Staff user cannot update a transaction that is owned by the app.
+
+<Permissions permissions={"OWNER and HANDLE_PAYMENTS for apps,HANDLE_PAYMENTS for staff users"} text={"Requires the following permissions"} />
+ Staff user cannot update a transaction that is owned by the app.
+
+Triggers the following webhook events:
+
+- TRANSACTION_ITEM_METADATA_UPDATED (async): Optionally called when transaction's metadata was updated.
+- CHECKOUT_FULLY_PAID (async): Optionally called when the checkout charge status changed to `FULL` or `OVERCHARGED`.
+- ORDER_UPDATED (async): Optionally called when the transaction is related to the order and the order was updated.
 
 ```graphql
 transactionEventReport(
-  amount: PositiveDecimal!
+  amount: PositiveDecimal
   availableActions: [TransactionActionEnum!]
   externalUrl: String
   id: ID
@@ -98,73 +56,93 @@ transactionEventReport(
   pspReference: String!
   time: DateTime
   token: UUID
+  transactionMetadata: [MetadataInput!]
+  transactionPrivateMetadata: [MetadataInput!]
   type: TransactionEventTypeEnum!
 ): TransactionEventReport
 ```
 
 ### Arguments
 
-#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>amount</b></code>](#)<Bullet />[`PositiveDecimal!`](../../../api-reference/miscellaneous/scalars/positive-decimal) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
+#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>amount</b></code>](#)<Bullet />[`PositiveDecimal`](../../../api-reference/miscellaneous/scalars/positive-decimal.mdx) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
-> The amount of the event to report.
+The amount of the event to report.
 
-#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>availableActions</b></code>](#)<Bullet />[`[TransactionActionEnum!]`](../../../api-reference/payments/enums/transaction-action-enum) <Badge class="badge badge--secondary" text="list"/> <Badge class="badge badge--secondary" text="enum"/> <Badge class="badge badge--secondary" text="payments"/>
+Required for all `REQUEST`, `SUCCESS`, `ACTION_REQUIRED`, and `ADJUSTMENT` events. For other events, the amount will be calculated based on the previous events with the same pspReference. If not possible to calculate, the mutation will return an error.
 
-> List of all possible actions for the transaction
+#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>availableActions</b></code>](#)<Bullet />[`[TransactionActionEnum!]`](../../../api-reference/payments/enums/transaction-action-enum.mdx) <Badge class="badge badge--secondary" text="list"/> <Badge class="badge badge--secondary" text="enum"/> <Badge class="badge badge--secondary" text="payments"/>
 
-#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>externalUrl</b></code>](#)<Bullet />[`String`](../../../api-reference/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
+List of all possible actions for the transaction
 
-> The url that will allow to redirect user to payment provider page with event details.
+#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>externalUrl</b></code>](#)<Bullet />[`String`](../../../api-reference/miscellaneous/scalars/string.mdx) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
-#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>id</b></code>](#)<Bullet />[`ID`](../../../api-reference/miscellaneous/scalars/id) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
+The url that will allow to redirect user to payment provider page with event details.
 
-> The ID of the transaction. One of field id or token is required.
+#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>id</b></code>](#)<Bullet />[`ID`](../../../api-reference/miscellaneous/scalars/id.mdx) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
-#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>message</b></code>](#)<Bullet />[`String`](../../../api-reference/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
+The ID of the transaction. One of field id or token is required.
 
-> The message related to the event.
+#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>message</b></code>](#)<Bullet />[`String`](../../../api-reference/miscellaneous/scalars/string.mdx) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
-#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>pspReference</b></code>](#)<Bullet />[`String!`](../../../api-reference/miscellaneous/scalars/string) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
+The message related to the event.
 
-> PSP Reference of the event to report.
+#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>pspReference</b></code>](#)<Bullet />[`String!`](../../../api-reference/miscellaneous/scalars/string.mdx) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
-#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>time</b></code>](#)<Bullet />[`DateTime`](../../../api-reference/miscellaneous/scalars/date-time) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
+PSP Reference of the event to report.
 
-> The time of the event to report. If not provide, the current time will be used.
+#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>time</b></code>](#)<Bullet />[`DateTime`](../../../api-reference/miscellaneous/scalars/date-time.mdx) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
-#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>token</b></code>](#)<Bullet />[`UUID`](../../../api-reference/miscellaneous/scalars/uuid) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
+The time of the event to report. If not provide, the current time will be used.
 
-> The token of the transaction. One of field id or token is required.
->
-> <Badge
->   text="Added in Saleor 3.14"
->   class="badge badge--secondary margin-bottom--sm"
-> />
+#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>token</b></code>](#)<Bullet />[`UUID`](../../../api-reference/miscellaneous/scalars/uuid.mdx) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
-#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>type</b></code>](#)<Bullet />[`TransactionEventTypeEnum!`](../../../api-reference/payments/enums/transaction-event-type-enum) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="enum"/> <Badge class="badge badge--secondary" text="payments"/>
+The token of the transaction. One of field id or token is required.
 
-> Current status of the event to report.
+
+<Badge text="Added in Saleor 3.14" class="badge badge--secondary margin-bottom--sm" />
+
+
+#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>transactionMetadata</b></code>](#)<Bullet />[`[MetadataInput!]`](../../../api-reference/miscellaneous/inputs/metadata-input.mdx) <Badge class="badge badge--secondary" text="list"/> <Badge class="badge badge--secondary" text="input"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
+
+Fields required to update the transaction metadata.
+
+
+<Badge text="Added in Saleor 3.17" class="badge badge--secondary margin-bottom--sm" />
+
+
+#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>transactionPrivateMetadata</b></code>](#)<Bullet />[`[MetadataInput!]`](../../../api-reference/miscellaneous/inputs/metadata-input.mdx) <Badge class="badge badge--secondary" text="list"/> <Badge class="badge badge--secondary" text="input"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
+
+Fields required to update the transaction private metadata.
+
+
+<Badge text="Added in Saleor 3.17" class="badge badge--secondary margin-bottom--sm" />
+
+
+#### [<code style={{ fontWeight: 'normal' }}>transactionEventReport.<b>type</b></code>](#)<Bullet />[`TransactionEventTypeEnum!`](../../../api-reference/payments/enums/transaction-event-type-enum.mdx) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="enum"/> <Badge class="badge badge--secondary" text="payments"/>
+
+Current status of the event to report.
 
 ### Type
 
-#### [`TransactionEventReport`](../../../api-reference/payments/objects/transaction-event-report) <Badge class="badge badge--secondary" text="object"/> <Badge class="badge badge--secondary" text="payments"/>
+#### [`TransactionEventReport`](../../../api-reference/payments/objects/transaction-event-report.mdx) <Badge class="badge badge--secondary" text="object"/> <Badge class="badge badge--secondary" text="payments"/>
 
-> Report the event for the transaction.
->
-> <Badge
->   text="Added in Saleor 3.13"
->   class="badge badge--secondary margin-bottom--sm"
-> />
->
-> <FeaturePreview />
+Report the event for the transaction.
 
-<Permissions
-  permissions={
-    "OWNER and HANDLE_PAYMENTS for apps,HANDLE_PAYMENTS for staff users"
-  }
-  text={"Requires the following permissions"}
-/>
-Staff user cannot update a transaction that is owned by the app.
+
+<Badge text="Added in Saleor 3.13" class="badge badge--secondary margin-bottom--sm" />
+
+
+<FeaturePreview />
+
+
+<Permissions permissions={"OWNER and HANDLE_PAYMENTS for apps,HANDLE_PAYMENTS for staff users"} text={"Requires the following permissions"} />
+ Staff user cannot update a transaction that is owned by the app.
+
+Triggers the following webhook events:
+
+- TRANSACTION_ITEM_METADATA_UPDATED (async): Optionally called when transaction's metadata was updated.
+- CHECKOUT_FULLY_PAID (async): Optionally called when the checkout charge status changed to `FULL` or `OVERCHARGED`.
+- ORDER_UPDATED (async): Optionally called when the transaction is related to the order and the order was updated.
 
 import FeaturePreview from "@site/components/FeaturePreview";
 

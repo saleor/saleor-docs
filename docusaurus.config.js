@@ -45,7 +45,7 @@ module.exports = {
           fallback: "Miscellaneous",
         },
         printTypeOptions: {
-          useApiGroup: false,
+          hierarchy: "entity",
         },
       },
     ],
