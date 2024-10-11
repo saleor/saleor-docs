@@ -64,7 +64,7 @@ module.exports = {
 
   themeConfig: {
     algolia: {
-      appId: "P1Y4DTZUZN",
+      appId: "P1Y4DTZUZN", // cspell: disable-line
       apiKey: "021901243603f49a626be6b7435a2a8d",
       indexName: "saleor",
       placeholder: "Search Saleor Documentation",

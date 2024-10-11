@@ -15,7 +15,7 @@ import styles from "./styles.module.css";
 const MARKPROMPT_COMPLETIONS_URL = "https://api.markprompt.com/v1/completions";
 const STREAM_SEPARATOR = "___START_RESPONSE_STREAM___";
 const DEFAULT_MODEL = "gpt-3.5-turbo";
-const PROJECT_KEY = "WNDN2YD8Z1HZwy5fOMVkUTzdL7pazDwN";
+const PROJECT_KEY = "WNDN2YD8Z1HZwy5fOMVkUTzdL7pazDwN"; // cspell: disable-line
 const AUTO_SCROLL_DISABLED = false;
 
 const Caret = () => {
@@ -52,7 +52,7 @@ const AskAI = () => {
   const answerContainerRef = useRef(null);
   const didCompleteFirstQuery = useRef(false);
 
-  const iDontKnowMessage = "Sorry, I am not sure how to answer that.";
+  const IDKMessage = "Sorry, I am not sure how to answer that.";
   const placeholder = `Ask me anything... eg. 'How to query products?'`;
 
   const submitPrompt = useCallback(
@@ -85,7 +85,7 @@ const AskAI = () => {
           body: JSON.stringify({
             prompt,
             model: DEFAULT_MODEL,
-            iDontKnowMessage,
+            IDKMessage,
             projectKey: PROJECT_KEY,
           }),
         });
@@ -93,7 +93,7 @@ const AskAI = () => {
         if (!res.ok || !res.body) {
           const text = await res.text();
           console.error("Error:", text);
-          setAnswer(iDontKnowMessage);
+          setAnswer(IDKMessage);
           setLoading(false);
           return;
         }
@@ -128,7 +128,7 @@ const AskAI = () => {
         setReferences(refs);
       } catch (e) {
         console.error("Error", e);
-        setAnswer(iDontKnowMessage);
+        setAnswer(IDKMessage);
       }
       setLoading(false);
     },
