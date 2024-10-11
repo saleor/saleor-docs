@@ -39,11 +39,16 @@ module.exports = {
         let category_path = path.dirname(params.filePath).split("/");
         let category_name = category_path[category_path.length - 1];
         let category_title_mapping = {
+          directives: "Directive",
           enums: "Enum",
           inputs: "Input Type",
+          interfaces: "Interface",
           mutations: "Mutation",
           objects: "Object",
           queries: "Query",
+          scalars: "Scalar",
+          subscriptions: "Subscription",
+          unions: "Union",
         };
         let category_suffix = category_title_mapping[category_name];
         result.frontMatter.title =
@@ -52,10 +57,8 @@ module.exports = {
         // For GraphQL pages that don't have description we don't want to duplicate the meta description tag
         // Ideally we should make sure each element from the schema does have a description
         // But for now we're just going to make sure we don't have duplicates
-        if (params.fileContent.includes("No description")) {
-          result.frontMatter.description =
-            result.frontMatter.title + " - no description";
-        }
+        result.frontMatter.description =
+          result.frontMatter.title + " - " + result.frontMatter.description;
       }
 
       return result;
