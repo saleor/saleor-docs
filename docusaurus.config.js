@@ -43,16 +43,16 @@ module.exports = {
           objects: "Object",
           queries: "Query",
         };
-        let category_suffix =
-          category_title_mapping[category_name] + category_name.slice(1);
-        result.frontMatter.title = `{result.frontMatter.title} {category_suffix}`;
+        let category_suffix = category_title_mapping[category_name];
+        result.frontMatter.title =
+          result.frontMatter.title + " " + category_suffix;
 
         // For GraphQL pages that don't have description we don't want to duplicate the meta description tag
         // Ideally we should make sure each element from the schema does have a description
         // But for now we're just going to make sure we don't have duplicates
         if (params.fileContent.includes("No description")) {
           result.frontMatter.description =
-            result.frontMatter.title + "- no description";
+            result.frontMatter.title + " - no description";
         }
       }
 
