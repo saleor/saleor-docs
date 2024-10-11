@@ -57,8 +57,10 @@ module.exports = {
         // For GraphQL pages that don't have description we don't want to duplicate the meta description tag
         // Ideally we should make sure each element from the schema does have a description
         // But for now we're just going to make sure we don't have duplicates
-        result.frontMatter.description =
-          result.frontMatter.title + " - " + result.frontMatter.description;
+        if (params.fileContent.includes("No description")) {
+          result.frontMatter.description =
+            result.frontMatter.title + " - no description";
+        }
       }
 
       return result;
