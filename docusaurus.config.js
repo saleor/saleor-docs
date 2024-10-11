@@ -39,11 +39,16 @@ module.exports = {
         let category_path = path.dirname(params.filePath).split("/");
         let category_name = category_path[category_path.length - 1];
         let category_title_mapping = {
+          directives: "Directive",
           enums: "Enum",
           inputs: "Input Type",
+          interfaces: "Interface",
           mutations: "Mutation",
           objects: "Object",
           queries: "Query",
+          scalars: "Scalar",
+          subscriptions: "Subscription",
+          unions: "Union",
         };
         let category_suffix = category_title_mapping[category_name];
         result.frontMatter.title =
