@@ -14,6 +14,10 @@ module.exports = {
 
   favicon: "img/saleor-icon.png",
 
+  future: {
+    experimental_faster: true,
+  },
+
   markdown: {
     mermaid: true,
     parseFrontMatter: async (params) => {
@@ -50,17 +54,6 @@ module.exports = {
       },
     ],
   ],
-
-  webpack: {
-    jsLoader: (isServer) => ({
-      loader: require.resolve("esbuild-loader"),
-      options: {
-        loader: "tsx",
-        format: isServer ? "cjs" : undefined,
-        target: isServer ? "node20" : "es2017",
-      },
-    }),
-  },
 
   themeConfig: {
     algolia: {
