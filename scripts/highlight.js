@@ -1,5 +1,5 @@
 const fg = require("fast-glob");
-import * as fs from "node:fs/promises";
+var fs = require("fs/promises");
 
 const highlight = async () => {
   const files = await fg([".tmp/api-reference/**/*.mdx"]);
