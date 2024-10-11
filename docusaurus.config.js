@@ -38,7 +38,7 @@ module.exports = {
         let category_name = category_path[category_path.length - 1];
         let category_title_mapping = {
           enums: "Enum",
-          inputs: "Input",
+          inputs: "Input Type",
           mutations: "Mutation",
           objects: "Object",
           queries: "Query",
