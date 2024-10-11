@@ -28,6 +28,8 @@ module.exports = {
       result.frontMatter.pagination_next = null;
 
       // Tweak the API Reference pages because they are affecting our SEO
+      // `api_reference` variable is set at the level of mdx file generations from the schema
+      // while this code here is run later at the build stage
       if (result.frontMatter?.api_reference == true) {
         // We are going to change the title, make sure to keep the sidebar_label intact
         result.frontMatter.sidebar_label = result.frontMatter.title;
