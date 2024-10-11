@@ -149,7 +149,4 @@ module.exports = {
       },
     ],
   ],
-  customFields: {
-    sentryDSN: process.env.SENTRY_DSN,
-  },
 };
