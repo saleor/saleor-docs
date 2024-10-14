@@ -150,7 +150,8 @@ The payload sent to the app would look like this:
     "discounts": [
       {
         "name": "New user promo",
-        "amount": "10.00"
+        "amount": "10.00",
+        "type": "SUBTOTAL"
       }
     ],
     "lines": [
@@ -192,16 +193,17 @@ The payload sent to the app would look like this:
 1. `id` - Id of the checkout for which the app should calculate taxes.
 2. `included_taxes_in_prices` - Flag that shows whether taxes should be included in prices.
 3. `shipping_name` - Name of the shipping method assigned to checkout.
-4. `shipping_amount` - Price of the shipping method assigned to checkout.
+4. `shipping_amount` - Price of the shipping method assigned to checkout, including shipping voucher.
 5. `currency` - Checkout currency.
 6. `metadata` - Public metadata of checkout.
 7. `user_id` - Id of the user assigned to checkout. (In case of anonymous customer this field returns `null`)
 8. `user_public_metadata` - Public metadata of the user assigned to checkout.
 9. `address` - Shipping address assigned to checkout. (In case of the checkout without required shipping, this field contains the billing address.)
 10. `channel` - Data of the channel to which checkout is assigned.
-11. `discounts` - List of discounts assigned to checkout. (Those discounts should be applied by a tax App.)
+11. `discounts` - List of order-level discounts assigned to checkout. (Those discounts should be applied by a tax App.)
     1. `name` - Name of discount.
     2. `amount` - Amount of assigned discount.
+    3. `type` - Indicates which part of the checkout the discount should affect: SUBTOTAL or SHIPPING.
 12. `lines` - List of items inside checkout.
     1. `id` - Id of the line.
     2. `charge_taxes` - Flag that shows whether taxes should be calculated for the line.
@@ -212,7 +214,7 @@ The payload sent to the app would look like this:
     7. `variant_name` - Name of the variant from the line.
     8. `product_metadata` - Public metadata assigned to the product from the line.
     9. `product_type_metadata` - Public metadata assigned for the product type from the line.
-    10. `unit_amount` - Price of the single item in the line.
+    10. `unit_amount` - Price of the single item in the line, including line-level discounts.
     11. `quantity` - Quantity of the item in the line.
     12. `total_amount` - Total price of the line.
 
@@ -347,7 +349,8 @@ The payload sent to the app would look like this:
     "discounts": [
       {
         "name": "New user discount",
-        "amount": "10.00"
+        "amount": "10.00",
+        "type": "SUBTOTAL"
       }
     ],
     "lines": [
@@ -376,7 +379,7 @@ The payload sent to the app would look like this:
 1. `id` - Id of the order for which the app should calculate taxes.
 2. `included_taxes_in_prices` - Flag that shows whether taxes should be included in prices.
 3. `shipping_name` - Name of the shipping method assigned to the order.
-4. `shipping_amount` - Price of the shipping method assigned to the order.
+4. `shipping_amount` - Price of the shipping method assigned to the order, including shipping voucher.
 5. `currency` - Order currency.
 6. `metadata` - Public metadata of the order.
 7. `user_id` - Id of the user assigned to the order. (In case of anonymous customer this field return `null`)
@@ -386,6 +389,7 @@ The payload sent to the app would look like this:
 11. `discounts` - List of the discounts assigned to the order. (These discounts should be applied by the tax App.)
     1. `name` - Name of the discount.
     2. `amount` - Amount of the assigned discount.
+    3. `type` - Indicates which part of the order the discount should affect: SUBTOTAL or SHIPPING.
 12. `lines` - List of the items inside the order.
     1. `id` - Id of the line.
     2. `charge_taxes` - Flag that shows whether taxes should be calculated for the line.
@@ -396,7 +400,7 @@ The payload sent to the app would look like this:
     7. `variant_name` - Name of the variant from the line.
     8. `product_metadata` - Public metadata assigned to the product from the line.
     9. `product_type_metadata` - Public metadata assigned for the product type from the line.
-    10. `unit_amount` - Price of the single item in the line.
+    10. `unit_amount` - Price of the single item in the line, including line-level discounts.
     11. `quantity` - Quantity of the item in the line.
     12. `total_amount` - Total price of the line.
 
@@ -432,3 +436,14 @@ The payload sent to the app would look like this:
    1. `tax_rate` - Tax rate value provided as percentage. Example: provide `23` to represent the `23%` tax rate.
    2. `total_gross_amount` - Gross price of the line.
    3. `total_net_amount` - Net price of the line.
+
+
+## Tax data validation
+
+The app response is considered valid if:
+1. There are no negative values
+2. Request's number of lines matches number of lines from response
+3. The prices and rates do not exceed database limits. 
+  * by defult Saleor allows to write db with prices lower than 1 billion. 
+  This restriction can be changed over `DEFAULT_DECIMAL_PLACES` and `DEFAULT_MAX_DIGITS` variables.  
+  * rates shouldn't be greater than **100%**

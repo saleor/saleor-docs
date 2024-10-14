@@ -1,0 +1,784 @@
+---
+title: Examples
+sidebar_label: Examples
+---
+
+## Manual line discount with catalogue promotion
+
+We have draft order with two lines and shipping:
+* **line 1** with quantity **2**, unit price **$40** including 20% catalogue discount (undiscounted unit price is **$50**)
+* **line 2** with quantity **1**, unit price **$30** without any discount
+* shipping price **$20**
+
+Initial order state:
+```json
+{
+    "data": {
+        "order": {
+            "id": "T3JkZXI6OTliNjQxMTMtZTY2OS00YWU5LWI0NzctMDEyOGU1YTVlODc4",
+            "undiscountedTotal": {
+                "net": {
+                    "amount": 150.0
+                }
+            },
+            "total": {
+                "net": {
+                    "amount": 130.0
+                }
+            },
+            "shippingPrice": {
+                "net": {
+                    "amount": 20.0
+                }
+            },
+            "lines": [
+                {
+                    "id": "T3JkZXJMaW5lOjQwYWYzY2Y3LTM4NTUtNDQyYS05NzI1LTRiMWU4MDQ2ZDVlNg==",
+                    "undiscountedTotalPrice": {
+                        "net": {
+                            "amount": 100.0
+                        }
+                    },
+                    "totalPrice": {
+                        "net": {
+                            "amount": 80.0
+                        }
+                    },
+                    "undiscountedUnitPrice": {
+                        "net": {
+                            "amount": 50.0
+                        }
+                    },
+                    "unitPrice": {
+                        "net": {
+                            "amount": 40.0
+                        }
+                    },
+                    "unitDiscount": {
+                        "amount": 10.0
+                    },
+                    "unitDiscountReason": "Promotion: UHJvbW90aW9uOmEyZGM1NmU4LTRjNDktNGU5My1iNzNhLTU1NTYyZmFiZWRjNg=="
+                },
+                {
+                    "id": "T3JkZXJMaW5lOjQxY2JkOGYzLTYxMzgtNDlmOC05MGM3LTQxYzQ4MzI0Mzc0Mg==",
+                    "undiscountedTotalPrice": {
+                        "net": {
+                            "amount": 30.0
+                        }
+                    },
+                    "totalPrice": {
+                        "net": {
+                            "amount": 30.0
+                        }
+                    },
+                    "undiscountedUnitPrice": {
+                        "net": {
+                            "amount": 30.0
+                        }
+                    },
+                    "unitPrice": {
+                        "net": {
+                            "amount": 30.0
+                        }
+                    },
+                    "unitDiscount": {
+                        "amount": 0.0
+                    },
+                    "unitDiscountReason": null
+                }
+            ]
+        }
+    }
+}
+```
+Let's apply **50%** manual line discount to the **line 1**:
+
+Request:
+```graphql
+mutation OrderLineDiscountUpdate($orderLineId: ID!, $input: OrderDiscountCommonInput!) {
+  orderLineDiscountUpdate(orderLineId: $orderLineId, input: $input) {
+    order {
+      id
+      undiscountedTotal{
+        net{
+          amount
+        }
+      }
+      total{
+        net{
+          amount
+        }
+      }
+      shippingPrice{
+        net{
+          amount
+        }
+      }
+      lines{
+        id
+        undiscountedTotalPrice{
+            net{
+                amount
+            }
+        }
+        totalPrice{
+            net{
+                amount
+            }
+        }
+        undiscountedUnitPrice{
+            net{
+                amount
+            }
+        }
+        unitPrice{
+            net{
+                amount
+            }
+        }
+        unitDiscount {
+            amount
+        }
+        unitDiscountReason
+      }
+    }
+  }
+}
+```
+
+```json
+{
+  "orderLineId": "T3JkZXJMaW5lOmFlYTBmNjMzLWU0MTItNDkwZS1hODhhLThlMTg3YzQ3N2ZkNQ==",
+  "input": {
+    "valueType": "PERCENTAGE",
+    "value": 50,
+    "reason": "staff line discount"
+  }
+}
+```
+
+Response:
+```json
+{
+    "data": {
+        "orderLineDiscountUpdate": {
+            "order": {
+                "id": "T3JkZXI6OTliNjQxMTMtZTY2OS00YWU5LWI0NzctMDEyOGU1YTVlODc4",
+                "undiscountedTotal": {
+                    "net": {
+                        "amount": 150.0
+                    }
+                },
+                "total": {
+                    "net": {
+                        "amount": 100.0
+                    }
+                },
+                "shippingPrice": {
+                    "net": {
+                        "amount": 20.0
+                    }
+                },
+                "lines": [
+                    {
+                        "id": "T3JkZXJMaW5lOjQwYWYzY2Y3LTM4NTUtNDQyYS05NzI1LTRiMWU4MDQ2ZDVlNg==",
+                        "undiscountedTotalPrice": {
+                            "net": {
+                                "amount": 100.0
+                            }
+                        },
+                        "totalPrice": {
+                            "net": {
+                                "amount": 50.0
+                            }
+                        },
+                        "undiscountedUnitPrice": {
+                            "net": {
+                                "amount": 50.0
+                            }
+                        },
+                        "unitPrice": {
+                            "net": {
+                                "amount": 25.0
+                            }
+                        },
+                        "unitDiscount": {
+                            "amount": 25.0
+                        },
+                        "unitDiscountReason": "staff line discount"
+                    },
+                    {
+                        "id": "T3JkZXJMaW5lOjQxY2JkOGYzLTYxMzgtNDlmOC05MGM3LTQxYzQ4MzI0Mzc0Mg==",
+                        "undiscountedTotalPrice": {
+                            "net": {
+                                "amount": 30.0
+                            }
+                        },
+                        "totalPrice": {
+                            "net": {
+                                "amount": 30.0
+                            }
+                        },
+                        "undiscountedUnitPrice": {
+                            "net": {
+                                "amount": 30.0
+                            }
+                        },
+                        "unitPrice": {
+                            "net": {
+                                "amount": 30.0
+                            }
+                        },
+                        "unitDiscount": {
+                            "amount": 0.0
+                        },
+                        "unitDiscountReason": null
+                    }
+                ]
+            }
+        }
+    }
+}
+```
+As a result, the manual line discount overrode the catalogue promotion and the first line is discounted by 50% instead of initial 20%.
+Please note, the discounts were not summed up.
+
+## Manual order discount with catalogue promotion and shipping voucher
+
+We have draft order with two lines and shipping:
+* **line 1** with quantity **2**, unit price **$40** including **20%** catalogue discount (undiscounted unit price is **$50**)
+* **line 2** with quantity **1**, unit price **$30** without any discount
+* shipping price **$12** including **40%** shipping voucher discount (undiscounted shipping price is **$20**)
+
+Initial order state:
+```json
+{
+    "data": {
+        "order": {
+            "id": "T3JkZXI6NTBlZjc2MDAtZjI0MS00ZGVhLThjYzMtMmE0M2E2ZWZlZDg4",
+            "voucherCode": "shipping-discount-code",
+            "undiscountedTotal": {
+                "net": {
+                    "amount": 150.0
+                }
+            },
+            "total": {
+                "net": {
+                    "amount": 122.0
+                }
+            },
+            "shippingPrice": {
+                "net": {
+                    "amount": 12.0
+                }
+            },
+            "lines": [
+                {
+                    "id": "T3JkZXJMaW5lOjFkODk2ZTg5LWIwNDctNGEzYy04ZTQ0LTNhZjZmNGVlMWUyYg==",
+                    "undiscountedTotalPrice": {
+                        "net": {
+                            "amount": 100.0
+                        }
+                    },
+                    "totalPrice": {
+                        "net": {
+                            "amount": 80.0
+                        }
+                    },
+                    "undiscountedUnitPrice": {
+                        "net": {
+                            "amount": 50.0
+                        }
+                    },
+                    "unitPrice": {
+                        "net": {
+                            "amount": 40.0
+                        }
+                    },
+                    "unitDiscount": {
+                        "amount": 10.0
+                    },
+                    "unitDiscountReason": "Promotion: UHJvbW90aW9uOmEyZGM1NmU4LTRjNDktNGU5My1iNzNhLTU1NTYyZmFiZWRjNg=="
+                },
+                {
+                    "id": "T3JkZXJMaW5lOjMyMDYxNDVjLWU5NDktNGU3MC04ODFmLTk0YWI3ZmZiZjUxZg==",
+                    "undiscountedTotalPrice": {
+                        "net": {
+                            "amount": 30.0
+                        }
+                    },
+                    "totalPrice": {
+                        "net": {
+                            "amount": 30.0
+                        }
+                    },
+                    "undiscountedUnitPrice": {
+                        "net": {
+                            "amount": 30.0
+                        }
+                    },
+                    "unitPrice": {
+                        "net": {
+                            "amount": 30.0
+                        }
+                    },
+                    "unitDiscount": {
+                        "amount": 0.0
+                    },
+                    "unitDiscountReason": null
+                }
+            ]
+        }
+    }
+}
+```
+
+Let's apply **10%** manual order discount.
+
+Request:
+```graphql
+mutation OrderDiscountAdd($id: ID!, $input: OrderDiscountCommonInput!) {
+  orderDiscountAdd(orderId: $id, input: $input) {
+    order {
+    id
+    voucherCode
+    undiscountedTotal{
+        net{
+            amount
+        }
+    }
+    total{
+        net{
+            amount
+        }
+    }
+    subtotal{
+        net{
+            amount
+        }
+    }
+    shippingPrice{
+        net{
+            amount
+        }
+    }
+    lines {
+            id
+            undiscountedTotalPrice{
+                net{
+                    amount
+                }
+            }
+            totalPrice{
+                net{
+                    amount
+                }
+            }
+            undiscountedUnitPrice{
+                net{
+                    amount
+                }
+            }
+            unitPrice{
+                net{
+                    amount
+                }
+            }
+            unitDiscount {
+                amount
+            }
+            unitDiscountReason
+        }
+    }
+  }
+}
+```
+
+```json
+{
+  "id": "T3JkZXI6NTBlZjc2MDAtZjI0MS00ZGVhLThjYzMtMmE0M2E2ZWZlZDg4",
+  "input": {
+    "valueType": "PERCENTAGE",
+    "value": 10,
+    "reason": "staff order discount"
+  }
+}
+```
+
+Response:
+```json
+{
+    "data": {
+        "orderDiscountAdd": {
+            "order": {
+                "id": "T3JkZXI6NTBlZjc2MDAtZjI0MS00ZGVhLThjYzMtMmE0M2E2ZWZlZDg4",
+                "voucherCode": "shipping-discount-code",
+                "undiscountedTotal": {
+                    "net": {
+                        "amount": 150.0
+                    }
+                },
+                "total": {
+                    "net": {
+                        "amount": 109.8
+                    }
+                },
+                "subtotal": {
+                    "net": {
+                        "amount": 99.0
+                    }
+                },
+                "shippingPrice": {
+                    "net": {
+                        "amount": 10.8
+                    }
+                },
+                "lines": [
+                    {
+                        "id": "T3JkZXJMaW5lOjFkODk2ZTg5LWIwNDctNGEzYy04ZTQ0LTNhZjZmNGVlMWUyYg==",
+                        "undiscountedTotalPrice": {
+                            "net": {
+                                "amount": 100.0
+                            }
+                        },
+                        "totalPrice": {
+                            "net": {
+                                "amount": 72.0
+                            }
+                        },
+                        "undiscountedUnitPrice": {
+                            "net": {
+                                "amount": 50.0
+                            }
+                        },
+                        "unitPrice": {
+                            "net": {
+                                "amount": 36.0
+                            }
+                        },
+                        "unitDiscount": {
+                            "amount": 10.0
+                        },
+                        "unitDiscountReason": "Promotion: UHJvbW90aW9uOmEyZGM1NmU4LTRjNDktNGU5My1iNzNhLTU1NTYyZmFiZWRjNg=="
+                    },
+                    {
+                        "id": "T3JkZXJMaW5lOjMyMDYxNDVjLWU5NDktNGU3MC04ODFmLTk0YWI3ZmZiZjUxZg==",
+                        "undiscountedTotalPrice": {
+                            "net": {
+                                "amount": 30.0
+                            }
+                        },
+                        "totalPrice": {
+                            "net": {
+                                "amount": 27.0
+                            }
+                        },
+                        "undiscountedUnitPrice": {
+                            "net": {
+                                "amount": 30.0
+                            }
+                        },
+                        "unitPrice": {
+                            "net": {
+                                "amount": 27.0
+                            }
+                        },
+                        "unitDiscount": {
+                            "amount": 0.0
+                        },
+                        "unitDiscountReason": null
+                    }
+                ]
+            }
+        }
+    }
+}
+```
+As a result final total price is **$109.80** and includes all the 3 discounts: catalogue promotion, shipping voucher and manual order discount.
+Please note that manual order discount did not override [line-level discounts](developer/discounts/overview.mdx#level).
+The manual 10% reduction was calculated using [base prices](developer/price-calculation.mdx#discount-application) as follows:
+
+`base_subtotal = 2 * $50 * 0.8 + 1 * $30 = $110`
+
+`base_shipping = $20 * 0.6 = $12`
+
+`subtotal_manual_discount_portion = $110 * 10% = $11`
+
+`shipping_manual_discount_portion = $12 * 10% = $1.2`
+
+`final_price = $122 - $11 - $1.2 = $109.80`
+
+
+## Manual order discount with catalogue promotion and entire order voucher
+
+We have draft order with two lines and shipping:
+* **line 1** with quantity **2**, unit price **$40** including **20%** catalogue discount (undiscounted unit price is **$50**)
+* **line 2** with quantity **1**, unit price **$30** without any discount
+* shipping price **$20**
+
+The order has also **$50** entire order voucher applied.
+
+
+Initial order state:
+```json
+{
+    "data": {
+        "order": {
+            "id": "T3JkZXI6Y2VlYjIwNjMtYzQyYS00MzhkLTg3ZmUtZGMxYmU4M2JlNjA1",
+            "voucherCode": "subtotal-discount",
+            "undiscountedTotal": {
+                "net": {
+                    "amount": 150.0
+                }
+            },
+            "total": {
+                "net": {
+                    "amount": 80.0
+                }
+            },
+            "subtotal": {
+                "net": {
+                    "amount": 60.0
+                }
+            },
+            "shippingPrice": {
+                "net": {
+                    "amount": 20.0
+                }
+            },
+            "lines": [
+                {
+                    "id": "T3JkZXJMaW5lOjJhN2Y2ZjljLWIwOGItNDcxMy04NmYyLTY0OTQyYmQ2MzlkZA==",
+                    "undiscountedTotalPrice": {
+                        "net": {
+                            "amount": 100.0
+                        }
+                    },
+                    "totalPrice": {
+                        "net": {
+                            "amount": 43.64
+                        }
+                    },
+                    "undiscountedUnitPrice": {
+                        "net": {
+                            "amount": 50.0
+                        }
+                    },
+                    "unitPrice": {
+                        "net": {
+                            "amount": 21.82
+                        }
+                    },
+                    "unitDiscount": {
+                        "amount": 10.0
+                    },
+                    "unitDiscountReason": "Promotion: UHJvbW90aW9uOmEyZGM1NmU4LTRjNDktNGU5My1iNzNhLTU1NTYyZmFiZWRjNg=="
+                },
+                {
+                    "id": "T3JkZXJMaW5lOmYxYzI1OWY1LTRlNWMtNGQ3ZC05NDBhLWNkOGFkZDY5ODk4Mw==",
+                    "undiscountedTotalPrice": {
+                        "net": {
+                            "amount": 30.0
+                        }
+                    },
+                    "totalPrice": {
+                        "net": {
+                            "amount": 16.36
+                        }
+                    },
+                    "undiscountedUnitPrice": {
+                        "net": {
+                            "amount": 30.0
+                        }
+                    },
+                    "unitPrice": {
+                        "net": {
+                            "amount": 16.36
+                        }
+                    },
+                    "unitDiscount": {
+                        "amount": 0.0
+                    },
+                    "unitDiscountReason": null
+                }
+            ]
+        }
+    }
+}
+```
+
+Let's apply **10%** manual order discount.
+
+Request:
+```graphql
+mutation OrderDiscountAdd($id: ID!, $input: OrderDiscountCommonInput!) {
+  orderDiscountAdd(orderId: $id, input: $input) {
+    order {
+        id
+        voucherCode
+        undiscountedTotal{
+            net{
+                amount
+            }
+        }
+        total{
+            net{
+                amount
+            }
+        }
+        subtotal{
+            net{
+                amount
+            }
+        }
+        shippingPrice{
+            net{
+                amount
+            }
+        }
+        lines{
+            id
+            undiscountedTotalPrice{
+                net{
+                    amount
+                }
+            }
+            totalPrice{
+                net{
+                    amount
+                }
+            }
+            undiscountedUnitPrice{
+                net{
+                    amount
+                }
+            }
+            unitPrice{
+                net{
+                    amount
+                }
+            }
+            unitDiscount {
+                amount
+            }
+            unitDiscountReason
+        }
+    }
+  }
+}
+```
+
+```json
+{
+  "id": "T3JkZXI6Y2VlYjIwNjMtYzQyYS00MzhkLTg3ZmUtZGMxYmU4M2JlNjA1",
+  "input": {
+    "valueType": "PERCENTAGE",
+    "value": 10,
+    "reason": "staff order discount"
+  }
+}
+```
+
+Response:
+```json
+{
+    "data": {
+        "orderDiscountAdd": {
+            "order": {
+                "id": "T3JkZXI6Y2VlYjIwNjMtYzQyYS00MzhkLTg3ZmUtZGMxYmU4M2JlNjA1",
+                "voucherCode": "subtotal-discount",
+                "undiscountedTotal": {
+                    "net": {
+                        "amount": 150.0
+                    }
+                },
+                "total": {
+                    "net": {
+                        "amount": 117.0
+                    }
+                },
+                "subtotal": {
+                    "net": {
+                        "amount": 99.0
+                    }
+                },
+                "shippingPrice": {
+                    "net": {
+                        "amount": 18.0
+                    }
+                },
+                "lines": [
+                    {
+                        "id": "T3JkZXJMaW5lOjJhN2Y2ZjljLWIwOGItNDcxMy04NmYyLTY0OTQyYmQ2MzlkZA==",
+                        "undiscountedTotalPrice": {
+                            "net": {
+                                "amount": 100.0
+                            }
+                        },
+                        "totalPrice": {
+                            "net": {
+                                "amount": 72.0
+                            }
+                        },
+                        "undiscountedUnitPrice": {
+                            "net": {
+                                "amount": 50.0
+                            }
+                        },
+                        "unitPrice": {
+                            "net": {
+                                "amount": 36.0
+                            }
+                        },
+                        "unitDiscount": {
+                            "amount": 10.0
+                        },
+                        "unitDiscountReason": "Promotion: UHJvbW90aW9uOmEyZGM1NmU4LTRjNDktNGU5My1iNzNhLTU1NTYyZmFiZWRjNg=="
+                    },
+                    {
+                        "id": "T3JkZXJMaW5lOmYxYzI1OWY1LTRlNWMtNGQ3ZC05NDBhLWNkOGFkZDY5ODk4Mw==",
+                        "undiscountedTotalPrice": {
+                            "net": {
+                                "amount": 30.0
+                            }
+                        },
+                        "totalPrice": {
+                            "net": {
+                                "amount": 27.0
+                            }
+                        },
+                        "undiscountedUnitPrice": {
+                            "net": {
+                                "amount": 30.0
+                            }
+                        },
+                        "unitPrice": {
+                            "net": {
+                                "amount": 27.0
+                            }
+                        },
+                        "unitDiscount": {
+                            "amount": 0.0
+                        },
+                        "unitDiscountReason": null
+                    }
+                ]
+            }
+        }
+    }
+}
+```
+The entire order voucher was overridden by a manual order discount because order-level discounts are mutually exclusive, and manual discounts take precedence over other discounts. 
+It doesn't matter which discount is more beneficial (the manual discount application resulted in higher total price comparing to voucher discount).
+Catalogue promotion is still included in the line 1 prices. The final **$117** was calculated as follows:
+
+`base_subtotal = 2 * $50 * 0.8 + 1 * $30 = $110`
+
+`base_shipping = $20`
+
+`subtotal_manual_discount_portion = $110 * 10% = $11`
+
+`shipping_manual_discount_portion = $20 * 10% = $2`
+
+`final_price = $110 - $11 + $20 - $2 = $117`
+

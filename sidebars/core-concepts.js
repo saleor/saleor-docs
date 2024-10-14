@@ -55,6 +55,8 @@ export const coreConcepts = [
   "developer/discounts/overview",
   "developer/discounts/promotions",
   "developer/discounts/vouchers",
+  "developer/discounts/manual-discounts",
+  "developer/discounts/examples",
   "developer/discounts/sales",
 
   title("Miscellaneous"),
@@ -65,6 +67,7 @@ export const coreConcepts = [
   "developer/permissions",
   "developer/taxes",
   "developer/thumbnails",
+  "developer/price-calculation",
 
   title("Importing"),
   "developer/bulks/bulk-orders",
