@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { v4 as uuid } from "uuid";
-
 import useIsBrowser from "@docusaurus/useIsBrowser";
+import React, { useEffect, useState } from "react";
+import { v4 as uuid } from "uuid";
 
 import styles from "./styles.module.css";
 

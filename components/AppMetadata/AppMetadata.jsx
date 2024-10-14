@@ -1,18 +1,9 @@
 import React from "react";
-import styles from "./AppMetadata.module.css";
+
 import ExternalLinkIcon from "../../static/assets/icons/external-link.svg";
+import styles from "./AppMetadata.module.css";
 
-type Props = {
-  minSaleorVersion: string;
-  roadmapUrl?: string;
-  githubUrl?: string;
-};
-
-export const AppMetadata = ({
-  minSaleorVersion,
-  roadmapUrl,
-  githubUrl,
-}: Props) => {
+export const AppMetadata = ({ minSaleorVersion, roadmapUrl, githubUrl }) => {
   return (
     <div className={styles.root}>
       <span>

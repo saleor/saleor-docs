@@ -2,8 +2,6 @@
 title: Transaction events
 ---
 
-# Introduction
-
 Transaction webhooks are synchronous webhooks that allow delegating the transaction's action to the Saleor App.
 Synchronous means that these webhooks expect a response of a particular shape to be returned from the App to continue processing in Saleor.
 Transaction webhooks only support the HTTP(S) protocol; they are sent as POST requests with the `application/json` body and expect the
@@ -21,12 +19,6 @@ You can find more details about the transaction flow in the [_Payments_ document
 
 `TRANSACTION_CHARGE_REQUESTED`
 
-:::info
-
-This feature was introduced in **Saleor 3.13**.
-
-:::
-
 A synchronous webhook called inside a Celery task. It is triggered when a staff user requests the charge action.
 
 The webhook expects to return at least the `pspReference` in the response. The `pspReference` will be attached to [`TransactionEvent`](api-reference/payments/objects/transaction-event.mdx)
@@ -35,7 +27,7 @@ with request details. When `pspReference` is attached to the `request` object, i
 Optionally the result data can be provided. The data is
 used to provide the final status of the requested action, and it will be used to create a new [`TransactionEvent`](api-reference/payments/objects/transaction-event.mdx)
 object. The new [`TransactionEvent`](../../../../api-reference/payments/objects/transaction-event.mdx) object will have provided `pspReference`, and will be used in the
-[recalculation of the transaction's amount process](/developer/payments/lifecycle.mdx#recalculations-of-amounts).
+[recalculation of the transaction's amount process](/developer/payments/lifecycle.mdx#transactions-recalculation-of-amounts).
 
 ### Request
 
@@ -157,12 +149,6 @@ the response will not be processed, and Saleor will create the failure event.
 
 `TRANSACTION_CANCELATION_REQUESTED`
 
-:::info
-
-This feature was introduced in **Saleor 3.13**.
-
-:::
-
 A synchronous webhook called inside a Celery task. They are called when a staff user requests the cancelation action.
 The webhook expects to return at least the `pspReference` in the response. The `pspReference` will
 be attached to [`TransactionEvent`](api-reference/payments/objects/transaction-event.mdx)
@@ -171,7 +157,7 @@ used to provide the final status of the requested action, and it will be used to
 [`TransactionEvent`](api-reference/payments/objects/transaction-event.mdx) object. The new
 [`TransactionEvent`](../../../../api-reference/payments/objects/transaction-event.mdx) object will have
 provided `pspReference`, and will be used in the
-[recalculation of the transaction's amount process](developer/payments/lifecycle.mdx#recalculations-of-amounts).
+[recalculation of the transaction's amount process](developer/payments/lifecycle.mdx#transactions-recalculation-of-amounts).
 
 ### Request
 
@@ -292,18 +278,12 @@ the response will not be processed, and Saleor will create the failure event.
 
 `TRANSACTION_REFUND_REQUESTED`
 
-:::info
-
-This feature was introduced in **Saleor 3.13**.
-
-:::
-
 A synchronous webhook called inside a Celery task. They are called when a staff user requests the refund action.
 The webhook expects to return at least the `pspReference` in the response. The `pspReference` will be attached to [`TransactionEvent`](api-reference/payments/objects/transaction-event.mdx)
 with request details. When `pspReference` is attached to the `request` object, it means the app has successfully processed the webhook. Optionally the result data can be provided. The data is
 used to provide the final status of the requested action, and it will be used to create a new [`TransactionEvent`](api-reference/payments/objects/transaction-event.mdx)
 object. The new [`TransactionEvent`](../../../../api-reference/payments/objects/transaction-event.mdx) object will have provided `pspReference`, and will be used in the
-[recalculation of the transaction's amount process](/developer/payments/lifecycle.mdx#recalculations-of-amounts).
+[recalculation of the transaction's amount process](/developer/payments/lifecycle.mdx#transactions-recalculation-of-amounts).
 
 ### Request
 
@@ -360,7 +340,7 @@ subscription {
 
 :::note
 
-`grantedRefund` - This field was introduced in **Saleor 3.15**. It contains the details about [`OrderGrantedRefund`](api-reference/orders/objects/order-granted-refund.mdx) related to the the refund request action.
+`grantedRefund` - This field contains the details about [`OrderGrantedRefund`](api-reference/orders/objects/order-granted-refund.mdx) related to the the refund request action.
 The field will contain OrderGrantedRefund when a refund request was triggered by calling [`transactionRequestRefundForGrantedRefund`](../../../../api-reference/payments/mutations/transaction-request-refund-for-granted-refund) mutation.
 
 :::
@@ -448,14 +428,9 @@ the response will not be processed, and Saleor will create the failure event.
 ## Initialize payment gateway session
 
 `PAYMENT_GATEWAY_INITIALIZE_SESSION`
-:::info
-
-This feature was introduced in **Saleor 3.13**.
-
-:::
 
 The synchronous [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_gateway_initialize_session)
-webhook is called when a customer requests payment gateway initialization by calling the [`paymentGatewayInitialize`](developer/payments/transactions.mdx#initialize-payment-gateway) mutation. The webhook contains details about the object (`Order`/`Checkout`)
+webhook is called when a customer requests payment gateway initialization by calling the `paymentGatewayInitialize` mutation. The webhook contains details about the object (`Order`/`Checkout`)
 for which the payment gateway initialization was requested, the requested amount, and the `data` received from the frontend.
 As a response, the webhook expects the `data` field with all initialization details that will be passed to the storefront.
 
@@ -514,7 +489,7 @@ The example below shows the pre-defined payload that will be used in the case wh
 
 ### Response
 
-The app needs to return the `data` field. The `data` received from the webhook will be returned as a [`paymentGatewayInitialize`](developer/payments/overview.mdx#initialize-payment-gateway) mutation response.
+The app needs to return the `data` field. The `data` received from the webhook will be returned as a `paymentGatewayInitialize` mutation response.
 
 ```json
 {
@@ -527,11 +502,6 @@ The app needs to return the `data` field. The `data` received from the webhook w
 ## Initialize transaction session
 
 `TRANSACTION_INITIALIZE_SESSION`
-:::info
-
-This feature was introduced in **Saleor 3.13**.
-
-:::
 
 The synchronous [`TRANSACTION_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_initialize_session) webhook
 is called when a customer begins processing a payment by calling the [`transactionInitialize`](/developer/payments/payment-apps.mdx#initialize-transaction)
@@ -659,16 +629,10 @@ The `pspReference` is optional for the following `results`:
 ## Process transaction session
 
 `TRANSACTION_PROCESS_SESSION`
-:::info
-
-This feature was introduced in **Saleor 3.13**.
-
-:::
 
 The [`TRANSACTION_PROCESS_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_process_session) webhook is called synchronously when
 a customer needs to process additional actions received as a response from either
-the [`transactionInitialize`](/developer/payments/payment-apps.mdx#initialize-transaction) or [`transactionProcess`](/developer/payments/overview.mdx#process-transaction) mutations. This webhook is triggered when the customer calls the
-[`transactionProcess`](/developer/payments/overview.mdx#process-transaction) mutation.
+the [`transactionInitialize`](/developer/payments/payment-apps.mdx#initialize-transaction) or `transactionProcess mutations. This webhook is triggered when the customer calls the `transactionProcess` mutation.
 It contains details about the `Order` or `Checkout` object related to this action, the `transactionItem` object, details related to the requested action, and the `data` passed in the mutation input.
 Saleor expects the response to be in the proper format. Based on the response, the amount of the `transactionItem` can be marked as fully covered or marked as a transaction
 that requires additional actions from the customer, such as processing a 3D secure action.

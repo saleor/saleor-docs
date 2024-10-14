@@ -1,6 +1,7 @@
 ---
+sidebar_label: Architecture
 sidebar_position: 2
-title: Architecture
+title: Adyen App Architecture
 ---
 
 export const Badge = (props) => (
@@ -13,16 +14,16 @@ export const Badge = (props) => (
 
 The Adyen App implements the following [Saleor sync webhooks related to transactions](developer/extending/webhooks/synchronous-events/transaction.mdx):
 
-- [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_gateway_initialize_session.mdx)
-- [`TRANSACTION_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_initialize_session.mdx)
-- [`TRANSACTION_PROCESS_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_process_session.mdx)
-- [`TRANSACTION_CHARGE_REQUESTED`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_charge_requested.mdx)
-- [`TRANSACTION_CANCEL_REQUESTED`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_cancelation_requested.mdx)
-- [`TRANSACTION_REFUND_REQUESTED`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_refund_requested.mdx)
+- [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_gateway_initialize_session)
+- [`TRANSACTION_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_initialize_session)
+- [`TRANSACTION_PROCESS_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_process_session)
+- [`TRANSACTION_CHARGE_REQUESTED`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_charge_requested)
+- [`TRANSACTION_CANCEL_REQUESTED`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_cancelation_requested)
+- [`TRANSACTION_REFUND_REQUESTED`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_refund_requested)
 
 Furthermore, it's also prepared to handle [async Adyen webhooks](https://docs.adyen.com/development-resources/webhooks.mdx).
 
-The Adyen App follows the flow described in detail in the [Saleor Payment App documentation](developer/payments/overview.mdx#payment-app.mdx).
+The Adyen App follows the flow described in detail in the [Saleor Payment App documentation](developer/payments/overview.mdx).
 
 ## Limitations
 
@@ -35,7 +36,7 @@ If Adyen surpasses this limit, the App will return a FAILURE status with an appr
 
 ### Maximum timeout for Saleor API calls is 5 seconds
 
-The app restricts Saleor API response time to 5 seconds for [`TransactionInitializeSession`](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session.mdx) and [`TransactionProcessSession`](developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session.mdx) subscriptions. If Saleor API surpasses this limit, the App will gracefully continue processing.
+The app restricts Saleor API response time to 5 seconds for [`TransactionInitializeSession`](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session) and [`TransactionProcessSession`](developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session) subscriptions. If Saleor API surpasses this limit, the App will gracefully continue processing.
 
 If such timeout happens, the created [`TransactionItem`](api-reference/payments/objects/transaction-item.mdx) will not have the metadata from Adyen on `additionalDetails` object, which includes payment method type, credit card brand, etc.
 
@@ -47,7 +48,7 @@ In Saleor Dashboard you can choose between two types of refunds that use differe
 - **"Refund with manual amount"** - sends refund request to Adyen App using [`transactionRequestAction`](api-reference/payments/mutations/transaction-request-action.mdx)
 :::
 
-There are differences in how refunds are handled depending on whether a [`OrderGrantedRefund`](/api-reference/orders/objects/order-granted-refund.mdx) was created in Saleor and a refund via [`transactionRequestRefundForGrantedRefund`](api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) mutation was requested, or a "manual refund" sent via [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action.mdx) mutation was requested. The differences are in how [`lineItems`](https://docs.adyen.com/api-explorer/Checkout/71/post/payments/_paymentPspReference_/refunds#request-lineItems.mdx) are reported to Adyen
+There are differences in how refunds are handled depending on whether a [`OrderGrantedRefund`](/api-reference/orders/objects/order-granted-refund.mdx) was created in Saleor and a refund via [`transactionRequestRefundForGrantedRefund`](api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) mutation was requested, or a "manual refund" sent via [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action.mdx) mutation was requested. The differences are in how [`lineItems`](https://docs.adyen.com/api-explorer/Checkout/71/post/payments/_paymentPspReference_/refunds#request-lineItems) are reported to Adyen
 
 #### Refund with manual amount
 
@@ -57,12 +58,6 @@ When a manual refund is requested, the app will send `lineItems` to Adyen if the
 In other cases' app will not send `lineItems` to Adyen.
 
 #### Refund with line items
-
-
- <Badge
-   text="Added in Saleor 3.15"
-   class="badge badge--secondary margin-bottom--sm"
- />
 
 This refund is initiated using the [`transactionRequestRefundForGrantedRefund`](/api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) mutation.
 

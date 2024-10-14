@@ -1,11 +1,9 @@
-import React from "react";
-import clsx from "clsx";
+import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import { ThemeClassNames } from "@docusaurus/theme-common";
-import { useDoc } from "@docusaurus/theme-common/internal";
 import TagsListInline from "@theme/TagsListInline";
-import EditMetaRow from "@theme/EditMetaRow";
-
-import { Pencil, LifeBuoy, MessageSquareMore } from "lucide-react";
+import clsx from "clsx";
+import { LifeBuoy, MessageSquareMore, Pencil } from "lucide-react";
+import React from "react";
 
 import s from "./styles.module.css";
 
@@ -36,7 +34,7 @@ export default function DocItemFooter() {
       )}
       <div className={s.actions}>
         {canDisplayEditMetaRow && (
-          <a href={editUrl} target={"_blank"}>
+          <a href={editUrl} target={"_blank"} rel="noreferrer">
             <Pencil size={12} />
             Edit this page
           </a>
@@ -45,6 +43,7 @@ export default function DocItemFooter() {
         <a
           href={"https://github.com/saleor/saleor/discussions"}
           target={"_blank"}
+          rel="noreferrer"
         >
           <LifeBuoy size={12} />
           Help
@@ -52,6 +51,7 @@ export default function DocItemFooter() {
         <a
           href={"https://github.com/saleor/saleor-docs/issues"}
           target={"_blank"}
+          rel="noreferrer"
         >
           <MessageSquareMore size={12} />
           Feedback

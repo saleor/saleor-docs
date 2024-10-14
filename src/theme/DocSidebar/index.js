@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
 import DocSidebar from "@theme-original/DocSidebar";
+import React, { useEffect } from "react";
 
 export default function DocSidebarWrapper(props) {
   const { path, sidebar } = props;

@@ -1,18 +1,19 @@
-import React, { useState } from "react";
-import clsx from "clsx";
-import { useThemeConfig, usePrismTheme } from "@docusaurus/theme-common";
+import { usePrismTheme, useThemeConfig } from "@docusaurus/theme-common";
 import {
+  containsLineNumbers,
   parseCodeBlockTitle,
   parseLanguage,
   parseLines,
-  containsLineNumbers,
   useCodeWordWrap,
 } from "@docusaurus/theme-common/internal";
-import { Highlight } from "prism-react-renderer";
-import Line from "@theme/CodeBlock/Line";
-import CopyButton from "@theme/CodeBlock/CopyButton";
-import WordWrapButton from "@theme/CodeBlock/WordWrapButton";
 import Container from "@theme/CodeBlock/Container";
+import CopyButton from "@theme/CodeBlock/CopyButton";
+import Line from "@theme/CodeBlock/Line";
+import WordWrapButton from "@theme/CodeBlock/WordWrapButton";
+import clsx from "clsx";
+import { Highlight } from "prism-react-renderer";
+import React, { useState } from "react";
+
 import styles from "./styles.module.css";
 export default function CodeBlockString({
   children,
@@ -72,7 +73,6 @@ export default function CodeBlockString({
         <Highlight theme={prismTheme} code={code} language={language ?? "text"}>
           {({ className, tokens, getLineProps, getTokenProps }) => (
             <pre
-              /* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */
               tabIndex={0}
               ref={wordWrap.codeBlockRef}
               className={clsx(className, styles.codeBlock, "thin-scrollbar")}
