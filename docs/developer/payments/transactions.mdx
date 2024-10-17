@@ -367,15 +367,18 @@ sequenceDiagram
 
 Follow [Transactions Webhook Events](/developer/extending/webhooks/synchronous-events/transaction.mdx) guide.
 
-### Automatic checkout completion
+### Automatic Checkout completion
 
-The checkout process can be automatically completed based on the transaction events, once the full payment is made.
+The Checkout can be automatically converted into an [`Order`](/api-reference/orders/objects/order.mdx), once the [`TransactionItems`](/api-reference/payments/objects/transaction-item.mdx) attached to the Checkout are fully paid.
 
-A checkout is considered fully paid when the [`Checkout.authorizeStatus`](/api-reference/checkout/objects/checkout#checkoutchargestatuscheckoutchargestatusenum---) 
+:::caution
+This feature won't work with legacy [Payments API](/developer/extending/payment-gateways.mdx) that use [plugins](/developer/extending/plugins/overview.mdx) (instead of apps). For example this setting won't work with [Stripe plugin](/developer/app-store/plugins/stripe)
+:::
+
+A checkout is considered fully paid when the [`Checkout.authorizeStatus`](/developer/payments/lifecycle.mdx#authorize-status) 
 is set to `FULL`.
-This occurs when the total of the [`chargedAmount`](/api-reference/payments/objects/transaction-item#transactionitemchargedamountmoney---) 
-and [`chargePendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemchargependingamountmoney---)
-from all transactions covers the [`checkout.totalPrice`](/api-reference/checkout/objects/checkout#checkoutsubtotalpricetaxedmoney---).
+
+This occurs when the total of `authorizedAmount`, `chargedAmount`, `authorizePendingAmount`, and `chargePendingAmount` from all transactions connected to the `Checkout` covers the [`checkout.totalPrice`](/api-reference/checkout/objects/checkout#checkoutsubtotalpricetaxedmoney---).
 
 To enable automatic checkout completion, update the channel checkout settings using the configuration example below:
 ```graphql
@@ -407,22 +410,31 @@ Query variables:
 }
 ```
 
-:::info
-Enabling automatic checkout completion will not disrupt storefront functionality.
-If `checkoutComplete` is called for a `Checkout` that has already been converted to an `Order`,
-the corresponding `Order` instance will be return.
+:::danger
+**Enabling automatic checkout might disrupt storefront functionality!**
+
+Completing checkout deletes the `Checkout` object, which means any query or mutation relying on it will no longer work after completion.
+:::
+
+
+:::tip
+Keep in mind that if `checkoutComplete` is called for a `Checkout` that has already been converted to an `Order`,
+the corresponding `Order` instance will be returned.
+
+This way you can get details of new `Order` object, after checkout it automatically completed.
 :::
 
 :::warning
-Checkout will be automatically completed even if some authorized or charged amounts are still pending,
-as long as the total amount is covered (`authorizeStatus` will be `FULL`).
-However, once the checkout is converted to an `Order`, the `authorizeStatus` will be `NONE`
-because pending amounts are not considered in the order status calculation.
+Checkout will be automatically completed even if some Transactions are still pending and waiting for confirmation from payment provider. Checkouts are considered "paid" as long as the total amount is covered (see when `authorizeStatus` is set to `FULL` in [payment lifecycle docs](/developer/payments/lifecycle.mdx#authorize-status)).
 
+Keep in mind that a pending Transaction might be rejected later, which will result in an unpaid order. To clear orders that remain unpaid you can use [Order Expiration feature](/developer/checkout/order-expiration.mdx)
+:::
 
-Keep in mind that a pending Transaction might be rejected later.
+:::caution
+Once `Checkout` is converted to into `Order`, the `authorizeStatus` might change from `FULL` to `NONE` or `PARTIAL`. This happens because [`Order.authorizeStatus`](/api-reference/orders/enums/order-authorize-status-enum.mdx#values) uses different logic to calculate its value.
 
-Read more about payment statuses [here](/developer/payments/lifecycle#payment-status).
+- **For checkouts**: pending Transactions **are** considered "paid" and are included in the [`Checkout.authorizeStatus`](/api-reference/checkout/enums/checkout-authorize-status-enum.mdx) calculation.
+- **For orders**: pending Transactions **are not** considered "paid" and will not be included in the [`Order.authorizeStatus`](/api-reference/orders/enums/order-authorize-status-enum.mdx#values) calculation.
 :::
 
 ## Related resources
