@@ -22,6 +22,14 @@ export default function LayoutWrapper(props) {
       }}
     >
       <Layout {...props} />
+      <button
+        type="button"
+        onClick={() => {
+          throw new Error("Sentry Test Error");
+        }}
+      >
+        Break the world
+      </button>
     </Sentry.ErrorBoundary>
   );
 }
