@@ -369,13 +369,15 @@ Follow [Transactions Webhook Events](/developer/extending/webhooks/synchronous-e
 
 ### Automatic Checkout completion
 
-The Checkout can be automatically converted into an [`Order`](/api-reference/orders/objects/order.mdx), once the [`TransactionItems`](/api-reference/payments/objects/transaction-item.mdx) attached to the Checkout are fully paid.
+The `Checkout` can be automatically converted into an [`Order`](/api-reference/orders/objects/order.mdx), once the related [`TransactionItems`](/api-reference/payments/objects/transaction-item.mdx) fully cover `Checkout`.
 
 :::caution
-This feature won't work with legacy [Payments API](/developer/extending/payment-gateways.mdx) that use [plugins](/developer/extending/plugins/overview.mdx) (instead of apps). For example this setting won't work with [Stripe plugin](/developer/app-store/plugins/stripe)
+This feature isn't compatible with [legacy Payments API](/developer/extending/payment-gateways.mdx) that uses [plugins](/developer/extending/plugins/overview.mdx) (instead of apps). For example this setting won't work with [Stripe plugin](/developer/app-store/plugins/stripe).
+
+Payments API uses `checkoutComplete` mutation to pass payment data to a plugin and return payment status, thanks to this `Order` is always created right after such payment is made. **This means that this setting doesn't impact Payments API**.
 :::
 
-A checkout is considered fully paid when the [`Checkout.authorizeStatus`](/developer/payments/lifecycle.mdx#authorize-status) 
+A checkout is considered fully covered when the [`Checkout.authorizeStatus`](/developer/payments/lifecycle.mdx#authorize-status) 
 is set to `FULL`.
 
 This occurs when the total of `authorizedAmount`, `chargedAmount`, `authorizePendingAmount`, and `chargePendingAmount` from all transactions connected to the `Checkout` covers the [`checkout.totalPrice`](/api-reference/checkout/objects/checkout#checkoutsubtotalpricetaxedmoney---).
@@ -420,7 +422,7 @@ Please remember, that if setting is enabled:
 
 
 :::warning
-Checkout will be automatically completed even if some Transactions are still pending and waiting for confirmation from payment provider. Checkouts are considered "paid" as long as the total amount is covered (see when `authorizeStatus` is set to `FULL` in [payment lifecycle docs](/developer/payments/lifecycle.mdx#authorize-status)).
+Checkout will be automatically completed even if some Transactions are still pending and waiting for confirmation from payment provider. Checkouts are considered "covered" as long as the total amount is covered (see when `authorizeStatus` is set to `FULL` in [payment lifecycle docs](/developer/payments/lifecycle.mdx#authorize-status)).
 
 Keep in mind that a pending Transaction might be rejected later, which will result in an unpaid order. To clear orders that remain unpaid you can use [Order Expiration feature](/developer/checkout/order-expiration.mdx)
 :::
