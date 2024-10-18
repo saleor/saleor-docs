@@ -51,7 +51,54 @@ Keep in mind that `CHECKOUT_FULLY_PAID` webhook would have only been triggered i
 Enabling this feature might break your current storefront implementation and services connected to Saleor that use `Checkout` object.
 :::
 
-Before you enable this feature make sure that you don't rely on any `Checkout` query or mutation that updates `Checkout` after transaction is crated (via `transactionInitialize` or `transactionProcess` mutations).
+Before you enable this feature make sure that you don't rely on any `Checkout` query or mutation that updates `Checkout` after transaction is created.
+
+:::tip
+After calling `transactionInitialize` or `transactionProcess` you can determine if `Checkout` has been completed by checking the `TransactionEvent` object returned in the mutation response.
+
+Transaction is considered "paid" when it has one of the following `types`:
+
+- `AUTHORIZATION_SUCCESS`
+- `AUTHORIZATION_REQUEST`
+- `CHARGE_SUCCESS`
+- `CHARGE_REQUEST`
+
+and it's `amount` is equal to `Checkout.totalPrice`.
+
+Note that payment provider might return **lower** amount than the one you have requested (in that case `Checkout` is not paid). Your logic also needs to take into consideration multiple Transactions if you use split-payments.
+:::
+
+:::tip
+You can also determine if `Checkout` has been paid by calling `checkoutComplete` mutation.
+
+If it returns `Order` object, it means that it was paid and an `Order` was created.
+
+If it returns error, it means that `Checkout` hasn't been paid:
+
+```graphql
+mutation CompleteCheckout($id: ID!) {
+  checkoutComplete(id: $id) {
+    errors {
+      code
+    }
+  }
+}
+```
+
+will return
+
+```json
+{
+  "checkoutComplete": {
+    "errors": [
+      {
+        "code": "CHECKOUT_NOT_FULLY_PAID"
+      }
+    ]
+  }
+}
+```
+:::
 
 Automatic checkout completion works just like calling `checkoutComplete` mutation, which deletes `Checkout` object and creates `Order`.
 
