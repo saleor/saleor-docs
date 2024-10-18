@@ -25,7 +25,7 @@ export default function DocSidebarWrapper(props) {
         return (
           el.innerText.toLocaleLowerCase() === parentTitle.value.toLowerCase()
         );
-      }
+      },
     );
 
     if (!el) return;
@@ -51,6 +51,15 @@ export default function DocSidebarWrapper(props) {
   return (
     <>
       <DocSidebar {...props} />
+      <button
+        type="button"
+        onClick={() => {
+          throw new Error("Sentry Test Error");
+        }}
+      >
+        Break the world
+      </button>
+      ;
     </>
   );
 }
