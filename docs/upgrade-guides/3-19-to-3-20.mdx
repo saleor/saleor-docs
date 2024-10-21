@@ -58,17 +58,18 @@ Automatic checkout completion works just like calling `checkoutComplete` mutatio
 After completion `checkout` query with a `id` of already completed `Checkout` will return `null`.
 
 :::tip
-You can determine if checkout was automatically completed by making `checkout` query, if Saleor returns `null`, then you can assume that it was automatically completed:
+You can determine if checkout was automatically completed by making `checkout` query: 
 
 ```graphql
 query CheckoutDetails($id: ID!) {
   checkout(id: $id) {
     id
+    authorizeStatus
   }
 }
 ```
 
-Response:
+If Saleor returns `null`, then you can assume that it was automatically completed:
 
 ```json
 {
@@ -77,6 +78,19 @@ Response:
   },
 }
 
+```
+
+If automatic checkout completion is not enabled in a `Channel`, storefront can should `checkoutComplete` mutation, once `authorizeStatus` is set to `FULL`:
+
+```json
+{
+  "data": {
+    "checkout": {
+      "id": "Q2hlY2tvdXQ6",
+      "authorizeStatus": "FULL"
+    }
+  }
+}
 ```
 :::
 
