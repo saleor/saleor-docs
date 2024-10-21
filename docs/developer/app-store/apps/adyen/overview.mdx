@@ -210,3 +210,59 @@ To disable this setting that go to the `Dashboard > Developers > Webhooks`. In u
 On the Webhook settings page make sure to uncheck "Delayed Capture" setting:
 
 ![Adyen dashboard webhook settings page, where Delayed Capture setting is available, the checkbox is unchecked](./adyen_webhook_settings_delayed_capture_2.png)
+
+### Transactions rejected due to fraud
+
+Adyen app sends [`customerIpAddress`](api-reference/payments/objects/transaction-initialize-session.mdx#transactioninitializesessioncustomeripaddressstring--) it receives from Saleor `TRANSACTION_INITIALIZE_SESSION` and `TRANSACTION_PROCESS_SESSION` to Adyen as [`shopperIP` field](https://docs.adyen.com/api-explorer/Checkout/71/post/sessions#request-shopperIP).
+
+If Adyen detects that IP address is suspicious, it might reject the payment. In such case, you should investigate the IP address and make sure that it's not blacklisted in your Adyen [Block and trust list](https://docs.adyen.com/risk-management/configure-manual-risk/referral-rules/#referral-shopper).
+
+#### Using proxy
+
+Keep in mind that if you use proxy for making request to Saleor on your customers behalf, you need to specify `customerIpAddress` field on your own in the `transactionInitialize` and `transactionProcess` mutation input:
+
+
+`transactionInitialize` mutation:
+```graphql
+mutation TransactionInitialize($checkoutId: ID!, $data: JSON, $customerIpAddress: String!) {
+  transactionInitialize(
+    id: $checkoutId
+    paymentGateway: {id: "app.saleor.adyen", data: $data}
+    customerIpAddress: $customerIpAddress # <-- provide customer IP address in your proxy implementation
+  ) {
+    data
+    transactionEvent {
+      pspReference
+      type
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+`transactionProcess` mutation:
+
+```graphql
+mutation TransactionProcess($transactionId: ID!, $data: JSON, $customerIpAddress: String!) {
+  transactionProcess(
+    id: $transactionId
+    data: $data
+    customerIpAddress: $customerIpAddress
+  ) {
+    data
+    transactionEvent {
+      pspReference
+      type
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
