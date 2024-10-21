@@ -22,7 +22,7 @@ Saleor 3.20 added new functionality to automatically complete `Checkout` that ha
 👉 To learn more, about how this feature works and how to enable it, [read the Automatic Checkout completion docs](/developer/payments/transactions.mdx#automatic-checkout-completion).
 
 :::info
-By "paid" in this guide we mean that the `TransactionItems` connected to `Checkout` have fully covered [`Checkout.totalPrice`](/api-reference/checkout/objects/checkout.mdx#checkouttotalpricetaxedmoney---), which means that [`Checkout.authorizeStatus`](/api-reference/checkout/objects/checkout.mdx#checkoutauthorizestatuscheckoutauthorizestatusenum---) is set to [`FULL`](/api-reference/checkout/enums/checkout-authorize-status-enum.mdx).
+By "paid" in this guide we mean that the `TransactionItems` connected to `Checkout` have fully covered [`Checkout.totalPrice`](/api-reference/checkout/objects/checkout.mdx#checkouttotalpricetaxedmoney---), which results in [`Checkout.authorizeStatus`](/api-reference/checkout/objects/checkout.mdx#checkoutauthorizestatuscheckoutauthorizestatusenum---) being set to [`FULL`](/api-reference/checkout/enums/checkout-authorize-status-enum.mdx).
 
 Learn more about this in [Transaction docs](/developer/payments/transactions.mdx#automatic-checkout-completion)
 :::
@@ -53,54 +53,48 @@ Enabling this feature might break your current storefront implementation and ser
 
 Before you enable this feature make sure that you don't rely on any `Checkout` query or mutation that updates `Checkout` after transaction is created.
 
-:::tip
-After calling `transactionInitialize` or `transactionProcess` you can determine if `Checkout` could have been completed by checking the `TransactionEvent` object returned in the mutation response.
+Automatic checkout completion works just like calling `checkoutComplete` mutation, which converts `Checkout` object into `Order`.
 
-Transaction is considered successful in a context of a `Checkout` when it has one of the following `types`:
+After completion `checkout` query with a `id` of already completed `Checkout` will return `null`.
+
+:::tip
+You can determine if checkout was automatically completed by making `checkout` query, if Saleor returns `null`, then you can assume that it was automatically completed:
+
+```graphql
+query CheckoutDetails($id: ID!) {
+  checkout(id: $id) {
+    id
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "checkout": null
+  },
+}
+
+```
+:::
+
+:::tip
+To determine if `Checkout` was completed you can also rely on response from `transactionInitialize` or `transactionProcess` mutations by checking the `TransactionEvent` object returned in the mutation response.
+
+Such transaction is considered successful in a context of a `Checkout` when the `TransactionEvent`'s `amount` is equal to `Checkout.totalPrice` and its `type` is one of these:
 
 - `AUTHORIZATION_SUCCESS`
 - `AUTHORIZATION_REQUEST`
 - `CHARGE_SUCCESS`
 - `CHARGE_REQUEST`
 
-and it's `amount` is equal to `Checkout.totalPrice`.
+Note: payment provider might sometimes return **lower** amount than the one you have requested. In that case `Checkout` will not be paid.
 
-Note that payment provider might return **lower** amount than the one you have requested (in that case `Checkout` is not paid). Your logic also needs to take into consideration multiple Transactions if you use split-payments.
+Your logic also needs to take into consideration multiple transactions if you use split-payments. If you use them, it might be easier to make separate `checkout` query, described in previous section.
 :::
 
-:::tip
-You can also determine if `Checkout` has been paid by calling `checkoutComplete` mutation.
-
-If it returns `Order` object, it means that it was paid and an `Order` was created.
-
-If it returns error, it means that `Checkout` hasn't been paid:
-
-```graphql
-mutation CompleteCheckout($id: ID!) {
-  checkoutComplete(id: $id) {
-    errors {
-      code
-    }
-  }
-}
-```
-
-will return
-
-```json
-{
-  "checkoutComplete": {
-    "errors": [
-      {
-        "code": "CHECKOUT_NOT_FULLY_PAID"
-      }
-    ]
-  }
-}
-```
-:::
-
-Automatic checkout completion works just like calling `checkoutComplete` mutation, which converts `Checkout` object into `Order`.
 
 In order to get the `Order` details after payment you can use:
 
@@ -117,6 +111,34 @@ mutation CompleteCheckout($id: ID!) {
   checkoutComplete(id: $id) {
     order {
       id
+    }
+  }
+}
+```
+
+If `Checkout` has been paid, the response will contain `Order` object:
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "order": {
+        "id": "T3JkZXI6NzQ="
+      }
+    }
+  }
+}
+```
+
+If `Checkout` hasn't been paid, the response will contain an error:
+```json
+{
+  "data": {
+    "checkoutComplete": {
+      "errors": [
+        {
+          "code": "CHECKOUT_NOT_FULLY_PAID"
+        }
+      ]
     }
   }
 }
