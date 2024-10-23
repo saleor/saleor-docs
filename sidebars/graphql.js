@@ -15,6 +15,6 @@ export const graphqlSidebar = [
     "api-usage/prices",
     "api-usage/slug-fields",
     "api-usage/usage-limits",
-    "developer/extending/apollo-federation",
+    "api-usage/apollo-federation",
   ],
 ];
