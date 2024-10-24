@@ -7,6 +7,7 @@ const { selfHosting } = require("./sidebars/self-hosting");
 const { extending } = require("./sidebars/extending");
 const { graphqlSidebar } = require("./sidebars/graphql");
 const { cloudSidebar } = require("./sidebars/cloud");
+const { upgradeGuidesSidebar } = require("./sidebars/upgrade-guides");
 
 const backToHome = {
   type: "ref",
@@ -76,6 +77,7 @@ module.exports = {
     title("Additional Resources"),
     ref("setup/overview", "Self-hosting", "selfHost"),
     ref("developer/community/contributing", "Community", "community"),
+    ref("upgrade-guides/index", "Upgrade Guides", "guides"),
   ],
   concepts: [backToHome, ...coreConcepts],
   appStore: [backToHome, ...appStore],
@@ -92,4 +94,5 @@ module.exports = {
   selfHosting: [backToHome, ...selfHosting],
   community: [backToHome, ...community],
   cloud: [backToHome, ...cloudSidebar],
+  upgrade: [backToHome, ...upgradeGuidesSidebar],
 };
