@@ -3,7 +3,7 @@ title: Lifecycle
 sidebar_label: Lifecycle
 ---
 
-## Payment status
+## Order payment status
 
 ```mermaid
 stateDiagram-v2
@@ -36,13 +36,13 @@ stateDiagram-v2
  PARTIALLY_REFUNDED --> FULLY_REFUNDED
 ```
 
-[Payment status](api-reference/orders/objects/order.mdx#orderpaymentstatuspaymentchargestatusenum---) represents the combined payment and refund status of the order. It's calculated based on:
+[`Order.paymentStatus`](api-reference/orders/objects/order.mdx#orderpaymentstatuspaymentchargestatusenum---) represents the combined payment and refund status of the order. It's calculated based on:
 
 - `order.total` value
 - status of the payments
 - refunds granted for the order
 
-When no refunds are created, the status is one of the following:
+When [no refunds](/developer/payments/refunds.mdx) are created, the status is one of the following:
 
 - `PENDING`: waiting for the response from the payment gateway
 - `REFUSED`: payment refused by the payment gateway
@@ -55,6 +55,10 @@ Creating the refund will change the status to:
 
 - `PARTIALLY_REFUNDED`: the refunded amount does not cover the order total
 - `FULLY_REFUNDED`: refunded funds fully cover the order total
+
+:::tip
+`Checkout` doesn't have `paymentStatus` field, instead you can use `authorizeStatus` and `chargeStatus` described below to check status of transactions.
+:::
 
 ### Authorize status
 
@@ -69,18 +73,20 @@ stateDiagram-v2
 
 ```
 
-Authorize status depends on:
+#### Authorization status calculation for Order
 
-- the sum of **charged** transactions
-- the sum of **authorized** transactions
-- the `order.totalGrantedRefund` value
-- the `order.total` value
+[`Order.authorizeStatus`](/api-reference/orders/objects/order#orderauthorizestatusorderauthorizestatusenum---) status depends on:
 
-The difference between `total` and `totalGrantedRefund` is compared with the sum of **charged** and **authorized** transactions. The result is one of the statuses: `PARTIAL`, `FULL`. If no transaction has been authorized, the status is `NONE`.
+- sum of **charged** transactions
+- sum of **authorized** transactions
+- `order.totalGrantedRefund` value
+- `order.total` value
+
+The difference between [`total`](/api-reference/orders/objects/order.mdx#ordertotaltaxedmoney---) and [`totalGrantedRefund`](/api-reference/orders/objects/order.mdx#ordertotalgrantedrefundmoney---) is compared with the sum of **charged** and **authorized** transactions. The result is one of the statuses: `PARTIAL`, `FULL`. If no transaction has been authorized, the status is `NONE`.
 
 #### Authorization status calculation for Checkout
 
-The status is calculated based on all  `TransactionItem`'s assigned to the `Checkout`. 
+The status is calculated based on all `TransactionItem`s assigned to the `Checkout`. 
 
 For a checkout, authorization means that funds have been either authorized or charged (or a combination of partially charged and partially authorized).
 The status takes into account the following fields: `authorizedAmount`, `chargedAmount`, `authorizePendingAmount`, and `chargePendingAmount`:
