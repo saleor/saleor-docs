@@ -247,9 +247,15 @@ In the response, Saleor returns:
 - `alreadyProcessed` - Defines if the reported event hasn't been processed earlier.
   If there is an event with the same `pspReference`, `amount`, and `type` as the ones provided in the input
   mutation, Saleor will return it instead of creating a new one, and the flag will be set
-  to `true`. If the event with provided `pspReference` and `type` was already reported but with a
-  different amount, the error with code [INCORRECT_DETAILS](/api-reference/payments/enums/transaction-event-report-error-code#transactioneventreporterrorcodeincorrect_details)
-  will be raised.
+  to `true`.
+
+:::danger
+Saleor will throw an exception if events cannot be deduplicated in following cases:
+
+- **Other event has the same `pspReference` but different amount**: [`INCORRECT_DETAILS`](/api-reference/payments/enums/transaction-event-report-error-code.mdx#transactioneventreporterrorcodealready_exists) error will be raised
+- **`AUTHORZATION_SUCCESS` event already exists with different `amount` or with different `pspReference`**: [`ALREADY_EXISTS`](/api-reference/payments/enums/transaction-event-report-error-code.mdx#transactioneventreporterrorcodealready_exists) error will be raised
+:::
+
 - `transaction` - Transaction that has been updated based on the received report.
 - `transactionEvent` - [TransactionEvent](/api-reference/payments/objects/transaction-event) that has been created based on the received report.
 
