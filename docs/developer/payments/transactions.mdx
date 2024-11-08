@@ -450,6 +450,77 @@ Once `Checkout` is converted to into `Order`, the `authorizeStatus` might change
 - **For orders**: pending Transactions **are not** considered "paid" and will not be included in the [`Order.authorizeStatus`](/api-reference/orders/enums/order-authorize-status-enum.mdx#values) calculation.
 :::
 
+### TransactionItem and  TransactionEvents pspReference Matching
+
+Both [TransactionItem](/api-reference/payments/objects/transaction-item)
+and [TransactionEvent](/api-reference/payments/objects/transaction-event)
+contain a `pspReference` field, which refers to the payment service provider reference.
+	-	The `pspReference` on `TransactionItem` identifies the overall payment.
+	-	The `pspReference` on `TransactionEvent` identifies specific actions that occurred within the `Transaction`.
+
+**Key Assumptions:**
+- Only one `TransactionItem` instance can exist with a given `pspReference`.
+- For a specific `TransactionItem`, only one `TransactionEvent` of a given `type` and `pspReference` may exist, except for the following types:
+  -	`AUTHORIZATION_ACTION_REQUIRED`
+	-	`CHARGE_ACTION_REQUIRED`
+	-	`INFO`
+- Only one `TransactionEvent` of type `AUTHORIZATION_SUCCESS` is allowed to exist.
+
+#### Setting the `pspReference` on the `TransactionItem`
+
+The pspReference value on a `TransactionItem` can initially be `None`.
+When the first `TransactionEvent` containing a `pspReference` is reported,
+this value is automatically set on the associated `TransactionItem`.
+
+The `pspReference` can be updated through the `transactionUpdate` mutation if necessary.
+
+#### Events with optional `pspReference` 
+
+The following events do not require a `pspReference`:
+- `CHARGE_ACTION_REQUIRED`
+- `AUTHORIZATION_ACTION_REQUIRED`
+- `CHARGE_FAILURE`
+- `AUTHORIZATION_FAILURE`
+- `REFUND_FAILURE`
+- `CANCEL_FAILURE`
+
+If `pspReference` is missing, the event is not considered in transaction amount recalculations.
+
+#### Handling TransactionEvent Reports for Existing Types
+
+When a `TransactionEvent` is reported:
+	1.	**Event Type Check:** If the event type is `AUTHORIZATION_ACTION_REQUIRED`, `CHARGE_ACTION_REQUIRED`, or `INFO`, a new event is always created.
+	2.	**Existing Event Check:** For other types, the system searches for an existing event with the same `type` and `pspReference`.
+	    -	**Amount Match:** If an existing event is found, the system compares its amount to the reported event’s amount.
+	        - If the amounts match, the existing event is reused.
+	        -	If they do not match, an error is raised.
+	    -	**No Existing Event:** If no matching event is found, a new one is created, except for `AUTHORIZATION_SUCCESS`, which must be unique, attempting to create a duplicate raises an error.
+
+```mermaid
+flowchart TD
+    A[TransactionEvent report] --> B{
+      The event type is
+      AUTHORIZATION_ACTION_REQUIRED,
+      CHARGE_ACTION_REQUIRED, or INFO}
+    B -->|YES| D[Create a new event]
+    B -->|NO| E{
+      The event with provided
+      pspReference and type
+      already exist}
+    E -->|YES| F{
+      The provided amount
+      match the existing
+      event amount}
+    E -->|NO| G{
+      The event type
+      is AUTHORIZE_SUCCESS
+      }
+    G --> |NO| D
+    G --> |YES| H[Raise an error]
+    F --> |YES| I[Return an existing event]
+    F --> |NO|H
+```
+
 ## Related resources
 
 - [Building Payment Apps](/developer/extending/apps/building-payment-app.mdx)
