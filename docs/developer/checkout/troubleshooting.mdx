@@ -11,3 +11,52 @@ sidebar_label: Troubleshooting
 ### Variant/Product is not available
 
 Make sure product is available in the channel the checkout is created. See [Product Troubleshooting](/developer/products/troubleshooting.mdx).
+
+### Resolving Paid Checkouts Not Converting to Orders
+
+Sometimes, a `Checkout` that has been paid might not convert into an `Order`.
+This can happen for various reasons, such as the customer closing the browser before the `checkoutComplete` mutation was called.
+To ensure that fully paid checkouts are reliably converted into orders, consider implementing one of the following solutions:
+
+#### Solution 1: Use a Webhook to Complete Checkouts
+
+Set up the `CHECKOUT_FULLY_PAID` webhook, and create an app to call the `checkoutComplete` mutation when this webhook is triggered.
+	•	For more information on setting up webhooks, refer to the [webhook overview](/developer/extending/webhooks/overview).
+	•	You can find guidance on app development [here](/developer/extending/apps/overview).
+
+	Note: This approach only works when the `CHARGE` is used as the default transaction flow strategy.
+
+#### Solution 2: Enable Automatic Checkout Completion
+
+Enable [automatic checkout completion](/developer/payments/transactions#automatic-checkout-completion)
+to automatically convert a `Checkout` into an `Order` once it is fully paid.
+
+A checkout is considered fully paid when `Checkout.authorizeStatus` is set to `FULL`, meaning the associated `TransactionItems` cover the `checkout.totalPrice`.
+
+#### Solution 3: Periodically Query Uncompleted Fully Paid Checkouts
+
+Implement a periodic check to query for fully paid checkouts that have not been completed, then complete them manually.
+To retrieve uncompleted checkouts, use the `checkouts` query with a filter for `authorizeStatus: FULL`, as shown below:
+
+```graphql
+query {
+  checkouts(filter: {authorizeStatus: [FULL]}) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+```
+
+:::note
+These solutions do not apply to partially paid checkouts, which require additional handling.
+For example, you may choose to send payment reminders or adjust the `Periodically Query Uncompleted Fully Paid Checkouts`
+approach to filter out checkouts that are not yet fully paid.
+:::
+
+:::note
+Be aware that funds for abandoned checkouts are automatically released after a specified time (default is 6 hours).
+More information on this process is available [here](/developer/checkout/lifecycle#releasing-funds-for-abandoned-checkouts).
+:::
