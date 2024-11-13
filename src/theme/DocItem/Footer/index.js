@@ -18,7 +18,7 @@ export default function DocItemFooter() {
   }
 
   // Consent modal is managed by the CookieYes script which is added via GTM
-  const canDisplayConsentManagement = !!window.cookieyes;
+  const canDisplayConsentManagement = !!window?.cookieyes;
 
   return (
     <footer
