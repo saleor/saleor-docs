@@ -16,10 +16,6 @@ export default function DocItemFooter() {
   if (!canDisplayFooter) {
     return null;
   }
-
-  // Consent modal is managed by the CookieYes script which is added via GTM
-  const canDisplayConsentManagement = !!window.cookieyes;
-
   return (
     <footer
       className={clsx(ThemeClassNames.docs.docFooter, "docusaurus-mt-lg")}
@@ -28,7 +24,7 @@ export default function DocItemFooter() {
         <div
           className={clsx(
             "row margin-top--sm",
-            ThemeClassNames.docs.docFooterTagsRow,
+            ThemeClassNames.docs.docFooterTagsRow
           )}
         >
           <div className="col">
@@ -67,14 +63,6 @@ export default function DocItemFooter() {
         <a href="https://saleor.io/">Saleor Commerce</a>. All rights reserved. |{" "}
         <a href={"https://saleor.io/legal/terms"}>Terms</a> |{" "}
         <a href={"https://saleor.io/legal/privacy"}>Privacy</a>
-        {canDisplayConsentManagement && (
-          <>
-            {" | "}
-            <a href="#" className="cky-banner-element">
-              Manage Cookies Settings
-            </a>
-          </>
-        )}
       </div>
     </footer>
   );
