@@ -177,6 +177,10 @@ module.exports = {
         googleTagManager: {
           containerId: "GTM-WC5R92LK",
         },
+        // Google Analytics tracking ID to track page views.
+        googleAnalytics: {
+          trackingID: "UA-10159761-25",
+        },
       },
     ],
   ],
