@@ -261,8 +261,80 @@ it may still remain unpaid if the pending amounts fail to process.
 
 ## Transactions recalculation of amounts
 
-The recalculation will differ based on the value of the [`TransactionEventTypeEnum`](/api-reference/payments/enums/transaction-event-type-enum.mdx) provided as the field `type`
-used in the `transactionEventReport`, `transactionInitialize` and `transactionProcess` mutations, or [optionally in the webhook response](/developer/extending/webhooks/synchronous-events/transaction.mdx):
+### Mental model
+
+Each `TransactionItem` has a ledger of events. This way we can calculate current transaction state based on the events history. You can think about it as a bank account: you start with some balance, then you add or subtract amounts based on the events that happen.
+
+History cannot be modified, just like in a bank account. In order to reverse an event you must create a new one.
+
+### Order of events
+
+New events can be reported to Saleor in non-subsequent order. This means that some old event might arrive later than a new one. For example:
+- on 10 AM Saleor receives `CHARGE_SUCCESS` event from payment app that was processed at 9:50 AM by payment provider
+- on 10:20 AM Saleor receives `AUTHORIZATION_SUCCESS` event, that was process at 9:30 AM by payment provider.
+
+This will result in a following list of events:
+- `AUTHORIZATION_SUCCESS` with `date: 9:30 AM`
+- `CHARGE_SUCCESS` with `date: 9:50 AM`
+
+### Reporting new events
+
+Events are created automatically by Saleor when calling `transactionInitialize` mutation. It creates either:
+- `AUTHORIZATION_REQUEST` when `action` in mutation input or `channel.transactionFlowStrategy` is `AUTHORIZATION`
+- or `CHARGE_REQUEST` when `action` in mutation input or `channel.transactionFlowStrategy` is `CHARGE`
+
+Events are also created by a payment app that processes the payment:
+
+- When app sends response to any of the [Transaction synchronous events](/developer/extending/webhooks/synchronous-events/transaction.mdx)
+- When [`transactionEventReport` mutation is called](/developer/payments/transactions.mdx#reporting-actions-for-transactions) (usually happens when payment provider sends asynchronous webhook)
+
+### Rules of calculating amounts
+
+Each event impacts different amount on `TransactionItem`:
+
+:::caution
+Each event can be excluded from calculation if it has matching `_FAILURE` event with the same `pspReference` and newer `time`.
+:::
+
+- `authorizedAmount` - `AUTHORIZATION_SUCCESS` event amount
+  - there can be only one `AUTHORIZATION_SUCCESS` event for given TransactionItem
+  - it can be modified by `AUTHORIZATION_ADJUSTMENT` event
+  - subtracting `canceledAmount`
+- `authorizePendingAmount` - sum of `AUTHORIZATION_REQUEST` event amounts
+- `chargedAmount` - sum of `CHARGE_SUCCESS` event amounts
+  - and sum `REFUND_REVERSE` event amounts
+  - subtracting all `CHARGE_BACK` events that lower this amount
+  - subtracting `refundedAmount`
+- `chargePendingAmount` - sum of `CHARGE_REQUEST` event amounts
+- `refundedAmount` - sum of `REFUND_SUCCESS` event amounts
+- `refundPendingAmount` - sum of `REFUND_REQUEST` event amounts
+- `canceledAmount` - sum of `CANCEL_SUCCESS` event amounts
+- `cancelPendingAmount` - sum of `CANCEL_REQUEST` event amounts
+
+
+:::note
+`AUTHORIZATION_ACTION_REQUIRED`, `CHARGE_ACTION_REQUIRED`, and `INFO` event types are not included in amount calculations.
+:::
+
+To learn more about each event type, see [Transaction event types](#transaction-event-types) section.
+
+#### Events deduplication
+
+Each event is identified by `pspReference`. This field is used to de-duplicate events in case there were reported multiple times by the payment app.
+
+For example if Saleor receives two `CHARGE_SUCCESS` events with the same `pspReference` and `amount` there will be only one event stored on Transaction. Second event will be treated as "already reported" and it won't be stored by Saleor.
+
+When reporting such events in `transactionEventReport` mutation it returns event that already exists and a flag `alreadyReported: true`.
+
+You can learn more about this mutation and event deduplication in [Reporting actions for transactions](/developer/payments/transactions.mdx#reporting-actions-for-transactions) docs.
+
+### State machine
+
+Saleor Transaction model **is not a state machine**. This means that we do not protect Transactions from being in a state that might be seen as invalid.
+
+For example:
+
+
 
 ### Examples
 
