@@ -24,7 +24,7 @@ export default function DocItemFooter() {
         <div
           className={clsx(
             "row margin-top--sm",
-            ThemeClassNames.docs.docFooterTagsRow
+            ThemeClassNames.docs.docFooterTagsRow,
           )}
         >
           <div className="col">
@@ -62,7 +62,11 @@ export default function DocItemFooter() {
         Copyright © 2018–{new Date().getFullYear()}{" "}
         <a href="https://saleor.io/">Saleor Commerce</a>. All rights reserved. |{" "}
         <a href={"https://saleor.io/legal/terms"}>Terms</a> |{" "}
-        <a href={"https://saleor.io/legal/privacy"}>Privacy</a>
+        <a href={"https://saleor.io/legal/privacy"}>Privacy</a> |{" "}
+        {/* The cookie consent modal only shows when theres attached GTM container with CookieYes integration */}
+        <a href="#" className="cky-banner-element">
+          Manage Cookies Settings
+        </a>
       </div>
     </footer>
   );
