@@ -71,7 +71,7 @@ All order-level discounts are mutually exclusive and can't be combined.
 * The order promotion can either decrease the subtotal or grant a gift, which will be added to the order as an extra order line with zero price.
 * The manual discount decreases both subtotal and shipping prices. If the fixed value is provided, Saleor proportionally computes the subtotal and shipping portion.
 
-After the application, when using flat rates or Avatax plugin tax strategies, the discounts are proportionally propagated to the order lines.
+After the application, when using flat rates or Avatax plugin tax strategies, the discounts are proportionally propagated to the order lines, decreases the unit and total prices.
 When a custom tax app is used to calculate taxes, this is done by the app itself.
 
 ## Tax calculation
@@ -80,10 +80,18 @@ After handling the discounts, Saleor calculates taxes to reflect gross prices (o
 Tax calculation can be omitted by [chargeTaxes](developer/taxes.mdx#tax-configuration) setting or [tax exemption API](developer/taxes.mdx#tax-exemption).
 Saleor offers three tax calculation strategies.
 
+### Assumptions
+
+* The `line.totalPrice` is the primary source of truth for price calculations.  
+* Taxes are applied at the line level, with `line.totalPrice` reflecting all applied discounts.  
+* The `line.unitPrice` is calculated from `line.totalPrice` by dividing it by the `line.quantity`. However, due to rounding, the product of `line.unitPrice` and `line.quantity` may not exactly equal `line.totalPrice`.  
+* The `order.total` is determined as the sum of all `line.totalPrice` values.
+
 ### Flat rates
 
 When using [`flat rates`](developer/taxes.mdx#flat-rates), all the calculations are done by Saleor itself.
 It applies static tax rates, defined by the user, associated with products, product types, shipping methods or countries.
+Taxes are applied to the line total prices. The taxed `unit_price` is calculated by dividing the taxed `total_price` by the line `quantity`.
 
 ### Tax app
 
