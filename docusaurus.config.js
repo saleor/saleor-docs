@@ -159,7 +159,9 @@ module.exports = {
       ],
     },
   },
-
+  customFields: {
+    sentryDSN: process.env.SENTRY_DSN,
+  },
   presets: [
     [
       "@docusaurus/preset-classic",

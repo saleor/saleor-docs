@@ -1,0 +1,31 @@
+---
+title: Checkout performance guidelines
+sidebar_label: Performance
+---
+
+This chapter contains guidelines for improving the performance of the checkout process.
+
+## Taxes recalculation with custom taxes apps
+
+When taxes app is used to calculate taxes (`CHECKOUT_CALCULATE_TAXES` AND `ORDER_CALCULATE_TAXES` subscriptions are being used),
+the app is called every time taxes [need to be recalculated](/developer/extending/webhooks/synchronous-events/tax).
+
+You may see mutations like `checkoutLineAdd` or `checkoutShippingMethodUpdate` being slow,
+just like the queries that require prices affected by taxes (see [TaxedMoney](/api-reference/miscellaneous/objects/taxed-money)).
+
+To improve checkout (or order - it can be used in the same way) performance, you can optimize your storefront to avoid recalculating taxes when possible.
+
+Example patterns:
+- When calling `checkoutLineAdd` do not require entire checkout in the response. Check for `errors` and assume mutation succeeds if there are none.
+- If storefront doesn't show gross prices (they are calculated after shipping is provided), do not require gross price. Use net prices or catalog prices instead.
+
+### Optimistic UI
+
+For operations like changing line quantity, you may want to assume that the operation will succeed and update the UI immediately.
+You can leverage strategy called "optimistic updates" for that.
+
+- [Apollo](https://www.apollographql.com/docs/react/v2/performance/optimistic-ui)
+- [React Query](https://tanstack.com/query/v4/docs/framework/react/guides/optimistic-updates)
+- [urql](https://commerce.nearform.com/open-source/urql/docs/graphcache/cache-updates/#optimistic-updates)
+
+In the nutshell, frontend can calculate new price locally and update the UI immediately, while the real response will apply with a delay in the background.
