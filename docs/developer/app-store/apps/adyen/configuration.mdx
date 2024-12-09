@@ -24,6 +24,20 @@ In **Server settings -> Authentication** section generate a new API key.
 
 In **Client settings -> Authentication** section generate a new client key.
 
+:::caution
+The API Key provided inside the configuration must have the following permissions set in the Adyen Dashboard:
+
+- "Management API - Accounts read and write"
+- "Management API - API credentials read and write"
+- "Management API - Payment methods read"
+- "Management API - Stores read and write"
+- "Management API - Webhooks read and write"
+- "Checkout encrypted cardholder data"
+- "Merchant Recurring role"
+- "Checkout webservice role"
+- "Merchant PAL Webservice role"
+:::
+
 Go back to the Adyen app configuration in the Saleor Dashboard. Provide a configuration name that you will be familiar with. In the **API Key** field provide the key from **Server settings -> Authentication** section. Select **TEST** environment.
 
 :::caution
@@ -35,6 +49,8 @@ Save API credentials in the Adyen dashboard, head over to the Adyen app configur
 In the **Client key** field, provide a key from the **Client settings -> Authentication** section. Select the merchant account you want to use from the drop-down.
 
 ### Webhook configuration
+
+#### Prerequisites
 
 :::caution
 Before you begin configuration, make sure that you have disabled the **Delayed Capture** option in the Adyen Dashboard. Read more details on how to do this on the [Overview docs page](./overview.mdx)
@@ -68,6 +84,8 @@ Adyen webhook will set `TransactionItem` metadata based on fields received in `N
 To configure additional fields that will be set when users make payments, go to `Developers > Additional data` and choose fields you want to have in your metadata. Read more about this on the [Architecture docs page](./architecture.mdx#transactionitem-metadata)
 :::
 
+#### Configuring the webhook
+
 Then head over to **Developers -> Webhooks**. Click the **+ Webhook** button and choose **Standard webhook**. Provide a description for the webhook.
 
 In the **Server configuration** section, provide the URL the Saleor Adyen app has generated for you. You can copy it from the **Webhook URL** input in the Adyen configuration form. Leave the default settings and click **Apply**.
@@ -78,38 +96,72 @@ In **Merchant accounts** select **Include only specific merchant accounts** and 
 Do not select merchant accounts that are used for payments made outside of Adyen App (e.g. POS, custom apps, etc.)
 :::
 
-In **Events**, apart from events selected by default, select `EXPIRE`. Deselect the `ORDER_OPENED` event.
+In **Events**, make sure that you have selected the following events:
 
-In **Additional settings -> Risk** select:
-- `Include the originalReference for CHARGEBACK_REVERSED events`
+:::tip
+By default you can just:
+- deselect `ORDER_OPENNED` event
+- select `EXPIRE` and `OFFER_CLOSED` events.
+
+However, make sure that all the listed events are selected, in case Adyen has added new events or removed them as default.
+:::
+
+- `AUTHORISATION`
+- `AUTHORISATION_ADJUSTMENT`
+- `AUTORESCUE`
+- `CANCEL_AUTORESCUE`
+- `CANCEL_OR_REFUND`
+- `CANCELLATION`
+- `CAPTURE`
+- `CAPTURE_FAILED`
+- `CHARGEBACK`
+- `CHARGEBACK_REVERSED`
+- `EXPIRE`
+- `HANDLED_EXTERNALLY`
+- `MANUAL_REVIEW_ACCEPT`
+- `MANUAL_REVIEW_REJECT`
+- `NOTIFICATION_OF_CHARGEBACK`
+- `NOTIFICATION_OF_FRAUD`
+- `OFFER_CLOSED`
+- `ORDER_CLOSED`
+- `PAIDOUT_REVERSED`
+- `PAYOUT_DECLINE`
+- `PAYOUT_EXPIRE`
+- `PAYOUT_THIRDPARTY`
+- `PENDING`
+- `POSTPONED_REFUND`
+- `PREARBITRATION_LOST`
+- `PREARBITRATION_WON`
+- `RECURRING_CONTRACT`
+- `REFUND`
+- `REFUND_FAILED`
+- `REFUND_WITH_DATA`
+- `REFUNDED_REVERSED`
+- `REPORT_AVAILABLE`
+- `REQUEST_FOR_INFORMATION`
+- `SECOND_CHARGEBACK`
+- `TECHNICAL_CANCEL`
+- `VOID_PENDING_REFUND`
+
+In **Additional settings -> Card** select:
+- `Include card info for recurring contract events`
+
+In **Additional settings -> Payment** select:
 - `Include a success boolean for the payments listed in an ORDER_CLOSED event`
 - `Include Authorised Amount (dynamic zero auth)`
 - `Include Capture Delay Hours`
-- `Include card info for recurring contract events)`
-- `Include zero auth flag`
-- `Include Shopper Interaction`
 - `Include Mandate Details`
-- `Add capture reference to dispute event`
+- `Include Shopper Interaction`
+- `Include zero auth flag`
 
-In **Security -> Basic authentication** provide a username and a password. Apply changes. Use the same username and password in the **webhook username** and **webhook password** fields in the Adyen application.
+In **Additional settings -> Risk** select:
+- `Add capture reference to dispute event`
+- `Include the originalReference for CHARGEBACK_REVERSED events`
+
+In **Security -> Basic authentication** provide a username and a password.
+Use the same username and password in the **webhook username** and **webhook password** fields in the Adyen application.
 
 Generate a new **HMAC key** in the **Security -> HMAC Key** section and copy it.
 
 Apply the configuration details in the Saleor Adyen app, then in the Adyen dashboard save the new Adyen webhook.
 Save the configuration. If everything went well, you should see a new button **Make test webhook call**. Use it to test if your configuration is correct.
-
-:::caution
-
-The API Key provided inside the configuration must have the following permissions set in the Adyen Dashboard:
-
-- "Management API - Accounts read and write"
-- "Management API - API credentials read and write"
-- "Management API - Payment methods read"
-- "Management API - Stores read and write"
-- "Management API - Webhooks read and write"
-- "Checkout encrypted cardholder data"
-- "Merchant Recurring role"
-- "Checkout webservice role"
-- "Merchant PAL Webservice role"
-
-:::

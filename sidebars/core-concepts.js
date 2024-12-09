@@ -30,6 +30,7 @@ export const coreConcepts = [
   "developer/checkout/address",
   "developer/checkout/problems",
   "developer/checkout/cookbook",
+  "developer/checkout/performance",
   "developer/checkout/troubleshooting",
   "developer/checkout/api-guide",
 
@@ -38,7 +39,7 @@ export const coreConcepts = [
   "developer/checkout/order-expiration",
   "developer/checkout/order-to-checkout",
 
-  title("Payments"),
+  title("Transactions"),
   "developer/payments/overview",
   "developer/payments/payment-apps",
   "developer/payments/transactions",

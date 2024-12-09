@@ -1,0 +1,20 @@
+---
+title: Upgrading From 3.15 To 3.16
+sidebar_position: 6
+---
+
+## `customerIpAddress` field
+
+Saleor 3.16 added `customerIpAddress` to [`TRANSACTION_INITIALIZE_SESSION`](/api-reference/payments/objects/transaction-initialize-session.mdx) and [`TRANSACTION_PROCESS_SESSION`](/api-reference/payments/objects/transaction-process-session.mdx) webhooks.
+
+This field is calculated based on the request's IP address. It might be consumed by Payment App and passed to a payment provider for fraud checking.
+
+:::danger
+If you are making requests on behalf of your customers (for example if you use a proxy or have a backend-for-frontend architecture), make sure to provide `customerIpAddress` parameter in [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize#transactioninitializecustomeripaddressstring--) and [`transactionProcess`](http://localhost:3000/api-reference/payments/mutations/transaction-process#transactionprocesscustomeripaddressstring--) mutations:
+
+Not providing `customerIpAddress` will result in an incorrect calculation of IP Address by Saleor that is sent to the Payment App, which might cause transactions to fail.
+
+Future Saleor version might make this field required if called by an app.
+:::
+
+To see an example how `customerIpAddress` might be consumed by a Payment App, [see Adyen App docs](/developer/app-store/apps/adyen/overview.mdx#transactions-rejected-due-to-fraud)

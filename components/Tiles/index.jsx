@@ -7,7 +7,7 @@ const range = (start, end) => {
 };
 
 const Tiles = () => {
-  const [t, setT] = React.useState(0);
+  const [_t, setT] = React.useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -35,6 +35,7 @@ const Tiles = () => {
           return (
             <div
               className={s.meteor}
+              key={`meteor-${index}`}
               style={{
                 animationDelay: `${index}s`,
               }}

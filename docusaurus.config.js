@@ -3,6 +3,8 @@ require("dotenv").config();
 const { themes } = require("prism-react-renderer");
 const path = require("node:path");
 
+const gtmContainerId = process.env.GTM_CONTAINER_ID;
+
 module.exports = {
   title: "Saleor Commerce Documentation",
   tagline: "High performance, composable, headless commerce API.",
@@ -176,13 +178,11 @@ module.exports = {
           },
           sidebarPath: "sidebars.js",
         },
-        googleTagManager: {
-          containerId: "GTM-WC5R92LK",
-        },
-        // Google Analytics tracking ID to track page views.
-        googleAnalytics: {
-          trackingID: "UA-10159761-25",
-        },
+        ...(gtmContainerId && {
+          googleTagManager: {
+            containerId: gtmContainerId,
+          },
+        }),
       },
     ],
   ],

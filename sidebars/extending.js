@@ -20,6 +20,10 @@ export const extending = [
   title("Security"),
   "developer/extending/webhooks/ip-addresses",
 
+  title("Legacy Plugins"),
+  "developer/extending/plugins/overview",
+  "developer/extending/plugins/payment-gateways",
+
   title("Legacy Webhooks"),
   "developer/extending/webhooks/synchronous-events/payment",
 ];
