@@ -140,9 +140,14 @@ module.exports = {
       },
       items: [
         {
-          to: "https://github.com/saleor/saleor-docs/issues/new",
-          label: "Report an Issue",
+          type: "search",
+          position: "left",
+        },
+        {
+          to: "https://cloud.saleor.io/signup",
+          label: "Sign up",
           position: "right",
+          className: "signup-button-cta",
         },
       ],
     },
