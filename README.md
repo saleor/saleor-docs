@@ -12,7 +12,7 @@
 - [Directory Structure](#directory-structure)
 - [Editing Content](#editing-content)
 - [Adding Content](#adding-content)
-- [Full Documentation](#full-documentation)
+- [Full Documentation](#full-docusaurus-documentation)
 
 # Get Started in 5 Minutes
 
