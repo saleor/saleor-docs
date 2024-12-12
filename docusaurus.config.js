@@ -144,7 +144,7 @@ module.exports = {
           position: "left",
         },
         {
-          to: "https://cloud.saleor.io/signup",
+          to: "https://cloud.saleor.io/signup?utm_button=Sign%20up&utm_page=docs",
           label: "Sign up",
           position: "right",
           className: "signup-button-cta",
