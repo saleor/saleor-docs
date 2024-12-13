@@ -56,35 +56,83 @@ then the calculations are applied in the following order:
   4. recalculate amounts based on `REFUND` events
   5. recalculate amounts based on `CANCEL` events
 
-#### Authorized Value ([`transactionItem.authorizedAmount`](/api-reference/payments/objects/transaction-item#transactionitemsuthorizedamountmoney---) )
+#### Authorized Value ([`transactionItem.authorizedAmount`](/api-reference/payments/objects/transaction-item#transactionitemsuthorizedamountmoney---))
   - When an `AUTHORIZATION_SUCCESS` event occurs and there is no `AUTHORIZATION_FAILURE` or the `FAILURE` event is older: value increases by the `SUCCESS` event's amount.
   - When an `AUTHORIZATION_ADJUSTMENT` event occurs: value is overwritten by the adjustment's amount.
   - When a `CHARGE_REQUEST` or `CHARGE_SUCCESS` event occurs: value is reduced by the event's amount. 
   - When a `CANCEL_REQUEST` or `CANCEL_SUCCESS` event occurs: value is reduced by the event's amount. 
   - The amount cannot be negative, the minimum value is 0.
 
-#### Authorization Pending Value ([`transactionItem.authorizePendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemauthorizependingamountmoney---) )
+#### Authorization Pending Value ([`transactionItem.authorizePendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemauthorizependingamountmoney---))
   - When an `AUTHORIZATION_REQUEST` event occurs and there is no `AUTHORIZATION_FAILURE` or `AUTHORIZATION_SUCCESS` event is: value increases by the `REQUEST` event's amount.
 
-#### Charge Value ([`transactionItem.chargedAmount`](/api-reference/payments/objects/transaction-item#transactionitemchargedamountmoney---) )
+#### Charge Value ([`transactionItem.chargedAmount`](/api-reference/payments/objects/transaction-item#transactionitemchargedamountmoney---))
   - When an `CHARGE_SUCCESS` event occurs and there is no `CHARGE_FAILURE` or the `FAILURE` event is older: value increases by the `SUCCESS` event's amount.
   - When a `CHARGE_BACK` event occurs: value decreases by the event's amount.
   - When a `REFUND_REQUEST` or `REFUND_SUCCESS` event occurs: value is reduced by the event's amount. 
   - When a `REFUND_REVERSE` event occurs: value is increased by the event's amount. 
   - The value can be negative.REFUND_REVERSE
 
-#### Charge Pending Value ([`transactionItem.chargePendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemchargependingamountmoney---) )
+#### Charge Pending Value ([`transactionItem.chargePendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemchargependingamountmoney---))
   - When an `CHARGE_REQUEST` event occurs and there is no `CHARGE_FAILURE` or `CHARGE_SUCCESS` event is: value increases by the `REQUEST` event's amount.
 
-#### Refunded Value ([`transactionItem.refundedAmount`](/api-reference/payments/objects/transaction-item#transactionitemrefundedamountmoney---) )
+#### Refunded Value ([`transactionItem.refundedAmount`](/api-reference/payments/objects/transaction-item#transactionitemrefundedamountmoney---))
   - When an `REFUND_SUCCESS` event occurs and there is no `REFUND_FAILURE` or the `FAILURE` event is older: value increases by the `SUCCESS` event's amount.
   - When a `REFUND_REVERSE` event occurs: value decreases by the event's amount.
 
-#### Refund Pending Value ([`transactionItem.refundPendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemrefundpendingamountmoney---) )
+#### Refund Pending Value ([`transactionItem.refundPendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemrefundpendingamountmoney---))
   - When an `REFUND_REQUEST` event occurs and there is no `REFUND_FAILURE` or `REFUND_SUCCESS` event is: value increases by the `REQUEST` event's amount.
 
 #### Canceled Value ([`transactionItem.canceledAmount`](/api-reference/payments/objects/transaction-item#transactionitemcanceledamountmoney---) )
   - When an `CANCEL_SUCCESS` event occurs and there is no `CANCEL_FAILURE` or the `FAILURE` event is older: value increases by the `SUCCESS` event's amount.
 
-#### Cancel Pending Value ([`transactionItem.cancelPendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemcancelpendingamountmoney---) )
+#### Cancel Pending Value ([`transactionItem.cancelPendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemcancelpendingamountmoney---))
   - When an `CANCEL_REQUEST` event occurs and there is no `CANCEL_FAILURE` or `CANCEL_SUCCESS` event is: value increases by the `REQUEST` event's amount.
+
+
+## Total Balance Calculation
+
+The `totalBalance` represents the difference between the total amount charged (including pending charges) and the expected total cost.
+
+This balance indicates whether the customer has overpaid (positive balance) or underpaid (negative balance) for the order.
+
+Below is an explanation of how `totalBalance` is computed.
+
+### Total balance for Checkout ([`checkout.totalBalance`](/api-reference/checkout/objects/checkout#checkouttotalbalancemoney---))
+
+For a Checkout, `totalBalance` reflects the remaining balance after considering the total checkout cost, charged amounts, and pending charges.
+It is calculated as the difference between the sum of all successful and pending charges across associated transactions and the checkout’s total price:
+
+```
+totalBalance = totalCharged - checkout.totalPrice
+```
+
+where:
+```
+totalCharged = (
+    sum(transaction.chargedAmount for transaction in transactions)
+    + sum(transaction.chargePendingAmount for transaction in transactions)
+)
+```
+
+### Total balance for Order ([`order.totalBalance`](/api-reference/orders/objects/order#ordertotalbalancemoney---))
+
+For an Order, `totalBalance` represents the remaining balance after accounting for the total order cost, charged amounts, and refunds.
+It is calculated as the difference between the total charged (including pending charges) and the order cost adjusted for granted refunds:
+
+```
+totalBalance = totalCharged - (order.totalPrice - totalGrantedRefund)
+```
+
+where `totalCharged` is sum of all successful and pending charges across associated transactions:
+```
+totalCharged = (
+    sum(transaction.amountCharged for transaction in transactions)
+    + sum(transaction.amountChargePending for transaction in transactions)
+)
+```
+
+and `totalGrantedRefund` is a total of all refunds issued to the customer:
+```
+totalGrantedRefund = sum(grantedRefund.amount for grantedRefund in grantedRefunds)
+```
