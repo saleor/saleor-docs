@@ -39,7 +39,30 @@ With performance considerations, there are two strategies how mutations recalcul
 - Eager: Mutation will call `*_CALCULATE_TAXES` event during the mutation execution. That means mutation will run slower and the returned value will have latest updates prices values.
 - Lazy: Mutation will mark internal prices to be "dirty", but not call the webhook immediately. Webhook will be called once the value is requested afterward.
 
-todo: diagram
+```mermaid
+sequenceDiagram
+sequenceDiagram
+    actor Storefront
+
+    Storefront->>Saleor: mutation checkoutLineUpdate { errors }
+    note left of Saleor: Note that taxable fields are not requested
+    Saleor-->>Saleor DB: Mark prices to be "dirty"
+    Saleor->>Storefront: Ok<br/> { errors: [] }
+
+    Storefront->>Saleor: mutation checkoutLineUpdate { errors }
+    Saleor-->>Saleor: Prices are dirty already
+    Saleor->>Storefront: Ok<br/> { errors: [] }
+
+    Storefront->>+Saleor: query Checkout {total { gross }}
+    note left of Saleor: Note that total.gross requires recalculation
+    create participant Taxes App
+    Saleor->>Taxes App: CHECKOUT_CALCULATE_TAXES
+    Taxes App->>Saleor: Taxes returned
+    Saleor-->>Saleor: Calculate final prices
+    Saleor->>Saleor DB: Mark prices to be "not dirty"
+
+    Saleor->>-Storefront: Ok <br/>{ total: {gross} }
+```
 
 #### Eager mutations
 
