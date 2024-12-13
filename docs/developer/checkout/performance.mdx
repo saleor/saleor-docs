@@ -28,7 +28,7 @@ You can leverage strategy called "optimistic updates" for that.
 - [React Query](https://tanstack.com/query/v4/docs/framework/react/guides/optimistic-updates)
 - [urql](https://commerce.nearform.com/open-source/urql/docs/graphcache/cache-updates/#optimistic-updates)
 
-In the nutshell, frontend can calculate new price locally and update the UI immediately, while the real response will apply with a delay in the background.
+In the nutshell, storefront can calculate new price locally and update the UI immediately, while the real response will apply with a delay in the background.
 
 ### Lazy vs eager recalculations
 
@@ -36,21 +36,20 @@ Some mutations require price recalculations - such as changing lines quantity or
 
 With performance considerations, there are two strategies how mutations recalculate prices:
 
-- Eager: Mutation will call `*_CALCULATE_TAXES` event during the mutation execution. That means mutation will run slower and the returned value will have latest updates prices values.
+- Eager: Mutation will call `CHECKOUT_CALCULATE_TAXES` / `ORDER_CALCULATE_TAXES` event during the mutation execution. That means mutation will run slower and the returned value will have latest updates prices values.
 - Lazy: Mutation will mark internal prices to be "dirty", but not call the webhook immediately. Webhook will be called once the value is requested afterward.
 
 ```mermaid
-sequenceDiagram
 sequenceDiagram
     actor Storefront
 
     Storefront->>Saleor: mutation checkoutLineUpdate { errors }
     note left of Saleor: Note that taxable fields are not requested
-    Saleor-->>Saleor DB: Mark prices to be "dirty"
+    Saleor-->>Saleor DB: Mark prices to be invalidated
     Saleor->>Storefront: Ok<br/> { errors: [] }
 
     Storefront->>Saleor: mutation checkoutLineUpdate { errors }
-    Saleor-->>Saleor: Prices are dirty already
+    Saleor-->>Saleor: Prices are invalidated already
     Saleor->>Storefront: Ok<br/> { errors: [] }
 
     Storefront->>+Saleor: query Checkout {total { gross }}
@@ -59,7 +58,7 @@ sequenceDiagram
     Saleor->>Taxes App: CHECKOUT_CALCULATE_TAXES
     Taxes App->>Saleor: Taxes returned
     Saleor-->>Saleor: Calculate final prices
-    Saleor->>Saleor DB: Mark prices to be "not dirty"
+    Saleor->>Saleor DB: Mark prices to be "up to date"
 
     Saleor->>-Storefront: Ok <br/>{ total: {gross} }
 ```
@@ -67,11 +66,11 @@ sequenceDiagram
 #### Eager mutations
 
 Following Order mutations are eager:
-- draftOrderComplete
-- orderDiscountAdd
-- orderDiscountUpdate
-- orderLineDiscountUpdate
-- orderLineDiscountRemove
+- [draftOrderComplete](/api-reference/orders/mutations/draft-order-complete.mdx)
+- [orderDiscountAdd](/api-reference/orders/mutations/order-discount-add.mdx)
+- [orderDiscountUpdate](/api-reference/orders/mutations/order-discount-update.mdx)
+- [orderLineDiscountUpdate](/api-reference/orders/mutations/order-discount-update.mdx)
+- [orderLineDiscountRemove](/api-reference/orders/mutations/order-discount-remove.mdx)
 
 Following Checkout mutations are eager:
 - TODO
@@ -82,10 +81,13 @@ Other mutations are lazy
 
 For lazy operations, only requesting certain fields will trigger prices recalculation (including synchronous webhook calls).
 
+It takes at least one field to trigger recalculation.
+
 These fields are (for Checkout & Order in Draft or Unconfirmed status)
 - `total`, `subtotal` & `undiscountedTotal`
 - `undiscountedShippingPrice`, `shippingPrice` & `shippingTaxRate`
-- lines `total` & `subtotal`
+- `discounts`
+- lines `total` & `undiscountedTotalPrice`
 - lines `unitPrice` & `undiscountedUnitPrice`
 - lines `taxRate`
 - lines `unitDiscount`, `unitDiscountValue`, `unitDiscountType`
