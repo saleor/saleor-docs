@@ -78,7 +78,7 @@ module.exports = {
     ref("setup/overview", "Self-hosting", "selfHost"),
     ref("developer/community/contributing", "Community", "community"),
     ref("upgrade-guides/index", "Upgrade Guides", "guides"),
-    ref("security/index", "Security", "security"),
+    ref("security/index", "Security", "shield"),
     {
       type: "link",
       label: "Report an Issue",
