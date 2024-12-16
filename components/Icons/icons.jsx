@@ -1,4 +1,5 @@
 import React from "react";
+import { Shield } from "lucide-react";
 
 const paths = {
   graphql: (
@@ -105,26 +106,8 @@ const paths = {
       fill="currentColor"
     />
   ),
-  /**
-   * The 'shield' icon was created by Lucide.dev (https://lucide.dev/)
-   * and is licensed under ISC (https://opensource.org/license/isc-license-txt)
-   * A copy of the license is available under LICENSES/Lucide-LICENSE.txt.
-   *
-   * The icon can be modified and distributed as long as a copy of the license
-   * is provided.
-   *
-   * Modifications done: resized from 24x24 to 16x16.
-   */
   shield: (
-    <path
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M 19.998047 13.001953 C 19.998047 18 16.5 20.501953 12.339844 21.949219 C 12.123047 22.025391 11.882812 22.019531 11.671875 21.9375 C 7.5 20.501953 4.001953 18 4.001953 13.001953 L 4.001953 6 C 4.001953 5.449219 4.447266 4.998047 4.998047 4.998047 C 7.001953 4.998047 9.498047 3.802734 11.238281 2.279297 C 11.677734 1.904297 12.322266 1.904297 12.761719 2.279297 C 14.507812 3.808594 16.998047 4.998047 19.001953 4.998047 C 19.552734 4.998047 19.998047 5.449219 19.998047 6 Z M 19.998047 13.001953 "
-      transform="matrix(0.666667,0,0,0.666667,0,0)"
-    />
+    <Shield size={16} />
   ),
   feedback: (
     <svg
