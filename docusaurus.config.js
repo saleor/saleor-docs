@@ -140,9 +140,14 @@ module.exports = {
       },
       items: [
         {
-          to: "https://github.com/saleor/saleor-docs/issues/new",
-          label: "Report an Issue",
+          type: "search",
+          position: "left",
+        },
+        {
+          to: "https://cloud.saleor.io/signup?utm_button=Sign%20up&utm_page=docs",
+          label: "Sign up",
           position: "right",
+          className: "signup-button-cta",
         },
       ],
     },
@@ -159,7 +164,9 @@ module.exports = {
       ],
     },
   },
-
+  customFields: {
+    sentryDSN: process.env.SENTRY_DSN,
+  },
   presets: [
     [
       "@docusaurus/preset-classic",

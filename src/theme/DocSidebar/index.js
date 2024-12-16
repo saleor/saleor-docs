@@ -25,7 +25,7 @@ export default function DocSidebarWrapper(props) {
         return (
           el.innerText.toLocaleLowerCase() === parentTitle.value.toLowerCase()
         );
-      }
+      },
     );
 
     if (!el) return;

@@ -79,6 +79,14 @@ module.exports = {
     ref("developer/community/contributing", "Community", "community"),
     ref("upgrade-guides/index", "Upgrade Guides", "guides"),
     ref("security/index", "Security", "security"),
+    {
+      type: "link",
+      label: "Report an Issue",
+      href: "https://github.com/saleor/saleor-docs/issues/new",
+      customProps: {
+        icon: "feedback",
+      },
+    },
   ],
   concepts: [backToHome, ...coreConcepts],
   appStore: [backToHome, ...appStore],

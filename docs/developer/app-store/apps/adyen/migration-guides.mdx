@@ -12,6 +12,40 @@ some functional changes may be breaking.
 
 Below is the list of changes introduced in Adyen App releases
 
+## v.1.4.3
+
+In this release a new feature was added: when making payments app will send [ESD (Enhanced Scheme Details) Level 2 data](https://docs.adyen.com/payment-methods/cards/enhanced-scheme-data/l2-l3/#include-level-2-3-esd-in-your-request) to Adyen.
+ESD are used in US domestic payments for providing details when purchases are made using corporate, fleet, or purchasing cards.
+
+### Before this release
+
+No ESD data was sent to Adyen
+
+### After this release
+
+App will now send following ESD Level 2 fields to Adyen:
+
+- `enhancedSchemeData.customerReference`: `user.id` will be used, if none is provided app will send string `anonymous`
+- `enhancedSchemeData.totalTaxAmount`: `total.tax.amount` will be sent from the source object (either `Checkout` or `Order` wherever payment is being made)
+
+## v.1.4.0
+
+In this release, a functional change was introduced in order to improve handling of `ORDER_CLOSED` notifications from Adyen for Transactions that had failed.
+
+### Before this release
+
+Previously app didn't handle properly `ORDER_CLOSED` notifications from Adyen with Transactions that had already been rejected (e.g. due to fraud).
+This resulted in a `chargedAmount` being negative for TransactionItem, which in turn made `totalBalance` on Order and Checkout in Saleor negative.
+This prevented users from completing checkouts even after successful payment.
+
+### After this release
+
+Now when Adyen app will handle events related to this case we will:
+
+- For user order cancellations (`orderCancel` action on `paymentGatewayInitializeSession`): before reporting `REFUND_REQUEST` or `CANCEL_REQUEST` event to Saleor, check if Transaction was already rejected, if so then report `INFO` event instead
+- For `ORDER_CLOSED` Adyen notification item: before reporting `REFUND_REQUEST` or `CANCEL_REQUEST` event to Saleor, check if Transaction was already rejected, if so then report `INFO` event instead
+- For `AUTHORIZATION` with `success: false` Adyen notification item: before reporting `CHARGE_FAILURE` or `AUTHORIZATION_FAILURE` event to Saleor, check if Transaction was already refunded / cancelled, if so then also report `REFUND_FAILURE` or `CANCEL_FAILURE` to revert that previous refund (you can't have both refund and failed payment at the same time).
+
 ## v.1.2.2
 
 In this release, a function change was introduced to consume an improved Transactions API in Saleor
@@ -62,4 +96,3 @@ Metadata will be set only once, and it will be set lazy. Metadata will be comple
 Prior to this release, you may have been listening to `ORDER_UPDATED`, `ORDER_CREATED`, `CHECKOUT_FULLY_PAID` events to access the Transaction's metadata. After this change the `TransactionItem` object will not have any `metadata` until it is updated by Adyen webhook
 
 To ensure you listen to proper events, subscribe to `TRANSACTION_ITEM_METADATA_UPDATED`. This webhook will execute exactly when metadata is set by Adyen.
-
