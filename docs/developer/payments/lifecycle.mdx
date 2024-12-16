@@ -112,7 +112,7 @@ Based on that calculation `Checkout.authorizeStatus` can have the following valu
 :::caution
 Transaction that is pending will be confirmed later by the payment app (it will result in either success or failure).
 
-This means the system can create an Order that may remain unpaid if the pending amounts eventually fail.
+This means user can create an Order that may remain unpaid if the pending amounts eventually fail.
 :::
 
 #### Available transitions
@@ -279,13 +279,29 @@ This will result in a following list of events:
 
 ### Reporting new events
 
+#### Automatic events
+
 Events are created automatically by Saleor when calling `transactionInitialize` mutation. It creates either:
 - `AUTHORIZATION_REQUEST` when `action` in mutation input or `channel.transactionFlowStrategy` is `AUTHORIZATION`
 - or `CHARGE_REQUEST` when `action` in mutation input or `channel.transactionFlowStrategy` is `CHARGE`
 
+Events are also created when requesting action in Saleor (refund, charge, cancel) via [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action.mdx) mutation.
+
+Such events don't have initially any `pspReference`, it's filled in once Saleor receives a response from payment app.
+
+Saleor also creates automatically `_FAILURE` events when an exception happens:
+- when handling `transactionEventReport` mutation
+- when handling incorrect response from [sync webhook sent to payment app](/developer/extending/webhooks/synchronous-events/transaction.mdx)
+
+Such events don't have `pspReference` and include a `message` that explains the error.
+
+#### App events
+
 Events are also created by a payment app that processes the payment:
 
 - When app sends response to any of the [Transaction synchronous events](/developer/extending/webhooks/synchronous-events/transaction.mdx)
+  - Saleor will either fill missing `pspReference` on the automatically created event that already exists
+  - or will create a new event if it has different `type` (e.g. user requested `AUTHORIZATION`, but app returned `CHARGE_SUCCESS` - we'll have two events `AUTHORIZATION_REQUEST` with no `pspReference` and `CHARGE_SUCCESS`)
 - When [`transactionEventReport` mutation is called](/developer/payments/transactions.mdx#reporting-actions-for-transactions) (usually happens when payment provider sends asynchronous webhook)
 
 ### Rules of calculating amounts
@@ -330,10 +346,37 @@ You can learn more about this mutation and event deduplication in [Reporting act
 
 ### State machine
 
-Saleor Transaction model **is not a state machine**. This means that we do not protect Transactions from being in a state that might be seen as invalid.
+Saleor Transaction model **is not a state machine**. This allows great flexibility when integrating with many payment providers, even those that might implement some unconventional flows.
+However this also means that we do not forbid changes on Transactions that might be seen as invalid by your business use-case, such validation is on the Payment App side.
 
 For example:
+- Available `actions` on `TransactionItem` (list of `REFUND`, `CHARGE`, `CANCEL`) are honored by Saleor Dashboard, but are not rejected once `transactionRequestAction` is requested via API - such request is sent to payment app
+- Transaction might receive `CANCEL_SUCCESS` event even though it had `CHARGE_SUCCESS` reported (in such case to lower `chargedAmount` app would need to report `REFUND_SUCCESS` event).
 
+#### Existing validation
+
+With that in mind, Saleor prohibits following changes, that would otherwise cause incorrect internal calculations:
+- Multiple `AUTHORIZATION_SUCCESS` events with different either `pspReference` or `amount`
+  - Saleor will throw an exception: "Event with `AUTHORIZATION_SUCCESS` already reported for the transaction. Use `AUTHORIZATION_ADJUSTMENT` to change the authorization amount."
+
+:::note
+**Example**: `AUTHORIZATION_SUCCESS` event with `pspReference: psp1` and `amount: 10 USD`, then report `AUTHORIZATION_SUCCESS` event with `pspReference: psp2` and `amount: 10 USD`
+:::
+
+:::tip
+**Fix**: In order to change `authorizedAmount` value, payment app should send `AUTHORIZATION_ADJUSTMENT` event. If there are in fact two valid `AUTHORIZATION_SUCCESS` events, create new `TransactionItem`
+:::
+
+- Reporting the same event based on `type` and `pspReference` with different `amount`
+  - Saleor will throw an exception: "The transaction with provided `pspReference` and `type` already exists with different amount."
+
+:::note
+**Example**: `REFUND_SUCCESS` with `pspReference: psp1` and `amount: 10 USD`, then report `REFUND_SUCCESS` with `pspReference: psp1` and `amount: 21 USD`
+:::
+
+:::tip
+**Fix**: Previous event must be invalidated via `_FAILURE` event, then report `_SUCCESS` event again
+:::
 
 
 ### Examples
