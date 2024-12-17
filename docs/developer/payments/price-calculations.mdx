@@ -2,7 +2,7 @@
 title: Price calculations
 ---
 
-This document provides an overview of how various transaction amount fields in a `TransactionItem` are calculated and influenced. Additionally, it provides details on how the totalBalance is calculated for Checkout and Order entities.
+This document provides an overview of how various transaction amount fields in a `TransactionItem` are calculated and influenced. Additionally, it provides details on how `totalBalance` is calculated for Checkout and Order entities.
 
 ## Transaction Amount Fields Overview
 
@@ -17,36 +17,7 @@ The following fields are calculated based on transaction events and their types:
 - **`refundPendingAmount`**: The total amount of pending refunds.
 - **`cancelPendingAmount`**: The total amount of pending cancellations.
 
-### Assumptions
-
-#### 1. Event Grouping:
-  - Events are grouped based on their PSP reference and type of action (e.g., authorization, charge).
-  - Grouping ensures that events of the same type and PSP reference are properly matched to calculate amounts accurately.
-#### 2. Pending Amounts:
-  - pending amounts (`authorizePendingAmount`, `chargePendingAmount`, `refundPendingAmount`, `cancelPendingAmount`) are increased only if a `REQUEST` event exists for the corresponding PSP reference.
-  - If a success or failure event is also associated with the same PSP reference, the system assumes the requested amount has already been processed, and the pending amount will not be increased.
-#### 3. `SUCCESS` and `FAILURE` Events:
-  - The transaction amount (e.g., `authorizedAmount`, `chargedAmount`) is increased only when a `SUCCESS` event exists.
-  - If both a `SUCCESS` and `FAILURE` event are present for the same PSP reference, the system compares their creation timestamps:
-	- If the `FAILURE` event is newer, the `SUCCESS` event is ignored.
-	- If the `SUCCESS` event is newer, it is used for the calculations.
-#### 4. Events Without PSP References:
-  - Some events (e.g., those created by the system to maintain correct amounts) may not have a PSP reference.
-  - The events of the following types are still included in the transaction amounts and influence the calculated values:
-    - `AUTHORIZATION_SUCCESS`
-    - `AUTHORIZATION_ADJUSTMENT`
-    - `CHARGE_SUCCESS`
-    - `CHARGE_BACK`
-    - `REFUND_SUCCESS`
-    - `REFUND_REVERSE`
-    - `CANCEL_SUCCESS`
-#### 5. Adjustment Events:
-  - The `AUTHORIZATION_ADJUSTMENT`, overwrite previous amounts, if an adjustment is present,
-  older authorization events are ignored, and the adjusted amount becomes the new authorized value.
-
-This logic ensures that transaction amounts reflect the current state of the transaction based on its event history while accounting for both processed and pending actions.
-
-### Calculation Details
+### Calculation process
 
 When the transaction amounts are recalculated, firstly all values are set to zero, 
 then the calculations are applied in the following order:
@@ -55,6 +26,36 @@ then the calculations are applied in the following order:
   3. recalculate amounts based on `CHARGE` events
   4. recalculate amounts based on `REFUND` events
   5. recalculate amounts based on `CANCEL` events
+
+### Assumptions
+
+#### 1. Event Grouping:
+  - Events are grouped based on their PSP reference and type of action (e.g., authorization, charge).
+  - Grouping ensures that events of the same type and PSP reference are properly matched to calculate amounts accurately.
+#### 2. Pending Amounts:
+  - Pending amounts (`authorizePendingAmount`, `chargePendingAmount`, `refundPendingAmount`, `cancelPendingAmount`) are increased only if a `REQUEST` event exists for the corresponding PSP reference.
+  - If a success or failure event is also associated with the same PSP reference, the system assumes the requested amount has already been processed, and the pending amount will not be increased.
+#### 3. `SUCCESS` and `FAILURE` Events:
+  - The transaction amount (e.g., `authorizedAmount`, `chargedAmount`) is increased only when a `SUCCESS` event exists.
+  - If both a `SUCCESS` and `FAILURE` event are present for the same PSP reference, the system compares their creation timestamps:
+    - If the `FAILURE` event is newer, the `SUCCESS` event is ignored.
+    - If the `SUCCESS` event is newer, it is used for the calculations.
+#### 4. Events Without PSP References:
+  - Not all events require a PSP reference, but they are still included in the transaction amount calculation. The following events do not need a PSP reference:
+    - `AUTHORIZATION_SUCCESS`
+    - `AUTHORIZATION_ADJUSTMENT`
+    - `CHARGE_SUCCESS`
+    - `CHARGE_BACK`
+    - `REFUND_SUCCESS`
+    - `REFUND_REVERSE`
+    - `CANCEL_SUCCESS`
+#### 5. Adjustment Events:
+  - The `AUTHORIZATION_ADJUSTMENT`, overrides previous amount from previous `AUTHORIZATION` events, this means that if an adjustment is present,
+  older authorization events are ignored, and the adjusted amount becomes the new authorized value.
+
+This logic ensures that transaction amounts reflect the current state of the transaction based on its event history while accounting for both processed and pending actions.
+
+### Calculation details
 
 #### Authorized Value ([`transactionItem.authorizedAmount`](/api-reference/payments/objects/transaction-item#transactionitemauthorizedamountmoney---))
   - When an `AUTHORIZATION_SUCCESS` event occurs and there is no `AUTHORIZATION_FAILURE` or the `FAILURE` event is older: value increases by the `SUCCESS` event's amount.
@@ -71,7 +72,10 @@ then the calculations are applied in the following order:
   - When a `CHARGE_BACK` event occurs: value decreases by the event's amount.
   - When a `REFUND_REQUEST` or `REFUND_SUCCESS` event occurs: value is reduced by the event's amount. 
   - When a `REFUND_REVERSE` event occurs: value is increased by the event's amount. 
-  - The value can be negative.REFUND_REVERSE
+  - This value can be negative.
+  :::note
+  Please note that chargedAmount is not affected by `CANCEL` events, as these are solely used for matching with `AUTHORIZATION` events.
+  :::
 
 #### Charge Pending Value ([`transactionItem.chargePendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemchargependingamountmoney---))
   - When an `CHARGE_REQUEST` event occurs and there is no `CHARGE_FAILURE` or `CHARGE_SUCCESS` event is: value increases by the `REQUEST` event's amount.
@@ -79,6 +83,10 @@ then the calculations are applied in the following order:
 #### Refunded Value ([`transactionItem.refundedAmount`](/api-reference/payments/objects/transaction-item#transactionitemrefundedamountmoney---))
   - When an `REFUND_SUCCESS` event occurs and there is no `REFUND_FAILURE` or the `FAILURE` event is older: value increases by the `SUCCESS` event's amount.
   - When a `REFUND_REVERSE` event occurs: value decreases by the event's amount.
+
+:::note
+`CHARGEBACK` events, which behave similarly to refunds by reducing the `chargedAmount`, are not included in `refundedAmount`. This is because they are initiated by the issuing bank, not the merchant.
+:::
 
 #### Refund Pending Value ([`transactionItem.refundPendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemrefundpendingamountmoney---))
   - When an `REFUND_REQUEST` event occurs and there is no `REFUND_FAILURE` or `REFUND_SUCCESS` event is: value increases by the `REQUEST` event's amount.
@@ -92,7 +100,7 @@ then the calculations are applied in the following order:
 
 ## Total Balance Calculation
 
-The `totalBalance` represents the difference between the total amount charged (including pending charges) and the expected total cost.
+The `totalBalance` represents the difference between the expected total cost and the total amount charged (including pending charges).
 
 This balance indicates whether the customer has overpaid (positive balance) or underpaid (negative balance) for the order.
 
@@ -117,7 +125,7 @@ totalCharged = (
 
 ### Total balance for Order ([`order.totalBalance`](/api-reference/orders/objects/order#ordertotalbalancemoney---))
 
-For an Order, `totalBalance` represents the remaining balance after accounting for the total order cost, charged amounts, and refunds.
+For an Order, `totalBalance` represents the remaining balance after accounting for `order.totalPrice`, charged amounts, and granted refunds.
 It is calculated as the difference between the total charged (including pending charges) and the order cost adjusted for granted refunds:
 
 ```
