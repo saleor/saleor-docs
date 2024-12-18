@@ -305,6 +305,8 @@ Events are also created by a payment app that processes the payment:
 Instead of creating new event, Saleor will update existing event's missing `pspReference` field when:
 - Event without `pspReference` already exists, because it was automatically created by Saleor after calling `transactionInitialize` or `transactionProcess` mutation
 - Response from `TRANSACTION_INITIALIZE_SESSION` or `TRANSACTION_PROCESS_SESSION` has the same `type` as that initial event
+
+When updating event `createdAt` field won't be changed.
 :::
 
 :::note
@@ -314,6 +316,10 @@ It can look like this:
 3. User completes the action and calls `transactionProcess`
 4. App sends response from `TRANSACTION_PROCESS_SESSION` webhook with the same type as first event - `CHARGE_REQUESTED`
 5. Saleor instead of creating new event, updates existing event `CHARGE_REQUESTED` with received `pspReference`
+
+Note that this will result in events order:
+1. `CHARGE_REQUESTED` with updated `pspReference` (updated events don't get their `createdAt` field modified)
+2. `CHARGE_ACTION_REQUIRED`
 :::
 - When [`transactionEventReport` mutation is called](/developer/payments/transactions.mdx#reporting-actions-for-transactions) (usually happens when payment provider sends asynchronous webhook)
 
