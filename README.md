@@ -144,7 +144,7 @@ title: This Doc Needs To Be Edited
 My new content here..
 ```
 
-1. Refer to that doc's ID in an existing sidebar in `sidebar.js`:
+1. Refer to that doc's ID in an existing sidebar in `sidebars.js`:
 
 ```javascript
 // Add newly-created-doc to the Getting Started category of docs

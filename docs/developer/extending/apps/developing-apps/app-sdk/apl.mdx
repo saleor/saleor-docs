@@ -2,6 +2,8 @@
 
 Auth Persistence Layer (APL) is a technology-agnostic interface for managing auth data of registered Apps. APL provides a common set of operations that can be used by your application and App SDK.
 
+The following doc contains a JavaScript / TypeScript implementation used by official Saleor apps.
+
 ## Available methods
 
 - `get: (saleorApiUrl: string) => Promise<AuthData | undefined>` - If the entry for given saleorApiUrl exists, returns AuthData object.
@@ -163,6 +165,8 @@ export default handler;
 
 ## Available APLs
 
+`saleor/app-sdk` exports some built-in implementations that are using popular platforms for easier bootstrap.
+
 ### FileAPL
 
 File-based storage of auth data intended for local development. Data are stored in the `.saleor-app-auth.json` file. You'll be able to develop an app without additional dependencies or infrastructure.
@@ -258,3 +262,36 @@ Keep in mind that:
 
 - If you promote the environment, you need to update `saleorApiUrl`
 - If you reinstall the app, you need to repeat the process to receive a new token and ID
+
+
+### VercelKvApl
+
+> Introduced in app-sdk 0.51.0
+
+[VercelKV](https://vercel.com/docs/storage/vercel-kv) is a key-value, Redis based distributed database that Vercel provides in their platform. As an APL it can be used both for single and multi-tenant approach.
+
+To configure the APL in the app:
+
+1: Install `vercel/kv` SDK
+
+todo
+
+2: Import APL from `@saleor/app-sdk`
+
+```typescript
+import { VercelKvApl } from "@saleor/app-sdk/APL/vercel-kv";
+
+export const apl = new VercelKvApl()
+```
+
+3: Set environment variables
+
+```dotenv
+# Provided automatically by Vercel
+KV_REST_API_URL=
+KV_REST_API_TOKEN=
+KV_REST_API_READ_ONLY_TOKEN=
+
+# A key to the Redis collection. All APL items will be stored inside this collection
+KV_STORAGE_NAMESPACE=
+```
