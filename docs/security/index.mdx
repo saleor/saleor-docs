@@ -1,0 +1,70 @@
+---
+title: Security
+displayed_sidebar: main
+---
+
+:::note
+This section is currently not exhaustive.
+:::
+
+This document describes the different security measures and deployment settings provided by Saleor.
+
+*Looking to report a security issue instead? See our [Security Policy].*
+
+## External Connectivity
+
+### HTTP Redirects and Timeouts
+
+Out of the box, Saleor disables HTTP redirects for outgoing connections, and sets a strict timeout value (typically \<20s).
+
+This is a design choice intended to prevent potential Denial of Service (DoS) attacks from being done by internal actors.
+
+Without such measure in place, a malicious staff user could, for example, create an infinite redirection loop in a malicious endpoint and exhaust server resources.
+
+Timeout settings cannot be overridden dynamically. However, they can be altered inside [`settings.py`](https://github.com/saleor/saleor/blob/1f2127e1e92722cecae7409c0d26ac7ab05d23d8/saleor/settings.py#L961-L968).
+
+### IP Address Filtering (SSRF Protection)
+
+This section describes the IP address filtering capabilities of [Saleor Core]. **By default, Saleor rejects any outgoing traffic to private and loopback IP addresses.**
+
+This behavior prevents malicious staff users from accessing inward-facing resources, which could lead to unauthorized access to resources you may deploy within your networks or even gaining a foothold (such as achieving lateral movements to gain more privileges).
+
+For in-depth details, refer to:
+
+* [CWE-918: Server-Side Request Forgery (SSRF)](https://cwe.mitre.org/data/definitions/918.html)
+* [The OWASP community page about SSRF attacks](https://owasp.org/www-community/attacks/Server_Side_Request_Forgery)
+
+**Implementation Details:**
+
+* **IP Addresses are Pinned:**  the resolved IP address for each outgoing HTTP(S) request is pinned, meaning that a malicious actor cannot set-up round-robin DNS responses or use race-condition attacks ([Time-of-Check](https://cwe.mitre.org/data/definitions/367.html)) to trick Saleor into connecting to a different IP address after validation.
+* **IP Address Validation for Each Request:**  validation is ran before sending each and every HTTP(S) request. This prevents a malicious actor from changing the DNS records after adding a non-malicious URL inside the database.
+
+**Settings:**
+
+* [`HTTP_IP_FILTER_ENABLED`](https://docs.saleor.io/setup/configuration#http_ip_filter_enabled) - controls whether the IP filtering feature should be enabled. **IP Filtering is enabled by default.**
+* [`HTTP_IP_FILTER_ALLOW_LOOPBACK_IPS`](https://docs.saleor.io/setup/configuration#http_ip_filter_allow_loopback_ips) - whether to allow outgoing traffic to loopback addresses. **Loopback addresses are** **disallowed** **by default.**
+
+**Caveats:**
+
+* **Allow-Lists:**  it is not currently possible to put given IP addresses into an allow-list (or block-list). It currently only supports: "block-all" or "allow-all".
+
+**Additional Capabilities:**
+
+* **Proxies:**  SOCKS and HTTP proxies can be used in combination with the IP Filtering.
+
+  * The IP address used to establish the proxy tunnel itself is not restricted. However, any HTTP requests sent through the proxy will be filtered based on their destination IP address.
+
+    For example, setting `HTTPS_PROXY=socks5://10.0.0.1:8888` is allowed, but attempting to access `https://10.0.0.2` **through** the tunnel will be blocked.
+  * Can be configured through environment variables, such as:
+
+    ```bash
+    $ export HTTP_PROXY="http://10.10.1.10:3128"
+    $ export HTTPS_PROXY="http://10.10.1.10:1080"
+    # Alternatively:
+    $ export ALL_PROXY="http://10.10.1.10:1080"
+    ```
+* **HTTP redirects:**  each redirection is checked whether it points to a private or loopback IP address range.
+
+[Security Policy]: https://github.com/saleor/.github/blob/-/SECURITY.md
+[Saleor Core]: https://github.com/saleor/saleor/
+
