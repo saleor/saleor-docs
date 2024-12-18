@@ -299,10 +299,27 @@ Such events don't have `pspReference` and include a `message` that explains the 
 
 Events are also created by a payment app that processes the payment:
 
-- When app sends response to any of the [Transaction synchronous events](/developer/extending/webhooks/synchronous-events/transaction.mdx)
-  - Saleor will either fill missing `pspReference` on the automatically created event that already exists
-  - or will create a new event if it has different `type` (e.g. user requested `AUTHORIZATION`, but app returned `CHARGE_SUCCESS` - we'll have two events `AUTHORIZATION_REQUEST` with no `pspReference` and `CHARGE_SUCCESS`)
+- When payment app sends response to any of the [Transaction synchronous events](/developer/extending/webhooks/synchronous-events/transaction.mdx)
+
+:::info
+Instead of creating new event, Saleor will update existing event's missing `pspReference` field when:
+- Event without `pspReference` already exists, because it was automatically created by Saleor after calling `transactionInitialize` or `transactionProcess` mutation
+- Response from `TRANSACTION_INITIALIZE_SESSION` or `TRANSACTION_PROCESS_SESSION` has the same `type` as that initial event
+:::
+
+:::note
+It can look like this:
+1. User requests payment by calling `transactionInitialize` mutation - Saleor immediately created new `CHARGE_REQUESTED` event
+2. App sends response from `TRANSACTION_INITIALIZE_SESSION` webhook with `type`: `CHARGE_ACTION_REQUIRED`
+3. User completes the action and calls `transactionProcess`
+4. App sends response from `TRANSACTION_PROCESS_SESSION` webhook with the same type as first event - `CHARGE_REQUESTED`
+5. Saleor instead of creating new event, updates existing event `CHARGE_REQUESTED` with received `pspReference`
+:::
 - When [`transactionEventReport` mutation is called](/developer/payments/transactions.mdx#reporting-actions-for-transactions) (usually happens when payment provider sends asynchronous webhook)
+
+:::tip
+Events are de-duplicated, which means that if event with the same `type`, `pspReference` and `amount` already exists, new one won't be created.
+:::
 
 ### Rules of calculating amounts
 
