@@ -78,6 +78,14 @@ module.exports = {
     ref("setup/overview", "Self-hosting", "selfHost"),
     ref("developer/community/contributing", "Community", "community"),
     ref("upgrade-guides/index", "Upgrade Guides", "guides"),
+    {
+      type: "link",
+      label: "Report an Issue",
+      href: "https://github.com/saleor/saleor-docs/issues/new",
+      customProps: {
+        icon: "feedback",
+      },
+    },
   ],
   concepts: [backToHome, ...coreConcepts],
   appStore: [backToHome, ...appStore],
