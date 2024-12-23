@@ -131,6 +131,8 @@ This means user can create an Order that may remain unpaid if the pending amount
 
 :::caution
 Unlike Checkout, this status does not take into consideration pending transactions.
+
+This means that after completing checkout, `authorizeStatus` might be set from `FULL` to `NONE`, if payments are pending.
 :::
 
 Authorization in this context means that funds have been either fully or partially authorized or charged.
@@ -203,7 +205,7 @@ AmountToCover = order.total - order.totalGrantedRefund
 CoveredAmount = sum(order.transactions.chargedAmount)
 ```
 
-Based on that calculation `Order.cahrgeStatus` can have following values:
+Based on that calculation `Order.chargeStatus` can have following values:
 
 - **NONE**: No funds have been charged. (`CoveredAmount <= 0`)
 - **PARTIAL**: Some funds were charged, but they do not cover required amount. (`AmountToCover > CoveredAmount`)
@@ -318,7 +320,7 @@ It can look like this:
 4. App sends response from `TRANSACTION_PROCESS_SESSION` webhook with the same type as first event - `CHARGE_REQUESTED`
 5. Saleor instead of creating new event, updates existing event `CHARGE_REQUESTED` with received `pspReference`
 
-Note that this will result in events order:
+Note that this will result in events order as follows:
 1. `CHARGE_REQUESTED` with updated `pspReference` (updated events don't get their `createdAt` field modified)
 2. `CHARGE_ACTION_REQUIRED`
 :::
@@ -391,7 +393,9 @@ With that in mind, Saleor prohibits following changes, that would otherwise caus
 :::
 
 :::tip
-**Fix**: In order to change `authorizedAmount` value, payment app should send `AUTHORIZATION_ADJUSTMENT` event. If there are in fact two valid `AUTHORIZATION_SUCCESS` events, create new `TransactionItem`
+**Fix**: In order to change `authorizedAmount` value on existing `TransactionItem`, payment app should send `AUTHORIZATION_ADJUSTMENT` event.
+
+If there was a new payment made (e.g. outside of Saleor flow), instead of reporting multiple `AUTHORIZATION_SUCCESS` events which would be rejected by Saleor, create new `TransactionItem` by calling [`transactionCreate`](/api-reference/payments/mutations/transaction-create.mdx) mutation.
 :::
 
 - Reporting the same event based on `type` and `pspReference` with different `amount`
@@ -574,8 +578,10 @@ Refund events modify both the `refundedAmount` and `chargedAmount` values, so if
 
 #### `REFUND_SUCCESS`
 
-Adds provided `amount` to `transaction.refundedAmount`. Each next call will add the `amount` to the existing
-`transaction.refundedAmount` (`transaction.refundedAmount += amount`). If a `REFUND_SUCCESS` event is related to a `REFUND_REQUEST` event by `pspReference`, then the `transactionItem.refundPendingAmount`
+Adds provided `amount` to `transaction.refundedAmount` and removes it from `transaction.chargedAmount`. Each next call will add the `amount` to the existing
+`transaction.refundedAmount` (`transaction.refundedAmount += amount`) and remove from `transaction.chargedAmount` (`transaction.chargedAmount -= amount`).
+
+If a `REFUND_SUCCESS` event is related to a `REFUND_REQUEST` event by `pspReference`, then the `transactionItem.refundPendingAmount`
 will be reduced by the amount reported in the `REFUND_SUCCESS` event. If there is no related `REFUND_REQUEST` event, the provided `amount` will reduce `transaction.chargedAmount`.
 
 :::info
