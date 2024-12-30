@@ -58,44 +58,77 @@ This logic ensures that transaction amounts reflect the current state of the tra
 ### Calculation details
 
 #### Authorized Value ([`transactionItem.authorizedAmount`](/api-reference/payments/objects/transaction-item#transactionitemauthorizedamountmoney---))
-  - When an `AUTHORIZATION_SUCCESS` event occurs and there is no `AUTHORIZATION_FAILURE` or the `FAILURE` event is older: value increases by the `SUCCESS` event's amount.
-  - When an `AUTHORIZATION_ADJUSTMENT` event occurs: value is overwritten by the adjustment's amount.
-  - When a `CHARGE_REQUEST` or `CHARGE_SUCCESS` event occurs: value is reduced by the event's amount. 
-  - When a `CANCEL_REQUEST` or `CANCEL_SUCCESS` event occurs: value is reduced by the event's amount. 
-  - The amount cannot be negative, the minimum value is 0.
+  - **GIVEN** there is an `AUTHORIZATION_SUCCESS` event
+    - **WHEN** there is no `AUTHORIZATION_FAILURE`
+    - **OR WHEN** the `AUTHORIZATION_FAILURE` event is older than `AUTHORIZATION_SUCCESS`
+      - **THEN** value increases by the `AUTHORIZATION_SUCCESS` event's amount.
+  - **GIVEN** an `AUTHORIZATION_ADJUSTMENT` event  
+    - **WHEN** it's the latest event of this type  
+      - **THEN** value is overwritten by the `AUTHORIZATION_ADJUSTMENT` event amount.  
+  - **GIVEN** there is a `CHARGE_REQUEST` or `CHARGE_SUCCESS` event:
+    - **THEN** value is reduced by the event's amount. 
+  - **GIVEN** there is a `CANCEL_REQUEST` or `CANCEL_SUCCESS` event:
+    - **THEN** value is reduced by the event's amount.
+  - **GIVEN** all calculations were performed and we have result `authorizationAmount`
+    - **WHEN** calculated `authorizationAmount` is below `0`
+  	  - **THEN** `authorizationAmount` is set to `0` (it cannot be lower than 0)
 
 #### Authorization Pending Value ([`transactionItem.authorizePendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemauthorizependingamountmoney---))
-  - When an `AUTHORIZATION_REQUEST` event occurs and there is no `AUTHORIZATION_FAILURE` or `AUTHORIZATION_SUCCESS` event is: value increases by the `REQUEST` event's amount.
+  - **GIVEN** there is an `AUTHORIZATION_REQUEST` event:
+    - **WHEN** there is no `AUTHORIZATION_FAILURE` or `AUTHORIZATION_SUCCESS`
+      - **THEN** value increases by the `AUTHORIZATION_REQUEST` event's amount
 
 #### Charge Value ([`transactionItem.chargedAmount`](/api-reference/payments/objects/transaction-item#transactionitemchargedamountmoney---))
-  - When an `CHARGE_SUCCESS` event occurs and there is no `CHARGE_FAILURE` or the `FAILURE` event is older: value increases by the `SUCCESS` event's amount.
-  - When a `CHARGE_BACK` event occurs: value decreases by the event's amount.
-  - When a `REFUND_REQUEST` or `REFUND_SUCCESS` event occurs: value is reduced by the event's amount. 
-  - When a `REFUND_REVERSE` event occurs: value is increased by the event's amount. 
+  - **GIVEN** there is a `CHARGE_SUCCESS` event
+    - **WHEN** there is no `CHARGE_FAILURE`
+    - **OR WHEN** the `CHARGE_FAILURE` event is older than `CHARGE_SUCCESS`
+      - **THEN** value increases by the `CHARGE_SUCCESS` event's amount.
+  - **GIVEN** there is a `CHARGE_BACK` event
+    - **THEN**value is reduced by the event's amount
+  - **GIVEN** there is a `REFUND_REQUEST` or `CHARGE_SUCCESS` event:  
+    - **THEN** value is reduced by the event's amount. 
+  - **GIVEN** there is a `REFUND_REVERSE`event:  
+    - **THEN** value is increased by the event's amount. 
   - This value can be negative.
+
   :::note
   Please note that chargedAmount is not affected by `CANCEL` events, as these are solely used for matching with `AUTHORIZATION` events.
   :::
 
 #### Charge Pending Value ([`transactionItem.chargePendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemchargependingamountmoney---))
-  - When an `CHARGE_REQUEST` event occurs and there is no `CHARGE_FAILURE` or `CHARGE_SUCCESS` event is: value increases by the `REQUEST` event's amount.
+  - **GIVEN** there is a `CHARGE_REQUEST` event:
+    - **WHEN** there is no `CHARGE_FAILURE` or `CHARGE_SUCCESS`
+      - **THEN** value increases by the `CHARGE_REQUEST` event's amount
+
 
 #### Refunded Value ([`transactionItem.refundedAmount`](/api-reference/payments/objects/transaction-item#transactionitemrefundedamountmoney---))
-  - When an `REFUND_SUCCESS` event occurs and there is no `REFUND_FAILURE` or the `FAILURE` event is older: value increases by the `SUCCESS` event's amount.
-  - When a `REFUND_REVERSE` event occurs: value decreases by the event's amount.
+  - **GIVEN** there is a `REFUND_SUCCESS` event
+    - **WHEN** there is no `REFUND_FAILURE`
+    - **OR WHEN** the `REFUND_FAILURE` event is older than `REFUND_SUCCESS`
+      - **THEN** value increases by the `REFUND_SUCCESS` event's amount.
+  - **GIVEN** there is a `REFUND_REVERSE` event:  
+    - **THEN** value is reduced by the event's amount. 
 
 :::note
-`CHARGEBACK` events, which behave similarly to refunds by reducing the `chargedAmount`, are not included in `refundedAmount`. This is because they are initiated by the issuing bank, not the merchant.
+`CHARGE_BACK` events, which behave similarly to refunds by reducing the `chargedAmount`, are not included in `refundedAmount`. This is because they are initiated by the issuing bank, not the merchant.
 :::
 
 #### Refund Pending Value ([`transactionItem.refundPendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemrefundpendingamountmoney---))
-  - When an `REFUND_REQUEST` event occurs and there is no `REFUND_FAILURE` or `REFUND_SUCCESS` event is: value increases by the `REQUEST` event's amount.
+  - **GIVEN** there is a `REFUND_REQUEST` event:
+    - **WHEN** there is no `REFUND_FAILURE` or `REFUND_SUCCESS`
+      - **THEN** value increases by the `REFUND_REQUEST` event's amount
+
 
 #### Canceled Value ([`transactionItem.canceledAmount`](/api-reference/payments/objects/transaction-item#transactionitemcanceledamountmoney---) )
-  - When an `CANCEL_SUCCESS` event occurs and there is no `CANCEL_FAILURE` or the `FAILURE` event is older: value increases by the `SUCCESS` event's amount.
+  - **GIVEN** there is a `CANCEL_SUCCESS` event
+    - **WHEN** there is no `CANCEL_FAILURE`
+    - **OR WHEN** the `CANCEL_FAILURE` event is older than `CANCEL_SUCCESS`
+      - **THEN** value increases by the `CANCEL_SUCCESS` event's amount.
 
 #### Cancel Pending Value ([`transactionItem.cancelPendingAmount`](/api-reference/payments/objects/transaction-item#transactionitemcancelpendingamountmoney---))
-  - When an `CANCEL_REQUEST` event occurs and there is no `CANCEL_FAILURE` or `CANCEL_SUCCESS` event is: value increases by the `REQUEST` event's amount.
+  - **GIVEN** there is a `CANCEL_REQUEST` event:
+    - **WHEN** there is no `CANCEL_FAILURE` or `CANCEL_REQUEST`
+      - **THEN** value increases by the `CANCEL_REQUEST` event's amount
 
 
 ## Total Balance Calculation
