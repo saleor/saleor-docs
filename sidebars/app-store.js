@@ -1,7 +1,7 @@
 import { chapterTitle, hr } from "./utils";
 
 export const appStore = [
-  chapterTitle("developer/app-store/overview", "Apps & Integrations", "apps"),
+  chapterTitle("developer/app-store/overview", "Saleor App Store", "apps"),
 
   hr(),
 
