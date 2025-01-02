@@ -13,6 +13,7 @@ export const selfHosting = [
 
   "developer/running-saleor/debugging-emails",
   "developer/running-saleor/exposing-instance",
+  "developer/running-saleor/task-queue",
 
   title("Deploying"),
 
