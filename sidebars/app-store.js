@@ -43,6 +43,7 @@ export const appStore = [
       },
     ],
   },
+  "developer/app-store/apps/segment",
   "developer/app-store/plugins/stripe",
   { type: "html", value: "<hr/>" },
   {
