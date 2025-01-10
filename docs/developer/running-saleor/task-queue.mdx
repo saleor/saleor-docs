@@ -4,13 +4,33 @@ sidebar_label: Task Queue
 ---
 
 Some of the Saleor’s functionality depends on a task queue system to manage asynchronous and periodic tasks. We recommend using Celery with Redis as the message broker.
-You can use [Saleor Platform](setup/docker-compose.mdx#installation) to get this setup out of the box.
 For more information, please visit [official Celery documentation](https://docs.celeryq.dev/en/stable/index.html). 
 
 
 ## Periodic tasks
 
-Celery Beat is a scheduler that triggers background tasks at regular intervals. Below is a list of Saleor features fired up by celery beat with default schedules:
+Celery Beat is a scheduler that triggers background tasks at regular intervals. 
+Some of the Saleor's features can't be used without proper task scheduler setup. In order to start Celery Beat server:
+
+1. Specify `CELERY_BROKER_URL` environmental variable which points to task broker (we recommend using Redis as a broker database), i.e.:
+
+```shell
+set CELERY_BROKER_URL="redis://localhost:6379/0"
+```
+
+2. Run Celery worker: 
+
+```shell
+celery --app saleor.celeryconf:app worker -E --loglevel=info
+```
+
+3. As a separate process run Celery Beat: 
+
+```shell
+celery --app saleor.celeryconf:app beat --scheduler saleor.schedulers.schedulers.DatabaseScheduler 
+```
+
+Below is a list of Saleor features fired up by celery beat with default schedules:
 
 #### Tasks run in intervals:
 - Deactivate preorder for variants; 1 hour
