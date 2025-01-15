@@ -16,7 +16,7 @@ Below is the list of changes introduced in Adyen App releases
 
 ### New features
 
-- Added client logs to following webhooks. Thanks to this stores that use Adyen app will have better observability on what is going inside the app.
+- The app now includes client logs for enhanced observability in the following webhooks:
   - `transaction-process-session`
   - `transaction-refund-requested`
   - `transaction-charge-requested`
@@ -27,8 +27,11 @@ Below is the list of changes introduced in Adyen App releases
 
 #### Before this release
 
-Previously when handling [`CANCELLATION`](https://docs.adyen.com/api-explorer/Webhooks/1/post/CANCELLATION) webhook events from Adyen that didn't have `amount` field,
-app sent `amount: 0` to Saleor, which caused Transactions that were cancelled in Adyen to still have `authorizedAmount`, when they should have had `authorizedAmount: 0` and `cancelledAmount`.
+Previously when handling [`CANCELLATION`](https://docs.adyen.com/api-explorer/Webhooks/1/post/CANCELLATION) webhook events from Adyen that didn't have `amount` value,
+app sent `amount: 0 to` Saleor, which caused Transactions that were cancelled in Adyen to still have `authorizedAmount`, when they should have had:
+
+- `authorizedAmount`: `0`
+- `cancelledAmount`: previous authorized amount
 
 #### After this release
 
@@ -38,12 +41,12 @@ Now app when handling such events, will fetch last known `CANCEL_*` event from S
 
 #### Before this release
 
-Previously app could have use a `TransactionEvent` with `amount` that was lower than zero, due to incorrect comparison.
-This would have caused events reported to be incorrect and possibly breaking Saleor calculations.
+Previously the app could use a `TransactionEvent` with `amount` that was lower than zero, due to incorrect comparison.
+This would cause events to be reported incorrectly and potentially break Saleor calculations.
 
 #### After this release
 
-This would have caused events reported to be incorrect and possibly breaking Saleor calculations.
+The app now properly validates amount values, ensuring all transaction events use correct positive amounts in calculations.
 
 ### Improved Apple Pay timeout handling
 
@@ -54,7 +57,6 @@ Previously Apple Pay related requests had **20s timeout**. This caused sync webh
 #### After this release
 
 After this change app will use 18s timeout, so that it has an error margin for sending the actual response to Saleor.
-
 
 ## v.1.4.3
 
