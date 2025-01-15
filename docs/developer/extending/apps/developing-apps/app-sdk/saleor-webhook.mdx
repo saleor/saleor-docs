@@ -11,11 +11,13 @@ Depending on the type of the webhook, you can choose one of the classes:
 - `SaleorAsyncWebhook`
 - `SaleorSyncWebhook`
 
+implemented for both Next.js and Request / Response [Web API](https://developer.mozilla.org/en-US/docs/Web/API/Response)
+
 ## Common configuration
 
 Both `SaleorSyncWebhook` and `SaleorAsyncWebhook` contain a similar API with few differences.
 
-### Constructing Webhook instance
+### Constructing Webhook instance in Next.js `/pages`
 
 In Next.js `pages` directory, create a page, e.g., `pages/api/webhooks/order-created.ts`. We recommend keeping the webhook type in the file name, which Next.js will resolve to route the path.
 
@@ -68,6 +70,45 @@ export const orderCalculateTaxesWebhook = new SaleorSyncWebhook<OrderPayload>(
   options
 );
 ```
+
+### Constructng Webhook instance for Web API (in Next.js `/app`)
+
+Similar to Next.js implementation, create new API route directory, e.g. `/app/api/webhooks/order-created/` in it create two files `route.ts` and `webhook.ts`. `route.ts` file will have API endpoint implementation and `webhook.ts` will declare Saleor webhook. This is done because route can only export HTTP method named functions, otherwise it would result in build error. This API route will be available at endpoint `/api/webhooks/order-created`.
+
+:::info
+This example is specific for [Next.js Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers) but `fetch-api` handlers should work regardless of used framework.
+
+All methods have `Request => Response` signature, which means that any framework using Fetch API objects should work with `@saleor/app-sdk`
+
+For examples in other frameworks check [awesome-saleor repository](https://github.com/saleor/awesome-saleor)
+:::
+
+```typescript
+// File: /app/api/webhooks/order-created/webhook.ts
+import { SaleorAsyncWebhook } from "@saleor/app-sdk/handlers/fetch-api";
+
+/**
+ * To be type-safe, define payload from API. This should be imported from generated GraphQL code
+ */
+type OrderPayload = {
+  id: string;
+};
+
+export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderCreatedWebhookPayloadFragment>(
+  options
+);
+```
+
+```typescript
+// File: /app/api/webhooks/order-created/route.ts
+import { orderCreatedWebhook } from "./webhook";
+
+export const POST = orderCreatedWebhook.createHandler((request, ctx) => {
+  // Your webhook implementation goes here
+};
+
+```
+
 
 ### Configuring Webhook instance
 
@@ -245,8 +286,10 @@ export const orderCalculateTaxesWebhook = new SaleorAsyncWebhook<Payload>({
 Webhooks are created in Saleor when the App is installed. Saleor uses [AppManifest](developer/extending/apps/architecture/manifest.mdx) to get information about webhooks to create.
 `SaleorSyncWebhook` & `SaleorAsyncWebhook` utility can generate this manifest:
 
+**Next.js pages router**
+
 ```typescript
-// pages/api/manifest
+// pages/api/manifest.ts
 
 import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
 
@@ -265,11 +308,31 @@ export default createManifestHandler({
 });
 ```
 
+**Next.js app router** (Web API)
+
+```typescript
+// app/api/manifest/route.ts
+
+import { createManifestHandler } from "@saleor/app-sdk/handlers/fetch-api";
+
+import { orderCreatedWebhook } from "../webhooks/order-craeted/webhook";
+
+export const GET = createManifestHandler({
+  manifestFactory({ appBaseUrl }) {
+    return {
+      webhooks: [orderCreatedWebhook.getWebhookManifest(apiBaseURL)],
+    }
+  }
+});
+```
+
 Now, try to read your manifest. In the default Next.js config, it will be `GET localhost:3000/api/manifest`. You should see the webhook configuration as part of the manifest response.
 
 ### Creating webhook domain logic
 
 Now, let's create a handler that will process webhook data. Let's go back to the handler file `pages/api/webhooks/order-created.ts`.
+
+**Next.js pages router**
 
 ```typescript
 type OrderPayload = {
@@ -295,22 +358,55 @@ export default orderCreatedWebhook.createHandler((req, res, context) => {
 });
 ```
 
+**Next.js app router** (Web API)
+
+```typescript
+export const POST = orderCreatedWebhook.createHandler((request, ctx) => {
+  const { baseUrl, event, payload, authData } = context;
+
+  console.log(payload.id); // type is inferred
+
+  // Perform some domain logic
+
+  return new Response("Accepted", { status: 200 })
+});
+```
+
 ### Typed sync webhook response
 
 Sync webhooks need to return a response to Saleor so that the operation can be completed. To achieve that, `SaleorAsyncWebhook` injects an additional context field `buildResponse`.
 It infers even from the constructor and provides a typed factory:
+
+**Next.js pages router**
 
 ```typescript
 const webhook = new SaleorAsyncWebhook({
   event: "ORDER_CALCULATE_TAXES" /* ... rest of config */,
 });
 
-orderCreatedWebhook.createHandler((req, res, context) => {
+export default webhook.createHandler((req, res, context) => {
   return res.status(200).send(
     context.buildResponse({
       // Fields are typed here
     })
   );
+});
+```
+
+**Next.js app router** (Web API)
+
+```typescript
+const webhook = new SaleorAsyncWebhook({
+  event: "ORDER_CALCULATE_TAXES" /* ... rest of config */,
+});
+
+export const POST = webhook.createHandler((request, context) => {
+  // Note: Resoponse.json is static method on Web API Response interface
+  return Response.json( 
+    context.buildResponse({
+      // Fields are typed here
+    })
+  )
 });
 ```
 
