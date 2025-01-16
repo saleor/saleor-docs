@@ -7,6 +7,7 @@ import Avatax from "../../static/img/apps/avatax.svg";
 import CMS from "../../static/img/apps/cms-hub.svg";
 import Notification from "../../static/img/apps/notification-hub.svg";
 import Search from "../../static/img/apps/search-hub.svg";
+import Segment from "../../static/img/apps/segment.svg";
 import s from "./apps.module.css";
 
 const Shell = ({ color, title, children, href = "" }) => {
@@ -77,6 +78,14 @@ const Apps = () => {
           href={"developer/app-store/apps/smtp/overview"}
         >
           <Notification />
+        </Shell>
+
+        <Shell
+          color={"rgb(82, 189, 148)"}
+          title={"Twilio Segment"}
+          href={"developer/app-store/apps/segment"}
+        >
+          <Segment />
         </Shell>
 
         {/*missing docs*/}
