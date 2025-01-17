@@ -177,6 +177,37 @@ The above subscription will generate the following webhook payload:
 }
 ```
 
+
+:::warning
+If an error occurs during payload generation, the subscription response will contain only the `errors field`, and all other fields will be omitted.
+
+Below is an example of an error response. Instead of the expected data fields, you will receive only the errors field:
+```json
+{
+  "errors": [
+    {
+      "message": "Cannot return null for non-nullable field PaymentGatewayInitializeSession.sourceObject.",
+      "locations": [
+        {
+          "line": 1,
+          "column": 97
+        }
+      ],
+      "path": [
+        "event",
+        "sourceObject"
+      ],
+      "extensions": {
+        "exception": {
+          "code": "GraphQLError"
+        }
+      }
+    }
+  ]
+}
+```
+:::
+
 ## Creating Webhook With Subscription Query
 
 To create a webhook that will have its payload generated using a subscription, you need to use the same mutation as with standard webhooks. The only difference is passing the `query` field as an input with a subscription query converted to a string.
@@ -264,10 +295,12 @@ Keep in mind that some fields that use the synchronous event to be resolved are 
 Synchronous events are not allowed to request fields that are resolved using other synchronous events, which would lead to circular calls of the webhook.
 Fields that are currently not allowed:
 
-| Object     | Fields                                                                    |
-| ---------- | ------------------------------------------------------------------------- |
-| `Checkout` | `shippingMethods`, `availableShippingMethods`, `availablePaymentGateways` |
-| `Order`    | `shippingMethods`, `availableShippingMethods`                             |
+| Object         | Fields                                                                                                                                                    |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Checkout`     | `totalPrice`, `subtotalPrice`, `shippingPrice`, `shippingMethods`, `availableShippingMethods`, `availablePaymentGateways`                                 |
+| `CheckoutLine` | `unitPrice`, `totalPrice`                                                                                                                                 |
+| `Order`        | `discounts`, `total`, `undiscountedTotal`, `shippingPrice`, `undiscountedShippingPrice`, `shippingTaxRate`, `shippingMethods`, `availableShippingMethods` |
+| `OrderLine`    | `unitPrice`, `undiscountedUnitPrice`, `totalPrice`, `undiscountedTotalPrice`                                                                              |
 
 ## Permissions
 
