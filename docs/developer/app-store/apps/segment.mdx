@@ -20,7 +20,7 @@ This application integrates with [Twilio Segment](https://segment.com/). It trac
 
 ## Assumptions & limitations
 
--  Currently, only order-related events are supported.  
+-  Currently, only order-related events are supported. Events sent to Segment are in format defined by [V2 Ecommerce Events](https://segment.com/docs/connections/spec/ecommerce/v2/) Segment specification.
 -  Order webhooks are asynchronous, meaning events may not be sent to Segment immediately.  
 -  The app uses the [`track` API](https://segment.com/docs/connections/sources/catalog/libraries/server/node/#track). 
 -  The app attempts to retrieve user information using the user ID or email. If that fails, it will send an anonymous ID.  
@@ -32,46 +32,38 @@ This application integrates with [Twilio Segment](https://segment.com/). It trac
 
 ## Application flow
 
-The application subscribes to the following webhooks:
+The application subscribes to the following webhooks and sends coresponding event to Segment:
 
-- `ORDER_CREATED`
-- `ORDER_CANCELLED`
-- `ORDER_FULLY_PAID`
-- `ORDER_REFUNDED`
-- `ORDER_UPDATED`
+| Saleor webhook event      | Segment event     |
+| ------------------------- | ----------------- |
+| `ORDER_CONFIRMED`         | `Order Completed` |
+| `ORDER_CANCELLED`         | `Order Cancelled` |
+| `ORDER_REFUNDED`          | `Order Refunded`  |
+| `ORDER_UPDATED`           | `Order Updated`   |
+  
 
-For each webhook, the application will send the following information to Segment:
+Each event sent to Segment will have properties defined in Segment Ecommerce Event spec:
 
-- Order `id`
-- User information:
-    - User `id`
-    - User email
-- Channel information for the order:
-    - Channel `id`
-    - Channel slug
-    - Channel name
-- Name of the shipping method used for the order
-- Total amount of the order, including:
-    - Total gross (amount & currency)
-    - Total net (amount & currency)
-- Order number
-- All lines of the order with:
-    - Line `id`
-    - Name of [product variant](/developer/products/overview#product-and-variants)
-    - Id of [product variant](/developer/products/overview#product-and-variants)
-    - SKU of product
+* [`Order Completed`](https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed)
+* [`Order Cancelled`](https://segment.com/docs/connections/spec/ecommerce/v2/#order-cancelled)
+* [`Order Refunded`](https://segment.com/docs/connections/spec/ecommerce/v2/#order-refunded)
+* [`Order Updated`](https://segment.com/docs/connections/spec/ecommerce/v2/#order-updated)
+
+App will also add `channel_id` field with Saleor channel id for given order.
+
+Events sent to Segment will have `Saleor` suffix set in `event` [field](https://segment.com/docs/connections/spec/track/#event) e.g `Order Completed` will be tracked as `Saleor Order Completed`.
 
 
-Example of successful handling of `ORDER_CREATED` webhook:
+Example of successful handling of `ORDER_UPDATED` webhook:
 
 ```mermaid
 sequenceDiagram
-    OrderCreatedWebhook->>+App: Send webhook payload
+    OrderUpdatedWebhook->>+App: Send webhook payload
     App-->>-Database: Fetch app configuration
     Database-->>+App: Return configuration
     App-->>+Segment: Use configuration & webhook payload to track event
     Segment-->>-App: Returns success
-    App->>OrderCreatedWebhook: Returns 200 status code
+    App->>OrderUpdatedWebhook: Returns 200 status code
 ```
 
 ## Pre-requisites
@@ -85,7 +77,7 @@ sequenceDiagram
 
 ### Testing
 
-To test if your app is working, create an order in the Saleor Dashboard. Then, go to the Segment Dashboard; you should see the `Saleor Order Created` event in Segment.
+To test if your app is working, create an order and update its address or shipping in the Saleor Dashboard. Then, go to the Segment Dashboard; you should see the `Saleor Order Updated` event in Segment.
 
 ## Troubleshooting
 
