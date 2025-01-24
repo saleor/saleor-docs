@@ -1,103 +1,96 @@
 ---
 title: Twilio Segment
-sidebar_position: 3
+sidebar_label: Twilio Segment
+sidebar_position: 6
 ---
 
 import { AppMetadata } from "/components/AppMetadata/AppMetadata.jsx";
 
 <AppMetadata
-  minSaleorVersion="3.14"
-  githubUrl="https://github.com/saleor/example-app-segment"
+  minSaleorVersion="3.20"
+  githubUrl="https://github.com/saleor/apps/tree/main/apps/segment"
 />
 
-This app integrates [Twilio Segment](https://segment.com/) with Saleor. The app will send events to Segment as a source.
+This application integrates with [Twilio Segment](https://segment.com/). It tracks events occurring in Saleor and sends them to Twilio Segment.
 
 ## Features
 
-- Send order-related events to Segment
-- Send custom event names matching built-in Saleor events
+- Send information about order-related events to Segment.
+- Events send to Segment have identity set to user ID or email.
 
 ## Assumptions & limitations
 
-- The app requires a [write key](https://segment.com/docs/connections/find-writekey/) to work.
-- The app is not validating if the write key is correct due to missing API on the Segment side. If the write key is incorrect, the app will not inform you about it.
+-  Currently, only order-related events are supported. Events sent to Segment are in format defined by [V2 E-commerce Events](https://segment.com/docs/connections/spec/ecommerce/v2/) Segment specification.
+-  Order webhooks are asynchronous, meaning events may not be sent to Segment immediately.  
+-  The app uses the [`track` API](https://segment.com/docs/connections/sources/catalog/libraries/server/node/#track). 
+-  The app attempts to retrieve user information using the user ID or email. If that fails, it will send an anonymous ID.  
+-  The app has its webhooks initially disabled; configuring the app will activate the webhooks.  
 
 ## Permissions
 
-The app requires `MANAGE_ORDERS` permission to listen to order events.
-
-To save app configuration, staff users must have `MANAGE_APPS` permission.
+- `MANAGE_ORDERS`
 
 ## Application flow
 
-The app uses the following [events](../../../api-reference/webhooks/enums/webhook-event-type-async-enum#values) and maps them to Segment tracking events:
+The application subscribes to the following webhooks and sends coresponding event to Segment:
 
-| Saleor Event       | Segment event type       |
-| ------------------ | ------------------------ |
-| `ORDER_CREATED`    | "Saleor Order Created"   |
-| `ORDER_FULLY_PAID` | "Saleor Order Completed" |
-| `ORDER_REFUNDED`   | "Saleor Order Refunded"  |
-| `ORDER_UPDATED`    | "Saleor Order Updated"   |
-| `ORDER_CANCELLED`  | "Saleor Order Cancelled" |
+| Saleor webhook event      | Segment event     |
+| ------------------------- | ----------------- |
+| `ORDER_CONFIRMED`         | `Order Completed` |
+| `ORDER_CANCELLED`         | `Order Cancelled` |
+| `ORDER_REFUNDED`          | `Order Refunded`  |
+| `ORDER_UPDATED`           | `Order Updated`   |
+  
 
-The event will contain properties mapped from the following GraphQL fragment:
+Each event sent to Segment will have properties defined in Segment E-commerce Event spec:
 
-```graphql
-fragment OrderBase on Order {
-  id
-  user {
-    id
-    email
-  }
-  channel {
-    id
-    slug
-    name
-  }
-  userEmail
-  shippingMethodName
-  total {
-    gross {
-      amount
-      currency
-    }
-    net {
-      currency
-      amount
-    }
-  }
-  lines {
-    id
-    productVariantId
-    productSku
-    variantName
-  }
-  number
-}
+* [`Order Completed`](https://segment.com/docs/connections/spec/ecommerce/v2/#order-completed)
+* [`Order Cancelled`](https://segment.com/docs/connections/spec/ecommerce/v2/#order-cancelled)
+* [`Order Refunded`](https://segment.com/docs/connections/spec/ecommerce/v2/#order-refunded)
+* [`Order Updated`](https://segment.com/docs/connections/spec/ecommerce/v2/#order-updated)
+
+App will also add `channel_id` field with Saleor channel id for given order.
+
+Events sent to Segment will have `Saleor` suffix set in `event` [field](https://segment.com/docs/connections/spec/track/#event) e.g `Order Completed` will be tracked as `Saleor Order Completed`.
+
+
+Example of successful handling of `ORDER_UPDATED` webhook:
+
+```mermaid
+sequenceDiagram
+    OrderUpdatedWebhook->>+App: Send webhook payload
+    App-->>-Database: Fetch app configuration
+    Database-->>+App: Return configuration
+    App-->>+Segment: Use configuration & webhook payload to track event
+    Segment-->>-App: Returns success
+    App->>OrderUpdatedWebhook: Returns 200 status code
 ```
 
-## Prerequisites
+## Pre-requisites
 
-1. Create a [Segment account](https://app.segment.com)
-2. Create a new [connection source](https://segment.com/docs/connections/sources/) and set it to `Node.js`.
-3. Name the source, e.g., "Saleor Orders."
-4. Copy visible _Write Key_ and paste it into the app configuration.
+- Create an account on [Twillo Segment](https://segment.com/).
+- Create a HTTP API [source](https://segment.com/docs/partners/sources/) in the Segment Dashboard UI and note down the Write Key for this source.
+
+## Installation
+
+- Go to the Apps section in your Saleor Dashboard. Pick Twilio Segment and Install.
 
 ## Configuration
 
-The app requires configuring only one field - a [Segment Write Key](https://segment.com/docs/connections/find-writekey/).
+- Paste [Write Key](https://segment.com/docs/connections/find-writekey/) into the main configuration form in the app and click `Save`.
 
 ### Testing
 
-The easiest way to test if the app is configured correctly is to perform the following steps:
-
-1. Configure the app with a valid Segment Write Key generated with a connection source.
-2. Create a test order in Saleor.
-3. Open Segment -> Connections -> Sources -> Your source -> Debugger.
-4. Check if the order event is visible in the debugger.
+To test if your app is working, create an order and update its address or shipping in the Saleor Dashboard. Then, go to the Segment Dashboard; you should see the `Saleor Order Updated` event in Segment.
 
 ## Troubleshooting
 
-### Events are not showing in Segment Debugger
+- **Events are not showing in Segment Dashboard**
+    - Ensure you have set your Write Key in the app configuration screen.
+    - Trigger one of the supported events (see [application flow section](#application-flow) for more details).
 
-Ensure the Segment write key is correct.
+## Development
+
+To run the application locally, follow the [_Running Saleor Apps locally_ article](/developer/extending/apps/developing-apps/running-saleor-apps-locally).
+
+Segment app specific instructions can be found inside app GitHub [repository](https://github.com/saleor/apps/tree/main/apps/avatax).

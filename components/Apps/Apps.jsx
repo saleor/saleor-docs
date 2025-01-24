@@ -2,8 +2,6 @@ import Link from "@docusaurus/Link";
 import React from "react";
 
 import Adyen from "../../static/img/apps/adyen.svg";
-import CRM from "../../static/img/apps/app-crm.svg";
-import Invoices from "../../static/img/apps/app-invoices.svg";
 import ProductFeed from "../../static/img/apps/app-products-feed.svg";
 import Avatax from "../../static/img/apps/avatax.svg";
 import CMS from "../../static/img/apps/cms-hub.svg";
@@ -49,21 +47,6 @@ const Apps = () => {
         >
           <CMS />
         </Shell>
-        <Shell
-          color={"rgb(137, 82, 255)"}
-          title={"CRM"}
-          href={"developer/app-store/apps/crm"}
-        >
-          <CRM />
-        </Shell>
-        <Shell
-          color={"rgb(227, 149, 60)"}
-          title={"Invoices"}
-          href={"developer/app-store/apps/invoices"}
-        >
-          <Invoices />
-        </Shell>
-
         {/*missing docs*/}
         {/*<Shell color={"rgb(58, 86, 199)"} title={"Klaviyo"}>*/}
         {/*  <Placeholder />*/}
@@ -83,13 +66,6 @@ const Apps = () => {
         >
           <Search />
         </Shell>
-        <Shell
-          color={"rgb(37, 195, 101)"}
-          title={"Twilio Segment"}
-          href={"developer/app-store/apps/segment"}
-        >
-          <Segment />
-        </Shell>
 
         {/*missing docs*/}
         {/*<Shell color={"rgb(95, 58, 199)"} title={"Slack"}>*/}
@@ -102,6 +78,14 @@ const Apps = () => {
           href={"developer/app-store/apps/smtp/overview"}
         >
           <Notification />
+        </Shell>
+
+        <Shell
+          color={"rgb(82, 189, 148)"}
+          title={"Twilio Segment"}
+          href={"developer/app-store/apps/segment"}
+        >
+          <Segment />
         </Shell>
 
         {/*missing docs*/}
