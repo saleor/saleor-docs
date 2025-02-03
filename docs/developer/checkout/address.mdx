@@ -424,3 +424,214 @@ The shipping and billing addresses need to be valid when finalizing checkout by 
 :::note
 The fields for shipping and billing addresses will be normalized (if needed) on completing the checkout by calling [checkoutComplete](api-reference/checkout/mutations/checkout-complete.mdx) mutation.
 :::
+
+## Customer Address Saving Strategies
+Address updates allow configuring the address-saving strategy for both shipping and billing addresses.
+This setting determines whether the shipping or billing address should be saved in the customer's address book.
+It applies only when the checkout is completed by a logged-in user.
+
+By default, both billing and shipping addresses are saved in the customer's address book.
+
+### Use cases:
+- External Click & Collect (C&C) Addresses: Prevents collection point addresses from being saved to a customer’s address book.
+- Customer Choice During Checkout: Allows customers to explicitly decide whether to save newly entered addresses to their account.
+
+### Applicable Checkout Mutations
+The default behavior can be adjusted in the following checkout mutations:
+- [checkoutCreate](/api-reference/checkout/mutations/checkout-create.mdx)
+```graphql {7,17}
+mutation {
+  checkoutCreate(
+    input: {
+      channel: "default-channel"
+      email: "customer@example.com"
+      lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjk3" }]
+      saveShippingAddress: false
+      shippingAddress: {
+        firstName: "John"
+        lastName: "Doe"
+        streetAddress1: "1470  Pinewood Avenue"
+        city: "Michigan"
+        postalCode: "49855"
+        country: US
+        countryArea: "MI"
+      }
+      saveBilligAddress: true
+      billingAddress: {
+        firstName: "John"
+        lastName: "Doe"
+        streetAddress1: "1470  Pinewood Avenue"
+        city: "Michigan"
+        postalCode: "49855"
+        country: US
+        countryArea: "MI"
+      }
+    }
+  ) {
+    checkout {
+      id
+    }
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+- [checkoutShippingAddressUpdate](/api-reference/checkout/mutations/checkout-shipping-address-update.mdx)
+```graphql {5}
+mutation {
+  checkoutShippingAddressUpdate(
+    id: "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk"
+    shippingAddress: { postalCode: "12-333"}
+    saveAddress: false
+  ) {
+    errors {
+      field
+      message
+      code
+    }
+    checkout {
+      id
+      shippingAddress {
+        id
+        postalCode
+        firstName
+        lastName
+        country {
+          code
+        }
+      }
+    }
+  }
+}
+```
+- [checkoutBillingAddressUpdate](/api-reference/checkout/mutations/checkout-billing-address-update.mdx)
+```graphql {5}
+mutation {
+  checkoutBillingAddressUpdate(
+    id: "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk"
+    billingAddress: { postalCode: "12-333"}
+    saveAddress: false
+  ) {
+    errors {
+      field
+      message
+      code
+    }
+    checkout {
+      id
+      billingAddress {
+        id
+        postalCode
+        firstName
+        lastName
+        country {
+          code
+        }
+      }
+    }
+  }
+}
+```
+
+### Important Notes
+
+The setting is treated as part of the address and cannot be provided independently in the mutation input.
+Attempting to set `saveShippingAddress` or `saveBillingAddres`s without including the corresponding
+`shippingAddress` or `billingAddress` will result in an error.
+
+For example, providing `saveShippingAddress` in the `checkoutCreate` mutation without including `shippingAddress` will raise an error:
+```graphql
+mutation {
+  checkoutCreate(
+    input: {
+      channel: "default-channel"
+      email: "customer@example.com"
+      lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjk3" }]
+      saveShippingAddress: true
+    }
+  ) {
+    checkout {
+      id
+    }
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+
+:::warning
+Each time the shipping address is updated, the saveAddress flag resets to its default value.
+To ensure the correct setting is applied, you must explicitly provide the saveAddress value in the input.
+1. Setting a shipping address with `saveAddress: false`.
+```graphql
+mutation {
+  checkoutShippingAddressUpdate(
+    id: "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk"
+    shippingAddress: {
+        firstName: "John Saleor",
+        lastName: "Doe Mirumee",
+        companyName: "Mirumee Software",
+        streetAddress1: "Tęczowa 7",
+        streetAddress2: "",
+        postalCode: "53-601",
+        country: "PL",
+        city: "Wrocław",
+        countryArea: "",
+    }
+    saveAddress: false
+  ) {
+    errors {
+      field
+      message
+      code
+    }
+    checkout {
+      id
+      shippingAddress {
+        id
+        postalCode
+        firstName
+        lastName
+        country {
+          code
+        }
+      }
+    }
+  }
+}
+```
+2. Updating the address without specifying `saveAddress`.
+If `saveAddress` is not provided in the request, the updated address will be saved in the customer’s address book.
+```graphql
+mutation {
+  checkoutShippingAddressUpdate(
+    id: "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk"
+    shippingAddress: { postalCode: "12-333"}
+  ) {
+    errors {
+      field
+      message
+      code
+    }
+    checkout {
+      id
+      shippingAddress {
+        id
+        postalCode
+        firstName
+        lastName
+        country {
+          code
+        }
+      }
+    }
+  }
+}
+```
+
+If you want to ensure the address is not saved, you must explicitly provide `saveAddress: false` in step 2.
+:::
