@@ -185,8 +185,86 @@ The list of deprecated plugin hooks is as follows:
 * `warehouse_updated`
 
 
+
 ## `checkout.shippingMethods` and `checkout.availableShippingMethods` do not return external shipping methods if their currency differs from the checkout's currency
 
 If an app subscribed to `SHIPPING_LIST_METHODS_FOR_CHECKOUT` returns an external shipping method with a currency different from the checkout's currency, Saleor will filter out that shipping method. As a result, external shipping methods with a different currency than the checkout's currency will not be returned via the API (in the checkout.shippingMethods and checkout.availableShippingMethods fields).
 Any potential currency validation for external shipping methods on the frontend / app side is no longer necessary.
+
+
+## Blocked external tax calculations in checkout bulk queries
+Queries responsible for fetching multiple checkout objects will **no longer trigger external tax calculations**. This includes:
+- **`CHECKOUT_CALCULATE_TAXES`** synchronous webhooks
+- External calls from the **AvataxPlugin**
+
+Instead of recalculating taxes externally, the system will return the **pre-stored prices** from the database.
+
+#### Affected queries:
+The following queries will return prices stored in the database:
+- `checkouts(...)`
+- `me.checkouts(...)`
+- `checkoutLines(...)`
+
+These queries **will not** make external API calls for tax recalculation.
+
+#### Example queries:
+Here are examples of queries that **do not** trigger external tax calculations and will instead return the stored prices:
+
+##### Fetching checkouts for authenticated user:
+```graphql
+{
+  me {
+    checkouts(first: 10) {
+      edges {
+        node {
+          id
+          totalPrice {
+            gross {
+              amount
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+##### Fetching multiple checkouts:
+```graphql
+{
+  checkouts(first: 100) {
+    edges {
+      node {
+        totalPrice {
+          gross {
+            amount
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+##### Fetching checkout lines:
+```graphql
+{
+  checkoutLines(first: 100) {
+    edges {
+      node {
+        totalPrice {
+          gross {
+            amount
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+:::note
+The `checkout` query will behave as it did previously. If the taxes are expired, external calls will be made to calculate them.
+:::
 
