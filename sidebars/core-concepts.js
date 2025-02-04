@@ -38,6 +38,7 @@ export const coreConcepts = [
   "developer/order/order-status",
   "developer/order/order-expiration",
   "developer/order/order-to-checkout",
+  "developer/order/address",
 
   title("Transactions"),
   "developer/payments/overview",
