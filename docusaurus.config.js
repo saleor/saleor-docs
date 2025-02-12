@@ -105,7 +105,7 @@ module.exports = {
     announcementBar: {
       id: "announcement-bar",
       content:
-        '👀 <b>Sneak Peek Alert!</b> Get a glimpse of upcoming features on our <a target="https://saleor.notion.site/roadmap" rel="noopener noreferrer" href="#">public roadmap</a>.',
+        '👀 <b>Sneak Peek Alert!</b> Get a glimpse of upcoming features on our <a target="_blank" rel="noopener noreferrer" href="https://saleor.notion.site/roadmap">public roadmap</a>.',
       backgroundColor: "light-dark(rgb(255, 251, 235), var(--purple5))",
       textColor: "light-dark(#000, #fff)",
       isCloseable: true,
