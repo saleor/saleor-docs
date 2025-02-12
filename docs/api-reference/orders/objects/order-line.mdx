@@ -55,7 +55,6 @@ type OrderLine implements Node, ObjectWithMetadata {
   isShippingRequired: Boolean!
   quantity: Int!
   quantityFulfilled: Int!
-  unitDiscountReason: String
   taxRate: Float!
   digitalContentUrl: DigitalContentUrl
   thumbnail(
@@ -65,7 +64,9 @@ type OrderLine implements Node, ObjectWithMetadata {
   unitPrice: TaxedMoney!
   undiscountedUnitPrice: TaxedMoney!
   unitDiscount: Money!
+  unitDiscountReason: String
   unitDiscountValue: PositiveDecimal!
+  unitDiscountType: DiscountValueTypeEnum
   totalPrice: TaxedMoney!
   undiscountedTotalPrice: TaxedMoney!
   isPriceOverridden: Boolean
@@ -75,7 +76,6 @@ type OrderLine implements Node, ObjectWithMetadata {
   allocations: [Allocation!]
   saleId: ID
   quantityToFulfill: Int!
-  unitDiscountType: DiscountValueTypeEnum
   taxClass: TaxClass
   taxClassName: String
   taxClassMetadata: [MetadataItem!]!
@@ -155,10 +155,6 @@ Number of variant items ordered.
 
 Number of variant items fulfilled.
 
-#### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>unitDiscountReason</b></code>](#)<Bullet />[`String`](../../../api-reference/miscellaneous/scalars/string.mdx) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
-
-Reason for any discounts applied on a product in the order.
-
 #### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>taxRate</b></code>](#)<Bullet />[`Float!`](../../../api-reference/miscellaneous/scalars/float.mdx) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
 Rate of tax applied on product variant.
@@ -177,19 +173,27 @@ The format of the image. When not provided, format of the original image will be
 
 #### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>unitPrice</b></code>](#)<Bullet />[`TaxedMoney!`](../../../api-reference/miscellaneous/objects/taxed-money.mdx) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="object"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
-Price of the single item in the order line.
+Price of the single item in the order line with all the line-level discounts and order-level discount portions applied.
 
 #### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>undiscountedUnitPrice</b></code>](#)<Bullet />[`TaxedMoney!`](../../../api-reference/miscellaneous/objects/taxed-money.mdx) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="object"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
-Price of the single item in the order line without applied an order line discount.
+Price of the single item in the order line without any discount applied.
 
 #### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>unitDiscount</b></code>](#)<Bullet />[`Money!`](../../../api-reference/miscellaneous/objects/money.mdx) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="object"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
-The discount applied to the single order line.
+Sum of the line-level discounts applied to the order line. Order-level discounts which affect the line are not visible in this field. For order-level discount portion (if any), please query `order.discounts` field.
+
+#### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>unitDiscountReason</b></code>](#)<Bullet />[`String`](../../../api-reference/miscellaneous/scalars/string.mdx) <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
+
+Reason for line-level discounts applied on the order line. Order-level discounts which affect the line are not visible in this field. For order-level discount reason (if any), please query `order.discounts` field.
 
 #### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>unitDiscountValue</b></code>](#)<Bullet />[`PositiveDecimal!`](../../../api-reference/miscellaneous/scalars/positive-decimal.mdx) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
-Value of the discount. Can store fixed value or percent value
+Value of the discount. Can store fixed value or percent value. This field shouldn't be used when multiple discounts affect the line. There is a limitation, that after running `checkoutComplete` mutation the field always stores fixed value.
+
+#### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>unitDiscountType</b></code>](#)<Bullet />[`DiscountValueTypeEnum`](../../../api-reference/discounts/enums/discount-value-type-enum.mdx) <Badge class="badge badge--secondary" text="enum"/> <Badge class="badge badge--secondary" text="discounts"/>
+
+Type of the discount: `fixed` or `percent`. This field shouldn't be used when multiple discounts affect the line. There is a limitation, that after running `checkoutComplete` mutation the field is always set to `fixed`.
 
 #### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>totalPrice</b></code>](#)<Bullet />[`TaxedMoney!`](../../../api-reference/miscellaneous/objects/taxed-money.mdx) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="object"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
@@ -232,10 +236,6 @@ Denormalized sale ID, set when order line is created for a product variant that 
 #### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>quantityToFulfill</b></code>](#)<Bullet />[`Int!`](../../../api-reference/miscellaneous/scalars/int.mdx) <Badge class="badge badge--secondary" text="non-null"/> <Badge class="badge badge--secondary" text="scalar"/> <Badge class="badge badge--secondary" text="miscellaneous"/>
 
 A quantity of items remaining to be fulfilled.
-
-#### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>unitDiscountType</b></code>](#)<Bullet />[`DiscountValueTypeEnum`](../../../api-reference/discounts/enums/discount-value-type-enum.mdx) <Badge class="badge badge--secondary" text="enum"/> <Badge class="badge badge--secondary" text="discounts"/>
-
-Type of the discount: fixed or percent
 
 #### [<code style={{ fontWeight: 'normal' }}>OrderLine.<b>taxClass</b></code>](#)<Bullet />[`TaxClass`](../../../api-reference/taxes/objects/tax-class.mdx) <Badge class="badge badge--secondary" text="object"/> <Badge class="badge badge--secondary" text="taxes"/>
 
