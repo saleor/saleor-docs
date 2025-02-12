@@ -32,6 +32,111 @@ IDE instructions:
 
 - [Codespaces](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers)
 
+### Running Saleor locally with database and additional services in docker
+
+Install & setup prerequisites via homebrew:
+
+```shell
+brew install libmagic
+brew install pyenv
+
+pyenv install 3.12
+
+# optionally set python globally
+pyenv global 3.12
+
+brew install pipx
+pipx install poetry
+```
+
+Clone this [repository](https://github.com/saleor/saleor) and setup database and additional services in docker:
+
+```shell
+cd .devcontainer
+docker compose up db dashboard redis mailpit
+```
+
+If you didn’t set python version globally set [pyenv](https://github.com/pyenv/pyenv) local version:
+
+```shell
+pyenv local 3.12
+```
+
+To create virtualenv and install dependencies run in root of the repository:
+
+```shell
+poetry sync
+```
+
+After installation activate virtualenv:
+
+```shell
+eval $(poetry env activate)
+```
+
+See [poetry docs](https://python-poetry.org/docs/managing-environments/#bash-csh-zsh) for all supported shells.
+
+> [!TIP]
+> Your shell prompt should have virtualenv information available and should look similar to this:
+> `(saleor-py3.12) ~/D/saleor %`
+
+Install pre commit hooks:
+
+```shell
+pre-commit install
+```
+
+Set environment variables for your setup. You can use [direnv](https://direnv.net/) to do this automatically.
+Create `.envrc` file:
+
+```shell
+export CELERY_BROKER_URL=redis://localhost:6379/1
+export DATABASE_URL=postgres://saleor:saleor@localhost/saleor
+export DEFAULT_FROM_EMAIL=noreply@example.com
+export EMAIL_URL=smtp://localhost:1025
+export SECRET_KEY=changeme
+export DEFAULT_CHANNEL_SLUG=default-channel
+export HTTP_IP_FILTER_ALLOW_LOOPBACK_IPS=True
+export DASHBOARD_URL=http://localhost:9000/
+```
+
+Run command to set variables from this file:
+
+```shell
+direnv allow
+```
+
+You are ready to go 🎉.
+
+### Common commands
+
+To start server:
+
+```shell
+uvicorn saleor.asgi:application --reload
+```
+
+To start Celery worker:
+
+```shell
+celery --app=saleor.celeryconf:app worker --beat
+```
+
+To run database migrations:
+
+```shell
+python manage.py migrate
+```
+
+To populate database with example data and create the admin user:
+
+```shell
+python manage.py populatedb --createsuperuser
+```
+
+*Note that `--createsuperuser` argument creates an admin account for `admin@example.com` with the password set to `admin`.*
+
+
 ## Managing dependencies
 
 ### Poetry
@@ -225,6 +330,9 @@ pre-commit install
 ```
 
 For more information on how it works, see the `.pre-commit-config.yaml` configuration file.
+
+> [!NOTE]
+> Running `git commit` for the first time might take a while, since all dependencnies will be setting up.
 
 Saleor has a strict formatting policy enforced by the [black formatting tool](https://github.com/python/black).
 
