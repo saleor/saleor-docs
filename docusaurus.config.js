@@ -39,7 +39,7 @@ module.exports = {
         // Generate a custom title for each of the API Reference files based on the category
         // This should generate entries like Objects: Product or Queries: Product
         let category_path = path.dirname(params.filePath).split("/");
-        let category_name = category_path[category_path.length - 1];
+        let category_name_from_path = category_path[category_path.length - 1];
         let category_title_mapping = {
           directives: "Directive",
           enums: "Enum",
@@ -52,13 +52,15 @@ module.exports = {
           subscriptions: "Subscription",
           unions: "Union",
         };
-        let category_suffix = category_title_mapping[category_name];
+        let category_name = category_title_mapping[category_name_from_path];
         result.frontMatter.title =
-          result.frontMatter.title + " " + category_suffix;
+          result.frontMatter.title + " " + category_name;
 
         // For GraphQL pages that don't have description we don't want to duplicate the meta description tag
         // Ideally we should make sure each element from the schema does have a description
         // But for now we're just going to make sure we don't have duplicates
+        result.frontMatter.description =
+          category_name + ": " + result.frontMatter.title;
         if (params.fileContent.includes("No description")) {
           result.frontMatter.description =
             result.frontMatter.title + " - no description";
