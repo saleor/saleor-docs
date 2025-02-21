@@ -70,6 +70,7 @@ export const coreConcepts = [
   "developer/taxes",
   "developer/thumbnails",
   "developer/price-calculation",
+  "developer/menu",
 
   title("Importing"),
   "developer/bulks/bulk-orders",
