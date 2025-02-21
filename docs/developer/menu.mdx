@@ -1,0 +1,207 @@
+# Menu
+
+## Overview
+
+Menus are assembly structures that group and organize entities in your store. They create hierarchical relationships between categories, collections, and pages. The most common use case is storefront navigation.
+
+:::warning
+Menus do not have a UI in Saleor Dashboard and must be managed via the API.
+
+If you want to build a UI for managing menus, you can start with the [Example Menu Manager App](https://github.com/saleor/example-app-menu-manager).
+:::
+
+## Lifecycle
+
+:::info
+
+Menu operations require the [`MANAGE_MENUS`](developer/permissions#available-permissions) permission.
+
+:::
+
+### Creating a Menu
+
+A menu requires a name and can optionally have a slug. You can create a menu with or without items with the [`menuCreate`](/api-reference/menu/mutations/menu-create) mutation:
+
+```graphql
+mutation CreateMenu($input: MenuCreateInput!) {
+  menuCreate(input: $input) {
+    menu {
+      id
+      name
+      slug
+      items {
+        id
+        name
+        level
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+A menu item can link to one of the following entities:
+
+- Category
+- Collection
+- Page
+- URL
+
+Here is an example input for creating a menu:
+
+```json
+{
+  "name": "Example Menu Item",
+  "slug": "example-menu-item",
+  "items": [
+    {
+      "name": "Category Menu Item",
+      "category": "Q2F0ZWdvcnk6MjY="
+    },
+    {
+      "name": "Collection Menu Item",
+      "collection": "Q29sbGVjdGlvbjozMjA="
+    },
+    {
+      "name": "Page Menu Item",
+      "page": "UGFnZToxMjM="
+    },
+    {
+      "name": "URL Menu Item",
+      "url": "https://www.saleor.io"
+    }
+  ]
+}
+```
+
+You can also create the menu item itself through the [`menuItemCreate`](/api-reference/menu/mutations/menu-item-create) mutation:
+
+```graphql
+mutation CreateMenuItem($input: MenuItemCreateInput!) {
+  menuItemCreate(input: $input) {
+    menuItem {
+      id
+      name
+      slug
+      children {
+        id
+        name
+        level
+      }
+    }
+  }
+}
+```
+
+Menu items can be nested to create a hierarchy. For example, the following input creates a menu item as a child of another menu item:
+
+```json
+{
+  "name": "Parent Menu Item",
+  "url": "https://www.saleor.io",
+  "parent": "Q2F0ZWdvcnk6MjY=",
+}
+```
+
+### Getting Menus
+
+To retrieve all menus, use the [`menus`](/api-reference/menu/queries/menus) query:
+
+```graphql
+  menus(first: $first) {
+    edges {
+      node {
+        id
+        name
+        slug
+        items {
+          id
+          name
+          level
+          category {
+            id
+            name
+          }
+          collection {
+            id
+            name
+          }
+          page {
+            id
+            title
+          }
+          children {
+            id
+            name
+            level
+          }
+        }
+      }
+    }
+  }
+```
+
+To get a specific menu by ID, name, or slug, use the [`menu`](/api-reference/menu/queries/menu) query:
+
+```graphql
+query GetMenu($id: ID, $name: String, $slug: String) {
+  menu(id: $id, name: $name, slug: $slug) {
+    id
+    name
+    slug
+    items {
+      id
+      name
+      level
+      category {
+        id
+        name
+      }
+      collection {
+        id
+        name
+      }
+      page {
+        id
+        title
+      }
+    }
+  }
+}
+```
+
+### Deleting a Menu
+
+To remove a menu and all its items, use the [`menuDelete`](/api-reference/menu/mutations/menu-delete) mutation:
+
+```graphql
+mutation DeleteMenu($id: ID!) {
+  menuDelete(id: $id) {
+    menu {
+      id
+      name
+      slug
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+## Webhooks
+
+Here are the webhooks that are available for menus:
+
+- `MENU_CREATED`
+- `MENU_UPDATED`
+- `MENU_DELETED`
+- `MENU_ITEM_CREATED`
+- `MENU_ITEM_UPDATED`
+- `MENU_ITEM_DELETED`
