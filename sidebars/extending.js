@@ -16,6 +16,7 @@ export const extending = [
   "developer/extending/webhooks/synchronous-events/tax",
   "developer/extending/webhooks/synchronous-events/transaction",
   "developer/extending/webhooks/synchronous-events/stored-payment-method",
+  "developer/extending/webhooks/synchronous-events/circuit-breakers",
 
   title("Security"),
   "developer/extending/webhooks/ip-addresses",
