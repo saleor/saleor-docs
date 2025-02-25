@@ -185,8 +185,126 @@ The list of deprecated plugin hooks is as follows:
 * `warehouse_updated`
 
 
+
+
 ## `checkout.shippingMethods` and `checkout.availableShippingMethods` do not return external shipping methods if their currency differs from the checkout's currency
 
 If an app subscribed to `SHIPPING_LIST_METHODS_FOR_CHECKOUT` returns an external shipping method with a currency different from the checkout's currency, Saleor will filter out that shipping method. As a result, external shipping methods with a different currency than the checkout's currency will not be returned via the API (in the checkout.shippingMethods and checkout.availableShippingMethods fields).
 Any potential currency validation for external shipping methods on the frontend / app side is no longer necessary.
+
+
+## Blocked external tax calculations in checkout bulk queries
+Queries responsible for fetching multiple checkout objects will **no longer trigger external tax calculations**. This includes:
+
+### Blocked external calls in checkout bulk queries
+
+For efficiency and performance, bulk queries fetching multiple checkout objects will **no longer trigger external calls to third-party services**. The following webhooks are impacted:
+
+- **`CHECKOUT_CALCULATE_TAXES`** synchronous webhooks
+- **`SHIPPING_LIST_METHODS_FOR_CHECKOUT`** synchronous webhooks
+- **`CHECKOUT_FILTER_SHIPPING_METHODS`** synchronous webhooks
+- External calls from the **AvataxPlugin**
+
+Instead of recalculating taxes externally, the system will return **pre-stored prices** directly from the database. Additionally, only built-in shipping methods will be returned—external shipping methods will be excluded from the response. The `CHECKOUT_FILTER_SHIPPING_METHODS` webhook will not be called, and all available methods will be shown. However, any external shipping methods assigned to the checkout will still be visible based on denormalized data in the database.
+
+#### Affected Queries
+The following queries will **not** make external calls and will instead return values stored in the database:
+
+- `checkouts(...)`
+- `me.checkouts(...)`
+- `checkoutLines(...)`
+
+#### Example Queries
+Here are examples of how these queries **will not** trigger external webhook calls and will return values from the database:
+
+##### Fetching Checkouts for an Authenticated User:
+```graphql
+{
+  me {
+    checkouts(first: 10) {
+      edges {
+        node {
+          id
+          deliveryMethod {
+            __typename
+            ... on ShippingMethod {
+              id
+              name
+            }
+          }
+          shippingMethods {
+            id
+            name
+          }
+          totalPrice {
+            gross {
+              amount
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+##### Fetching Multiple Checkouts:
+```graphql
+{
+  checkouts(first: 100) {
+    edges {
+      node {
+        deliveryMethod {
+          __typename
+          ... on ShippingMethod {
+            id
+            name
+          }
+        }
+        shippingMethods {
+          id
+          name
+        }
+        totalPrice {
+          gross {
+            amount
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+##### Fetching Checkout Lines:
+```graphql
+{
+  checkoutLines(first: 100) {
+    edges {
+      node {
+        deliveryMethod {
+          __typename
+          ... on ShippingMethod {
+            id
+            name
+          }
+        }
+        shippingMethods {
+          id
+          name
+        }
+        totalPrice {
+          gross {
+            amount
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+:::note
+The `checkout` query will function as it did previously. If the tax information is expired, external calls will be made to recalculate taxes. Similarly, external shipping methods or filtering will be fetched if necessary.
+:::
 
