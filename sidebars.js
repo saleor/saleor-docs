@@ -90,7 +90,7 @@ module.exports = {
     {
       type: "link",
       label: "Join Discord",
-      href: "https://discord.com/invite/H52JTZAtSH",
+      href: "https://discord.gg/unUfh24R6d",
       customProps: {
         icon: "discord",
       },
