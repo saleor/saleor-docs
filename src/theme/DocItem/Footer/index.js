@@ -41,7 +41,7 @@ export default function DocItemFooter() {
         )}
 
         <a
-          href={"https://github.com/saleor/saleor/discussions"}
+          href={"https://saleor.io/discord"}
           target={"_blank"}
           rel="noreferrer"
         >
