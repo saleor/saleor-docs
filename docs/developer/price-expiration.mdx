@@ -1,0 +1,30 @@
+---
+title: Price Expiration
+sidebar_label: Price Expiration
+---
+
+
+## Introduction
+When adding a line to an order, the product variant price is taken from the relevant channel listing. 
+However, throughout the order lifecycle, price recalculations may be required, and channel listing prices can be updated in the meantime.
+To ensure price consistency over time, regardless of channel listing updates, Saleor provides a settings that allows to control the price freeze period.
+
+### Settings
+You can configure the duration after which a price is considered outdated and requires refreshing from the channel listings. 
+This is managed through the [`channel`](developer/channels/configuration.mdx) settings:
+- `draftOrderLinePriceFreezePeriod`:  Defines the time (in hours) after which the order line price will be refreshed. The default value is 24 hours. 
+To prevent price refreshing entirely, set this value to null or 0.
+- `checkoutLinePriceFreezePeriod`: To be added. Currently, each recalculation retrieves the latest price from the channel listing.
+
+### How It Works
+The price expiration mechanism applies only to orders with `DRAFT` status. Orders in any other status will retain their original prices permanently.
+A new price expiration time is set on an order line when:
+- A variant is added to the order.
+- The freeze period has passed, and the line undergoes recalculation.
+
+Once the price freeze period expires, Saleor retrieves the latest variant price from the channel listing and updates it accordingly. 
+This update also includes any changes in applied discounts. 
+For example, if a voucher reduced the line price and the voucher reward value has changed since the initial calculation, the line price will be adjusted based on the new reward value.
+
+### Exceptions
+- The price will not expire if the line price was [overridden](api-reference/orders/inputs/order-line-create-input.mdx#orderlinecreateinputpricepositivedecimal--).
