@@ -1,0 +1,135 @@
+---
+title: Shipping and Billing
+---
+
+## Customer Address Saving Strategies
+
+:::info
+This feature was introduced in **Saleor 3.21**.
+:::
+
+Address updates allow configuring the address-saving strategy for both shipping and billing addresses.
+This setting determines whether the shipping or billing address should be saved in the customer's address book.
+This setting takes effect only when a draft order is completed for an existing user.
+If no user is assigned, the setting is ignored.
+
+By default, both billing and shipping addresses are not saved in the customer's address book.
+
+### Use cases:
+- Draft order management: Allows staff user to explicitly decide whether to save newly entered addresses to the customer account.
+
+### Applicable Order Mutations
+The default behavior can be adjusted in the following order mutations:
+- [draftOrderCreate](/api-reference/orders/mutations/draft-order-create)
+```graphql
+mutation DraftOrderCreate(
+  $input: DraftOrderCreateInput!
+) {
+  draftOrderCreate(
+    input: $input
+  ) {
+    order {
+      id
+    }
+  }
+} 
+```
+example input data:
+```json {5,15}
+{
+  "input": {
+    "user": "VXNlcjoxNDM2",
+    "lines": [{ "quantity": 1, "variantId": "UHJvZHVjdFZhcmlhbnQ6Mjk3" }],
+    "saveBillingAddress": true,
+    "billingAddress": {
+      "firstName": "John"
+      "lastName": "Doe"
+      "streetAddress1": "1470  Pinewood Avenue"
+      "city": "Michigan"
+      "postalCode": "49855"
+      "country": "US"
+      "countryArea": "MI"
+    },
+    "saveShippingAddress": false,
+    "shippingAddress": {
+      "firstName": "John"
+      "lastName": "Doe"
+      "streetAddress1": "1470  Pinewood Avenue"
+      "city": "Michigan"
+      "postalCode": "49855"
+      "country": "US"
+      "countryArea": "MI"
+    },
+    "channelId": "Q2hhbm5lbDoyMjQ0",
+  }
+}
+```
+- [draftOrderUpdate](/api-reference/orders/mutations/draft-order-update.mdx)
+```graphql
+mutation DraftOrderUpdate(
+  $id: ID!,
+  $input: DraftOrderInput!,
+) {
+  draftOrderUpdate(
+    id: $id,
+    input: $input
+  ) {
+    order {
+        userEmail
+        externalReference
+    }
+  }
+}
+```
+example input data:
+```json {7}
+{
+  "id": "T3JkZXI6ZGJlZjkxZmQtMjMxZS00ZGNmLTk5ZGMtNGQxOTBhNDFjYTQ1",
+  "input": {
+    "shippingAddress": {
+        "postalCode": "22-356"
+    },
+    "saveShippingAddress": false
+  }
+}
+```
+
+### Important Notes
+
+The setting is treated as part of the address and cannot be provided independently in the mutation input.
+Attempting to set `saveShippingAddress` or `saveBillingAddress` without including the corresponding
+`shippingAddress` or `billingAddress` will result in an error.
+
+For example, providing `saveShippingAddress` in the `draftOrderUpdate` mutation without including `shippingAddress` will raise an error:
+```graphql
+mutation DraftOrderUpdate(
+  $id: ID!,
+  $input: DraftOrderInput!,
+) {
+  draftOrderUpdate(
+    id: $id,
+    input: $input
+  ) {
+    order {
+      userEmail
+      externalReference
+    }
+  }
+}
+```
+
+invalid input data:
+```json {5}
+{
+  "id": "T3JkZXI6ZGJlZjkxZmQtMjMxZS00ZGNmLTk5ZGMtNGQxOTBhNDFjYTQ1",
+  "input": {
+    "externalReference": "ref-XYZ",
+    "saveShippingAddress": false
+  }
+}
+```
+
+:::warning
+Any update to the address, even a partial change, resets the `saveAddress` flag to its default behavior.
+To ensure the correct setting is applied, explicitly provide the `saveAddress` value with each update.
+::: 
