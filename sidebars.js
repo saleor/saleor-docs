@@ -90,7 +90,7 @@ module.exports = {
     {
       type: "link",
       label: "Join Discord",
-      href: "https://discord.gg/unUfh24R6d",
+      href: "https://saleor.io/discord",
       customProps: {
         icon: "discord",
       },

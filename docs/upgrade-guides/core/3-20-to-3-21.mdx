@@ -193,69 +193,43 @@ If an app subscribed to `SHIPPING_LIST_METHODS_FOR_CHECKOUT` returns an external
 Any potential currency validation for external shipping methods on the frontend / app side is no longer necessary.
 
 
-## Blocked external tax calculations in checkout bulk queries
-Queries responsible for fetching multiple checkout objects will **no longer trigger external tax calculations**. This includes:
 
-### Blocked external calls in checkout bulk queries
+## Blocked external calls for checkout and order bulk queries
 
-For efficiency and performance, bulk queries fetching multiple checkout objects will **no longer trigger external calls to third-party services**. The following webhooks are impacted:
+To enhance performance and efficiency, bulk queries that fetch multiple checkout or order objects will **no longer trigger external calls to third-party services**. The following synchronous webhooks will be affected:
 
-- **`CHECKOUT_CALCULATE_TAXES`** synchronous webhooks
-- **`SHIPPING_LIST_METHODS_FOR_CHECKOUT`** synchronous webhooks
-- **`CHECKOUT_FILTER_SHIPPING_METHODS`** synchronous webhooks
-- External calls from the **AvataxPlugin**
+- **`CHECKOUT_CALCULATE_TAXES`** webhooks
+- **`ORDER_CALCULATE_TAXES`** webhooks
+- **`SHIPPING_LIST_METHODS_FOR_CHECKOUT`** webhooks
+- **`CHECKOUT_FILTER_SHIPPING_METHODS`** webhooks
+- **`ORDER_FILTER_SHIPPING_METHODS`** webhooks
 
-Instead of recalculating taxes externally, the system will return **pre-stored prices** directly from the database. Additionally, only built-in shipping methods will be returned—external shipping methods will be excluded from the response. The `CHECKOUT_FILTER_SHIPPING_METHODS` webhook will not be called, and all available methods will be shown. However, any external shipping methods assigned to the checkout will still be visible based on denormalized data in the database.
+External calls from the **AvataxPlugin** will also be skipped.
 
-#### Affected Queries
-The following queries will **not** make external calls and will instead return values stored in the database:
+
+Instead of recalculating taxes externally, the system will return **pre-stored prices** from the database. Additionally, only built-in shipping methods will be returned. The `CHECKOUT_FILTER_SHIPPING_METHODS` and `ORDER_FILTER_SHIPPING_METHODS` webhooks will not be triggered, and all built-in shipping methods will be listed as available.
+
+Any external shipping methods assigned to the checkout will still be visible through denormalized data stored in the database.
+
+#### Affected queries
+The following queries will **not trigger external calls**:
 
 - `checkouts(...)`
 - `me.checkouts(...)`
 - `checkoutLines(...)`
+- `orders(...)`
+- `me.orders(...)`
+- `draftOrders(...)`
 
-#### Example Queries
-Here are examples of how these queries **will not** trigger external webhook calls and will return values from the database:
+#### Example of impacted queries
 
-##### Fetching Checkouts for an Authenticated User:
 ```graphql
 {
-  me {
-    checkouts(first: 10) {
-      edges {
-        node {
-          id
-          deliveryMethod {
-            __typename
-            ... on ShippingMethod {
-              id
-              name
-            }
-          }
-          shippingMethods {
-            id
-            name
-          }
-          totalPrice {
-            gross {
-              amount
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-##### Fetching Multiple Checkouts:
-```graphql
-{
-  checkouts(first: 100) {
+  checkouts(first: 10) {
     edges {
       node {
+        id
         deliveryMethod {
-          __typename
           ... on ShippingMethod {
             id
             name
@@ -276,14 +250,12 @@ Here are examples of how these queries **will not** trigger external webhook cal
 }
 ```
 
-##### Fetching Checkout Lines:
 ```graphql
 {
-  checkoutLines(first: 100) {
+  orders(first: 100) {
     edges {
       node {
         deliveryMethod {
-          __typename
           ... on ShippingMethod {
             id
             name
@@ -293,7 +265,7 @@ Here are examples of how these queries **will not** trigger external webhook cal
           id
           name
         }
-        totalPrice {
+        total {
           gross {
             amount
           }
@@ -305,10 +277,17 @@ Here are examples of how these queries **will not** trigger external webhook cal
 ```
 
 :::note
-The `checkout` query will function as it did previously. If the tax information is expired, external calls will be made to recalculate taxes. Similarly, external shipping methods or filtering will be fetched if necessary.
+The `checkout` and `order` queries will still work as before. If tax information is outdated, external calls will be made to recalculate taxes. External shipping methods and filters will be fetched if necessary.
 :::
 
 
-## `checkout.privateMetadata` No Longer Stores `external-shipping-method-id`
+## `checkout.privateMetadata` no longer stores `external-shipping-method-id`
 
 The `external-shipping-method-id` is no longer stored within `checkout.privateMetadata`. To retrieve this ID, use the `checkout.deliveryMethod` field instead.
+
+
+## `checkoutDeliveryMethodUpdate` and `checkoutShippingMethodUpdate` mutations do not trigger `CHECKOUT_UPDATED` webhook or tax invalidation when adding the same method already assigned
+
+Previously, the `checkoutDeliveryMethodUpdate` and `checkoutShippingMethodUpdate` mutations would trigger the `CHECKOUT_UPDATED` webhook and invalidate taxes regardless of whether the same delivery method was already assigned to the checkout.
+Starting from version 3.21, if the same method that is already assigned to the checkout is provided, the `CHECKOUT_UPDATED` webhook will not be triggered, and taxes will not be invalidated.
+From Saleor's perspective, nothing has changed, as the checkout remains in the same state as it was before the mutation was called.
