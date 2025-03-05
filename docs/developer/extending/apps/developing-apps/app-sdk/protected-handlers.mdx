@@ -35,19 +35,10 @@ For example purposes, our endpoint will only log the welcome message:
 ```typescript
 import {
   createProtectedHandler,
-  ProtectedHandlerContext,
-} from "@saleor/app-sdk/handlers/next";
-import { NextApiRequest, NextApiResponse } from "next";
-import { saleorApp } from "../../../saleor-app";
+} from "@saleor/app-sdk/handlers/next"; // "next" or other platforms
+// See APL documentation for more details
+import { apl } from "./apl";
 
-export const handler = async (
-  req: NextApiRequest,
-  res: NextApiResponse,
-  ctx: ProtectedHandlerContext
-) => {
-  console.log(`Greetings from ${ctx.authData.domain}`);
-  res.status(200);
-};
 
 /**
  * If any of the requirements is failed, an error response will be returned.
@@ -55,14 +46,21 @@ export const handler = async (
  *
  * Last argument is optional array of permissions that will be checked. If user doesn't have them, will return 401 before handler is called
  */
-export default createProtectedHandler(handler, saleorApp.apl, [
+export default createProtectedHandler(( request, response, ctx) => {
+    console.log(`Greetings from ${ctx.authData.domain}`);
+    response.status(200);
+}, apl, [
   "MANAGE_ORDERS",
 ]);
 ```
 
+Note that argument provided to handler may differ depending on the platform. Next.js pages router will contain `response` but FetchAPI will not.
+
 To make your requests successfully communicate with the backend, `saleor-api-url` and `authorization-bearer` headers are required:
 
 ```typescript
+import { SALEOR_AUTHORIZATION_BEARER_HEADER, SALEOR_API_URL_HEADER } from "@saleor/app-sdk/headers"
+
 fetch("/api/protected", {
   headers: {
     /**
@@ -70,8 +68,8 @@ fetch("/api/protected", {
      * headers the backend will check if the request has enough permissions to
      * perform the action.
      */
-    "saleor-api-url": saleorApiUrl,
-    "authorization-bearer": token,
+    [SALEOR_API_URL_HEADER]: saleorApiUrl,
+    [SALEOR_AUTHORIZATION_BEARER_HEADER]: token,
   },
 });
 ```
