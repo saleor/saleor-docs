@@ -9,7 +9,7 @@ const highlight = async () => {
     const contentStr = content.toString();
 
     const newContent = highlightSaleorVersion(
-      highlightPermissions(highlightFeaturePreview(contentStr))
+      highlightPermissions(highlightFeaturePreview(contentStr)),
     );
 
     if (contentStr !== newContent) {
@@ -26,15 +26,19 @@ const highlightSaleorVersion = (file) => {
 
     const newContent = versions.reduce((newContent, versionLine) => {
       const [_, block, version] = versionLine.match(
-        /(^.*)(Added in Saleor.*\d)\.$/
+        /(^.*)(Added in Saleor.*\d)\.$/,
       );
-      const badgeText = version.replace(/\.$/, "");
+      let badgeText = version.replace(/\.$/, "");
 
+      // Change that upon releasing a new version
+      if (badgeText.includes("3.21")) {
+        badgeText = badgeText + " (unreleased)";
+      }
       if (block.startsWith(">")) {
         const re = new RegExp(`^${escapeString(versionLine)}$`, "gm");
         return newContent.replace(
           re,
-          `${block}<Badge text="${badgeText}" class="badge badge--secondary margin-bottom--sm" />`
+          `${block}<Badge text="${badgeText}" class="badge badge--secondary margin-bottom--sm" />`,
         );
       }
 
@@ -43,7 +47,7 @@ const highlightSaleorVersion = (file) => {
         re,
         `${block}
 <Badge text="${badgeText}" class="badge badge--secondary margin-bottom--sm" />
-`
+`,
       );
     }, file);
 
@@ -75,7 +79,7 @@ import Permissions from "@site/components/Permissions";
 <Permissions permissions={"${permissions}"} text={"${permissionStr}"} />
 `;
         newContent = newContent.replace(re, component);
-      }
+      },
     );
 
     return newContent;

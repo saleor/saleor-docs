@@ -12,6 +12,52 @@ some functional changes may be breaking.
 
 Below is the list of changes introduced in Adyen App releases
 
+## v.1.5.0
+
+### New features
+
+- The app now includes client logs for enhanced observability in the following webhooks:
+  - `transaction-process-session`
+  - `transaction-refund-requested`
+  - `transaction-charge-requested`
+  - `transaction-cancel-requested`
+  - Adyen webhook
+
+### CANCELATION webhook improvements
+
+#### Before this release
+
+Previously when handling [`CANCELLATION`](https://docs.adyen.com/api-explorer/Webhooks/1/post/CANCELLATION) webhook events from Adyen that didn't have `amount` value,
+app sent `amount: 0 to` Saleor, which caused Transactions that were cancelled in Adyen to still have `authorizedAmount`, when they should have had:
+
+- `authorizedAmount`: `0`
+- `cancelledAmount`: previous authorized amount
+
+#### After this release
+
+Now app when handling such events, will fetch last known `CANCEL_` event from Saleor and use it's amount or will use `authorizedAmount` or `authorizePendingAmount` on related `TransactionItem` from Saleor.
+
+### Incorrect handling of negative amounts
+
+#### Before this release
+
+Previously the app could use a `TransactionEvent` with `amount` that was lower than zero, due to incorrect comparison.
+This would cause events to be reported incorrectly and potentially break Saleor calculations.
+
+#### After this release
+
+The app now properly validates amount values, ensuring all transaction events use correct positive amounts in calculations.
+
+### Improved Apple Pay timeout handling
+
+#### Before this release
+
+Previously Apple Pay related requests had **20s timeout**. This caused sync webhooks to timeout and because of that Saleor ignored app's response.
+
+#### After this release
+
+After this change app will use 18s timeout, so that it has an error margin for sending the actual response to Saleor.
+
 ## v.1.4.3
 
 In this release a new feature was added: when making payments app will send [ESD (Enhanced Scheme Details) Level 2 data](https://docs.adyen.com/payment-methods/cards/enhanced-scheme-data/l2-l3/#include-level-2-3-esd-in-your-request) to Adyen.

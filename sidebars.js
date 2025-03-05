@@ -87,6 +87,14 @@ module.exports = {
         icon: "feedback",
       },
     },
+    {
+      type: "link",
+      label: "Join Discord",
+      href: "https://saleor.io/discord",
+      customProps: {
+        icon: "discord",
+      },
+    },
   ],
   concepts: [backToHome, ...coreConcepts],
   appStore: [backToHome, ...appStore],
