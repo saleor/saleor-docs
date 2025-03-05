@@ -1,1 +1,114 @@
-todo
+With 1.x.x release in app-sdk we added support for platforms other than Next.js (pages router). Apart of these features we introduced several breaking changes.
+
+This article shows how to migrate your app from 0.x.x to 1.x.x version of app-sdk.
+
+To install please run `pnpm install @saleor/sdk@1`
+
+See [additional changelog](https://github.com/saleor/app-sdk/releases/tag/v1.0.0)
+
+# New features
+
+Added handlers for platform:
+- `/handlers/aws-lambda`
+- `/handlers/fetch-api`
+- `/handlers/next`
+- `/handlers/next-app-router`
+
+Exported `parseSchemaVersion` from `/util`. It parses stringified schema version into a tuple `[number, number]`
+
+# Breaking changes
+
+## Compatibility changes
+
+From 1.x.x minimal (officially) supported Saleor version is 3.20
+
+Minimal Next.js version is 14. It may work on older versions but it's not officially supported.
+
+## Schema version
+
+`schemaVersion` field that was available in Manifest factory and webhook handlers is now parsed into a tuple.
+
+Before:
+
+```typescript
+schemaVersion: number
+```
+
+After:
+
+```typescript
+type SchemaVersion = [major: number, minor: number]
+
+schemaVersion: SchemaVersion
+```
+
+Now it's secure that `3.20` is not mixed with `3.2` due to a wrong format.
+
+## APLs export paths
+
+Now every APL is exported from a separate file. This allows tree-shaking - code will not be evaluated if it's not used.
+
+```typescript
+// Before
+import { FileApl, EnvApl } from '@saleor/app-sdk/apl';
+
+// After
+import { FileApl } from '@saleor/app-sdk/apl/file';
+import { EnvApl } from '@saleor/app-sdk/apl/env';
+
+```
+
+## Dropping `domain` field
+
+In `AuthData` we dropped `domain` field. Please use `saleorApiUrl` instead which contains full URL, not only domain
+
+Additionally `domain` was removed from `AppBridgeState`. The `saleorApiUrl` field is also available there.
+
+## Moved headers export path
+
+Previously constant values representing headers were exported from `/const` path.
+
+Not, `/const` doesn't exist anymore. All headers are exported from `/headers` path.
+
+## Renamed Nextjs handlers
+
+In v1 we added Next App Router. To make it clear what is used, we renamed old handlers:
+
+```typescript
+// Before
+
+import { type NextSyncWebhookHandler } from "@saleor/app-sdk/handlers/next";
+
+// After
+import { type NextJsSyncWebhookHandler } from "@saleor/app-sdk/handlers/next";
+```
+
+## Removed `verify-jwt` path
+
+You can now import `verifyJwt`, `getJwksUrlFromSaleorApiUrl`, and `verifySignatureWithJwks` from `@saleor/app-sdk/auth` path.
+
+## Removed `buildResponse
+
+## Other changes
+
+`SyncWebhookResponsesMap` is now exported from `@saleor/app-sdk/handlers/shared`
+
+`ctx.buildResponse` was removed from Webhook's context. Now to create a typed response from sync webhook, you can use
+`buildSyncWebhookResponsePayload` function.
+
+```typescript
+import {buildSyncWebhookResponsePayload} from "@saleor/app-sdk/handlers/shared"
+
+const typedResponse = buildSyncWebhookResponsePayload<"CHECKOUT_CALCULATE_TAXES">({/* Input will be typed here */})
+```
+
+`asyncEvent` field from `SaleorAsyncWebhook` class constructor was removed. Use `event` instead.
+
+`requiredEnvVars` parameter no longer is accepted in `SaleorApp` constructor. Please manually validate env variables on the app level.
+
+Removed all exports from `/middlewares`. Use utilities from `/handlers` instead.
+
+Removed `processSaleorWebhook` and `processProtectedHandler`. Use `./handlers` instead.
+
+AppBridge now uses `Crypto` API built-in modern browsers. This require localhost or https to work.
+
