@@ -18,11 +18,22 @@ The breaker is open when the number of errors exceeds the threshold. In this sta
 ### Half-open
 
 In this state, the breaker allows the requests like in closed state (allowing requests to pass through), however using different thresholds.
+
 :::warning
 
 This is different from common implementation of breakers in which the requests are throttled in half-open state.
 
 :::
+
+## Configuring the feature
+
+To turn the feature on, set the `BREAKER_BOARD_ENABLED` environment variable to `True`.
+
+`BREAKER_BOARD_SYNC_EVENTS` is the setting which allows you to specify the events that should be monitored by the circuit breaker (comma separated).
+For example: `"checkout_calculate_taxes, shipping_list_methods_for_checkout"`.
+
+`BREAKER_BOARD_DRY_RUN_SYNC_EVENTS` setting is off by default, if you set it to `True`, the breaker will act as it's on, but only in terms of logging, etc.
+However it will **not** block any requests. This is useful for testing the breaker without affecting the webhooks behavior.
 
 ## Transitions between states
 
@@ -49,21 +60,11 @@ The breaker will trip again if the number of errors exceeds the threshold and mi
 - `BREAKER_BOARD_FAILURE_MIN_COUNT_RECOVERY` - simmiliar to `BREAKER_BOARD_FAILURE_MIN_COUNT`, but it defaults to 20 and is the minimum number of failures that must occur before the breaker can trip again.
 - `BREAKER_BOARD_FAILURE_THRESHOLD_PERCENTAGE_RECOVERY` - simmiliar to `BREAKER_BOARD_FAILURE_THRESHOLD_PERCENTAGE`, but it defaults to 30 (percent) and is the ratio of failures to total requests that must be exceeded before the breaker trips again.
 
-## Half-open back to Closed
+### Half-open back to Closed
 
 If the number of successful requests is met, the breaker transitions back to the closed state. This is controlled by `BREAKER_BOARD_SUCCESS_COUNT_RECOVERY` constant, which defaults to 50.
 
 Note that all of circuit breaker events (both success and failures) have a certain TTL (time to live) and are stored in Redis. On each transition, the events are purged, so each state has a fresh start and is not contaminated by older events.
-
-### Configuring the feature
-
-To turn the feature on, set the `BREAKER_BOARD_ENABLED` environment variable to `True`.
-
-`BREAKER_BOARD_SYNC_EVENTS` is the setting which allows you to specify the events that should be monitored by the circuit breaker (comma separated).
-For example: `"checkout_calculate_taxes, shipping_list_methods_for_checkout"`.
-
-`BREAKER_BOARD_DRY_RUN_SYNC_EVENTS` setting is off by default, if you set it to `True`, the breaker will act as it's on, but only in terms of logging, etc. 
-However it will **not** block any requests. This is useful for testing the breaker without affecting the webhooks behavior.
 
 ## State transition diagram
 
