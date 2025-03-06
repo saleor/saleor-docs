@@ -291,3 +291,17 @@ The `external-shipping-method-id` is no longer stored within `checkout.privateMe
 Previously, the `checkoutDeliveryMethodUpdate` and `checkoutShippingMethodUpdate` mutations would trigger the `CHECKOUT_UPDATED` webhook and invalidate taxes regardless of whether the same delivery method was already assigned to the checkout.
 Starting from version 3.21, if the same method that is already assigned to the checkout is provided, the `CHECKOUT_UPDATED` webhook will not be triggered, and taxes will not be invalidated.
 From Saleor's perspective, nothing has changed, as the checkout remains in the same state as it was before the mutation was called.
+
+
+## Introduced price freeze period for editable orders
+In previous versions, all editable orders (those with `DRAFT` and `UNCONFIRMED` statuses) refreshed their base prices
+by fetching them from the current product catalog during each recalculation. 
+Additionally, all discounts were applied based on the latest reward values.
+
+To ensure price consistency over time, regardless of updates to the product catalog, Saleor has introduced a price freeze period. 
+During this period, order lines use denormalized base prices instead of retrieving them from the catalog. 
+More details can be found [`here`](developer/price-freeze-period.mdx)  
+
+- Draft orders: the base prices are frozen for 24 hours by default. This duration can be modified using the `Channel.draftOrderLinePriceFreezePeriod` setting.
+- Unconfirmed orders: the base prices remain frozen indefinitely, and this setting is not configurable.
+- Other orders: remain unchanged and cannot be recalculated.
