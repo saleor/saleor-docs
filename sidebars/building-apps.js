@@ -46,6 +46,7 @@ export const buildingApps = [
   "developer/extending/apps/developing-apps/apps-patterns/handling-external-webhooks",
   "developer/extending/apps/developing-apps/apps-patterns/persistence-with-metadata-manager",
   "developer/extending/apps/building-payment-app",
+  "developer/extending/apps/installation-protection",
 
   // {
   //   type: "category",
