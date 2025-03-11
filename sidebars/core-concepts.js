@@ -39,6 +39,7 @@ export const coreConcepts = [
   "developer/order/order-expiration",
   "developer/order/order-to-checkout",
   "developer/order/address",
+  "developer/price-freeze-period",
 
   title("Transactions"),
   "developer/payments/overview",
@@ -71,6 +72,7 @@ export const coreConcepts = [
   "developer/taxes",
   "developer/thumbnails",
   "developer/price-calculation",
+  "developer/menu",
 
   title("Importing"),
   "developer/bulks/bulk-orders",
