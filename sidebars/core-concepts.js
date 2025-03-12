@@ -63,6 +63,7 @@ export const coreConcepts = [
   "developer/discounts/manual-discounts",
   "developer/discounts/examples",
   "developer/discounts/sales",
+  "developer/discounts/displaying-catalogue-discounts",
 
   title("Miscellaneous"),
 
