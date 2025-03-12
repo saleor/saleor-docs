@@ -35,10 +35,12 @@ export const coreConcepts = [
   "developer/checkout/api-guide",
 
   title("Orders"),
+  "developer/order/overview",
   "developer/order/order-status",
   "developer/order/order-expiration",
   "developer/order/order-to-checkout",
   "developer/order/address",
+  "developer/price-freeze-period",
 
   title("Transactions"),
   "developer/payments/overview",
