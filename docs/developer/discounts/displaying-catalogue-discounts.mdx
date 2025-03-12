@@ -1,0 +1,49 @@
+---
+title: Displaying Catalogue Discount Prices
+sidebar_label: Catalogue Discount Prices
+---
+
+Saleor API provides pricing information that can be consumed by your storefront for four different scenarios:
+- Individual `ProductVariant` pricing, which provides prices of a specific SKU (`VariantPricingInfo`)
+- Aggregated `Product` pricing, which provides a range of `ProductVariant` prices (`ProductPricingInfo`)
+- Pricing information included in `CheckoutLine` for products that are added to the cart/checkout
+- `OrderLine` pricing information concerning products that were purchased by the customer
+
+:::note
+Only [catalogue promotions](/developer/discounts/promotions.mdx) will result in changes to Product/Variant pricing. 
+Order discounts and vouchers are applied only after the product is added to the Checkout.
+:::
+
+### Types of Promotional Prices
+
+There are three main types of promotional prices that you can use to display prices in a storefront:
+- `price` - includes relevant discounts (depending on context)
+- `priceUndiscounted` - price before any discounts are applied 
+- `pricePrior` - price in the period before the promotion. This price is not tracked automatically by Saleor (see section below)
+
+On top of that, Saleor provides discount calculations relative to `priceUndiscounted` and `pricePrior` for `Product` and `ProductVariant`.
+
+### Using `pricePrior` as a Base for Discount Calculations
+
+:::info
+`pricePrior` is available starting from **Saleor 3.21**.
+:::
+
+For some geographies, it might be required to calculate discounts based on the lowest price before the promotion. 
+An example of such a requirement is the EU Omnibus directive. 
+Given that there are many different interpretations of the "lowest price", Saleor does not track `pricePrior` automatically. 
+However, it can be provided using 
+[`productVariantChannelListingUpdate`](/api-reference/products/mutations/product-variant-channel-listing-update.mdx) or 
+[`productVariantBulkUpdate`](/api-reference/products/mutations/product-variant-bulk-update.mdx) mutations. 
+
+After providing `pricePrior` to `ProductVariantChannelListing`, it will be propagated to pricing information for 
+`Product`, `ProductVariant`, and `CheckoutLine` as mentioned above.
+
+#### Example Workflow Using a Custom Saleor App
+
+To implement the EU Omnibus directive, you can use a custom Saleor Application that:
+- Tracks changes in `ProductVariant` prices using webhooks (`PRODUCT_VARIANT_UPDATED`) or/and queries and records them in a database
+- Monitors when a promotion starts using webhooks (`PROMOTION_STARTED`) and obtains a list of relevant `ProductVariants` from the catalog predicate
+- Calculates the price prior to the promotion (taking into account custom requirements) and updates `pricePrior` using 
+[`productVariantChannelListingUpdate`](/api-reference/products/mutations/product-variant-channel-listing-update.mdx) or 
+[`productVariantBulkUpdate`](/api-reference/products/mutations/product-variant-bulk-update.mdx) mutations.
