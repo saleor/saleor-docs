@@ -1,0 +1,76 @@
+---
+title: How to allow App installation only for specific domains
+---
+
+## Problem
+
+Your App must be available on the internet for installation, but you want to restrict the installation to specific domains, for example:
+- Your company's domain
+- Your customer's domain
+- Your app is paid and you want to control who can install it
+- You want to avoid mixing development/staging/production installations
+
+## Key concepts
+
+- Saleor allows communication from the app as long, as the app provides a valid token. The token is exchanged during the app installation. Each app is responsible for storing the token.
+- Saleor will send webhooks to the app once installed, with permissions required for each webhook event.
+
+In this article we will show you how to restrict the installation of your app to specific domains and it will not cover managing access *after* the installation.
+
+## Using `@saleor/app-sdk` for javascript apps
+
+Saleor official [SDK for apps](./developing-apps/app-sdk/overview) provides a built-in wrapper to handle the installation process.
+
+```typescript
+// pages/api/register.ts
+
+import { createAppRegisterHandler } from "@saleor/app-sdk/handlers/next";
+
+export default createAppRegisterHandler({
+  // ...
+  allowedSaleorUrls: ["https://your-saleor.saleor.cloud/graphql/", url => url === "https://your-client.saleor.cloud/graphql/"], // list of URLs or patterns
+});
+
+```
+
+The `allowedSaleorUrls` parameter is an array of URLs or functions that will be used to validate the installation request.
+In this example, *manifest* used for installation should point to `your-app.com/api/register` path from `tokenTargetUrl` field.
+
+Under the hood app-sdk will validate incoming Saleor domain against the provided list of allowed domains.
+
+Hint: Public [Saleor Apps](https://github.com/saleor/apps) use this mechanism to restrict installations to the Saleor Cloud domain. They use the following pattern:
+
+```dotenv
+ALLOWED_DOMAIN_PATTERN=https://.*\.saleor\.cloud
+
+```
+
+And then use it in the app registration handler:
+
+```typescript
+        allowedSaleorUrls: [
+          (url) => {
+            if (process.env.ALLOWED_DOMAIN_PATTERN) {
+              const regex = new RegExp(process.env.ALLOWED_DOMAIN_PATTERN);
+
+              return regex.test(url);
+            }
+
+            return true;
+          },
+        ]
+```
+
+This pattern allows to control the installation allow-list from the environment variables, without deployment needed.
+
+## Technology-agnostic approach
+
+While the above example shows how to restrict installations in JavaScript/TypeScript, using the SDK, the same can be achieved in any technology stack.
+
+Saleor will send a `POST` request to the `tokenTargetUrl` with the following header:
+
+```
+"saleor-api-url": "https://your-saleor.saleor.cloud/graphql/"
+```
+
+In your registration handler, you can validate the incoming request and Saleor domain against your allow-list.

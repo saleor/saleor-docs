@@ -1,0 +1,41 @@
+---
+title: Price Freeze Period
+sidebar_label: Price Freeze Period
+---
+
+:::info
+This feature was introduced in **Saleor 3.21**. In previous versions, the base prices were refreshed with every single recalculation.
+:::
+
+## Introduction
+The base price of a product is determined at the moment it is added to an order. 
+However, product prices may change throughout the order lifecycle. 
+To maintain price consistency over time, regardless of updates to the product catalog, Saleor provides a price freeze period.
+
+
+### Draft Orders
+For draft orders, Saleor retains the initial base price of an order line for 24 hours by default.
+After this period, the base price is considered outdated and will be refreshed based on the current product catalog.
+
+The default freeze period is controlled by the [`channel`](developer/channels/configuration.mdx) setting `draftOrderLinePriceFreezePeriod`. 
+To disable automatic price refreshing, set this value to `null` or `0`.
+
+
+### Unconfirmed Orders
+Unconfirmed orders — those originating from checkout — do not refresh their base prices at any point.
+
+
+### Non-Editable Orders
+Orders with statuses other than `DRAFT` and `UNCONFIRMED` are not editable so can't be recalculated. 
+
+
+### How It Works
+When a product is added to an order, Saleor sets an expiration time for the order line. 
+Once this period has passed, the line's base price will be updated based on the current product price.
+This update also reflects any changes in applied discounts. 
+For example, if a voucher reduced the line price and the voucher value has changed since the initial calculation, 
+the line price will be adjusted based on the new voucher value.
+
+
+### Exceptions
+- The price will not expire if the line price was [overridden](api-reference/orders/inputs/order-line-create-input.mdx#orderlinecreateinputpricepositivedecimal--).
