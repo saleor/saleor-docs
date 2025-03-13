@@ -3,6 +3,7 @@ import { chapterTitle, hr, title } from "./utils";
 export const selfHosting = [
   chapterTitle("setup/overview", "Self-hosting", "selfHost"),
   hr(),
+  "setup/architecture",
   "setup/docker-compose",
   "setup/docker-images",
   "setup/configuration",
