@@ -1,0 +1,57 @@
+---
+title: Architecture
+---
+
+Saleor leverages a service-oriented architecture and horizontal scaling to improve performance and availability.
+
+A simplified network diagram of Saleor's architecture is shown below. Please note that the diagram is a high-level representation and may not include all services or components.
+
+Outlined scaling groups are designed to be horizontally scalable, and the number of instances can be adjusted based on the load.
+
+```mermaid
+architecture-beta
+  group web[Web Workers Scaling Group]
+  service web_worker(server)[Saleor Web Worker n] in web
+
+  group background[Background Workers Scaling Group]
+  service background_worker(server)[Saleor Background Task Worker n] in background
+
+  service scheduler(server)[Saleor Periodic Task Scheduler]
+
+  group database[PostgreSQL Cluster]
+  service writer(database)[PostgreSQL Writer] in database
+  service replica(database)[PostgreSQL Read Replica n] in database
+  writer:L -- R:replica
+
+  service redis_cache(database)[Redis Cache]
+
+  service redis_queue(database)[Redis Queue]
+
+  service storage(disk)[AWS S3 or GCP Cloud Storage]
+
+  junction top_db_junction
+  top_db_junction:B -- T:writer{group}
+  junction top_queue_junction
+  top_queue_junction:B -- T:redis_queue
+  junction top_junction
+  top_junction:R -- L:top_queue_junction
+  top_junction:B -- T:redis_cache
+  top_junction:L -- R:top_db_junction
+  web_worker:B -- T:top_junction
+
+  junction bottom_db_junction
+  bottom_db_junction:T -- B:writer{group}
+  junction bottom_queue_junction
+  bottom_queue_junction:T -- B:redis_queue
+  junction bottom_junction
+  bottom_junction:R -- L:bottom_queue_junction
+  bottom_junction:T -- B:redis_cache
+  bottom_junction:L -- R:bottom_db_junction
+  background_worker:T -- B:bottom_junction
+
+  scheduler:L -- R:redis_queue
+
+  web_worker:R -- L:storage
+
+```
+
