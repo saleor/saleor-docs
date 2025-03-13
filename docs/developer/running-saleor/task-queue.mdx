@@ -1,57 +1,54 @@
 ---
-title: Task Queue
-sidebar_label: Task Queue
+title: Background Tasks
 ---
 
-Some of the Saleor’s functionality depends on a task queue system to manage asynchronous and periodic tasks. We recommend using Celery with Redis as the message broker.
+Some of the Saleor’s functionality depends on a task queue system to manage asynchronous and periodic tasks. We recommend using Redis as the message broker.
 For more information, please visit [official Celery documentation](https://docs.celeryq.dev/en/stable/index.html). 
 
 
 ## Periodic tasks
 
-Celery Beat is a scheduler that triggers background tasks at regular intervals. 
-Some of the Saleor's features can't be used without proper task scheduler setup. In order to start Celery Beat server:
+Saleor uses [Celery Beat](https://docs.celeryq.dev/en/stable/index.html) as a scheduler to trigger background tasks at regular intervals. 
+The task scheduler is required for proper operation.
 
-1. Specify `CELERY_BROKER_URL` environmental variable which points to task broker (we recommend using Redis as a broker database):
+1. Make sure the `CELERY_BROKER_URL` environment variable is set for all services and points to the task broker. Again, we recommend using Redis as a broker database.
 
 ```shell
 set CELERY_BROKER_URL="<broker url>"
 ```
 An example of the Redis broker url, running on localhost and port 6379, looks like: `redis://localhost:6379/0`.
 
-2. Run Celery worker: 
+2. Using the same container image, deploy Celery Workers by overriding the default command with:
 
 ```shell
 celery --app saleor.celeryconf:app worker -E --loglevel=info
 ```
 
-3. As a separate process run Celery Beat: 
+3. Deploy exactly one instance of Celery Beat by overriding the default command with: 
 
 ```shell
 celery --app saleor.celeryconf:app beat --scheduler saleor.schedulers.schedulers.DatabaseScheduler 
 ```
 
-Below is a list of Saleor features fired up by celery beat with default schedules:
+### Task Schedule
+
+Below is a list of periodic tasks that Saleor runs, provided as a reference.
 
 #### Tasks run in intervals:
-- Deactivate preorder for variants; 1 hour
-- Delete empty allocations; 1 hour
-- Delete expired reservations; 1 day
-- Delete outdated event data; 1 day
-- [Expire orders](developer/order/order-expiration.mdx); 5 minutes
-- [Recalculate price for catalog promotions](developer/discounts/promotions.mdx#catalogue-promotions); 30 seconds
-- [Release funds for abandoned checkouts](developer/checkout/lifecycle.mdx#releasing-funds-for-abandoned-checkouts); 10 minutes
-- Remove apps marked as removed; 3 hours
-- [Update search vectors](https://github.com/saleor/saleor/blob/main/CONTRIBUTING.md#searching); 20 seconds
+- Deactivate preorder for variants: every 1 hour
+- Delete empty allocations: every 1 hour
+- Delete expired reservations: every 1 day
+- Delete outdated event data: every 1 day
+- [Expire orders](developer/order/order-expiration.mdx): every 5 minutes
+- [Recalculate price for catalog promotions](developer/discounts/promotions.mdx#catalogue-promotions): every 30 seconds
+- [Release funds for abandoned checkouts](developer/checkout/lifecycle.mdx#releasing-funds-for-abandoned-checkouts): every 10 minutes
+- Remove apps marked as removed: every 3 hours
+- [Update search vectors](https://github.com/saleor/saleor/blob/main/CONTRIBUTING.md#searching): every 20 seconds
 
 #### Tasks run at specific time:
-- Deactivate expired gift cards; at 0:00 AM
-- [Delete expired checkouts](developer/checkout/lifecycle.mdx#checkout-expiration-and-deletion); at 0:00 AM
-- [Delete expired orders](developer/order/order-expiration.mdx); at 2:00 AM base on 
-- Delete old exports files; once per day at 1:00 AM
-- Update stocks quantity allocated; once per day at 0:00 AM
-- [Promotion toggle](developer/discounts/promotions.mdx); based on promotion's start date and end date
-
-:::important
-It is important to understand that without proper task scheduler setup, the actions above will not be triggered.
-:::
+- Deactivate expired gift cards: at 0:00 AM
+- [Delete expired checkouts](developer/checkout/lifecycle.mdx#checkout-expiration-and-deletion): at 0:00 AM
+- [Delete expired orders](developer/order/order-expiration.mdx): at 2:00 AM
+- Delete old exports files: once per day at 1:00 AM
+- Update stocks quantity allocated: once per day at 0:00 AM
+- [Promotion toggle](developer/discounts/promotions.mdx): based on promotion's start date and end date
