@@ -83,7 +83,7 @@ const Apps = () => {
         <Shell
           color={"rgb(82, 189, 148)"}
           title={"Twilio Segment"}
-          href={"developer/app-store/apps/segment"}
+          href={"developer/app-store/apps/segment/overview"}
         >
           <Segment />
         </Shell>
