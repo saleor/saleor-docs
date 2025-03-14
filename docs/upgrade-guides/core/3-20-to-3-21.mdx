@@ -305,3 +305,16 @@ More details can be found [`here`](developer/price-freeze-period.mdx)
 - Draft orders: the base prices are frozen for 24 hours by default. This duration can be modified using the `Channel.draftOrderLinePriceFreezePeriod` setting.
 - Unconfirmed orders: the base prices remain frozen indefinitely, and this setting is not configurable.
 - Other orders: remain unchanged and cannot be recalculated.
+
+## Changed order status behavior for `WAITING_FOR_APPROVAL` fulfillments
+In previous versions, orders that had any unapproved fulfillments and no returns, were given status `PARTIALLY_FULFILLED`. This happened even when no items were actually fulfilled. 
+Currently, fulfillments with `WAITING_FOR_APPROVAL` status are excluded from determination of order status. Adding unapproved fulfillment to order will no longer result in a status change.
+Order can only receive `PARTIALLY_FULFILLED` status if there exists `FULFILLED` fulfillment and there are some items that are either unfulfilled or awaiting approval. 
+
+## Prevent overriding `UNCONFIRMED` status
+Order status `UNCONFIRMED` could in some cases be overriden in previous Saleor versions. It could happen when, for an `UNCONFIRMED` order, `CHARGE` action was executed or unapproved fulfillment was created. 
+Currently order status `UNCONFIRMED` will only be changed in these scenarios:
+- `automaticallyConfirmAllNewOrders` is selected
+- `orderConfirm` mutation is executed
+- order is cancelled
+
