@@ -1,8 +1,12 @@
 # API Handlers
 
-Saleor Apps are meant to work in a serverless environment, where Cloud Functions are the foundations of server-side code.
+App SDK mainly targets serverless environments, like Vercel functions or AWS Lambda. It provides a set of handlers that can be used to build Saleor apps.
 
-Currently, Saleor heavily relies on Next.js, but other platforms will be supported in the future.
+SDK providers helpers for following types of functions (that represent API endpoints):
+- [Manifest handler](/developer/extending/apps/architecture/app-requirements#manifest-url) - Used to fetch app manifest by Saleor during app installation.
+- Register handler - Used to register app in Saleor during installation and save the token.
+- Webhook handler - Exposes endpoint that Saleor will call with webhook events.
+- Protected handler - Endpoints meant to be allowed only by the App's frontend (from Saleor Dashboard).
 
 ## Required handlers
 
@@ -23,15 +27,16 @@ Here is an example usage of a manifest handler in Next.js:
 ```typescript
 // pages/api/manifest.ts
 
+// Change "next" to other platforms if needed
 import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
 
 export default createManifestHandler({
-  manifestFactory({ request, appBaseUrl }) {
+  manifestFactory({ request, appBaseUrl, schemaVersion }) {
     return {
       name: "My Saleor App",
       tokenTargetUrl: `${appBaseUrl}/api/register`,
       appUrl: appBaseUrl,
-      permissions: [],
+      permissions: ["MANAGE_USERS"],
       id: "my-saleor-app",
       version: "1",
     };
@@ -39,33 +44,36 @@ export default createManifestHandler({
 });
 ```
 
+`<PLATFORM>` is one of the supported platforms, like NextJS or Lambda
+
 Options provided to handler factory:
 
 ```typescript
 type CreateManifestHandlerOptions = {
   manifestFactory(context: {
     appBaseUrl: string;
-    request: NextApiRequest;
-    schemaVersion: number | null;
-  }): AppManifest;
+    request: Request; // Depends on the platform, e.g. Request, NextApiRequest, NextRequest
+    schemaVersion: [major: number, minor: number] | null;
+  }): AppManifest; // Ensures response type is valid
 };
 ```
 
-You can use `NextApiRequest` to read additional parameters from the request.
+You can use `request` to read additional parameters from the request.
 
-Field `schemaVersion` can be used to enable some feature based on the Saleor version. It will be `null` if app is being installed in Saleor version below 3.15.0.
+Field `schemaVersion` can be used to enable some feature based on the Saleor version. It will be `null` if request doesn't contain `saleor-schema-version` header.
+Saleor will automatically attach this header, but the GET request executed e.g. from the browser will not contain this field.
 
-See [`createManifestHandler`](https://github.com/saleor/saleor-app-sdk/blob/5c56cf566d2cc6e4a075c8c619f174fa43aad6c9/src/handlers/next/create-manifest-handler.ts#L18) for more details. See [manifest](https://github.com/saleor/saleor-app-sdk/blob/5c56cf566d2cc6e4a075c8c619f174fa43aad6c9/src/types.ts#L223) too.
+Hint: `@saleor/app-sdk` contains documented types attached to the npm package.
 
 ### App register handler factory
 
-Example usage of app register handler in Next.js
+Following example shows how to use a register handler in Next.js:
 
 ```typescript
-// pages/api/register.ts
+// pages/api/register.ts - next.js route
 
 import { createAppRegisterHandler } from "@saleor/app-sdk/handlers/next";
-import { UpstashAPL } from "@saleor/app-sdk/APL";
+import { UpstashAPL } from "@saleor/app-sdk/APL/upstash"; // See APL section
 
 export default createAppRegisterHandler({
   apl: new UpstashAPL({
@@ -79,6 +87,7 @@ export default createAppRegisterHandler({
       return respondWithError({ message: "Error, installation will fail" });
     });
   },
+
 });
 ```
 
@@ -97,7 +106,7 @@ export type CreateAppRegisterHandlerOptions = {
    * Run right after Saleor calls this endpoint
    */
   onRequestStart?(
-    request: Request,
+    request: Request, // Can be different depending on the platform
     context: {
       authToken?: string;
       saleorDomain?: string;
@@ -149,3 +158,8 @@ See [APL](apl) for details on what is Auth Persistence Layer in Saleor apps.
 App SDK provides a utility that helps build (async) webhook handlers so that the app can react to Saleor events.
 
 Read about it [here](saleor-webhook).
+
+### Protected handler
+
+To protect endpoint from the outside world and accept only requests from the app's frontend, use the `createProtectedHandler` function.
+See more details [here](./protected-handlers.mdx).

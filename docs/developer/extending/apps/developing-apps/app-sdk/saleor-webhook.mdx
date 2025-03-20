@@ -1,21 +1,32 @@
 # Saleor Webhook Utilities
 
-Apps are usually connected via webhooks - one App sends an HTTP request to another App, informing about some event or requesting some action to be performed.
+Apps are usually connected via webhooks - one service sends an HTTP request to another service, informing about some event or requesting some action to be performed.
 
 To inform your App about events originating from Saleor, you need to expose a webhook handler, which Saleor will call with a POST request.
 
-The App SDK provides a utility that abstracts connection details and auth, allowing developers to focus on business logic.
+The App SDK provides a utility that abstracts connection details and auth, allowing developers to focus on a business logic.
 
 Depending on the type of the webhook, you can choose one of the classes:
 
 - `SaleorAsyncWebhook`
 - `SaleorSyncWebhook`
 
+## Platforms support
+
+app-sdk provides support for multiple platforms. To import specific platform, ensure that you are using the correct import path, for example:
+- For AWS Lambda `import { SaleorAsyncWebhook } from "@saleor/app-sdk/handlers/aws-lambda";`
+- For NextJS App Router `import { SaleorAsyncWebhook } from "@saleor/app-sdk/handlers/next-app-router";`
+
+See [supported platforms](./overview.mdx#platforms-support)
+
+
 ## Common configuration
 
 Both `SaleorSyncWebhook` and `SaleorAsyncWebhook` contain a similar API with few differences.
 
 ### Constructing Webhook instance
+
+Example for NextJS pages router:
 
 In Next.js `pages` directory, create a page, e.g., `pages/api/webhooks/order-created.ts`. We recommend keeping the webhook type in the file name, which Next.js will resolve to route the path.
 
@@ -39,6 +50,7 @@ type OrderPayload = {
 };
 
 export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>(
+  // See below
   options
 );
 ```
@@ -65,6 +77,7 @@ type CalculateTaxedPayload = {
 };
 
 export const orderCalculateTaxesWebhook = new SaleorSyncWebhook<OrderPayload>(
+  // See below
   options
 );
 ```
@@ -151,11 +164,11 @@ export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
   isActive: true,
   apl: require("../lib/apl"),
   query: `
- subscription {
- event {
- ... on OrderCreated {
- order {
- id
+    subscription {
+        event {
+        ... on OrderCreated {
+             order {
+             id
           }
         }
       }
@@ -297,18 +310,22 @@ export default orderCreatedWebhook.createHandler((req, res, context) => {
 
 ### Typed sync webhook response
 
-Sync webhooks need to return a response to Saleor so that the operation can be completed. To achieve that, `SaleorAsyncWebhook` injects an additional context field `buildResponse`.
-It infers even from the constructor and provides a typed factory:
+Sync webhooks need to return a response to Saleor so that the operation can be completed. To help with that, SDK exposes a helper function that will ensure type safety
 
 ```typescript
+import { buildSyncWebhookResponsePayload } from "@saleor/app-sdk/handlers/shared";
+
 const webhook = new SaleorAsyncWebhook({
-  event: "ORDER_CALCULATE_TAXES" /* ... rest of config */,
+  // ... config
 });
 
-orderCreatedWebhook.createHandler((req, res, context) => {
+webhook.createHandler((req, res, context) => {
   return res.status(200).send(
-    context.buildResponse({
-      // Fields are typed here
+    buildSyncWebhookResponsePayload<'ORDER_CALCULATE_TAXES'>({
+        lines: [
+            // ... Everything is typed here
+        ],
+        // ...
     })
   );
 });
@@ -353,7 +370,7 @@ export const productUpdatedWebhook =
 
 ### Saleor schema version inside context
 
-From version 0.50.0 of `@saleor/app-sdk` have new field: `schemaVersion` inside context for `createHandler`:
+For convenience App SDK provides Saleor Schema version (`[major: number, minor: number]`) in the context. However, the source of this field comes from the subscription payload - it must be defined in the subscription query.
 
 ```ts
 export default orderCreatedWebhook.createHandler((req, res, context) => {
