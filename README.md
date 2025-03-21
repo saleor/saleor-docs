@@ -8,13 +8,27 @@
 
 # What's In This Document
 
-- [Get Started in 5 Minutes](#get-started-in-5-minutes)
+- Installation
+  - [Using Docker](#using-docker)
+  - [Using Node & NPM](#using-node--npm)
 - [Directory Structure](#directory-structure)
 - [Editing Content](#editing-content)
 - [Adding Content](#adding-content)
 - [Full Documentation](#full-docusaurus-documentation)
 
-# Get Started in 5 Minutes
+# Installation
+
+## Using Docker
+
+Run:
+
+```bash
+docker-compose up
+```
+
+Then visit http://127.0.0.1:5000/.
+
+## Using Node & NPM
 
 1. Make sure you are using Node in version 20+:
 
