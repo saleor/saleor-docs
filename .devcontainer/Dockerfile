@@ -1,4 +1,4 @@
-FROM docker.io/node:20-slim AS base
+FROM mcr.microsoft.com/devcontainers/typescript-node:20 AS base
 
 USER 1000:1000
 WORKDIR /app
