@@ -8,13 +8,46 @@
 
 # What's In This Document
 
-- [Get Started in 5 Minutes](#get-started-in-5-minutes)
+- Installation
+  - [Using DevContainers for VSCode (Recommended)](#using-devcontainers-for-vscode-recommended)
+  - [Using Docker](#using-docker)
+  - [Using Node & NPM](#using-node--npm)
 - [Directory Structure](#directory-structure)
 - [Editing Content](#editing-content)
 - [Adding Content](#adding-content)
 - [Full Documentation](#full-docusaurus-documentation)
 
-# Get Started in 5 Minutes
+# Installation
+
+## Using DevContainers for VSCode (Recommended)
+
+> [!NOTE]
+> - This requires docker or equivalent software to be installed and running on the machine.
+> - Other editors than VSCode are supported: see the [official documentation](https://containers.dev/supporting)
+
+Usage:
+
+1. Install the [Dev Containers extension for VSCode](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+2. Press F1 then run the command: `>dev containers: rebuild and Reopen in Container`
+3. Once started, it should open a new VSCode workspace which should allow you to perform remote coding (against the container)
+4. Go to `http://127.0.0.1:5000/` (may take up to a minute to load when opened for the first time)
+5. When editing the code in VSCode, changes will reflect at `http://127.0.0.1:5000/` (may take a few seconds)
+
+_More details are available in the official VSCode documentation: https://code.visualstudio.com/docs/devcontainers/containers#_getting-started_
+
+## Using Docker
+
+Steps:
+
+1. Go under `.devcontainer/` folder
+2. Run:
+   ```bash
+   docker-compose up
+   ```
+3. Visit `http://127.0.0.1:5000/` (may take up to a minute to load when opened for the first time)
+4. Any changes made to the files will reflect at `http://127.0.0.1:5000/` (may take a few seconds)
+
+## Using Node & NPM
 
 1. Make sure you are using Node in version 20+:
 
