@@ -20,15 +20,137 @@ The [transactionUpdate](/api-reference/payments/mutations/transaction-update.mdx
 To delete a specific metadata entry, use the [deleteMetadata](/api-reference/miscellaneous/mutations/delete-metadata.mdx) mutation.
 For private metadata, use the [deletePrivateMetadata](/api-reference/miscellaneous/mutations/delete-private-metadata.mdx) mutation.
 
-## Deprecated `manager.perform_mutation` method
+## `checkout.shippingMethods` and `checkout.availableShippingMethods` do not return external shipping methods if their currency differs from the checkout's currency
 
-Note: This change only affects open-source Saleor users with custom plugins overriding the `perform_mutation` plugin method.
+If an app subscribed to `SHIPPING_LIST_METHODS_FOR_CHECKOUT` returns an external shipping method with a currency different from the checkout's currency, Saleor will filter out that shipping method. As a result, external shipping methods with a different currency than the checkout's currency will not be returned via the API (in the checkout.shippingMethods and checkout.availableShippingMethods fields).
+Any potential currency validation for external shipping methods on the frontend / app side is no longer necessary.
+
+
+
+## Blocked external calls for checkout and order bulk queries
+
+To enhance performance and efficiency, bulk queries that fetch multiple checkout or order objects will **no longer trigger external calls to third-party services**. The following synchronous webhooks will be affected:
+
+- **`CHECKOUT_CALCULATE_TAXES`** webhooks
+- **`ORDER_CALCULATE_TAXES`** webhooks
+- **`SHIPPING_LIST_METHODS_FOR_CHECKOUT`** webhooks
+- **`CHECKOUT_FILTER_SHIPPING_METHODS`** webhooks
+- **`ORDER_FILTER_SHIPPING_METHODS`** webhooks
+
+External calls from the **AvataxPlugin** will also be skipped.
+
+
+Instead of recalculating taxes externally, the system will return **pre-stored prices** from the database. Additionally, only built-in shipping methods will be returned. The `CHECKOUT_FILTER_SHIPPING_METHODS` and `ORDER_FILTER_SHIPPING_METHODS` webhooks will not be triggered, and all built-in shipping methods will be listed as available.
+
+Any external shipping methods assigned to the checkout will still be visible through denormalized data stored in the database.
+
+#### Affected queries
+The following queries will **not trigger external calls**:
+
+- `checkouts(...)`
+- `me.checkouts(...)`
+- `checkoutLines(...)`
+- `orders(...)`
+- `me.orders(...)`
+- `draftOrders(...)`
+
+#### Example of impacted queries
+
+```graphql
+{
+  checkouts(first: 10) {
+    edges {
+      node {
+        id
+        deliveryMethod {
+          ... on ShippingMethod {
+            id
+            name
+          }
+        }
+        shippingMethods {
+          id
+          name
+        }
+        totalPrice {
+          gross {
+            amount
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+```graphql
+{
+  orders(first: 100) {
+    edges {
+      node {
+        deliveryMethod {
+          ... on ShippingMethod {
+            id
+            name
+          }
+        }
+        shippingMethods {
+          id
+          name
+        }
+        total {
+          gross {
+            amount
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+:::note
+The `checkout` and `order` queries will still work as before. If tax information is outdated, external calls will be made to recalculate taxes. External shipping methods and filters will be fetched if necessary.
+:::
+
+
+## `checkout.privateMetadata` no longer stores `external-shipping-method-id`
+
+The `external-shipping-method-id` is no longer stored within `checkout.privateMetadata`. To retrieve this ID, use the `checkout.deliveryMethod` field instead.
+
+
+## `checkoutDeliveryMethodUpdate` and `checkoutShippingMethodUpdate` mutations do not trigger `CHECKOUT_UPDATED` webhook or tax invalidation when adding the same method already assigned
+
+Previously, the `checkoutDeliveryMethodUpdate` and `checkoutShippingMethodUpdate` mutations would trigger the `CHECKOUT_UPDATED` webhook and invalidate taxes regardless of whether the same delivery method was already assigned to the checkout.
+Starting from version 3.21, if the same method that is already assigned to the checkout is provided, the `CHECKOUT_UPDATED` webhook will not be triggered, and taxes will not be invalidated.
+From Saleor's perspective, nothing has changed, as the checkout remains in the same state as it was before the mutation was called.
+
+
+## Introduced price freeze period for editable orders
+In previous versions, all editable orders (those with `DRAFT` and `UNCONFIRMED` statuses) refreshed their base prices
+by fetching them from the current product catalog during each recalculation. 
+Additionally, all discounts were applied based on the latest reward values.
+
+To ensure price consistency over time, regardless of updates to the product catalog, Saleor has introduced a price freeze period. 
+During this period, order lines use denormalized base prices instead of retrieving them from the catalog. 
+More details can be found [`here`](developer/price-freeze-period.mdx)  
+
+- Draft orders: the base prices are frozen for 24 hours by default. This duration can be modified using the `Channel.draftOrderLinePriceFreezePeriod` setting.
+- Unconfirmed orders: the base prices remain frozen indefinitely, and this setting is not configurable.
+- Other orders: remain unchanged and cannot be recalculated.
+
+## Plugin changes
+The following changes affects only open-source Saleor users.
+
+### Deprecated `manager.perform_mutation` method
+
+Note: Affects open-source Saleor users with custom plugins overriding the `perform_mutation` plugin method.
 
 As part of gradual plugin deprecation, Saleor 3.20 deprecates the `perform_mutation` plugin hook. This method allowed to customize the mutation execution flow and call arbitrary logic during mutation execution. From now on, we recommend building such customizations via apps by reacting to webhooks triggered by mutations. The `perform_mutation` plugin method will be removed in Saleor 3.21.
 
-## Deprecated `WebhookPlugin` and webhook-related plugin hooks
+### Deprecated `WebhookPlugin` and webhook-related plugin hooks
 
-Note: This change only affects open-source Saleor users with custom plugins that override webhook-related plugin hooks (see the list below).
+Note: Affects open-source Saleor users with custom plugins that override webhook-related plugin hooks (see the list below).
 
 The `WebhookPlugin` is deprecated in Saleor 3.20 and will be removed in Saleor 3.21, as all webhook-related functionality will be moved from plugin to core modules. Rationale behind this change is that webhooks are essential part of Saleor and should be available out of the box, without the need for additional plugins. As a result, multiple plugin manager hooks will be deprecated, as they are only used by the `WebhookPlugin`.
 
@@ -184,124 +306,8 @@ The list of deprecated plugin hooks is as follows:
 * `warehouse_metadata_updated`
 * `warehouse_updated`
 
+### `change_user_address` method removed from Plugin Manager
 
+Note: Affects open-source Saleor users with custom plugins overriding the `change_user_address` plugin method.
 
-
-## `checkout.shippingMethods` and `checkout.availableShippingMethods` do not return external shipping methods if their currency differs from the checkout's currency
-
-If an app subscribed to `SHIPPING_LIST_METHODS_FOR_CHECKOUT` returns an external shipping method with a currency different from the checkout's currency, Saleor will filter out that shipping method. As a result, external shipping methods with a different currency than the checkout's currency will not be returned via the API (in the checkout.shippingMethods and checkout.availableShippingMethods fields).
-Any potential currency validation for external shipping methods on the frontend / app side is no longer necessary.
-
-
-
-## Blocked external calls for checkout and order bulk queries
-
-To enhance performance and efficiency, bulk queries that fetch multiple checkout or order objects will **no longer trigger external calls to third-party services**. The following synchronous webhooks will be affected:
-
-- **`CHECKOUT_CALCULATE_TAXES`** webhooks
-- **`ORDER_CALCULATE_TAXES`** webhooks
-- **`SHIPPING_LIST_METHODS_FOR_CHECKOUT`** webhooks
-- **`CHECKOUT_FILTER_SHIPPING_METHODS`** webhooks
-- **`ORDER_FILTER_SHIPPING_METHODS`** webhooks
-
-External calls from the **AvataxPlugin** will also be skipped.
-
-
-Instead of recalculating taxes externally, the system will return **pre-stored prices** from the database. Additionally, only built-in shipping methods will be returned. The `CHECKOUT_FILTER_SHIPPING_METHODS` and `ORDER_FILTER_SHIPPING_METHODS` webhooks will not be triggered, and all built-in shipping methods will be listed as available.
-
-Any external shipping methods assigned to the checkout will still be visible through denormalized data stored in the database.
-
-#### Affected queries
-The following queries will **not trigger external calls**:
-
-- `checkouts(...)`
-- `me.checkouts(...)`
-- `checkoutLines(...)`
-- `orders(...)`
-- `me.orders(...)`
-- `draftOrders(...)`
-
-#### Example of impacted queries
-
-```graphql
-{
-  checkouts(first: 10) {
-    edges {
-      node {
-        id
-        deliveryMethod {
-          ... on ShippingMethod {
-            id
-            name
-          }
-        }
-        shippingMethods {
-          id
-          name
-        }
-        totalPrice {
-          gross {
-            amount
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-```graphql
-{
-  orders(first: 100) {
-    edges {
-      node {
-        deliveryMethod {
-          ... on ShippingMethod {
-            id
-            name
-          }
-        }
-        shippingMethods {
-          id
-          name
-        }
-        total {
-          gross {
-            amount
-          }
-        }
-      }
-    }
-  }
-}
-```
-
-:::note
-The `checkout` and `order` queries will still work as before. If tax information is outdated, external calls will be made to recalculate taxes. External shipping methods and filters will be fetched if necessary.
-:::
-
-
-## `checkout.privateMetadata` no longer stores `external-shipping-method-id`
-
-The `external-shipping-method-id` is no longer stored within `checkout.privateMetadata`. To retrieve this ID, use the `checkout.deliveryMethod` field instead.
-
-
-## `checkoutDeliveryMethodUpdate` and `checkoutShippingMethodUpdate` mutations do not trigger `CHECKOUT_UPDATED` webhook or tax invalidation when adding the same method already assigned
-
-Previously, the `checkoutDeliveryMethodUpdate` and `checkoutShippingMethodUpdate` mutations would trigger the `CHECKOUT_UPDATED` webhook and invalidate taxes regardless of whether the same delivery method was already assigned to the checkout.
-Starting from version 3.21, if the same method that is already assigned to the checkout is provided, the `CHECKOUT_UPDATED` webhook will not be triggered, and taxes will not be invalidated.
-From Saleor's perspective, nothing has changed, as the checkout remains in the same state as it was before the mutation was called.
-
-
-## Introduced price freeze period for editable orders
-In previous versions, all editable orders (those with `DRAFT` and `UNCONFIRMED` statuses) refreshed their base prices
-by fetching them from the current product catalog during each recalculation. 
-Additionally, all discounts were applied based on the latest reward values.
-
-To ensure price consistency over time, regardless of updates to the product catalog, Saleor has introduced a price freeze period. 
-During this period, order lines use denormalized base prices instead of retrieving them from the catalog. 
-More details can be found [`here`](developer/price-freeze-period.mdx)  
-
-- Draft orders: the base prices are frozen for 24 hours by default. This duration can be modified using the `Channel.draftOrderLinePriceFreezePeriod` setting.
-- Unconfirmed orders: the base prices remain frozen indefinitely, and this setting is not configurable.
-- Other orders: remain unchanged and cannot be recalculated.
+The `change_user_address` method has been removed from the Plugin Manager and is no longer available.
