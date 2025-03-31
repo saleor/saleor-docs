@@ -30,6 +30,13 @@ Saleor implements two distinct scopes for traces:
 - **CORE**: For internal system operations and core functionality
 - **SERVICE**: For business logic and service-level operations
 
+What is being traced:
+
+- **HTTP requests** including their duration, full URL, request method, client's IP address, and length of response.
+- **GraphQL queries** including their duration, query string, and execution errors.
+- **GraphQL resolvers** including their duration, field name, parent type, and execution errors.
+- **Database queries** including their duration and the SQL statement.
+
 ### Metrics
 
 Metrics are handled through the `Meter` class, which is a wrapper around OpenTelemetry's metrics capabilities. It supports:
@@ -51,14 +58,13 @@ Context propagation between Saleor and external services is handled through Open
 
 ## Setting up your own observability
 
-If you're running your own Saleor instance, you can set up telemetry collection and viewing using standard OpenTelemetry tooling.
+If you're running your own Saleor instance, you can set up telemetry collection and viewing using standard OpenTelemetry tooling. Below is an example of a observability setup where Saleor is configured to send telemetry data to an [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/), which then exports the data to a [Jaeger](https://www.jaegertracing.io/) instance for visualization.
 
 ### 1. Configure an OpenTelemetry Collector
 
-Set up an [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) to receive, process, and export telemetry data.
+Set up an OpenTelemetry Collector to receive, process, and export telemetry data.
 
 ```yaml
-# Example collector configuration for Jaeger
 receivers:
   otlp:
     protocols:
@@ -72,9 +78,9 @@ processors:
 
 exporters:
   jaeger:
-    endpoint: jaeger:4317
+    endpoint: jaeger:4317  # example Jaeger endpoint
     tls:
-      insecure: true  # only suitable for testing
+      insecure: true  # enable TLS in production
 
 service:
   pipelines:
@@ -83,6 +89,8 @@ service:
       processors: [batch]
       exporters: [jaeger]
 ```
+
+Note: Only traces are exported in this example as Jaeger doesn't support metrics. You can add additional exporters for metrics if needed.
 
 ### 2. Set Up Environment Variables
 
@@ -93,7 +101,7 @@ Configure the necessary environment variables for your Saleor instance to connec
 export OTEL_SERVICE_NAME=saleor
 export OTEL_TRACES_EXPORTER=otlp
 export OTEL_METRICS_EXPORTER=otlp
-export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://0.0.0.0:4317
+export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://localhost:4317
 ```
 
 ### 3. Run Saleor with OpenTelemetry Instrumentation
@@ -103,7 +111,3 @@ Use the OpenTelemetry instrumentation command to automatically instrument your a
 ```bash
 opentelemetry-instrument uvicorn saleor.asgi:application
 ```
-
-### 4. Visualize with Observability Tools
-
-Connect your telemetry data to visualization tools such as Jaeger, Zipkin, Prometheus, Grafana, or other platforms to view and analyze your application's performance.
