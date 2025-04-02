@@ -35,6 +35,7 @@ export const buildingApps = [
   "developer/extending/apps/developing-apps/app-sdk/saleor-webhook",
   "developer/extending/apps/developing-apps/app-sdk/settings-manager",
   "developer/extending/apps/developing-apps/app-sdk/debugging",
+  "developer/extending/apps/developing-apps/app-sdk/migration-0.x-to-1.x",
 
   title("Starter kits"),
   "developer/extending/apps/developing-apps/app-template",

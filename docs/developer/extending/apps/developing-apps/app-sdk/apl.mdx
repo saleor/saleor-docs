@@ -4,6 +4,33 @@ Auth Persistence Layer (APL) is a technology-agnostic interface for managing aut
 
 The following doc contains a JavaScript / TypeScript implementation used by official Saleor apps.
 
+The idea of APLs is to abstract specific persistent storage (like Redis, Upstash, or even a file) and provide a common interface for CRUD operations.
+This way, you can easily switch between different storage solutions without changing the application code.
+Additionally, app doesn't have to know any platform-specific details about the storage, like connection strings or endpoints.
+
+During development we recommend using `FileAPL` for fast and easy access on the local machine. For production you need to set up some form of database.
+
+Hint: Specifics of APL is rarely write, but frequent read - it will be checked on every request to the app. We recommend to set up a database with fast read operations, like DynamoDB or Redis.
+
+To increase the security, we recommend to store `token` encrypted.
+
+## AuthData
+
+Interface containing data used for communication with the Saleor API:
+
+```ts
+export interface AuthData {
+  // Token that Saleor provides to the app during installation. App must store it securely.
+  token: string;
+  // URL of Saleor GraphQL API, ending with /graphql/. Allows to identify the Saleor instance, especially in multi-tenant apps.
+  saleorApiUrl: string;
+  // ID of the app stored by Saleor in the database. It's unique for each installation. When app is reinstalled, ID will be different.
+  appId: string;
+  // Cached JWKS (JSON Web Key Set) used for webhook validation. It's available at https://<your-saleor-domain>/.well-known/jwks.json
+  jwks: string;
+}
+```
+
 ## Available methods
 
 - `get: (saleorApiUrl: string) => Promise<AuthData | undefined>` - If the entry for given saleorApiUrl exists, returns AuthData object.
@@ -14,29 +41,10 @@ The following doc contains a JavaScript / TypeScript implementation used by offi
 
 - `getAll: () => Promise<AuthData[]>` - Returns all auth data available.
 
-- `isReady: () => Promise<AplReadyResult>` - Check if the persistence layer behind APL is ready. For example, when a database connection was established.
+- `isReady?: () => Promise<AplReadyResult>` - Optional: Check if the persistence layer behind APL is ready. For example, when a database connection was established.
 
-- `isConfigured: () => Promise<AplConfiguredResult>` - Check if the persistence layer behind APL is configured. For example, when an env variable is required by the database connection.
+- `isConfigured?: () => Promise<AplConfiguredResult>` - Optional: Check if the persistence layer behind APL is configured. For example, when an env variable is required by the database connection.
 
-## AuthData
-
-Interface containing data used for communication with the Saleor API:
-
-```ts
-export interface AuthData {
-  domain: string;
-  token: string;
-  saleorApiUrl: string;
-  appId: string;
-  jwks: string;
-}
-```
-
-- `domain` - Domain of the API
-- `token` - Authorization token
-- `saleorApiUrl` - Full URL to the Saleor GraphQL API
-- `appID` - ID of the app assigned during the installation process
-- `jwks` - JSON Web Key Set available at `https://<your-saleor-domain>/.well-known/jwks.json`, cached in the APL for the faster webhook validation
 
 ## AplReadyResult & AplConfiguredResult
 
@@ -61,6 +69,8 @@ type AplConfiguredResult =
       error: Error;
     };
 ```
+
+Implementing these functions is optional, but it can be useful for handling asynchronous operations like database connection.
 
 ## Example implementation
 
@@ -122,6 +132,12 @@ Or access it from the context of API helpers from the SDK:
 - [Protected API Handlers](./protected-handlers)
 - [Webhook Handlers](./saleor-webhook)
 
+Hint: You don't need to write RedisAPL on your own, you can import it from the SDK:
+
+```ts
+import { RedisAPL } from "@saleor/app-sdk/APL/redis";
+```
+
 ### Using different APL depending on the environment
 
 Depending on the environment your app is working on, you may want to use a different APL. For example, you may like to use `FileAPL` during local development because it does not require any additional infrastructure. Deployed apps, on the other hand, need a more robust solution.
@@ -131,7 +147,8 @@ To handle both scenarios, initialize the proper APLs in your code based on its e
 ```ts
 // lib/saleorApp.ts
 
-import { FileAPL, UpstashAPL } from "@saleor/app-sdk/APL";
+import { FileAPL } from "@saleor/app-sdk/APL/file";
+import { UpstashAPL } from "@saleor/app-sdk/APL/upstash";
 
 // Based on the environment variable, the app will use a different APL:
 // - For local development store auth data in the `.auth-data.json`.
@@ -296,3 +313,34 @@ KV_REST_API_READ_ONLY_TOKEN=
 # A key to the Redis collection. All APL items will be stored inside this collection
 KV_STORAGE_NAMESPACE=
 ```
+
+### RedisAPL
+
+RedisAPL requires `redis` client to be installed.
+
+Similar to VercelKV (which is Redis too), all data is stored in the hash collection. You can provide a custom key for the collection in the constructor
+
+```typescript
+import { createClient } from 'redis';
+import { RedisAPL } from '@saleor/app-sdk/APL/redis';
+
+const apl = new RedisAPL({
+  client: createClient(),
+  hashCollectionKey: 'my-key', // optional, by default "saleor_app_auth"
+});
+
+```
+
+See Redis documentation for more details on how to set up the client.
+
+
+### SaleorCloudAPL
+
+You may see that there is a `SaleorCloudAPL` exported as well. This APL is specific implementation that Saleor Cloud uses when hosting apps on the cloud platform.
+
+It's not available to use and will not be bundled by your app if not imported.
+
+## Community APL implementations
+
+- [Deno KV APL](https://github.com/witoszekdev/saleor-app-hono-deno-template/blob/main/server/deno-kv-apl.ts)
+- [Cloudlfare KV APL](https://github.com/witoszekdev/saleor-app-hono-cf-pages-template/blob/main/src/cloudflare-kv-apl.ts)
