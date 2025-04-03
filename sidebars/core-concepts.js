@@ -41,6 +41,7 @@ export const coreConcepts = [
   "developer/order/order-to-checkout",
   "developer/order/address",
   "developer/price-freeze-period",
+  "developer/order/order-fulfillments",
 
   title("Transactions"),
   "developer/payments/overview",
