@@ -151,7 +151,10 @@ Here's an example of creating a fulfillment:
 mutation FulfillOrder {
   orderFulfill(
     order: "T3JkZXI6OTE3Yjc2NDQtY2Q0Zi00ZjcyLTkzNjktMGNhYTk4ODEyNDQy"
-    input: {lines: [{orderLineId: "T3JkZXJMaW5lOjM1YzEwNjNkLTYyNjQtNGExMi1hYzBlLWRhMzg1ZDM3ZGRhNA==", stocks: [{quantity: 2, warehouse: "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="}]}, {orderLineId: "T3JkZXJMaW5lOmJmYzQzMDg2LTlkM2ItNGM2MS1hMGJkLTRkNGE2YmIyNWZiNw==", stocks: [{quantity: 3, warehouse: "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="}]}], notifyCustomer: false, allowStockToBeExceeded: false, trackingNumber: "28074624654"}
+    input: {lines: [
+      {orderLineId: "T3JkZXJMaW5lOjM1YzEwNjNkLTYyNjQtNGExMi1hYzBlLWRhMzg1ZDM3ZGRhNA==", stocks: [{quantity: 2, warehouse: "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="}]}, 
+      {orderLineId: "T3JkZXJMaW5lOmJmYzQzMDg2LTlkM2ItNGM2MS1hMGJkLTRkNGE2YmIyNWZiNw==", stocks: [{quantity: 3, warehouse: "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="}]}
+      ], notifyCustomer: false, allowStockToBeExceeded: false, trackingNumber: "28074624654"}
   ) {
     errors {
       field
@@ -235,11 +238,11 @@ mutation FulfillOrder {
 ```
 
 :::note
-- Creating a fulfillment will trigger the following webhook events:
-  - `FULFILLMENT_CREATED` (async): A new fulfillment is created
-  - `ORDER_FULFILLED` (async): Order is fulfilled
-  - `FULFILLMENT_TRACKING_NUMBER_UPDATED` (async): If tracking number is provided
-  - `FULFILLMENT_APPROVED` (async): If auto-approval is enabled
+- Creating a fulfillment will trigger the following async webhook events:
+  - `FULFILLMENT_CREATED`
+  - `ORDER_FULFILLED`
+  - `FULFILLMENT_TRACKING_NUMBER_UPDATED`: If tracking number is provided
+  - `FULFILLMENT_APPROVED`: If auto-approval is enabled
 - The order status will change to `FULFILLED` if all items are fulfilled
 :::
 
@@ -567,11 +570,6 @@ Some settings in Saleor can affect how fulfillments are created and processed. T
 
 ### Shop Settings
 
-[`Shop.automaticFulfillmentDigitalProducts`](/api-reference/miscellaneous/objects/shop#shopautomaticfulfillmentdigitalproductsboolean--)
-  - When enabled, all digital products are automatically fulfilled
-  - Useful for instant delivery of digital content
-  - Bypasses the manual fulfillment process for digital products
-
 [`Shop.fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#shopfulfillmentautoapproveboolean---)
   - Controls whether new fulfillments require approval
   - When enabled, fulfillments are automatically approved
@@ -596,4 +594,36 @@ Some settings in Saleor can affect how fulfillments are created and processed. T
 :::
 
 ## Edge Cases & Exceptions
+
+Some settings in Saleor can interact in unexpected ways depending on your implementation. 
+To help avoid confusion, here are some common edge cases to be aware of:
+
+### Gift Card Fulfillment with Payment Settings
+
+The interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#ordersettingsautomaticallyfulfillnonshippablegiftcardboolean---) and [`fulfillmentAllowUnpaid`](/api-reference/miscellaneous/objects/shop#shopfulfillmentallowunpaidboolean---)
+
+#### Both settings enabled
+- `automaticallyFulfillNonShippableGiftCard: true` and `fulfillmentAllowUnpaid: true`
+  - **Unpaid Orders:** Gift cards are not automatically fulfilled to avoid sending unpaid items. However, staff can manually fulfill the line.
+  - **After Payment:** The gift card is fulfilled automatically, but only when payment is registered through an app or plugin. Using the "Mark as Paid" mutation in the Saleor Dashboard will not trigger automatic fulfillment.
+  - **Paid Orders:** Gift cards are fulfilled automatically.
+
+#### Both settings disabled
+- `automaticallyFulfillNonShippableGiftCard: false` and `fulfillmentAllowUnpaid: false`
+  - **Unpaid Orders:** Gift cards are not automatically fulfilled. Staff cannot fulfill manually because the order is unpaid.
+  - **Paid Orders:** Gift cards are not fulfilled automatically. Staff must fulfill them manually.
+
+#### Auto-fulfill disabled, allow-unpaid enabled
+- `automaticallyFulfillNonShippableGiftCard: false` and `fulfillmentAllowUnpaid: true`
+  - **Unpaid Orders:** Gift cards are not automatically fulfilled, but staff can fulfill manually.
+  - **After Payment:** Gift cards are not fulfilled automatically — manual fulfillment is required.
+  - **Paid Orders:** Gift cards are not fulfilled automatically.
+
+### Gift Card Fulfillment with Approval Settings
+
+The interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#ordersettingsautomaticallyfulfillnonshippablegiftcardboolean---) and [`fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#shopfulfillmentautoapproveboolean---) determines whether gift card fulfillments require manual approval:
+
+#### Auto-fulfill enabled, auto-approve disabled
+- `automaticallyFulfillNonShippableGiftCard: true` and `fulfillmentAutoApprove: false`
+  - Gift cards are still fulfilled automatically
 
