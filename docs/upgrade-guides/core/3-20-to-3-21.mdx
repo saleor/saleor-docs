@@ -340,35 +340,102 @@ Order can only receive `PARTIALLY_FULFILLED` status if there exists `FULFILLED` 
 
 ## Changes to voucher propagation in orders created from checkout
 
-In versions before 3.21, orders created from checkout with vouchers such as `SPECIFIC_PRODUCT` or `ENTIRE_ORDER` (with apply-once-per-order) were represented as `OrderDiscount` objects, which were assigned to the `Order` and available in `order.discounts`. 
+### Before version 3.21
 
-Orders created from draft orders with vouchers (i.e., `SPECIFIC_PRODUCT` or `ENTIRE_ORDER` with apply-once-per-order) had the voucher discount represented as `OrderLineDiscount` objects, attached to individual order lines.
+In versions prior to **3.21**, the way voucher discounts were applied and represented differed based on how the order was created:
 
-#### Voucher propagation before version 3.21:
+- **Orders from checkout** with vouchers of type `SPECIFIC_PRODUCT` or `ENTIRE_ORDER` (with `apply-once-per-order`) used the `OrderDiscount` object. These discounts were returned in the `order.discounts` field.
+- **Orders from draft orders** used `OrderLineDiscount` objects attached to individual lines. In this case, `order.discounts` remained empty.
 
-| Creating Order        | Voucher: SPECIFIC_PRODUCT                                                                                     | Voucher: ENTIRE_ORDER with apply-once-per-order                                                                    |
-|-----------------------|----------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| From Checkout         | `OrderDiscount` in `order.discounts` holds discount details                                                     | `OrderDiscount` in `order.discounts` holds discount details                                                        |
-| From Draft Order      | `OrderLineDiscount` in `OrderLine.discounts` holds discount details — `order.discounts` does not contain discounts | `OrderLineDiscount` in `OrderLine.discounts` holds discount details — `order.discounts` does not contain discounts  |
+#### Voucher representation prior to 3.21:
 
-#### Changes in version 3.21:
+| Order Source     | `SPECIFIC_PRODUCT` Voucher           | `ENTIRE_ORDER` with `apply-once-per-order` Voucher |
+|------------------|--------------------------------------|----------------------------------------------------|
+| From Checkout    | `OrderDiscount` in `order.discounts` | `OrderDiscount` in `order.discounts`               |
+| From Draft Order | (no entry in `order.discounts`)      | (no entry in `order.discounts`)                    |
 
-Starting from version 3.21, all orders created from checkout that use vouchers like `SPECIFIC_PRODUCT` or `ENTIRE_ORDER` (with apply-once-per-order) will follow the same logic as draft orders. Specifically, instead of using the `OrderDiscount` object, the discount will be applied at the line level using `OrderLineDiscount` objects for each specific order line.
 
-#### Backward compatibility:
+Additionally, **percentage-based vouchers** applied during checkout were automatically **converted to fixed value discounts**, unlike draft orders which retained the **percentage type**.
 
-To ensure backward compatibility, version 3.21 introduces a flag `useLegacyLineVoucherPropagation` that allows you to control how voucher discounts are returned via API.
+| Order Source     | `SPECIFIC_PRODUCT` (PERCENTAGE) | `ENTIRE_ORDER` with `apply-once-per-order` (PERCENTAGE) |
+|------------------|---------------------------------|---------------------------------------------------------|
+| From Checkout    | Converted to `FIXED`            | Converted to `FIXED`                                    |
+| From Draft Order | Kept as `PERCENTAGE`            | Kept as `PERCENTAGE`                                    |
 
-| Creating Order from Checkout with:                   | 3.20                                                      | 3.21 with `useLegacyLineVoucherPropagation` enabled         | 3.21 with `useLegacyLineVoucherPropagation` disabled                                                                |
-|------------------------------------------------------|-----------------------------------------------------------|------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| Voucher: SPECIFIC_PRODUCT                            | `OrderDiscount` in `order.discounts` holds discount details | `OrderDiscount` in `order.discounts` holds discount details | `OrderLineDiscount` in `OrderLine.discounts` holds discount details — `order.discounts` does not contain discounts |
-| Voucher: ENTIRE_ORDER with apply-once-per-order      | `OrderDiscount` in `order.discounts` holds discount details | `OrderDiscount` in `order.discounts` holds discount details | `OrderLineDiscount` in `OrderLine.discounts` holds discount details — `order.discounts` does not contain discounts |
 
-By default, legacy line voucher propagation is active for all existing channels. However, for newly created channels, it will be disabled by default unless explicitly configured otherwise.
 
-#### Example:
+### Changes introduced in version 3.21
 
-#### Order with `ENTIRE_ORDER` voucher (apply-once-per-order) and `useLegacyLineVoucherPropagation` enabled:
+Starting from **version 3.21**, voucher propagation is unified for all order types:
+
+- All orders from checkout with `SPECIFIC_PRODUCT` or `ENTIRE_ORDER` (with `apply-once-per-order`) vouchers now use `OrderLineDiscount` objects, just like draft orders.
+- Percentage `SPECIFIC_PRODUCT` or `ENTIRE_ORDER` (with `apply-once-per-order`) vouchers are no longer converted to fixed value. The original discount type (`PERCENTAGE`) is preserved and reflected in the API.
+
+
+### Backward compatibility: `useLegacyLineVoucherPropagation` flag
+
+To support existing integrations, version 3.21 introduces a **feature flag**: `useLegacyLineVoucherPropagation`. This flag controls how discounts are exposed in the API for orders created via checkout.
+
+#### Discount representation based on flag:
+
+| Order from checkout + voucher           | 3.20                                         | 3.21 + Legacy propagation **enabled**        | 3.21 + Legacy propagation **disabled**                                       |
+|-----------------------------------------|----------------------------------------------|----------------------------------------------|------------------------------------------------------------------------------|
+| `SPECIFIC_PRODUCT`                      | `OrderDiscount` (entry in `order.discounts`) | `OrderDiscount` (entry in `order.discounts`) | `OrderLineDiscount` in `OrderLine.discounts` (no entry in `order.discounts`) |
+| `ENTIRE_ORDER` + `apply-once-per-order` | `OrderDiscount` (entry in `order.discounts`) | `OrderDiscount` (entry in `order.discounts`) | `OrderLineDiscount` in `OrderLine.discounts` (no entry in `order.discounts`) |
+
+
+
+
+#### Discount type (FIXED vs PERCENTAGE) based on flag:
+
+| Order from checkout + percentage voucher             | 3.20                 | 3.21 + Legacy propagation **enabled** | 3.21 + Legacy propagation **disabled** |
+|------------------------------------------------------|----------------------|---------------------------------------|----------------------------------------|
+| `SPECIFIC_PRODUCT` (PERCENTAGE)                      | Converted to `FIXED` | Converted to `FIXED`                  | Retained as `PERCENTAGE`               |
+| `ENTIRE_ORDER` + `apply-once-per-order` (PERCENTAGE) | Converted to `FIXED` | Converted to `FIXED`                  | Retained as `PERCENTAGE`               |
+
+
+By default:
+- **Existing channels** have legacy propagation **enabled**
+- **New channels** will have it **disabled**, unless explicitly configured otherwise.
+
+
+:::note  
+Changing the `useLegacyLineVoucherPropagation` flag affects how voucher discounts are returned in the API for **all orders created since version 3.21**.  
+However, this flag **does not** affect percentage-based vouchers that were already converted to fixed-value discounts. Toggling the flag will **not** retroactively change their discount type.  
+:::
+
+
+#### Creating new channel with legacy flow enabled
+If you need to create a new channel with the **legacy voucher propagation** flow active, you must explicitly set `useLegacyLineVoucherPropagation` in the `channelCreate` mutation input:
+
+```graphql
+mutation {
+  channelCreate(
+    input: {
+      name: "New channel"
+      slug: "new-channel"
+      currencyCode: USD
+      defaultCountry: PL
+      orderSettings: {
+        useLegacyLineVoucherPropagation: true
+      }
+    }
+  ) {
+    channel {
+      id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+By default, new channels have legacy propagation **disabled** unless this field is explicitly set to `true`.
+
+### Example responses
+
+#### With `useLegacyLineVoucherPropagation` **enabled**:
 
 ```json
 {
@@ -394,15 +461,11 @@ By default, legacy line voucher propagation is active for all existing channels.
       ],
       "lines": [
         {
-          "unitDiscount": {
-            "amount": 3.67
-          },
+          "unitDiscount": { "amount": 3.67 },
           "discounts": []
         },
         {
-          "unitDiscount": {
-            "amount": 0
-          },
+          "unitDiscount": { "amount": 0 },
           "discounts": []
         }
       ]
@@ -411,7 +474,7 @@ By default, legacy line voucher propagation is active for all existing channels.
 }
 ```
 
-#### Order with `ENTIRE_ORDER` voucher (apply-once-per-order) and `useLegacyLineVoucherPropagation` disabled:
+#### With `useLegacyLineVoucherPropagation` **disabled**:
 
 ```json
 {
@@ -421,28 +484,20 @@ By default, legacy line voucher propagation is active for all existing channels.
       "discounts": [],
       "lines": [
         {
-          "unitDiscount": {
-            "amount": 3.67
-          },
+          "unitDiscount": { "amount": 3.67 },
           "discounts": [
             {
               "name": "My voucher",
               "type": "VOUCHER",
               "valueType": "FIXED",
               "value": 11,
-              "unit": {
-                "amount": 3.67
-              },
-              "total": {
-                "amount": 11
-              }
+              "unit": { "amount": 3.67 },
+              "total": { "amount": 11 }
             }
           ]
         },
         {
-          "unitDiscount": {
-            "amount": 0
-          },
+          "unitDiscount": { "amount": 0 },
           "discounts": []
         }
       ]
@@ -450,22 +505,22 @@ By default, legacy line voucher propagation is active for all existing channels.
   }
 }
 ```
-:::note
-Switching the `useLegacyLineVoucherPropagation` flag will affect how voucher discounts are returned via API for all orders created since version 3.21.
-:::
 
-#### Steps to adapt to the new flow:
 
-- Extend your webhook subscriptions to include `OrderLineDiscount` objects (`order.lines[].discounts[]`).
-- Extend your queries to include `OrderLineDiscount` objects (`order.lines[].discounts[]`).
-- Update internal logic to handle discounts in `order.lines[].discounts[]` field.
-- Turn off legacy propagation:
+### How to migrate to the new flow
+
+To fully support the updated propagation model:
+
+- Extend webhook subscriptions to include: `order.lines[].discounts[]`
+- Update all queries to retrieve `OrderLineDiscount` data from `order.lines[].discounts[]`
+- Adjust internal logic to rely on line-level discount data
+- Disable legacy propagation using the following mutation:
 
 ```graphql
 mutation {
   channelUpdate(
     id: "<channel-id>"
-    input: {orderSettings: {useLegacyLineVoucherPropagation: false}}
+    input: { orderSettings: { useLegacyLineVoucherPropagation: false } }
   ) {
     channel {
       orderSettings {
