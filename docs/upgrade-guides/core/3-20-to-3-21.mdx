@@ -331,3 +331,197 @@ The `change_user_address` method has been removed from the Plugin Manager and is
 In previous versions, orders that had any unapproved fulfillments and no returns, were given status `PARTIALLY_FULFILLED`. This happened even when no items were actually fulfilled. 
 Currently, fulfillments with `WAITING_FOR_APPROVAL` status are excluded from determination of order status. Adding unapproved fulfillment to order will no longer result in a status change.
 Order can only receive `PARTIALLY_FULFILLED` status if there exists `FULFILLED` fulfillment and there are some items that are either unfulfilled or awaiting approval. 
+
+
+## Changes to voucher propagation in orders created from checkout
+
+### Before version 3.21
+
+In versions prior to **3.21**, the way voucher discounts were applied and represented differed based on how the order was created:
+
+- **Orders from checkout** with vouchers of type `SPECIFIC_PRODUCT` or `ENTIRE_ORDER` (with `apply-once-per-order`) used the `OrderDiscount` object. These discounts were returned in the `order.discounts` field.
+- **Orders from draft orders** used `OrderLineDiscount` objects attached to individual lines. In this case, `order.discounts` remained empty.
+
+#### Voucher representation prior to 3.21:
+
+| Order Source     | `SPECIFIC_PRODUCT` Voucher           | `ENTIRE_ORDER` with `apply-once-per-order` Voucher |
+|------------------|--------------------------------------|----------------------------------------------------|
+| From Checkout    | `OrderDiscount` in `order.discounts` | `OrderDiscount` in `order.discounts`               |
+| From Draft Order | (no entry in `order.discounts`)      | (no entry in `order.discounts`)                    |
+
+
+Additionally, **percentage-based vouchers** applied during checkout were automatically **converted to fixed value discounts**, unlike draft orders which retained the **percentage type**.
+
+| Order Source     | `SPECIFIC_PRODUCT` (PERCENTAGE) | `ENTIRE_ORDER` with `apply-once-per-order` (PERCENTAGE) |
+|------------------|---------------------------------|---------------------------------------------------------|
+| From Checkout    | Converted to `FIXED`            | Converted to `FIXED`                                    |
+| From Draft Order | Kept as `PERCENTAGE`            | Kept as `PERCENTAGE`                                    |
+
+
+
+### Changes introduced in version 3.21
+
+Starting from **version 3.21**, voucher propagation is unified for all order types:
+
+- All orders from checkout with `SPECIFIC_PRODUCT` or `ENTIRE_ORDER` (with `apply-once-per-order`) vouchers now use `OrderLineDiscount` objects, just like draft orders.
+- Percentage `SPECIFIC_PRODUCT` or `ENTIRE_ORDER` (with `apply-once-per-order`) vouchers are no longer converted to fixed value. The original discount type (`PERCENTAGE`) is preserved and reflected in the API.
+
+
+### Backward compatibility: `useLegacyLineVoucherPropagation` flag
+
+To support existing integrations, version 3.21 introduces a **feature flag**: `useLegacyLineVoucherPropagation`. This flag controls how discounts are exposed in the API for orders created via checkout.
+
+#### Discount representation based on flag:
+
+| Order from checkout + voucher           | 3.20                                         | 3.21 + Legacy propagation **enabled**        | 3.21 + Legacy propagation **disabled**                                       |
+|-----------------------------------------|----------------------------------------------|----------------------------------------------|------------------------------------------------------------------------------|
+| `SPECIFIC_PRODUCT`                      | `OrderDiscount` (entry in `order.discounts`) | `OrderDiscount` (entry in `order.discounts`) | `OrderLineDiscount` in `OrderLine.discounts` (no entry in `order.discounts`) |
+| `ENTIRE_ORDER` + `apply-once-per-order` | `OrderDiscount` (entry in `order.discounts`) | `OrderDiscount` (entry in `order.discounts`) | `OrderLineDiscount` in `OrderLine.discounts` (no entry in `order.discounts`) |
+
+
+
+
+#### Discount type (FIXED vs PERCENTAGE) based on flag:
+
+| Order from checkout + percentage voucher             | 3.20                 | 3.21 + Legacy propagation **enabled** | 3.21 + Legacy propagation **disabled** |
+|------------------------------------------------------|----------------------|---------------------------------------|----------------------------------------|
+| `SPECIFIC_PRODUCT` (PERCENTAGE)                      | Converted to `FIXED` | Converted to `FIXED`                  | Retained as `PERCENTAGE`               |
+| `ENTIRE_ORDER` + `apply-once-per-order` (PERCENTAGE) | Converted to `FIXED` | Converted to `FIXED`                  | Retained as `PERCENTAGE`               |
+
+
+By default:
+- **Existing channels** have legacy propagation **enabled**
+- **New channels** will have it **disabled**, unless explicitly configured otherwise.
+
+
+:::note  
+Changing the `useLegacyLineVoucherPropagation` flag affects how voucher discounts are returned in the API for **all orders created since version 3.21**.  
+However, this flag **does not** affect percentage-based vouchers that were already converted to fixed-value discounts. Toggling the flag will **not** retroactively change their discount type.  
+:::
+
+
+#### Creating new channel with legacy flow enabled
+If you need to create a new channel with the **legacy voucher propagation** flow active, you must explicitly set `useLegacyLineVoucherPropagation` in the `channelCreate` mutation input:
+
+```graphql
+mutation {
+  channelCreate(
+    input: {
+      name: "New channel"
+      slug: "new-channel"
+      currencyCode: USD
+      defaultCountry: PL
+      orderSettings: {
+        useLegacyLineVoucherPropagation: true
+      }
+    }
+  ) {
+    channel {
+      id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+By default, new channels have legacy propagation **disabled** unless this field is explicitly set to `true`.
+
+### Example responses
+
+#### With `useLegacyLineVoucherPropagation` **enabled**:
+
+```json
+{
+  "data": {
+    "order": {
+      "id": "T3JkZXI6NzJiM2NhNjktNzJmYS00ZjQ5LWE3ZGMtOTgxZGI4MDIwNmJj",
+      "discounts": [
+        {
+          "id": "T3JkZXJEaXNjb3VudDo1NjhhMGE5OS1hY2Y1LTQ1NzctYjE2YS0zNjFlMjU3MTAyYmE=",
+          "name": "My voucher",
+          "type": "VOUCHER",
+          "valueType": "FIXED",
+          "value": 11,
+          "total": {
+            "amount": 11,
+            "currency": "USD"
+          },
+          "amount": {
+            "amount": 11,
+            "currency": "USD"
+          }
+        }
+      ],
+      "lines": [
+        {
+          "unitDiscount": { "amount": 3.67 },
+          "discounts": []
+        },
+        {
+          "unitDiscount": { "amount": 0 },
+          "discounts": []
+        }
+      ]
+    }
+  }
+}
+```
+
+#### With `useLegacyLineVoucherPropagation` **disabled**:
+
+```json
+{
+  "data": {
+    "order": {
+      "id": "T3JkZXI6NzJiM2NhNjktNzJmYS00ZjQ5LWE3ZGMtOTgxZGI4MDIwNmJj",
+      "discounts": [],
+      "lines": [
+        {
+          "unitDiscount": { "amount": 3.67 },
+          "discounts": [
+            {
+              "name": "My voucher",
+              "type": "VOUCHER",
+              "valueType": "FIXED",
+              "value": 11,
+              "unit": { "amount": 3.67 },
+              "total": { "amount": 11 }
+            }
+          ]
+        },
+        {
+          "unitDiscount": { "amount": 0 },
+          "discounts": []
+        }
+      ]
+    }
+  }
+}
+```
+
+
+### How to migrate to the new flow
+
+To fully support the updated propagation model:
+
+- Extend webhook subscriptions to include: `order.lines[].discounts[]`
+- Update all queries to retrieve `OrderLineDiscount` data from `order.lines[].discounts[]`
+- Adjust internal logic to rely on line-level discount data
+- Disable legacy propagation using the following mutation:
+
+```graphql
+mutation {
+  channelUpdate(
+    id: "<channel-id>"
+    input: { orderSettings: { useLegacyLineVoucherPropagation: false } }
+  ) {
+    channel {
+      orderSettings {
+        useLegacyLineVoucherPropagation
+      }
+    }
+  }
+}
+```
