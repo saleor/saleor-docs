@@ -67,6 +67,11 @@ export const coreConcepts = [
   "developer/discounts/sales",
   "developer/discounts/displaying-catalogue-discounts",
 
+  title("Modeling"),
+  "developer/modeling",
+  "developer/pages",
+  "developer/menu",
+
   title("Miscellaneous"),
 
   "developer/gift-cards",
@@ -76,7 +81,6 @@ export const coreConcepts = [
   "developer/taxes",
   "developer/thumbnails",
   "developer/price-calculation",
-  "developer/menu",
 
   title("Importing"),
   "developer/bulks/bulk-orders",
