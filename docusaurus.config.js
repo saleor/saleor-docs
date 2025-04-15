@@ -104,10 +104,17 @@ module.exports = {
   themeConfig: {
     announcementBar: {
       id: "announcement-bar",
-      content:
-        '👀 <b>Sneak Peek Alert!</b> Get a glimpse of upcoming features on our <a target="_blank" rel="noopener noreferrer" href="https://saleor.notion.site/roadmap">public roadmap</a>.',
-      backgroundColor: "light-dark(rgb(255, 251, 235), var(--purple5))",
-      textColor: "light-dark(#000, #fff)",
+      content: `
+        ✨ Join us for the <b>Live Community Update</b> on April 24th at 3 PM CET | 9 AM EDT
+        <a
+					target="_blank"
+					href="https://saleor.notion.site/community-update"
+				>
+					Join the community
+				</a>
+      `,
+      backgroundColor: "#DDD6FE",
+      textColor: "#6D28D9",
       isCloseable: true,
     },
 
