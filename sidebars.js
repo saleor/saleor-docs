@@ -56,6 +56,20 @@ module.exports = {
         icon: "star",
       },
     },
+    {
+      type: "category",
+      label: "Recipes",
+      items: [
+        "recipes/click-and-collect",
+        "recipes/custom-shipping",
+        "recipes/digital-products",
+        "recipes/extending-dashboard",
+        "recipes/multi-region",
+      ],
+      customProps: {
+        icon: "selfHost",
+      },
+    },
 
     title("Product"),
     ref("cloud/overview", "Cloud", "cloud"),
