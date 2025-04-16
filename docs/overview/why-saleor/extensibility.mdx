@@ -1,48 +1,81 @@
 ---
-title: Extensibility model
+title: Extensible
 ---
 
-### API Only
+Saleor's goal is to map complex commerce requirements to maintainable architectures. We recognize four key areas that define how easy or hard it is to design and maintain a commerce deployment: modeling, automation, delegation, and observability.
 
-- **Webhooks.**
-  You can subscribe to more than a hundred [events](/developer/extending/webhooks/overview.mdx)
-  to receive data from Saleor.
+But before diving into the details of those aspects, we must clarify one thing.
 
-- **API extensions.**
-  Enable behavior customization, for example, calculating shipping costs based on the package dimensions.
-  [Learn more](developer/extending/webhooks/synchronous-events/overview.mdx)
+## Tech Agnostic
 
-- **Dashboard extensions.** [Extend admin](/developer/extending/apps/overview.mdx) functionality using any front-end stack embeddable into _iframes_.
+While Saleor's engine is written in Python, it makes almost no assumptions about your tech stack. Saleor's API and the extension mechanism utilize GraphQL transported over either HTTP or message queues. Hence, the only requirement we impose is that your code is able to make or receive HTTP requests.
 
-- **Granular permission control.** [Granular permissions](/developer/permissions.mdx) for access tokens.
+Whether you work with Python, TypeScript, PHP, Java, C#, Elixir, or Rust, you can integrate with Saleor. And chances are there is already a GraphQL client library you can use with enough tooling to provide a fantastic developer experience.
 
-- **GraphQL oriented.** Provide GraphQL queries to shape the data provided via Webhooks.
+At Saleor, we always strive to build on existing standards. This way, you get the best interoperability and the benefit of existing tools and experience, and no one has to train specifically to become a "Saleor developer."
 
-### Why not plugin architecture?
+## Modeling
 
-The plugin architecture is popular among open-source projects; classic examples would be Magento or Shopify.
-Such a model has direct coupling with the platform,
-which can be convenient to get started quickly but can also lead to many issues.
+Extensibility starts with mapping your business needs to data shapes. While there are stores where the product is nothing but a name, a picture, and a two-sentence description, we recognize that it's rarely the case.
 
-**Benefits of decoupled architecture:**
+Saleor's product type system allows you to create named schemas for different product types, each having a different set of attributes of various types. This guarantees that your books always have a page count that is a number and that your drinks have a list of ingredients, each linked to its own entity.
 
-- **Technology agnostic.**
-  Technology stack freedom allows you to pick the best tool for the job and access a larger talent pool.
+Entities, like your drink ingredients, also have named shapes, making sure the allergen field is a boolean flag and that the rich text description is present.
 
-- **Improved security.** Tight coupling increases security risks whereas decoupled architectures reduce the attack surface.
+Our "Commerce as Code" approach gives you tools to programmatically control these attributes and schemas, so the shape of your data can be version-controlled along with the source code of the storefronts and integrations that rely on the fields.
 
-- **Independent deployment.** You can deploy your microservices independently.
+For programmatic use, almost all objects in Saleor support metadata, which allows for the storage and retrieval of practically any key-value data.
 
-- **Reliability.** Less risk of degrading performance or bringing the whole system down.
+Saleor also supports external references for key business objects, so you can, for example, look up products using their primary keys from your EPR.
 
-- **Scalability.** You can allocate resources more efficiently for your services.
+## Automation
 
-- **Cross team collaboration.**
-  Decoupled architectures allow teams to collaborate more effectively compared to plugins that create dependencies between teams and projects.
+While automation is mainly internal and results in Saleor modifying its local data, a composable system is rarely a single source of truth surrounded by satellite systems, constantly polling for data. In practice, multiple large systems must coordinate so the BI system knows that an order was placed, and the warehouse system knows when to package and dispatch a shipment.
 
-- **Open Standards.**
-  Using GraphQL means tapping into a larger ecosystem of tools and communities as opposed to limited, proprietary SDKs.
+Saleor exposes an exhaustive list of events other systems and integrations can subscribe to ensure the entire architecture remains in sync. Thanks to the power of GraphQL, subscribers can pick the information they want to receive with each event. And thanks to our rich modeling and metadata, you can often create integrations that don't rely on external data stores.
 
-- **Debugging.**
-  Decoupled architectures make distinguishing platform issues from those
-  caused by your own application more straightforward.
+## Delegation
+
+It's unrealistic for Saleor to provide every possible feature and function. Conversely, it's very realistic for your business to have a unique need that is not addressed by any of the available solutions.
+
+Saleor's approach to features is a lean core with a rich ecosystem of external applications that extend or partially replace the functions provided by the core.
+
+When such a function is invoked, Saleor makes a synchronous HTTP call to the appropriate application, lets it decide what to do, and then acts accordingly, depending on the response.
+
+In many cases, there is a default implementation for the cases where no delegation happens. For example, there are built-in shipping method calculations you can use.
+
+In other cases, there is no default behavior, but we think it's crucial for Saleor to provide an API contract for implementors. Payment integrations are a good example.
+
+Extensibility through delegation includes the Saleor's dashboard. Extensions can contribute entire new views or add small components to selected existing views. We understand how frustrating it is to constantly switch between many tools and control panels or to copy and paste identifiers between browser windows.
+
+When adding new functions, we prioritize delegation over built-in features. While writing custom code is inconvenient, it's better to spend a week implementing something yourself, than to be blocked by Saleor's roadmap.
+
+## Observability
+
+While not necessary to get a system deployed, observability plays a key role in keeping everything running and running smoothly.
+
+In composable architectures, one of the biggest challenges is correlating signals from disconnected components to paint the full picture and tell causes and symptoms apart.
+
+Saleor embraces open standards like OpenTelemetry and W3C Trace Context to enable cross-stack observability, including application performance tracing across different services.
+
+Instead of providing yet another dashboard with pointless charts, we focus on providing you a data stream you can plug into your tool of choice, like Datadog or NewRelic. You get full control over monitoring, alerts, and escalation paths. And in case of an outage, your team can instantly drill into details instead of having to coordinate long email threads with your vendors.
+
+## Extensibility Misconceptions
+
+### Everyone Needs WASM
+
+While WASM and WASI are amazing standards, we conducted many experiments with delegating synchronous calls to a WASM runtime and the results were not groundbreaking.
+
+WASM can be very fast because it executes precompiled instructions. This means it is faster than Python or JavaScript in raw CPU benchmarks. However, the types of operations commerce integrations involve are rarely CPU-bound. As soon as your application needs to touch any external resources, like calling your ERP or pulling data from a database, it becomes I/O-bound, and this benefit of WASM no longer matters.
+
+WASM can also eliminate the cost of an HTTP handshake when calling an external application, saving you the latency of a network roundtrip. In practice, deploying Saleor extensions within the same cloud availability zone as your Saleor instance, paired with VPC peering where applicable, is enough to bring this latency down to 1ms, which is comparable with the latency of preparing and invoking a WASI executable in a sandbox.
+
+Perhaps most importantly, WASM and WASI tooling is still far from perfect, and the standards are nowhere near being popular enough for most commerce developer teams to be proficient in them. We are cheering for WASM to gain wider adoption, but for now, it's vital that your team can work with the tools they're experienced with.
+
+### Plugins are Better
+
+Similarly to WASM, plugins can eliminate network latency needed for them to be invoked. Saleor does ship with some plugins, but the plugin API is a legacy one and will be removed in the future. As was the case with WASM, in practice, accessing any external resources eliminates the benefits of saving the HTTP call, and Saleor Apps deployed within the same availability zone are just as fast.
+
+Plugins also have stability and security implications. Since they are executed within the same process space, a single faulty plugin can compromise the entire system. The network gap between Saleor and its extensions acts as a barrier that prevents cracks from propagating from one system to another. Combined with design patterns like the circuit breaker, this results in more resilient architectures.
+
+Finally, plugins need to be written in the same programming language as the system they extend. Since Saleor Apps communicate using HTTP and GraphQL, they can be implemented in any programming language capable of making a network request.
