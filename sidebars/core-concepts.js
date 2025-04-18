@@ -84,6 +84,8 @@ export const coreConcepts = [
   title("Importing"),
   "developer/bulks/bulk-orders",
   "developer/bulks/bulk-attributes",
+  "developer/bulks/bulk-products",
+  "developer/bulks/bulk-stock",
   "developer/bulks/error-policy",
 
   title("Exporting"),
