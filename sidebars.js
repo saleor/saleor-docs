@@ -8,6 +8,7 @@ const { extending } = require("./sidebars/extending");
 const { graphqlSidebar } = require("./sidebars/graphql");
 const { cloudSidebar } = require("./sidebars/cloud");
 const { upgradeGuidesSidebar } = require("./sidebars/upgrade-guides");
+const { recipesSidebar } = require("./sidebars/recipes");
 
 const backToHome = {
   type: "ref",
@@ -75,6 +76,7 @@ module.exports = {
     ref("developer/extending/overview", "Extending", "cli"),
 
     title("Additional Resources"),
+    ref("recipes/overview", "Recipes", "selfHost"),
     ref("setup/overview", "Self-hosting", "selfHost"),
     ref("developer/community/contributing", "Community", "community"),
     ref("upgrade-guides/index", "Upgrade Guides", "guides"),
@@ -112,4 +114,5 @@ module.exports = {
   community: [backToHome, ...community],
   cloud: [backToHome, ...cloudSidebar],
   upgrade: [backToHome, ...upgradeGuidesSidebar],
+  recipes: [backToHome, ...recipesSidebar],
 };
