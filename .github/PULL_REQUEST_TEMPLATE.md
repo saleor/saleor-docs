@@ -4,4 +4,4 @@
 
 ## Checklist
 
-- [ ] I have read and followed the [guidelines](./GUIDELINES.md)
+- [ ] I have read and followed the [guidelines](../GUIDELINES.md)
