@@ -23,7 +23,6 @@ export const coreConcepts = [
   "developer/attributes/configuration",
   "developer/attributes/lifecycle",
   "developer/attributes/api",
-  "developer/attributes/attributes_vs_metadata",
 
   title("Modeling"),
   "developer/modeling",
