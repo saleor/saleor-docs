@@ -1,0 +1,598 @@
+---
+title: Bulk Product Import
+---
+
+This guide describes mutations allowing users to create multiple products and variants in Saleor. 
+
+:::info  
+To perform bulk operations on products and variants, you need the `MANAGE_PRODUCTS` permission.  
+:::  
+
+## Error Policy
+
+`productBulkCreate`, `productVariantBulkCreate`, and `productVariantBulkUpdate` 
+mutations accept [`errorPolicy`](./error-policy.mdx) argument, which determines how to handle errors.
+
+## `productBulkCreate`
+
+Mutation [`productBulkCreate`](/api-reference/products/mutations/product-bulk-create) allows to create multiple products in a single operation. This is particularly useful when you need to:
+
+- Import products from another system
+- Create multiple products with their variants at once
+- Set up initial product catalog
+
+The mutation supports creating products with their:
+- Basic information (name, description, etc.)
+- Attributes and values
+- Channel listings and pricing
+- Media files
+- Variants with their own attributes, stocks, and channel listings
+
+### Example Mutation  
+
+```graphql
+mutation ProductBulkCreate($products: [ProductBulkCreateInput!]!, $errorPolicy: ErrorPolicyEnum) {
+  productBulkCreate(products: $products, errorPolicy: $errorPolicy) {
+    count
+    results {
+      errors {
+        ...Error
+      }
+      product {
+        id
+      }
+    }
+  }
+}
+
+fragment Error on ProductBulkCreateError {
+  path
+  message
+  code
+  attributes
+  values
+  warehouses
+  channels
+}
+```
+
+**Input example:**
+
+```json
+{
+  "errorPolicy": "REJECT_FAILED_ROWS",
+  "products": [
+    {
+      "productType": "UHJvZHVjdFR5cGU6MTg=",
+      "name": "Barebarics Zing - White & Beige",
+      "attributes": [
+        {
+          "id": "QXR0cmlidXRlOjM2",
+          "values": ["Vegan"]
+        }
+      ],
+      "category": "Q2F0ZWdvcnk6Mjg=",
+      "channelListings": [
+        {
+          "channelId": "Q2hhbm5lbDoy",
+          "isPublished": true,
+          "visibleInListings": true,
+          "isAvailableForPurchase": true
+        },
+        {
+          "channelId": "Q2hhbm5lbDox",
+          "isPublished": true,
+          "visibleInListings": true,
+          "isAvailableForPurchase": true
+        }
+      ],
+      "media": [
+        {"mediaUrl": "https://user-images.githubusercontent.com/4006792/214636328-8e4f83e8-66cb-4114-a3d8-473eb908b9c3.png"}
+      ]
+    },
+    {
+      "productType": "UHJvZHVjdFR5cGU6MTg=",
+      "name": "Zing - Black & White - Leather",
+      "attributes": [
+        {
+          "id": "QXR0cmlidXRlOjM2",
+          "values": [
+            "Leather"
+          ]
+        }
+      ],
+      "category": "Q2F0ZWdvcnk6Mjg=",
+      "channelListings": [
+        {
+          "channelId": "Q2hhbm5lbDoy",
+          "isPublished": true,
+          "visibleInListings": true,
+          "isAvailableForPurchase": true
+        },
+        {
+          "channelId": "Q2hhbm5lbDox",
+          "isPublished": true,
+          "visibleInListings": true,
+          "isAvailableForPurchase": true
+        }
+      ],
+      "variants": [
+        {
+          "sku": "60217252-00-42",
+          "attributes": [
+            {
+              "id": "QXR0cmlidXRlOjM3",
+              "values": [
+                "40"
+              ]
+            }
+          ],
+          "stocks": [
+            {
+              "warehouse": "V2FyZWhvdXNlOjJiNDY1OTU2LWYzMmUtNGU4OC04ZWQyLTBhN2I4ODBlMTkxYg==",
+              "quantity": 100
+            }
+          ],
+          "channelListings": [
+            {
+              "channelId": "Q2hhbm5lbDoy",
+              "price": 599
+            },
+            {
+              "channelId": "Q2hhbm5lbDox",
+              "price": 149
+            }
+          ]
+        },
+        {
+          "sku": "60217252-00-43",
+          "attributes": [
+            {
+              "id": "QXR0cmlidXRlOjM3",
+              "values": [
+                "41"
+              ]
+            }
+          ],
+          "stocks": [
+            {
+              "warehouse": "V2FyZWhvdXNlOjJiNDY1OTU2LWYzMmUtNGU4OC04ZWQyLTBhN2I4ODBlMTkxYg==",
+              "quantity": 100
+            }
+          ],
+          "channelListings": [
+            {
+              "channelId": "Q2hhbm5lbDoy",
+              "price": 599
+            },
+            {
+              "channelId": "Q2hhbm5lbDox",
+              "price": 149
+            }
+          ]
+        },
+        {
+          "sku": "60217252-00-44",
+          "attributes": [
+            {
+              "id": "QXR0cmlidXRlOjM3",
+              "values": [
+                "42"
+              ]
+            }
+          ],
+          "stocks": [
+            {
+              "warehouse": "V2FyZWhvdXNlOjJiNDY1OTU2LWYzMmUtNGU4OC04ZWQyLTBhN2I4ODBlMTkxYg==",
+              "quantity": 100
+            }
+          ],
+          "channelListings": [
+            {
+              "channelId": "Q2hhbm5lbDoy",
+              "price": 599
+            },
+            {
+              "channelId": "Q2hhbm5lbDox",
+              "price": 149
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Input details
+
+For detailed information about all available fields, see the [`ProductBulkCreateInput`](/api-reference/products/inputs/product-bulk-create-input).
+
+:::warning
+The `productType` field is required and must reference a valid product type ID.
+
+Product `name` must be provided when importing products.
+:::
+
+**Key fields to consider:**
+
+- **Attributes**: Allows to define product attributes. Each attribute should include its ID and values. See [`AttributeValueInput`](/api-reference/attributes/inputs/attribute-value-input) for details.
+- **Channel Listings**: Allows to specify where and how the product is available. See [`ProductChannelListingCreateInput`](/api-reference/products/inputs/product-channel-listing-create-input) for details. Each listing requires:
+  - `channelId`: ID of the channel
+  - `isPublished`: Whether the product is published in this channel
+  - `visibleInListings`: Whether the product is visible in channel listings
+  - `isAvailableForPurchase`: Whether the product can be purchased in this channel
+- **Taxes**: Allows to assign tax class to the product. Must reference a valid tax class ID.
+- **Media**: Allows to add images and other media files to the product.
+- **Variants**: Allows to create variants along with product creation. See [`ProductVariantBulkCreateInput`](/api-reference/products/inputs/product-variant-bulk-create-input) for details.
+
+### Error handling
+
+Each product in the bulk operation can have its own set of errors. 
+These errors appear in `results[].errors` array and are specific to individual products. 
+
+Common error scenarios include:
+
+- **Channel-related errors**:
+  - `NOT_FOUND`: Channel ID doesn't exist
+  - `PRODUCT_NOT_ASSIGNED_TO_CHANNEL`: Product variant channel listing references a channel where the product is not available
+  - `DUPLICATED_INPUT_ITEM`: Channel ID is duplicated in the input
+
+- **Variant-related errors**:
+  - `UNIQUE`: SKU already exists in the system
+  - `REQUIRED`: Missing required fields for variant creation
+  - `INVALID_PRICE`: Price value is invalid
+
+- **Attribute-related errors**:
+  - `INVALID`: Invalid attribute value
+  - `REQUIRED`: Missing required attribute
+
+## `productVariantBulkCreate`
+
+Mutation [`productVariantBulkCreate`](/api-reference/products/mutations/product-variant-bulk-create) allows to create multiple variants for an existing product in a single operation. This is particularly useful when you need to:
+
+- Add new variants to an existing product
+- Import variants from another system
+- Create multiple variants with different attributes and prices
+
+The mutation supports creating variants with their:
+- Basic information (SKU, name)
+- Attributes and values
+- Stocks and quantities
+- Channel listings and pricing
+
+### Example Mutation  
+
+```graphql
+mutation ProductVariantBulkCreate($variants: [ProductVariantBulkCreateInput!]!, $errorPolicy: ErrorPolicyEnum, $product: ID!) {
+  productVariantBulkCreate(
+    product: $product
+    variants: $variants
+    errorPolicy: $errorPolicy
+  ) {
+    count
+    errors {
+      field
+      code
+      message
+    }
+    results {
+      errors {
+        ...Error
+      }
+      productVariant {
+        id
+      }
+    }
+  }
+}
+
+fragment Error on ProductVariantBulkError {
+  field
+  path
+  code
+  message
+  attributes
+  values
+  warehouses
+  channels
+  channelListings
+}
+```
+
+**Input example:**
+
+```json
+{
+  "product": "UHJvZHVjdDoxOTg=",
+  "errorPolicy": "REJECT_FAILED_ROWS",
+  "variants": [
+    {
+      "sku": "60217252-00-50",
+      "attributes": [
+        {
+          "id": "QXR0cmlidXRlOjM3",
+          "values": ["42"]
+        }
+      ],
+      "stocks": [
+        {
+          "warehouse": "V2FyZWhvdXNlOjJiNDY1OTU2LWYzMmUtNGU4OC04ZWQyLTBhN2I4ODBlMTkxYg==",
+          "quantity": 100
+        }
+      ],
+      "channelListings": [
+        {
+          "channelId": "Q2hhbm5lbDoy",
+          "price": 599
+        },
+        {
+          "channelId": "Q2hhbm5lbDox",
+          "price": 149
+        }
+      ]
+    },
+    {
+      "sku": "60217252-00-51",
+      "attributes": [
+        {
+          "id": "QXR0cmlidXRlOjM3",
+          "values": ["43"]
+        }
+      ],
+      "stocks": [
+        {
+          "warehouse": "V2FyZWhvdXNlOjJiNDY1OTU2LWYzMmUtNGU4OC04ZWQyLTBhN2I4ODBlMTkxYg==",
+          "quantity": 100
+        }
+      ],
+      "channelListings": [
+        {
+          "channelId": "Q2hhbm5lbDoy",
+          "price": 599
+        },
+        {
+          "channelId": "Q2hhbm5lbDox",
+          "price": 149
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Input details
+
+For detailed information about all available fields, see the [`ProductVariantBulkCreateInput`](/api-reference/products/inputs/product-variant-bulk-create-input).
+
+:::warning
+The `product` field is required and must reference a valid product ID.
+
+The `variants` list is required.
+:::
+
+**Key fields to consider:**
+
+- **Attributes**: Allows to define variant attributes. Attributes list is required when creating new variants but can be empty. 
+Each attribute should include its ID and values. See [`BulkAttributeValueInput`](/api-reference/products/inputs/bulk-attribute-value-input) for details.
+- **Stocks**: Allows to set initial stock quantities for warehouses. Each stock requires:
+  - `warehouse`: ID of the warehouse
+  - `quantity`: Initial stock quantity
+- **Channel Listings**: Allows to set prices for channels. Each listing requires:
+  - `channelId`: ID of the channel
+  - `price`: Price in the channel's currency
+
+### Error handling
+
+When creating variants, errors can occur at different levels:
+
+1. **Operation-level errors**: Appear in the top-level `errors` array and affect the entire operation. These include:
+   - Invalid product ID
+   - Missing required fields for the entire operation
+
+2. **Variant-level errors**: Appear in `results[].errors` and are specific to individual variants.
+
+Common error scenarios include:
+
+- **Variant-related errors**:
+  - `UNIQUE`: SKU already exists in the system
+  - `REQUIRED`: Missing required fields for variant creation
+  - `INVALID_PRICE`: Price value is invalid
+
+- **Channel-related errors**:
+  - `NOT_FOUND`: Channel ID doesn't exist
+  - `PRODUCT_NOT_ASSIGNED_TO_CHANNEL`: Variant channel listing references a channel where the product is not available
+  - `DUPLICATED_INPUT_ITEM`: Channel ID is duplicated in the input
+
+- **Attribute-related errors**:
+  - `REQUIRED`: Missing required attribute field: `id` or `external_references`
+  - `NOT_FOUND`: Attribute ID doesn't exist
+  - `ATTRIBUTE_CANNOT_BE_ASSIGNED`: Given attributes are not variant attributes
+
+- **Stock-related errors**:
+  - `NOT_FOUND`: Warehouse ID doesn't exist
+
+## `productVariantBulkUpdate`
+
+Mutation [`productVariantBulkUpdate`](/api-reference/products/mutations/product-variant-bulk-update) 
+allows to update multiple variants in a single operation. This is particularly useful when you need to:
+
+- Update prices across multiple variants
+- Modify stock quantities in bulk
+- Update variant attributes
+- Change channel availability
+
+The mutation supports updating variants with their:
+- Basic information (SKU, name)
+- Attributes and values
+- Stocks and quantities
+- Channel listings and pricing
+- And many more available variant fields
+
+### Example Mutation  
+
+
+```graphql
+mutation ProductVariantBulkUpdate($product: ID!, $variants: [ProductVariantBulkUpdateInput!]!, $errorPolicy: ErrorPolicyEnum) {
+  productVariantBulkUpdate(
+    product: $product
+    variants: $variants
+    errorPolicy: $errorPolicy
+  ) {
+    count
+    errors {
+      field
+      code
+      message
+    }
+    results {
+      errors {
+        ...Error
+      }
+      productVariant {
+        id
+      }
+    }
+  }
+}
+
+fragment Error on ProductVariantBulkError {
+  field
+  path
+  code
+  message
+  attributes
+  values
+  warehouses
+  channels
+  channelListings
+}
+```
+
+**Input example:**
+
+```json
+{
+  "product": "UHJvZHVjdDoxOTg=",
+  "errorPolicy": "REJECT_FAILED_ROWS",
+  "variants": [
+    {
+      "id": "UHJvZHVjdFZhcmlhbnQ6NDE4",
+      "channelListings": {
+        "create": [],
+        "update": [{
+          "channelListing": "UHJvZHVjdFZhcmlhbnRDaGFubmVsTGlzdGluZzo0MzE=",
+          "price": 100
+        }],
+        "remove": ["UHJvZHVjdFZhcmlhbnRDaGFubmVsTGlzdGluZzo0MzI="]
+      },
+      "stocks": {
+        "create": [{
+          "warehouse": "V2FyZWhvdXNlOjJkNTE0YWI0LWNhNTMtNDNjYy1hYWI2LWRlNzllZTYxMjBkOQ==",
+          "quantity": 150
+        }],
+        "update": [],
+        "remove": []
+      }
+    },
+    {
+      "id": "UHJvZHVjdFZhcmlhbnQ6NDE3",
+      "channelListings": {
+        "create": [],
+        "update": [{
+          "channelListing": "UHJvZHVjdFZhcmlhbnRDaGFubmVsTGlzdGluZzo0MzE=",
+          "price": 100
+        }],
+        "remove": ["UHJvZHVjdFZhcmlhbnRDaGFubmVsTGlzdGluZzo0MzI="]
+      },
+      "stocks": {
+        "create": [{
+          "warehouse": "V2FyZWhvdXNlOjJkNTE0YWI0LWNhNTMtNDNjYy1hYWI2LWRlNzllZTYxMjBkOQ==",
+          "quantity": 150
+        }],
+        "update": [],
+        "remove": []
+      }
+    }
+  ]
+}
+```
+
+### Input details
+
+For detailed information about all available fields, see the [`ProductVariantBulkUpdateInput`](/api-reference/products/inputs/product-variant-bulk-update-input).
+
+:::warning
+The `product` field is required and must reference a valid product ID.
+
+The `id` field in variants list is required and must reference a valid variant ID.
+:::
+
+**Key fields to consider:**
+
+- **Channel Listings**: Allows to manage variant channel listings with three operations:
+  - `create`: Add new channel listings
+  - `update`: Modify existing channel listings by providing:
+    - `channelListing`: ID of the channel listing to update
+    - `price`: New price in the channel's currency
+  - `remove`: Remove channel listings by providing their IDs
+
+- **Stocks**: Allows to manage variant stocks with three operations:
+  - `create`: Add new stock entries with:
+    - `warehouse`: ID of the warehouse
+    - `quantity`: Initial stock quantity
+  - `update`: Modify existing stock entries
+  - `remove`: Remove stock entries by providing their IDs
+
+- **Attributes**: Allows to update variant attributes. Each attribute should include its ID and values. See [`BulkAttributeValueInput`](/api-reference/products/inputs/bulk-attribute-value-input) for details.
+
+### Error handling
+
+When updating variants, errors can occur at different levels:
+
+1. **Operation-level errors**: Appear in the top-level `errors` array and affect the entire operation. These include:
+   - Invalid product ID
+   - Missing required fields for the entire operation
+
+2. **Variant-level errors**: Appear in `results[].errors` and are specific to individual variants.
+
+Common error scenarios include:
+
+- **Variant-related errors**:
+  - `UNIQUE`: SKU already exists in the system
+  - `REQUIRED`: Missing required fields for variant update
+  - `INVALID_PRICE`: Price value is invalid
+
+- **Channel-related errors**:
+  - `NOT_FOUND`: Channel ID doesn't exist
+  - `PRODUCT_NOT_ASSIGNED_TO_CHANNEL`: Variant channel listing references a channel where the product is not available
+  - `DUPLICATED_INPUT_ITEM`: Channel ID is duplicated in the input
+
+- **Attribute-related errors**:
+  - `REQUIRED`: Missing required attribute field: `id` or `external_references`
+  - `NOT_FOUND`: Attribute ID doesn't exist
+  - `ATTRIBUTE_CANNOT_BE_ASSIGNED`: Given attributes are not variant attributes
+
+- **Stock-related errors**:
+  - `NOT_FOUND`: Warehouse ID doesn't exist
+  - `STOCK_ALREADY_EXISTS` : Warehouse is already assigned to given variant
+
+## Webhooks
+
+Bulk operations emit webhook events for each created entity. The following mutations trigger these events:
+
+- `productBulkCreate`:
+  - `PRODUCT_CREATED`: For each created product
+  - `PRODUCT_VARIANT_CREATED`: For each created variant (if variants are included in the input)
+
+- `productVariantBulkCreate`:
+  - `PRODUCT_VARIANT_CREATED`: For each created variant
+
+- `productVariantBulkUpdate`:
+  - `PRODUCT_VARIANT_UPDATED`: For each updated variant
+
+:::note
+For large bulk imports, consider disabling webhooks to improve performance. 
+Each created entity will trigger a webhook event, which might impact the overall import speed.
+:::
+

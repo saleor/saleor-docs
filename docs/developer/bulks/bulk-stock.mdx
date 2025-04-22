@@ -1,0 +1,90 @@
+---
+title: Bulk Stock Update
+---
+
+This guide describes mutation allowing users to update stock quantities for multiple product variants in Saleor. 
+The purpose of these mutation could be to synchronize stock levels with external inventory management systems.
+
+:::info  
+To perform bulk operations on stocks, you need the `MANAGE_PRODUCTS` permission.  
+:::  
+
+## Error Policy
+
+`stockBulkUpdate` mutation accepts [`errorPolicy`](./error-policy.mdx) argument, which determines how to handle errors.
+
+## `stockBulkUpdate`
+
+Mutation [`stockBulkUpdate`](/api-reference/products/mutations/stock-bulk-update) allows to update stock quantities for multiple variants in a single operation. This is particularly useful when you need to:
+
+- Synchronize stock levels with external systems
+- Update stock quantities in bulk
+- Manage stock across multiple warehouses
+
+### Example Mutation
+
+```graphql
+mutation StockBulkUpdate($stocks: [StockBulkUpdateInput!]!, $errorPolicy: ErrorPolicyEnum) {
+  stockBulkUpdate(stocks: $stocks, errorPolicy: $errorPolicy) {
+    count
+    results {
+      errors {
+        field
+        code
+        message
+      }
+      stock {
+        id
+        quantity
+        warehouse {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+**Input example:**
+
+```json
+{
+  "errorPolicy": "REJECT_FAILED_ROWS",
+  "stocks": [{
+    "variantId": "UHJvZHVjdFZhcmlhbnQ6NDE4",
+    "warehouseId": "V2FyZWhvdXNlOmIxN2NiMTljLTk4YWEtNGVjOC04YzgzLWFhYTBlZjRjMzMxMA==",
+    "quantity": 100
+  },
+  {
+    "variantId": "UHJvZHVjdFZhcmlhbnQ6NDI4",
+    "warehouseId": "V2FyZWhvdXNlOmIxN2NiMTljLTk4YWEtNGVjOC04YzgzLWFhYTBlZjRjMzMxMA==",
+    "quantity": 100
+  }]
+}
+```
+
+### Input details
+
+For detailed information about all available fields, see the [`StockBulkUpdateInput`](/api-reference/products/inputs/stock-bulk-update-input).
+
+
+**Bulk Stock update fields:**
+- `variantId` or `variantExternalReference` of the product variant to update
+- `warehouseId` or `warehouseExternalReference` of the warehouse where the stock is located
+- `quantity`: New stock quantity
+
+### Error handling
+
+Each stock in the bulk operation can have its own set of errors. 
+These errors appear in `results[].errors` array and are specific to individual stock updates. 
+
+Common error scenarios include:
+  - `NOT_FOUND`: Variant ID doesn't exist or Warehouse not assigned to product variant
+  - `INVALID`: Missing required fields variantId or variantExternalReference
+
+## Webhooks
+
+Bulk operations emit webhook events for each updated stock entry:
+- `stockBulkUpdate`:
+  - `PRODUCT_VARIANT_STOCK_UPDATED`: For each updated stock entry
