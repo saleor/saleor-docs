@@ -489,3 +489,98 @@ When the gift card is used for the first time, it will be assigned to the checko
 If the card was already used, the checkout user will be compared with the gift card user. When the users differ, a validation error is raised.
 The card can be used by the user many times until the balance has been used. E.g. if the card has an amount set to $100 and the first checkout used $60, the remaining $40 will be available to be used by the same user.
 Finally, remember that the channel currency must be the same as the card currency.
+
+## Tax handling and application during checkout
+
+Gift cards are applied to the checkout total after tax calculation. This means:
+
+1. First, Saleor calculates all taxes for the order
+2. Then, the gift card amount is subtracted from the gross total price
+3. The net amount and tax amount are adjusted proportionally
+
+When multiple gift cards are used:
+- Saleor will always try to use the full amount from each gift card
+- The system processes gift cards in the order they were added to the checkout
+- If the checkout total is less than the gift card amount, only the necessary portion will be used
+- The remaining balance stays on the gift card for future use
+
+To track how much each gift card contributed to the checkout:
+1. Query the checkout's `subtotalPrice` and `shippingPrice` to get the total before gift cards
+2. Compare with `totalPrice` to see the final amount after gift cards
+3. The difference shows the total reduction from all gift cards
+
+Example query to get detailed checkout information:
+
+```graphql
+{
+  checkout {
+    giftCards {
+      id
+      last4CodeChars
+      initialBalance {
+        amount
+      }
+      currentBalance {
+        amount
+      }
+    }
+    totalPrice {
+      gross {
+        amount
+      }
+      net {
+        amount
+      }
+      tax {
+        amount
+      }
+    }
+    subtotalPrice {
+      gross {
+        amount
+      }
+      net {
+        amount
+      }
+      tax {
+        amount
+      }
+    }
+    shippingPrice {
+      gross {
+        amount
+      }
+      net {
+        amount
+      }
+      tax {
+        amount
+      }
+    }
+  }
+}
+```
+
+## Balance changes and order completion
+
+Gift card balances are only updated after the order is completed:
+- During checkout, the `currentBalance` remains unchanged
+- After order completion, the used amount is deducted from the gift card's balance
+- If an order is cancelled, the gift card balance is restored
+- If multiple gift cards were used, each one's balance is updated proportionally to its contribution
+
+## Gift card returns and refunds
+
+:::important
+Fulfilled gift cards cannot be returned or refunded. Once a gift card is fulfilled and sent to the customer, it cannot be reversed. This is because:
+- Gift cards are considered digital products
+- They can be used immediately after fulfillment
+- There's no way to guarantee the gift card hasn't been used or shared
+:::
+
+If a customer wants to return a physical gift card product (unused gift card code):
+1. The gift card must not have been fulfilled yet
+2. The return process follows standard product return procedures
+3. The gift card code will be deactivated to prevent future use
+
+For more information about returns, see [Returns](api-reference/orders/returns.mdx).
