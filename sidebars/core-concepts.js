@@ -23,7 +23,6 @@ export const coreConcepts = [
   "developer/attributes/configuration",
   "developer/attributes/lifecycle",
   "developer/attributes/api",
-  "developer/attributes/attributes_vs_metadata",
 
   title("Modeling"),
   "developer/modeling",
@@ -85,6 +84,8 @@ export const coreConcepts = [
   title("Importing"),
   "developer/bulks/bulk-orders",
   "developer/bulks/bulk-attributes",
+  "developer/bulks/bulk-products",
+  "developer/bulks/bulk-stock",
   "developer/bulks/error-policy",
 
   title("Exporting"),
