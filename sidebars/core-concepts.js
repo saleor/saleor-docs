@@ -82,6 +82,7 @@ export const coreConcepts = [
   "developer/price-calculation",
 
   title("Importing"),
+  "developer/bulks/overview",
   "developer/bulks/bulk-orders",
   "developer/bulks/bulk-attributes",
   "developer/bulks/bulk-products",
