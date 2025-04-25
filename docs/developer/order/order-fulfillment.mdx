@@ -609,12 +609,15 @@ mutation provides a way to handle various return scenarios, including items retu
 
 1. **Return**
    - Case: Customer sends back items
-   - Provide fulfilled lines ID and quantity of items to be returned
+   - Process: Provide fulfilled lines ID and quantity of items to be returned
+   - Result: New fulfillment is created in `RETURNED` status
 
 2. **Replace**
    - Case: Items are damaged or incorrect, and customer needs replacements
    - Process: 
      - Set `replace: true` for the fulfillment lines that need replacement
+   - Result: 
+     - New fulfillment is created in `REPLACED` status
      - Saleor automatically creates a draft order for the replacement items
      - The draft order includes the same customer and shipping/billing details
      - Staff needs to:
@@ -754,17 +757,18 @@ This functionality is only supported when using a payment plugin.
 
 For more details on how to handle refunds for payment created with apps, refer to the [Refunds documentation](/developer/payments/refunds).
 :::
-   - Case: processing return and refund simultaneously
+   - Case: Processing return and refund simultaneously
    - Process:
      - Set `refund: true` in [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products) to trigger automatic refund
      - Optionally set `includeShippingCosts: true` to refund shipping costs
-     - Saleor will automatically calculate the refund amount and pass it to the payment plugin for processing.
-
+   - Result: 
+     - New fulfillment is created in `REFUNDED_AND_RETURNED` status
+     - Saleor will automatically calculate the refund amount and pass it to the payment plugin for processing
 
 :::note
-- Order status changes based on the return:
-  - `PARTIALLY_RETURNED`: When some items are returned
-  - `RETURNED`: When all items are returned
+Order status changes based on the return:
+- `PARTIALLY_RETURNED`: When some items are returned
+- `RETURNED`: When all items are returned
 :::
 
 ### Refund
@@ -781,25 +785,24 @@ For orders paid using payment plugins, use [`orderFulfillmentRefundProducts`](/a
 **Example Cases:**
 
 1. **Refund only** 
-    - When: Items are damaged during shipment and won’t be returned
-    - Fulfillment: Already shipped
-    - Plugin-based: Use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products) to refund specific fulfilled lines
+   - When: Items are damaged during shipment and won't be returned
+   - Fulfillment: Already shipped
+   - Plugin-based: Use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products) to refund specific fulfilled lines
 
 2. **Miscellaneous Refund** 
-    - When: The order was delivered, but the customer is due a partial refund (e.g. expedited shipping was late).
-    - Fulfillment: Already shipped
-    - Plugin-based: Use [`orderRefund`](/api-reference/orders/mutations/order-refund) to refund a custom amount (e.g., shipping costs)
+   - When: The order was delivered, but the customer is due a partial refund (e.g. expedited shipping was late)
+   - Fulfillment: Already shipped
+   - Plugin-based: Use [`orderRefund`](/api-reference/orders/mutations/order-refund) to refund a custom amount (e.g., shipping costs)
 
 3. **Cancel** 
-    - When: The customer cancels part of the order before it ships
-    - Fulfillment: Not shipped
-    - Plugin-based: Use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products) for unfulfilled lines
-
+   - When: The customer cancels part of the order before it ships
+   - Fulfillment: Not shipped
+   - Plugin-based: Use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products) for unfulfilled lines
 
 :::note
-The ORDER_REFUNDED webhook event is triggered when a partial refund is processed.
+The `ORDER_REFUNDED` webhook event is triggered when a partial refund is processed.
 
-The ORDER_FULLY_REFUNDED webhook event is triggered when the entire order amount has been refunded.
+The `ORDER_FULLY_REFUNDED` webhook event is triggered when the entire order amount has been refunded.
 :::
 
 ## Edge Cases & Exceptions
@@ -835,4 +838,3 @@ The interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-refere
 #### Auto-fulfill enabled, auto-approve disabled
 - `automaticallyFulfillNonShippableGiftCard: true` and `fulfillmentAutoApprove: false`
   - Gift cards are still fulfilled automatically
-
