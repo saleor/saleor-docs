@@ -111,7 +111,7 @@ module.exports = {
     //     </span>
     //     <a
     // 			target="_blank"
-    // 			href="https://saleor.notion.site/community-update"
+    // 			href="https://saleor.io/community-update"
     // 		>
     // 			Join the community
     //       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 25 20">
@@ -132,7 +132,7 @@ module.exports = {
         </span>
         <a
 					target="_blank"
-					href="https://saleor.notion.site/community-update"
+					href="https://saleor.io/discord"
 				>
 					Join the community
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 25 20">
