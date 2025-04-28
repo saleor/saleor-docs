@@ -8,7 +8,7 @@ Webhooks are available in Saleor to both Local and External Apps. Local App is a
 
 If your external system or service needs to receive data based on events happening in Saleor you can use Webhooks through Local Apps. To do that you need to create Local App which can be used to define Webhooks.
 
-### Webhook creation
+## Webhook creation
 
 To create a Webhook you need to create a Local App first. You can do that in the Saleor Dashboard by navigating to **Configuration** and clicking **Webhooks & Events**. When a Local App is created you can add a new Webhook by clicking **Create Webhook** button.
 
@@ -16,7 +16,7 @@ Webhooks can be created using the Saleor Dashboard, Saleor GraphQL API or Saleor
 
 Check [Creating Webhook](./creating.mdx) page for more details.
 
-### Webhook payload
+## Webhook payload
 
 You can define the payload that will be sent to the Webhook. Saleor uses GraphQL subscription syntax to define the payload.
 
@@ -51,7 +51,7 @@ The payload is sent in the `data` field of the subscription response. The payloa
 
 You can read more about GraphQL subscriptions in the [Subscription Webhook Payloads](./subscription-webhook-payloads.mdx) section.
 
-### Webhook headers
+## Webhook headers
 
 In addition to the payload several headers are included:
 
@@ -73,7 +73,7 @@ Deprecated headers list:
 
 Saleor gives you the option to add custom headers to the request. `Authorization*` and `X-*` keys are allowed, with limitations of 5 headers per webhook and 998 characters per header. To check how to add `customHeaders` go to [Creating webhook](./creating.mdx).
 
-### Payload signature
+## Payload signature
 
 Webhook payload signature refers to a mechanism for verifying the authenticity and integrity of webhook payloads received from Saleor. When Saleor sends webhook notifications to a specified Target URL (endpoint), it includes a signature along with the payload. The webhook payload signature allows the recipient to verify that the payload originated from Saleor and that it hasn't been tampered with during transit.
 
@@ -81,7 +81,7 @@ Saleor uses the [HMAC](https://en.wikipedia.org/wiki/HMAC) algorithm to calculat
 
 You can read more about payload signature in the [Payload signature](/docs/developer/extending/webhooks/payload-signature.mdx) section.
 
-### Events
+## Events
 
 Saleor can send Webhooks for various events that happen in the system. Events can be divided into two categories: **synchronous** and **asynchronous**. Synchronous events are sent immediately after the event happens during GraphQL requests. Asynchronous events are sent after request processing is finished.
 
@@ -89,7 +89,58 @@ The main and **most important difference** between synchronous and asynchronous 
 
 You can read more about asynchronous events in the [Asynchronous events](./asynchronous-events.mdx) section and about synchronous events in the [Synchronous events](./synchronous-events/overview.mdx) section.
 
-### Time limits
+### Retrieving Past Event Payloads
+
+You can only access payloads for deliveries that are still in `PENDING` or `FAILED` state. If the event delivery was successfully completed (`SUCCESS`), Saleor removes it from the system.
+
+To check the payload for a past event delivery:
+
+1. Query the list of `eventDeliveries` for that specific webhook
+2. Search through the results to find the delivery with the matching ID
+
+Here's an example query to retrieve webhook deliveries:
+
+```graphql
+query WebhookDeliveries {
+  webhook(id: "YOUR_WEBHOOK_ID") {
+    id
+    eventDeliveries(first: 50, sortBy: {direction: DESC, field: CREATED_AT}) {
+      edges {
+        node {
+          id
+          createdAt
+          status
+          payload
+          attempts(first: 1) {
+            edges {
+              node {
+                status
+                responseStatusCode
+                response
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### Webhook Deactivation
+
+When a webhook is deactivated:
+
+1. Any events that are already in the queue will still be processed but will not be delivered to the target URL
+2. Events that are picked up from the queue while the webhook is disabled will be marked as permanently failed
+3. When the webhook is reactivated, any remaining events in the queue will be delivered as usual
+4. Events that were marked as failed during the deactivation period will not be retried
+
+:::warning
+Deactivating an app is different from deactivating a webhook - when an app is deactivated, events will still be processed and delivered through its active webhooks.
+:::
+
+## Time limits
 
 Both synchronous and asynchronous webhook requests are time-limited. Saleor will wait a maximum of 20 seconds for the complete HTTP request round trip: up to 2 seconds for the network connection and up to 18 seconds for a response.
 
