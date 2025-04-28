@@ -89,14 +89,11 @@ The main and **most important difference** between synchronous and asynchronous 
 
 You can read more about asynchronous events in the [Asynchronous events](./asynchronous-events.mdx) section and about synchronous events in the [Synchronous events](./synchronous-events/overview.mdx) section.
 
-### Retrieving Past Event Payloads
+### Retrieving Past Events
 
-You can only access payloads for deliveries that are still in `PENDING` or `FAILED` state. If the event delivery was successfully completed (`SUCCESS`), Saleor removes it from the system.
+You can only access events that are still in `PENDING` or `FAILED` state. If the event delivery was successfully completed (`SUCCESS`), Saleor removes it from the system.
 
-To check the payload for a past event delivery:
-
-1. Query the list of `eventDeliveries` for that specific webhook
-2. Search through the results to find the delivery with the matching ID
+To check details about past event delivery query the list of `eventDeliveries` for that specific webhook
 
 Here's an example query to retrieve webhook deliveries:
 
@@ -122,6 +119,28 @@ query WebhookDeliveries {
           }
         }
       }
+    }
+  }
+}
+```
+
+### Retrying Failed Event Deliveries
+
+Saleor provides a mechanism to retry failed event deliveries using the [`eventDeliveryRetry`](/api-reference/webhooks/mutations/event-delivery-retry) mutation.
+
+To retry a failed event, first get the delivery ID and then send the following mutation:
+
+```graphql
+mutation RetryEventDelivery {
+  eventDeliveryRetry(id: "EVENT_DELIVERY_ID") {
+    delivery {
+      id
+      status
+    }
+    errors {
+      field
+      code
+      message
     }
   }
 }
