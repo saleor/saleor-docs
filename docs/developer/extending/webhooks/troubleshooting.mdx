@@ -1,0 +1,74 @@
+---
+title: Webhooks Troubleshooting
+sidebar_label: Troubleshooting
+---
+
+## Retrieving Past Events
+
+You can only access events that are still in `PENDING` or `FAILED` state. If the event delivery was successfully completed (`SUCCESS`), Saleor removes it from the system.
+
+To check details about past event delivery query the list of `eventDeliveries` for that specific webhook
+
+Here's an example query to retrieve webhook deliveries:
+
+```graphql
+query WebhookDeliveries {
+  webhook(id: "YOUR_WEBHOOK_ID") {
+    id
+    eventDeliveries(first: 50, sortBy: {direction: DESC, field: CREATED_AT}) {
+      edges {
+        node {
+          id
+          createdAt
+          status
+          payload
+          attempts(first: 1) {
+            edges {
+              node {
+                status
+                responseStatusCode
+                response
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## Retrying Failed Event Deliveries
+
+Saleor provides a mechanism to retry failed event deliveries using the [`eventDeliveryRetry`](/api-reference/webhooks/mutations/event-delivery-retry) mutation.
+
+To retry a failed event, first get the delivery ID and then send the following mutation:
+
+```graphql
+mutation RetryEventDelivery {
+  eventDeliveryRetry(id: "EVENT_DELIVERY_ID") {
+    delivery {
+      id
+      status
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+## Webhook Deactivation
+
+When a webhook is deactivated:
+
+1. Any events that are already in the queue will still be processed but will not be delivered to the target URL
+2. Events that are picked up from the queue while the webhook is disabled will be marked as permanently failed
+3. When the webhook is reactivated, any remaining events in the queue will be delivered as usual
+4. Events that were marked as failed during the deactivation period will not be retried
+
+:::warning
+Deactivating an app is different from deactivating a webhook - when an app is deactivated, events will still be processed and delivered through its active webhooks.
+:::
