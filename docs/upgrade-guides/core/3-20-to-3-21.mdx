@@ -340,22 +340,26 @@ Order can only receive `PARTIALLY_FULFILLED` status if there exists `FULFILLED` 
 
 ## Changes to discount propagation in orders created from checkout
 
+In Saleor 3.21, we've unified the logic for how discount propagation works in orders. Here's a quick overview of how it worked previously and what's changed. Below, you'll find details on how discount propagation now behaves for different types of discounts.
+
 ### Voucher handling before version 3.21
 
 In versions prior to **3.21**, how vouchers were applied and represented depended on how the order was created:
 
-| Order source     | `SPECIFIC_PRODUCT` voucher                          | `ENTIRE_ORDER` with `apply-once-per-order` voucher  |
-|------------------|-----------------------------------------------------|-----------------------------------------------------|
-| From checkout    | Represented as `OrderDiscount` in `order.discounts` | Represented as `OrderDiscount` in `order.discounts` |
-| From draft order | **Not** included in `order.discounts`               | **Not** included in `order.discounts`               |
+| Order source | `SPECIFIC_PRODUCT` voucher                          | `ENTIRE_ORDER` with `apply-once-per-order` voucher  |
+|--------------|-----------------------------------------------------|-----------------------------------------------------|
+| Checkout     | Represented as `OrderDiscount` in `order.discounts` | Represented as `OrderDiscount` in `order.discounts` |
+| Draft order  | **Not** included in `order.discounts`               | **Not** included in `order.discounts`               |
+
 
 
 Additionally, **percentage-based vouchers** applied during checkout were automatically **converted to fixed-value discounts**, while draft orders retained the original **percentage type**:
 
-| Order source     | `SPECIFIC_PRODUCT` (percentage) | `ENTIRE_ORDER` with `apply-once-per-order` (percentage) |
-|------------------|---------------------------------|---------------------------------------------------------|
-| From checkout    | Converted to `FIXED`            | Converted to `FIXED`                                    |
-| From draft order | Retained as `PERCENTAGE`        | Retained as `PERCENTAGE`                                |
+| Order source | `SPECIFIC_PRODUCT` (percentage) | `ENTIRE_ORDER` with `apply-once-per-order` (percentage) |
+|--------------|---------------------------------|---------------------------------------------------------|
+| Checkout     | Converted to `FIXED`            | Converted to `FIXED`                                    |
+| Draft order  | Retained as `PERCENTAGE`        | Retained as `PERCENTAGE`                                |
+
 
 
 
@@ -363,7 +367,7 @@ Additionally, **percentage-based vouchers** applied during checkout were automat
 
 Starting in **version 3.21**, voucher propagation is consistent across all order types:
 
-- All orders created via checkout now use `OrderLineDiscount` objects for both `SPECIFIC_PRODUCT` and `ENTIRE_ORDER` (with `apply-once-per-order`) vouchers—same as draft orders.
+- All orders created via checkout now use `OrderLineDiscount` objects for both `SPECIFIC_PRODUCT` and `ENTIRE_ORDER` (with `apply-once-per-order`) vouchers — same as draft orders.
 - Percentage-based vouchers **are no longer converted** to fixed-value discounts. The original `PERCENTAGE` type is preserved and correctly represented in the API.
 
 
@@ -375,18 +379,20 @@ Previously, for orders created via checkout using a `Voucher:ENTIRE_ORDER`, the 
 
 #### Before version 3.21
 
-| Order source     | `unitDiscountReason`                        | `unitDiscount.amount`                                      |
-|------------------|---------------------------------------------|------------------------------------------------------------|
-| From checkout    | Included reason for `ENTIRE_ORDER` discount | Included line-level portion of the `ENTIRE_ORDER` discount |
-| From draft order | Not present                                 | Not present                                                |
+| Order source | `unitDiscountReason`                            | `unitDiscount.amount`                                          |
+|--------------|-------------------------------------------------|----------------------------------------------------------------|
+| Checkout     | Included reason for `ENTIRE_ORDER` discount     | Included line-level portion of the `ENTIRE_ORDER` discount     |
+| Draft order  | Reason for `ENTIRE_ORDER` discount not included | Line-level portion of the `ENTIRE_ORDER` discount not included |
+
 
 
 This also applied to discounts from active `OrderPromotion`s:
 
-| Order source     | `unitDiscountReason`                   | `unitDiscount.amount`                             |
-|------------------|----------------------------------------|---------------------------------------------------|
-| From checkout    | Included reason for promotion discount | Included line-level portion of promotion discount |
-| From draft order | Not present                            | Not present                                       |
+| Order source | `unitDiscountReason`                       | `unitDiscount.amount`                                 |
+|--------------|--------------------------------------------|-------------------------------------------------------|
+| Checkout     | Included reason for promotion discount     | Included line-level portion of promotion discount     |
+| Draft order  | Reason for promotion discount not included | Line-level portion of promotion discount not included |
+
 
 
 #### After version 3.21
@@ -395,12 +401,12 @@ As of **version 3.21**, `unitDiscountReason` and `unitDiscount.amount` **no long
 - `Voucher:ENTIRE_ORDER` discounts
 - `OrderPromotion` discounts
 
-This behavior is now consistent with how draft orders have always worked.
+This behavior is now consistent with how draft orders work.
 
 
 ### Backward compatibility: `useLegacyLineDiscountPropagation` feature flag
 
-To maintain compatibility with existing integrations, version 3.21 introduces a **feature flag**: `useLegacyLineDiscountPropagation`.
+To maintain compatibility with existing integrations, version 3.21 introduces a **feature flag**: `useLegacyLineDiscountPropagation`, which allows you to configure the discount propagation behavior per channel.
 
 This flag controls how voucher and promotion discounts appear in the API for **orders created via checkout**.
 
@@ -471,9 +477,11 @@ mutation {
 ```
 By default, new channels have legacy propagation **disabled** unless this field is explicitly set to `true`.
 
-#### Example responses
+#### Example
 
-##### With `useLegacyLineDiscountPropagation` **enabled**:
+The examples below show how order line discounts are represented in the GraphQL response, depending on the `useLegacyLineDiscountPropagation` configuration.
+
+##### With `useLegacyLineDiscountPropagation` enabled:
 
 ```json
 {
@@ -512,7 +520,7 @@ By default, new channels have legacy propagation **disabled** unless this field 
 }
 ```
 
-##### With `useLegacyLineDiscountPropagation` **disabled**:
+##### With `useLegacyLineDiscountPropagation` disabled:
 
 ```json
 {
