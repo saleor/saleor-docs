@@ -9,6 +9,7 @@ export const extending = [
   "developer/extending/webhooks/subscription-webhook-payloads",
   "developer/extending/webhooks/payload-signature",
   "developer/extending/webhooks/asynchronous-events",
+  "developer/extending/webhooks/troubleshooting",
 
   title("Synchronous Events"),
   "developer/extending/webhooks/synchronous-events/overview",
