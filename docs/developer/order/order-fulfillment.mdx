@@ -6,9 +6,9 @@ title: Order Fulfillment
 Order fulfillment is the process of handling and delivering goods to customers. 
 In Saleor, fulfillments represent the shipping and logistics stage of an order.
 
-### When are fulfillments created?
+### When can fulfillment be created?
 
-Fulfillments are created after an order is confirmed (reaches the `UNFULFILLED` status). This can happen in two ways:
+Fulfillments can be created after an order is confirmed (reaches the `UNFULFILLED` status). This can happen in two ways:
 - Automatically after checkout completion (if [`channel.orderSettings.automaticallyConfirmAllNewOrders`](api-reference/miscellaneous/objects/order-settings.mdx#ordersettingsautomaticallyconfirmallnewordersboolean---) is enabled)
 - Manually through the [`orderConfirm`](/api-reference/orders/mutations/order-confirm) mutation
 
@@ -593,6 +593,218 @@ Some settings in Saleor can affect how fulfillments are created and processed. T
 - Changes to these settings can affect the entire fulfillment workflow
 :::
 
+
+## Post-Fulfillment Actions
+
+After an order has been fulfilled, there are several actions that can be taken 
+to handle various post-fulfillment scenarios. These actions help manage returns, 
+replacements, and refunds while maintaining proper inventory and order status tracking.
+
+### Return Products
+
+The [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products) 
+mutation provides a way to handle various return scenarios, including items returns, replacements, and refunds.
+
+**Available Actions:**
+
+1. **Return**
+   - Case: Customer sends back items
+   - Process: Provide fulfilled lines ID and quantity of items to be returned
+   - Result: New fulfillment is created in `RETURNED` status
+
+2. **Replace**
+   - Case: Items are damaged or incorrect, and customer needs replacements
+   - Process: 
+     - Set `replace: true` for the fulfillment lines that need replacement
+   - Result: 
+     - New fulfillment is created in `REPLACED` status
+     - Saleor automatically creates a draft order for the replacement items
+     - The draft order includes the same customer and shipping/billing details
+     - Staff needs to:
+       1. Assign a shipping method to finalize draft order
+       2. Mark the order as paid
+       3. Fulfill the replacement order
+
+Here's an example of processing returns and replacements:
+
+```graphql
+mutation OrderFulfillmentReturnProducts($orderId: ID!, $input: OrderReturnProductsInput!) {
+  orderFulfillmentReturnProducts(order:$orderId, input:$input) {
+    errors {
+      field
+      code
+      message
+      warehouse
+      orderLines
+    }
+    returnFulfillment {
+      id
+      status
+      lines {
+        id
+        quantity
+      }
+    }
+    replaceFulfillment {
+      id
+      status
+      lines {
+        id
+        quantity
+      }
+    }
+    replaceOrder {
+      id
+    }
+    order {
+      status
+      lines {
+        id
+        quantityFulfilled
+        quantityToFulfill
+      }
+    }
+  }
+}
+```
+
+**Example Variables:**
+
+```json
+{
+  "orderId": "T3JkZXI6NjAzYWI5OWMtY2EzZC00NzQwLWIxMDMtMjRhYzMyYmM0MjE2",
+  "input": {
+    "fulfillmentLines": [
+      {
+        "fulfillmentLineId": "RnVsZmlsbG1lbnRMaW5lOjI1MQ==",
+        "quantity": 1,
+        "replace": true
+      },
+      {
+        "fulfillmentLineId": "RnVsZmlsbG1lbnRMaW5lOjI1Mg==",
+        "quantity": 1,
+        "replace": false
+      }
+    ],
+    "includeShippingCosts": false,
+    "orderLines": [],
+    "refund": false
+  }
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "data": {
+    "orderFulfillmentReturnProducts": {
+      "errors": [],
+      "returnFulfillment": {
+        "id": "RnVsZmlsbG1lbnQ6MjA1",
+        "status": "RETURNED",
+        "lines": [
+          {
+            "id": "RnVsZmlsbG1lbnRMaW5lOjI1NA==",
+            "quantity": 1
+          }
+        ]
+      },
+      "replaceFulfillment": {
+        "id": "RnVsZmlsbG1lbnQ6MjA0",
+        "status": "REPLACED",
+        "lines": [
+          {
+            "id": "RnVsZmlsbG1lbnRMaW5lOjI1Mw==",
+            "quantity": 1
+          }
+        ]
+      },
+      "replaceOrder": {
+        "id": "T3JkZXI6MmFhZWVhOGItMzJiZS00N2U3LWEwZjEtYTQ4MTYxNTQ4YTEy"
+      },
+      "order": {
+        "status": "RETURNED",
+        "lines": [
+          {
+            "id": "T3JkZXJMaW5lOmM4ZDI1NDkxLWNhYWMtNDhkNy1iNTlhLTY4M2JkMGUyNWU3NA==",
+            "quantityFulfilled": 1,
+            "quantityToFulfill": 0
+          },
+          {
+            "id": "T3JkZXJMaW5lOmNjZTgzNzNiLTFjZGQtNDE0Yy05ZWVhLTc1NTRjOGRjOGJlMw==",
+            "quantityFulfilled": 1,
+            "quantityToFulfill": 0
+          }
+        ]
+      },
+      "__typename": "FulfillmentReturnProducts"
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 3,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+
+3. **Return and Refund**
+:::warning
+This functionality is only supported when using a payment plugin.
+
+For more details on how to handle refunds for payment created with apps, refer to the [Refunds documentation](/developer/payments/refunds).
+:::
+   - Case: Processing return and refund simultaneously
+   - Process:
+     - Set `refund: true` in [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products) to trigger automatic refund
+     - Optionally set `includeShippingCosts: true` to refund shipping costs
+   - Result: 
+     - New fulfillment is created in `REFUNDED_AND_RETURNED` status
+     - Saleor will automatically calculate the refund amount and pass it to the payment plugin for processing
+
+:::note
+Order status changes based on the return:
+- `PARTIALLY_RETURNED`: When some items are returned
+- `RETURNED`: When all items are returned
+:::
+
+### Refund
+
+Refunds can be processed in various scenarios after fulfillment. 
+Saleor provides different mutations to handle these cases, each suited for specific situations.
+
+:::warning
+For orders paid via apps or custom integrations, follow the [Refunds documentation](/developer/payments/refunds).
+
+For orders paid using payment plugins, use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products) or [`orderRefund`](/api-reference/orders/mutations/order-refund).
+:::
+
+**Example Cases:**
+
+1. **Refund only** 
+   - When: Items are damaged during shipment and won't be returned
+   - Fulfillment: Already shipped
+   - Plugin-based: Use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products) to refund specific fulfilled lines
+
+2. **Miscellaneous Refund** 
+   - When: The order was delivered, but the customer is due a partial refund (e.g. expedited shipping was late)
+   - Fulfillment: Already shipped
+   - Plugin-based: Use [`orderRefund`](/api-reference/orders/mutations/order-refund) to refund a custom amount (e.g., shipping costs)
+
+3. **Cancel** 
+   - When: The customer cancels part of the order before it ships
+   - Fulfillment: Not shipped
+   - Plugin-based: Use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products) for unfulfilled lines
+
+:::note
+The `ORDER_REFUNDED` webhook event is triggered when a partial refund is processed.
+
+The `ORDER_FULLY_REFUNDED` webhook event is triggered when the entire order amount has been refunded.
+:::
+
 ## Edge Cases & Exceptions
 The following scenarios demonstrate how different settings interact in Saleor's fulfillment system. 
 Understanding these interactions will help you implement the right fulfillment flow for your business needs:
@@ -626,4 +838,3 @@ The interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-refere
 #### Auto-fulfill enabled, auto-approve disabled
 - `automaticallyFulfillNonShippableGiftCard: true` and `fulfillmentAutoApprove: false`
   - Gift cards are still fulfilled automatically
-
