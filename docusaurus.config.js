@@ -219,6 +219,14 @@ module.exports = {
         theme: {
           customCss: [require.resolve("./src/css/theme.css")],
         },
+        sitemap: {
+          // Skip changefreq and priority for all pages as Google ignores them.
+          // Add last modification timestamp, which seems to have impact on indexing priority.
+          // https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap#additional-notes-about-xml-sitemaps
+          lastmod: "date",
+          changefreq: null,
+          priority: null,
+        },
         docs: {
           breadcrumbs: false,
           routeBasePath: "/",
