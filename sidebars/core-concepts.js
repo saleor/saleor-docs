@@ -23,7 +23,11 @@ export const coreConcepts = [
   "developer/attributes/configuration",
   "developer/attributes/lifecycle",
   "developer/attributes/api",
-  "developer/attributes/attributes_vs_metadata",
+
+  title("Modeling"),
+  "developer/modeling",
+  "developer/pages",
+  "developer/menu",
 
   title("Checkout"),
   "developer/checkout/overview",
@@ -38,6 +42,8 @@ export const coreConcepts = [
   title("Orders"),
   "developer/order/overview",
   "developer/order/order-status",
+  "developer/order/order-fulfillment",
+  "developer/order/order-update",
   "developer/order/order-expiration",
   "developer/order/order-to-checkout",
   "developer/order/address",
@@ -75,11 +81,13 @@ export const coreConcepts = [
   "developer/taxes",
   "developer/thumbnails",
   "developer/price-calculation",
-  "developer/menu",
 
   title("Importing"),
+  "developer/bulks/overview",
   "developer/bulks/bulk-orders",
   "developer/bulks/bulk-attributes",
+  "developer/bulks/bulk-products",
+  "developer/bulks/bulk-stock",
   "developer/bulks/error-policy",
 
   title("Exporting"),

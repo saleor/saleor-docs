@@ -1,58 +1,40 @@
 ---
 title: Scalable
+sidebar_position: 3
 ---
 
-## Platform architecture
+Saleor was designed as a hyperscale commerce platform. You can run it on your own hardware, but it thrives in the cloud, where it can take advantage of dynamic scaling and elasticity.
 
-Running Saleor on our infrastructure means we are incentivized to optimize costs to stay competitive with other hosting providers.
-We are constantly fine-tuning and optimizing our codebase performance.
+## Horizontal Scaling
 
-- Saleor Core is cloud native.
+Where vertical scaling means adding more resources to a single powerful machine, horizontal scaling means adding more machines to the pool of resources. Saleor's engine was built to allow for massive parallelism with many small, stateless containers. The entire state, including locking mechanisms, is handled by a shared database layer.
 
-- The API-only approach means platform extensions cannot degrade the platform's reliability.
+This is an excellent match for container orchestration platforms like Kubernetes. The resulting architecture can scale dynamically to suit demand with minute resolution, removing the need to commit to Black Friday-level capacity throughout the entire year or quarter. It allows upgrades to be rolled out without interrupting services and lets you distribute the service among multiple availability zones for increased resilience.
 
-- Saleor is used by global brands that run tens of thousands of requests per second.
+Of course, for stateless workers to scale well, the persistence layers must be able to keep up. All file storage is delegated to cloud-native solutions like AWS S3 and GCP Cloud Storage.
 
-- Running Saleor on our infrastructure means we are incentivized to optimize our costs.
+The database of our choice, PostgreSQL, does not offer a direct horizontal scaling solution, but Saleor is following the best practices of PostgreSQL's high availability by separating database writes from pure reads and using read replicas for the latter. Managed services like Amazon Aurora can take this further by automating writer failovers and allowing the read replica pool to scale automatically.
 
-- Designed for horizontal scaling
-  (centralized database, stateless workers, workers can be duplicated up to the database server's capacity)
+Even if you intend to run only a single instance of Saleor, all of the above means you can use patterns like blue/green deployment to avoid downtime when moving to a more powerful host.
 
-- Designed for database clustering (single writer, replicas used for reading)
+## Buffered Outputs
 
-- Outgoing communication based on queues (SQS, Google Pub/Sub)
+A big challenge in scaling a composable architecture is avoiding the situation where all systems must scale up in response to a single system experiencing a spike in traffic. This can not only get very costly but may be outright impossible, as some enterprise-grade ERP systems can only scale to a few requests per second, while a big sale can result in thousands of orders being placed every second. For this reason, Saleor divides events into two groups.
 
-- Designed for big data sets
-  (eventual consistency over immediate consistency, a lot of recalculation delegated to background tasks,
-  upkeep is done through periodic tasks with constant bandwidth, not to put too much pressure on the database)
+Events required by the delegation APIs are sent synchronously, requiring integrations to keep up. If an app breaks down and is unable to respond, an appropriate fallback mechanism is used to prevent the failures from cascading and causing an outage. Repeated failures will cause a circuit breaker to temporarily disable the integration entirely to prevent further resource loss on repeated reattempts and give the app some breathing room to recover.
 
-## Avoiding feature bloat
+All the other events are buffered and delivered asynchronously, allowing external applications to consume them at the rate they can comfortably keep up. This may result in temporary backlogs forming and some delays in processing, but it means a sudden scale-up of Saleor won't overwhelm and wipe all of its installed extensions.
 
-The boundaries of commerce platform can often spill over into other areas of business.
-We have a clear focus on what we think are essential features for a commerce platform
-which allows us to retain focus on user experience, reliability and performance.
+## Handling Large Datasets
 
-We value **extensibility over completeness of features** because we believe every business has unique needs,
-and it is not possible to be everything to everyone.
+We've personally built stores that offered millions of SKUs and ones that handled thousands of orders per second.
 
-### Non core features
+While there are cases where the user interface is not up to our standard, like managing hundreds of warehouses in the dashboard, or where we occasionally discover an SQL query that needs to be optimized, the entire product was built to tackle and gracefully handle copious amounts of data.
 
-Functionality we believe should be handled by external tools:
+It's not data lake-scale, but you don't need a data lake for your storefront, and we have yet to see a case in which our architects cannot recommend a reasonable solution.
 
-- **Search.**
-  Fast and intelligent search requires a dedicated engine and infrastructure.
-  There are many open-source and commercial solutions available that can be integrated with Saleor.
+## Scaling for the Future
 
-- **Personalization and AI.** Problem that is typically unique to each business.
+Saleor is a living project that is constantly evolving. Its composability and use of GraphQL make it a good fit for today's needs, including native mobile storefronts, point-of-sale kiosks, and virtual- or mixed-reality experiences. It's also ready for some of the tomorrow's tech, like ubiquitous AI agents speaking cryptic MCP languages.
 
-- **Business intelligence.**
-  Basic analytics are only useful for small-scale operations, and can quickly become obsolete.
-
-- **Email marketing and marketing automation**
-  We believe the marketing stack is a separate domain from a commerce platform.
-
-- **Frontend and theming**
-  Read [Why headless commerce](overview/why-saleor/headless.mdx) for more information.
-
-- **Marketplaces**
-  The definition of a marketplace is broad therefore a good candidate for a dedicated solution.
+This project is never "done," and we do our best to ensure that no matter where the future takes you, Saleor will not be holding you back.
