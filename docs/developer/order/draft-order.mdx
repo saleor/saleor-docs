@@ -21,7 +21,24 @@ configurations for B2B sales or negotiated deals, and confirm them once approved
 - **Item Replacements and Exchanges:** Automatically pre-fill draft orders with customer 
 and order context for faster handling of returns, damaged items, or goodwill shipments—without altering the original order.
 
-
+## Fulfillment Lifecycle
+```mermaid
+graph TD
+    A[Create draft order **draftOrderCreate**] --> B[ Add user email, shipping and billing address **draftOrderUpdate**]
+    B --> C[Add / Modify Products **orderLinesCreate/Update/Delete**];
+    C --> D{Is Shipping Required?};
+    D --> | Yes | E[Assign shipping method **orderUpdateShipping**];
+    D --> | No & No Discount | F[Complete Draft Order **draftOrderComplete**];
+    E --> G{Add Discount?}
+    G --> | No | F;
+    G --> | For total | H[Add order-level manual discount **orderDiscountAdd/Update/Delete**];
+    G --> | For line | I[Add line-level manual discount **orderLineDiscountUpdate/Remove**];
+    G --> | Use voucher | J[Add voucher code **draftOrderUpdate**];
+    H --> F;
+    I --> F;
+    J --> F;
+    F --> K(Ready for Payment & Fulfillment)
+```
 ## API
 ### Core Draft Order Management
 
