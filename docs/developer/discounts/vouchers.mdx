@@ -15,7 +15,7 @@ The vouchers on draft orders are applicable since v3.19.
 There are three types of vouchers:
 
 - `ENTIRE_ORDER`: the discount is applied on the subtotal value of checkout
-- `SPECIFIC_PRODUCT`: the discount is applied on the unit price of the product
+- `SPECIFIC_PRODUCT`: the discount is applied to the unit price of each eligible product. Eligibility is defined by linking products, categories, collections, or variants using the [`voucherCataloguesAdd`](api-reference/discounts/mutations/voucher-catalogues-add.mdx) mutation.
 - `SHIPPING`: the discount is applied on the shipping price
 
 We can also distinguish vouchers by their value type:
@@ -28,9 +28,9 @@ The discount applies to a single unit of the product, not the entire order line.
 If the voucher specifies certain products, the discount will be applied only to the cheapest item included in the discount.
 If the voucher applies to all products, the discount will be applied only to the cheapest item overall.
 
-To apply the voucher on checkout use [checkoutAddPromoCode](api-reference/checkout/mutations/checkout-add-promo-code.mdx)
+To apply the voucher on checkout use [`checkoutAddPromoCode`](api-reference/checkout/mutations/checkout-add-promo-code.mdx)
 mutation. The discount will be visible both in the line prices and in the `checkout.discount` field.
-To apply the voucher on draft order use [draftOrderCreate](api-reference/orders/mutations/draft-order-create.mdx) or [draftOrderUpdate](api-reference/orders/mutations/draft-order-update.mdx)
+To apply the voucher on draft order use [`draftOrderCreate`](api-reference/orders/mutations/draft-order-create.mdx) or [`draftOrderUpdate`](api-reference/orders/mutations/draft-order-update.mdx)
 and pass `voucherCode` as an argument.
 
 ### Usage limits
@@ -54,7 +54,7 @@ Saleor operates on the general assumption that updating the voucher settings sho
 
 ### Voucher usage in draft orders
 
-Saleor is able to calculate voucher usage in draft orders. To turn on such a behavior, `includeDraftOrderInVoucherUsage` flag for the given `Channel` must be set to `true`. Use [channelUpdate](api-reference/channels/mutations/channel-update.mdx) mutation to switch the flag.
+Saleor is able to calculate voucher usage in draft orders. To turn on such a behavior, `includeDraftOrderInVoucherUsage` flag for the given `Channel` must be set to `true`. Use [`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation to switch the flag.
 
 When the `includeDraftOrderInVoucherUsage` flag is changed from `false` to `true`, **vouchers will be disconnected from all draft orders.**
 
@@ -66,7 +66,7 @@ When the `includeDraftOrderInVoucherUsage` flag is changed from `true` to `false
 
 Voucher code will also be released, after the draft order deletion.
 
-When importing a draft order using [bulkOrderCreate](developer/bulks/bulk-orders.mdx) mutation, the voucher is not validated, therefore code usage will not be counted.
+When importing a draft order using [`bulkOrderCreate`](developer/bulks/bulk-orders.mdx) mutation, the voucher is not validated, therefore code usage will not be counted.
 
 ### Permissions
 
@@ -76,7 +76,7 @@ Managing promotions is available for users and apps with the `MANAGE_DISCOUNTS` 
 
 ### Creating voucher
 
-To create a voucher use [voucherCreate](api-reference/discounts/mutations/voucher-create.mdx) mutation.
+To create a voucher use [`voucherCreate`](api-reference/discounts/mutations/voucher-create.mdx) mutation.
 
 API allows to create voucher with multiple codes. To do that use the `addCodes` field to send a list of codes.
 
@@ -185,9 +185,9 @@ Here is the response:
 
 ### Updating voucher
 
-To update a voucher use [voucherUpdate](api-reference/discounts/mutations/voucher-update.mdx) mutation.
+To update a voucher use [`voucherUpdate`](api-reference/discounts/mutations/voucher-update.mdx) mutation.
 
-Using this mutation voucher codes can be only added. To remove codes use [voucherDelete](api-reference/discounts/mutations/voucher-code-bulk-delete.mdx) mutation.
+Using this mutation voucher codes can be only added. To remove codes use [`voucherDelete`](api-reference/discounts/mutations/voucher-code-bulk-delete.mdx) mutation.
 
 Input:
 
@@ -289,6 +289,155 @@ Here is the response:
   }
 }
 ```
+
+### Selecting Products for voucher
+
+To make a voucher applicable to specific products, you need to define which items should be eligible for the discount. This can be done by adding or removing products, categories, collections, or variants from the voucher's catalog. The catalog defines the scope of items that the voucher can be applied to.
+
+The `CatalogueInput` type is used to specify which items should be added to or removed from the voucher's catalog. It accepts the following fields:
+- `products`: List of product IDs to add/remove
+- `categories`: List of category IDs to add/remove
+- `collections`: List of collection IDs to add/remove
+- `variants`: List of product variant IDs to add/remove
+
+You can provide any combination of these fields in the input. When adding items, the voucher will apply to all specified items. When removing items, the voucher will no longer apply to the specified items.
+
+#### Add Products
+To add products, categories, collections, or variants to a voucher, use the [`voucherCataloguesAdd`](api-reference/discounts/mutations/voucher-catalogues-add.mdx) mutation. 
+This mutation allows you to specify which items the voucher should apply to.
+
+Here's an example of how to use the mutation:
+
+```graphql
+mutation VoucherCataloguesAdd($id: ID!, $input: CatalogueInput!) {
+  voucherCataloguesAdd(id: $id, input: $input) {
+    errors {
+      field
+      message
+      code
+    }
+    voucher {
+      id
+      name
+      products(first: 10) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+      categories(first: 10) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+      collections(first: 10) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+      variants(first: 10) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Input variables:
+
+```json
+{
+  "id": "Vm91Y2hlcjo0OA==",
+  "input": {
+    "products": ["UHJvZHVjdDoxNTM=", "UHJvZHVjdDoxNjc="],
+    "categories": ["Q2F0ZWdvcnk6MjU="],
+    "collections": ["Q29sbGVjdGlvbjo5"],
+    "variants": ["UHJvZHVjdFZhcmlhbnQ6MzQ1=="]
+  }
+}
+```
+
+#### Remove Products
+To remove products, categories, collections, or variants from a voucher, use the [`voucherCataloguesRemove`](api-reference/discounts/mutations/voucher-catalogues-remove.mdx) mutation. This mutation allows you to remove specific items from the voucher's catalog.
+
+
+Here's an example of how to use the mutation:
+
+```graphql
+mutation VoucherCataloguesRemove($id: ID!, $input: CatalogueInput!) {
+  voucherCataloguesRemove(id: $id, input: $input) {
+    errors {
+      field
+      message
+      code
+    }
+    voucher {
+      id
+      name
+      products(first: 10) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+      categories(first: 10) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+      collections(first: 10) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+      variants(first: 10) {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Input variables:
+
+```json
+{
+  "id": "Vm91Y2hlcjo0OA==",
+  "input": {
+    "products": ["UHJvZHVjdDoxNTM=", "UHJvZHVjdDoxNjc="],
+    "categories": ["Q2F0ZWdvcnk6MjU="],
+    "collections": ["Q29sbGVjdGlvbjo5"],
+    "variants": ["UHJvZHVjdFZhcmlhbnQ6MzQ1=="]
+  }
+}
+```
+
 
 ## Applying a voucher
 
@@ -1153,7 +1302,7 @@ will be visible on the order and order line prices. Additionally, the sum of vou
 discounts will be reflected in the `order.discounts` field. This behavior is consistent
 across all voucher types.
 
-The following example shows the response from the [checkoutComplete](api-reference/checkout/mutations/checkout-complete.mdx)
+The following example shows the response from the [`checkoutComplete`](api-reference/checkout/mutations/checkout-complete.mdx)
 mutation for a checkout that includes **two items** of the same variant with a **10% voucher discount** applied.
 
 ```json {42,57-75}
@@ -1249,7 +1398,7 @@ The discount can also be seen in the line prices - compare the `undiscountedUnit
 
 All voucher actions also generate asynchronous webhooks that can be used for reacting
 to the events emitted by Saleor, e.g. `VOUCHER_CREATED`, `VOUCHER_UPDATED`, `VOUCHER_DELETED`.
-The [WebhookEventTypeAsyncEnum](/api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#values)
+The [`WebhookEventTypeAsyncEnum`](/api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#values)
 represents the full list of asynchronous webhooks.
 
 You can learn more about webhooks [here](developer/extending/webhooks/asynchronous-events.mdx).
