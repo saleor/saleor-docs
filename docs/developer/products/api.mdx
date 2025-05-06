@@ -729,7 +729,7 @@ Response:
 }
 ```
 
-## Examples
+## Products Query Example
 
 Here's a more complex GraphQL query that combines all of the above information:
 
@@ -772,6 +772,227 @@ Here's a more complex GraphQL query that combines all of the above information:
           url
         }
       }
+    }
+  }
+}
+```
+
+## Create Products
+
+:::info  
+To create products and variants, you need the `MANAGE_PRODUCTS` permission.  
+::: 
+
+Before you can create a product, ensure the following exist:
+
+- Product Type – Defines whether the product is shippable (physical vs. digital) and which attributes (e.g., size, color) it supports.
+- Category – Organizes products into a hierarchical tree structure, often used for navigation in the storefront (e.g., "Clothing > Men > Shirts").
+- Collection (Optional) – Groups products for marketing purposes or curated storefront sections (e.g., “Summer Sale” or “Best Sellers”).
+- Channel – Controls the product's visibility, availability, pricing, and publication status across different sales channels (e.g., online store, marketplace).
+- Warehouse – Required to track stock levels and assign inventory to product variants.
+
+### Step-by-Step: Creating a Product and Variant
+
+1. [`productCreate`](/api-reference/products/mutations/product-create)
+  Creates the base product with core fields: name, description, product type, category, etc.
+
+```graphql
+mutation ProductCreate {
+  productCreate(
+    input: {
+      name: "T-Shirt", 
+      description: "{\"blocks\":[{\"type\":\"paragraph\",\"data\":{\"text\":\"A comfortable cotton t-shirt\"}}]}", 
+      productType: "UHJvZHVjdFR5cGU6MjA=", 
+      category: "Q2F0ZWdvcnk6Mzk=", 
+      attributes: [{id: "QXR0cmlidXRlOjM2", values: ["cotton"]}]}
+  ) {
+    product {
+      id
+      name
+      description
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+2. [`productChannelListingUpdate`](/api-reference/products/mutations/product-channel-listing-update)
+  Assigns the product to one or more sales channels. This step is necessary to:
+    - Publish the product
+    - Define if it's available for purchase
+
+```graphql
+mutation ProductChannelListing {
+  productChannelListingUpdate(
+    id: "UHJvZHVjdDoxNzQ="
+    input: {
+      updateChannels: {
+        channelId: "Q2hhbm5lbDox", 
+        isPublished: true, 
+        visibleInListings: true, 
+        isAvailableForPurchase: true
+      }
+    }
+  ) {
+    product {
+      id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+:::tip  
+You can create variants individually or in bulk, depending on your use case:
+  - Single variant creation: Use the mutation steps below.
+  - Bulk variant creation: See [Create variants in bulk](/developer/bulks/bulk-products.mdx#productvariantbulkupdate).
+:::
+
+3. [`productVariantCreate`](/api-reference/products/mutations/product-variant-create)
+  Creates a variant for the product. Variants are required even if your product has no variations – this is how Saleor handles SKUs, pricing, and inventory.
+	
+```graphql
+mutation VariantCreate{
+  productVariantCreate(input: {
+    product: "UHJvZHVjdDoxNzQ="
+    sku: "128223592"
+    attributes: [
+    {
+      id: "QXR0cmlidXRlOjM4",
+      values: [
+        "M"
+      ]
+    }
+  ]
+  }) {
+    productVariant {
+      id
+      name
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+4. [`productVariantChannelListingUpdate`](/api-reference/products/mutations/product-variant-channel-listing-update)
+    Sets prices for the variant per channel. Without this, variants won't appear in the storefront or checkout.
+
+:::info  
+  In Saleor, price and inventory are stored at the variant level to allow multi-variant products (e.g., sizes or colors) to have unique pricing and stock. Even single-variant products follow this structure for consistency.
+:::
+
+```graphql
+mutation VariantChannelListing {
+  productVariantChannelListingUpdate(
+    id: "UHJvZHVjdFZhcmlhbnQ6NDQy"
+    input: [{channelId: "Q2hhbm5lbDox", price: 19.99, costPrice: 5}]
+  ) {
+    variant {
+      id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+5. [`productVariantStocksCreate`](/api-reference/products/mutations/product-variant-stocks-create)
+    Links the variant to a warehouse and sets stock quantities.
+
+```graphql
+mutation VariantStocksCreate {
+  productVariantStocksCreate(
+    variantId: "UHJvZHVjdFZhcmlhbnQ6NDQy"
+    stocks: [
+      {warehouse: "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ==", quantity: 100}]
+  ) {
+    productVariant {
+      id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+
+### Managing Media
+
+[`productMediaCreate`](/api-reference/products/mutations/product-media-create) – Creates a media object (image or external URL) associated with a product.
+
+  - For image uploads, this mutation must be sent as a multipart request. See the spec: [graphql-multipart-request-spec](https://github.com/jaydenseric/)
+  - For external URLs, you can use the mediaUrl field.
+
+Creating product media with an external image URL example:
+
+```graphql
+mutation ProductMediaCreate{
+  productMediaCreate(input: {
+    product: "UHJvZHVjdDoxNzQ=",
+    mediaUrl:"https://user-images.githubusercontent.com/4006792/214636328-8e4f83e8-66cb-4114-a3d8-473eb908b9c3.png",
+    alt: "image description"
+  
+  }) {
+    media {
+      id
+      url
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+[`variantMediaAssign`](/api-reference/products/mutations/variant-media-assign) – There is no dedicated upload mutation for variant media. Assign uploaded product media to specific variants (e.g., color-specific images).
+
+[`productMediaReorder`](/api-reference/products/mutations/product-media-reorder) - Allows to change ordering of the product media.
+ 
+```graphql
+mutation MediaReorder {
+  productMediaReorder(
+    productId: "UHJvZHVjdDoxMzU="
+    mediaIds: ["UHJvZHVjdE1lZGlhOjYw", "UHJvZHVjdE1lZGlhOjE5", "UHJvZHVjdE1lZGlhOjIw", "UHJvZHVjdE1lZGlhOjU3", "UHJvZHVjdE1lZGlhOjU4", "UHJvZHVjdE1lZGlhOjU5"]
+  ) {
+    errors {
+      field
+      code
+      message
+    }
+    media {
+      id
+      sortOrder
+    }
+  }
+}
+```
+
+[`productMediaUpdate`](/api-reference/products/mutations/product-media-update) Update media description
+
+```graphql
+mutation ProductMediaUpdate {
+  productMediaUpdate(
+    id: "UHJvZHVjdE1lZGlhOjYx"
+    input: {alt: "updated media description"}
+  ) {
+    errors {
+      field
+      code
+      message
     }
   }
 }
