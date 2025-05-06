@@ -56,6 +56,10 @@ module.exports = {
         icon: "star",
       },
     },
+
+    title("Product"),
+    ref("cloud/overview", "Cloud", "cloud"),
+    ref("developer/index", "Core Concepts", "guides"),
     {
       type: "category",
       label: "Recipes",
@@ -70,10 +74,6 @@ module.exports = {
         icon: "selfHost",
       },
     },
-
-    title("Product"),
-    ref("cloud/overview", "Cloud", "cloud"),
-    ref("developer/index", "Core Concepts", "guides"),
 
     title("API"),
     ref("api-reference/api-reference", "API Reference", "api"),
