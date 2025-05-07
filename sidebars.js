@@ -8,6 +8,7 @@ const { extending } = require("./sidebars/extending");
 const { graphqlSidebar } = require("./sidebars/graphql");
 const { cloudSidebar } = require("./sidebars/cloud");
 const { upgradeGuidesSidebar } = require("./sidebars/upgrade-guides");
+const { recipesSidebar } = require("./sidebars/recipes");
 
 const backToHome = {
   type: "ref",
@@ -60,20 +61,7 @@ module.exports = {
     title("Product"),
     ref("cloud/overview", "Cloud", "cloud"),
     ref("developer/index", "Core Concepts", "guides"),
-    {
-      type: "category",
-      label: "Recipes",
-      items: [
-        "recipes/click-and-collect",
-        "recipes/custom-shipping",
-        "recipes/digital-products",
-        "recipes/extending-dashboard",
-        "recipes/multi-region",
-      ],
-      customProps: {
-        icon: "selfHost",
-      },
-    },
+    ref("recipes/overview", "Recipes", "selfHost"),
 
     title("API"),
     ref("api-reference/api-reference", "API Reference", "api"),
@@ -107,6 +95,7 @@ module.exports = {
     },
   ],
   concepts: [backToHome, ...coreConcepts],
+  recipes: [backToHome, ...recipesSidebar],
   appStore: [backToHome, ...appStore],
   buildingApps: [backToHome, ...buildingApps],
   graphql: [backToHome, ...graphqlSidebar],

@@ -1,7 +1,7 @@
 const { chapterTitle, hr } = require("./utils");
 
 export const recipesSidebar = [
-  chapterTitle("recipes/overview", "Recipes overview", "cloud"),
+  chapterTitle("recipes/overview", "Recipes overview", "selfHost"),
   hr(),
   "recipes/click-and-collect",
   "recipes/custom-shipping",
