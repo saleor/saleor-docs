@@ -1,0 +1,166 @@
+---
+title: Stock Overview
+sidebar_label: Overview
+description: Overview of stock business logic in Saleor.
+---
+
+Saleor includes built-in support for warehouses to manage inventory across multiple locations. A warehouse represents a physical location from which products are stocked, fulfilled, or collected. Warehouses can also serve as collection points using Saleor’s Click and Collect functionality.
+
+You can configure warehouse behavior per channel using three fulfillment options:
+
+- Local stock:
+
+    Only the stock from the current warehouse is used during fulfillment.
+
+- Available only for public warehouses.
+
+    All warehouses:
+
+    Fulfillment can use stock from any warehouse available in the same channel.
+
+    Useful for centralized or dynamic fulfillment strategies.
+
+- Disabled:
+
+    The warehouse is not used as a collection point.
+
+## Warehouse configuration
+
+### Warehouse creation
+
+Firstly we need to create the warehouse with the use of
+[`createWarehouse`](api-reference/products/mutations/create-warehouse.mdx) mutation.
+In the following example, we are specifying `name`, `slug`, `email` and `address` of a warehouse.
+
+```graphql
+mutation {
+  createWarehouse(input: {
+    name: "Example warehouse",
+    slug: "example-warehouse",
+    email: "example-warehouse@example.com",
+    address: {
+      streetAddress1: "Teczowa 8",
+      city: "Wroclaw",
+      country: PL,
+      postalCode: "53-601",
+      companyName: "Amazing Company Inc",
+    }
+  }){
+    warehouse {
+      id
+      name
+      slug
+      email
+      address {
+        id
+        companyName
+      }
+    }
+    errors {
+      message
+      field
+      code
+    }
+  }
+```
+
+As a response we get the newly created warehouse:
+
+```json
+{
+  "data": {
+    "createWarehouse": {
+      "warehouse": {
+        "id": "V2FyZWhvdXNlOmJjMjZiNjMzLTg0ZmItNDUxZC1hNTRjLTU1NDc1YjU5NTAzYQ==",
+        "name": "Example warehouse",
+        "slug": "example-warehouse",
+        "email": "example-warehouse@example.com",
+        "address": {
+          "id": "QWRkcmVzczo2NA==",
+          "companyName": "Amazing Company Inc"
+        }
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+After the warehouse is created it can be changed with the use of
+the [`updateWarehouse`](api-reference/products/mutations/update-warehouse.mdx) mutation.
+There is an option to change the following warehouse fields: `name`, `slug`, `email`, `address` and
+also define privacy and `click and collect` options.
+
+We can define warehouse as public or private. Public warehouse allows you to query the stock information publicly in the API. Private warehouse requires permission.
+
+### Click-and-collect warehouses
+
+You can define warehouse as a collection point with the `click and collect` option.
+There are three options you can use:
+
+- `local stock` - the stock from the current warehouse is used during the fulfillment process.
+  This option is only available for public warehouses.
+- `all warehouses` - the total stock of a given product from all warehouses is used
+  during the fulfillment process. The available quantity is not restricted by the quantity
+  of this warehouse, and ordered products can be shipped from any other warehouse that
+  is available in the channel.
+- `disabled` - the current warehouse cannot be used as the collection point.
+
+In the case of click-and-collect, the warehouse availability does not depend on the shipping zones.
+It is limited only by the given channel.
+The warehouse is available as a collection point for the given order under two conditions:
+
+- there is a stock with available quantity for a given product,
+- the warehouse is available in the channel in which the order is created.
+
+### Assign warehouses to the channels
+
+To allow assigning the warehouse to the shipping zone we need to have at least one common
+channel with this zone. So firstly, we need to assign warehouses to channels with the use of
+[`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation.
+See the example below:
+
+```graphql
+  mutation {
+    channelUpdate(
+      id: "Q2hhbm5lbDoxMQ==",
+      input: {
+        "addWarehouses": ["V2FyZWhvdXNlOjA4N2I2MzhlLWIxYzYtNDk5Mi1hMWQ1LTZiOWI5N2FjODU1Zg=="]
+      }
+    ){
+      channel{
+        id
+        warehouses {
+          slug
+        }
+      }
+      errors{
+        field
+        code
+        message
+        shippingZones
+        warehouses
+      }
+    }
+  }
+```
+
+As a response, we get the updated channel:
+
+```json
+{
+  "data": {
+    "channelUpdate": {
+      "channel": {
+        "id": "Q2hhbm5lbDoxMQ==",
+        "warehouses": [
+          {
+            "slug": "example-warehouse"
+          }
+        ]
+      },
+      "channelErrors": []
+    }
+  }
+}
+```
