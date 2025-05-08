@@ -1,0 +1,45 @@
+---
+sidebar_label: Architecture
+sidebar_position: 2
+title: Stripe App Architecture
+---
+
+## Assumptions
+
+### Supporting Authorization flow
+
+App supports both Authorization and Charge flow that can be set in Saleor channel settings. However, not every payment method supports Authorization.
+
+Some methods, support both Authorization and Charge, some - only Charge.
+
+App will proceed following flows (simplified)
+
+Charge Flow
+
+CHARGE_REQUEST → CHARGE_SUCCESS
+
+Authorization Flow + method supports Authorization
+
+AUTHORIZATION_REQUEST → AUTHORIZATION_SUCCESS → CHARGE_REQUEST → CHARGE_SUCCESS
+
+Authorization Flow + method does not support Authorization
+
+AUTHORIZATION_REQUEST → CHARGE_SUCCESS
+
+To wrap up, app can make a decision to make a shortcut from AUTHORIZATION to CHARGE if method doesn’t allow to authorize first.
+
+To make this work, app requires payment method to be provided in `data` of TransactionInitializeSession - see storefront integration
+
+### Stripe event deduplication
+
+Stripe doesn’t guarantee their webhooks will be delivered once and recommend to deduplicate events.
+
+App itself doesn’t deduplicate - Saleor does. In case of duplicated event, app will resolve the same result (PSP Reference, amount, type) and report it to Saleor again. Saleor will reject this event with an ALREADY_REPORTED error, which app gracefully handles.
+
+### Stripe metadata
+
+At this point app is not setting anything on Stripe’s Payment Intent metadata.
+
+In the future app may store there additional fields, but will not rely on these fields and do not guarantee these fields will be written.
+
+It is fine to use metadata for additional, user-targeted information, but do not build automated logic based on it’s existence.
