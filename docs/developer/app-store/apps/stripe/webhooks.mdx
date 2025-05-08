@@ -1,0 +1,89 @@
+---
+sidebar_label: Webhooks
+sidebar_position: 4
+title: Stripe App Webhooks
+---
+
+Majority of application logic happens during webhooks execution:
+- Transaction webhooks from Saleor
+- Events from Stripe
+
+This page cover each webhook behavior, data it expects and returns and what can it return.
+
+# Saleor Webhooks
+
+App supports following synchronous webhooks. All of these webhooks are executed as a result of explicit mutations called by storefront (to manage payments) or by Dashboard (to capture/cancel/refund payments).
+
+Check Transactions documentation to learn more.
+
+## PaymentGatewayInitializeSession
+
+This webhook checks if App is properly configured and return in the response (to the storefront) Stripe Publishable Key, needed to render the UI.
+
+It will return following `data` shape
+
+```json
+{
+  "stripePublishableKey": "pk_live_XYZ"
+}
+```
+
+## TransactionInitializeSession
+
+This webhook takes data from Storefront and creates a Payment Intent in Stripe.
+
+It requires following `data` shape:
+
+```json
+{
+  "paymentIntent": {
+    "paymentMethod": "card"
+  }
+}
+```
+
+Warning: Data shape will be different depending on selected payment method. Payment Method from Stripe SDK must be provided. When adding more supported payment methods, app may require more fields specific to that payment method.
+
+Warning: Data is strictly validated. It will return errors when:
+
+- Shape is invalid
+- Payment method is not supported
+
+Webhook will result with following responses
+
+For successful operation it will set either `CHARGE_ACTION_REQUIRED` or `AUTHORIZATION_ACTION_REQUIRED` and return data:
+
+```json
+{
+"paymentIntent": {
+  "stripeClientSecret": "..."
+}
+}
+```
+
+For failed operation it will set either `CHARGED_FAILURE` or `AUTHORIZATION_FAILURE` in Saleor and return data:
+
+```json
+{
+  "paymentIntent": {
+    "errors": [
+      {
+        "code": "error code",
+        "message": "human readable message"
+      }
+    ]
+  }
+}
+```
+
+Possible codes are:
+
+- todo
+
+## TransactionProcessSession
+
+todo
+
+- [ ]  todo dashboard webhooks
+
+# Stripe Webhook
