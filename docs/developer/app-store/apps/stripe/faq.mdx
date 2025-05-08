@@ -1,0 +1,42 @@
+---
+sidebar_label: FAQ and troubleshooting
+sidebar_position: 8
+title: Stripe App FAQ & troubleshooting
+---
+
+## Can I adjust transaction amount after it was initially created?
+
+No. The amount will be reported to Saleor during transactionInitializeSession mutation. After this point, you can’t adjust the amount.
+
+Your storefront must retry payment process and send new transactionInitializeSession mutation with adjusted amount.
+
+You should ensure your payment flow starts when the checkout total is known.
+
+## Can I adjust transaction payment method within single transaction?
+
+No. Both amount and payment methods are coupled to transaction and are set on transactionInitializeSession.
+
+To change payment method (e.g. once user failed to pay), you should handle this flow to retry on the storefront and execute transactionInitializeSession once again.
+
+For example, when user fails to pay with Blik and then succeeds paying with card, in transactions history it will be visible as one failed transaction and one successful transaction.
+
+## Do I have to call transactionProcessSession?
+
+App uses transactionProcessSession to “force” checking Stripe status, before the webhook arrives.
+
+With transactionInitializeSession webhook, app only sets statuses that are not allowing to complete the checkout, like ACTION_REQUIRED. This status represents need to perform actions on the storefront (like confirming payment or 3D-secure flow)
+
+To execute `checkoutComplete` mutation, transaction must be at proper state like SUCCESS or PENDING.
+
+At this point, only way to complete checkout will be have “Allow unpaid orders” flag enabled.
+
+Without the flag, to allow completing the checkout, App must report another state. It will happen within two operations:
+
+- transactionProcessSession
+- Stripe webhook handling
+
+In most cases, webhook and processSession handler will execute the same logic - first one will set the status, second will report identical event that will be gracefully ignored by Saleor
+
+App will always handle Stripe webhook, so *eventually* status will be delivered anyway. If you rely on automatic checkout completion, this should be enough for you - you can show to the customer status from Stripe directly and webhook will resolve the final state asynchronously.
+
+But - if customer (storefront) tries to complete the checkout before webhook arrives, it will fail. To ensure this flow is smooth, we recommend to integrate transactionProcessSession. This webhook will speed up resolving the flow and if needed - storefront can earlier show problem with payment.
