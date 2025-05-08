@@ -6,6 +6,8 @@ title: Stripe App Architecture
 
 ## Assumptions
 
+App uses assumptions below to make decisions about it's behavior. Changing them will usually mean breaking change, so it's not likely they will change in the future.
+
 ### Supporting Authorization flow
 
 App supports both Authorization and Charge flow that can be set in Saleor channel settings. However, not every payment method supports Authorization.
@@ -34,7 +36,7 @@ To make this work, app requires payment method to be provided in `data` of Trans
 
 Stripe doesn’t guarantee their webhooks will be delivered once and recommend to deduplicate events.
 
-App itself doesn’t deduplicate - Saleor does. In case of duplicated event, app will resolve the same result (PSP Reference, amount, type) and report it to Saleor again. Saleor will reject this event with an ALREADY_REPORTED error, which app gracefully handles.
+App itself doesn’t de-duplicate - Saleor does. In case of duplicated event, app will resolve the same result (PSP Reference, amount, type) and report it to Saleor again. Saleor will reject this event with an ALREADY_REPORTED error, which app gracefully handles.
 
 ### Stripe metadata
 
@@ -43,3 +45,61 @@ At this point app is not setting anything on Stripe’s Payment Intent metadata.
 In the future app may store there additional fields, but will not rely on these fields and do not guarantee these fields will be written.
 
 It is fine to use metadata for additional, user-targeted information, but do not build automated logic based on it’s existence.
+
+## Data persistence
+
+App uses its internal database to store the following data:
+
+- App configuration:
+    - Stripe publishable key
+    - Stripe restricted key (encrypted)
+    - Configuration name
+    - Internal configuration ID
+    - Stripe webhook ID
+    - Stripe webhook secret (encrypted)
+    - Mapping between channel ID and configuration ID
+- Transactions recordings (history of processed transaction):
+    - Transaction ID from Saleor
+    - Payment Intent ID from Stripe
+    - Transaction Flow that Saleor delivers with events
+    - Transaction Flow that App computes to use
+    - Selected payment method
+
+
+## Supported flows
+
+This chapter lists flows possible to execute, including Storefront, Saleor, App and Stripe.
+
+Note: Flows that assume operation in Saleor Dashboard can be also executed with graphQL
+
+### Successful payment with CHARGE flow
+
+### Successful payment with AUTHORIZATION flow
+
+### Failed payment with CHARGE flow
+
+### Failed payment with AUTHORIZATION flow
+
+### Successful payment with AUTHORIZATION flow for payment method that does not support authorization
+
+### Successful capturing money from Saleor Dashboard
+
+### Failed capturing money from Saleor Dashboard
+
+### Successful cancelling authorization from Saleor Dashboard
+
+### Failed cancelling authorization from Saleor Dashboard
+
+### Successful capturing authorized funds from Saleor Dashboard
+
+### Failed capturing authorized funds from Saleor Dashboard
+
+### Capturing funds from Stripe
+
+### Cancelling authorized transaction from Stripe
+
+### Successful refunding amount from Saleor Dashboard
+
+### Failed refunding amount from Saleor Dashboard
+
+### Refunding amount from Stripe
