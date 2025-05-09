@@ -1,0 +1,400 @@
+---
+title: Shipping Methods
+description: Overview of shipping methods business logic and configuration in Saleor.
+---
+
+# Shipping Methods
+
+Shipping Methods define the available delivery options and their associated costs within a specific shipping zone 
+They define how much customers pay, what carriers you use, and under what conditions each method applies.
+
+Saleor supports two types of shipping methods:
+- **Price-based**: These methods are available when the order total falls 
+within the configured minimum and maximum price range.
+- **Weight-based**: These methods are available when the order's total weight falls 
+within the configured minimum and maximum weight range.
+
+
+:::note
+In Saleor, **Shipping Methods** and **Shipping Rates** refer to the same concept. 
+When creating them in the dashboard, they are called Shipping Rates, 
+while in the API responses they are returned as Shipping Methods.
+:::
+
+## Creating Shipping Methods
+:::info
+Creating shipping methods requires the `MANAGE_SHIPPING` permission.
+:::
+
+You can select if particular shipping method should be available for each channel assigned to shipping zone. 
+This allows you to have different shipping options available in different sales channels, 
+even within the same shipping zone.
+
+You can create shipping zones either via the Saleor Dashboard or using the GraphQL API.
+
+**Saleor Dashboard**
+
+1. Go to Configuration → Shipping Zones
+2. Select the shipping zone you want to configure
+3. Click "Create Rate" next to the appropriate section (**Price Based Rates** or **Weight Based Rates**)
+4. Add at least a name and price for sales channel(s)
+5. Save Shipping Method
+
+
+### Price-Based Methods
+
+Price-based shipping methods allow you to set different price restrictions for each channel. 
+This means you can have different minimum and maximum order values for the same shipping method across different sales channels. 
+For example, you might want to offer free shipping for orders over $100 in your main store, 
+but require a minimum order of $50 in your marketplace channel.
+
+1. Use the [`shippingPriceCreate`](/api-reference/shipping/mutations/shipping-price-create.mdx) 
+mutation with `"type": "PRICE"`:
+
+```graphql {2-9}
+mutation {
+  shippingPriceCreate(
+    input: {
+      shippingZone: "U2hpcHBpbmdab25lOjE4", 
+      type: PRICE, 
+      name: "Post Office", 
+      minimumDeliveryDays: 2, 
+      maximumDeliveryDays: 7
+    }
+  ) {
+    errors {
+      field
+      code
+      message
+    }
+    shippingMethod {
+      id
+      type
+      name
+      minimumDeliveryDays
+      maximumDeliveryDays
+      minimumOrderWeight {
+        value
+        unit
+      }
+      maximumOrderWeight {
+        value
+        unit
+      }
+      channelListings {
+        channel {
+          slug
+        }
+        minimumOrderPrice {
+          amount
+        }
+        maximumOrderPrice {
+          amount
+        }
+        price {
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+2. Make the shipping method available in channels using [`shippingMethodChannelListingUpdate`](/api-reference/shipping/mutations/shipping-method-channel-listing-update.mdx):
+
+```graphql {2-10}
+mutation {
+  shippingMethodChannelListingUpdate(
+    id: "U2hpcHBpbmdNZXRob2RUeXBlOjM3"
+    input: {
+      addChannels: [{
+        channelId: "Q2hhbm5lbDo1NA==", 
+        minimumOrderPrice: null, 
+        maximumOrderPrice: 1000, 
+        price: 9.99}]
+    }
+  ) {
+    errors {
+      field
+      code
+      message
+    }
+    shippingMethod {
+      id
+      type
+      name
+      minimumDeliveryDays
+      maximumDeliveryDays
+      minimumOrderWeight {
+        value
+        unit
+      }
+      maximumOrderWeight {
+        value
+        unit
+      }
+      channelListings {
+        channel {
+          slug
+        }
+        minimumOrderPrice {
+          amount
+        }
+        maximumOrderPrice {
+          amount
+        }
+        price {
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+### Weight-Based Methods
+
+Weight-based shipping methods have a global weight restriction that applies to all channels. 
+This means the minimum and maximum weight limits you set will be the same regardless of which channel the order comes from. 
+This is particularly useful when you need to ensure consistent shipping rules based on physical constraints, 
+like package size or carrier limitations.
+
+1. First, set the default weight unit for your store. By default, it is set to KG, so if you operate using a different unit (e.g., LB), make sure to update it accordingly.
+See the list of [spported weight units](/api-reference/miscellaneous/enums/weight-units-enum.mdx).
+
+You can update the unit in the Dashboard by going to the Shipping Zones list and clicking the settings icon in the top-right corner, or by using the mutation below:
+```graphql {2}
+mutation {
+  shopSettingsUpdate(input: {defaultWeightUnit: G}) {
+    errors {
+      code
+      field
+      message
+    }
+    shop {
+      defaultWeightUnit
+    }
+  }
+}
+```
+
+2. Use the [`shippingPriceCreate`](/api-reference/shipping/mutations/shipping-price-create) 
+mutation with `"type": "WEIGHT"`, additionally you can specify weight range with `minimumOrderWeight` and `maximumOrderWeight`
+
+```graphql {2-11}
+mutation {
+  shippingPriceCreate(
+    input: {
+      shippingZone: "U2hpcHBpbmdab25lOjE4", 
+      type: WEIGHT, 
+      name: "Post Office", 
+      minimumDeliveryDays: 2, 
+      maximumDeliveryDays: 7
+      minimumOrderWeight: 2,
+      maximumOrderWeight: 20
+    }
+  ) {
+    errors {
+      field
+      code
+      message
+    }
+    shippingMethod {
+      id
+      type
+      name
+      minimumDeliveryDays
+      maximumDeliveryDays
+      minimumOrderWeight {
+        value
+        unit
+      }
+      maximumOrderWeight {
+        value
+        unit
+      }
+      channelListings {
+        channel {
+          slug
+        }
+        minimumOrderPrice {
+          amount
+        }
+        maximumOrderPrice {
+          amount
+        }
+        price {
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+3. Make the shipping method available in channels using [`shippingMethodChannelListingUpdate`](/api-reference/shipping/mutations/shipping-method-channel-listing-update.mdx):
+```graphql {2-8}
+mutation {
+  shippingMethodChannelListingUpdate(
+    id: "U2hpcHBpbmdNZXRob2RUeXBlOjM5"
+    input: {
+      addChannels: [{
+        channelId: "Q2hhbm5lbDo1NA==", 
+        price: 9.99}]
+    }
+  ) {
+    errors {
+      field
+      code
+      message
+    }
+    shippingMethod {
+      id
+      type
+      name
+      minimumDeliveryDays
+      maximumDeliveryDays
+      minimumOrderWeight {
+        value
+        unit
+      }
+      maximumOrderWeight {
+        value
+        unit
+      }
+      channelListings {
+        channel {
+          slug
+        }
+        minimumOrderPrice {
+          amount
+        }
+        maximumOrderPrice {
+          amount
+        }
+        price {
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+## Advanced Configuration
+
+### Postal Code Rules
+
+You can configure postal code rules to control where shipping methods are available:
+
+- **Exclude postal codes**: Added postal codes will be excluded from using this delivery method. If none are added, all postal codes will be able to use that shipping rate.
+- **Include postal codes**: Only added postal codes will be able to use this shipping rate.
+
+Configure postal codes using the [`shippingPriceUpdate`](/api-reference/shipping/mutations/shipping-price-update.mdx) 
+mutation, below example shows how to exclude one postal code for existing shipping method:
+
+```graphql {2-7}
+mutation {
+  shippingPriceUpdate(
+    id: "U2hpcHBpbmdNZXRob2RUeXBlOjE1"
+    input: {addPostalCodeRules: [{end: "", start: "83-330"}], 
+      deletePostalCodeRules: [], 
+      inclusionType: EXCLUDE
+    }
+  ) {
+    errors {
+      field
+      code
+      message
+    }
+    shippingMethod {
+      postalCodeRules {
+        id
+        start
+        end
+        inclusionType
+      }
+    }
+    __typename
+  }
+}
+```
+
+### Product Exclusions
+
+You can exclude specific products from using certain shipping methods.
+
+- Use [`shippingPriceExcludeProducts`](/api-reference/shipping/mutations/shipping-price-exclude-products.mdx) to add products to the exclusion list
+- Use [`shippingPriceRemoveProductFromExclude`](/api-reference/shipping/mutations/shipping-price-remove-product-from-exclude.mdx) to remove products from the exclusion list
+
+Here is example for excluding products:
+```graphql {2-4}
+mutation {
+  shippingPriceExcludeProducts(
+    id: "U2hpcHBpbmdNZXRob2RUeXBlOjE1"
+    input: {products: ["UHJvZHVjdDoxNDQ="]}
+  ) {
+    errors {
+      field
+      code
+      message
+    }
+    shippingMethod {
+      excludedProducts {
+        totalCount
+        edges {
+          node {
+            slug
+          }
+        }
+      }
+    }
+  }
+}
+```
+### Delivery Time Estimates
+
+Configure delivery time estimates to help customers choose the right shipping method:
+
+```graphql
+{
+  "maximumDeliveryDays": 7,
+  "minimumDeliveryDays": 2
+}
+```
+
+### Tax Configuration
+
+You can assign a tax class to shipping methods. For more information, see the [taxes guide](/developer/taxes.mdx#assigning-tax-rate-to-a-shipping-method).
+
+## Managing Shipping Methods
+
+### Updating
+
+Update existing shipping methods using:
+- [`shippingPriceUpdate`](/api-reference/shipping/mutations/shipping-price-update.mdx) Use this mutation for general updates to the shipping method's name, delivery days, etc.
+- [`shippingMethodChannelListingUpdate`](/api-reference/shipping/mutations/shipping-method-channel-listing-update.mdx) Use this mutation to adjust channel-specific settings like price and order total range.
+- [`shippingPriceTranslate`](/api-reference/miscellaneous/inputs/shipping-price-translation-input.mdx) Use this mutation to provide translations for the shipping method's name and description in different languages.
+
+### Metadata Management
+
+To manage shipping rate metadata, use:
+- [`updateMetadata`](/api-reference/miscellaneous/mutations/update-metadata.mdx)
+- [`updatePrivateMetadata`](/api-reference/miscellaneous/mutations/update-private-metadata)
+
+### Deleting
+
+Remove shipping methods using:
+- [`shippingPriceDelete`](/api-reference/shipping/mutations/shipping-price-delete.mdx) for single deletion
+- [`shippingPriceBulkDelete`](/api-reference/shipping/mutations/shipping-price-bulk-delete.mdx) for bulk deletion
+
+## Webhooks
+
+Saleor provides the following webhooks for shipping methods:
+
+- `SHIPPING_PRICE_CREATED`: Triggered when a new shipping method is created
+- `SHIPPING_PRICE_DELETED`: Triggered when a shipping method is deleted
+- `SHIPPING_PRICE_UPDATED`: Triggered when a shipping method is updated
+
+
+
