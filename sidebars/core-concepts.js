@@ -65,7 +65,8 @@ export const coreConcepts = [
   "developer/stock/stock-allocation",
 
   title("Shipping"),
-  "developer/shipping/overview",
+  "developer/shipping/shipping-zone",
+  "developer/shipping/shipping-method",
 
   title("Discounts"),
   "developer/discounts/overview",
