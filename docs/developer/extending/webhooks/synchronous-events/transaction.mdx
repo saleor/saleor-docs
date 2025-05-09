@@ -124,27 +124,22 @@ This is a common case when the payment provider returns the status of the action
 response to the requested action.
 The payload response has to contain at least `pspReference` (optional for `CHARGE_FAILURE`), `result` (
 [`CHARGE_SUCCESS`](../../../../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcharge_success)
-or [`CHARGE_FAILURE`](../../../../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcharge_failure)),
-and `amount` fields.
+or [`CHARGE_FAILURE`](../../../../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcharge_failure)).
+If the `amount` field is not provided, Saleor will default to using the requested amount from the original payload.
 
 The response in this case should have the following structure:
 
 ```json
 {
-  "pspReference": "<[Optional for CHARGE_FAILURE] psp reference recieved from payment provider>",
+  "pspReference": "<[Optional for CHARGE_FAILURE] psp reference received from payment provider>",
   "result": "<CHARGE_SUCCESS or CHARGE_FAILURE>",
-  "amount": "<Decimal amount of the processed action>",
+  "amount": "<[Optional since Saleor 3.21] Decimal amount of the processed action>",
   "time": "<[Optional] time of the action>",
   "externalUrl": "<[Optional] external url with action details>",
   "message": "<[Optional] message related to the action. The maximum length is 512 characters; any text exceeding this limit will be truncated>",
   "actions": "<[Optional] list of actions available for the transaction. Possible items: CHARGE, REFUND, CANCEL>"
 }
 ```
-
-:::caution
-In the case when one of `result`, `amount` is provided and the second one is missing,
-the response will not be processed, and Saleor will create the failure event.
-:::
 
 ## Transaction cancelation
 
@@ -253,16 +248,16 @@ This is a common case when the payment provider returns the status of the action
 response to the requested action.
 The payload response has to contain at least `pspReference` (optional for `CANCEL_FAILURE`), `result` (
 [`CANCEL_SUCCESS`](../../../../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcancel_success)
-or [`CANCEL_FAILURE`](../../../../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcancel_failure)),
-and `amount` fields.
+or [`CANCEL_FAILURE`](../../../../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumcancel_failure)). 
+If the `amount` field is not provided, Saleor will default to using the requested amount from the original payload.
 
 The response in this case should have the following structure:
 
 ```json
 {
-  "pspReference": "<[Optional for CANCEL_FAILURE] psp reference recieved from payment provider>",
+  "pspReference": "<[Optional for CANCEL_FAILURE] psp reference received from payment provider>",
   "result": "<CANCEL_SUCCESS or CANCEL_FAILURE>",
-  "amount": "<Decimal amount of the processed action>",
+  "amount": "<[Optional since Saleor 3.21] Decimal amount of the processed action>",
   "time": "<[Optional] time of the action>",
   "externalUrl": "<[Optional] external url with action details>",
   "message": "<[Optional] message related to the action. The maximum length is 512 characters; any text exceeding this limit will be truncated.>",
@@ -270,10 +265,6 @@ The response in this case should have the following structure:
 }
 ```
 
-:::caution
-In the case when one of `result`, `amount` is provided and the second one is missing,
-the response will not be processed, and Saleor will create the failure event.
-:::
 
 ## Transaction refund
 
@@ -404,16 +395,16 @@ This is a common case when the payment provider returns the status of the action
 response to the requested action.
 The payload response has to contain at least `pspReference` (optional for `REFUND_FAILURE`), `result` (
 [`REFUND_SUCCESS`](../../../../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumrefund_success)
-or [`REFUND_FAILURE`](../../../../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumrefund_failure)),
-and `amount` fields.
+or [`REFUND_FAILURE`](../../../../api-reference/payments/enums/transaction-event-type-enum#transactioneventtypeenumrefund_failure)).
+If the `amount` field is not provided, Saleor will default to using the requested amount from the original payload.
 
 The response in this case should have the following structure:
 
 ```json
 {
-  "pspReference": "<[Optional for REFUND_FAILURE] psp reference recieved from payment provider>",
+  "pspReference": "<[Optional for REFUND_FAILURE] psp reference received from payment provider>",
   "result": "<REFUND_SUCCESS or REFUND_FAILURE>",
-  "amount": "<Decimal amount of the processed action>",
+  "amount": "<[Optional since Saleor 3.21] Decimal amount of the processed action>",
   "time": "<[Optional] time of the action>",
   "externalUrl": "<[Optional] external url with action details>",
   "message": "<[Optional] message related to the action. The maximum length is 512 characters; any text exceeding this limit will be truncated>",
@@ -421,10 +412,6 @@ The response in this case should have the following structure:
 }
 ```
 
-:::caution
-In the case when one of `result`, `amount` is provided and the second one is missing,
-the response will not be processed, and Saleor will create the failure event.
-:::
 
 ## Initialize payment gateway session
 
@@ -586,14 +573,15 @@ The example below shows the pre-defined payload that will be used in the case wh
 
 The app must return a response in a specified format. Based on the payload, Saleor will determine the current status of the transaction.
 If the format is incorrect or the response is missing, Saleor will create either a `CHARGE_FAILURE` or `AUTHORIZATION_FAILURE` event, depending on the type of action that was requested.
+If the `amount` field is not provided, Saleor will default to using the requested amount from the original payload.
 
 The response in this case should have the following structure:
 
 ```json
 {
-  "pspReference": "<[Optional for some results, see details below] psp reference recieved from payment provider>",
+  "pspReference": "<[Optional for some results, see details below] <psp reference received from payment provider>",
   "result": "CHARGE_SUCCESS or CHARGE_FAILURE or CHARGE_REQUEST or AUTHORIZATION_SUCCESS or AUTHORIZATION_FAILURE or AUTHORIZATION_REQUEST or AUTHORIZATION_ACTION_REQUIRED or CHARGE_ACTION_REQUIRED>",
-  "amount": "<Decimal amount of the processed action>",
+  "amount": "<[Optional since Saleor 3.21] Decimal amount of the processed action>",
   "data": "<[Optional] JSON data tha will be returned to storefront>",
   "time": "<[Optional] time of the action>",
   "externalUrl": "<[Optional] external url with action details.",
@@ -633,7 +621,7 @@ The `pspReference` is optional for the following `results`:
 
 The [`TRANSACTION_PROCESS_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumtransaction_process_session) webhook is called synchronously when
 a customer needs to process additional actions received as a response from either
-the [`transactionInitialize`](/developer/payments/payment-apps.mdx#initialize-transaction) or `transactionProcess mutations. This webhook is triggered when the customer calls the `transactionProcess` mutation.
+the [`transactionInitialize`](/developer/payments/payment-apps.mdx#initialize-transaction) or `transactionProcess` mutations. This webhook is triggered when the customer calls the `transactionProcess` mutation.
 It contains details about the `Order` or `Checkout` object related to this action, the `transactionItem` object, details related to the requested action, and the `data` passed in the mutation input.
 Saleor expects the response to be in the proper format. Based on the response, the amount of the `transactionItem` can be marked as fully covered or marked as a transaction
 that requires additional actions from the customer, such as processing a 3D secure action.
@@ -707,14 +695,15 @@ The example below shows the pre-defined payload that will be used in the case wh
 
 The app must return a response in a specified format. Based on the payload, Saleor will determine the current status of the transaction.
 If the format is incorrect or the response is missing, Saleor will create either a `CHARGE_FAILURE` or `AUTHORIZATION_FAILURE` event, depending on the type of action that was requested.
+If the `amount` field is not provided, Saleor will default to using the requested amount from the original payload.
 
 The response in this case should have the following structure:
 
 ```json
 {
-  "pspReference": "[Optional for some results, see details below] <psp reference recieved from payment provider>",
+  "pspReference": "<[Optional for some results, see details below] <psp reference received from payment provider>",
   "result": "CHARGE_SUCCESS or CHARGE_FAILURE or CHARGE_REQUEST or AUTHORIZATION_SUCCESS or AUTHORIZATION_FAILURE or AUTHORIZATION_REQUEST or AUTHORIZATION_ACTION_REQUIRED or CHARGE_ACTION_REQUIRED>",
-  "amount": "<Decimal amount of the processed action>",
+  "amount": "<[Optional since Saleor 3.21] Decimal amount of the processed action>",
   "data": "<[Optional] JSON data tha will be returned to storefront>",
   "time": "<[Optional] time of the action>",
   "externalUrl": "<[Optional] external url with action details.",
