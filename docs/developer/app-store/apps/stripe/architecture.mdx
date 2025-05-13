@@ -69,7 +69,7 @@ sequenceDiagram
     actor Stripe API
 
     autonumber
-    Stripe API->>Stripe App: Configure app with secret and public keys
+    Stripe API->>Stripe App: Configure app with required settings
     note over Stripe App: App must be configured first
 
     Storefront->>Saleor: mutation paymentGatewayInitialize
@@ -104,7 +104,7 @@ sequenceDiagram
         Stripe App ->> Saleor: Respond with CHARGE_ACTION_REQUIRED
         Saleor ->> Storefront: Return client secret in "data"
         Storefront ->> Storefront: Render render UI with payment methods selection
-        Storefront ->> Storefront: Customer process full payment on the frontend <br/> Customer sees payment result from Stripe
+        Storefront ->> Storefront: Customer process full payment on the Storefront <br/> Customer sees payment result from Stripe
 
         par processSession
             Storefront ->> Saleor: mutation transactionProcessSession
@@ -118,6 +118,7 @@ sequenceDiagram
             Stripe App->> Saleor: Set event depending on Stripe status
         end
         Storefront->>Storefront: Can complete the checkout
+        Saleor->>Saleor: Merchant can refund
 
     end
 ```
@@ -153,11 +154,11 @@ sequenceDiagram
             Saleor->>Stripe App: Webhook: TRANSACTION_PROCESS_SESSION
             Stripe App->> Stripe API: Retrieve Payment Intent status
             Stripe API->> Stripe App: Respond with status
-            Stripe App->> Saleor: Set event depending on Stripe status<br/>(AUTHORIZATION_SUCCESS | AUTHORIZATION_FAILURE )
+            Stripe App->> Saleor: Set event depending on Stripe status<br/>
             Saleor ->> Storefront: Return current state of transaction
         and Stripe event
             Stripe API->>Stripe App: Inform about Payment Intent status change
-            Stripe App->> Saleor: Set event depending on Stripe status<br/>(AUTHORIZATION_SUCCESS | AUTHORIZATION_FAILURE )
+            Stripe App->> Saleor: Set event depending on Stripe status<br/>
         end
         Storefront->>Storefront: Can complete the checkout
         Saleor->>Saleor: Merchant can cancel or capture
@@ -205,13 +206,13 @@ sequenceDiagram
     actor Stripe App
     actor Stripe API
 
-    Staff User->>Saleor: Capture authorized transaction in Dashboard <br/>(CHARGE)
+    Staff User->>Saleor: Capture authorized transaction in Dashboard <br/>(CHARGE_REQUEST)
     Saleor ->> Stripe App: Webhook TRANSACTION_CHARGE_REQUESTED
     Stripe App ->> Stripe API: Capture Payment Intent
     Stripe API ->> Stripe App: Result with success of failure
     Stripe App ->> Saleor: Set CHARGE_SUCCESS or CHARGE_FAILURE
     Stripe API ->> Stripe App: Webhook "payment_intent.succeeded"
-    Stripe App ->> Saleor: Set CHARGE_SUCCESS or CHARGE_FAILURE
+    Stripe App ->> Saleor: Set CHARGE_SUCCESS
 ```
 
 
@@ -246,7 +247,7 @@ sequenceDiagram
 
     Staff User->>Stripe API: Capture authorized transaction in Dashboard
     Stripe API ->> Stripe App: Webhook "payment_intent.succeeded"
-    Stripe App ->> Saleor: Set CHARGE_SUCCESS or CHARGE_FAILURE
+    Stripe App ->> Saleor: Set CHARGE_SUCCESS
 ```
 
 
@@ -275,13 +276,14 @@ sequenceDiagram
     actor Stripe App
     actor Stripe API
 
-    Staff User->>Saleor: Refund authorized transaction in Dashboard <br/>(CHARGE)
+    Staff User->>Saleor: Refund authorized transaction in Dashboard <br/>(REFUND_REQUEST)
     Saleor ->> Stripe App: Webhook TRANSACTION_REFUND_REQUESTED
     Stripe App ->> Stripe API: Create refund
     Stripe API ->> Stripe App: Result with success of failure
-    Stripe App ->> Saleor: Set REFUND_REQUEST or REFUND_FAILURE
+    Stripe App ->> Saleor: Set REFUND_FAILURE or return PSP Reference (refund ID)
+    Saleor ->> Saleor: Set REFUND_FAILURE or REFUND_REQUEST
     Stripe API ->> Stripe App: Webhook "charge.refund.updated"
-    Stripe App ->> Saleor: Set REFUND_SUCCESS or REFUND_FAILURE
+    Stripe App ->> Saleor: Set REFUND_SUCCESS / REFUND_FAILURE / REFUND_REQUEST
 ```
 
 ### Refunding amount from Stripe
@@ -298,6 +300,6 @@ sequenceDiagram
 
     Staff User->>Stripe API: Refund funds in Dashboard
     Stripe API ->> Stripe App: Webhook "charge.refund.updated"
-    Stripe App ->> Saleor: Set REFUND_SUCCESS
+    Stripe App ->> Saleor: Set REFUND_SUCCESS / REFUND_FAILURE / REFUND_REQUEST
 
 ```
