@@ -447,11 +447,12 @@ Similarly to `onBalanceCheck`, to call the `/orders` endpoint use the `paymentGa
 The `onOrderCreate` implementation in TypeScript could look like this (depending on your GraphQL client):
 
 ```ts
-async onOrderCreate(resolve, reject, data) {
+async onOrderCreate(resolve, reject, data, amount) {
   const {
     paymentGatewayInitialize: { gatewayConfigs },
   } = await client.request(PaymentGatewayInitialize, {
     id: checkoutId,
+    amount: amount,
     data: { action: "createOrder" },
   });
   const response = gatewayConfigs[0].data.orderCreateResponse;
@@ -503,6 +504,28 @@ Adyen app uses a `pspReference` field internally to link the notifications from
 
 This field shouldn't be used by any external system, as it can change at any time without further notice.
 :::
+
+#### Order amount for split payments
+
+To properly implement split payments, you need to correctly pass `amount` to the `paymentGatewayInitialize` and `transactionInitializeSession` mutations.
+You should calculate what amount is left to pay to avoid overcharges.
+
+For example, take a checkout worth $300. You want to pay:
+- $100 with a custom payment method, like loyalty points (using custom gateway)
+- $100 with a gift card (using Adyen)
+- $100 with a credit card (using Adyen)
+
+To do that, you need to first make a $100 transaction using the custom gateway, usually passing `amount` to `transactionInitializeSession`.
+
+Then, there is $200 left to pay. Note that this is not the checkout total, but the remaining balance.
+
+To proceed with Adyen split payment, you need to call `paymentGatewayInitialize` to create an order. Ensure you pass correct amount (another $100) to the mutation.
+
+Last, you need to call `transactionInitializeSession` with for the credit card - ensure you provide amount matching the remaining balance, not the checkout total, otherwise checkout will be overpaid.
+
+For `paymentGatewayInitialize` Adyen App will:
+- Take `amount` field if provided
+- If not, will take `checkout.gross.amount` as a fallback
 
 ### `onOrderCancel`
 
