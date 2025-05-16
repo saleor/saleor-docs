@@ -129,15 +129,23 @@ This error is raised when the `customHeaders` field for a webhook defined in the
         "X-My-Custom-Header": 12345
       }
       ```
-  - **Header Naming**: Keys are treated case-insensitively and must **EITHER**:
+  - **Header naming**: Keys are treated case-insensitively and must **EITHER**:
     - Start with `X-` (e.g., `X-My-Custom-Header`)
     - Start with `Authorization` (e.g., `Authorization`, `Authorization-Token`)
     - Be exactly `BrokerProperties`
-  - **Header Limits**:
+  - **Header limits**:
     - A maximum of **5 custom headers** are allowed per webhook.
-    - Each header (key + value + overhead) should not exceed approximately 1000 characters.
-  - **Character Restrictions**: Ensure header keys and values use allowed characters (ASCII characters, excluding some special symbols).
-  - Find the exact validation error message from the validator in background worker logs. This will point to the issue (e.g., "Headers must be a dictionary of strings.", "Key \"...\" contains invalid character.", or "\"...\" does not match allowed key pattern...").
+    - Each header (key + value + overhead) should not exceed 998 characters.
+  - **Character restrictions**:
+    - **Header keys**: Must only contain printable ASCII characters (including symbols like `!`, `@`, `#`) from this set:
+      ```
+      !"#$%&'()*+,-./0123456789;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+      ```
+    - **Header values**: Must only contain printable ASCII characters, spaces, and tabs from this set:
+      ```
+      !"#$%&'()*+,-./0123456789;:<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~ \t
+      ```
+  - Find the exact validation error message from the validator in background worker logs. This will point to the issue (e.g., "Headers must be a dictionary of strings.", "Key (...) contains invalid character.", or "(...) does not match allowed key pattern...").
   - Refer to the webhook section of the [App Manifest documentation](/developer/extending/apps/architecture/manifest/) and the [`WebhookCreateInput`](/api-reference/webhooks/inputs/webhook-create-input.mdx) documentation for details on `customHeaders`.
 
 ## `AppErrorCode.GRAPHQL_ERROR`
@@ -147,7 +155,7 @@ This error indicates a general GraphQL processing error occurred during an app-r
 - 💡 **Debugging Tips**:
   - Check the error message for details from the underlying GraphQL error.
   - Review the API request and the context in which the error occurred.
-  - If the issue persists and isn't clear, report it with the error code, message, and operation details to Saleor support or the app developer.
+  - If the issue persists and isn't clear, report it with the error code, message, and operation details to Saleor support (or as an issue on GitHub) or the app developer.
 
 ## `AppErrorCode.INVALID`
 This generic error is raised during manifest processing, app installation, or other app-related operations when a specific field in the manifest has an incorrect value type, is not an allowed choice, fails a constraint, or when other validation rules are violated without a more specific error code applying. It can also cover issues with app icons or when data from the manifest violates database constraints during saving.
@@ -167,16 +175,16 @@ This generic error is raised during manifest processing, app installation, or ot
         *   **Required file format**: The icon must be a valid PNG image, `Content-Type` header should also be set to `image/png`.
         *   **Excessive file size**: The image file, as indicated by the `Content-Length` header or the actual downloaded content, must not exceed 10MB.
         *   **Image dimensions & properties**:
-            *   **Minimum dimensions**: The image must be at least 256 pixels wide AND 256 pixels tall.
+            *   **Minimum dimensions**: The image must be at least 256 pixels wide **AND** 256 pixels tall.
             *   **Square requirement**: The image must be perfectly square (width must equal height).
-        *   **Image integrity**: Even if the format and dimensions seem correct, the image file itself must not be corrupted and must be processable by Saleor. Errors during image processing (e.g., `SyntaxError`, `UnidentifiedImageError`, `DecompressionBombError` from the PIL/Pillow library) will also lead to this error.
+        *   **Image integrity**: Even if the format and dimensions seem correct, the image file itself must not be corrupted and must be processable by Saleor. 
     3.  **Unexpected manifest fetching issue**: A general issue occurred while trying to fetch the app manifest via the `AppFetchManifest` GraphQL mutation, and it wasn't a more specific network or format problem.
     4.  **Data validation error**: A value provided in the manifest for a particular field violates a constraint when Saleor tries to save or process it. This could be due to issues like exceeding a maximum length, providing an invalid choice for a field, or other data type mismatches against what Saleor expects for that field.
 
 - 💡 **Debugging Tips**:
   - Before attempting installation, validate your app manifest against Saleor's schema and documentation. Many errors can be caught early by ensuring your manifest is correctly structured and contains all required information with correct types and formats. Use a JSON linter for basic syntax and refer to the [App Manifest documentation](/developer/extending/apps/architecture/manifest/) for detailed schema information.
   - Review the full manifest content.
-  - Examine the GraphQL mutation response (e.g., for `appInstall`, `appFetchManifest`, or other app-related mutations). The error message or details within the response will often pinpoint the specific field and the nature of the invalidity.
+  - Examine the GraphQL mutation response (e.g. `appInstall`, `appFetchManifest`). The error message or details within the response will often pinpoint the specific field and the nature of the invalidity.
   - **For manifest field issues**:
       - Refer to Saleor's [App Manifest documentation](/developer/extending/apps/architecture/manifest/) for correct data types, allowed enum values, formatting, and constraints for each field.
       - Validate your manifest against the schema.
@@ -187,7 +195,6 @@ This generic error is raised during manifest processing, app installation, or ot
       - Confirm the image dimensions meet requirements (square, minimum size).
       - Try opening and saving the image with an image editor to check for corruption.
   - **For generic `AppFetchManifest` failures**: Double-check your manifest URL and ensure the server hosting the manifest is responding correctly without unexpected errors not related to standard HTTP error codes. The mutation response should provide details.
-  - **If the error seems to be a `Django ValidationError` fallback (the mutation response may indicate a general "invalid" error for a particular field)**: Check which model field likely failed validation by correlating the error with your manifest data and the expected model constraints (e.g., maximum length, allowed choices for a field).
   - **`tokenTargetUrl` Idempotency**: App installation can involve retries (e.g., due to `AppRetryInstall` or other task failures). If an installation attempt fails *after* the `tokenTargetUrl` was called, a subsequent retry by Saleor will call `tokenTargetUrl` again, potentially with a *new* authentication token. Your app's `tokenTargetUrl` endpoint must be idempotent and robust to these scenarios. It should:
       *   Gracefully handle being called multiple times for the same Saleor instance (identified by the `Saleor-Domain` header).
       *   Recognize that a new call might provide a new token. The app should ensure the latest received token becomes the active one, typically by updating or replacing any previously stored token for that Saleor instance.
@@ -212,5 +219,7 @@ refers to an app that has been permanently removed.
 - 💡 **Debugging Tips**:
   - Verify the app ID you are using in your API request or operation.
   - Check if the app was recently deleted or if the ID is mistyped.
+
+## Support
 
 If you are a Saleor Cloud customer and continue to experience issues after following these debugging steps, please contact Saleor Support with details of the error and your manifest. For self-hosted Saleor instances, consult the official Saleor documentation and Discord community for further assistance.
