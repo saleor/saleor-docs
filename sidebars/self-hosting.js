@@ -25,7 +25,7 @@ export const selfHosting = [
   "setup/deploy-linux",
 
   title("Monitoring"),
-  "setup/monitoring-jaeger",
+  "setup/telemetry",
   "setup/monitoring-sentry",
 
   title("Storing Files"),
