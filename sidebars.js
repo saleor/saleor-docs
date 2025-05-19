@@ -77,6 +77,7 @@ module.exports = {
     ref("developer/community/contributing", "Community", "community"),
     ref("upgrade-guides/index", "Upgrade Guides", "guides"),
     ref("security/index", "Security", "shield"),
+    ref("developer/ai", "AI", "star"),
     {
       type: "link",
       label: "Report an Issue",
