@@ -33,12 +33,12 @@ Additionally, accessing certain fields such as Shipping Zones when querying ware
 
 You can create warehouses either via the Saleor Dashboard or using the GraphQL API.
 
-**Saleor Dashboard**
+#### Saleor Dashboard
 1. Navigate to Configuration → Warehouses.
 2. Click Create new warehouse.
 3. Fill in the warehouse name and address.
 
-**API**
+#### API
 
 To create a warehouse programmatically, use the [`createWarehouse`](api-reference/products/mutations/create-warehouse.mdx) 
 mutation. This method allows for additional fields such as `externalReference` and `email`.
@@ -98,14 +98,8 @@ As a response we get the newly created warehouse:
 ```
 
 ### Warehouse Update
-Once created, following warehouse fields can be updated:
-- name
-- slug
-- email
-- address
-- externalReference
-- isPrivate
-- clickAndCollectOption
+Once created, following warehouse fields can be updated: `name`, `slug`, `email`, 
+`address`, `externalReference`, `isPrivate`, and `clickAndCollectOption`.
 
 :::info
 Only public warehouses can later be configured as a collection point.
@@ -123,7 +117,7 @@ to the appropriate **sales channels** and **shipping zones**.
 #### Assign Warehouses to the Channel
 The first step is to assign your warehouses to the relevant sales channels using Dashboard or GraphQL API
 
-**Saleor Dashboard**
+##### Saleor Dashboard
 1. Go to Configuration → Channels.
 2. Select the channel you want to configure.
 3. On the right panel, find the Warehouses section.
@@ -131,33 +125,31 @@ The first step is to assign your warehouses to the relevant sales channels using
 5. Select a warehouse from the dropdown or search by name.
 6. Click Save Channel.
 
-**API**
+##### API
 
 Use the [`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation to add a warehouse to a channel:
 
-```graphql {2-6}
-  mutation {
-    channelUpdate(
-      id: "Q2hhbm5lbDoxMQ==",
-      input: {
-        "addWarehouses": ["V2FyZWhvdXNlOjA4N2I2MzhlLWIxYzYtNDk5Mi1hMWQ1LTZiOWI5N2FjODU1Zg=="]
-      }
-    ){
-      channel{
-        id
-        warehouses {
-          slug
-        }
-      }
-      errors{
-        field
-        code
-        message
-        shippingZones
-        warehouses
+```graphql {2-4}
+mutation {
+  channelUpdate(
+    id: "Q2hhbm5lbDoxMQ=="
+    input: {addWarehouses: ["V2FyZWhvdXNlOjA4N2I2MzhlLWIxYzYtNDk5Mi1hMWQ1LTZiOWI5N2FjODU1Zg=="]}
+  ) {
+    channel {
+      id
+      warehouses {
+        slug
       }
     }
+    errors {
+      field
+      code
+      message
+      shippingZones
+      warehouses
+    }
   }
+}
 ```
 
 #### Assign Warehouses to the Shipping Zone
@@ -230,19 +222,19 @@ Saleor provides stock querying capabilities that help you:
 You can use the [`stocks`](/api-reference/products/queries/stocks.mdx) query to get all stocks or apply a search filter to get only stocks for variants or a warehouse with a specific name.
 
 ```graphql 
-query Stocks{
-  stocks(first:10, filter: {search:"Europe"}){
+query Stocks {
+  stocks(first: 10, filter: {search: "Europe"}) {
     totalCount
-    edges{
-      node{
+    edges {
+      node {
         id
         quantity
-        warehouse{
+        warehouse {
           id
           name
           slug
         }
-        productVariant{
+        productVariant {
           id
           name
         }
@@ -257,7 +249,7 @@ To retrieve detailed information about a specific [`stock`](/api-reference/produ
 
 ```graphql
 query Stock {
-  stock(id: "") {
+  stock(id: "U3RvY2s6NjM0") {
     id
     quantity
     warehouse {
@@ -276,22 +268,24 @@ query Stock {
 To view all stock entries for a specific [`warehouse`](/api-reference/products/queries/warehouse.mdx), including detailed product information and quantity:
 
 ```graphql
-query WarehouseStocks{
-  warehouse(id: "V2FyZWhvdXNlOjI1YzdlZDNlLTljYjQtNDUzNi04ZGNjLTgzZTdlNDIzZTNjMQ=="){
-    stocks(first:10){
+query WarehouseStocks {
+  warehouse(
+    id: "V2FyZWhvdXNlOjI1YzdlZDNlLTljYjQtNDUzNi04ZGNjLTgzZTdlNDIzZTNjMQ=="
+  ) {
+    stocks(first: 10) {
       totalCount
-      edges{
-        node{
+      edges {
+        node {
           id
-          warehouse{
+          warehouse {
             id
             name
           }
-          productVariant{
+          productVariant {
             id
             sku
             name
-            product{
+            product {
               id
               name
             }
@@ -310,12 +304,12 @@ query WarehouseStocks{
 
 Saleor provides several webhooks to help you monitor and react to stock-related events:
 
-- **PRODUCT_VARIANT_OUT_OF_STOCK**: Triggered when a product variant's stock level reaches zero, allowing you to implement low-stock notifications or automatic reordering.
-- **PRODUCT_VARIANT_BACK_IN_STOCK**: Triggered when a previously out-of-stock product variant becomes available again, enabling you to notify waiting customers.
-- **PRODUCT_VARIANT_STOCK_UPDATED**: Triggered whenever a product variant's stock quantity changes, useful for real-time inventory tracking and synchronization.
-- **WAREHOUSE_CREATED**: Triggered when a new warehouse is added to the system, allowing you to update external systems or documentation.
-- **WAREHOUSE_UPDATED**: Triggered when warehouse details are modified, helping maintain consistency across integrated systems.
-- **WAREHOUSE_DELETED**: Triggered when a warehouse is removed, enabling cleanup of related data in external systems.
-- **WAREHOUSE_METADATA_UPDATED**: Triggered when warehouse metadata is changed, useful for tracking warehouse-specific customizations.
+- `PRODUCT_VARIANT_OUT_OF_STOCK`: Triggered when a product variant's stock level reaches zero, allowing you to implement low-stock notifications or automatic reordering.
+- `PRODUCT_VARIANT_BACK_IN_STOCK`: Triggered when a previously out-of-stock product variant becomes available again, enabling you to notify waiting customers.
+- `PRODUCT_VARIANT_STOCK_UPDATED`: Triggered whenever a product variant's stock quantity changes, useful for real-time inventory tracking and synchronization.
+- `WAREHOUSE_CREATED`: Triggered when a new warehouse is added to the system, allowing you to update external systems or documentation.
+- `WAREHOUSE_UPDATED`: Triggered when warehouse details are modified, helping maintain consistency across integrated systems.
+- `WAREHOUSE_DELETED`: Triggered when a warehouse is removed, enabling cleanup of related data in external systems.
+- `WAREHOUSE_METADATA_UPDATED`: Triggered when warehouse metadata is changed, useful for tracking warehouse-specific customizations.
 
 For more information on setting up webhooks, refer to the [webhook chapter](/developer/extending/webhooks/overview.mdx).

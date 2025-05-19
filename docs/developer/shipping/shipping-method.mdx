@@ -24,10 +24,10 @@ while in the API responses they are returned as Shipping Methods.
 
 :::tip
 For details on using webhooks to integrate external shipping methods, or filtering build-in methods
-see the [Shipping webhooks chapter](https://docs.saleor.io/developer/extending/webhooks/synchronous-events/shipping.mdx). 
+see the [Shipping webhooks chapter](/developer/extending/webhooks/synchronous-events/shipping.mdx). 
 Additionally, information on how shipping methods are listed 
 and used during the checkout process can be found in the 
-[Listing available shipping methods](https://docs.saleor.io/developer/checkout/address#listing-available-shipping-methods.mdx)
+[Listing available shipping methods](/developer/checkout/address#listing-available-shipping-methods.mdx)
  in checkout guide.
 
 :::
@@ -44,7 +44,7 @@ even within the same shipping zone.
 
 You can create shipping zones either via the Saleor Dashboard or using the GraphQL API.
 
-**Saleor Dashboard**
+### Saleor Dashboard
 
 1. Go to Configuration → Shipping Zones
 2. Select the shipping zone you want to configure
@@ -63,106 +63,106 @@ but require a minimum order of $50 in your marketplace channel.
 1. Use the [`shippingPriceCreate`](/api-reference/shipping/mutations/shipping-price-create.mdx) 
 mutation with `"type": "PRICE"`:
 
-```graphql {2-9}
-mutation {
-  shippingPriceCreate(
-    input: {
-      shippingZone: "U2hpcHBpbmdab25lOjE4", 
-      type: PRICE, 
-      name: "Post Office", 
-      minimumDeliveryDays: 2, 
-      maximumDeliveryDays: 7
-    }
-  ) {
-    errors {
-      field
-      code
-      message
-    }
-    shippingMethod {
-      id
-      type
-      name
-      minimumDeliveryDays
-      maximumDeliveryDays
-      minimumOrderWeight {
-        value
-        unit
+    ```graphql {2-9}
+    mutation {
+      shippingPriceCreate(
+        input: {
+          shippingZone: "U2hpcHBpbmdab25lOjE4", 
+          type: PRICE, 
+          name: "Post Office", 
+          minimumDeliveryDays: 2, 
+          maximumDeliveryDays: 7
+        }
+      ) {
+        errors {
+          field
+          code
+          message
+        }
+        shippingMethod {
+          id
+          type
+          name
+          minimumDeliveryDays
+          maximumDeliveryDays
+          minimumOrderWeight {
+            value
+            unit
+          }
+          maximumOrderWeight {
+            value
+            unit
+          }
+          channelListings {
+            channel {
+              slug
+            }
+            minimumOrderPrice {
+              amount
+            }
+            maximumOrderPrice {
+              amount
+            }
+            price {
+              amount
+            }
+          }
+        }
       }
-      maximumOrderWeight {
-        value
-        unit
-      }
-      channelListings {
-        channel {
-          slug
-        }
-        minimumOrderPrice {
-          amount
-        }
-        maximumOrderPrice {
-          amount
-        }
-        price {
-          amount
-        }
-      }
     }
-  }
-}
-```
+    ```
 
 2. Make the shipping method available in channels using 
 [`shippingMethodChannelListingUpdate`](/api-reference/shipping/mutations/shipping-method-channel-listing-update.mdx):
 
-```graphql {2-10}
-mutation {
-  shippingMethodChannelListingUpdate(
-    id: "U2hpcHBpbmdNZXRob2RUeXBlOjM3"
-    input: {
-      addChannels: [{
-        channelId: "Q2hhbm5lbDo1NA==", 
-        maximumOrderPrice: 1000, 
-        price: 9.99}]
-    }
-  ) {
-    errors {
-      field
-      code
-      message
-    }
-    shippingMethod {
-      id
-      type
-      name
-      minimumDeliveryDays
-      maximumDeliveryDays
-      minimumOrderWeight {
-        value
-        unit
+    ```graphql {2-9}
+    mutation {
+      shippingMethodChannelListingUpdate(
+        id: "U2hpcHBpbmdNZXRob2RUeXBlOjM3"
+        input: {
+          addChannels: [{
+            channelId: "Q2hhbm5lbDo1NA==", 
+            maximumOrderPrice: 1000, 
+            price: 9.99}]
+        }
+      ) {
+        errors {
+          field
+          code
+          message
+        }
+        shippingMethod {
+          id
+          type
+          name
+          minimumDeliveryDays
+          maximumDeliveryDays
+          minimumOrderWeight {
+            value
+            unit
+          }
+          maximumOrderWeight {
+            value
+            unit
+          }
+          channelListings {
+            channel {
+              slug
+            }
+            minimumOrderPrice {
+              amount
+            }
+            maximumOrderPrice {
+              amount
+            }
+            price {
+              amount
+            }
+          }
+        }
       }
-      maximumOrderWeight {
-        value
-        unit
-      }
-      channelListings {
-        channel {
-          slug
-        }
-        minimumOrderPrice {
-          amount
-        }
-        maximumOrderPrice {
-          amount
-        }
-        price {
-          amount
-        }
-      }
     }
-  }
-}
-```
+    ```
 
 ### Weight-Based Methods
 
@@ -175,127 +175,128 @@ like package size or carrier limitations.
 so if you operate using a different unit (e.g., LB), make sure to update it accordingly.
 See the list of [spported weight units](/api-reference/miscellaneous/enums/weight-units-enum.mdx).
 
-You can update the unit in the Dashboard by going to the Shipping Zones list 
-and clicking the settings icon in the top-right corner, or by using the mutation below:
+    You can update the unit in the Dashboard by going to the Shipping Zones list 
+    and clicking the settings icon in the top-right corner, or by using the mutation below:
 
-```graphql {2}
-mutation {
-  shopSettingsUpdate(input: {defaultWeightUnit: G}) {
-    errors {
-      code
-      field
-      message
+    ```graphql {2}
+    mutation {
+      shopSettingsUpdate(input: {defaultWeightUnit: G}) {
+        errors {
+          code
+          field
+          message
+        }
+        shop {
+          defaultWeightUnit
+        }
+      }
     }
-    shop {
-      defaultWeightUnit
-    }
-  }
-}
-```
+    ```
 
 2. Use the [`shippingPriceCreate`](/api-reference/shipping/mutations/shipping-price-create.mdx) 
 mutation with `"type": "WEIGHT"`, additionally you can specify weight range with `minimumOrderWeight` and `maximumOrderWeight`
 
-```graphql {2-11}
-mutation {
-  shippingPriceCreate(
-    input: {
-      shippingZone: "U2hpcHBpbmdab25lOjE4", 
-      type: WEIGHT, 
-      name: "Post Office", 
-      minimumDeliveryDays: 2, 
-      maximumDeliveryDays: 7
-      minimumOrderWeight: 2,
-      maximumOrderWeight: 20
-    }
-  ) {
-    errors {
-      field
-      code
-      message
-    }
-    shippingMethod {
-      id
-      type
-      name
-      minimumDeliveryDays
-      maximumDeliveryDays
-      minimumOrderWeight {
-        value
-        unit
+    ```graphql {2-11}
+    mutation {
+      shippingPriceCreate(
+        input: {
+          shippingZone: "U2hpcHBpbmdab25lOjE4", 
+          type: WEIGHT, 
+          name: "Post Office", 
+          minimumDeliveryDays: 2, 
+          maximumDeliveryDays: 7, 
+          minimumOrderWeight: 2, 
+          maximumOrderWeight: 20
+        }
+      ) {
+        errors {
+          field
+          code
+          message
+        }
+        shippingMethod {
+          id
+          type
+          name
+          minimumDeliveryDays
+          maximumDeliveryDays
+          minimumOrderWeight {
+            value
+            unit
+          }
+          maximumOrderWeight {
+            value
+            unit
+          }
+          channelListings {
+            channel {
+              slug
+            }
+            minimumOrderPrice {
+              amount
+            }
+            maximumOrderPrice {
+              amount
+            }
+            price {
+              amount
+            }
+          }
+        }
       }
-      maximumOrderWeight {
-        value
-        unit
-      }
-      channelListings {
-        channel {
-          slug
-        }
-        minimumOrderPrice {
-          amount
-        }
-        maximumOrderPrice {
-          amount
-        }
-        price {
-          amount
-        }
-      }
     }
-  }
-}
-```
+    ```
 
 3. Make the shipping method available in channels using 
 [`shippingMethodChannelListingUpdate`](/api-reference/shipping/mutations/shipping-method-channel-listing-update.mdx):
-```graphql {2-8}
-mutation {
-  shippingMethodChannelListingUpdate(
-    id: "U2hpcHBpbmdNZXRob2RUeXBlOjM5"
-    input: {
-      addChannels: [{
-        channelId: "Q2hhbm5lbDo1NA==", 
-        price: 9.99}]
-    }
-  ) {
-    errors {
-      field
-      code
-      message
-    }
-    shippingMethod {
-      id
-      type
-      name
-      minimumDeliveryDays
-      maximumDeliveryDays
-      minimumOrderWeight {
-        value
-        unit
+
+    ```graphql {2-8}
+    mutation {
+      shippingMethodChannelListingUpdate(
+        id: "U2hpcHBpbmdNZXRob2RUeXBlOjM5"
+        input: {
+          addChannels: [{
+            channelId: "Q2hhbm5lbDo1NA==", 
+            price: 9.99}]
+        }
+      ) {
+        errors {
+          field
+          code
+          message
+        }
+        shippingMethod {
+          id
+          type
+          name
+          minimumDeliveryDays
+          maximumDeliveryDays
+          minimumOrderWeight {
+            value
+            unit
+          }
+          maximumOrderWeight {
+            value
+            unit
+          }
+          channelListings {
+            channel {
+              slug
+            }
+            minimumOrderPrice {
+              amount
+            }
+            maximumOrderPrice {
+              amount
+            }
+            price {
+              amount
+            }
+          }
+        }
       }
-      maximumOrderWeight {
-        value
-        unit
-      }
-      channelListings {
-        channel {
-          slug
-        }
-        minimumOrderPrice {
-          amount
-        }
-        maximumOrderPrice {
-          amount
-        }
-        price {
-          amount
-        }
-      }
     }
-  }
-}
-```
+    ```
 
 ## Advanced Configuration
 
@@ -313,7 +314,8 @@ mutation, below example shows how to exclude one postal code for existing shippi
 mutation {
   shippingPriceUpdate(
     id: "U2hpcHBpbmdNZXRob2RUeXBlOjE1"
-    input: {addPostalCodeRules: [{end: "", start: "83-330"}], 
+    input: {
+      addPostalCodeRules: [{end: "", start: "83-330"}], 
       deletePostalCodeRules: [], 
       inclusionType: EXCLUDE
     }
@@ -331,7 +333,6 @@ mutation {
         inclusionType
       }
     }
-    __typename
   }
 }
 ```
@@ -420,5 +421,7 @@ Saleor provides the following webhooks for shipping methods:
 
 For more information on setting up webhooks, refer to the [webhook chapter](/developer/extending/webhooks/overview.mdx).
 
+For details on using webhooks to integrate external shipping methods, or filtering build-in methods
+see the [Shipping webhooks chapter](/developer/extending/webhooks/synchronous-events/shipping.mdx). 
 
 
