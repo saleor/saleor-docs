@@ -1,0 +1,156 @@
+---
+title: Shipping Zone
+description: Overview of shipping zones business logic and configuration in Saleor.
+---
+
+Shipping Zones define geographical areas where specific shipping methods and rates apply. 
+They enable merchants to set different shipping rules for various regions,
+ensuring accurate delivery options and costs for customers. 
+Shipping zones are essential for selling physical products internationally.
+
+## Creating Shipping Zones
+:::info
+Creating shipping zones require `MANAGE_SHIPPING` permission. 
+:::
+You can create shipping zones either via the Saleor Dashboard or using the GraphQL API.
+
+### Saleor Dashboard
+1. Go to Configuration → Shipping Zones.
+2. Click Create Shipping Zone.
+3. Fill in the following details:
+    - Name: A descriptive label for the zone.
+    - Countries: Select the countries to include in this zone.
+:::note
+When creating a Shipping Zone, selecting **Rest of the World** 
+automatically includes all countries that are not yet assigned to any other shipping zone.
+
+This option simplifies global configuration by dynamically selecting unassigned countries.
+:::
+4. Save new Shipping Zone.
+
+Once a shipping zone is created, you can assign channels, warehouses, and define shipping methods.
+
+### API
+
+To create a shipping zone programmatically, use the [`shippingZoneCreate`](/api-reference/shipping/mutations/shipping-zone-create.mdx)
+mutation. This mutation allows you to:
+- Set the zone's name and description
+- Assign countries to the zone
+- Link the zone to specific channels and warehouses 
+- Setting `default: true` to automatically assign all unassigned countries to this shipping zone
+
+```graphql {2-10}
+mutation {
+  shippingZoneCreate(
+    input: {
+      name: "Zone A", 
+      description: "Description for shipping zone A.", 
+      countries: ["US"], 
+      default: false, 
+      addWarehouses: ["V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="], 
+      addChannels: ["Q2hhbm5lbDox"]
+    }
+  ) {
+    shippingZone {
+      id
+      name
+      description
+      countries {
+        code
+      }
+      default
+      warehouses {
+        name
+      }
+      channels {
+        id
+      }
+    }
+    errors {
+      field
+      code
+      message
+      channels
+      warehouses
+    }
+  }
+}
+```
+
+## Updating Shipping Zone
+To make changes to an existing shipping zone, you can use the [`shippingZoneUpdate`](api-reference/shipping/mutations/shipping-zone-update.mdx) 
+mutation. This allows you to modify any of the settings established during the zone's creation, as well as to detach channels and warehouses.
+
+To manage shipping zone metadata, use [`updateMetadata`](/api-reference/miscellaneous/mutations/update-metadata.mdx) 
+or [`updatePrivateMetadata`](/api-reference/miscellaneous/mutations/update-private-metadata.mdx). 
+
+### Assigning warehouses to the shipping zone
+
+Warehouses that are assignable to shipping zones are the subset of warehouses assigned to the channel.
+So, to assign a warehouse to the shipping zone, the warehouse must be available in at least one channel to which the zone is assigned.
+Thus, you must first specify the channels to assign warehouses to the shipping zone. You can do this by providing the channels and warehouses together during shipping zone creation.
+
+
+Assign warehouse to shipping zone can be done via the Saleor Dashboard or using the GraphQL API.
+
+#### Saleor Dashboard
+1. Go to Configuration → Shipping Zones.
+2. Select the shipping zone you want to configure.
+3. On the right panel, find the Warehouses section.
+4. Click to open the dropdown, select a warehouse by name or search.
+5. Save Shipping Zone.
+
+#### API
+
+Use the [`shippingZoneUpdate`](/api-reference/shipping/mutations/shipping-zone-update.mdx) 
+mutation to add a warehouse to a shipping zone.
+```graphql {2-8}
+mutation {
+  shippingZoneUpdate(
+    id: "U2hpcHBpbmdab25lOjM="
+    input: {
+      addWarehouses: ["V2FyZWhvdXNlOjNiN2FlMmVhLWEzMDQtNGFiZS1hY2QzLWVlZWU3ZDIxNmMyYw=="]
+    }
+  ) {
+    shippingZone {
+      id
+      name
+      description
+      countries {
+        code
+      }
+      default
+      warehouses {
+        name
+      }
+      channels {
+        id
+      }
+    }
+    errors {
+      field
+      code
+      message
+      channels
+      warehouses
+    }
+  }
+}
+```
+
+:::note
+When adding warehouses to the shipping zone, make sure that all warehouses will have
+the common channel with the shipping zone, otherwise you will get an error.
+:::
+
+
+## Webhooks
+- `SHIPPING_ZONE_CREATED`: Triggered when a new shipping zone is created. Useful for initializing shipping configurations in external systems or triggering setup workflows.
+- `SHIPPING_ZONE_UPDATED`: Triggered when a shipping zone is modified, including changes to countries, channels, or warehouses. Helps ensure synchronization with external shipping services.
+- `SHIPPING_ZONE_DELETED`: Triggered when a shipping zone is deleted. Can be used to clean up or archive related shipping data in connected systems.
+- `SHIPPING_ZONE_METADATA_UPDATED`: Triggered when metadata for a shipping zone is updated. Useful for tracking custom attributes or triggering actions based on metadata changes.
+
+For more information on setting up webhooks, refer to the [webhook chapter](/developer/extending/webhooks/overview.mdx).
+
+For details on using webhooks to integrate external shipping methods, or filtering build-in methods
+see the [Shipping webhooks chapter](/developer/extending/webhooks/synchronous-events/shipping.mdx). 

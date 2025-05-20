@@ -1,0 +1,315 @@
+---
+title: Stock Overview
+sidebar_label: Overview
+description: Overview of stock business logic in Saleor.
+---
+
+## Warehouse
+Warehouse represents a location where products are stocked for fulfillment or customer collection. 
+To effectively manage your inventory, Saleor allows the creation of multiple warehouses. 
+Utilizing Saleor's Click and Collect feature, these warehouses can also serve as convenient pickup points. 
+For system consistency, even digital products necessitate warehouse configuration within Saleor.
+
+### Relation Between Warehouses and Key Saleor Concepts:
+- **Product Variants:** Each product variant can have stock associated with one or more warehouses. 
+This allows you to track how many units of each variant are available at each location.
+- **Channels:** The availability of stock in a particular warehouse can influence whether 
+a product variant is available for sale in a specific channel. 
+Crucially, a warehouse must be assigned to a channel. One warehouse can be assigned to multiple channels.
+- **Shipping Zones:** Shipping Zones define the geographical areas for which specific 
+shipping methods and rates apply. When configuring a shipping zone, you select the warehouse 
+from which products will be shipped.
+- **Checkout**, **Order** & **Taxes:** Importantly, the **address of a warehouse** can be used 
+for shipping address and tax calculation in specific scenarios. 
+When a customer chooses a "click and collect" delivery method, Saleor use the warehouse's address to 
+determine the applicable taxes. Read more about [calculating taxes for click and collect](/developer/taxes.mdx#example-for-click-and-collect-shipping).
+
+### Warehouse Creation
+:::info
+Creating warehouse require `MANAGE_PRODUCTS` permission. 
+
+Additionally, accessing certain fields such as Shipping Zones when querying warehouse details requires the `MANAGE_SHIPPING` permission.
+:::
+
+You can create warehouses either via the Saleor Dashboard or using the GraphQL API.
+
+#### Saleor Dashboard
+1. Navigate to Configuration → Warehouses.
+2. Click Create new warehouse.
+3. Fill in the warehouse name and address.
+
+#### API
+
+To create a warehouse programmatically, use the [`createWarehouse`](api-reference/products/mutations/create-warehouse.mdx) 
+mutation. This method allows for additional fields such as `externalReference` and `email`.
+
+```graphql {2-9}
+mutation {
+  createWarehouse(
+    input: {
+      name: "Example warehouse", 
+      slug: "example-warehouse", 
+      email: "example-warehouse@example.com", 
+      externalReference: "Warehouse_001", 
+      address: {streetAddress1: "Teczowa 8", city: "Wroclaw", country: PL, postalCode: "53-601", companyName: "Amazing Company Inc"}
+    }
+  ) {
+    warehouse {
+      id
+      name
+      slug
+      email
+      externalReference
+      address {
+        id
+        companyName
+      }
+    }
+    errors {
+      message
+      field
+      code
+    }
+  }
+}
+```
+
+As a response we get the newly created warehouse:
+
+```json
+{
+  "data": {
+    "createWarehouse": {
+      "warehouse": {
+        "id": "V2FyZWhvdXNlOmY1MTJiMzFjLTUyMzAtNDMwOS05MDdkLTY4NzAyY2NhMjg0MA==",
+        "name": "Example warehouse",
+        "slug": "example-warehouse",
+        "email": "example-warehouse@example.com",
+        "externalReference": "Warehouse_001",
+        "address": {
+          "id": "QWRkcmVzczozNjcx",
+          "companyName": "Amazing Company Inc"
+        }
+      },
+      "errors": []
+    }
+  }
+}
+```
+
+### Warehouse Update
+Once created, following warehouse fields can be updated: `name`, `slug`, `email`, 
+`address`, `externalReference`, `isPrivate`, and `clickAndCollectOption`.
+
+:::info
+Only public warehouses can later be configured as a collection point.
+:::
+You can update warehouse using Saleor Dashboard or GraphQL API [`updateWarehouse`](api-reference/products/mutations/update-warehouse.mdx) mutation.
+
+To manage warehouse metadata, use [`updateMetadata`](/api-reference/miscellaneous/mutations/update-metadata.mdx) 
+or [`updatePrivateMetadata`](/api-reference/miscellaneous/mutations/update-private-metadata.mdx). 
+
+### Assign Warehouses to the Channels and Shipping
+
+To make a warehouse available for sales and shipping, it must be assigned 
+to the appropriate **sales channels** and **shipping zones**.
+
+#### Assign Warehouses to the Channel
+The first step is to assign your warehouses to the relevant sales channels using Dashboard or GraphQL API
+
+##### Saleor Dashboard
+1. Go to Configuration → Channels.
+2. Select the channel you want to configure.
+3. On the right panel, find the Warehouses section.
+4. Click Add Warehouse.
+5. Select a warehouse from the dropdown or search by name.
+6. Click Save Channel.
+
+##### API
+
+Use the [`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation to add a warehouse to a channel:
+
+```graphql {2-4}
+mutation {
+  channelUpdate(
+    id: "Q2hhbm5lbDoxMQ=="
+    input: {addWarehouses: ["V2FyZWhvdXNlOjA4N2I2MzhlLWIxYzYtNDk5Mi1hMWQ1LTZiOWI5N2FjODU1Zg=="]}
+  ) {
+    channel {
+      id
+      warehouses {
+        slug
+      }
+    }
+    errors {
+      field
+      code
+      message
+      shippingZones
+      warehouses
+    }
+  }
+}
+```
+
+#### Assign Warehouses to the Shipping Zone
+Once a warehouse is linked to at least one channel, it becomes eligible 
+to be selected when configuring shipping zones. When setting up a shipping zone, 
+you will choose the warehouse(s) from which orders within that zone will be fulfilled. 
+This ensures that you are shipping from a location that has inventory available in the relevant sales channels.
+
+To assign warehouse to shipping zone follow 
+[these instructions](/developer/shipping/shipping-zone.mdx#assigning-warehouses-to-the-shipping-zone).
+
+### Click-and-collect Warehouses
+
+Warehouses can be configured as customer collection points using the click-and-collect option. 
+There are three configuration modes:
+
+- `Local stock` - The warehouse uses its own stock to fulfill click-and-collect orders. 
+Only available for public warehouses.
+- `All warehouses` - Fulfillment is based on the combined stock of all warehouses in the channel.
+The warehouse serves as a collection point, but the products may be shipped from any other 
+warehouse available in the channel.
+- `Disabled` - The warehouse is not available as a collection point.
+
+In the case of click-and-collect, the warehouse availability does not depend on the shipping zones.
+It is limited only by the given channel.
+
+A warehouse is available as a collection point for an order if:
+- There is available stock for the product.
+- The warehouse is assigned to the channel where the order was placed.
+
+
+## Stocks
+Stocks in Saleor represent the inventory levels of specific product variants 
+within designated warehouses. This crucial relationship allows for accurate 
+tracking of available quantities, efficient order fulfillment, and proactive stock level monitoring.
+
+### Creating and Updating Stock Levels
+Saleor provides GraphQL mutations to manage the stock levels of your product variants programmatically. 
+However, stock can also be managed directly through the Saleor Dashboard:
+- While editing a product variant, you can assign, update, or remove stock for that variant across different warehouses.
+- On the product view, under the variant grid, you can quickly view and adjust stock quantities per variant and warehouse.
+
+#### GraphQL-Based Stock Management
+- [`productVariantStocksCreate`](/api-reference/products/mutations/product-variant-stocks-create.mdx):
+ This mutation is used to create initial stock levels for a specific product variant in one or more warehouses. 
+ It allows you to define the quantity of a variant available at different locations for the first time.
+
+- [`productVariantStocksUpdate`](/api-reference/products/mutations/product-variant-stocks-update.mdx):
+This mutation is used to update the existing stock levels of a specific product variant in one or more warehouses. 
+You can modify the quantity of a variant at particular locations using variant ID or sku.
+
+- [`productVariantStocksDelete`](/api-reference/products/mutations/product-variant-stocks-delete.mdx):
+This mutation is used to remove all stock information for a specific product variant from a particular warehouse. 
+This effectively indicates that the variant is no longer stocked at that location.
+
+### Bulk Stock Management
+
+For managing stock levels across multiple product variants and warehouses efficiently, 
+Saleor offers bulk operations. Refer to the [Update Stocks in Bulk](/developer/bulks/bulk-stock.mdx) documentation for more details.
+
+
+### Querying Stocks
+Saleor provides stock querying capabilities that help you:
+- Monitor inventory levels across warehouses
+- Track stock allocations and reservations
+- Manage product availability
+- Implement inventory alerts and notifications
+
+#### Get All Stocks
+You can use the [`stocks`](/api-reference/products/queries/stocks.mdx) query to get all stocks or apply a search filter to get only stocks for variants or a warehouse with a specific name.
+
+```graphql 
+query Stocks {
+  stocks(first: 10, filter: {search: "Europe"}) {
+    totalCount
+    edges {
+      node {
+        id
+        quantity
+        warehouse {
+          id
+          name
+          slug
+        }
+        productVariant {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+```
+
+#### Get Single Stock
+To retrieve detailed information about a specific [`stock`](/api-reference/products/queries/stock.mdx) entry:
+
+```graphql
+query Stock {
+  stock(id: "U3RvY2s6NjM0") {
+    id
+    quantity
+    warehouse {
+      id
+      name
+    }
+    productVariant {
+      id
+      name
+    }
+  }
+}
+```
+
+#### Get Warehouse Stocks
+To view all stock entries for a specific [`warehouse`](/api-reference/products/queries/warehouse.mdx), including detailed product information and quantity:
+
+```graphql
+query WarehouseStocks {
+  warehouse(
+    id: "V2FyZWhvdXNlOjI1YzdlZDNlLTljYjQtNDUzNi04ZGNjLTgzZTdlNDIzZTNjMQ=="
+  ) {
+    stocks(first: 10) {
+      totalCount
+      edges {
+        node {
+          id
+          warehouse {
+            id
+            name
+          }
+          productVariant {
+            id
+            sku
+            name
+            product {
+              id
+              name
+            }
+          }
+          quantity
+          quantityAllocated
+          quantityReserved
+        }
+      }
+    }
+  }
+}
+```
+
+## Webhooks
+
+Saleor provides several webhooks to help you monitor and react to stock-related events:
+
+- `PRODUCT_VARIANT_OUT_OF_STOCK`: Triggered when a product variant's stock level reaches zero, allowing you to implement low-stock notifications or automatic reordering.
+- `PRODUCT_VARIANT_BACK_IN_STOCK`: Triggered when a previously out-of-stock product variant becomes available again, enabling you to notify waiting customers.
+- `PRODUCT_VARIANT_STOCK_UPDATED`: Triggered whenever a product variant's stock quantity changes, useful for real-time inventory tracking and synchronization.
+- `WAREHOUSE_CREATED`: Triggered when a new warehouse is added to the system, allowing you to update external systems or documentation.
+- `WAREHOUSE_UPDATED`: Triggered when warehouse details are modified, helping maintain consistency across integrated systems.
+- `WAREHOUSE_DELETED`: Triggered when a warehouse is removed, enabling cleanup of related data in external systems.
+- `WAREHOUSE_METADATA_UPDATED`: Triggered when warehouse metadata is changed, useful for tracking warehouse-specific customizations.
+
+For more information on setting up webhooks, refer to the [webhook chapter](/developer/extending/webhooks/overview.mdx).
