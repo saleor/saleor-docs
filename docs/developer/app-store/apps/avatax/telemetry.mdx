@@ -1,0 +1,105 @@
+---
+sidebar_position: 7
+title: Telemetry
+---
+
+AvaTax app uses [Open Telemetry](https://opentelemetry.io/) (OTEL) protocol to send signals to your collector of choice.
+
+:::caution
+
+This feature is in the **Feature Preview** stage, which means that it is available for experimentation and
+feedback. However, it is still undergoing development and is subject to modifications. If you want to try it contact [our team](mailto:hello@saleor.io).
+
+:::
+
+App automatically instruments several spans for you to provide useful insights into AvaTax app performance.
+
+Attributes on spans follow [OpenTelemetry semantic conventions](https://opentelemetry.io/docs/specs/semconv/general/trace/). 
+
+## `executing checkoutCalculateTaxes webhook handler`
+
+This span represents process of handling [checkoutCalculateTaxes](api-reference/taxes/objects/calculate-taxes.mdx) event. It keep track of success and failures responses send back to Saleor and in case of failure record exception.
+
+Attributes:
+
+* `kind`: `SERVER`
+* `code`: `OK` for success and `ERROR` for case of error
+* `message`: Internal app message - in case of error: exception reason and in case of success: successful webhook handling confirmation
+* `saleor.enviroment_domain`: Your store domain e.g: `your-store.saleor.cloud`
+
+## `executing orderCalculateTaxes webhook handler`
+
+This span represents process of handling [orderCalculateTaxes](api-reference/taxes/objects/calculate-taxes.mdx) event. It keep track of success and failures responses send back to Saleor and in case of failure record exception.
+
+Attributes:
+
+* `kind`: `SERVER`
+* `code`: `OK` for success and `ERROR` for case of error
+* `message`: Internal app message - in case of error: exception reason and in case of success: successful webhook handling confirmation
+* `saleor.enviroment_domain`: Your store domain e.g: `your-store.saleor.cloud`
+
+## `executing orderCancelled webhook handler`
+
+This span represents process of handling [orderCancelled](api-reference/orders/objects/order-cancelled.mdx) event. It keep track of success and failures responses send back to Saleor and in case of failure record exception.
+
+Attributes:
+
+* `kind`: `SERVER`
+* `code`: `OK` for success and `ERROR` for case of error
+* `message`: Internal app message - in case of error: exception reason and in case of success: successful webhook handling confirmation
+* `saleor.enviroment_domain`: Your store domain e.g: `your-store.saleor.cloud`
+
+## `executing orderConfirmed handler`
+
+This span represents process of handling [orderConfirmed](api-reference/orders/objects/order-confirmed.mdx) event. It keep track of success and failures responses send back to Saleor and in case of failure record exception.
+
+Attributes:
+
+* `kind`: `SERVER`
+* `code`: `OK` for success and `ERROR` for case of error
+* `message`: Internal app message - in case of error: exception reason and in case of success: successful webhook handling confirmation
+* `saleor.enviroment_domain`: Your store domain e.g: `your-store.saleor.cloud`
+
+## `calling AvaTax createOrAdjustTransaction API`
+
+This span represents process of sending transaction information to AvaTax API. It keep track of success and failures responses and in case of failure record exception. 
+It will be visible as child of `executing checkoutCalculateTaxes webhook handler`, `executing orderCalculateTaxes webhook handler` or `executing orderConfirmed handler` - depending on which handler was called.
+
+Attributes:
+
+* `kind`: `CLIENT`
+* `code`: `OK` for success and `ERROR` for case of error
+* `message`: Internal app message - in case of error: exception reason and in case of success: successful API call confirmation
+* `saleor.enviroment_domain`: Your store domain e.g: `your-store.saleor.cloud`
+* `peer.service`: `avatax`
+* `avatax.document_type`: one of [AvaTax document type](https://developer.avalara.com/avatax/dev-guide/transactions/document-types/)
+* `avatax.enviroment`: either `sandbox` or `production`
+
+## `calling AvaTax voidTransaction API`
+
+This span represents process of voiding transaction information in AvaTax API. It keep track of success and failures responses and in case of failure record exception. 
+It will be visible as child of `executing orderCancelled webhook handler`.
+
+Attributes:
+
+* `kind`: `CLIENT`
+* `code`: `OK` for success and `ERROR` for case of error
+* `message`: Internal app message - in case of error: exception reason and in case of success: successful API call confirmation
+* `saleor.enviroment_domain`: Your store domain e.g: `your-store.saleor.cloud`
+* `peer.service`: `avatax`
+* `avatax.code`: AvaTax voided reason code: `DocVoided`
+* `avatax.enviroment`: either `sandbox` or `production`
+
+## `calling AvaTax listEntityUseCodes API`
+
+This span represents process of retreiving entity code information from AvaTax API. It keep track of success and failures responses and in case of failure record exception. 
+It will be visible as child of `executing checkoutCalculateTaxes webhook handler` or `executing orderCalculateTaxes webhook handler` if you provide [avataxEntityCode](developer/app-store/apps/avatax/configuration.mdx#entity-type) on Order or Checkout metadata.
+
+Attributes:
+
+* `kind`: `CLIENT`
+* `code`: `OK` for success and `ERROR` for case of error
+* `message`: Internal app message - in case of error: exception reason and in case of success: successful API call confirmation
+* `saleor.enviroment_domain`: Your store domain e.g: `your-store.saleor.cloud`
+* `peer.service`: `avatax`
+* `avatax.use_code`: code used to filter listEntityUseCodes AvaTax API

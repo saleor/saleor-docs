@@ -1,0 +1,97 @@
+---
+title: Order Update
+---
+
+In Saleor, order data can be modified even after it has been created. The type of changes you can make depends on the status of the order:
+
+- **Unconfirmed Orders** can be freely modified using various mutations to change lines, discounts, addresses, and more.
+- **Confirmed Orders** can be updated using the [`orderUpdate`](/api-reference/orders/mutations/order-update) mutation to make limited changes such as modifying addresses, metadata, and customer details.
+
+:::note
+All mutations related to updating orders require the `MANAGE_ORDERS` permission. Make sure your staff user or app has this permission assigned to perform any order modifications.
+:::
+
+This flexibility supports post-checkout changes initiated by either the customer or internal operations, such as customer service corrections, business system integrations, or fulfillment adjustments.
+
+## Updating Confirmed Orders
+
+Once an order is confirmed, you can still make the following updates using the [`orderUpdate`](/api-reference/orders/mutations/order-update) mutation:
+
+### Available Fields
+
+- `billingAddress` – Update the customer's billing address
+- `shippingAddress` – Update the customer's shipping address
+- `userEmail` – Correct or change the customer's contact email
+- `externalReference` – Add or update an external system ID for integrations
+- `metadata` / `privateMetadata` – Store public or internal custom metadata for business logic or integrations
+- `languageCode` – Set or change the language code for localized communications
+
+### Example Use Cases
+
+- Correcting address typos reported by the customer
+- Updating customer email for notification delivery
+- Tagging the order with an ERP reference ID
+- Storing custom status or fraud-check flags in private metadata
+- Changing the language of invoice or email templates
+
+## Updating Unconfirmed Orders
+
+For `UNCONFIRMED` orders, more substantial edits are allowed. These include modifying discounts, lines, and other aspects of the order.
+
+### Managing Order Lines
+
+- [`orderLinesCreate`](/api-reference/orders/mutations/order-lines-create) – Add new product lines to the order
+- [`orderLineUpdate`](/api-reference/orders/mutations/order-line-update) – Change the quantity or variant of an existing order line
+- [`orderLineDelete`](/api-reference/orders/mutations/order-line-delete) – Remove a product line from the order
+
+### Managing Shipping Method
+
+- [`orderUpdateShipping`](/api-reference/orders/mutations/order-update-shipping) – Change the shipping method for an unconfirmed order
+
+### Managing Discounts 
+
+For more information about adding manual discounts, see the [Manual Discounts](/developer/discounts/manual-discounts) documentation.
+
+#### Order Level Discounts
+
+- [`orderDiscountAdd`](/api-reference/orders/mutations/order-discount-add) – Add a discount to the entire order
+- [`orderDiscountUpdate`](/api-reference/orders/mutations/order-discount-update) – Update an existing order-level discount
+- [`orderDiscountDelete`](/api-reference/orders/mutations/order-discount-delete) – Remove a discount from the order
+
+#### Order Line Level Discounts
+
+- [`orderLineDiscountUpdate`](/api-reference/orders/mutations/order-line-discount-update) – Apply or modify a discount on a specific order line
+- [`orderLineDiscountRemove`](/api-reference/orders/mutations/order-line-discount-remove) – Remove a line-level discount
+
+### Other Changes
+
+The [`orderUpdate`](/api-reference/orders/mutations/order-update) mutation can still be used for unconfirmed orders to change:
+- Customer email
+- Billing and shipping addresses
+- Order metadata
+
+## Order Updates Summary
+
+| Order State | What Can Be Modified |
+|--------------|----------------------|
+| Orders in `UNCONFIRMED` status | Lines, line discounts, order-level discounts, shipping method, addresses, email, metadata | 
+| Confirmed orders in `UNFULFILLED`, `FULFILLED`, or `RETURNED` status | Addresses, email, external references, language, metadata |
+
+This structured approach ensures safe and controlled edits at each stage of the order lifecycle, balancing flexibility and data integrity.
+
+## Managing Order Notes
+
+You can add or update notes on orders using the following mutations:
+
+- [`orderNoteAdd`](/api-reference/orders/mutations/order-note-add) – Add a new note to the order
+- [`orderNoteUpdate`](/api-reference/orders/mutations/order-note-update) – Update an existing order note
+
+Order notes are stored in the order's events and will be displayed in the Saleor Dashboard's Order History section. 
+These notes are accessible to staff users and apps with the MANAGE_ORDERS permission.
+
+This feature is useful for:
+
+- Recording customer service interactions
+- Documenting special handling instructions
+- Tracking order-related issues and resolutions
+- Adding internal comments about the order

@@ -139,8 +139,28 @@ More details can be found [`here`](developer/price-freeze-period.mdx)
 - Unconfirmed orders: the base prices remain frozen indefinitely, and this setting is not configurable.
 - Other orders: remain unchanged and cannot be recalculated.
 
+## `DraftOrderUpdate` mutation no longer calls `DRAFT_ORDER_UPDATED` webhook if nothing has changed
+
+The `DraftOrderUpdate` mutation no longer triggers the `DRAFT_ORDER_UPDATED` webhook event if there are no changes to the draft order.
+This adjustment ensures that the event is only fired when there are actual updates to the draft order, reducing unnecessary event emissions.
+
+## `OrderUpdate` mutation no longer calls `ORDER_UPDATED` webhook if nothing has changed
+
+The `OrderUpdate` mutation no longer triggers the `ORDER_UPDATED` webhook event if there are no changes to the draft order.
+This adjustment ensures that the event is only fired when there are actual updates to the order, reducing unnecessary event emissions.
+
+## Required `transactionId` field in `OrderGrantRefundCreateInput`
+The `OrderGrantRefundCreateInput` now requires a `transactionId` field.
+This change affects the `OrderGrantRefundCreate` mutation.
+The `transactionId` must be provided as part of the input; otherwise, the mutation will return an error. 
+
 ## Plugin changes
-The following changes affects only open-source Saleor users.
+
+### Removed plugins
+
+The invoicing plugin was removed. There is no direct replacement available. See https://github.com/saleor/example-app-invoices for an example of a replacement app.
+
+The "Stripe (Deprecated)" (`mirumee.payments.stripe`) plugin was removed. Use the "Stripe" (`saleor.payments.stripe`) plugin instead or see https://github.com/saleor/saleor-app-payment-stripe for an example of a replacement app.
 
 ### Deprecated `manager.perform_mutation` method
 
@@ -311,3 +331,275 @@ The list of deprecated plugin hooks is as follows:
 Note: Affects open-source Saleor users with custom plugins overriding the `change_user_address` plugin method.
 
 The `change_user_address` method has been removed from the Plugin Manager and is no longer available.
+
+## Changed order status behavior for `WAITING_FOR_APPROVAL` fulfillments
+In previous versions, orders that had any unapproved fulfillments and no returns, were given status `PARTIALLY_FULFILLED`. This happened even when no items were actually fulfilled. 
+Currently, fulfillments with `WAITING_FOR_APPROVAL` status are excluded from determination of order status. Adding unapproved fulfillment to order will no longer result in a status change.
+Order can only receive `PARTIALLY_FULFILLED` status if there exists `FULFILLED` fulfillment and there are some items that are either unfulfilled or awaiting approval. 
+
+
+## Changes to discount propagation in orders created from checkout
+
+In Saleor 3.21, discount propagation for orders created from checkout has been standardized to match the behavior of draft orders, ensuring consistent handling of vouchers and promotions across all order types. Below, you'll find details on how discount propagation now behaves for different types of discounts.
+
+### Voucher handling before version 3.21
+
+In versions prior to **3.21**, how vouchers were applied and represented depended on how the order was created:
+
+| Order source | `SPECIFIC_PRODUCT` voucher                          | `ENTIRE_ORDER` with `apply-once-per-order` voucher  |
+|--------------|-----------------------------------------------------|-----------------------------------------------------|
+| Checkout     | Represented as `OrderDiscount` in `order.discounts` | Represented as `OrderDiscount` in `order.discounts` |
+| Draft order  | **Not** included in `order.discounts`               | **Not** included in `order.discounts`               |
+
+
+
+Additionally, **percentage-based vouchers** applied during checkout were automatically **converted to fixed-value discounts**, while draft orders retained the original **percentage type**:
+
+| Order source | `SPECIFIC_PRODUCT` (percentage) | `ENTIRE_ORDER` with `apply-once-per-order` (percentage) |
+|--------------|---------------------------------|---------------------------------------------------------|
+| Checkout     | Converted to `FIXED`            | Converted to `FIXED`                                    |
+| Draft order  | Retained as `PERCENTAGE`        | Retained as `PERCENTAGE`                                |
+
+
+
+
+#### Changes introduced in version 3.21
+
+Starting in **version 3.21**, voucher propagation is consistent across all order types:
+
+- All orders created via checkout now use `OrderLineDiscount` objects for both `SPECIFIC_PRODUCT` and `ENTIRE_ORDER` (with `apply-once-per-order`) vouchers — same as draft orders.
+- Percentage-based vouchers **are no longer converted** to fixed-value discounts. The original `PERCENTAGE` type is preserved and correctly represented in the API.
+
+
+### Changes to `unitDiscountReason` and `unitDiscount.amount` for orders created from checkout
+
+Previously, for orders created via checkout using a `Voucher:ENTIRE_ORDER`, the discount was represented in two ways:
+- As an `OrderDiscount` object in `order.discounts`
+- As a proportional amount in each line's `unitDiscount.amount`, along with a corresponding `unitDiscountReason`
+
+#### Before version 3.21
+
+| Order source | `unitDiscountReason`                            | `unitDiscount.amount`                                          |
+|--------------|-------------------------------------------------|----------------------------------------------------------------|
+| Checkout     | Included reason for `ENTIRE_ORDER` discount     | Included line-level portion of the `ENTIRE_ORDER` discount     |
+| Draft order  | Reason for `ENTIRE_ORDER` discount not included | Line-level portion of the `ENTIRE_ORDER` discount not included |
+
+
+
+This also applied to discounts from active `OrderPromotion`s:
+
+| Order source | `unitDiscountReason`                       | `unitDiscount.amount`                                 |
+|--------------|--------------------------------------------|-------------------------------------------------------|
+| Checkout     | Included reason for promotion discount     | Included line-level portion of promotion discount     |
+| Draft order  | Reason for promotion discount not included | Line-level portion of promotion discount not included |
+
+
+
+#### After version 3.21
+
+As of **version 3.21**, `unitDiscountReason` and `unitDiscount.amount` **no longer include** information related to:
+- `Voucher:ENTIRE_ORDER` discounts
+- `OrderPromotion` discounts
+
+This behavior is now consistent with how draft orders work.
+
+
+### Backward compatibility: `useLegacyLineDiscountPropagation` feature flag
+
+To maintain compatibility with existing integrations, version 3.21 introduces a **feature flag**: `useLegacyLineDiscountPropagation`, which allows you to configure the discount propagation behavior per channel.
+
+This flag controls how voucher and promotion discounts appear in the API for **orders created via checkout**.
+
+#### How discounts are represented based on the flag
+
+| Checkout order + voucher                | 3.20                                   | 3.21 + Legacy propagation **enabled**  | 3.21 + Legacy propagation **disabled**              |
+|-----------------------------------------|----------------------------------------|----------------------------------------|-----------------------------------------------------|
+| `SPECIFIC_PRODUCT`                      | `OrderDiscount` (in `order.discounts`) | `OrderDiscount` (in `order.discounts`) | `OrderLineDiscount` (in `OrderLine.discounts`) only |
+| `ENTIRE_ORDER` + `apply-once-per-order` | `OrderDiscount` (in `order.discounts`) | `OrderDiscount` (in `order.discounts`) | `OrderLineDiscount` (in `OrderLine.discounts`) only |
+
+
+
+#### Discount type (`FIXED` vs `PERCENTAGE`) based on the flag
+
+| Checkout order + percentage voucher | 3.20                 | 3.21 + Legacy propagation **enabled** | 3.21 + Legacy propagation **disabled** |
+|-------------------------------------|----------------------|---------------------------------------|----------------------------------------|
+| `SPECIFIC_PRODUCT` (percentage)     | Converted to `FIXED` | Converted to `FIXED`                  | Retained as `PERCENTAGE`               |
+| `ENTIRE_ORDER` (percentage)         | Converted to `FIXED` | Converted to `FIXED`                  | Retained as `PERCENTAGE`               |
+
+
+#### `unitDiscountReason` and `unitDiscount.amount` based on the flag
+
+| Checkout order + voucher type | 3.20                                                     | 3.21 + Legacy propagation **enabled**                    | 3.21 + Legacy propagation **disabled**                       |
+|-------------------------------|----------------------------------------------------------|----------------------------------------------------------|--------------------------------------------------------------|
+| `Voucher:ENTIRE_ORDER`        | Included in `unitDiscountReason` & `unitDiscount.amount` | Included in `unitDiscountReason` & `unitDiscount.amount` | Not included in `unitDiscountReason` & `unitDiscount.amount` |
+| `OrderPromotion`              | Included in `unitDiscountReason` & `unitDiscount.amount` | Included in `unitDiscountReason` & `unitDiscount.amount` | Not included in `unitDiscountReason` & `unitDiscount.amount` |
+
+
+
+#### Default behavior
+
+- **Existing channels**: `useLegacyLineDiscountPropagation` is **enabled** by default
+- **New channels**: the flag is **disabled** by default, unless explicitly set otherwise
+
+:::note
+Changing the `useLegacyLineDiscountPropagation` flag only affects **orders created after upgrading to version 3.21**.  
+It does **not** retroactively change:
+- Discount types for vouchers already converted from `PERCENTAGE` to `FIXED`
+- `unitDiscountReason` and `unitDiscount.amount` fields on existing orders
+:::
+
+
+### Creating new channel with legacy flow enabled
+If you need to create a new channel with the **legacy voucher propagation** flow active, you must explicitly set `useLegacyLineDiscountPropagation` in the `channelCreate` mutation input:
+
+```graphql
+mutation {
+  channelCreate(
+    input: {
+      name: "New channel"
+      slug: "new-channel"
+      currencyCode: USD
+      defaultCountry: PL
+      orderSettings: {
+        useLegacyLineDiscountPropagation: true
+      }
+    }
+  ) {
+    channel {
+      id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+By default, new channels have legacy propagation **disabled** unless this field is explicitly set to `true`.
+
+#### Example
+
+The examples below show how order line discounts are represented in the GraphQL response, depending on the `useLegacyLineDiscountPropagation` configuration.
+
+##### With `useLegacyLineDiscountPropagation` enabled:
+
+```json
+{
+  "data": {
+    "order": {
+      "id": "T3JkZXI6NzJiM2NhNjktNzJmYS00ZjQ5LWE3ZGMtOTgxZGI4MDIwNmJj",
+      "discounts": [
+        {
+          "id": "T3JkZXJEaXNjb3VudDo1NjhhMGE5OS1hY2Y1LTQ1NzctYjE2YS0zNjFlMjU3MTAyYmE=",
+          "name": "My voucher",
+          "type": "VOUCHER",
+          "valueType": "FIXED",
+          "value": 11,
+          "total": {
+            "amount": 11,
+            "currency": "USD"
+          },
+          "amount": {
+            "amount": 11,
+            "currency": "USD"
+          }
+        }
+      ],
+      "lines": [
+        {
+          "unitDiscount": { "amount": 3.67 },
+          "discounts": []
+        },
+        {
+          "unitDiscount": { "amount": 0 },
+          "discounts": []
+        }
+      ]
+    }
+  }
+}
+```
+
+##### With `useLegacyLineDiscountPropagation` disabled:
+
+```json
+{
+  "data": {
+    "order": {
+      "id": "T3JkZXI6NzJiM2NhNjktNzJmYS00ZjQ5LWE3ZGMtOTgxZGI4MDIwNmJj",
+      "discounts": [],
+      "lines": [
+        {
+          "unitDiscount": { "amount": 3.67 },
+          "discounts": [
+            {
+              "name": "My voucher",
+              "type": "VOUCHER",
+              "valueType": "FIXED",
+              "value": 11,
+              "unit": { "amount": 3.67 },
+              "total": { "amount": 11 }
+            }
+          ]
+        },
+        {
+          "unitDiscount": { "amount": 0 },
+          "discounts": []
+        }
+      ]
+    }
+  }
+}
+```
+
+
+### How to migrate to the new flow
+
+To fully support the updated propagation model:
+
+- Extend webhook subscriptions to include: `order.lines[].discounts[]`
+- Update all queries to retrieve `OrderLineDiscount` data from `order.lines[].discounts[]`
+- Adjust internal logic to rely on line-level discount data
+- Disable legacy propagation using the following mutation:
+
+```graphql
+mutation {
+  channelUpdate(
+    id: "<channel-id>"
+    input: { orderSettings: { useLegacyLineDiscountPropagation: false } }
+  ) {
+    channel {
+      orderSettings {
+        useLegacyLineDiscountPropagation
+      }
+    }
+  }
+}
+```
+
+## Google Cloud Platform (GCP): Configuration Changes
+
+The environment variable `GS_MEDIA_BUCKET_NAME` [no longer applies](https://github.com/saleor/saleor/pull/17660) for files that may contain sensitive information. The following steps should be taken:
+
+1. Keep the original configuration for `GS_MEDIA_BUCKET_NAME` - it will still be used for public media files, such as product images.
+2. Set a new environment variable `GS_MEDIA_PRIVATE_BUCKET_NAME` - it should point to a private bucket that's not exposed to the Internet.
+
+For more information, see [Storing Files on Google Cloud Storage (GCS)](/setup/media-gcs.mdx#environment-variables).
+
+
+## Changes in TransactionCancelationRequested.action.amount
+
+Previously, the `action.amount` field in the `TransactionCancelationRequested` subscription generated by Saleor was always set to `null`. 
+Starting with Saleor 3.21, this field will contain the amount requested by the user. If no amount is provided by the user, Saleor will use the
+maximum available amount from `transaction.authorizedAmount` as a fallback.
+
+## Changes to processing the amount field in synchronous transaction webhooks
+
+In Saleor 3.21, the `amount` field in responses to the following synchronous webhooks becomes optional:
+- `TRANSACTION_CHARGE_REQUESTED`
+- `TRANSACTION_REFUND_REQUESTED`
+- `TRANSACTION_CANCELATION_REQUESTED`
+- `TRANSACTION_INITIALIZE_SESSION`
+- `TRANSACTION_PROCESS_SESSION`
+
+If the `amount` field is omitted in the response, Saleor will automatically use the `amount` requested in the original webhook payload as the default.
