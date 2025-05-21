@@ -124,26 +124,26 @@ module.exports = {
     //   isCloseable: true,
     // },
 
-    announcementBar: {
-      id: "announcement-bar",
-      content: `
-        <span>
-          🔧 Let's build together. Join Saleor dev community on Discord.
-        </span>
-        <a
-					target="_blank"
-					href="https://saleor.io/discord"
-				>
-					Join the community
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 25 20">
-            <path fill="currentColor" d="M20.83 2.27A19.55 19.55 0 0 0 15.88.7c-.21.39-.46.9-.64 1.32a18.18 18.18 0 0 0-5.48 0c-.17-.41-.43-.93-.64-1.32-1.74.3-3.4.83-4.96 1.56A20.77 20.77 0 0 0 .6 16.17a19.8 19.8 0 0 0 6.07 3.12c.5-.68.93-1.4 1.3-2.14a13.3 13.3 0 0 1-2.04-1l.5-.4a14 14 0 0 0 12.14 0l.5.4c-.65.39-1.33.73-2.05 1 .38.75.81 1.47 1.3 2.14 1.98-.62 4-1.56 6.08-3.11a20.7 20.7 0 0 0-3.57-13.91ZM8.51 13.37c-1.18 0-2.15-1.1-2.15-2.45S7.3 8.47 8.5 8.47s2.18 1.1 2.16 2.45c0 1.35-.95 2.46-2.16 2.46Zm7.98 0c-1.19 0-2.16-1.1-2.16-2.45s.95-2.45 2.16-2.45c1.2 0 2.18 1.1 2.15 2.45 0 1.35-.95 2.46-2.15 2.46Z"/>
-          </svg>
-				</a>
-      `,
-      backgroundColor: "#E0E3FF",
-      textColor: "#5865F2",
-      isCloseable: true,
-    },
+    // announcementBar: {
+    //   id: "announcement-bar",
+    //   content: `
+    //     <span>
+    //       🔧 Let's build together. Join Saleor dev community on Discord.
+    //     </span>
+    //     <a
+    // 			target="_blank"
+    // 			href="https://saleor.io/discord"
+    // 		>
+    // 			Join the community
+    //       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 25 20">
+    //         <path fill="currentColor" d="M20.83 2.27A19.55 19.55 0 0 0 15.88.7c-.21.39-.46.9-.64 1.32a18.18 18.18 0 0 0-5.48 0c-.17-.41-.43-.93-.64-1.32-1.74.3-3.4.83-4.96 1.56A20.77 20.77 0 0 0 .6 16.17a19.8 19.8 0 0 0 6.07 3.12c.5-.68.93-1.4 1.3-2.14a13.3 13.3 0 0 1-2.04-1l.5-.4a14 14 0 0 0 12.14 0l.5.4c-.65.39-1.33.73-2.05 1 .38.75.81 1.47 1.3 2.14 1.98-.62 4-1.56 6.08-3.11a20.7 20.7 0 0 0-3.57-13.91ZM8.51 13.37c-1.18 0-2.15-1.1-2.15-2.45S7.3 8.47 8.5 8.47s2.18 1.1 2.16 2.45c0 1.35-.95 2.46-2.16 2.46Zm7.98 0c-1.19 0-2.16-1.1-2.16-2.45s.95-2.45 2.16-2.45c1.2 0 2.18 1.1 2.15 2.45 0 1.35-.95 2.46-2.15 2.46Z"/>
+    //       </svg>
+    // 		</a>
+    //   `,
+    //   backgroundColor: "#E0E3FF",
+    //   textColor: "#5865F2",
+    //   isCloseable: true,
+    // },
 
     algolia: {
       appId: "P1Y4DTZUZN", // cspell: disable-line
