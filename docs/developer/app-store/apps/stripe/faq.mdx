@@ -1,0 +1,52 @@
+---
+sidebar_label: FAQ and troubleshooting
+sidebar_position: 8
+title: Stripe App FAQ & troubleshooting
+---
+
+## Can I adjust the transaction amount after it was initially created?
+
+No. The amount will be reported to Saleor during `transactionInitializeSession` mutation. After this point, you can’t adjust the amount.
+
+Your storefront must retry a payment process and send a new `transactionInitializeSession` mutation with an adjusted amount.
+
+You should ensure your payment flow starts when the checkout total is known.
+
+## When should I call transactionInitializeSession?
+
+You should call transactionInitializeSession when you want to start the payment process. This is the first step in the payment flow.
+You should call this mutation when you know the final amount of the payment, usually end of the checkout process.
+
+## Can I change the transaction payment method within a single transaction?
+
+No. Both amount and payment methods are coupled to transaction and are set on `transactionInitializeSession`.
+
+To change a payment method (e.g., once a customer failed to pay), you should handle this flow to retry on the storefront and execute transactionInitializeSession once again.
+
+For example, when a customer fails to pay with Blik and then succeeds in paying with a card, in transaction history it will be visible as one failed transaction and one successful transaction.
+
+## Do I have to call transactionProcessSession?
+
+App uses transactionProcessSession to “force” checking Stripe status before the webhook arrives.
+
+With a `transactionInitializeSession` webhook, app only sets statuses that are not allowing to complete the checkout, like ACTION_REQUIRED. This status represents the need to perform actions on the storefront (like confirming payment or 3D-secure flow)
+
+To execute `checkoutComplete` mutation, transaction must be at proper state like SUCCESS or PENDING.
+
+At this point, the only way to complete checkout will be to have the “Allow unpaid orders” flag enabled.
+
+Without the flag, to allow completing the checkout, App must report another state. It will happen within two operations:
+
+- transactionProcessSession
+- Stripe webhook handling
+
+In most cases, webhook and processSession handler will execute the same logic. The first one will set the status, the second will report identical event that will be gracefully ignored by Saleor
+
+App will always handle Stripe webhook, so *eventually* status will be delivered anyway. If you rely on automatic checkout completion, this should be enough for you - you can show to the customer status from Stripe directly, and webhook will resolve the final state asynchronously.
+
+But - if a customer (storefront) tries to complete the checkout before the webhook arrives, it will fail. To ensure this flow is smooth, we recommend to integrate transactionProcessSession. This webhook will speed up resolving the flow, and if needed - storefront can earlier show a problem with payment.
+
+## How to rotate Restricted Key?
+
+When rotating the key on the Stripe side, you need to ensure the old key still works. You need to create a new configuration with a new key, then map channels to the new configuration.
+Once this is done, old key will expire and the old configuration can be removed.

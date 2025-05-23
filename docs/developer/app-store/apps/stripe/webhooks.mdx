@@ -1,0 +1,164 @@
+---
+sidebar_label: Webhooks
+sidebar_position: 4
+title: Stripe App Webhooks
+---
+
+The majority of application logic happens during webhook execution:
+- Transaction webhooks from Saleor
+- Events from Stripe
+
+This page covers each webhook behavior, data it expects and returns and what it can return.
+
+## Saleor Webhooks
+
+App supports the following synchronous webhooks. All of these webhooks are executed as a result of explicit mutations called by storefront (to manage payments) or by Dashboard (to capture/cancel/refund payments).
+
+Check the Transactions documentation to learn more.
+
+### `PaymentGatewayInitializeSession`
+
+This webhook checks if the App is properly configured and returns in the response (to the storefront) Stripe Publishable Key, needed to render the [Stripe Elements UI](https://docs.stripe.com/payments/elements).
+
+It will return following `data` shape
+
+```json
+{
+  "stripePublishableKey": "pk_live_XYZ"
+}
+```
+
+### `TransactionInitializeSession`
+
+This webhook takes data from Storefront and creates a Payment Intent in Stripe.
+
+It requires following `data` shape:
+
+```json
+{
+  "paymentIntent": {
+    "paymentMethod": "card"
+  }
+}
+```
+
+Warning: Data shape will be different depending on the selected payment method. Payment Method from Stripe SDK must be provided. When adding more supported payment methods, the app may require more fields specific to that payment method.
+
+Warning: Data is strictly validated. It will return errors when:
+
+- Shape is invalid
+- Payment method is not supported
+
+Webhook will result with the following responses
+
+For successful operation it will set either `CHARGE_ACTION_REQUIRED` or `AUTHORIZATION_ACTION_REQUIRED` and return data:
+
+```json
+{
+"paymentIntent": {
+  "stripeClientSecret": "..."
+}
+}
+```
+
+For failed operation it will set either `CHARGED_FAILURE` or `AUTHORIZATION_FAILURE` in Saleor and return data:
+
+```json
+{
+  "paymentIntent": {
+    "errors": [
+      {
+        "code": "error code",
+        "message": "human readable message"
+      }
+    ]
+  }
+}
+```
+
+Possible codes are:
+- `StripeCardError`
+- `StripeApiError`
+
+### `TransactionProcessSession`
+
+TransactionProcessSession is supposed to be executed once Stripe payment is completed on the storefront. This webhook will fetch Payment Intent from Stripe
+and update Saleor transaction with the last state resolved from Payment Intent status.
+
+This webhook doesn't require any data in input.
+
+It can set the following statuses on Saleor transaction (based on Stripe PaymentIntent status) in case of successful processing:
+
+- `CHARGE_SUCCESS`
+- `AUTHORIZATION_SUCCESS`
+- `CHARGE_ACTION_REQUIRED`
+- `AUTHORIZATION_ACTION_REQUIRED`
+- `CHARGE_REQUEST`
+- `AUTHORIZATION_REQUEST`
+- `CHARGE_FAILURE`
+- `AUTHORIZATION_FAILURE`
+
+In some cases it can fail to process and return the following data to Storefront
+
+```json
+{
+"paymentIntent": {
+  "errors": [{
+    "code": "error code",
+    "message": "human readable message"
+  }]
+  }
+}
+```
+
+If error occurs, it will set `CHARGE_FAILURE` or `AUTHORIZATION_FAILURE` on Saleor transaction.
+
+Possible codes are:
+- `StripeCardError`
+- `StripeApiError`
+
+
+### `TransactionChargeRequested`
+
+This webhook is executed when a staff user wants to charge the payment that was authorized. It will call Stripe API to capture Payment Intent and update Saleor transaction with `CHARGE_SUCCESS` status when capture is successful or `CHARGE_FAILURE` when there is an error from Stripe API.
+
+When Payment Intent is successfully captured Stripe will emit `payment_intent.succeeded` event which will be handled by app Stripe webhook.
+
+### `TransactionCancelationRequested`
+
+This webhook is executed when staff user wants to cancel the payment that was authorized or it is in pending state (have `CHARGE_ACTION_REQUIRED` or `AUTHORIZATION_ACTION_REQUIRED` status). It will call Stripe API to cancel Payment Intent and update Saleor transaction with `CANCEL_SUCCESS` status is cancelation is successful or `CANCEL_FAILURE` when there is an error from Stripe API.
+
+When Payment Intent is successfully canceled Stripe will emit `payment_intent.canceled` event which will be handled by app Stripe webhook.
+
+### `TransactionRefundRequested`
+
+This webhook is executed when a staff user wants to refund the payment that was charged. It will call Stripe API to create a refund and return Stripe refund id. Actual status of refund will be set in the app' Stripe webhook when handling `charge.refund.updated` event based Stripe refund status:
+
+* `succeeded` will report `REFUND_SUCCESS` status
+* `pending` or `requires_action` will report `REFUND_REQUEST` status
+* `failed` or `canceled` will report `REFUND_FAILURE` status
+
+
+## Stripe Webhook
+
+When app is being configured, it creates a webhook in Stripe. Webhook is registered for the following events in Stripe:
+
+- `payment_intent.amount_capturable_updated`
+- `payment_intent.payment_failed`
+- `payment_intent.processing`
+- `payment_intent.requires_action`
+- `payment_intent.succeeded`
+- `payment_intent.canceled`
+- `charge.refund.updated`
+
+App will process these events and update Saleor transaction with the last state resolved from Payment Intent status.
+
+Usually the status resolved from this webhook will be the same as the one from the `ProcessSession` webhook. The main difference is that:
+- Stripe will send a webhook even if Storefront fails to run `processSession` (e.g., customer closes the browser), so the state will eventually be resolved properly
+- Some asynchronous payment methods can take hours of days to return proper status. In such a case the final state will be resolved in the background, after the customer leaves the page.
+
+The webhook will return:
+- Status 200 to Stripe when successfully processed
+- Status 500 if something broke. In such a case, Stripe will try to retry the webhook.
+
+Webhook will report Transaction Event to Saleor via graphQL mutation.

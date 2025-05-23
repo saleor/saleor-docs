@@ -1,0 +1,65 @@
+---
+sidebar_label: Migration from plugin
+sidebar_position: 10
+title: Stripe App - migration from plugin
+---
+
+You should consider migrating from the [Stripe Plugin](../../plugins/stripe) to the App. This document will help you with that.
+
+## Why migrate?
+
+Plugins API in Saleor are deprecated, and we are proceeding to remove plugins in favor of Apps. Existing plugins are not maintained.
+Apps are more powerful, and they are the future of Saleor extensions.
+
+
+## Differences between plugin and the App
+
+First, let's start with the main differences.
+
+|                                                         | Plugin                                                                                                      | App                                                                                                                          |
+|---------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| Control of automatic/manual capture                     | Configured in plugin settings.<br/>If charge is automatic, it will be performed when the order is confirmed | App will use channel's setting Transaction Flow. Funds will be charged immediately in case of CHARGE                         |
+| Currency setting                                        | Configured in settings                                                                                      | Use Checkout/Order currency (inherited from Channel)                                                                         |
+| Passing customer email to Stripe                        | Configurable in plugin settings                                                                             | Not supported                                                                                                                |
+| Stripe authentication                                   | Plugin uses legacy Secret Key                                                                               | App uses Restricted Key                                                                                                      |
+| Stripe API version                                      | `2020-08-27`                                                                                                | `2025-04-30.basil`                                                                                                           |
+| Releasing funds if Order can't be created from checkout | Plugin will release the funds immediately.                                                                  | App will not refund funds, but [Saleor will eventually](../../../checkout/lifecycle#releasing-funds-for-abandoned-checkouts) |
+| Saving payment method in Stripe                         | Supported                                                                                                   | Not supported                                                                                                                |
+
+
+## How to migrate
+
+### Fetching configuration
+
+The plugin uses the `availePaymentGateways` query to fetch the configuration of the payment gateway. The App uses the `paymentGatewayInitialize` mutation to fetch the configuration.
+
+### Payment mutations
+
+The Plugin uses `checkoutPaymentCreate` mutation to create a payment. The App uses `transactionInitializeSession` and `transactionProcessSession` mutations to create a payment.
+
+See the [integration docs](./storefront-integration) for more details.
+
+### Running `checkoutComplete`
+
+The `checkoutComplete` mutation should be now run at the end of the process, when transactions are reported.
+
+The `paymentData` input should not be used anymore, to transfer data to the App, use `data` fields on the transaction webhooks.
+
+`checkoutConfirm` response fields: `confirmationNeeded` and `confirmationData` should be ignored now.
+
+
+
+
+## Mimic charging after the Order is confirmed
+
+Plugin, when set to automatic capture, will first authorize the funds. After Order is confirmed, will capture (charge) the funds.
+
+App, if set Transaction Flow is set to CHARGE, will charge the funds immediately, when Payments are created.
+
+To mimic the plugin flow, you can:
+1. Set Transaction Flow to AUTHORIZATION.
+2. Perform the payment flow, funds will be authorized only.
+3. Proceed to process the order.
+4. Create app that listens to the order confirmation event.
+5. Execute `transactionRequestAction(actionType:CHARGE)` mutation from the custom app.
+6. Stripe App will receive request to charge the funds.

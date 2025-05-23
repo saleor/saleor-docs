@@ -1,0 +1,444 @@
+---
+sidebar_label: Storefront integration
+sidebar_position: 5
+title: Stripe App Storefront Integration
+---
+
+A lot of payment gateway operations rely on proper implementation of checkout. Especially Stripe does a lot with its Stripe SDK on the client side.
+
+This chapter is a guide to how to integrate Stripe SDK and the app conceptually. To see a working example, check the [Test Client](https://github.com/saleor/adyen-app-testclient)
+
+Please refer to the [Stripe documentation](https://stripe.com/docs) for more details on how to use the SDK.
+
+:::note
+App will be installed with Manifest ID `saleor.app.payment.stripe-v2`. This ID will be publicly available for the Storefront to choose a payment gateway.
+:::
+
+## Assumptions
+
+- This guide is assuming a React-based UI. Follow Stripe documentation for implementation in other frameworks.
+- This guide hardcodes currency to be USD. If your storefront implements multiple currencies, you need to ensure you properly convert the amount to cents and use a Stripe currency format.
+- For brevity, we do not handle errors in code examples and omit non-essential code. In the real storefront you will add much more code around loading, error handling, notifications, etc.
+- Guide is not using Idempotency Key
+- The GraphQL client is `request`
+
+## Prerequisites
+
+- Install Stripe App in your Saleor dashboard
+- Install Stripe browser SDK in your storefront: `pnpm add @stripe/stripe-js @stripe/react-stripe-js`
+- Enable payments methods in [Stripe Dashboard](https://dashboard.stripe.com/settings/payment_methods)
+
+To initialize the payment, you should also have implemented flow that will:
+- Create a checkout
+- Set required fields, like address and shipping method
+- Have a final amount to pay calculated
+
+In this guide we will render a part of the UI that will have the "PAY" button rendered and working.
+
+## Initialize gateway
+
+The first step we need to do is to tell Stripe SDK to display payment UI components. To do that, we will first fetch Publishable Key from the App, to inject it into the React component
+
+Prepare the following GraphQL mutation:
+
+```graphql
+mutation RetrievePublishableKey($checkoutId: ID!, $amount: PositiveDecimal!) {
+  paymentGatewayInitialize(
+    id: $checkoutId
+    paymentGateways: {id: "saleor.app.payment.stripe-v2"}
+    amount: $amount
+  ) {
+    gatewayConfigs {
+      id
+      data
+      errors {
+        field
+        message
+        code
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+If the app is properly configured, you should receive a response like this:
+
+```json
+{
+  "data": {
+    "paymentGatewayInitialize": {
+      "gatewayConfigs": [
+        {
+          "id": "saleor.app.payment.stripe-v2",
+          "data": {
+            "stripePublishableKey": "<YOUR KEY>"
+          },
+          "errors": []
+        }
+      ],
+      "errors": []
+    }
+  }
+}
+```
+
+Great! Now you can render some parts of the UI. We will create a parent component that will create necessary Contexts and a child component that will render the Stripe UI.
+
+```typescript jsx
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
+import {useRef, useState} from "react";
+
+
+const PaymentFormWrapper = ({stripePk, checkoutTotal, checkoutCurrency }: {stripePk, checkoutTotal: number; checkoutCurrency: string}) => {
+    const stripe = useRef(loadStripe(stripePk))
+
+    return (
+        <Elements
+            stripe={stripe}
+            options={{
+                // Stripe expects amount in cents - you need to correctly convert it, note that not every currency has 2 decimal places!
+                // WARNING: In production setup you should use a library like currencyJs or Decimal.js to safely convert payment numbers
+                amount: checkoutTotal * 100,
+                currency: "usd", // Stripe currency is lowercase
+                mode: "payment",
+            }}
+        >
+          <PaymentForm
+
+          />
+        </Elements>
+    )
+}
+
+
+
+const PaymentForm = ({onSubmit}) => {
+  // Stripe and Elements are now available in the context
+  const stripe = useStripe();
+  const elements = useElements();
+
+
+  const handleSubmit = () => {
+      // We will implement this in the next step
+  }
+
+  return (
+
+      <form onSubmit={handleSubmit}>
+        <PaymentElement />
+        <button type="submit" disabled={
+            // Wait for Stripe loads first
+            !stripe || !elements
+        }>PAY</button>
+      </form>
+
+  )
+
+}
+
+
+```
+
+At this point we should see:
+- Stripe UI rendered and clickable
+- "PAY" button is visible, but doing nothing once clicked.
+
+## Submitting payment
+
+The next step is to create the payment intent using Stripe SDK and Saleor Transaction mutations together. First, let's create the mutation query:
+
+```graphql
+  mutation InitializeTransaction(
+    $checkoutId: ID!
+    $data: JSON
+    $paymentGatewayId: String!
+    $amount: PositiveDecimal!
+  ) {
+    transactionInitialize(
+      id: $checkoutId
+      paymentGateway: { id: $paymentGatewayId, data: $data }
+      amount: $amount
+    ) {
+      transaction {
+        id
+      }
+      data
+      errors {
+        field
+        message
+        code
+      }
+    }
+  }
+```
+
+Let assume your query is assigned to `transactionInitializeSessionDocument` variable.
+
+Great! Now we can proceed to implement the form-submitting logic.
+
+Let's get back to the `handleSubmit` function and implement it:
+
+```typescript jsx
+  import request from "my-graphql-client";
+  import {transactionInitializeSessionDocument} from "my-graphql-queries";
+
+  const stripe = useStripe();
+  const elements = useElements();
+
+  const handleSubmit = async () => {
+      // First submit Stripe form - to validate and get the payment method. Remember to handle errors here!
+      const {selectedPaymentMethod} = await elements.submit()
+
+      // Then, call Saleor transactionInitialize mutation from the previous example.
+      const initializeSessionResult = await request(transactionInitializeSessionDocument, {
+            // For brevity, we are not passing all the fields in React examples. Make sure you pass them to your component
+            checkoutId: checkoutId,
+            amount: checkoutAmount,
+            // Remember to pass the special "data" field to the mutation. It's a plain JSON object, so it will not be type-checked.
+            // Be careful about the typos - but don't worry, app will return an error if you pass wrong data.
+            data: {
+              paymentIntent: {
+                paymentMethod,
+              },
+            },
+        })
+
+    // We are going to need them later, so let's store it in a variable
+    const clientSecret = initializeSessionResult.data.transactionInitialize.data.stripeClientSecret
+    const transactionId = initializeSessionResult.data.transactionInitialize.transaction.id
+
+    // We will need to use these keys later, so let's save them in the Session
+    window.sessionStorage.setItem("stripePk", stripePk)
+    window.sessionStorage.setItem("clientSecret", clientSecret)
+
+  }
+
+  // ... Rest of the UI from the previous code
+```
+
+At this point, we have:
+- Payment Intent created in Stripe. You should be able to see it in your Stripe dashboard.
+- Unique session `clientSecret` generated by the app, assigned you the payment intent. We will use it to proceed with the payment.
+- We extracted and saved Transaction ID which we will need in the future.
+- Both Publishable Key and Client Secret are stored in Session Storage so we can use them later.
+
+:::warning
+Do not configure payment methods on the Storefront. App expects "automatic" payment method detection, they are fetched from Stripe Dashboard. You should only pass the selected method to the app.
+:::
+
+## Confirming payment
+
+The next step will be allowing Stripe to confirm the payment. Depending on the Payment method, Stripe may require a few steps, including redirecting to the dedicated external pages.
+Hence, we need to generate the `return_url` param, telling Stripe where to redirect after the payment is completed.
+
+The redirection URL may be specific to your storefront, but let's prepare an example:
+
+```
+const getRedirectUrl = (checkoutId: string, transactionId: string) => `${window.location.origin}/checkout/${checkoutId}/payment/summary?transactionId=${transactionId}`;
+
+```
+
+In this example we preserve Checkout and Transaction IDs, so we can extract them later. You can decide to store them in Session Storage as well.
+
+Now, let's get back to our `handleSubmit`
+
+```typescript jsx
+const handleSubmit = async () => {
+    // Code hidden for brevity
+
+    // We finished here:
+    const clientSecret = initializeSessionResult.data.transactionInitialize.data.stripeClientSecret
+
+    const {error} = await stripe.confirmPayment({
+        // We have it in the context from useElements
+        elements,
+
+        clientSecret,
+        confirmParams: {
+            return_url: getRedirectUrl(checkoutId),
+        }
+    })
+
+    // Normally you will handle errors here, but for brevity we will skip it.
+    // Internally, Stripe will proceed with the payment and initiate all necessary redirects.
+
+}
+```
+
+At this point, payment should be already succeeded (or failed) on the Stripe side. You should be able to see the payment in your Stripe dashboard.
+
+However, we still need to:
+- Display a result to the customer
+- Complete the checkout in Saleor
+
+## Displaying summary
+
+Let's navigate to our summary page, which we told Stripe to redirect to.
+
+You should ensure you pass Publishable Key, Client Secret and Checkout ID to the page. Checkout ID will be accessible from the URL. Publishable Key and Client Secret can be stored in Session Storage.
+
+We will render Stripe Elements again, so you need to wrap the page in `Elements` component again.
+
+```typescript jsx
+// summary.tsx
+
+import {
+  Elements,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import {useEffect,useState} from "react";
+
+// For brevity, we assume checkout is available in props. Depending on your framework, you may need to get it from the URL
+const Page = ({checkoutId}) => {
+    // You can store it however you like, but keep in mind that page redirection (done by Stripe) will not preserve React state (or any client memory values)
+    const pk = sessionStorage.getItem("stripePk")
+    const clientSecret = sessionStorage.getItem("clientSecret")
+
+    return (
+        <Elements stripe={loadStripe(pk)}>
+            <SummaryPage checkoutId={checkoutId} clientSecret={clientSecret} />
+        </Elements>
+        )
+
+}
+
+const SummaryPage = ({checkoutId, clientSecret}) => {
+    const stripe = useStripe();
+    const [intent, setIntent] = useState(null);
+
+    useEffect(async () => {
+        const result = await stripe.retrievePaymentIntent(clientSecret);
+
+        setIntent(result.paymentIntent)
+    }, [])
+
+    if(!intent) {
+        return <div>Loading...</div>
+    }
+
+    // You should handle all the possible statuses here
+    if(intent.status === "succeeded") {
+        return <div>Payment succeeded!</div>
+    }
+
+}
+
+```
+
+We haven't used `checkoutId` yet - we will need it later. But you can use it to display checkout details from Saleor in the summary page too.
+
+## Updating checkout state in Saleor
+
+At this point, payment is done and the user has seen the confirmation. However, Checkout in Saleor still must be completed. It can be done by calling `checkoutComplete` mutation.
+
+However, we don't know if Stripe has told Saleor about the payment yet! Let's have a quick recap of the flow: Stripe will send a webhook with the payment status to Saleor.
+But this is an async operation, so we can't be sure if the webhook has been received yet.
+
+If storefront (automatically, or by user action) calls `checkoutComplete` too early, Saleor will not allow performing the operation. Only `SUCCESS` or `PROCESSING` statuses are allowed to complete the checkout.
+
+In this step, we will use `TransactionProcessSession` mutation to force-update Saleor about the payment status.
+
+Let's start by defining the mutation query:
+
+```graphql
+  mutation ProcessTransaction($transactionId: ID!) {
+    transactionProcess(id: $transactionId) {
+      transaction {
+        id
+      }
+      data
+      errors {
+        field
+        message
+        code
+      }
+    }
+  }
+```
+
+Now, we can run the mutation "in the background."
+
+```typescript jsx
+// summary.tsx
+import {useEffect} from "react";
+import {request} from "my-graphql-client";
+import {transactionProcessDocument} from "my-graphql-queries";
+
+// ...
+useEffect(async () => {
+    await request(transactionProcessDocument, {
+        transactionId: props.transactionId, // get it from props/URL
+    })
+}, [])
+```
+
+With this mutation, App will fetch the latest Payment Intent status from Stripe and update Saleor about it. We can't be sure if ProcessSession mutation was before or after Stripe Webhook, but it's not a problem.
+Saleor will ignore the event if reported a second time.
+
+If payment has failed before, your storefront should handle the error (either based on direct Stripe Payment Intent status, or Saleor transaction status) and display it to the user, probably asking to retry the payment.
+
+If the payment has succeeded (either SUCCESS or PENDING), we can proceed with completing the checkout.
+
+## Completing the checkout
+
+The last mutation we will use is `checkoutComplete`. It will finalize the checkout and create the order.
+
+```graphql
+  mutation CompleteCheckout($checkoutId: ID!) {
+    checkoutComplete(id: $checkoutId) {
+      order {
+        id
+      }
+      errors {
+        field
+        message
+        code
+      }
+    }
+  }
+```
+
+We have passed the Checkout ID to the summary page, so we can use it here.
+
+
+```typescript jsx {12-14}
+// summary.tsx
+import {useEffect} from "react";
+import {request} from "my-graphql-client";
+import {transactionProcessDocument} from "my-graphql-queries";
+import {completeCheckoutDocument} from "my-graphql-queries";
+
+// ...
+useEffect(async () => {
+    await request(transactionProcessDocument, {
+        transactionId: props.transactionId, // get it from props/URL
+    })
+
+    await request(completeCheckoutDocument, {
+        checkoutId: props.checkoutId, // get it from props/URL
+    })
+}, [])
+```
+
+At this point, if no errors are returned, checkout is completed and the order is created.
+
+
+## Idempotency Key
+
+Both Saleor and Stripe support [idempotency](https://docs.stripe.com/api/idempotent_requests) to ensure that the same request (from the business perspective - like request to pay) is not executed multiple times.
+
+Saleor will automatically generate the Idempotency Key, and the App will pass it to Stripe. If you want to control the Key usage, like setting your own, you can pass it to [the mutation](../../../../api-reference/payments/mutations/transaction-initialize)
