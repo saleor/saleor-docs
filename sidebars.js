@@ -76,8 +76,20 @@ module.exports = {
     ref("setup/overview", "Self-hosting", "selfHost"),
     ref("developer/community/contributing", "Community", "community"),
     ref("upgrade-guides/index", "Upgrade Guides", "guides"),
-    ref("security/index", "Security", "shield"),
-    ref("developer/ai", "AI", "star"),
+    {
+      type: "doc",
+      id: "security/index",
+      customProps: {
+        icon: "shield",
+      },
+    },
+    {
+      type: "doc",
+      id: "developer/ai",
+      customProps: {
+        icon: "star",
+      },
+    },
     {
       type: "link",
       label: "Report an Issue",
