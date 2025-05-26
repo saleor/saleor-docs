@@ -31,7 +31,7 @@ const highlightSaleorVersion = (file) => {
       let badgeText = version.replace(/\.$/, "");
 
       // Change that upon releasing a new version
-      if (badgeText.includes("3.21")) {
+      if (badgeText.includes("3.22")) {
         badgeText = badgeText + " (unreleased)";
       }
       if (block.startsWith(">")) {
