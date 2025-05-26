@@ -547,53 +547,6 @@ mutation OrderFulfillmentUpdateTracking {
 - The tracking number can be set during initial fulfillment creation or updated later using this mutation
 :::
 
-## Fulfillment Webhooks
-
-Fulfillment operations trigger various webhook events (async) that you can use to track and respond to changes:
-
-**Fulfillment Creation**
-- `FULFILLMENT_CREATED`: Triggered when a new fulfillment is created
-- `ORDER_FULFILLED`: Triggered when an order is fulfilled
-- `FULFILLMENT_APPROVED`: Triggered when a fulfillment is approved
-
-**Fulfillment Updates**
-- `FULFILLMENT_TRACKING_NUMBER_UPDATED`: Triggered when a tracking number is updated
-- `FULFILLMENT_METADATA_UPDATED`: Triggered when fulfillment metadata is updated
-
-**Fulfillment Cancellation**
-- `FULFILLMENT_CANCELED`: Triggered when a fulfillment is cancelled
-
-You can learn more about webhooks [here](developer/extending/webhooks/asynchronous-events.mdx).
-
-## Fulfillment Settings
-Some settings in Saleor can affect how fulfillments are created and processed. These settings can be configured at different levels:
-
-### Shop Settings
-
-[`Shop.fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#shopfulfillmentautoapproveboolean---)
-  - Controls whether new fulfillments require approval
-  - When enabled, fulfillments are automatically approved
-  - When disabled, fulfillments remain in `WAITING_FOR_APPROVAL` status until approved
-
-[`Shop.fulfillmentAllowUnpaid`](/api-reference/miscellaneous/objects/shop#shopfulfillmentallowunpaidboolean---)
-  - When enabled, allows creating fulfillments for unpaid orders
-  - Useful for certain business models or special cases
-  - Should be used with caution as it bypasses payment verification
-
-### Channel Settings
-[`OrderSettings.automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#ordersettingsautomaticallyfulfillnonshippablegiftcardboolean---)
-  - When enabled, gift card orders are automatically fulfilled
-  - Default value is `true`
-  - Applies only to non-shippable gift cards
-  - Useful for instant delivery of digital gift cards
-
-:::note
-- These settings can be configured through the GraphQL API, some of them through the Saleor Dashboard
-- Some settings may require specific permissions to modify
-- Changes to these settings can affect the entire fulfillment workflow
-:::
-
-
 ## Post-Fulfillment Actions
 
 After an order has been fulfilled, there are several actions that can be taken 
@@ -804,6 +757,90 @@ The `ORDER_REFUNDED` webhook event is triggered when a partial refund is process
 
 The `ORDER_FULLY_REFUNDED` webhook event is triggered when the entire order amount has been refunded.
 :::
+
+## Fulfillment Webhooks
+
+Fulfillment operations trigger various webhook events (async) that you can use to track and respond to changes:
+
+**Fulfillment Creation**
+- `FULFILLMENT_CREATED`: Triggered when a new fulfillment is created
+- `ORDER_FULFILLED`: Triggered when an order is fulfilled
+- `FULFILLMENT_APPROVED`: Triggered when a fulfillment is approved
+
+**Fulfillment Updates**
+- `FULFILLMENT_TRACKING_NUMBER_UPDATED`: Triggered when a tracking number is updated
+- `FULFILLMENT_METADATA_UPDATED`: Triggered when fulfillment metadata is updated
+
+**Fulfillment Cancellation**
+- `FULFILLMENT_CANCELED`: Triggered when a fulfillment is cancelled
+
+## Fulfillment for External Stock Management
+
+When using external stock management systems alongside Saleor, 
+the fulfillment process needs to be synchronized with your external inventory. 
+The behavior differs based on whether inventory tracking is enabled for product variants.
+
+### Inventory Tracking Disabled
+
+When trackInventory is disabled for a product variant, it is always considered available, 
+allowing checkout regardless of warehouse stock levels and without creating any stock allocations.
+
+In this scenario, you should:
+1. Listen for the `FULFILLMENT_CREATED` webhook event.
+2. Update your external stock management system when the webhook is received.
+3. Handle the stock reduction in your external system.
+
+### Inventory Tracking Enabled
+
+When trackInventory is enabled for a product variant, 
+Saleor validates stock availability during checkout or draft order creation, 
+creates stock allocations when an order is placed, 
+and reduces stock levels upon fulfillment by clearing the allocations.
+
+To maintain synchronization:
+
+1. Listen for the `FULFILLMENT_CREATED` webhook.
+2. Reduce the amount in your external warehouse based on the webhook data.
+3. Update stock levels in Saleor using one of these methods:
+   - `productVariantStocksUpdate` mutation for individual variants.
+   - `stockBulkUpdate` mutation for batch updates.
+
+When items are returned you need to handle both your external stock management system 
+and the return process in Saleor:
+
+1. An item is physically returned to the warehouse.
+2. Return product in Saleor using Dashboard or GraphQL
+[`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products) mutation.
+3. For items deemed resellable update stock in external system and sync new stock amount in Saleor.
+
+## Fulfillment Settings
+Some settings in Saleor can affect how fulfillments are created and processed. These settings can be configured at different levels:
+
+### Shop Settings
+
+[`Shop.fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#shopfulfillmentautoapproveboolean---)
+  - Controls whether new fulfillments require approval
+  - When enabled, fulfillments are automatically approved
+  - When disabled, fulfillments remain in `WAITING_FOR_APPROVAL` status until approved
+
+[`Shop.fulfillmentAllowUnpaid`](/api-reference/miscellaneous/objects/shop#shopfulfillmentallowunpaidboolean---)
+  - When enabled, allows creating fulfillments for unpaid orders
+  - Useful for certain business models or special cases
+  - Should be used with caution as it bypasses payment verification
+
+### Channel Settings
+[`OrderSettings.automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#ordersettingsautomaticallyfulfillnonshippablegiftcardboolean---)
+  - When enabled, gift card orders are automatically fulfilled
+  - Default value is `true`
+  - Applies only to non-shippable gift cards
+  - Useful for instant delivery of digital gift cards
+
+:::note
+- These settings can be configured through the GraphQL API, some of them through the Saleor Dashboard
+- Some settings may require specific permissions to modify
+- Changes to these settings can affect the entire fulfillment workflow
+:::
+
 
 ## Edge Cases & Exceptions
 The following scenarios demonstrate how different settings interact in Saleor's fulfillment system. 
