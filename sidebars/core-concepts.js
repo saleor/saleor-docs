@@ -60,9 +60,14 @@ export const coreConcepts = [
   "developer/payments/price-calculations",
 
   title("Stock"),
+  "developer/stock/overview",
   "developer/stock/stock-reservation",
   "developer/stock/stock-tracking",
   "developer/stock/stock-allocation",
+
+  title("Shipping"),
+  "developer/shipping/shipping-zone",
+  "developer/shipping/shipping-method",
 
   title("Discounts"),
   "developer/discounts/overview",

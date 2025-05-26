@@ -1,0 +1,119 @@
+---
+title: Telemetry in Saleor
+description: Learn how Saleor uses OpenTelemetry for observability and monitoring
+---
+
+# Telemetry in Saleor
+
+## Introduction
+
+Saleor uses OpenTelemetry standard to give you visibility into what's happening in Saleor Core, and between Core and apps. You can export this data into your preferred observability tool, and create traces, metrics, and monitors to suit your needs.
+In this guide, you'll find information on how telemetry is implemented, how to configure it, and how you can start using it in your environment.
+
+## What is OpenTelemetry?
+
+[OpenTelemetry](https://opentelemetry.io/) is an open-source observability framework that provides tools, APIs, and SDKs to help instrument, generate, collect, and export telemetry data (metrics, logs, and traces) for analysis. OpenTelemetry is a Cloud Native Computing Foundation (CNCF) project designed to make observability a built-in feature of cloud-native applications.
+
+## Telemetry in Saleor architecture
+
+Saleor's telemetry system is primarily located in the `saleor.core.telemetry` package and consists of the following key components:
+
+### Tracing
+
+Tracing is provided through the `Tracer` class which is a wrapper around OpenTelemetry's tracing capabilities. It allows you to:
+
+- Create spans to measure operation execution time
+- Add attributes and events to spans
+- Establish parent-child relationships between spans
+- Link spans across asynchronous operations
+
+Saleor implements two distinct scopes for traces:
+- **CORE**: For internal system operations and core functionality
+- **SERVICE**: For business logic and service-level operations
+
+What is being traced at the **SERVICE** level:
+
+- **HTTP requests** including their duration, full URL, request method, client's IP address, and length of response. This includes requests to Saleor's GraphQL API and requests to external services (Saleor Apps, custom apps) via sync webhooks.
+- **GraphQL queries** including their duration, query string, and execution errors.
+
+### Metrics
+
+Metrics are handled through the `Meter` class, which is a wrapper around OpenTelemetry's metrics capabilities. It supports:
+
+- Counters
+- Histograms
+- Up/Down Counters
+
+Like traces, metrics are also separated into CORE and SERVICE scopes.
+
+
+### Context propagation
+
+Saleor implements context propagation to ensure telemetry context is maintained across:
+- Web requests
+- Synchronous operations
+- Asynchronous Celery tasks (via [Span Links](https://opentelemetry.io/docs/concepts/signals/traces/#span-links))
+
+Context propagation between Saleor and external services is handled through OpenTelemetry's [W3C Trace Context](https://www.w3.org/TR/trace-context/) standard.
+
+
+## Setting up your own observability
+
+If you're running your own Saleor instance, you can set up telemetry collection and viewing using standard OpenTelemetry tooling. Below is an example of a observability setup where Saleor is configured to send telemetry data to an [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/), which then exports the data to a [Jaeger](https://www.jaegertracing.io/) instance for visualization.
+
+
+### 1. Configure an OpenTelemetry Collector
+
+Set up an OpenTelemetry Collector to receive, process, and export telemetry data. Below is an example configuration file for the OpenTelemetry Collector:
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+
+exporters:
+  jaeger:
+    endpoint: jaeger:4317  # example Jaeger endpoint
+    tls:
+      insecure: true  # enable TLS in production
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [jaeger]
+```
+
+Note: Only traces are exported in this example as Jaeger doesn't support metrics. You can add additional exporters for metrics if needed.
+
+Refer to the [OpenTelemetry Collector configuration](https://opentelemetry.io/docs/collector/configuration/) for more details.
+
+### 2. Set Up Environment Variables
+
+Configure the environment variables for your Saleor instance to connect to your telemetry system:
+
+```bash
+# OpenTelemetry configuration
+export OTEL_SERVICE_NAME=saleor
+export OTEL_TRACES_EXPORTER=otlp
+export OTEL_METRICS_EXPORTER=otlp
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+```
+
+Saleor supports standard OpenTelemetry environment variables for configuration. Refer to [General SDK Configuration](https://opentelemetry.io/docs/languages/sdk-configuration/general/) and [OTLP Exporter Configuration](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) for more details.
+
+### 3. Start server
+
+Telemetry is initialized as part of the Saleor's ASGI application, which can be run using `uvicorn`:
+
+```bash
+uvicorn saleor.asgi:application
+```
