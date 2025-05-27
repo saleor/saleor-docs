@@ -1,0 +1,327 @@
+---
+sidebar_label: Architecture
+sidebar_position: 2
+title: Stripe App Architecture
+---
+
+## Assumptions
+
+First, lets highlight the assumptions that the app is based on. These are decisions made by Saleor product team. We may add more assumptions when we add more features,
+but the ones already set are pretty much final.
+
+That means:
+- You can rely on them when building your Store, and they will not change.
+- You should not use this App if you do not agree with them.
+- Once we decide to change them, the new major version will be released.
+
+
+### Supporting Authorization flow
+
+App supports both Authorization and Charge flow that can be set in Saleor channel settings. However, not every payment method supports Authorization.
+
+Some methods support both Authorization and Charge, some - only Charge. You can read more in [Stripe docs](https://docs.stripe.com/payments/place-a-hold-on-a-payment-method)
+
+App will proceed following flows (simplified)
+
+#### Charge Flow
+
+`CHARGE_REQUEST` → `CHARGE_SUCCESS`
+
+#### Authorization Flow + method supports Authorization
+
+`AUTHORIZATION_REQUEST` → `AUTHORIZATION_SUCCESS` → `CHARGE_REQUEST` → `CHARGE_SUCCESS`
+
+#### Authorization Flow + method does not support Authorization
+
+`AUTHORIZATION_REQUEST` → `CHARGE_SUCCESS`
+
+To wrap up, the app can make a decision to make a shortcut from AUTHORIZATION to CHARGE if the method doesn’t allow authorizing first.
+
+To make this work, app requires payment method to be provided in `data` of TransactionInitializeSession - see storefront integration.
+
+See the charts below for more details about the flow.
+
+### Stripe event deduplication
+
+Stripe doesn’t guarantee their webhooks will be delivered once and recommend deduplicate events.
+
+App itself doesn’t de-duplicate - Saleor does. In case of duplicated event, the app will resolve the same result (PSP Reference, amount, type) and report it to Saleor again.
+Saleor will reject this event with an ALREADY_REPORTED error, which the app gracefully handles.
+
+### Stripe metadata
+
+Stripe App is setting following metadata on Payment Intent once it's created:
+- `saleor_transaction_id` - which is `Transaction.id` in Saleor
+- `saleor_source_type` - which is `Checkout` or `Order` depending on the source of the payment flow
+- `saleor_source_id` - which is `Checkout.id` or `Order.id` depending on the source of the payment flow
+
+In the future app may store there additional fields but will not rely on these fields and do not guarantee these fields will be written.
+
+It is fine to use metadata for additional, user-targeted information but do not build automated logic based on its existence.
+
+### Payment methods detection
+
+You should rely on [automatic (dynamic)](https://docs.stripe.com/payments/payment-methods/dynamic-payment-methods) payment methods detection.
+
+In this approach, you don't select methods on the Storefront but enable them in the Stripe Dashboard.
+This approach allows you to have zero-downtime (and zero deployment) adding and removing methods depending on the needs.
+
+Additionally, when App adds support to the new payment method, you don't have to redeploy the Storefront (or the mobile app); you enable a new method in the Stripe Dashboard.
+
+If you try to overwrite payment methods on the UI, the payment flow will not work as expected.
+
+## Supported flows
+
+This chapter lists flows possible to execute, including Storefront, Saleor, App and Stripe.
+
+Note: Flows that assume operation in Saleor Dashboard can be also executed with graphQL
+
+Note: For brevity, diagrams highlight the most important parts of the flow and do not duplicate operations that are not relevant to the flow.
+To fully understand the flow, please study all diagrams.
+
+### Render payment UI
+
+```mermaid
+
+
+sequenceDiagram
+    actor Storefront
+    actor Saleor
+    actor Stripe App
+    actor Stripe API
+
+    autonumber
+    Stripe API->>Stripe App: Configure app with required settings
+    note over Stripe App: App must be configured first
+
+    Storefront->>Saleor: mutation paymentGatewayInitialize
+    Saleor->>Stripe App: Webhook: PAYMENT_GATEWAY_INITIALIZE_SESSION
+    Stripe App ->> Saleor: Respond with Stripe Publishable Key in "data" field
+    Saleor ->> Storefront: Respond with Stripe Publishable Key in "data" field
+    Storefront-->>Storefront: Render Stripe UI
+```
+
+
+### Payment with CHARGE flow
+
+```mermaid
+sequenceDiagram
+    actor Storefront
+    actor Saleor
+    actor Stripe App
+    actor Stripe API
+
+
+
+    Storefront->>Saleor: mutation transactionInitializeSession
+    Saleor->>Stripe App: Webhook: TRANSACTION_INITIALIZE_SESSION
+    Stripe App ->> Stripe API: Create Payment Intent
+    alt Stripe API fails
+        Stripe API->>Stripe App: Fail to create intent
+        Stripe App ->> Saleor: Respond with CHARGE_FAILURE
+        Saleor ->> Storefront: Return failed mutation
+        Storefront ->> Storefront: Render failure and prompt to try again
+    else Stripe succeesfully creates Intent
+        Stripe API->>Stripe App: Success: Provide Payment Intent ID and client secret
+        Stripe App ->> Saleor: Respond with CHARGE_ACTION_REQUIRED
+        Saleor ->> Storefront: Return client secret in "data"
+        Storefront ->> Storefront: Render render UI with payment methods selection
+        Storefront ->> Storefront: Customer process full payment on the Storefront <br/> Customer sees payment result from Stripe
+
+        par processSession
+            Storefront ->> Saleor: mutation transactionProcessSession
+            Saleor->>Stripe App: Webhook: TRANSACTION_PROCESS_SESSION
+            Stripe App->> Stripe API: Retrieve Payment Intent status
+            Stripe API->> Stripe App: Respond with status
+            Stripe App->> Saleor: Set event depending on Stripe status
+            Saleor ->> Storefront: Return current state of transaction
+        and Stripe event
+            Stripe API->>Stripe App: Inform about Payment Intent status change
+            Stripe App->> Saleor: Set event depending on Stripe status
+        end
+        Storefront->>Storefront: Can complete the checkout
+        Saleor->>Saleor: Merchant can refund
+
+    end
+```
+
+### Payment with AUTHORIZATION flow
+
+```mermaid
+sequenceDiagram
+    actor Storefront
+    actor Saleor
+    actor Stripe App
+    actor Stripe API
+
+
+
+    Storefront->>Saleor: mutation transactionInitializeSession
+    Saleor->>Stripe App: Webhook: TRANSACTION_INITIALIZE_SESSION
+    Stripe App ->> Stripe API: Create Payment Intent
+    alt Stripe API fails
+        Stripe API->>Stripe App: Fail to create intent
+        Stripe App ->> Saleor: Respond with AUTHORIZATION_FAILURE
+        Saleor ->> Storefront: Return failed mutation
+        Storefront ->> Storefront: Render failure and prompt to try again
+    else Stripe succeesfully creates Intent
+        Stripe API->>Stripe App: Success: Provide Payment Intent ID and client secret
+        Stripe App ->> Saleor: Respond with AUTHORIZATION_ACTION_REQUIRED
+        Saleor ->> Storefront: Return client secret in "data"
+        Storefront ->> Storefront: Render render UI with payment methods selection
+        Storefront ->> Storefront: Customer process full payment on the frontend <br/> Customer sees payment result from Stripe
+
+        par processSession
+            Storefront ->> Saleor: mutation transactionProcessSession
+            Saleor->>Stripe App: Webhook: TRANSACTION_PROCESS_SESSION
+            Stripe App->> Stripe API: Retrieve Payment Intent status
+            Stripe API->> Stripe App: Respond with status
+            Stripe App->> Saleor: Set event depending on Stripe status<br/>
+            Saleor ->> Storefront: Return current state of transaction
+        and Stripe event
+            Stripe API->>Stripe App: Inform about Payment Intent status change
+            Stripe App->> Saleor: Set event depending on Stripe status<br/>
+        end
+        Storefront->>Storefront: Can complete the checkout
+        Saleor->>Saleor: Merchant can cancel or capture
+
+    end
+```
+
+### Payment with AUTHORIZATION flow for payment method that does not support authorization
+
+```mermaid
+
+
+sequenceDiagram
+    actor Storefront
+    actor Saleor
+    actor Stripe App
+    actor Stripe API
+
+
+    Saleor->>Saleor: Channel setting is set to be AUTHORIZATION flow instead CHARGE
+    Storefront->>Saleor: mutation transactionInitializeSession<br/> (attached method doesn't support AUTHORIZATION)
+    Saleor->>Stripe App: Webhook: TRANSACTION_INITIALIZE_SESSION
+
+    Stripe App ->> Stripe API: Create Payment Intent<br/>Use manual_capture: false
+    note over Stripe App: App converts flow to supported one
+
+    Stripe API ->> Stripe App: Respond successfully
+    Stripe App ->> Saleor: Respond with CHARGE_SUCCESS
+    Saleor ->> Storefront: Return successful mutation
+    Storefront ->> Storefront: Render UI
+
+
+```
+
+
+
+### Capturing funds from Saleor Dashboard
+
+
+```mermaid
+sequenceDiagram
+    %% actor Storefront
+    actor Staff User
+    actor Saleor
+    actor Stripe App
+    actor Stripe API
+
+    Staff User->>Saleor: Capture authorized transaction in Dashboard <br/>(CHARGE_REQUEST)
+    Saleor ->> Stripe App: Webhook TRANSACTION_CHARGE_REQUESTED
+    Stripe App ->> Stripe API: Capture Payment Intent
+    Stripe API ->> Stripe App: Result with success of failure
+    Stripe App ->> Saleor: Set CHARGE_SUCCESS or CHARGE_FAILURE
+    Stripe API ->> Stripe App: Webhook "payment_intent.succeeded"
+    Stripe App ->> Saleor: Set CHARGE_SUCCESS
+```
+
+
+### Cancelling authorization from Saleor Dashboard
+
+```mermaid
+sequenceDiagram
+    %% actor Storefront
+    actor Staff User
+    actor Saleor
+    actor Stripe App
+    actor Stripe API
+
+    Staff User->>Saleor: Cancel authorized transaction
+    Saleor ->> Stripe App: Webhook TRANSACTION_CANCEL_REQUESTED
+    Stripe App ->> Stripe API: Cancel Payment Intent
+    Stripe API ->> Stripe App: Result with success of failure
+    Stripe App ->> Saleor: Set CANCEL_SUCCESS or CANCEL_FAILURE
+    Stripe API ->> Stripe App: Webhook "payment_intent.canceled"
+    Stripe App ->> Saleor: Set CANCEL_SUCCESS
+```
+
+### Capturing funds from Stripe
+
+```mermaid
+sequenceDiagram
+    %% actor Storefront
+    actor Staff User
+    actor Saleor
+    actor Stripe App
+    actor Stripe API
+
+    Staff User->>Stripe API: Capture authorized transaction in Dashboard
+    Stripe API ->> Stripe App: Webhook "payment_intent.succeeded"
+    Stripe App ->> Saleor: Set CHARGE_SUCCESS
+```
+
+
+### Cancelling authorized transaction from Stripe
+
+```mermaid
+sequenceDiagram
+    %% actor Storefront
+    actor Staff User
+    actor Saleor
+    actor Stripe App
+    actor Stripe API
+
+    Staff User->>Stripe API: Cancel authorized transaction in Dashboard
+    Stripe API ->> Stripe App: Webhook "payment_intent.canceled"
+    Stripe App ->> Saleor: Set CANCEL_SUCCESS
+````
+
+### Refunding funds from Saleor Dashboard
+
+```mermaid
+sequenceDiagram
+    %% actor Storefront
+    actor Staff User
+    actor Saleor
+    actor Stripe App
+    actor Stripe API
+
+    Staff User->>Saleor: Refund authorized transaction in Dashboard <br/>(REFUND_REQUEST)
+    Saleor ->> Stripe App: Webhook TRANSACTION_REFUND_REQUESTED
+    Stripe App ->> Stripe API: Create refund
+    Stripe API ->> Stripe App: Result with success of failure
+    Stripe App ->> Saleor: Set REFUND_FAILURE or return PSP Reference (refund ID)
+    Saleor ->> Saleor: Set REFUND_FAILURE or REFUND_REQUEST
+    Stripe API ->> Stripe App: Webhook "charge.refund.updated"
+    Stripe App ->> Saleor: Set REFUND_SUCCESS / REFUND_FAILURE / REFUND_REQUEST
+```
+
+### Refunding funds from Stripe
+
+
+```mermaid
+
+sequenceDiagram
+    %% actor Storefront
+    actor Staff User
+    actor Saleor
+    actor Stripe App
+    actor Stripe API
+
+    Staff User->>Stripe API: Refund funds in Dashboard
+    Stripe API ->> Stripe App: Webhook "charge.refund.updated"
+    Stripe App ->> Saleor: Set REFUND_SUCCESS / REFUND_FAILURE / REFUND_REQUEST
+
+```

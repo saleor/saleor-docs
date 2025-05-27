@@ -1,0 +1,37 @@
+---
+sidebar_label: Errors
+sidebar_position: 6
+title: Stripe App Errors
+---
+
+There may be a number of reasons why an error occurs during the payment process.
+- Expected errors: e.g., customer provided wrong card details
+- App configurations errors: like provided keys are incorrect
+- Stripe errors: Stripe API can be down or return unexpected errors
+- Integration errors: storefront doesn't provide proper data to mutations
+- Saleor errors: Saleor may bo down or return unexpected errors
+
+App is doing its best to detect each class of errors to give the best possible message to the integrator/staff.
+
+There are two types of messages the app is setting at the moment:
+1. TransactionEvent.message field - especially when the app is setting "FAILURE"-like events, it can return also a message why it happened
+2. `data` errors - errors especially valuable for storefront to debug (reading a message in the network response) or handle errors (reading and translating error codes)
+
+## `data` errors
+
+Errors that come from `data` will *always* have the following structure:
+
+```json5
+{
+errors: [ // It will be array of errors, in case of multiple errors were caught
+      {
+        code: "StripeApiError", // This code can be used to react on the cause
+        message: "There is a problem with the request to Stripe API" // This message CAN change and should be used for debugging
+      }
+  ]
+}
+
+```
+
+Due to a fact that both `TransactionEvent.message` and `data` are public fields available on the storefront, app will not return details due to security reasons.
+However, when testing the integration (using Stripe TEST environment / sandboxes) - app will return error causes attached to the transaction messages and errors attached to `data`.
