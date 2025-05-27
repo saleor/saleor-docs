@@ -1,0 +1,55 @@
+---
+sidebar_label: Configuration
+sidebar_position: 4
+title: Stripe App Configuration
+---
+
+
+App configuration is based on two entities:
+
+- Individual configurations of Stripe connection
+- Mapping between Saleor channel and Stripe configuration
+
+There can be multiple individual configurations. Added configuration is not used until it’s mapped to the channel.
+
+Saleor channel can be mapped to only one configuration. Once it happens, configuration will be resolved from the channel and used to communicate with Stripe.
+
+To configure the App, open the Dashboard → Extensions page and select your installed Stripe App.
+
+:::note
+To configure the app, a logged user must have HANDLE_PAYMENTS and MANAGE_APPS permissions
+:::
+
+## Adding Stripe Configuration
+
+The new installed app will have an empty configurations list and a button that navigates to the new configuration screen.
+
+Once you get there, you will have to fill the following:
+
+- **Configuration name**: A friendly label for a staff user to distinct specific configurations, for example, “Staging” and “Prod”
+- **Stripe Publishable Key**: A public key Stripe provides in the Dashboard that will be used by Stripe SDK
+- **Stripe Restricted Key**: A fine-grained token that must be generated in Stripe Dashboard with permissions:
+    - **"Payment Intents"**: *Write*
+    - **"All Webhook"**: *Write*
+    - **"Charges"**: *Write*
+
+App will try to validate tokens if possible; it can’t promise it can check if every permission is correct.
+
+After the form is saved, app will create a Stripe Webhook in the background, pointing to the App.
+
+You can check Stripe [Dashboard’s webhooks page](https://dashboard.stripe.com/workbench/webhooks) - you should see the webhook created.
+
+:::warning
+App will manage its webhooks. Do not disable or remove webhooks on the Stripe side when the app is supposed to work.
+App will not work properly if you do so.
+
+App will not prune its webhooks when uninstalled or disabled. If you want to remove the app, delete configurations first, or remove webhooks in Stripe manually
+:::
+
+App tries to detect if an event is coming from the removed app. If possible, the app will try to remove such a webhook.
+
+## Mapping configuration to channel
+
+One configuration is added, you will be able to assign it to the channel. Once it happens, the app should be operations
+
+Ensure the channel has “Use Transaction flow when marking order as paid” enabled in channel settings
