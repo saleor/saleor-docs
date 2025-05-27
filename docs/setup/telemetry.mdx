@@ -46,9 +46,21 @@ Metrics are handled through the `Meter` class, which is a wrapper around OpenTel
 
 Like traces, metrics are also separated into CORE and SERVICE scopes.
 
+
+### Context propagation
+
+Saleor implements context propagation to ensure telemetry context is maintained across:
+- Web requests
+- Synchronous operations
+- Asynchronous Celery tasks (via [Span Links](https://opentelemetry.io/docs/concepts/signals/traces/#span-links))
+
+Context propagation between Saleor and external services is handled through OpenTelemetry's [W3C Trace Context](https://www.w3.org/TR/trace-context/) standard.
+
+
 ## Setting up your own observability
 
 If you're running your own Saleor instance, you can set up telemetry collection and viewing using standard OpenTelemetry tooling. Below is an example of a observability setup where Saleor is configured to send telemetry data to an [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/), which then exports the data to a [Jaeger](https://www.jaegertracing.io/) instance for visualization.
+
 
 ### 1. Configure an OpenTelemetry Collector
 
@@ -93,15 +105,15 @@ Configure the environment variables for your Saleor instance to connect to your 
 export OTEL_SERVICE_NAME=saleor
 export OTEL_TRACES_EXPORTER=otlp
 export OTEL_METRICS_EXPORTER=otlp
-export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://localhost:4317
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
 ```
 
-Alternatively, you can pass above configuration as command-line arguments for the `opentelemetry-instrument` command. Refer to [OpenTelemetry Agent configuration](https://opentelemetry.io/docs/zero-code/python/configuration/) for more details.
+Saleor supports standard OpenTelemetry environment variables for configuration. Refer to [General SDK Configuration](https://opentelemetry.io/docs/languages/sdk-configuration/general/) and [OTLP Exporter Configuration](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) for more details.
 
-### 3. Run Saleor with OpenTelemetry Instrumentation
+### 3. Start server
 
-Use the OpenTelemetry instrumentation command to automatically instrument your application:
+Telemetry is initialized as part of the Saleor's ASGI application, which can be run using `uvicorn`:
 
 ```bash
-opentelemetry-instrument uvicorn saleor.asgi:application
+uvicorn saleor.asgi:application
 ```
