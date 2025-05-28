@@ -1,0 +1,146 @@
+---
+title: Marketplace
+---
+
+import CompactCard from "@site/components/CompactCard";
+import RecipeResourceGrid from "@site/components/RecipeResourceGrid"
+
+# Marketplace Recipe
+
+Saleor's functionalities enables you to create a marketplace platform where sellers can list their products for sale. This recipe provides a comprehensive guide to setting up and managing a marketplace in Saleor, covering product modeling, fulfillment, payments, and vendor management.
+
+## Product and Vendor Model
+
+Saleor's marketplace architecture is built around the concept of linking products to vendors through attribute references. Each product can have a "Vendor" attribute reference that links to vendor pages, which can contain descriptive information like photos and bios.
+
+Based on our experience with marketplace modeling, we distinguish two main approaches:
+
+### Commodity Marketplace
+A commodity marketplace, similar to Amazon's model, is designed for scenarios where multiple vendors sell the same product.
+
+In this approach, you create a top-level product page that serves as the main product listing. This page contains all the descriptive information about the product, while individual vendor offers contain specific details like pricing and availability.
+
+When implementing this model, keep in mind that you'll need to use page-based organization instead of traditional categories or collections, as the top-level products are pages rather than standard Saleor products.
+
+TODO: add excalidraw diagram for the product and vendor model
+
+### Unique Marketplace
+The unique marketplace model, exemplified by platforms like Etsy, is simpler in structure.
+
+In this approach, each product is unique and directly linked to its vendor without the need for a top-level product page.
+
+TODO: add excalidraw diagram for the product and vendor model
+
+<RecipeResourceGrid>
+    <CompactCard
+        name="Modeling Overview"
+        description="Learn more about modeling in Saleor."
+        link="/developer/modeling"
+    />
+    <CompactCard
+        name="Attributes Overview"
+        description="Learn more about attributes in Saleor."
+        link="/developer/attributes"
+    />
+</RecipeResourceGrid>
+
+## Fulfillment & Shipping
+
+The marketplace fulfillment process is based on the vendor-product relationship. Since each product is linked to its vendor, order lines contain all necessary information for vendor-specific fulfillment. This structure enables each vendor to handle their own shipping independently.
+
+TODO: add a query example for retrieving vendor-specific information from the order lines
+
+For shipping management, you can implement a shipping app that handles the complexity of multiple vendor shipments. The app can sum shipping methods for each vendor while providing detailed shipping price breakdowns through metafields. This is particularly useful when vendors send packages separately, as it allows you to present a unified shipping experience to customers while maintaining accurate vendor-specific shipping information.
+
+TODO: add example of response from the shipping app that combines shipping methods for multiple vendors
+```json
+{
+    "shipping_methods": [
+        {
+            "name": "Standard Shipping",
+            "price": 10.00
+        }
+    ]
+}
+```
+
+<RecipeResourceGrid>
+    <CompactCard
+        name="Fulfillment Overview"
+        description="Learn more about fulfillment in Saleor."
+        link="/developer/order/order-fulfillment"
+    />
+    <CompactCard
+        name="Custom Shipping Recipe"
+        description="Learn how to implement custom shipping solutions."
+        link="/recipes/custom-shipping"
+    />
+</RecipeResourceGrid>
+
+## Payments
+
+Marketplace payments require a two-step process: handling customer payments and managing vendor payouts. You can use existing payment solutions like the Stripe App for the customer-facing payment process. Once the customer payment is processed, you'll need to implement an asynchronous payout system to distribute funds to the relevant vendors, taking into account any commission fees or marketplace charges.
+
+<RecipeResourceGrid>
+    <CompactCard
+        name="How to Build a Payment App"
+        description="Learn how to create custom payment solutions."
+        link="/developer/extending/apps/building-payment-app"
+    />    
+</RecipeResourceGrid>
+
+## Taxes
+
+Tax management in a marketplace requires handling vendor-specific tax rules. Different vendors may be subject to different tax rates based on their location or business type. To handle this complexity, you can implement a custom tax app that calculates tax rates specific to each vendor. This is particularly important for marketplaces operating across multiple regions or jurisdictions.
+
+<RecipeResourceGrid>
+    <CompactCard
+        name="Taxes Overview"
+        description="Learn about tax configuration in Saleor."
+        link="/developer/taxes"
+    />    
+</RecipeResourceGrid>
+
+## Vendor Portal
+
+The Saleor dashboard cannot be used for vendor management as it lacks vendor-specific access control. You must build a custom vendor portal from scratch as a separate application. This portal will need to:
+
+1. Interface with the Saleor API to fetch and modify data
+2. Implement custom authentication and authorization for vendors
+3. Filter and display only the vendor's own products and orders
+4. Provide vendor-specific views for:
+   - Profile management
+   - Product creation and updates
+   - Order tracking
+   - Sales analytics
+   - Discount management
+
+The portal requires custom development because Saleor's core doesn't include a vendor entity or vendor-specific access control. You'll need to build the entire interface and implement the business logic for vendor-specific operations.
+
+## Operator Portal
+
+The marketplace operator portal is a separate application that marketplace administrators use to manage the entire marketplace. Unlike the vendor portal which is for individual sellers, the operator portal provides tools for overseeing all marketplace operations. This application must:
+
+1. Integrate with the Saleor API
+2. Implement custom authentication for marketplace operators
+3. Provide vendor management features:
+   - Vendor onboarding workflow
+   - Policy management
+   - Commission fee configuration
+   - Marketplace health monitoring
+   - Vendor performance tracking
+
+The operator portal is essential for marketplace governance and cannot be implemented using the standard Saleor dashboard. It requires custom development to handle the complex requirements of marketplace administration and oversight.
+
+<RecipeResourceGrid>
+    <CompactCard
+        name="Extending Dashboard"
+        description="Learn how to extend the Saleor dashboard."
+        link="/recipes/extending-dashboard"
+    />    
+</RecipeResourceGrid>
+
+## Architecture Overview
+
+TODO: add excalidraw diagram for the architecture overview and what you need to build
+
