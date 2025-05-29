@@ -99,6 +99,7 @@ module.exports = {
         },
       },
     ],
+    require.resolve("./plugins/llms-txt-plugin.js"),
   ],
 
   themeConfig: {
