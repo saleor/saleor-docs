@@ -61,7 +61,7 @@ function MermaidRenderResult({ renderResult }) {
   const ref = useRef(null);
 
   useEffect(() => {
-    if (!ref.current || !renderResult) return;
+    if (!ref.current || !renderResult?.bindFunctions) return;
 
     const div = ref.current;
     renderResult.bindFunctions(div);
