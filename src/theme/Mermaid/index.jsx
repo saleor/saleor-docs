@@ -58,7 +58,7 @@ function MermaidModal({ isOpen, onClose, svg, bindFunctions }) {
 
 function MermaidRenderResult({ renderResult }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const ref = useRef < HTMLDivElement > null;
+  const ref = useRef(null);
 
   useEffect(() => {
     const div = ref.current;
