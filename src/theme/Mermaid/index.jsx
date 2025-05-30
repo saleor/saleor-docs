@@ -15,7 +15,7 @@ import styles from "./styles.module.css";
 
 // Modal component for displaying the diagram in full screen
 function MermaidModal({ isOpen, onClose, svg, bindFunctions }) {
-  const modalRef = useRef < HTMLDivElement > null;
+  const modalRef = useRef(null);
 
   useEffect(() => {
     if (isOpen && modalRef.current && bindFunctions) {
