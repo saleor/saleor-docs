@@ -4,7 +4,7 @@ sidebar_position: 11
 title: Stripe App - PCI DSS compliance
 ---
 
-The diagram below shows the flow of sensitive data between services when using the Stripe App
+The following diagram shows the flow of sensitive data between services when using the Stripe App:
 
 ```mermaid
 sequenceDiagram
@@ -15,8 +15,11 @@ sequenceDiagram
     participant Stripe App
     participant Stripe API
 
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Primary Account Number (PAN) Flow
+        User via storefront <<->> Stripe API: Pass sensitive data, including credit card number and PIIs<br/>to render the payment UI
+    end
 
-    User via storefront <<->> Stripe API: Pass sensitive data, including credit card number and PIIs<br/>to render the payment UI
     User via storefront ->> Saleor: Pass non-sensitive payment data
     create participant Saleor database
     Saleor ->> Saleor database: Store internal transaction model (non sensitive)
@@ -29,5 +32,9 @@ sequenceDiagram
     Stripe App ->> Saleor: Pass client secret from Stripe
     Saleor ->> Saleor database: Update transaction model (non sensitive)
     Saleor ->> User via storefront: Pass through client secret from Stripe
-    User via storefront <<->> Stripe: Process payment, 3d secure flow
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Sensitive Authentication Data (SAD) Flow
+        User via storefront <<->> Stripe: Process payment, 3d secure flow
+    end
 ```
