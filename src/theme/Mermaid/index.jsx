@@ -62,7 +62,7 @@ function MermaidRenderResult({ renderResult }) {
 
   useEffect(() => {
     const div = ref.current;
-    renderResult.bindFunctions?.(div);
+    renderResult.bindFunctions(div);
   }, [renderResult]);
 
   const handleClick = () => {
