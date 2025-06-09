@@ -119,8 +119,8 @@ module.exports = {
     //       </svg>
     // 		</a>
     //   `,
-    //   backgroundColor: "#DDD6FE",
-    //   textColor: "#6D28D9",
+    //   backgroundColor: "#E0E3FF",
+    //   textColor: "#5865F2",
     //   isCloseable: true,
     // },
 
