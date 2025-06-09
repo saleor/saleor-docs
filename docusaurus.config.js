@@ -104,7 +104,7 @@ module.exports = {
   themeConfig: {
     // TODO: uncomment this when the community update
     // announcementBar: {
-    //   id: "announcement-bar",
+    // id: "announcement-bar-june-2025", // needs to be unique for each announcement so that user who closed previous announcement will see the new one
     //   content: `
     //     <span>
     //       ✨ Join us for the <b>Live Community Update</b> on June 26th, 2025 at 03:00 PM CET
