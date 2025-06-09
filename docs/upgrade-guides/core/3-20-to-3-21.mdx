@@ -603,3 +603,25 @@ In Saleor 3.21, the `amount` field in responses to the following synchronous web
 - `TRANSACTION_PROCESS_SESSION`
 
 If the `amount` field is omitted in the response, Saleor will automatically use the `amount` requested in the original webhook payload as the default.
+
+## Changes in handling `email` input in `checkoutCreate` and `checkoutEmailUpdate` mutations
+
+Previously, when calling `checkoutCreate` or `checkoutEmailUpdate` as a logged-in user, the `email` input field was ignored. Instead, the email associated with the user’s account was always used.
+As a result, any newly created checkouts or orders for logged-in users were always tied to the user's account email, regardless of the input provided.
+
+Starting from version 3.21, this behavior has changed: if an `email` is explicitly provided as input, it will be respected and used instead of the user account's email.
+
+### Updated behavior:
+
+- `checkoutCreate` (logged-in user): the optional `email` input will now be used to assign the email to the checkout.
+- `checkoutEmailUpdate` (logged-in user):  the `email` input will now be used to assign the email to the checkout.
+
+### Comparison of behavior:
+
+| Mutation                                                                          | 3.20 behavior                                        | 3.21 behavior                                      |
+|-----------------------------------------------------------------------------------|------------------------------------------------------|----------------------------------------------------|
+| `checkoutCreate` (logged-in user) when called with `email: from.input@email`      | Field `checkout.email` returns `account.user@email`  | Field `checkout.email` returns  `from.input@email` |
+| `checkoutEmailUpdate` (logged-in user) when called with `email: from.input@email` | Field `checkout.email` returns  `account.user@email` | Field `checkout.email` returns `from.input@email`  |
+
+
+
