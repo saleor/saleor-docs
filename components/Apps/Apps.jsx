@@ -22,6 +22,7 @@ const Shell = ({ color, title, children, href = "" }) => {
     </Link>
   );
 };
+
 const Apps = () => {
   return (
     <div className={s.root}>
