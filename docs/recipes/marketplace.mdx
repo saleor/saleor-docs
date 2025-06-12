@@ -7,7 +7,7 @@ import RecipeResourceGrid from "@site/components/RecipeResourceGrid"
 
 # Marketplace Recipe
 
-Saleor's functionalities enable you to create a marketplace platform where multiple sellers can list their products for sale. This recipe provides a guide to setting up and managing a marketplace in Saleor, covering product and vendor modeling, fulfillment, payments, and vendor management.
+This guide shows you how to build a marketplace platform where multiple sellers can list their products for sale. You'll learn how to model products and vendors, handle fulfillment, process payments, and manage vendor relationships.
 
 ## Product and Vendor Model
 
@@ -105,7 +105,7 @@ Since Saleor doesn't have a built-in vendor entity or vendor-based permissions, 
 1. Create vendors as regular staff users in Saleor with no permissions
 2. Build a separate [vendor portal](#vendor-portal) that implements its own permission system
 
-This approach means that while vendors exist in Saleor as staff users, all vendor-specific access control is handled outside of Saleor.
+This approach means that while vendors exist in Saleor as staff users, you will need to handle vendor-specific access control outside of Saleor.
 
 <RecipeResourceGrid>
     <CompactCard
@@ -259,6 +259,27 @@ Operator Portal can be a Dashboard Extension or a separate application.
 
 ## Architecture Overview
 
-Here is an overview of the essential services that you need to build a marketplace with Saleor:
+Here is a high-level overview of the essential services for a Saleor-based marketplace:
 
-<img src="/assets/marketplace/1.png" alt="Marketplace Architecture" />
+```mermaid
+architecture-beta
+  service storefront(internet)[Storefront]
+  service saleor(server)[Saleor]
+  service vendor_portal(cloud)[Vendor Portal]
+  service operator_portal(cloud)[Operator Portal]
+  service payment_service(cloud)[Payment Service]
+
+  storefront:B -- T:saleor
+  vendor_portal:R -- L:saleor
+  payment_service:L -- R:saleor
+  saleor:B -- T:operator_portal
+```
+
+
+**Service Descriptions:**
+
+- **Storefront:** The customer-facing shop interface.
+- **Vendor Portal:** For vendors to manage their profiles, publish products, configure shipping, and view their own sales data.
+- **Saleor:** The core platform, handling products, orders, and API logic.
+- **Payment Service:** Handles payment processing, refunds, integration with providers (e.g., Stripe), and payouts to vendors after sales.
+- **Operator Portal:** For marketplace operators to onboard/manage vendors and oversee the marketplace.
