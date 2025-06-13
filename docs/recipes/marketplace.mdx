@@ -100,22 +100,30 @@ graph LR
 
 
 
-## Vendor Authorization
+## Vendor Permission Management
 
-Since Saleor doesn't have a built-in vendor entity or vendor-based permissions, you need to implement a custom authorization system. The typical approach is to:
+Saleor's permission system doesn't have a built-in vendor entity or vendor-based permissions, which means it has to be implemented separately. 
 
-1. Create vendors as regular staff users in Saleor with no permissions
-2. Build a separate [vendor portal](#vendor-portal) that implements its own permission system
+Our recommendation is to integrate OIDC provider with both Saleor and [vendor portals](#vendor-portal). You can integrate with services like Auth0 or KeyCloak. Choosing this approach has multiple advantages:
 
-This approach means that while vendors exist in Saleor as staff users, you will need to handle vendor-specific access control outside of Saleor.
+- **Single source of truth for permissions:** Saleor and portal users permissions will be managed with single service 
+- **Single Sign-on (SSO):** using the same accounts to access Saleor Dashboard and portals
 
-<RecipeResourceGrid>
-    <CompactCard
-        name="Authentication"
-        description="Learn about authentication in Saleor."
-        link="/api-usage/authentication"
-    />
-</RecipeResourceGrid>
+
+```mermaid
+sequenceDiagram
+  actor vendor as Vendor
+  participant vendor_portal as Vendor Portal
+  participant oidc as OIDC
+  participant saleor as Saleor
+
+  vendor ->>+ vendor_portal: Request to change product
+  vendor_portal ->> oidc: Checking vendor permissions
+  oidc ->> vendor_portal: 
+  vendor_portal ->> saleor: Product mutation using Vendor Portal token
+  saleor ->> vendor_portal: 
+  vendor_portal ->>- vendor: Changed product 
+
 
 ## Fulfillment
 
