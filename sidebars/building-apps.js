@@ -24,7 +24,6 @@ export const buildingApps = [
   "developer/extending/apps/extending-dashboard-with-apps",
   "developer/extending/apps/developing-apps/troubleshooting",
   "developer/extending/apps/developing-apps/macaw-ui",
-  "developer/extending/apps/developing-apps/",
 
   title("App SDK"),
   "developer/extending/apps/developing-apps/app-sdk/overview",
@@ -49,6 +48,7 @@ export const buildingApps = [
   "developer/extending/apps/developing-apps/apps-patterns/persistence-with-metadata-manager",
   "developer/extending/apps/building-payment-app",
   "developer/extending/apps/installation-protection",
+  "developer/extending/apps/developing-apps/build-dashboard-extension",
 
   // {
   //   type: "category",
