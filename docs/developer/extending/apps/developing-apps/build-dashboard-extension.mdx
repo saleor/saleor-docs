@@ -1,0 +1,117 @@
+---
+title: Build a Dashboard extension
+---
+
+Dashboard extension is a powerful API allowing to extend the UI of the Dashboard.
+
+This guide will teach you how to build several Dashboard extensions. Each of them are different, depending on the problem you are solving.
+
+Before you proceed, read about writing apps general concepts.
+
+:::note
+This guide uses Next.js, TypeScript and @saleor/app-sdk
+:::
+
+## Example 1: Generate and download a shipping label for order
+
+In this example we will create a text-like extension, that on click will open a new tab with a PDF file.
+
+The PDF will be generated in the mocked service and will happen server-side.
+
+### Create an endpoint
+
+First we need to create an endpoint that will be responsile for processing the request. It expects order's ID to be passed in the request.
+
+```typescript
+// src/app/generate/route.ts
+
+import {NextRequest, NextResonse} from "next";
+import {verifyJwt} from "@saleor/app-sdk/auth"
+import request from "graphql-request"
+
+import shippingLabelSdk from "shipping-sdk"
+
+const query = gql`
+query Order($id: ID) {
+  order(id: $id) {
+    // todo
+  }
+}
+
+`
+
+export const POST = async (request: NextRequest): NextResponse => {
+    const {orderId, saleorApiUrl, accessToken, appId} = request.body;
+
+    try {
+        await verifyJwt({
+            token: accessToken,
+            appId,
+            saleorApiUrl
+        })
+    }
+    catch (e) {
+      return new Response("Not authorized", {status: 401})
+    }
+
+    const data = await request(query, {id: orderId})
+
+    const result = await shippingLabelSdk.generateLabel({
+        address: data.order.user.shippingAddress
+    })
+
+    return Response.redirect(result.downloadUrl)
+
+}
+```
+
+### Create a manifest
+
+Now we need to tell Saleor to register such an extension. It will be part of the main app Manifest.
+
+```typescript
+import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
+import { AppManifest } from "@saleor/app-sdk/types";
+
+export default createManifestHandler({
+  async manifestFactory({ appBaseUrl, request, schemaVersion }) {
+    const manifest: AppManifest = {
+      name: "Shipping Label Generator",
+      tokenTargetUrl: `${appBaseUrl}/api/register`,
+      appUrl: appBaseUrl,
+      permissions: [
+        "MANAGE_ORDERS",
+      ],
+      id: "saleor.app.shipping-label",
+      version: '1',
+      webhooks: [],
+
+      extensions: [
+        {
+          // Matching your endpoint path
+          url: "/generate",
+          permissions: [],
+          mount: "ORDER_DETAILS_WIDGETS",
+          label: "Generate label",
+          target: "NEW_TAB",
+          options: {
+            newTabTarget: {
+              method: "POST",
+            },
+          },
+        },
+      ],
+      author: "Saleor Commerce",
+    };
+
+    return manifest;
+  },
+});
+```
+
+That's it. You can install the App and navigate to Order Details. You will see a *Generate label* link rendered by the Dashboard.
+Once you click it, your endpoint will be exeucted in the new tab
+
+## Example 2: Show how many orders Customer made
+
+// todo
