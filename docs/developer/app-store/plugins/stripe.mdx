@@ -416,3 +416,52 @@ By activating a plugin, Saleor automatically subscribes the following Stripe web
 - `payment_intent.amount_capturable_updated`
 - `payment_intent.canceled`
 - `charge.refunded`
+
+## PCI DSS compliance
+
+The following diagram shows the flow of sensitive data between services when using the Stripe plugin:
+
+```mermaid
+sequenceDiagram
+    box Merchant controlled
+    actor User via storefront
+    end
+    participant Saleor
+    participant Stripe
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Primary Account Number (PAN) Flow
+        User via storefront <<->> Stripe: Pass sensitive data, including credit card number and PIIs<br/>to render the payment UI
+    end
+
+    User via storefront ->> Saleor: Pass unencrypted payment data*
+    create participant Saleor database
+    Saleor ->> Saleor database: Store internal transaction model (non sensitive)
+    Saleor ->> Stripe: Pass through unencrypted payment data*
+
+    Stripe ->> Saleor: Pass unencrypted payment data*
+    Saleor ->> Saleor database: Update transaction model (non sensitive)
+    Saleor ->> Saleor database: Save unencrypted payment data*
+    Saleor ->> User via storefront: Pass through unencrypted payment data*
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Sensitive Authentication Data (SAD) Flow
+        User via storefront <<->> Stripe: Process payment, 3d secure flow
+    end
+
+    User via storefront ->> Saleor: Pass encrypted sensitive payment data** and unencrypted payment data*
+    Saleor ->> Saleor database: Store internal transaction model (non sensitive)
+    Saleor ->> Stripe: Pass through encrypted sensitive payment data**  and unencrypted payment data*
+
+    Stripe ->> Saleor: Pass unencrypted payment data* and encrypted payment data**
+    Saleor ->> Saleor database: Update transaction model (non sensitive)
+    Saleor ->> Saleor database: Save unencrypted payment data* and encrypted sensitive payment data**
+    Saleor ->> User via storefront: Pass through unencrypted payment data* and encrypted sensitive payment data** 
+  ```
+
+
+*Passes non-PCI DSS regulated payment information, such as card type, last four digits of the card number and card expiration date.
+
+**Passes encrypted credit card number and other encrypted information (cardholder data and sensitive authentication data), the decryption key is only accessible by Stripe, data is impossible for Saleor to read.
+
+For more information about Stripe PCI DSS compliance - see their [docs](https://docs.stripe.com/security).
