@@ -439,29 +439,18 @@ sequenceDiagram
     Saleor ->> Saleor database: Store internal transaction model (non sensitive)
     Saleor ->> Stripe: Pass through unencrypted payment data*
 
-    Stripe ->> Saleor: Pass unencrypted payment data*
+    Stripe ->> Saleor: Pass unencrypted payment data* with client secret from Stripe
     Saleor ->> Saleor database: Update transaction model (non sensitive)
-    Saleor ->> Saleor database: Save unencrypted payment data*
-    Saleor ->> User via storefront: Pass through unencrypted payment data*
+    Saleor ->> Saleor database: Save unencrypted payment data* without client secret from Stripe
+    Saleor ->> User via storefront: Pass through unencrypted payment data* with client secret from Stripe
 
     rect rgba(240,150,150,0.5)
         note right of User via storefront: Sensitive Authentication Data (SAD) Flow
         User via storefront <<->> Stripe: Process payment, 3d secure flow
     end
-
-    User via storefront ->> Saleor: Pass encrypted sensitive payment data** and unencrypted payment data*
-    Saleor ->> Saleor database: Store internal transaction model (non sensitive)
-    Saleor ->> Stripe: Pass through encrypted sensitive payment data**  and unencrypted payment data*
-
-    Stripe ->> Saleor: Pass unencrypted payment data* and encrypted payment data**
-    Saleor ->> Saleor database: Update transaction model (non sensitive)
-    Saleor ->> Saleor database: Save unencrypted payment data* and encrypted sensitive payment data**
-    Saleor ->> User via storefront: Pass through unencrypted payment data* and encrypted sensitive payment data** 
   ```
 
 
 *Passes non-PCI DSS regulated payment information, such as card type, last four digits of the card number and card expiration date.
-
-**Passes encrypted credit card number and other encrypted information (cardholder data and sensitive authentication data), the decryption key is only accessible by Stripe, data is impossible for Saleor to read.
 
 For more information about Stripe PCI DSS compliance - see their [docs](https://docs.stripe.com/security).
