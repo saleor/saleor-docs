@@ -98,17 +98,19 @@ graph LR
     end
 ```
 
-
-
 ## Vendor Permission Management
 
-Saleor's permission system doesn't have a built-in vendor entity or vendor-based permissions, which means it has to be implemented separately. 
+Saleor's permission system doesn't have a built-in vendor entity or vendor-based permissions, so this must be implemented at the application level.
 
-Our recommendation is to integrate OIDC provider with both Saleor and [vendor portals](#vendor-portal). You can integrate with services like Auth0 or KeyCloak. Choosing this approach has multiple advantages:
+[OIDC Plugin](/developer/app-store/plugins/oidc.mdx) (with IdPs such as Auth0 or KeyCloak) can be used to provide authentication and issue tokens containing user permissions or roles. However, OIDC itself does not enforce which resources (e.g., products) a vendor can access or modify. Instead, the Vendor Portal application is responsible for:
 
-- **Single source of truth for permissions:** Saleor and portal users permissions will be managed with single service 
-- **Single Sign-on (SSO):** using the same accounts to access Saleor Dashboard and portals
+1. Obtaining the token from the OIDC provider when a vendor logs in.
+2. Reading the permissions or roles from the token.
+3. Enforcing business logic to ensure that vendors can only perform operations (such as updating a product) on resources they are authorized to access. For example, the Vendor Portal must check that the vendor is only able to update their own products, and not products belonging to other vendors.
 
+This means that the security of vendor operations relies on the Vendor Portal correctly scoping all actions based on the permissions in the token.
+
+The following diagram illustrates the flow, with the understanding that the Vendor Portal is responsible for enforcing access control:
 
 ```mermaid
 sequenceDiagram
@@ -118,12 +120,18 @@ sequenceDiagram
     participant saleor as Saleor
 
     vendor->>+vendor_portal: Request to change product
-    vendor_portal->>oidc: Checking vendor permissions
-    oidc-->>vendor_portal: Permissions verified
-    vendor_portal->>saleor: Product mutation using Vendor Portal token
+    vendor_portal->>oidc: Obtain and read token (with permissions)
+    Note right of vendor_portal: Vendor Portal checks if vendor can modify the product
+    vendor_portal->>saleor: Product mutation (if permitted)
     saleor-->>vendor_portal: Product updated
     vendor_portal-->>-vendor: Changed product
 ```
+
+:::warning
+
+The Vendor Portal must always validate that the vendor is only able to mutate their own products, based on the permissions in the token. OIDC alone does not prevent a vendor from attempting to update another vendor's product; this logic must be enforced in the application.
+
+:::
 
 ## Fulfillment
 
