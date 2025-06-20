@@ -416,3 +416,41 @@ By activating a plugin, Saleor automatically subscribes the following Stripe web
 - `payment_intent.amount_capturable_updated`
 - `payment_intent.canceled`
 - `charge.refunded`
+
+## PCI DSS compliance
+
+The following diagram shows the flow of sensitive data between services when using the Stripe plugin:
+
+```mermaid
+sequenceDiagram
+    box Merchant controlled
+    actor User via storefront
+    end
+    participant Saleor
+    participant Stripe
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Primary Account Number (PAN) Flow
+        User via storefront <<->> Stripe: Pass sensitive data, including credit card number and PIIs<br/>to render the payment UI
+    end
+
+    User via storefront ->> Saleor: Pass non-sensitive payment data*
+    create participant Saleor database
+    Saleor ->> Saleor database: Store internal transaction model (non sensitive)
+    Saleor ->> Stripe: Pass through non-sensitive payment data*
+
+    Stripe ->> Saleor: Pass non-sensitive payment data* with client secret from Stripe
+    Saleor ->> Saleor database: Update transaction model (non sensitive)
+    Saleor ->> Saleor database: Save non-sensitive payment data* without client secret from Stripe
+    Saleor ->> User via storefront: Pass through non-sensitive payment data* with client secret from Stripe
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Sensitive Authentication Data (SAD) Flow
+        User via storefront <<->> Stripe: Process payment, 3d secure flow
+    end
+  ```
+
+
+*Passes non-PCI DSS regulated payment information, such as payment method type, payment method id, information if Saleor should reuse payment method and if Saleor should store payment method for [future usage](https://docs.stripe.com/payments/payment-intents#future-usage).
+
+For more information about Stripe PCI DSS compliance - see their [docs](https://docs.stripe.com/security).
