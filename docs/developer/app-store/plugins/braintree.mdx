@@ -73,3 +73,41 @@ As a result, we get the payment object:
 ```
 
 Afterward we can call [`checkoutComplete`](/api-reference/checkout/mutations/checkout-complete.mdx) mutation to finalize checkout.
+
+## PCI DSS compliance
+
+The following diagram shows the flow of sensitive data between services when using the Braintree plugin:
+
+```mermaid
+sequenceDiagram
+    box Merchant controlled
+    actor User via storefront
+    end
+    participant Saleor
+    participant Braintree
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Primary Account Number (PAN) Flow
+        User via storefront <<->> Braintree: Pass sensitive data, including credit card number and PIIs<br/>to render the payment UI
+    end
+
+    User via storefront ->> Saleor: Pass non-sensitive payment data*
+    create participant Saleor database
+    Saleor ->> Saleor database: Store internal transaction model (non sensitive)
+    Saleor ->> Braintree: Pass through non-sensitive payment data*
+
+    Braintree ->> Saleor: Pass non-sensitive payment data* from Braintree
+    Saleor ->> Saleor database: Update transaction model (non sensitive)
+    Saleor ->> Saleor database: Save non-sensitive payment data* from Braintree
+    Saleor ->> User via storefront: Pass through non-sensitive payment data* from Braintree
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Sensitive Authentication Data (SAD) Flow
+        User via storefront <<->> Braintree: Process payment, 3d secure flow
+    end
+  ```
+
+
+*Passes non-PCI DSS regulated payment information, such as customer IP address, customer email, customer billing address.
+
+For more information about Braintree PCI DSS compliance - see their [docs](https://developer.paypal.com/braintree/articles/risk-and-security/compliance/pci-compliance).
