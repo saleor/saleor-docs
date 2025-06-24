@@ -1,0 +1,48 @@
+---
+sidebar_label: Authorize.net
+title: Authorize.net Plugin
+description: Authorize.net Plugin
+---
+
+:::warning
+This plugin is deprecated!
+
+If you plan on building a new integration with Saleor, we recommend checking [Authorize.net](https://github.com/saleor/examples/tree/main/example-app-authorize.net) example.
+:::
+
+## PCI DSS compliance
+
+The following diagram shows the flow of sensitive data between services when using the Authorize.net plugin:
+
+```mermaid
+sequenceDiagram
+    box Merchant controlled
+    actor User via storefront
+    end
+    participant Saleor
+    participant Authorize.net
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Primary Account Number (PAN) Flow
+        User via storefront <<->> Authorize.net: Pass sensitive data, including credit card number and PIIs<br/>to render the payment UI
+    end
+
+    User via storefront ->> Saleor: Pass non-sensitive payment data*
+    create participant Saleor database
+    Saleor ->> Saleor database: Store internal transaction model (non sensitive)
+    Saleor ->> Authorize.net: Pass through non-sensitive payment data*
+
+    Authorize.net ->> Saleor: Pass non-sensitive payment data* from Authorize.net
+    Saleor ->> Saleor database: Update transaction model (non sensitive)
+    Saleor ->> Saleor database: Save non-sensitive payment data* from Authorize.net
+    Saleor ->> User via storefront: Pass through non-sensitive payment data* from Authorize.net
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Sensitive Authentication Data (SAD) Flow
+        User via storefront <<->> Authorize.net: Process payment, 3d secure flow
+    end
+```
+
+*Passes non-PCI DSS regulated payment information, such as customer email, customer billing address.
+
+For more information about Authorize.net PCI DSS compliance - see their [docs](https://support.authorize.net/knowledgebase/Knowledgearticle/?code=000001339)

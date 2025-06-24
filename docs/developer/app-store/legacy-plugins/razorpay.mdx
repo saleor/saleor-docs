@@ -1,0 +1,49 @@
+---
+sidebar_label: Razorpay
+title: Razorpay Plugin
+description: Razorpay Plugin
+---
+
+:::warning
+This plugin is deprecated!
+
+We are moving towards supporting the most popular payment gateways. For India, we recommend using the [Adyen App](developer/app-store/apps/adyen/overview.mdx) or [Stripe](developer/app-store/apps/stripe/overview.mdx) instead.
+:::
+
+## PCI DSS compliance
+
+The following diagram shows the flow of sensitive data between services when using the Razorpay plugin:
+
+```mermaid
+sequenceDiagram
+    box Merchant controlled
+    actor User via storefront
+    end
+    participant Saleor
+    participant Razorpay
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Primary Account Number (PAN) Flow
+        User via storefront <<->> Razorpay: Pass sensitive data, including credit card number and PIIs<br/>to render the payment UI
+    end
+
+    User via storefront ->> Saleor: Pass non-sensitive payment data*
+    create participant Saleor database
+    Saleor ->> Saleor database: Store internal transaction model (non sensitive)
+    Saleor ->> Razorpay: Pass through non-sensitive payment data*
+
+    Razorpay ->> Saleor: Pass non-sensitive payment data* from Razorpay
+    Saleor ->> Saleor database: Update transaction model (non sensitive)
+    Saleor ->> Saleor database: Save non-sensitive payment data* from Razorpay
+    Saleor ->> User via storefront: Pass through non-sensitive payment data* from Razorpay
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Sensitive Authentication Data (SAD) Flow
+        User via storefront <<->> Razorpay: Process payment, 3d secure flow
+    end
+```
+
+
+*Passes non-PCI DSS regulated payment information, such as payment amount and identifier.
+
+For more information about Razorpay PCI DSS compliance - see their [docs](https://razorpay.com/docs/security/)
