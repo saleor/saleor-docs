@@ -1,0 +1,311 @@
+---
+title: Marketplace
+---
+
+import CompactCard from "@site/components/CompactCard";
+import RecipeResourceGrid from "@site/components/RecipeResourceGrid"
+
+# Marketplace Recipe
+
+This guide shows you how to build a marketplace platform where multiple sellers can list their products for sale. You'll learn how to model products and vendors, handle fulfillment, process payments, and manage vendor relationships.
+
+## Product and Vendor Model
+
+In Saleor, vendors are not a built-in entity type. Instead, we implement them as custom models using Saleor's modeling system.
+
+The marketplace architecture is built around the concept of linking products to these vendor models through attribute references. Each product can have a "Vendor" attribute reference that links to a vendor model, which can contain descriptive information like photos and bios.
+
+<RecipeResourceGrid>
+    <CompactCard
+        name="Modeling Overview"
+        description="Learn more about modeling in Saleor."
+        link="/developer/modeling"
+    />
+    <CompactCard
+        name="Attributes Overview"
+        description="Learn more about attributes in Saleor."
+        link="/developer/attributes"
+    />
+</RecipeResourceGrid>
+
+Based on our experience with marketplace modeling, we distinguish two main approaches:
+
+### Commodity Marketplace
+A commodity marketplace, similar to Amazon's model, is designed for scenarios where multiple vendors sell the same product.
+
+In this approach, you create a top-level "product model" that serves as the main product listing. This model contains all the descriptive information about the product, while individual vendor offers contain specific details like pricing and availability.
+
+:::tip
+
+When building a commodity marketplace, keep in mind that you'll need to use model-based organization instead of traditional categories or collections, as the top-level products are models rather than standard Saleor products.
+
+:::
+
+In this architecture:
+- **Product Page**: Model entity that contains the main product information (description, images, specifications)
+- **Vendor Offer**: Product entity that contains vendor-specific details (price, stock, shipping)
+- **Vendor**: Model entity that contains vendor information (profile, bio, contact details)
+
+```mermaid
+graph LR
+    A[**Product Page**<br/>_Saleor Model_] --Attribute Reference--> B[**Vendor 1 Offer**<br/>_Saleor Product_]
+    A --Attribute Reference--> C[**Vendor 2 Offer**<br/>_Saleor Product_]
+    A --Attribute Reference--> D[**Vendor 3 Offer**<br/>_Saleor Product_]
+    B --Attribute Reference--> E[**Vendor 1**<br/>_Saleor Model_]
+    C --Attribute Reference--> F[**Vendor 2**<br/>_Saleor Model_]
+    D --Attribute Reference--> G[**Vendor 3**<br/>_Saleor Model_]
+    
+    subgraph "Product Information"
+    A
+    end
+    
+    subgraph "Vendor Offers"
+    B
+    C
+    D
+    end
+    
+    subgraph "Vendors"
+    E
+    F
+    G
+    end
+```
+
+### Boutique Marketplace
+A boutique marketplace, exemplified by platforms like Etsy, is simpler in structure.
+
+In this approach, each product is unique and directly linked to its vendor without the need for a top-level product model:
+- **Product**: A Saleor Product entity that contains both product information and vendor-specific details
+- **Vendor**: A Saleor Model entity that contains vendor information (profile, bio, contact details)
+
+```mermaid
+graph LR
+    A[**Product 1**<br/>_Saleor Product_] --Attribute Reference--> B[**Vendor 1**<br/>_Saleor Model_]
+    C[**Product 2**<br/>_Saleor Product_] --Attribute Reference--> D[**Vendor 2**<br/>_Saleor Model_]
+    E[**Product 3**<br/>_Saleor Product_] --Attribute Reference--> F[**Vendor 3**<br/>_Saleor Model_]
+    
+    subgraph "Products"
+    A
+    C
+    E
+    end
+    
+    subgraph "Vendors"
+    B
+    D
+    F
+    end
+```
+
+## Vendor Permission Management
+
+Saleor's permission system doesn't have a built-in vendor entity or vendor-based permissions, so this must be implemented at the application level.
+
+[OIDC Plugin](/developer/app-store/plugins/oidc.mdx) (with IdPs such as Auth0 or KeyCloak) can be used to provide authentication and issue tokens containing user permissions or roles. However, OIDC itself does not enforce which resources (e.g., products) a vendor can access or modify. Instead, the Vendor Portal application is responsible for:
+
+1. Obtaining the token from the OIDC provider when a vendor logs in.
+2. Reading the permissions or roles from the token.
+3. Enforcing business logic to ensure that vendors can only perform operations (such as updating a product) on resources they are authorized to access. For example, the Vendor Portal must check that the vendor is only able to update their own products, and not products belonging to other vendors.
+
+This means that the security of vendor operations relies on the Vendor Portal correctly scoping all actions based on the permissions in the token.
+
+The following diagram illustrates the flow, with the understanding that the Vendor Portal is responsible for enforcing access control:
+
+```mermaid
+sequenceDiagram
+    actor vendor as Vendor
+    participant vendor_portal as Vendor Portal
+    participant oidc as OIDC
+    participant saleor as Saleor
+
+    vendor->>+vendor_portal: Request to change product
+    vendor_portal->>oidc: Obtain and read token (with permissions)
+    Note right of vendor_portal: Vendor Portal checks if vendor can modify the product
+    vendor_portal->>saleor: Product mutation (if permitted)
+    saleor-->>vendor_portal: Product updated
+    vendor_portal-->>-vendor: Changed product
+```
+
+:::warning
+
+The Vendor Portal must always validate that the vendor is only able to mutate their own products, based on the permissions in the token. OIDC alone does not prevent a vendor from attempting to update another vendor's product; this logic must be enforced in the application.
+
+:::
+
+## Fulfillment
+
+The marketplace fulfillment process is based on the vendor-product relationship. Since each product is linked to its vendor, order lines contain all necessary information for vendor-specific fulfillment. This structure enables each vendor to handle their own shipping independently.
+
+### Example 
+
+1. Get attributes from the order lines
+
+```graphql
+query GetOrderLines($id: ID!) {
+  order(id: $id) {
+    id
+    lines {
+      variant {
+        attributes {
+          values {
+            name
+            inputType
+            reference
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+2. Get the vendor id from the attribute reference
+
+```javascript
+const vendor = order.lines.variant.attributes.values.find(
+  (attribute) => attribute.name === "Vendor"
+);
+```
+
+3. Fetch the vendor details
+
+```graphql
+query GetVendor($id: ID!) {
+  page(id: $id) {
+    id
+    title
+  }
+}
+```
+
+4. Fulfill the order by vendor 
+
+The final fulfillment step depends on your marketplace's policy. With the vendor details, you can implement any fulfillment strategy that fits your business needs, e.g., fulfilling from the vendor's warehouse or using a central warehouse.
+
+<RecipeResourceGrid>
+    <CompactCard
+        name="Warehouses"
+        description="Learn about warehouse management."
+        link="/developer/stock/overview#warehouse-creation"
+    />
+    <CompactCard
+        name="Fulfillment Overview"
+        description="Learn more about fulfillment in Saleor."
+        link="/developer/order/order-fulfillment"
+    />
+</RecipeResourceGrid>
+
+## Shipping
+
+If each vendor ships their products separately, you can implement a shipping app that handles the complexity of multiple vendor shipments.
+
+The app would sum shipping methods (including their prices) for each vendor while providing detailed shipping price breakdowns through metafields.
+
+<RecipeResourceGrid>
+    <CompactCard
+        name="Custom Shipping Recipe"
+        description="Learn how to implement custom shipping solutions."
+        link="/recipes/custom-shipping"
+    />
+</RecipeResourceGrid>
+
+## Payments
+
+Marketplace payments require handling both customer payments and vendor payouts. You need a solution that can process customer payments and automatically distribute funds to vendors while accounting for marketplace fees and commissions.
+
+Customer payments are handled through a regular payment app that processes transactions from buyers. The payout to vendors is typically an asynchronous action that occurs after the payment is successfully processed, taking into account marketplace fees and commission structures.
+
+We recommend reaching for payment providers designed specifically for marketplace operations, such as [Stripe Connect](https://stripe.com/connect).
+
+<RecipeResourceGrid>
+    <CompactCard
+        name="How to Build a Payment App"
+        description="Learn how to create custom payment solutions."
+        link="/developer/extending/apps/building-payment-app"
+    />    
+</RecipeResourceGrid>
+
+## Taxes
+
+Tax management in a marketplace requires handling vendor-specific tax rules. Different vendors may be subject to different tax rates based on their location or business type. To handle this complexity, you can implement a custom tax app that calculates tax rates specific to each vendor. This is particularly important for marketplaces operating across multiple regions or jurisdictions.
+
+<RecipeResourceGrid>
+    <CompactCard
+        name="Taxes Overview"
+        description="Learn about tax configuration in Saleor."
+        link="/developer/taxes"
+    />    
+</RecipeResourceGrid>
+
+## Vendor Portal
+
+Saleor Dashboard cannot be used for vendor management as it lacks vendor-specific access control. You must build a custom vendor portal from scratch as a separate application. This portal will need to:
+
+1. Interface with the Saleor API to fetch and modify data
+2. Implement custom authentication and authorization for vendors
+3. Filter and display only the vendor's own products and orders
+4. Provide vendor-specific views for:
+   - Profile management
+   - Product creation and updates
+   - Order tracking
+   - Sales analytics
+   - Discount management
+
+The portal requires custom development because Saleor's core doesn't include a vendor entity or vendor-specific access control. You'll need to build the entire interface and implement the business logic for vendor-specific operations.
+
+## Operator Portal
+
+The marketplace operator portal is a separate application that marketplace administrators use to manage the marketplace. Unlike the vendor portal which is for individual sellers, the operator portal provides tools for overseeing all marketplace operations. This application must:
+
+1. Integrate with the Saleor API
+2. Implement custom authentication for marketplace operators
+3. Provide vendor management features:
+   - Vendor onboarding workflow
+   - Policy management
+   - Commission fee configuration
+   - Marketplace health monitoring
+   - Vendor performance tracking
+
+The operator portal is essential for marketplace governance and cannot be implemented using the standard Saleor dashboard. It requires custom development to handle the complex requirements of marketplace administration and oversight.
+
+Operator Portal can be a Dashboard Extension or a separate application.
+
+<RecipeResourceGrid>
+    <CompactCard
+        name="Extending Dashboard"
+        description="Learn how to extend the Saleor dashboard."
+        link="/recipes/extending-dashboard"
+    />    
+</RecipeResourceGrid>
+
+## Architecture Overview
+Here is a high-level overview of the essential services for a Saleor-based marketplace:
+
+```mermaid
+architecture-beta
+  service storefront(internet)[Storefront]
+  service vendor_portal(cloud)[Vendor Portal] 
+  service operator_portal(cloud)[Operator Portal] 
+  service payment_service(cloud)[Payment Service]
+  service saleor(server)[Saleor]
+  service oidc(cloud)[OpenID Provider]
+
+  junction junctionMarketplace
+
+  storefront:B -- T:saleor
+  payment_service:L -- R:saleor
+  vendor_portal:R -- L:junctionMarketplace
+  operator_portal:L -- R:junctionMarketplace
+  junctionMarketplace:T -- B:saleor
+  oidc:R -- L:saleor
+```
+
+**Service Descriptions:**
+
+- **Saleor:** The core platform, handling products, orders, and API logic.
+- **Storefront:** The customer-facing shop interface.
+- **OIDC:** Provides centralized permission management.
+- **Vendor Portal:** For vendors to manage their profiles, publish products, configure shipping, and view their own sales data.
+- **Payment Service:** Handles payment processing, refunds, integration with providers (e.g., Stripe), and payouts to vendors after sales.
+- **Operator Portal:** For marketplace operators to onboard/manage vendors and oversee the marketplace.

@@ -1,0 +1,58 @@
+---
+sidebar_label: PCI DSS
+sidebar_position: 6
+title: Adyen App - PCI DSS compliance
+---
+
+The following diagram shows the flow of sensitive data between services when using the Adyen App:
+
+```mermaid
+sequenceDiagram
+    box Merchant controlled
+    actor User via storefront
+    end
+    participant Saleor
+    participant Adyen App
+    participant Adyen API
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Primary Account Number (PAN) Flow
+        User via storefront <<->> Adyen API: Pass sensitive data, including credit card number and PIIs<br/>to render the payment UI
+    end
+
+    User via storefront ->> Saleor: Pass encrypted sensitive payment data**
+    create participant Saleor database
+    Saleor ->> Saleor database: Store internal transaction model (non sensitive)
+    Saleor ->> Adyen App: Pass through encrypted sensitive payment data**
+    Adyen App ->> Adyen API: Pass through encrypted sensitive payment data**
+    create participant Adyen App database
+    Adyen App ->> Adyen App database: Store internal transaction model (non sensitive)
+
+    Adyen API ->> Adyen App: Provide non-sensitive payment data* and encrypted payment data**
+    Adyen App ->> Saleor: Pass non-sensitive payment data* and encrypted payment data** from Adyen
+    Saleor ->> Saleor database: Update transaction model (non sensitive)
+    Saleor ->> User via storefront: Pass through non-sensitive payment data* and encrypted payment data** 
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Sensitive Authentication Data (SAD) Flow
+        User via storefront <<->> Adyen API: Process payment, 3d secure flow
+    end
+
+    User via storefront ->> Saleor: Pass encrypted sensitive payment data**
+    Saleor ->> Saleor database: Store internal transaction model (non sensitive)
+    Saleor ->> Adyen App: Pass through encrypted sensitive payment data**
+    Adyen App ->> Adyen API: Pass through encrypted sensitive payment data**
+    Adyen App ->> Adyen App database: Store internal transaction model (non sensitive)
+
+    Adyen API ->> Adyen App: Provide non-sensitive payment data* and encrypted payment data**
+    Adyen App ->> Saleor: Pass non-sensitive payment data* and encrypted payment data** from Adyen
+    Saleor ->> Saleor database: Update transaction model (non sensitive)
+    Saleor ->> User via storefront: Pass through non-sensitive payment data* and encrypted payment data** 
+```
+
+*Passes non-PCI DSS regulated payment information, such as customer IP address, delivery address fields (street, city, state/province, postal code, country), additional data about freight amount, duty amount with total tax amount
+
+
+**Passes encrypted credit card number and other encrypted information (cardholder data and sensitive authentication data), the decryption key is only accessible by Adyen, data is impossible for Saleor to read.
+
+For more information about Adyen PCI DSS compliance - see their [guide](https://docs.adyen.com/development-resources/pci-dss-compliance-guide/).

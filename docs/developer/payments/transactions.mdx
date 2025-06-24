@@ -453,6 +453,104 @@ flowchart TD
     F --> |NO|H
 ```
 
+### Storing payment method details
+
+Saleor allows storing two types of payment method details:
+
+- `CARD`
+- `OTHER`
+
+These details are available on the `TransactionItem.paymentMethodDetails` field.
+
+Payment method details can be stored in two ways:
+- Via Transaction Webhooks
+- Via Transaction Mutations
+
+#### Via transaction webhooks
+
+Apps can return `paymentMethodDetails` while processing payments using the following webhooks:
+
+- `TRANSACTION_INITIALIZE_SESSION`
+- `TRANSACTION_PROCESS_SESSION`
+
+[View details about saving via webhook](/developer/extending/webhooks/synchronous-events/transaction.mdx#response-4)
+
+#### Via transaction mutations
+
+The following mutations accept a `paymentMethodDetails` input field:
+
+- `transactionEventReport`
+- `transactionCreate`
+- `transactionUpdate`
+
+
+#### Examples
+
+Example: Storing `card` details via `transactionEventReport`:
+
+```graphql {7-16}
+mutation TransactionEventReport {
+  transactionEventReport(
+    id: "VHJhbnNhY3Rpb25JdGVtOjE="
+    type: CHARGE_SUCCESS
+    amount: 20
+    pspReference: "psp-123"
+    paymentMethodDetails: {
+      card: {
+        name: "Payment name", 
+        brand: "BRAND", 
+        firstDigits: "1234", 
+        lastDigits: "4321", 
+        expMonth: 11, 
+        expYear: 2000
+      }
+    }
+  ) {
+    errors {
+      field
+      code
+    }
+    alreadyProcessed
+    transaction {
+      id
+    }
+    transactionEvent {
+      id
+    }
+  }
+}
+```
+
+Example: Storing non-card (`other`) details via `transactionEventReport`:
+
+```graphql {7-11}
+mutation TransactionEventReport {
+  transactionEventReport(
+    id: "VHJhbnNhY3Rpb25JdGVtOjE="
+    type: CHARGE_SUCCESS
+    amount: 20
+    pspReference: "psp-123"
+    paymentMethodDetails: {
+      other: {
+        name: "Cash"
+      }
+    }
+  ) {
+    errors {
+      field
+      code
+    }
+    alreadyProcessed
+    transaction {
+      id
+    }
+    transactionEvent {
+      id
+    }
+  }
+}
+```
+
 
 ### Webhooks
 
