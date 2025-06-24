@@ -27,7 +27,6 @@ export const appStore = [
       },
     ],
   },
-  "developer/app-store/plugins/braintree",
   "developer/app-store/apps/cms",
   "developer/app-store/plugins/oidc",
   "developer/app-store/apps/product-feed",
@@ -73,6 +72,7 @@ export const appStore = [
     items: [
       "developer/app-store/legacy-plugins/admin-emails",
       "developer/app-store/legacy-plugins/adyen",
+      "developer/app-store/legacy-plugins/braintree",
       "developer/app-store/legacy-plugins/dummy-credit-card",
       "developer/app-store/legacy-plugins/np-atobarai",
       "developer/app-store/legacy-plugins/user-emails",
