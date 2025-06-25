@@ -68,7 +68,7 @@ module.exports = {
     ref("api-usage/overview", "GraphQL", "graphql"),
 
     title("Customizing"),
-    ref("developer/app-store/overview", "Apps and Integrations", "apps"),
+    ref("developer/app-store/overview", "Extensions", "apps"),
     ref("developer/extending/apps/overview", "Building Apps", "buildApp"),
     ref("developer/extending/overview", "Extending", "cli"),
 

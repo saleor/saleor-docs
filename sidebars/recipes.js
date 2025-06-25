@@ -8,4 +8,5 @@ export const recipesSidebar = [
   "recipes/custom-shipping",
   "recipes/click-and-collect",
   "recipes/extending-dashboard",
+  "recipes/marketplace",
 ];

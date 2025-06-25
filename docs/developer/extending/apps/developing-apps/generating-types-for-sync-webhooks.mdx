@@ -1,0 +1,90 @@
+---
+title: How to generate TypeScript types from JSON schemas
+---
+
+Saleor now provides [JSON schemas](docs/developer/extending/webhooks/synchronous-events/overview.mdx#json-schemas-for-synchronous-webhooks-preview) for synchronous webhook payloads, enabling you to generate TypeScript types that ensure your app’s webhook responses have the correct structure. This guide demonstrates how to generate types for the CheckoutCalculateTaxes webhook payload using the [json-schema-to-typescript](https://www.npmjs.com/package/json-schema-to-typescript) package from npm.
+
+
+## Install the required package
+
+Install json-schema-to-typescript in your project:
+
+```shell
+npm install json-schema-to-typescript
+```
+
+## Create script that will generate types
+
+Create a script file, e.g., generate-app-webhooks-types.js, to fetch the JSON schema from Saleor’s GitHub and generate TypeScript types:
+
+```ts
+// generate-app-webhooks-types.js
+import { writeFileSync } from "node:fs";
+import { compile } from "json-schema-to-typescript";
+
+const schemaUrl = 'https://raw.githubusercontent.com/saleor/saleor/main/saleor/json_schemas/CheckoutCalculateTaxes.json';
+
+async function main() {
+  const gitHubResponse = await fetch(schemaUrl); 
+  const fetchedSchema = await gitHubResponse.json();
+
+  const compiledTypes = await compile(fetchedSchema, 'CheckoutCalculateTaxesSchema', {
+    additionalProperties: false,
+  });
+
+  writeFileSync('./generated/json-schema/checkout-calculate-taxes.ts', compiledTypes);
+}
+
+try {
+  await main();
+} catch (error) {
+  console.error(`Error generating webhook response types: ${error}`);
+  process.exit(1);
+}
+```
+
+This script:
+
+1. Fetches the latest JSON schema for the CheckoutCalculateTaxes webhook from Saleor’s GitHub.
+2. Compiles the schema into TypeScript types.
+3. Writes the generated types to a .ts file in your project.
+
+## Add a created script to package.json
+
+You can then run it as package.json script:
+
+```json
+{
+  "scripts": {
+    "generate:app-webhooks-types": "node ./generate-app-webhooks-types.js"
+  }
+}
+```
+
+You can now generate types with:
+
+```shell
+npm run generate:app-webhooks-types
+```
+
+## Use the generated types
+
+Import and use the generated types in your webhook handler to ensure type safety:
+
+```ts
+// api/webhooks/checkout-calculate-taxes.ts
+
+import { CalculateTaxes } from '../generated/json-schema/checkout-calculate-taxes';
+
+const handler = checkoutCalculateTaxesWebhook.createHandler((req, res, ctx) => {
+  // webhook logic for tax calculation
+
+  const responsePayload: CalculateTaxes = {
+    shipping_tax_rate: 0.08,
+    shipping_price_gross_amount: 33.12,
+    shipping_price_net_amount: 30.12
+  };
+
+  return res.status(200).json(responsePayload);
+});
+```
