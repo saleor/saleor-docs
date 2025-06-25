@@ -4,9 +4,20 @@ title: Extending Dashboard with Apps
 
 ## Key concepts
 
-App extensions allow applications to alter the dashboard's interface by contributing custom buttons, menu items, screens, and modal overlays. It's a convenient way to add new features and capabilities without maintaining a custom dashboard application fork.
+App extensions allow applications to alter the dashboard's interface by contributing custom buttons, menu items, screens, widgets, and modal overlays.
+It's a convenient way to add new features and capabilities without maintaining a custom dashboard application fork.
 
 All contributed views are embedded inside an `<iframe>` to protect against XSS attacks.
+
+:::warning
+Saleor Dashboard design assumes apps can never impersonate native Saleor UI. It's expected that Dashboard will render additional labels like "Apps: ..." to ensure a user is aware this content is external.
+:::
+
+## Relation to Saleor dashboard and custom Dashboard
+
+While these API, just like any other Saleor APIs, can be used with a fully custom Dashboard, the API is mainly designed to be consumed by the official Saleor Dashboard.
+
+This document contains assumptions of how the UI can handle such APIs
 
 ## Manifest
 
@@ -35,33 +46,185 @@ The example manifest below defines two extensions, one providing a custom produc
         ],
         "url": "/extension/redirect"
       }
-    ],
+    ]
 }
 ```
 
 - `label`: The name which will be displayed in the dashboard.
 - `mount`: The place where the extension will be mounted.
-- `target`: The method of presenting the interface (defaults to `POPUP`).
-  `POPUP` will present the interface in a modal overlay, `APP_PAGE` will navigate to the application page.
+- `target`: The method of presenting the interface (defaults to `POPUP`). See `target` section below
 - `permissions`: An array of [permissions](developer/permissions.mdx#app-permissions) required for a user to access the extension.
 - `url`: The URL of the view to display. You can skip the domain and protocol when `target` is set to `APP_PAGE`, or when your manifest defines an `appUrl`.
-  When `target` is set to `POPUP`, the `url` will be used to render an `<iframe>`.
+When `target` is set to `POPUP`, the `url` will be used to render an `<iframe>`.
+- `options` depending on the target, additional properties to control the behavior.
+
+## Target types
+
+App extensions provide four different types of targets, that control the behavior and rendering in the Dashboard. If target is not set, `POPUP` will be used as a default.
+
+### `POPUP` target
+
+This target is meant to render an app iframe on the modal view. The provided `url` will be used to render app's page. This UI renders medium-sized frame
+
+This target doesn't provide any `options`
+
+### `APP_PAGE` target
+
+The `APP_PAGE` target works as a redirection from the mount location to the `apps/` section in the Dashboard. This section renders the app in the biggest possible frame.
+
+This target doesn't provide any `options`
+
+### `NEW_TAB` target (from 3.22)
+
+The `NEW_TAB` target is meant to open the provided url in the new browser tab. This can be helpful, for example, to connect 3-rd party services with Dashboard.
+
+There are following options available
+
+```json
+"options": {
+  "newTabTarget": {
+    "metod": "GET" // or "POST"
+  }
+}
+```
+
+If not provided, the default value `GET` will be used by Dashboard.
+
+- `GET` will open the URL similar to user opening the link in the new tab. Dashboard will append query params: `saleorApiUrl` and context fields (see "Context" below)
+- `POST` will open the URL using POST method. This is similar to submitting the HTML form by the user. The `body` will contain following fields:
+  - `saleorApiUrl` - the URL of the saleor (starting with https, ending with `/graphql/`)
+  - `appId` - ID of the app object
+  - `accessToken` - short-living token that is intersection of app and logged user permissions
+  - context fields — see below
+
+:::warning
+`accessToken` is short-living and can't be refreshed outside the Dashboard. You can likely communicate with Saleor during the request, but do not try to pass it to the frontend.
+
+To ensure seamless and safe user interaction with the UI, use App Page
+:::
+
+### `WIDGET` target (from 3.22)
+
+The `WIDGET` target stands for statically mounted iframes in various places around the dashboard. It will mount the frame similar to `APP_PAGE` and `POPUP`, but usually much smaller.
+
+Similar to `NEW_TAB` there are options allowing to choose the request method
+
+```json
+"options": {
+  "widgetTarget": {
+    "metod": "GET" // or "POST"
+  }
+}
+```
+If not provided, `GET` is the default choice for Dashboard.
+
+- `GET` will open the URL similar to user opening the link in the new tab. Dashboard will append query params: `saleorApiUrl` and context fields (see "Context" below). Additional fields will be passed to the iframe, similar to APP_AGE and POPUP, to help it render the UI (theme, feature flags, etc.)
+- `POST` will open the URL using POST method. This is similar to submitting the HTML form by the user. The `body` will contain the following fields:
+- `saleorApiUrl` - the URL of the saleor (starting with https, ending with `/graphql/`)
+- `appId` - ID of the app object
+- `accessToken` - short-living token that is intersection of app and logged user permissions. This token will be refreshed by the Dashboard in the background.
+- context fields — see below
+
+
+## Context
+
+Context fields are specific to the mount extension is being attached to. For example, on `CATEGORY_DETAILS_MORE_ACTIONS`, the context field will be `categoryId`.
+
+Context fields can be a `string`, usually an ID of the Saleor object, or a list of strings, usually when multiple Saleor items are selected by the user.
+
+For example
+- Order details page context will be `{orderId: "AABBCC"}`
+- Product list page context will be `{productIds: ["XXYYZZ", "BBCCDD"]}`
+
+Dashboard will provide contextual values depending on the mounting point. In the future more data can be passed to the context.
+
+### Context in GET operations
+
+`GET` type operations, like rendering WIDGET using `options.widget.method: "GET"`, or `POPUP` will provide context fields as query params in URL. Other data like `theme` or feature flags will be also provided.
+
+You can access all the fields with JavaScript, like this:
+
+```javascript
+const searchParams = new URLSearchParams(window.location.search);
+
+console.log(
+    Array.from(searchParams.entries())
+)
+```
+
+### Context in POST operations
+
+`POST` type operations like target `WIDGET` or `NEW_TAB` with `POST` method, will provide context values within request body.
+
+Since requests origin from the browser, they will be type of a form data. Your backend framework should provide a way to parse it.
+
+:::warning
+Contrary to JSON, form data can have duplicated keys. For example:
+```
+["productIds", "product-1"],
+["productIds", "product-2"],
+```
+
+Your backend body parser should be able to merge such fields
+:::
+
 
 ## Possible mounting places
 
 Saleor requires extensions to define a mounting place. The table below explains all mounting locations currently supported by Saleor.
 
-|             Mount             |                              Description                               |
-| :---------------------------: | :--------------------------------------------------------------------: |
-| PRODUCT_DETAILS_MORE_ACTIONS  | Mount extension on product's detail page under the more action button. |
-|    PRODUCT_OVERVIEW_CREATE    |    Mount extension on product's list page under the create button.     |
-| PRODUCT_OVERVIEW_MORE_ACTIONS |  Mount extension on product's list page under the more action button.  |
-|      NAVIGATION_CATALOG       |      Mount extension in `Catalogs` section in the navigation bar.      |
-|       NAVIGATION_ORDERS       |       Mount extension in `Orders` section in the navigation bar.       |
-|     NAVIGATION_CUSTOMERS      |     Mount extension in `Customers` section in the navigation bar.      |
-|     NAVIGATION_DISCOUNTS      |     Mount extension in `Discounts` section in the navigation bar.      |
-|    NAVIGATION_TRANSLATIONS    |    Mount extension in `Translations` section in the navigation bar.    |
-|       NAVIGATION_PAGES        |       Mount extension in `Pages` section in the navigation bar.        |
-|  ORDER_DETAILS_MORE_ACTIONS   |  Mount extension on order's detail page under the more action button.  |
-|     ORDER_OVERVIEW_CREATE     |     Mount extension on order's list page under the create button.      |
-|  ORDER_OVERVIEW_MORE_ACTIONS  |   Mount extension on order's list page under the more action button.   |
+| Mount                             | Description                                             | Supported targets                         | Available from |
+|-----------------------------------|---------------------------------------------------------|-------------------------------------------|----------------|
+| CATEGORY_OVERVIEW_CREATE          | Category's list page under the create button.           | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| CATEGORY_OVERVIEW_MORE_ACTIONS    | Category's list page under the more action button.      | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| CATEGORY_DETAILS_MORE_ACTIONS     | Category's detail page under the more action button.    | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| COLLECTION_OVERVIEW_CREATE        | Collection's list page under the create button.         | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| COLLECTION_OVERVIEW_MORE_ACTIONS  | Collection's list page under the more action button.    | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| COLLECTION_DETAILS_MORE_ACTIONS   | Collection's detail page under the more action button.  | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| COLLECTION_DETAILS_WIDGETS        | A widget on collection's detail page.                   | `POPUP`, `APP_PAGE`, `NEW_TAB`, `WIDGET`  | 3.22           |
+| GIFT_CARD_OVERVIEW_CREATE         | gift card's list page under the create button.          | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| GIFT_CARD_OVERVIEW_MORE_ACTIONS   | gift card's list page under the more action button.     | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| GIFT_CARD_DETAILS_MORE_ACTIONS    | gift card's detail page under the more action button.   | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| GIFT_CARD_DETAILS_WIDGETS         | A widget on gift card's detail page.                    | `POPUP`, `APP_PAGE`, `NEW_TAB`, `WIDGET`  | 3.22           |
+| CUSTOMER_OVERVIEW_CREATE          | customer's list page under the create button.           | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| CUSTOMER_OVERVIEW_MORE_ACTIONS    | customer's list page under the more action button.      | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| CUSTOMER_DETAILS_MORE_ACTIONS     | customer's detail page under the more action button.    | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| CUSTOMER_DETAILS_WIDGETS          | A widget on customer's detail page.                     | `POPUP`, `APP_PAGE`, `NEW_TAB`, `WIDGET`  | 3.22           |
+| PRODUCT_OVERVIEW_CREATE           | Product's list page under the create button.            | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| PRODUCT_OVERVIEW_MORE_ACTIONS     | Product's list page under the more action button.       | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| PRODUCT_DETAILS_MORE_ACTIONS      | Product's detail page under the more action button.     | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| PRODUCT_DETAILS_WIDGETS           | A widget on product's detail page.                      | `POPUP`, `APP_PAGE`, `NEW_TAB`, `WIDGET`  | 3.22           |
+| NAVIGATION_CATALOG                | Catalogs section in the navigation bar.                 | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| NAVIGATION_ORDERS                 | Orders section in the navigation bar.                   | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| NAVIGATION_CUSTOMERS              | Customers section in the navigation bar.                | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| NAVIGATION_DISCOUNTS              | Discounts section in the navigation bar.                | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| NAVIGATION_TRANSLATIONS           | Translations section in the navigation bar.             | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| NAVIGATION_PAGES                  | Pages section in the navigation bar.                    | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| ORDER_DETAILS_MORE_ACTIONS        | Order's detail page under the more action button.       | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| ORDER_OVERVIEW_CREATE             | Order's list page under the create button.              | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| ORDER_OVERVIEW_MORE_ACTIONS       | Order's list page under the more action button.         | `POPUP`, `APP_PAGE`, `NEW_TAB`            |                |
+| ORDER_DETAILS_WIDGETS             | A widget on order's detail page.                        | `POPUP`, `APP_PAGE`, `NEW_TAB`, `WIDGET`  | 3.22           |
+| DRAFT_ORDER_DETAILS_MORE_ACTIONS  | Draft order's detail page under the more action button. | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| DRAFT_ORDER_OVERVIEW_CREATE       | Draft order's list page under the create button.        | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| DRAFT_ORDER_OVERVIEW_MORE_ACTIONS | Draft order's list page under the more action button.   | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| DRAFT_ORDER_DETAILS_WIDGETS       | A widget on draft order's detail page.                  | `POPUP`, `APP_PAGE`, `NEW_TAB`, `WIDGET`  | 3.22           |
+| DISCOUNT_DETAILS_MORE_ACTIONS     | Discount's detail page under the more action button.    | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| DISCOUNT_OVERVIEW_CREATE          | Discount's list page under the create button.           | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| DISCOUNT_OVERVIEW_MORE_ACTIONS    | Discount's list page under the more action button.      | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| VOUCHER_DETAILS_MORE_ACTIONS      | Voucher's detail page under the more action button.     | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| VOUCHER_OVERVIEW_CREATE           | Voucher's list page under the create button.            | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| VOUCHER_OVERVIEW_MORE_ACTIONS     | Voucher's list page under the more action button.       | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| VOUCHER_DETAILS_WIDGETS           | A widget on voucher's detail page.                      | `POPUP`, `APP_PAGE`, `NEW_TAB` , `WIDGET` | 3.22           |
+| PAGE_DETAILS_MORE_ACTIONS         | Page's detail page under the more action button.        | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| PAGE_OVERVIEW_CREATE              | Page's list page under the create button.               | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| PAGE_OVERVIEW_MORE_ACTIONS        | Page's list page under the more action button.          | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| PAGE_TYPE_OVERVIEW_CREATE         | Page type's list page under the create button.          | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| PAGE_TYPE_OVERVIEW_MORE_ACTIONS   | Page type's list page under the more action button.     | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| PAGE_TYPE_DETAILS_MORE_ACTIONS    | Page type's detail page under the more action button.   | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| MENU_OVERVIEW_CREATE              | Menu's list page under the create button.               | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| MENU_OVERVIEW_MORE_ACTIONS        | Menu's list page under the more action button.          | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+| MENU_DETAILS_MORE_ACTIONS         | Menu's detail page under the more action button.        | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
+
+## More resources
+
+- [app-template](https://github.com/saleor/saleor-app-template): minimal starter boilerplate, containing extensions example implementation
