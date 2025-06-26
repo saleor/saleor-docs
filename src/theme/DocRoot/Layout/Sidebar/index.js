@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import { useDocsSidebar } from "@docusaurus/plugin-content-docs/client";
 import { useLocation } from "@docusaurus/router";
 import {
@@ -7,8 +14,7 @@ import {
 import ExpandButton from "@theme/DocRoot/Layout/Sidebar/ExpandButton";
 import DocSidebar from "@theme/DocSidebar";
 import clsx from "clsx";
-import React, { useCallback, useRef, useState } from "react";
-import { CSSTransition, SwitchTransition } from "react-transition-group";
+import React, { useCallback, useState } from "react";
 
 import styles from "./styles.module.css";
 
@@ -23,13 +29,14 @@ function ResetOnSidebarChange({ children }) {
     </React.Fragment>
   );
 }
+
 export default function DocRootLayoutSidebar({
   sidebar,
   hiddenSidebarContainer,
   setHiddenSidebarContainer,
 }) {
   const { pathname } = useLocation();
-  const { name } = useDocsSidebar();
+
   const [hiddenSidebar, setHiddenSidebar] = useState(false);
   const toggleSidebar = useCallback(() => {
     if (hiddenSidebar) {
@@ -43,57 +50,39 @@ export default function DocRootLayoutSidebar({
     setHiddenSidebarContainer((value) => !value);
   }, [setHiddenSidebarContainer, hiddenSidebar]);
 
-  const nodeRef = useRef(null);
-
-  const [direction, setDirection] = useState(
-    name === "main" ? "forward" : "back"
-  );
-
   return (
     <aside
       className={clsx(
         ThemeClassNames.docs.docSidebarContainer,
         styles.docSidebarContainer,
-        hiddenSidebarContainer && styles.docSidebarContainerHidden
+        hiddenSidebarContainer && styles.docSidebarContainerHidden,
       )}
       onTransitionEnd={(e) => {
         if (!e.currentTarget.classList.contains(styles.docSidebarContainer)) {
           return;
         }
+
         if (hiddenSidebarContainer) {
           setHiddenSidebar(true);
         }
       }}
     >
-      <SwitchTransition>
-        <CSSTransition
-          key={name}
-          nodeRef={nodeRef}
-          addEndListener={() => {
-            setDirection(name === "main" ? "forward" : "back");
-          }}
-          timeout={150}
-          classNames={direction}
+      <ResetOnSidebarChange>
+        <div
+          className={clsx(
+            styles.sidebarViewport,
+            hiddenSidebar && styles.sidebarViewportHidden,
+          )}
         >
-          <ResetOnSidebarChange>
-            <div
-              className={clsx(
-                styles.sidebarViewport,
-                hiddenSidebar && styles.sidebarViewportHidden
-              )}
-              ref={nodeRef}
-            >
-              <DocSidebar
-                sidebar={sidebar}
-                path={pathname}
-                onCollapse={toggleSidebar}
-                isHidden={hiddenSidebar}
-              />
-              {hiddenSidebar && <ExpandButton toggleSidebar={toggleSidebar} />}
-            </div>
-          </ResetOnSidebarChange>
-        </CSSTransition>
-      </SwitchTransition>
+          <DocSidebar
+            sidebar={sidebar}
+            path={pathname}
+            onCollapse={toggleSidebar}
+            isHidden={hiddenSidebar}
+          />
+          {hiddenSidebar && <ExpandButton toggleSidebar={toggleSidebar} />}
+        </div>
+      </ResetOnSidebarChange>
     </aside>
   );
 }
