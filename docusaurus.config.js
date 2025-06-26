@@ -18,6 +18,9 @@ module.exports = {
   favicon: "img/saleor-icon.png",
 
   future: {
+    v4: {
+      removeLegacyPostBuildHeadAttribute: true,
+    },
     experimental_faster: true,
   },
 
@@ -99,6 +102,20 @@ module.exports = {
         },
       },
     ],
+    // Disabling due to known bug which causes slowdowns in the build process
+    // https://github.com/facebook/docusaurus/discussions/11199
+    function disableExpensiveBundlerOptimizationPlugin() {
+      return {
+        name: "disable-expensive-bundler-optimizations",
+        configureWebpack(_config, isServer) {
+          return {
+            optimization: {
+              concatenateModules: false,
+            },
+          };
+        },
+      };
+    },
   ],
 
   themeConfig: {
