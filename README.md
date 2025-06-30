@@ -1,3 +1,67 @@
+<div align="center" width="100px">
+
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/76e3079f-696a-4fcd-8658-89739647090b">
+   <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/8477d643-a905-4c63-8ed3-03d0976f6fc3">
+   <img width="200" alt="saleor-commerce-logo" src="https://user-images.githubusercontent.com/4006792/214636328-8e4f83e8-66cb-4114-a3d8-473eb908b9c3.png">
+
+ </picture>
+</div>
+
+<div align="center">
+  <strong>Commerce that works with your language and stack</strong>
+</div>
+
+<div align="center">
+  GraphQL native, API-only platform for scalable composable commerce.
+</div>
+
+<br>
+
+<div align="center">
+ Get to know Saleor: <br>
+  <a href="https://saleor.typeform.com/talk-with-us">Talk to a human</a>
+  <span> | </span>
+  <a href="https://twitter.com/getsaleor](https://auth.saleor.io/realms/saleor-cloud/protocol/openid-connect/registrations)">Talk to API</a>
+</div>
+
+<br>
+
+<div align="center">
+  Join our community: <br>
+  <a href="https://saleor.io/">Website</a>
+  <span> | </span>
+  <a href="https://twitter.com/getsaleor">Twitter</a>
+  <span> | </span>
+  <a href="https://saleor.io/discord">Discord</a>
+</div>
+
+<div align="center">
+   <a href="https://saleor.io/blog">Blog</a>
+  <span> | </span>
+  <a href="https://saleor.typeform.com/to/JTJK0Nou">Subscribe to newsletter</a>
+</div>
+
+<br>
+
+<div align="center">
+
+[![Discord Badge](https://dcbadge.vercel.app/api/server/unUfh24R6d)](https://saleor.io/discord)
+
+</div>
+
+<div align="center">
+  <a href="https://codecov.io/gh/saleor/saleor" >
+    <img src="https://codecov.io/gh/saleor/saleor/graph/badge.svg?token=qkNcTJ4TmI" alt="Coverage"/>
+  </a>
+  <a href="https://docs.saleor.io/">
+    <img src="https://img.shields.io/badge/docs-docs.saleor.io-brightgreen.svg" alt="Documentation" />
+  </a>
+  <a href="https://github.com/astral-sh/ruff">
+    <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Linted by Ruff">
+  </a>
+</div>
+
 # Saleor Documentation
 
 - Documentation: [https://docs.saleor.io](https://docs.saleor.io)
