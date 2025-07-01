@@ -20,9 +20,9 @@
 
 <div align="center">
  Get to know Saleor: <br>
-  <a href="https://cloud.saleor.io/signup?utm_source=github&utm_medium=readme&utm_campaign=repo_saleor-docs">Talk to a human</a>
+  <a href="https://saleor.typeform.com/talk-with-us?utm_source=github&utm_medium=readme&utm_campaign=repo_saleor-docs">Talk to a human</a>
   <span> | </span>
-  <a href="https://saleor.typeform.com/talk-with-us?utm_source=github&utm_medium=readme&utm_campaign=repo_saleor-docs">Talk to API</a>
+  <a href="https://cloud.saleor.io/signup?utm_source=github&utm_medium=readme&utm_campaign=repo_saleor-docs">Talk to API</a>
 </div>
 
 <br>
