@@ -44,23 +44,6 @@
 
 <br>
 
-<div align="center">
-
-[![Discord Badge](https://dcbadge.vercel.app/api/server/unUfh24R6d)](https://saleor.io/discord)
-
-</div>
-
-<div align="center">
-  <a href="https://codecov.io/gh/saleor/saleor" >
-    <img src="https://codecov.io/gh/saleor/saleor/graph/badge.svg?token=qkNcTJ4TmI" alt="Coverage"/>
-  </a>
-  <a href="https://docs.saleor.io/">
-    <img src="https://img.shields.io/badge/docs-docs.saleor.io-brightgreen.svg" alt="Documentation" />
-  </a>
-  <a href="https://github.com/astral-sh/ruff">
-    <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Linted by Ruff">
-  </a>
-</div>
 
 # Saleor Documentation
 
