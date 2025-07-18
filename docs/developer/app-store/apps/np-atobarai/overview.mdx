@@ -1,0 +1,98 @@
+---
+sidebar_label: Overview
+sidebar_position: 1
+title: NP-Atobarai App Overview
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.jsx";
+
+<AppMetadata
+  minSaleorVersion="3.20"
+  githubUrl="https://github.com/saleor/apps/tree/main/apps/np-atobarai"
+/>
+
+NP-Atobarai is a Japanese payment gateway that supports payments on pick-up points.
+
+## Features
+
+- App integrates with NP-Atobarai payment gateway.
+- App provides `PAYMENT_GATEWAY_INITIALIZE_SESSION` mutation to validate required data: shipping and billing addresses, phone number, currency, and email.
+
+
+## Limitations and assumptions
+
+Before installing this app, please review these limitations to ensure they don't conflict with your requirements.
+
+- App works only for channels with `JPY` currency.
+- App creates transactions within NP-Atobarai during the fulfillment process, exactly when tracking number is updated. That means in case of invalid data, direct feedback on the storefront is not possible.
+- App works only on `CHARGE` flows. Saleor has limitation to allow fulfillments only when the order is fully charged.
+- When a customer does not pick up the delivery, the app will *not* report this to Saleor. Order will remain in the `FULFILLED` and `PAID` state. However, this should be safe, because NP-Atobarai should not allow user to pick up the good without paying.
+- The App creates only one transaction in NP-Atobarai and expects only one to exist for a single transaction in Saleor. If NP-Atobarai returns multiple transactions, the app will report `CHARGE_FAILURE`
+- The App uses `transaction.token` as a identifier set in NP-Atobarai, due to ID characters limit.
+- Tracking number set on fulfillment must have at most 20 characters.
+
+## Flow
+
+### Pre-requisites
+
+- You need to have a valid Japanese channel configured.
+- You need to have a Storefront that integrates with Transactions API (see docs).
+
+### Early validation
+
+Call `paymentGatewayInitialize` mutation to validate that the required data is present in a checkout.
+This mutation will return an error if any of the required data is missing, such as shipping and billing addresses, phone number, currency, or email.
+
+TODO: Error shape
+
+### Initialize payment
+
+Use `transactionInitialize` mutation to start the payment process. The app will perform a validation, and if data seems valid, it will call NP-Atobarai to create the transaction.
+
+If NP-Atobarai returns an error, the app will return `CHARGE_ACTION_REQUIRED` error. At this point storefront can fix problematic data and retry the payment using `transactionProcess` mutation.
+
+Error that may be raised by NP-Atobarai:
+
+```
+- RE009:lack of address information
+- RE014:address_confirmation of work
+- RE015:Address_Insufficient delivery destination information
+- RE020:Address_Confirmation of work at delivery destination
+- RE021:TEL_Phone number error
+- RE023:TEL_phone number error of delivery destination
+- RE026:Other_Reason of merchant
+```
+
+If transaction is created successfully, the app will return `CHARGE_SUCESS` to Saleor.
+
+### Process the payment
+
+Use `transactionProcess` mutation to process the payment if `transactionInitialize` fails and responds with `CHARGE_ACTION_REQUIRED`.
+The app will call NP-Atobarai to process the payment and return the result. If the payment is successful, the app will return `CHARGE_SUCCESS` to Saleor.
+
+You can run this mutation multiple times, until the payment is successful
+
+
+### Complete the checkout
+
+Once the payment is process and set to `CHARGE_SUCCESS` you shoud complete the checkout using `checkoutComplete` mutation. This will create the order in Saleor.
+
+### Fulfill the order
+
+To proceed with the delivery, you need to create a first fulfillment using `fulfillmentCreate` mutation. You need to pass the `trackingNumber` to the mutation, or run a separate `fulfillmentUpdateTrackingNumber` mutation to set the tracking number later.
+
+These operations can be performed within the Dashboard
+
+## Error handling
+
+todo
+- shape of error on the storefront
+- errors reported on orderNoteAdd
+
+## Relation to plugin
+
+This app is a direct replacement of the [NP-Atobarai plugin](../../legacy-plugins/np-atobarai). Please use the App instead of the plugin, which will be deprecated in the future.
+
+## Migration from plugin to app
+
+todo
