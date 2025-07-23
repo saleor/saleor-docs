@@ -16,7 +16,7 @@ The channel restriction affects the access to data restricted by the following p
 - `MANAGE_ORDERS`
 
 Instead of assigning permissions directly to the user, we define them on a group basis.
-Organizing access rights in [Groups](api-reference/users/objects/group.mdx) helps in determining the roles of team members.
+Organizing access rights in [`Groups`](api-reference/users/objects/group.mdx) helps in determining the roles of team members.
 
 Examples of groups:
 
@@ -32,7 +32,18 @@ they will have access to data from all channels.
 
 ### Creating and removing groups
 
-To create a new group, use the [permissionGroupCreate](api-reference/users/mutations/permission-group-create.mdx) mutation.
+You can create permission group either via the Saleor Dashboard or using the GraphQL API.
+
+#### Saleor Dashboard
+1. Navigate to Configuration → Permission Groups.
+2. Click Create Permission group
+3. Name the group, select permissions and channels. 
+Once saved you can assign group members from existing staff users.  
+
+#### API
+
+To create a group programmatically, use the [`permissionGroupCreate`](api-reference/users/mutations/permission-group-create.mdx) 
+mutation. This method allows for assigning users during group creation.
 
 #### Creating the group without channel restriction
 
@@ -168,9 +179,9 @@ When the `restrictedAccessToChannels` flag is set to `false`, the channels provi
 in `addChannels` field will be ignored.
 :::
 
-#### Removing a group
+### Removing a group
 
-To remove a group, use the [permissionGroupDelete](api-reference/users/mutations/permission-group-delete.mdx) mutation:
+To remove a group, use the [`permissionGroupDelete`](api-reference/users/mutations/permission-group-delete.mdx) mutation:
 
 ```graphql
 mutation {
@@ -187,7 +198,7 @@ mutation {
 
 #### Managing the group members
 
-The [permissionGroupUpdate](api-reference/users/mutations/permission-group-update.mdx) mutation takes a list of user IDs you would like to add or remove from the group. Having the same user in both lists will result in an error.
+The [`permissionGroupUpdate`](api-reference/users/mutations/permission-group-update.mdx) mutation takes a list of user IDs you would like to add or remove from the group. Having the same user in both lists will result in an error.
 
 Example request:
 
@@ -212,7 +223,7 @@ mutation {
 
 #### Managing the group channels
 
-The [permissionGroupUpdate](api-reference/users/mutations/permission-group-update.mdx)
+The [`permissionGroupUpdate`](api-reference/users/mutations/permission-group-update.mdx)
 mutation takes a list of channel IDs you would like to add or remove from the group.
 Having the same channels in both lists will result in an error.
 
@@ -279,6 +290,16 @@ To check the token online and learn more about JWT visit [https://jwt.io](https:
 :::note
 Since Saleor reads permissions from the JWT token, generating a new token is necessary when the user changes permissions.
 :::
+
+## `Query.me` vs `Query.user`
+
+When working with permissions in Saleor, it's important to understand:
+
+- **`Query.me`** returns the *effective permissions* of the currently authenticated user, 
+as encoded in the access token. This includes permissions granted dynamically, such as through Single Sign-On (SSO) 
+or Role-Based Access Control (RBAC). These may not be stored on the User object in the database.
+- **`Query.user`** returns only the permissions stored for a specific user in the database. 
+It does *not* include any permissions granted dynamically.
 
 ## Available permissions
 
