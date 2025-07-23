@@ -1,5 +1,6 @@
 import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import { ThemeClassNames } from "@docusaurus/theme-common";
+import CopyMarkdownButton from "@site/src/components/CopyMarkdownButton";
 import TagsListInline from "@theme/TagsListInline";
 import clsx from "clsx";
 import { LifeBuoy, MessageSquareMore, Pencil } from "lucide-react";
@@ -33,6 +34,8 @@ export default function DocItemFooter() {
         </div>
       )}
       <div className={s.actions}>
+        <CopyMarkdownButton />
+
         {canDisplayEditMetaRow && (
           <a href={editUrl} target={"_blank"} rel="noreferrer">
             <Pencil size={12} />
