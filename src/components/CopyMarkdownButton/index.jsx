@@ -1,7 +1,8 @@
 import { useDoc } from "@docusaurus/plugin-content-docs/client";
+import { useLocation } from "@docusaurus/router";
 import styles from "@site/src/theme/DocItem/Footer/styles.module.css";
-import { Check,Copy } from "lucide-react";
-import React, { useCallback,useState } from "react";
+import { Check, Copy } from "lucide-react";
+import React, { useCallback, useState } from "react";
 
 function processMarkdownContent(content) {
   // Remove frontmatter (content between --- at the start)
@@ -63,16 +64,22 @@ function processMarkdownContent(content) {
 
 export default function CopyMarkdownButton() {
   const { metadata } = useDoc();
+  const location = useLocation();
   const [copied, setCopied] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  // Define paths where the button should be hidden
+  const excludedPaths = ["/"];
+
+  // Check if current path should be excluded
+  if (excludedPaths.includes(location.pathname)) {
+    return null;
+  }
 
   const copyMarkdown = useCallback(async () => {
     if (!metadata?.editUrl) {
       console.warn("No edit URL available for this page");
       return;
     }
-
-    setLoading(true);
 
     try {
       // Convert GitHub edit URL to raw URL
@@ -100,8 +107,6 @@ export default function CopyMarkdownButton() {
       console.error("Failed to copy markdown:", error);
       // Fallback: just indicate we couldn't copy
       setCopied(false);
-    } finally {
-      setLoading(false);
     }
   }, [metadata?.editUrl]);
 
@@ -114,28 +119,11 @@ export default function CopyMarkdownButton() {
     <button
       className={styles.copyButton}
       onClick={copyMarkdown}
-      disabled={loading}
       title="Copy page as markdown"
       aria-label="Copy page as markdown"
     >
-      {loading ? (
-        <div
-          style={{
-            width: "12px",
-            height: "12px",
-            border: "2px solid var(--ifm-color-emphasis-300)",
-            borderTop: "2px solid var(--ifm-color-primary)",
-            borderRadius: "50%",
-            marginRight: "var(--spacer-2)",
-            animation: "spin 1s linear infinite",
-          }}
-        />
-      ) : copied ? (
-        <Check size={12} />
-      ) : (
-        <Copy size={12} />
-      )}
-      {loading ? "Loading..." : copied ? "Copied!" : "Copy as Markdown"}
+      {copied ? <Check size={12} /> : <Copy size={12} />}
+      {copied ? "Copied!" : "Copy as Markdown"}
     </button>
   );
 }
