@@ -86,11 +86,16 @@ export const coreConcepts = [
   "developer/discounts/sales",
   "developer/discounts/displaying-catalogue-discounts",
 
-  title("Miscellaneous"),
+  title("Users"),
+  "developer/users/overview",
+  "developer/users/customer-account",
+  "developer/users/customer-management",
+  "developer/users/customer-address",
+  "developer/users/staff-users",
 
+  title("Miscellaneous"),
   "developer/gift-cards",
   "developer/address",
-  "developer/users",
   "developer/permissions",
   "developer/taxes",
   "developer/thumbnails",
