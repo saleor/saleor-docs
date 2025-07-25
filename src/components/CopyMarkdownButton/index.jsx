@@ -1,6 +1,5 @@
 import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import { useLocation } from "@docusaurus/router";
-import styles from "@site/src/theme/DocItem/Footer/styles.module.css";
 import { Check, Copy } from "lucide-react";
 import React, { useCallback, useState } from "react";
 
@@ -117,13 +116,30 @@ export default function CopyMarkdownButton() {
 
   return (
     <button
-      className={styles.copyButton}
       onClick={copyMarkdown}
-      title="Copy page as markdown"
-      aria-label="Copy page as markdown"
+      title="Copy page for LLM"
+      aria-label="Copy page for LLM"
+      style={{
+        border: "none",
+        background: "none",
+        color: "var(--ifm-color-content-secondary)",
+        fontSize: "14px",
+        padding: 0,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "6px",
+        textDecoration: "none",
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.textDecoration = "underline";
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.textDecoration = "none";
+      }}
     >
       {copied ? <Check size={12} /> : <Copy size={12} />}
-      {copied ? "Copied!" : "Copy as Markdown"}
+      {copied ? "Copied!" : "Copy for LLM"}
     </button>
   );
 }
