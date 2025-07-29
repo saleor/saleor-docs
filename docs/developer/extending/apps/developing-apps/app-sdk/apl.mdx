@@ -333,8 +333,59 @@ const apl = new RedisAPL({
 
 See Redis documentation for more details on how to set up the client.
 
+### DynamoDB
 
-### SaleorCloudAPL
+DynamoAPL is a custom implementation built on top AWS DynamoDB. Additionally, it requires [DynamoDB-Toolbox](https://www.dynamodbtoolbox.com/).
+
+First, you need to install the required peer dependencies:
+
+```
+pnpm i dynamodb-toolbox @aws-sdk/client-dynamodb @aws-sdk/lib-dynamodb @aws-sdk/util-dynamodb
+```
+
+Then, you should import the APL and create an instance:
+
+```typescript
+import { DynamoAPL } from "@saleor/app-sdk/APL/dynamodb";
+```
+
+And create an instance:
+
+```typescript
+export const apk = DynamoAPL.create({
+      // Standard AWS SDK env variables, but you can provide your own mapping
+      env: {
+        APL_TABLE_NAME: process.env.DYNAMODB_MAIN_TABLE_NAME,
+        AWS_REGION: process.env.AWS_REGION,
+        AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+        AWS_SECRET_ACCESS_KEY: processenv.AWS_SECRET_ACCESS_KEY,
+      },
+      // DynamoDB-Toolbox Table instance.
+      table: dynamoMainTable,
+    });
+```
+You must ensure the Table contains `PK` and `SK` attributes of type string
+
+```typescript
+import { Table } from "dynamodb-toolbox";
+
+type PartitionKey = { name: "PK"; type: "string" };
+type SortKey = { name: "SK"; type: "string" };
+
+const table = new Table<PartitionKey, SortKey>({
+      partitionKey: { name: "PK", type: "string" },
+      sortKey: {
+        name: "SK",
+        type: "string",
+      },
+      // ... rest of attributes required by Table
+})
+```
+
+Note that this APL exposes `create` factory method, that is easier to use, providing only envs and table instance. There is also `constructor` but it requires more low-level setup, which is not recommended.
+
+
+### SaleorCloudAPL (private & deprecated)
 
 You may see that there is a `SaleorCloudAPL` exported as well. This APL is specific implementation that Saleor Cloud uses when hosting apps on the cloud platform.
 
