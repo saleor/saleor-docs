@@ -82,7 +82,6 @@ export const coreConcepts = [
   "developer/users/overview",
   "developer/users/customer-account",
   "developer/users/customer-management",
-  "developer/users/customer-address",
   "developer/users/staff-users",
 
   title("Miscellaneous"),
