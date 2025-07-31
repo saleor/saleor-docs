@@ -74,9 +74,60 @@ export default function CopyMarkdownButton() {
     return null;
   }
 
+  const copyToClipboard = useCallback(async (text) => {
+    // Try modern Clipboard API first
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (err) {
+        // Fall through to execCommand fallback
+      }
+    }
+
+    // Safari fallback using execCommand
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+
+      // Position off-screen but keep accessible for Safari
+      textArea.style.position = "absolute";
+      textArea.style.top = "-9999px";
+      textArea.style.left = "0";
+      textArea.style.opacity = "0";
+      textArea.style.pointerEvents = "none";
+      textArea.readOnly = true;
+
+      document.body.appendChild(textArea);
+
+      // Force focus and selection
+      textArea.focus();
+      textArea.setSelectionRange(0, text.length);
+
+      // Try multiple times - Safari can be flaky
+      let successful = false;
+      for (let i = 0; i < 3; i++) {
+        successful = document.execCommand("copy");
+        if (successful) break;
+
+        // Wait a bit and try again
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        return true;
+      }
+    } catch (err) {
+      // Silent fallback failure
+    }
+
+    return false;
+  }, []);
+
   const copyMarkdown = useCallback(async () => {
     if (!metadata?.editUrl) {
-      console.warn("No edit URL available for this page");
       return;
     }
 
@@ -97,17 +148,17 @@ export default function CopyMarkdownButton() {
       const rawMarkdownContent = await response.text();
       const processedContent = processMarkdownContent(rawMarkdownContent);
 
-      await navigator.clipboard.writeText(processedContent);
-      setCopied(true);
+      const success = await copyToClipboard(processedContent);
 
-      // Reset the copied state after 2 seconds
-      setTimeout(() => setCopied(false), 2000);
+      if (success) {
+        setCopied(true);
+        // Reset the copied state after 2 seconds
+        setTimeout(() => setCopied(false), 2000);
+      }
     } catch (error) {
-      console.error("Failed to copy markdown:", error);
-      // Fallback: just indicate we couldn't copy
-      setCopied(false);
+      // Silent error handling - user will not see "Copied!" if it fails
     }
-  }, [metadata?.editUrl]);
+  }, [metadata?.editUrl, copyToClipboard]);
 
   // Don't show the button if there's no edit URL
   if (!metadata?.editUrl) {
