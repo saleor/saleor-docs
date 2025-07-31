@@ -4,7 +4,7 @@ sidebar_label: Vouchers
 ---
 
 Vouchers are a way to apply discounts to orders or they can be used to reduce the cost of a checkout. Vouchers can be applied to the entire order
-or to specific products. They can also be limited to a minimum quantity of products in the checkout. Vouchers and [promotions](developer/discounts/promotions.mdx) can be used together.
+or to specific products. They can also be limited to a minimum quantity of products in the checkout. Vouchers and [catalog promotions](developer/discounts/promotions.mdx) can be used together.
 
 :::info
 The vouchers on draft orders are applicable since v3.19.
@@ -44,39 +44,106 @@ Specifies the minimum number of products in the cart required to redeem the vouc
 This is based on the total quantity of items, not unique products.
 
 ## Usage Limits
+This section explains how to control how many times and by whom a voucher can be redeemed. 
+By default, vouchers have no usage limits and can be applied indefinitely. 
 
-There are multiple ways to limit a voucher's usage, but default voucher codes can be used without any limits. To change that `usageLimit` can be set
-to limit the number of times a voucher can be used. The voucher will be unavailable for further use when the limit is reached.
-If the voucher has multiple codes, the limit is calculated as the sum of all codes usage.
+### Total Usage Limit
 
-Another way to limit the usage of a voucher is to set the `applyOncePerCustomer` field to `true`. In this case, the voucher code will be
-available for use only once per customer.
+Set **Limit number of times this discount can be used in total** (`usageLimit`) to restrict how many times the voucher can be used across all customers.
 
-The voucher can be also set as single-use, when `singleUse` flag is set to `true`. In this case, each code from the voucher can be used only once and then the code will be deactivated after use.
-**This flag can be updated on existing voucher only when no code has been used yet.**
+- Once this number is reached, the voucher can no longer be applied.
+- If the voucher includes multiple codes, the limit applies to the total combined usage of all codes.
+- The number of times the voucher has been used is shown in the `Voucher.used` field.
+- `Voucher.used` only counts usage if a limit was set. 
 
-Those limitation options can be combined. For example, if `usageLimit` is set to `10` and `applyOncePerCustomer` is set to `true`, the voucher can be used by the first 10 users.
+### Limit to Use Once
+
+**Limit to voucher code use once** (`singleUse`) makes each individual code within a voucher usable only once. After a code is used, it is automatically marked as inactive and cannot be reused.
+
+This setting can only be updated on existing vouchers when no code has been used yet.
 
 :::warning
-Shuffling voucher settings might result in a mismatch between the `voucher.used` field and the number of orders utilizing the voucher.
-Saleor operates on the general assumption that updating the voucher settings should not affect existing orders if possible.
+Voucher `usageLimit` and `singleUse` must be set before the voucher is used. Once the voucher has been applied in any checkout or order, these settings cannot be changed.
 :::
+### Limit Per Customer
+Enable **Limit to one use per customer** (`applyOncePerCustomer`) to allow each customer to use the voucher only once, even if the total usage limit hasn’t been reached.
+
+Voucher usage is counted after the order has been completed. Customers can apply the voucher to multiple checkouts or draft orders, but it will only be marked as used once an order is placed.
+
+If the same customer tries to complete another order with the voucher, it will be rejected when adding the code or finalizing the order.
+
+### Staff-Only Voucher
+
+Enable **Limit to staff only** (`onlyForStaff`) to restrict voucher usage to internal users, such as store staff or admins.
+
+These vouchers will be rejected if applied by non-staff customers, even if all other conditions are met.
+
+:::warning
+You can enable or disable applyOncePerCustomer or onlyForStaff at any time. 
+However, these settings do not apply retroactively - for example, if a customer used the voucher before `applyOncePerCustomer` was enabled, they may still be able to use it again.
+:::
+
+### Combining Limitations
+
+You can combine different usage limits to control exactly how, how often, and by whom a voucher can be used. Below are common combinations and how they behave in practice:
+
+#### Total Usage Limit + Limit Per Customer
+
+**Setup:**
+- One voucher code
+- Total usage limit: 50
+- Limit to one use per customer: Enabled
+
+**Result:**
+
+The voucher can be used by up to 50 different customers, with each customer allowed only one use. A single customer cannot use the voucher multiple times, and the codes cannot be applied after 50 unique redemptions.
+
+#### Total Usage Limit + Single-Use Codes
+
+**Setup:**
+- Generated 10 unique codes
+- Total usage limit: 10
+- Enable single use setting
+
+**Result:**
+
+The voucher campaign supports 10 redemptions total, each tied to a unique code. Once a code is used, it's deactivated. After 10 different codes are used, the voucher becomes inactive.
+
+#### Single-Use Codes + Staff-Only Voucher
+
+**Setup:**
+- Generate 20 unique codes
+- Enable single use setting
+- Enable Only for staff setting
+
+**Result:**
+
+Each code can be used once, and only by staff users. If a non-staff customer attempts to apply a code, it will be rejected.
 
 ### Draft Order Usage
 
-Saleor is able to calculate voucher usage in draft orders. To turn on such a behavior, `includeDraftOrderInVoucherUsage` flag for the given `Channel` must be set to `true`. Use [`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation to switch the flag.
+By default, vouchers applied to draft orders do not count toward voucher usage limits. 
 
-When the `includeDraftOrderInVoucherUsage` flag is changed from `false` to `true`, **vouchers will be disconnected from all draft orders.**
+If you want draft orders to be included in voucher usage tracking, you can enable this behavior in the channel settings by setting the `includeDraftOrderInVoucherUsage` flag to `true` using the [`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation.
 
-When the `includeDraftOrderInVoucherUsage` flag is changed from `true` to `false`, all vouchers will be released. It means:
+#### Changing the Flag
+When you toggle the `includeDraftOrderInVoucherUsage` setting, Saleor adjusts how vouchers are counted and linked to draft orders.
 
-- multiple-use voucher codes will reduce their usage by a number of draft orders that utilize the code (`VoucherCode.used` field)
-- single-use voucher codes will become active again (`VoucherCode.isActive` field)
-- in case of `applyOncePerCustomer` setting on, the usage will be dissociated from users (`VoucherCustomer` entry)
+**False → True**
 
-Voucher code will also be released, after the draft order deletion.
+All vouchers are disconnected from existing draft orders. This ensures a clean reset before draft usage starts being counted.
 
-When importing a draft order using [`bulkOrderCreate`](developer/bulks/bulk-orders.mdx) mutation, the voucher is not validated, therefore code usage will not be counted.
+**True → False**
+
+- Multi-use voucher codes: The used count (VoucherCode.used) is reduced by the number of draft orders using the code.
+- Single-use voucher codes: Become active again (VoucherCode.isActive = true).
+- Per-customer limits (applyOncePerCustomer): The usage will be dissociated from users (VoucherCustomer entry).
+
+Voucher codes are also release after draft order deletion.
+
+:::note 
+When importing draft orders with [`bulkOrderCreate`](developer/bulks/bulk-orders.mdx), vouchers aren't validated and usage isn't counted.
+:::
 
 ## Permissions
 
