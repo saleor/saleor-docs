@@ -12,26 +12,36 @@ The vouchers on draft orders are applicable since v3.19.
 
 ## Types
 
-There are three types of vouchers:
+Vouchers come in three types:
 
-- `ENTIRE_ORDER`: the discount is applied on the subtotal value of checkout
-- `SPECIFIC_PRODUCT`: the discount is applied to the unit price of each eligible product. Eligibility is defined by linking products, categories, collections, or variants using the [`voucherCataloguesAdd`](api-reference/discounts/mutations/voucher-catalogues-add.mdx) mutation.
-- `SHIPPING`: the discount is applied on the shipping price
+- `ENTIRE_ORDER`: Applies discount to the checkout subtotal
+- `SPECIFIC_PRODUCT`: Applies discount to eligible product unit prices. You define eligibility by linking products, categories, collections, or variants using the [`voucherCataloguesAdd`](api-reference/discounts/mutations/voucher-catalogues-add.mdx) mutation.
+- `SHIPPING`: Applies discount to shipping costs
 
-We can also distinguish vouchers by their value type:
+Vouchers also have two value types:
 
-- `FIXED`: reduces the price by a specified value.
-- `PERCENTAGE`: reduces the price by a specified percentage value.
+- `FIXED`: Reduces price by a specific amount
+- `PERCENTAGE`: Reduces price by a specific percentage
 
-By setting `Voucher.applyOncePerOrder`, there is an option to apply the discount only to the cheapest eligible product.
-The discount applies to a single unit of the product, not the entire order line.
-If the voucher specifies certain products, the discount will be applied only to the cheapest item included in the discount.
-If the voucher applies to all products, the discount will be applied only to the cheapest item overall.
+## Voucher Settings
+### Apply Once Per Order
+When the `Voucher.applyOncePerOrder` setting is enabled, the discount is applied only once per order, targeting the cheapest eligible item.
+The discount affects a single unit, not the entire order line.
 
-To apply the voucher on checkout use [`checkoutAddPromoCode`](api-reference/checkout/mutations/checkout-add-promo-code.mdx)
-mutation. The discount will be visible both in the line prices and in the `checkout.discount` field.
-To apply the voucher on draft order use [`draftOrderCreate`](api-reference/orders/mutations/draft-order-create.mdx) or [`draftOrderUpdate`](api-reference/orders/mutations/draft-order-update.mdx)
-and pass `voucherCode` as an argument.
+- For **product-specific vouchers**: applies to the cheapest item included in the discount.
+- For **entire order vouchers**: applies to the cheapest item overall.
+
+### Minimal Order Value
+Specifies the minimum checkout subtotal required for the voucher to be applicable.
+The value is defined per sales channel via `VoucherChannelListing.minSpent`.
+
+If the subtotal does not meet this threshold, the voucher will not be applied.
+
+**Example:** If `minAmountSpent` is set to 100.00, and the subtotal is 95.96 with 10.00 shipping (total 105.96), the voucher will not be applied.
+
+### Minimal Items Quantity
+Specifies the minimum number of products in the cart required to redeem the voucher. 
+This is based on the total quantity of items, not unique products.
 
 ## Usage Limits
 
@@ -448,6 +458,11 @@ Input variables:
 
 
 ## Applying Vouchers
+
+To apply the voucher on checkout use [`checkoutAddPromoCode`](api-reference/checkout/mutations/checkout-add-promo-code.mdx)
+mutation. The discount will be visible both in the line prices and in the `checkout.discount` field.
+To apply the voucher on draft order use [`draftOrderCreate`](api-reference/orders/mutations/draft-order-create.mdx) or [`draftOrderUpdate`](api-reference/orders/mutations/draft-order-update.mdx)
+and pass `voucherCode` as an argument.
 
 ### Entire Order Voucher
 
