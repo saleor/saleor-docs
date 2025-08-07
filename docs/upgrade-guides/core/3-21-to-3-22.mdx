@@ -8,65 +8,6 @@ To follow the zero-downtime strategy when upgrading to 3.21, **It is recommended
 Otherwise, you will need to downtime your solution to ensure correct data migration.
 :::
 
-## Increased query costs for specific fields
-
-To further enhance API performance and system stability, the query cost for several fields has been increased:
-
-- `Page.attributes`: **from 1 to 100**
-- `PageType.attributes`: **from 1 to 100**
-- `Product.attributes`: **from 1 to 100**
-- `Product.variants`: **from 1 to 100**
-- `ProductVariant.attributes`: **from 1 to 100**
-
-These changes mean that complex or deeply nested queries involving these fields may now reach the query cost limit. If a query exceeds this limit, Saleor will reject it to protect system resources and maintain performance.
-Review your GraphQL queries that use these fields, especially if they are part of large or nested requests. Adjust your queries as needed to ensure they remain within the allowed cost.
-
-Query cost is calculated based on the complexity of the query structure, not on the actual data present in the system. For more details, see the [API usage limits documentation](api-usage/usage-limits.mdx#query-cost).
-
-
-
-Saleor responses include an extensions section that shows both the calculated cost of the current query and the maximum allowed cost:
-```grapqhl
-{
-  "data": {
-    ...
-  },
-  "extensions": {
-    "cost": {
-      "requestedQueryCost": 100,
-      "maximumAvailable": 50000
-    }
-  }
-}
-```
-
-### Example: Query cost calculation
-
-The following query previously had a cost of 200, but under the updated cost model, the cost is now 10,100.
-
-The cost breakdown is as follows:
-- Number of pages to fetch (`pages.first`): 100
-- Attribute fetching cost per page: 100 pages × 100 (attribute complexity factor)
-
-Total cost:
-
-`100 (pages) + 100 × 100 (attributes) = 10,100`
-
-```grapqhl
-{
-  pages(first: 100) {
-    edges {
-      node {
-        id
-        attributes {
-          __typename
-        }
-      }
-    }
-  }
-}
-```
-
 
 ## Deprecation of Saleor plugins
 
