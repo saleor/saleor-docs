@@ -19,16 +19,22 @@ mutation {
     id: "VHJhbnNhY3Rpb25JdGVtOjljY2NkYTYyLTllMjktNGE0OC05NzIyLWRlYzAwOTRmZmY5Yg=="
     actionType: REFUND
     amount: "10"
+    reason: "Customer requested a refund"
+    reasonReference: "xXyzaXdaxbX" # ID of a model representing the reason for the refund
+
   ) {
     transaction {
       events {
         id
-        message
+        message # Will contain the "reason" value
         pspReference
         amount {
           amount
         }
         type
+        reasonReference {
+          id
+        }
       }
     }
   }
@@ -40,6 +46,8 @@ The mutation accepts below arguments:
 - `id` - ID of the transaction which will be used to trigger the refund action.
 - `actionType` - The type of action to be performed on the requested `TransactionItem`. For a refund action, use `REFUND`.
 - `amount` - The amount of the action. The amount is rounded based on the given currency precision. If not provided Saleor will use `TransactionItem.chargedAmount`.
+- `reason` - Optional plain text reason for the refund. Will be populated to the `TransactionEvent.message` field.
+- `reasonReference` - The ID of a model representing the reason for the refund. This is useful for tracking and reporting purposes, like aggregating refunds by specific type.
 
 ## Grant refunds
 
@@ -99,6 +107,7 @@ mutation {
       grantRefundForShipping: true
       amount: 10
       reason: "Returned by customer"
+
     }
   ) {
     grantedRefund {
@@ -130,6 +139,7 @@ The mutation accepts below arguments:
 - `id` - ID of the `OrderLine`.
 - `quantity` - The quantity of the specific lines planned to refund.
 - `reason` - Reason of the refund related to the specific line.
+- `reasonReference` - The ID of a model representing the reason for the refund. This is useful for tracking and reporting purposes, like aggregating refunds by specific type.
 - `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
 - `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
 - `transactionId` - ID of `TransactionItem` that will be used to process the refund. If `amount` is provided in the input, the `transaction.chargedAmount` needs to be equal to or greater than the provided `amount`. If `amount` is not provided in the input and calculated automatically by Saleor, the `min(calculatedAmount, transaction.chargedAmount)` will be used. This field was added in Saleor 3.20, and it will be a mandatory input field starting from Saleor 3.21.
@@ -152,6 +162,7 @@ mutation {
       amount: 10
       grantRefundForShipping: false
       reason: "New reason"
+      reasonReference: "xXyzaXdaxbX"
     }
   ) {
     grantedRefund {
@@ -179,6 +190,7 @@ The mutation accepts below arguments:
 - `id` - ID of the `OrderLine`.
 - `quantity` - The quantity of the specific lines planned to refund.
 - `reason` - Reason for the planned refund related to the specific line.
+- `reasonReference` - The ID of a model representing the reason for the refund. This is useful for tracking and reporting purposes, like aggregating refunds by specific type.
 - `removeLines` - List of `OrderGrantedRefundLine`'s IDs that should be removed from `OrderGrantedRefund`.
 - `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
 - `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
@@ -291,3 +303,35 @@ Below is an example order with multiple transactions and `totalRemainingGrant` a
   It also means that `totalChargedAmount` includes `amountChargePending`, and `totalRefundedAmount` includes `amountRefundPending`.
 - Authorized amounts, including `amountAuthorized` and `amountAuthorizePending`, are also considered processed. These amounts will contribute to the overall processed totals and impact the `overchargedAmount`.
   :::
+
+
+
+
+## Refund settings
+
+While `reason` field is optional and remains a plain text field, the `reasonReference` can be configured:
+- Require staff user to pass `reasonReference` for all refunds.
+- Make `reasonReference` optional
+
+To change the settings, you can either use the Dashboard or a mutation
+
+```graphql
+mutation UpdateRefundSettings($id: ID) {
+    refundSettingsUpdate(input: {
+      reasonReferenceType: $id
+    }) {
+        reasonReferenceType
+    }
+}
+```
+
+- input `reasonReferenceType` - the ID of a Model Type. All models that are instances of this type will be available to reference in the reasons.
+
+Mutation returns `RefundSettings` object with `reasonReferenceType: PageType` if set.
+
+Once `reasonReferenceType` is set, staff users will have to provide the `reasonReference` field when processing refunds.
+The `reasonReference` will be validated against the provided type, and if it does not match, an error will be returned.
+
+However, apps can still process refunds without providing the `reasonReference` field, as it is not a mandatory field for apps.
+
+To disable the requirement, pass `reasonReferenceType: null` in the mutation input.
