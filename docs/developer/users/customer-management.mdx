@@ -26,40 +26,41 @@ there is no immediate need to set a password. Instead, a link for setting the pa
 This provides a convenient way to onboard customers.
 
 :::info
-A set password email will be sent only if both `redirectUrl` and `channel` are provided in the `customerCreate` mutation.
+A set password email is sent only if both `redirectUrl` and `channel` are provided in the `customerCreate` mutation and the relevant plugin or app is subscribed to the correct event.
 :::
 
 ## Updating Customer Data
-If your storefront does not expose profile editing, customer data such as name or email can be updated through the API by staff users or app.
-You can update or manage customer data using either the Dashboard or the API:
+If your storefront does not expose profile editing, staff users or apps can update customer data through the Dashboard or the API:
 
-- **Dashboard:** Staff users can edit customer details (name, email, addresses, etc.) directly in the **Customers** section. This is ideal for manual corrections or support requests.
-- **API:** Staff users or apps can update customer data programmatically using the [`customerUpdate`](/api-reference/users/mutations/customer-update.mdx) mutation. This is useful for automated processes, syncing with external systems, or bulk updates.
+- **Dashboard:** Edit customer details (name, email, addresses, etc.) directly in the `Customers` section.
+- **API:** Use the [`customerUpdate`](/api-reference/users/mutations/customer-update.mdx) mutation to update details programmatically.
 
 ## Delete a Customer
 - **Dashboard:** Staff users can remove customer directly in the **Customers** section.
 - **API:** Use the [`customerDelete`](/api-reference/users/mutations/customer-delete.mdx) mutation.
 
 ## Migrating Customers to Saleor
-You can migrate customers from an existing system to Saleor using an Identity Provider (IdP) with the OpenID Connect (OIDC) plugin. 
-With OIDC integration configured, customer accounts are automatically created in Saleor the first time users log in via your IdP. 
-The OIDC plugin stores the IdP's authorization key in the customer's private metadata.
 
-### Implementation Steps
-1. **Configure OIDC Plugin:**
-   - Go to Extensions → Add Extension → Explore
-   - Find OpenID Connect (OIDC) and click Install
-   - Configure your IdP settings (Client ID/Secret, Authorization/Token URLs, JSON Web Key Set URL, User Info URL)
-   - For detailed steps, see [OIDC Plugin documentation](/developer/app-store/plugins/oidc.mdx)
-2. **Set Up Authentication Flow:**
-   - Configure your frontend to use the IdP for authentication.
-   - When users log in, Saleor will:
-     - Create a new customer account if one doesn't exist.
-     - Store the IdP's authorization key in user private metadata.
-   - For implementation details, see [Authentication using OpenID Connect](/api-usage/authentication.mdx#user-authentication-using-openid-connect).
+If you are migrating an existing store to Saleor and need to import your existing customers:
+
+### Create Customers via API
+For each customer, run the [`customerCreate`](/api-reference/users/mutations/customer-create.mdx) mutation.
+You can't directly transfer password hashes, you need to allow customers to set their passwords. 
+To send password-setup emails, include both the `redirectUrl` and `channel` parameters in the mutation.
+Ensure that the relevant plugin or app for sending customer emails is enabled.
+
+### Using Identity Provider
+
+If you use an identity provider (IdP) for login, customer accounts will be automatically created
+ or linked in Saleor the first time users sign in via the configured IdP.
+The OIDC plugin stores the IdP’s authorization key in the customer’s private metadata.
+
+
+Learn how to set up the OIDC plugin in the [OIDC guide](/api-usage/authentication.mdx#user-authentication-using-openid-connect).
+
 
 :::info
-All anonymous orders placed using a given email address will be automatically linked to the corresponding customer account after the user logs in via the configured Identity Provider (IdP).
+All anonymous orders placed using a given email address will be automatically linked to the corresponding customer account after the user logs in.
 :::
 
 ## Extending Customers with Metadata
