@@ -15,17 +15,24 @@ The vouchers on draft orders are applicable since v3.19.
 Vouchers come in three types:
 
 - `ENTIRE_ORDER`: Applies discount to the checkout subtotal
-- `SPECIFIC_PRODUCT`: Applies discount to eligible product unit prices. You define eligibility by linking products, categories, collections, or variants using the [`voucherCataloguesAdd`](api-reference/discounts/mutations/voucher-catalogues-add.mdx) mutation.
-- `SHIPPING`: Applies discount to shipping costs
+- `SPECIFIC_PRODUCT`: Applies discount to eligible product unit prices. You define eligibility by linking products, variants, categories, or collections.
+- `SHIPPING`: Applies discount to shipping costs. To apply a shipping voucher, the checkout must include shippable products, shipping address, and a shipping method assigned.
 
 Vouchers also have two value types:
 
 - `FIXED`: Reduces price by a specific amount
 - `PERCENTAGE`: Reduces price by a specific percentage
 
+:::note
+**Vouchers vs Gift Cards**
+
+Vouchers discount the subtotal, unit price, or shipping based on their type and are scoped to channels. 
+Gift cards reduce the total price and are currency-based, usable across channels with the same currency.
+:::
+
 ## Voucher Settings
 ### Apply Once Per Order
-When the `Voucher.applyOncePerOrder` setting is enabled, the discount is applied only once per order, targeting the cheapest eligible item.
+When the `Voucher.applyOncePerOrder` setting is enabled, the discount is applied only once per order, targeting the cheapest item.
 The discount affects a single unit, not the entire order line.
 
 - For **product-specific vouchers**: applies to the cheapest item included in the discount.
@@ -37,10 +44,10 @@ The value is defined per sales channel via `VoucherChannelListing.minSpent`.
 
 If the subtotal does not meet this threshold, the voucher will not be applied.
 
-**Example:** If `minAmountSpent` is set to 100.00, and the subtotal is 95.96 with 10.00 shipping (total 105.96), the voucher will not be applied.
+**Example:** If `minSpent` is set to 100.00, and the subtotal is 95.96 with 10.00 shipping (total 105.96), the voucher will not be applied.
 
 ### Minimal Items Quantity
-Specifies the minimum number of products in the cart required to redeem the voucher. 
+`Voucher.minCheckoutItemsQuantity` specifies the minimum number of products in the cart required to redeem the voucher. 
 This is based on the total quantity of items, not unique products.
 
 ## Usage Limits
@@ -49,7 +56,7 @@ By default, vouchers have no usage limits and can be applied indefinitely.
 
 ### Total Usage Limit
 
-Set **Limit number of times this discount can be used in total** (`usageLimit`) to restrict how many times the voucher can be used across all customers.
+Set **limit number of times this discount can be used in total** (`usageLimit`) to restrict how many times the voucher can be used across all customers.
 
 - Once this number is reached, the voucher can no longer be applied.
 - If the voucher includes multiple codes, the limit applies to the total combined usage of all codes.
@@ -66,7 +73,7 @@ This setting can only be updated on existing vouchers when no code has been used
 Voucher `usageLimit` and `singleUse` must be set before the voucher is used. Once the voucher has been applied in any checkout or order, these settings cannot be changed.
 :::
 ### Limit Per Customer
-Enable **Limit to one use per customer** (`applyOncePerCustomer`) to allow each customer to use the voucher only once, even if the total usage limit hasn’t been reached.
+Enable **limit to one use per customer** (`applyOncePerCustomer`) to allow each customer to use the voucher only once, even if the total usage limit hasn’t been reached.
 
 Voucher usage is counted after the order has been completed. Customers can apply the voucher to multiple checkouts or draft orders, but it will only be marked as used once an order is placed.
 
@@ -74,12 +81,12 @@ If the same customer tries to complete another order with the voucher, it will b
 
 ### Staff-Only Voucher
 
-Enable **Limit to staff only** (`onlyForStaff`) to restrict voucher usage to internal users, such as store staff or admins.
+Enable **limit to staff only** (`onlyForStaff`) to restrict voucher usage to internal users, such as store staff or admins.
 
 These vouchers will be rejected if applied by non-staff customers, even if all other conditions are met.
 
 :::warning
-You can enable or disable applyOncePerCustomer or onlyForStaff at any time. 
+You can enable or disable `applyOncePerCustomer` or `onlyForStaff` at any time. 
 However, these settings do not apply retroactively - for example, if a customer used the voucher before `applyOncePerCustomer` was enabled, they may still be able to use it again.
 :::
 
@@ -139,12 +146,17 @@ All vouchers are disconnected from existing draft orders. This ensures a clean r
 - Single-use voucher codes: Become active again (VoucherCode.isActive = true).
 - Per-customer limits (applyOncePerCustomer): The usage will be dissociated from users (VoucherCustomer entry).
 
-Voucher code will also be released, after the draft order deletion.
-
 
 :::note 
 When importing draft orders with [`bulkOrderCreate`](developer/bulks/bulk-orders.mdx), vouchers aren't validated and usage isn't counted.
 :::
+
+### Releasing Voucher Usage
+
+- Canceling an order: Does not release voucher code usage.
+- Order expiration: Releases voucher code usage.
+- Deleting a draft order: Releases voucher code usage when draft orders are included in usage tracking.
+
 
 ## Permissions
 
@@ -265,9 +277,6 @@ Here is the response:
 When a voucher contains multiple codes, `voucher.code` returns the first code.
 :::
 
-:::info
-When a voucher contains multiple codes, `voucher.code` returns the first code.
-:::
 
 ### Updating a Voucher
 
@@ -1021,6 +1030,7 @@ The total `checkout.discount` is **$2.0** in this case. The difference between
 
 
 ### Shipping Voucher
+To apply a shipping voucher, the checkout must include shippable products, a provided shipping address, and a shipping method assigned.
 
 In this example the checkout consists of one line for **$100**, shipping price for **$20** and **50%** shipping voucher. 
 The discount affects shipping price only.
@@ -1100,6 +1110,135 @@ Response:
 ```
 
 For more complex cases, please check [Examples](developer/discounts/examples.mdx) section.
+
+## Automatic Voucher Invalidation
+
+Vouchers applied to a checkout can be automatically removed when conditions for their validity are no longer met. 
+This ensures that discounts are only applied when all required criteria are satisfied.
+
+Below are examples of scenarios that trigger voucher removal.
+
+### Shipping method removal invalidates shipping voucher
+
+**Scenario:**
+
+1. Checkout has 2 lines and a shipping method assigned.
+2. A shipping voucher is applied.
+3. One checkout line is removed.
+4. The assigned shipping method is no longer valid for the updated checkout (e.g., weight, location, or product eligibility changes).
+5. The shipping method is automatically removed from the checkout.
+
+Since the shipping method is removed, the shipping voucher is also automatically unassigned.
+
+**Before removing a line:**
+```json
+"checkout": {
+            "isShippingRequired": true,
+            "voucherCode": "shipping",
+            "deliveryMethod": {
+                "id": "U2hpcHBpbmdNZXRob2Q6MzE=",
+                "name": "ups",
+            },
+            "lines": [
+                {
+                    "id": "Q2hlY2tvdXRMaW5lOmE4NWJjNDkwLTEwMjAtNDU5Zi1iYmMzLWNmZTYyYmI4Y2I1Ng==",
+                    "quantity": 1,
+                    "requiresShipping": true,
+                },
+                {
+                    "id": "Q2hlY2tvdXRMaW5lOmVkMDE2YzY0LTdhZjctNGI0Ny1hYjJjLWJmMDc2NWM3MzQxNg==",
+                    "quantity": 2,
+                    "requiresShipping": false,
+                }
+            ],
+            "totalPrice": {
+                "gross": {
+                    "amount": 120.0
+                }
+            }
+        }
+```
+
+**After removing one line (shipping method becomes invalid):**
+```json
+"checkout": {
+            "isShippingRequired": false,
+            "voucherCode": null,         // voucher removed
+            "deliveryMethod": null,      // shipping method removed
+            "lines": [
+                {
+                    "id": "Q2hlY2tvdXRMaW5lOmVkMDE2YzY0LTdhZjctNGI0Ny1hYjJjLWJmMDc2NWM3MzQxNg==",
+                    "quantity": 2,
+                    "requiresShipping": false,
+                }
+            ],
+            "totalPrice": {
+                "gross": {
+                    "amount": 80.0
+                }
+            }
+        }
+```
+### Subtotal change invalidates minimum spent voucher
+
+**Scenario:**
+
+1. Checkout has 2 lines and a valid shipping method assigned.
+2. A voucher with a minimum spent amount condition is applied.
+3. One line is removed from the checkout.
+4. The checkout subtotal drops below the voucher’s minimum requirement.
+
+The voucher is automatically removed, but the shipping method remains assigned.
+
+**Before removing a line:**
+```json
+"checkout": {
+            "voucherCode": "minus15",
+            "deliveryMethod": {
+                "id": "U2hpcHBpbmdNZXRob2Q6MzE=",
+                "name": "ups",
+                "active": true
+            },
+            "lines": [
+                {
+                    "id": "Q2hlY2tvdXRMaW5lOjBiNTQyOGUwLTY0YmQtNGZkZS05MDExLWY2ODYzZDI2MjIzYQ==",
+                    "quantity": 1
+                },
+                {
+                    "id": "Q2hlY2tvdXRMaW5lOjQyOWNhMzZkLTIwZTMtNDc4OS1hN2JhLTcxOTFjZDAwOGFjZg==",
+                    "quantity": 2
+                }
+            ],
+            "totalPrice": {
+                "gross": {
+                    "amount": 112.0
+                }
+            }
+        }
+```
+
+**After removing one line (subtotal below requirement):**
+```json
+"checkout": {
+            "voucherCode": null,
+            "deliveryMethod": {
+                "id": "U2hpcHBpbmdNZXRob2Q6MzE=",
+                "name": "ups",
+                "active": true
+            },
+            "lines": [
+                {
+                    "id": "Q2hlY2tvdXRMaW5lOjBiNTQyOGUwLTY0YmQtNGZkZS05MDExLWY2ODYzZDI2MjIzYQ==",
+                    "quantity": 1
+                }
+            ],
+            "totalPrice": {
+                "gross": {
+                    "amount": 50.0
+                }
+            }
+        }
+```
 
 ## Combining Promotions and Vouchers
 
