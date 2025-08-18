@@ -1,80 +1,200 @@
 ---
 title: Vouchers
 sidebar_label: Vouchers
+description: Learn about voucher types, settings, usage limits, and how to create and manage vouchers in Saleor. 
 ---
 
 Vouchers are a way to apply discounts to orders or they can be used to reduce the cost of a checkout. Vouchers can be applied to the entire order
-or to specific products. They can also be limited to a minimum quantity of products in the checkout. Vouchers and [promotions](developer/discounts/promotions.mdx) can be used together.
+or to specific products. They can also be limited to a minimum quantity of products in the checkout. Vouchers and [catalog promotions](developer/discounts/promotions.mdx) can be used together.
+
+To learn how to redeem voucher codes during checkout or in draft orders, see [Applying Vouchers](/developer/discounts/apply-vouchers.mdx).
 
 :::info
 The vouchers on draft orders are applicable since v3.19.
 :::
 
-### Types
+## Types
 
-There are three types of vouchers:
+Vouchers come in three types:
 
-- `ENTIRE_ORDER`: the discount is applied on the subtotal value of checkout
-- `SPECIFIC_PRODUCT`: the discount is applied to the unit price of each eligible product. Eligibility is defined by linking products, categories, collections, or variants using the [`voucherCataloguesAdd`](api-reference/discounts/mutations/voucher-catalogues-add.mdx) mutation.
-- `SHIPPING`: the discount is applied on the shipping price
+- `ENTIRE_ORDER`: Applies discount to the checkout subtotal
+- `SPECIFIC_PRODUCT`: Applies discount to eligible product unit prices. You define eligibility by linking products, variants, categories, or collections.
+- `SHIPPING`: Applies discount to shipping costs. To apply a shipping voucher, the checkout must include shippable products, shipping address, and a shipping method assigned.
 
-We can also distinguish vouchers by their value type:
+Vouchers also have two value types:
 
-- `FIXED`: reduces the price by a specified value.
-- `PERCENTAGE`: reduces the price by a specified percentage value.
+- `FIXED`: Reduces price by a specific amount
+- `PERCENTAGE`: Reduces price by a specific percentage
 
-By setting `Voucher.applyOncePerOrder`, there is an option to apply the discount only to the cheapest eligible product.
-The discount applies to a single unit of the product, not the entire order line.
-If the voucher specifies certain products, the discount will be applied only to the cheapest item included in the discount.
-If the voucher applies to all products, the discount will be applied only to the cheapest item overall.
+:::note
+**Vouchers vs Gift Cards**
 
-To apply the voucher on checkout use [`checkoutAddPromoCode`](api-reference/checkout/mutations/checkout-add-promo-code.mdx)
-mutation. The discount will be visible both in the line prices and in the `checkout.discount` field.
-To apply the voucher on draft order use [`draftOrderCreate`](api-reference/orders/mutations/draft-order-create.mdx) or [`draftOrderUpdate`](api-reference/orders/mutations/draft-order-update.mdx)
-and pass `voucherCode` as an argument.
-
-### Usage limits
-
-There are multiple ways to limit a voucher's usage, but default voucher codes can be used without any limits. To change that `usageLimit` can be set
-to limit the number of times a voucher can be used. The voucher will be unavailable for further use when the limit is reached.
-If the voucher has multiple codes, the limit is calculated as the sum of all codes usage.
-
-Another way to limit the usage of a voucher is to set the `applyOncePerCustomer` field to `true`. In this case, the voucher code will be
-available for use only once per customer.
-
-The voucher can be also set as single-use, when `singleUse` flag is set to `true`. In this case, each code from the voucher can be used only once and then the code will be deactivated after use.
-**This flag can be updated on existing voucher only when no code has been used yet.**
-
-Those limitation options can be combined. For example, if `usageLimit` is set to `10` and `applyOncePerCustomer` is set to `true`, the voucher can be used by the first 10 users.
-
-:::warning
-Shuffling voucher settings might result in a mismatch between the `voucher.used` field and the number of orders utilizing the voucher.
-Saleor operates on the general assumption that updating the voucher settings should not affect existing orders if possible.
+Vouchers discount the subtotal, unit price, or shipping based on their type and are scoped to channels. 
+Gift cards reduce the total price and are currency-based, usable across channels with the same currency.
 :::
 
-### Voucher usage in draft orders
+## Voucher Settings
+### Apply Once Per Order
+When the `Voucher.applyOncePerOrder` setting is enabled, the discount is applied only once per order, targeting the cheapest item.
+The discount affects a single unit, not the entire order line.
 
-Saleor is able to calculate voucher usage in draft orders. To turn on such a behavior, `includeDraftOrderInVoucherUsage` flag for the given `Channel` must be set to `true`. Use [`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation to switch the flag.
+- For **product-specific vouchers**: applies to the cheapest item included in the discount.
+- For **entire order vouchers**: applies to the cheapest item overall.
 
-When the `includeDraftOrderInVoucherUsage` flag is changed from `false` to `true`, **vouchers will be disconnected from all draft orders.**
+### Minimal Order Value
+Specifies the minimum checkout subtotal required for the voucher to be applicable.
+The value is defined per sales channel via `VoucherChannelListing.minSpent`.
 
-When the `includeDraftOrderInVoucherUsage` flag is changed from `true` to `false`, all vouchers will be released. It means:
+If the subtotal does not meet this threshold, the voucher will not be applied.
 
-- multiple-use voucher codes will reduce their usage by a number of draft orders that utilize the code (`VoucherCode.used` field)
-- single-use voucher codes will become active again (`VoucherCode.isActive` field)
-- in case of `applyOncePerCustomer` setting on, the usage will be dissociated from users (`VoucherCustomer` entry)
+**Example:** If `minSpent` is set to 100.00, and the subtotal is 95.96 with 10.00 shipping (total 105.96), the voucher will not be applied.
 
-Voucher code will also be released, after the draft order deletion.
+### Minimal Items Quantity
+`Voucher.minCheckoutItemsQuantity` specifies the minimum number of products in the cart required to redeem the voucher. 
+This is based on the total quantity of items, not unique products.
 
-When importing a draft order using [`bulkOrderCreate`](developer/bulks/bulk-orders.mdx) mutation, the voucher is not validated, therefore code usage will not be counted.
+### Limit Shipping Vouchers to Specific Countries
 
-### Permissions
+`Voucher.countries` defines a list of countries where the shipping voucher can be applied.
+- If set, the voucher will only be valid for orders shipping to the specified countries.
+- If left empty, the voucher will be valid for all countries.
 
-Managing promotions is available for users and apps with the `MANAGE_DISCOUNTS` permission.
+**Example:**
+```json
+{
+  "countries": ["US", "CA", "GB"]
+}
+```
+In this example, the voucher is only valid for shipments to the United States, Canada, and the United Kingdom.
 
-## Create and update a voucher
 
-### Creating voucher
+## Usage Limits
+This section explains how to control how many times and by whom a voucher can be redeemed. 
+By default, vouchers have no usage limits and can be applied indefinitely. 
+
+### When Usage Is Counted
+
+Voucher usage is **deducted at the order level**, not when a code is applied in checkout.  
+
+- Customers can apply vouchers to multiple checkouts or draft orders.  
+- The usage count is only increased once an order is successfully completed.  
+- For draft orders, you can decide whether they should be included in voucher usage tracking. See [Draft Order Usage](#draft-order-usage) for details.  
+- If a voucher has reached its usage limit:
+  - Checkouts or draft orders that already have the voucher applied will fail at **order completion**.  
+  - Attempts to apply the voucher to a new checkout or draft order will be rejected immediately.  
+
+This ensures that incomplete or abandoned checkouts do not block other customers from redeeming the voucher, while preventing over-usage once the limit is reached.
+
+### Total Usage Limit
+
+Set **limit number of times this discount can be used in total** (`usageLimit`) to restrict how many times the voucher can be used across all customers.
+
+- Once this number is reached, the voucher can no longer be applied.
+- If the voucher includes multiple codes, the limit applies to the total combined usage of all codes.
+- The number of times the voucher has been used is shown in the `Voucher.used` field.
+- `Voucher.used` only counts usage if a limit was set. 
+
+### Limit to Use Once
+
+**Limit to voucher code use once** (`singleUse`) makes each individual code within a voucher usable only once. After a code is used, it is automatically marked as inactive and cannot be reused.
+
+This setting can only be updated on existing vouchers when no code has been used yet.
+
+:::warning
+Voucher `usageLimit` and `singleUse` must be set before the voucher is used. Once the voucher has been applied in any checkout or order, these settings cannot be changed.
+:::
+
+### Limit Per Customer
+Enable **limit to one use per customer** (`applyOncePerCustomer`) to allow each customer to use the voucher only once, even if the total usage limit hasn’t been reached.
+
+If the same customer tries to use the voucher again, it will be rejected — either when applying the code to a new checkout or at order completion.
+
+### Staff-Only Voucher
+
+Enable **limit to staff only** (`onlyForStaff`) to restrict voucher usage to internal users, such as store staff or admins.
+
+These vouchers will be rejected if applied by non-staff customers, even if all other conditions are met.
+
+:::warning
+You can enable or disable `applyOncePerCustomer` or `onlyForStaff` at any time. 
+However, these settings do not apply retroactively - for example, if a customer used the voucher before `applyOncePerCustomer` was enabled, they may still be able to use it again.
+:::
+
+### Combining Limitations
+
+You can combine different usage limits to control exactly how, how often, and by whom a voucher can be used. Below are common combinations and how they behave in practice:
+
+#### Total Usage Limit + Limit Per Customer
+
+**Setup:**
+- One voucher code
+- Total usage limit: 50
+- Limit to one use per customer: Enabled
+
+**Result:**
+
+The voucher can be used by up to 50 different customers, with each customer allowed only one use. A single customer cannot use the voucher multiple times, and the codes cannot be applied after 50 unique redemptions.
+
+#### Total Usage Limit + Single-Use Codes
+
+**Setup:**
+- Generated 10 unique codes
+- Total usage limit: 10
+- Enable single use setting
+
+**Result:**
+
+The voucher campaign supports 10 redemptions total, each tied to a unique code. Once a code is used, it's deactivated.
+
+#### Single-Use Codes + Staff-Only Voucher
+
+**Setup:**
+- Generate 20 unique codes
+- Enable single use setting
+- Enable Only for staff setting
+
+**Result:**
+
+Each code can be used once, and only by staff users. If a non-staff customer attempts to apply a code, it will be rejected.
+
+### Draft Order Usage
+
+By default, vouchers applied to draft orders do not count toward voucher usage limits. 
+
+If you want draft orders to be included in voucher usage tracking, you can enable this behavior in the channel settings by setting the `includeDraftOrderInVoucherUsage` flag to `true` using the [`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation.
+
+#### Changing the Flag
+When you toggle the `includeDraftOrderInVoucherUsage` setting, Saleor adjusts how vouchers are counted and linked to draft orders.
+
+**False → True**
+
+All vouchers are disconnected from existing draft orders. This ensures a clean reset before draft usage starts being counted.
+
+**True → False**
+
+- Multi-use voucher codes: The used count (`VoucherCode.used`) is reduced by the number of draft orders using the code.
+- Single-use voucher codes: Become active again (`VoucherCode.isActive = true`).
+- Per-customer limits (`applyOncePerCustomer`): The usage will be dissociated from users.
+
+
+:::note 
+When importing draft orders with [`bulkOrderCreate`](developer/bulks/bulk-orders.mdx), vouchers aren't validated and usage isn't counted.
+:::
+
+### Releasing Voucher Usage
+
+- Canceling an order: Does not release voucher code usage.
+- Order expiration: Releases voucher code usage.
+- Deleting a draft order: Releases voucher code usage when draft orders are included in usage tracking.
+
+
+## Permissions
+
+You need the `MANAGE_DISCOUNTS` permission to manage vouchers.
+
+## Create and Update Vouchers
+
+### Creating a Voucher
 
 To create a voucher use [`voucherCreate`](api-reference/discounts/mutations/voucher-create.mdx) mutation.
 
@@ -187,7 +307,8 @@ Here is the response:
 When a voucher contains multiple codes, `voucher.code` returns the first code.
 :::
 
-### Updating voucher
+
+### Updating a Voucher
 
 To update a voucher use [`voucherUpdate`](api-reference/discounts/mutations/voucher-update.mdx) mutation.
 
@@ -294,7 +415,7 @@ Here is the response:
 }
 ```
 
-### Selecting Products for voucher
+### Selecting Products for Voucher
 
 To make a voucher applicable to specific products, you need to define which items should be eligible for the discount. This can be done by adding or removing products, categories, collections, or variants from the voucher's catalog. The catalog defines the scope of items that the voucher can be applied to.
 
@@ -442,962 +563,6 @@ Input variables:
 }
 ```
 
-
-## Applying a voucher
-
-### Applying the entire order voucher
-
-In the example below, the entire order voucher with a fixed discount of **$5** is applied at checkout.
-The order consists of two lines: the first for **$4** and the second for **$45**.
-
-```graphql
-mutation {
-  checkoutAddPromoCode(
-    token: 7303902b-dda8-4357-95a0-64b83b59e2e2, promoCode: "DISCOUNT"
-  ) {
-    errors {
-      field
-      message
-      code
-    }
-    checkout {
-      id
-      token
-      voucherCode
-      discountName
-      discount {
-        amount
-      }
-      subtotalPrice {
-        tax {
-          amount
-        }
-        gross {
-          amount
-        }
-        net {
-          amount
-        }
-      }
-      lines {
-        quantity
-        totalPrice {
-          net {
-            amount
-          }
-          gross {
-            amount
-          }
-        }
-        undiscountedTotalPrice {
-          amount
-        }
-        unitPrice {
-          net {
-            amount
-          }
-          gross {
-            amount
-          }
-        }
-        undiscountedUnitPrice {
-          amount
-        }
-      }
-    }
-  }
-}
-```
-
-Here is the response:
-
-```json {11,27-37,52-62}
-{
-  "data": {
-    "checkoutAddPromoCode": {
-      "errors": [],
-      "checkout": {
-        "id": "Q2hlY2tvdXQ6OTNmMWQxZjItMjBjNC00ZWMyLTkwYzgtOThjYmEzY2YyNTU1",
-        "token": "93f1d1f2-20c4-4ec2-90c8-98cba3cf2555",
-        "voucherCode": "DISCOUNT",
-        "discountName": "Big order discount",
-        "discount": {
-          "amount": 5.0
-        },
-        "subtotalPrice": {
-          "tax": {
-            "amount": 0.0
-          },
-          "gross": {
-            "amount": 44.0
-          },
-          "net": {
-            "amount": 44.0
-          }
-        },
-        "lines": [
-          {
-            "quantity": 1,
-            "totalPrice": {
-              "net": {
-                "amount": 3.59
-              },
-              "gross": {
-                "amount": 3.59
-              }
-            },
-            "undiscountedTotalPrice": {
-              "amount": 4.0
-            },
-            "unitPrice": {
-              "net": {
-                "amount": 3.59
-              },
-              "gross": {
-                "amount": 3.59
-              }
-            },
-            "undiscountedUnitPrice": {
-              "amount": 4.0
-            }
-          },
-          {
-            "quantity": 1,
-            "totalPrice": {
-              "net": {
-                "amount": 40.41
-              },
-              "gross": {
-                "amount": 40.41
-              }
-            },
-            "undiscountedTotalPrice": {
-              "amount": 45.0
-            },
-            "unitPrice": {
-              "net": {
-                "amount": 40.41
-              },
-              "gross": {
-                "amount": 40.41
-              }
-            },
-            "undiscountedUnitPrice": {
-              "amount": 45.0
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-The discount is visible on both the `checkout.discount` field and the prices in `checkout.lines`.
-In the first line, the `totalPrice` is **$0.41** less than the `undiscountedTotalPrice`,
-while the difference in the second line is **$4.59**.
-The `checkout.discount` is the sum of the differences between `totalPrice` and `undiscountedTotalPrice` of the lines.
-
-For more complex cases, please check [Examples](developer/discounts/examples.mdx) section.
-
-:::info
-If the user applied a fixed-amount order voucher during checkout, and the order contains multiple lines,
-the discount will be distributed evenly in proportion to the total price of each line.
-:::
-
-### Applying the once-per-order entire order voucher
-
-If a voucher with the `applyOncePerOrder` flag set to `True` is used in a similar scenario,
-the discount will only apply to the cheapest eligible product. In this checkout,
-the cheapest eligible product is priced at **$4**.
-Therefore, the discount will be $4 and will only appear on one line.
-
-Refer to the response from running the same mutation as before.
-The `checkout.discount` is **4.0**. The cheapest line's `totalPrice` is **0.0**,
-and the `undiscountedTotalPrice` is **4.0**.
-
-```json {11,27-37}
-{
-	"data": {
-		"checkoutAddPromoCode": {
-			"errors": [],
-			"checkout": {
-				"id": "Q2hlY2tvdXQ6OTNmMWQxZjItMjBjNC00ZWMyLTkwYzgtOThjYmEzY2YyNTU1",
-				"token": "93f1d1f2-20c4-4ec2-90c8-98cba3cf2555",
-				"voucherCode": "DISCOUNT",
-				"discountName": "Big order discount",
-				"discount": {
-					"amount": 4.0
-				},
-				"subtotalPrice": {
-					"tax": {
-						"amount": 0.0
-					},
-					"gross": {
-						"amount": 45.0
-					},
-					"net": {
-						"amount": 45.0
-					}
-				},
-				"lines": [
-					{
-						"quantity": 1,
-						"totalPrice": {
-							"net": {
-								"amount": 0.0
-							},
-							"gross": {
-								"amount": 0.0
-							}
-						},
-						"undiscountedTotalPrice": {
-							"amount": 4.0
-						},
-						"unitPrice": {
-							"net": {
-								"amount": 0.0
-							},
-							"gross": {
-								"amount": 0.0
-							}
-						},
-						"undiscountedUnitPrice": {
-							"amount": 4.0
-						}
-					},
-					{
-						"quantity": 1,
-						"totalPrice": {
-							"net": {
-								"amount": 45.0
-							},
-							"gross": {
-								"amount": 45.0
-							}
-						},
-						"undiscountedTotalPrice": {
-							"amount": 45.0
-						},
-						"unitPrice": {
-							"net": {
-								"amount": 45.0
-							},
-							"gross": {
-								"amount": 45.0
-							}
-						},
-						"undiscountedUnitPrice": {
-							"amount": 45.0
-						}
-					}
-				]
-			}
-		}
-	}
-```
-
-### Applying the specific product voucher
-
-In the following example, a **10%** voucher for a specific product is applied during checkout.
-The discount applies to the first two lines, one for **$45** and the other for **$20**, but not to the third line for **$1.99**.
-The response of running the `checkoutAddPromoCode` mutation with the voucher code for this discount is shown below:
-
-```json {11,27-37,52-62,77-87}
-{
-  "data": {
-    "checkoutAddPromoCode": {
-      "errors": [],
-      "checkout": {
-        "id": "Q2hlY2tvdXQ6YWJlZTQzNTEtMGZjMS00MWYzLTk1YzEtMTIyMTc4NWMwYzY2",
-        "token": "abee4351-0fc1-41f3-95c1-1221785c0c66",
-        "voucherCode": "SPECIFIC PRODUCT",
-        "discountName": null,
-        "discount": {
-          "amount": 6.5
-        },
-        "subtotalPrice": {
-          "tax": {
-            "amount": 0.0
-          },
-          "gross": {
-            "amount": 60.49
-          },
-          "net": {
-            "amount": 60.49
-          }
-        },
-        "lines": [
-          {
-            "quantity": 1,
-            "totalPrice": {
-              "net": {
-                "amount": 40.5
-              },
-              "gross": {
-                "amount": 40.5
-              }
-            },
-            "undiscountedTotalPrice": {
-              "amount": 45.0
-            },
-            "unitPrice": {
-              "net": {
-                "amount": 40.5
-              },
-              "gross": {
-                "amount": 40.5
-              }
-            },
-            "undiscountedUnitPrice": {
-              "amount": 45.0
-            }
-          },
-          {
-            "quantity": 1,
-            "totalPrice": {
-              "net": {
-                "amount": 18.0
-              },
-              "gross": {
-                "amount": 18.0
-              }
-            },
-            "undiscountedTotalPrice": {
-              "amount": 20.0
-            },
-            "unitPrice": {
-              "net": {
-                "amount": 18.0
-              },
-              "gross": {
-                "amount": 18.0
-              }
-            },
-            "undiscountedUnitPrice": {
-              "amount": 20.0
-            }
-          },
-          {
-            "quantity": 1,
-            "totalPrice": {
-              "net": {
-                "amount": 1.99
-              },
-              "gross": {
-                "amount": 1.99
-              }
-            },
-            "undiscountedTotalPrice": {
-              "amount": 1.99
-            },
-            "unitPrice": {
-              "net": {
-                "amount": 1.99
-              },
-              "gross": {
-                "amount": 1.99
-              }
-            },
-            "undiscountedUnitPrice": {
-              "amount": 1.99
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-As we can see, the 10% discount has been applied to the first two lines.
-The total discount amount is visible in the `checkout.discount` field, which is equal to
-the sum of the differences between the `undiscountedTotalPrice` and `totalPrice` of all lines.
-
-### Applying the once-per-order specific product voucher
-
-If the voucher has the `applyOncePerOrder` flag set to `True`, the discount will only be applied to
-the single cheapest product eligible for the discount. In the scenario described,
-the discount would only be applied to the product with a price of **$20**, and would be visible on only one line of the order.
-
-```json {11,27-37,52-62,77-87}
-{
-  "data": {
-    "checkoutAddPromoCode": {
-      "errors": [],
-      "checkout": {
-        "id": "Q2hlY2tvdXQ6YWJlZTQzNTEtMGZjMS00MWYzLTk1YzEtMTIyMTc4NWMwYzY2",
-        "token": "abee4351-0fc1-41f3-95c1-1221785c0c66",
-        "voucherCode": "SPECIFIC PRODUCT",
-        "discountName": null,
-        "discount": {
-          "amount": 2.0
-        },
-        "subtotalPrice": {
-          "tax": {
-            "amount": 0.0
-          },
-          "gross": {
-            "amount": 64.99
-          },
-          "net": {
-            "amount": 64.99
-          }
-        },
-        "lines": [
-          {
-            "quantity": 1,
-            "totalPrice": {
-              "net": {
-                "amount": 45.0
-              },
-              "gross": {
-                "amount": 45.0
-              }
-            },
-            "undiscountedTotalPrice": {
-              "amount": 45.0
-            },
-            "unitPrice": {
-              "net": {
-                "amount": 45.0
-              },
-              "gross": {
-                "amount": 45.0
-              }
-            },
-            "undiscountedUnitPrice": {
-              "amount": 45.0
-            }
-          },
-          {
-            "quantity": 1,
-            "totalPrice": {
-              "net": {
-                "amount": 18.0
-              },
-              "gross": {
-                "amount": 18.0
-              }
-            },
-            "undiscountedTotalPrice": {
-              "amount": 20.0
-            },
-            "unitPrice": {
-              "net": {
-                "amount": 18.0
-              },
-              "gross": {
-                "amount": 18.0
-              }
-            },
-            "undiscountedUnitPrice": {
-              "amount": 20.0
-            }
-          },
-          {
-            "quantity": 1,
-            "totalPrice": {
-              "net": {
-                "amount": 1.99
-              },
-              "gross": {
-                "amount": 1.99
-              }
-            },
-            "undiscountedTotalPrice": {
-              "amount": 1.99
-            },
-            "unitPrice": {
-              "net": {
-                "amount": 1.99
-              },
-              "gross": {
-                "amount": 1.99
-              }
-            },
-            "undiscountedUnitPrice": {
-              "amount": 1.99
-            }
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-Here, we can see that the discount was only applied to the cheapest line included in the voucher discount.
-The total `checkout.discount` is **$2.0** in this case. The difference between
-`totalPrice` and `undiscountedTotalPrice` is only visible on the second line.
-
-
-### Applying the shipping voucher
-
-In this example the checkout consists of one line for **$100**, shipping price for **$20** and **50%** shipping voucher. 
-The discount affects shipping price only.
-
-Request:
-```graphql
-mutation AddCheckoutPromoCode($checkoutId: ID!, $promoCode: String!) {
-  checkoutAddPromoCode(id: $checkoutId, promoCode: $promoCode) {
-    checkout {
-      id
-      token
-      voucherCode
-      discountName
-      discount {
-        amount
-      }
-      totalPrice {
-        net {
-          amount
-        }
-      }
-      subtotalPrice {
-        net {
-          amount
-        }
-      }
-      shippingPrice {
-        net {
-          amount
-        }
-      }
-    }
-  }
-}
-```
-
-```json
-{
-  "checkoutId": "Q2hlY2tvdXQ6ZDgwMWI3MjUtNzBmMC00NGNiLWFmNjctMmNmYjc4YmY5MTU4",
-  "promoCode": "code-123"
-}
-```
-
-
-Response:
-```json
-{
-   "data":{
-      "checkoutAddPromoCode": {
-         "checkout": {
-            "id": "Q2hlY2tvdXQ6ZDgwMWI3MjUtNzBmMC00NGNiLWFmNjctMmNmYjc4YmY5MTU4",
-            "token": "d801b725-70f0-44cb-af67-2cfb78bf9158",
-            "voucherCode": "code-123",
-            "discountName": "half-shipping",
-            "discount": {
-               "amount": 10.0
-            },
-            "totalPrice": {
-               "net": {
-                  "amount": 110.0
-               }
-            },
-            "subtotalPrice": {
-               "net": {
-                  "amount": 100.0
-               }
-            },
-            "shippingPrice": {
-               "net": {
-                  "amount": 10.0
-               }
-            }
-         }
-      }
-   }
-}
-```
-
-For more complex cases, please check [Examples](developer/discounts/examples.mdx) section.
-
-## Catalogue Promotion and Voucher together
-
-Catalogue promotions and vouchers can be combined. In this case, the voucher discount
-is applied to the price after the promotion discount.
-Let's consider an example: the checkout has two items, and the first item is on **$5** fixed promotion.
-A percentage discount of **50%** is being applied to the entire order.
-
-Here is the checkout data before applying the voucher code (only the promotion is included in the price).
-
-```json {11-13,52-70}
-{
-  "data": {
-    "checkout": {
-      "id": "Q2hlY2tvdXQ6ZDdjMjY5M2MtOTU0ZS00YTM4LWJkMjQtMzM1Y2NiODk0YWMy",
-      "email": "admin@example.com",
-      "token": "d7c2693c-954e-4a38-bd24-335ccb894ac2",
-      "channel": {
-        "slug": "default-channel"
-      },
-      "voucherCode": null,
-      "discount": {
-        "amount": 0.0
-      },
-      "discountName": null,
-      "giftCards": [],
-      "totalPrice": {
-        "tax": {
-          "amount": 0.0
-        },
-        "gross": {
-          "amount": 65.0,
-          "currency": "USD",
-          "__typename": "Money"
-        },
-        "net": {
-          "amount": 65.0,
-          "currency": "USD",
-          "__typename": "Money"
-        },
-        "__typename": "TaxedMoney"
-      },
-      "subtotalPrice": {
-        "tax": {
-          "amount": 0.0
-        },
-        "gross": {
-          "amount": 65.0,
-          "currency": "USD",
-          "__typename": "Money"
-        },
-        "net": {
-          "amount": 65.0,
-          "currency": "USD",
-          "__typename": "Money"
-        },
-        "__typename": "TaxedMoney"
-      },
-      "lines": [
-        {
-          "id": "Q2hlY2tvdXRMaW5lOmNlNzJiY2IyLWJjZjYtNGQxZS04MDRmLWMwZDdjZWI2NWM3OQ==",
-          "quantity": 2,
-          "undiscountedTotalPrice": {
-            "amount": 40.0
-          },
-          "totalPrice": {
-            "gross": {
-              "amount": 30.0
-            },
-            "net": {
-              "amount": 30.0
-            }
-          },
-          "unitPrice": {
-            "net": {
-              "amount": 15.0
-            }
-          },
-          "undiscountedUnitPrice": {
-            "amount": 20.0
-          },
-          "variant": {
-            "id": "UHJvZHVjdFZhcmlhbnQ6MzQ4",
-            "name": "S",
-            "pricing": {
-              "price": {
-                "gross": {
-                  "amount": 15.0
-                }
-              }
-            },
-            "product": {
-              "name": "Monospace Tee",
-              "chargeTaxes": false
-            }
-          }
-        },
-        {
-          "id": "Q2hlY2tvdXRMaW5lOjI5ZDA4Zjc2LTdlMTItNGE5OC05ZWFkLThhNzFjMDMyNGQyOQ==",
-          "quantity": 1,
-          "undiscountedTotalPrice": {
-            "amount": 35.0
-          },
-          "totalPrice": {
-            "gross": {
-              "amount": 35.0
-            },
-            "net": {
-              "amount": 35.0
-            }
-          },
-          "unitPrice": {
-            "net": {
-              "amount": 35.0
-            }
-          },
-          "undiscountedUnitPrice": {
-            "amount": 35.0
-          },
-          "variant": {
-            "id": "UHJvZHVjdFZhcmlhbnQ6MzQ2",
-            "name": "UHJvZHVjdFZhcmlhbnQ6MzQ2",
-            "pricing": {
-              "price": {
-                "gross": {
-                  "amount": 35.0
-                }
-              }
-            },
-            "product": {
-              "name": "Blue Hoodie",
-              "chargeTaxes": false
-            }
-          }
-        }
-      ]
-    }
-  }
-}
-```
-
-As we can see the price of the first line is reduced by the promotion discount.
-The **$5** discount is applied on each line so we have **$10** total discount on the fist line.
-
-Below is the checkout data after applying the 50% entire order voucher.
-
-```json {10-14,52-70,90-108}
-{
-  "data": {
-    "checkout": {
-      "id": "Q2hlY2tvdXQ6ZDdjMjY5M2MtOTU0ZS00YTM4LWJkMjQtMzM1Y2NiODk0YWMy",
-      "email": "admin@example.com",
-      "token": "d7c2693c-954e-4a38-bd24-335ccb894ac2",
-      "channel": {
-        "slug": "default-channel"
-      },
-      "voucherCode": "DISCOUNT",
-      "discount": {
-        "amount": 32.5
-      },
-      "discountName": "Big order discount",
-      "giftCards": [],
-      "totalPrice": {
-        "tax": {
-          "amount": 0.0
-        },
-        "gross": {
-          "amount": 32.5,
-          "currency": "USD",
-          "__typename": "Money"
-        },
-        "net": {
-          "amount": 32.5,
-          "currency": "USD",
-          "__typename": "Money"
-        },
-        "__typename": "TaxedMoney"
-      },
-      "subtotalPrice": {
-        "tax": {
-          "amount": 0.0
-        },
-        "gross": {
-          "amount": 32.5,
-          "currency": "USD",
-          "__typename": "Money"
-        },
-        "net": {
-          "amount": 32.5,
-          "currency": "USD",
-          "__typename": "Money"
-        },
-        "__typename": "TaxedMoney"
-      },
-      "lines": [
-        {
-          "id": "Q2hlY2tvdXRMaW5lOmNlNzJiY2IyLWJjZjYtNGQxZS04MDRmLWMwZDdjZWI2NWM3OQ==",
-          "quantity": 2,
-          "undiscountedTotalPrice": {
-            "amount": 40.0
-          },
-          "totalPrice": {
-            "gross": {
-              "amount": 15.0
-            },
-            "net": {
-              "amount": 15.0
-            }
-          },
-          "unitPrice": {
-            "net": {
-              "amount": 7.5
-            }
-          },
-          "undiscountedUnitPrice": {
-            "amount": 20.0
-          },
-          "variant": {
-            "id": "UHJvZHVjdFZhcmlhbnQ6MzQ4",
-            "name": "S",
-            "pricing": {
-              "price": {
-                "gross": {
-                  "amount": 15.0
-                }
-              }
-            },
-            "product": {
-              "name": "Monospace Tee",
-              "chargeTaxes": false
-            }
-          }
-        },
-        {
-          "id": "Q2hlY2tvdXRMaW5lOjI5ZDA4Zjc2LTdlMTItNGE5OC05ZWFkLThhNzFjMDMyNGQyOQ==",
-          "quantity": 1,
-          "undiscountedTotalPrice": {
-            "amount": 35.0
-          },
-          "totalPrice": {
-            "gross": {
-              "amount": 17.5
-            },
-            "net": {
-              "amount": 17.5
-            }
-          },
-          "unitPrice": {
-            "net": {
-              "amount": 17.5
-            }
-          },
-          "undiscountedUnitPrice": {
-            "amount": 35.0
-          },
-          "variant": {
-            "id": "UHJvZHVjdFZhcmlhbnQ6MzQ2",
-            "name": "UHJvZHVjdFZhcmlhbnQ6MzQ2",
-            "pricing": {
-              "price": {
-                "gross": {
-                  "amount": 35.0
-                }
-              }
-            },
-            "product": {
-              "name": "Blue Hoodie",
-              "chargeTaxes": false
-            }
-          }
-        }
-      ]
-    }
-  }
-}
-```
-
-As we can see, the total discount is **$32.5.0**.
-In the first line, the difference between `totalPrice` and `undiscountedTotalPrice` ($25)
-is the total discount applied to this line, which includes both promotion and voucher discounts.
-However, in the second line, the difference between those values ($17.5) comes from
-the voucher discount.
-
-To calculate the value of the applied promotion, we can sum up the line discounts and subtract
-`checkout.discount`. In this example, the calculation would be: **($25 + $17.5) - $32.5 = $10**.
-Therefore, we end up with the same value as before applying the voucher.
-
-## Completing checkout with a voucher discount
-
-When completing the checkout with an assigned voucher, the applied voucher discount
-will be visible on the order and order line prices. Additionally, the sum of voucher
-discounts will be reflected in the `order.discounts` field. This behavior is consistent
-across all voucher types.
-
-The following example shows the response from the [`checkoutComplete`](api-reference/checkout/mutations/checkout-complete.mdx)
-mutation for a checkout that includes **two items** of the same variant with a **10% voucher discount** applied.
-
-```json {42,57-75}
-{
-  "data": {
-    "checkoutComplete": {
-      "order": {
-        "id": "T3JkZXI6NmM1MjhkNGYtZjc5YS00OGM1LTk2ZWUtYjI0M2U2ZjdmMDBm",
-        "status": "UNFULFILLED",
-        "totalCaptured": {
-          "amount": 113.51
-        },
-        "subtotal": {
-          "net": {
-            "amount": 33.96
-          },
-          "gross": {
-            "amount": 36.0
-          }
-        },
-        "total": {
-          "currency": "USD",
-          "net": {
-            "amount": 107.08
-          },
-          "gross": {
-            "amount": 113.51
-          }
-        },
-        "undiscountedTotal": {
-          "currency": "USD",
-          "net": {
-            "amount": 113.12
-          },
-          "gross": {
-            "amount": 117.51
-          }
-        },
-        "discounts": [
-          {
-            "name": null,
-            "type": "VOUCHER",
-            "valueType": "FIXED",
-            "amount": {
-              "amount": 4.0
-            }
-          }
-        ],
-        "lines": [
-          {
-            "quantity": 2,
-            "totalPrice": {
-              "gross": {
-                "amount": 36.0
-              },
-              "net": {
-                "amount": 33.96
-              }
-            },
-            "unitPrice": {
-              "gross": {
-                "amount": 18.0
-              },
-              "net": {
-                "amount": 16.98
-              }
-            },
-            "undiscountedUnitPrice": {
-              "gross": {
-                "amount": 20.0
-              },
-              "net": {
-                "amount": 20.0
-              }
-            },
-            "unitDiscount": {
-              "amount": 2.0
-            }
-          }
-        ]
-      },
-      "errors": []
-    }
-  }
-}
-```
-
-The discount amount can be found in `order.discounts.amount`, the value is equal to the
-`order.lines.unitDiscount` multiplied by the line quantity.
-The discount can also be seen in the line prices - compare the `undiscountedUnitPrice` and the `unitPrice`.
-
 ## Webhooks
 
 All voucher actions also generate asynchronous webhooks that can be used for reacting
@@ -1407,7 +572,7 @@ represents the full list of asynchronous webhooks.
 
 You can learn more about webhooks [here](developer/extending/webhooks/asynchronous-events.mdx).
 
-## Exporting voucher codes
+## Exporting Voucher Codes
 
 Voucher codes can be exported to a CSV or XLSX file.
 

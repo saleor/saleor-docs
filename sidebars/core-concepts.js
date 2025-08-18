@@ -72,7 +72,15 @@ export const coreConcepts = [
   title("Discounts"),
   "developer/discounts/overview",
   "developer/discounts/promotions",
-  "developer/discounts/vouchers",
+  {
+    type: "category",
+    label: "Vouchers",
+    collapsible: false,
+    items: [
+      "developer/discounts/vouchers",
+      "developer/discounts/apply-vouchers",
+    ],
+  },
   "developer/discounts/manual-discounts",
   "developer/discounts/examples",
   "developer/discounts/sales",
