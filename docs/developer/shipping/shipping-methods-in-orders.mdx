@@ -1,0 +1,75 @@
+---
+title: Shipping Methods in Orders
+sidebar: Shipping in Orders
+description: How Saleor determines which shipping methods are available in checkout and editable orders
+---
+
+## How Saleor Selects Shipping Methods
+When a customer reaches the shipping step in checkout, or when you edit an order (draft or unconfirmed), 
+Saleor builds the list of available shipping methods. It applies built-in rules, optionally applies app-driven logic via webhooks.
+
+### Built-in Shipping Methods
+
+1. Channel and zone prerequisites
+   - The checkout/order channel must have at least one shipping zone assigned.
+   - The shipping address cuntry must be assigned inside at least one of those shipping zones.
+   - See: [Shipping Zones](/developer/shipping/shipping-zone.mdx).
+
+2. Shipping methods channel availability
+   - Shipping methods are channel-specific. A method must be listed for the same channel.
+   - See: [Shipping Methods](/developer/shipping/shipping-method.mdx).
+
+3. Method conditions
+   - Product exclusions: methods that exclude any product present in the checkout/order are removed.
+   - Price-based methods: kept only if the channel subtotal is within the method’s min/max order price.
+   - Weight-based methods: kept only if the total weight is within the method’s min/max order weight.
+   - Postal code rules: include/exclude rules are checked against the shipping address postal code.
+
+### External Shipping Methods for Checkout’s
+
+Apps can provide additional methods in real time:
+
+1. Subscribe the app to `SHIPPING_LIST_METHODS_FOR_CHECKOUT`.
+2. Saleor sends checkout context (addresses, lines, channel, currency).
+3. The app returns methods with prices; Saleor merges them with built-in methods.
+
+- The returned `currency` must match the checkout currency.
+- Details and payload/response examples: [Shipping webhooks](/developer/extending/webhooks/synchronous-events/shipping.mdx#list-external-shipping-methods).
+
+### Filtering Shipping Methods
+
+After collecting candidates, Saleor can call filtering webhooks so apps can disable methods per business rules:
+
+- `CHECKOUT_FILTER_SHIPPING_METHODS`: when listing methods for a checkout.
+- `ORDER_FILTER_SHIPPING_METHODS`: when listing methods for an editable order (draft or unconfirmed).
+
+An app may:
+- Mark a method as inactive (`active = false`).
+- Provide a `message` explaining why a method is unavailable.
+
+See examples and guidance: [Filter shipping methods](/developer/extending/webhooks/synchronous-events/shipping.mdx#filter-shipping-methods).
+
+#### See also
+
+- [Listing available shipping methods in Checkout](/developer/checkout/address.mdx#listing-available-shipping-methods)
+- [Draft orders](/developer/order/draft-order.mdx#core-draft-order-management)
+- [Order update](/developer/order/order-update.mdx#managing-shipping-method)
+
+## Example: Multiple Zones Matching One Address
+If a country is assigned to more than one shipping zone, Saleor will aggregate all applicable shipping methods from all matching zones.
+
+**Zones:**
+
+- Zone **Benelux**: Belgium, Netherlands, Luxembourg → Methods:  _Standard, Express_
+- Zone **All EU** (including BE, NL, LU): → Methods: _Economy, Courier_
+
+**Checkout:** Address in Netherlands, subtotal €40
+
+**Result:** All four methods (Standard, Express, Economy, Courier) are returned.
+
+:::info
+- Saleor does not stop at the first zone → all matching zones contribute methods.
+- Methods are then filtered by channel, currency, product exclusions, price/weight, and postal code rules.
+- Final list is sorted by price, regardless of zone.
+:::
+
