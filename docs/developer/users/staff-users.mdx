@@ -1,0 +1,125 @@
+---
+title: Staff Users
+---
+
+Staff users are internal team members who manage your Saleor store. 
+You can assign staff users specific permissions to control what they can access and do in the Dashboard and API. 
+Staff users are essential for store operations, including product management, order fulfillment, customer support, and more.
+
+## Inviting Staff Users
+You can invite staff users to your Saleor store using either the Dashboard or the API.
+
+:::note
+You need the `MANAGE_STAFF` permission to invite staff members.
+:::
+
+### Dashboard
+1. Go to **Configuration → Staff Members**.
+2. Click **Invite staff member**.
+3. Enter the staff member’s first name, last name, and email address.
+4. Click **Send Invite**.
+
+Saleor will send an email invitation to the provided address. The recipient can set their password and log in using a secure link.
+
+:::note
+If you are self-hosting Saleor, you need to [configure SMTP](/developer/app-store/legacy-plugins/admin-emails.mdx) to enable email invitations.  
+In Saleor Cloud, email delivery is handled automatically.
+:::
+
+
+After inviting a staff user, you can assign them to a permission group. 
+For details on permission groups, scopes, and channel restrictions, see the [Permissions documentation](/developer/permissions.mdx).
+
+
+### API
+You can also create staff users programmatically using the [`staffCreate`](../../api-reference/users/mutations/staff-create.mdx) mutation 
+This allows you to assign permissions and add metadata in the same step.
+
+```graphql
+mutation StaffCreate($input: StaffCreateInput!) {
+  staffCreate(input: $input) {
+    user {
+      id
+      email
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+Variables:
+
+```json
+{
+  "input": {
+    "email": "team.member@example.com",
+    "firstName": "Team",
+    "lastName": "Member",
+    "addGroups": [
+      "R3JvdXA6MQ=="
+    ]
+  }
+}
+```
+## Updating Staff Data
+You can update staff user details using the Dashboard or the [`staffUpdate`](../../api-reference/users/mutations/staff-update.mdx) mutation.
+
+## Removing Staff Users
+You can remove staff users using the Dashboard or the API:
+- **Dashboard:** Remove staff users from the **Staff Members** section.
+- **API:** Use the [`staffDelete`](../../api-reference/users/mutations/staff-delete.mdx) or [`staffBulkDelete`](../../api-reference/users/mutations/staff-bulk-delete.mdx) mutations.
+
+Saleor prevents removing or deactivating the last active staff user who can manage specific permissions.
+
+:::info
+If a staff user has placed orders, their customer record will remain for order history and reporting. 
+Removing a staff user does not delete their customer data.
+:::
+
+## Extending Staff Users with Metadata
+You can attach custom metadata to staff user accounts for integrations or custom fields.
+
+- To set or update metadata when updating a user, include the `metadata` or `privateMetadata` fields in the [`staffUpdate`](../../api-reference/users/mutations/staff-update.mdx) mutation.
+- For more granular control, use:
+  - [`updateMetadata`](../../api-reference/miscellaneous/mutations/update-metadata.mdx) for public key-value data (visible to apps and staff).
+  - [`updatePrivateMetadata`](../../api-reference/miscellaneous/mutations/update-private-metadata.mdx) for secure/internal values (not exposed via the public API).
+
+## Dashboard Features for Staff Users
+Saleor provides advanced dashboard features to help staff users personalize their workspace and work efficiently.
+
+### Saving Filter Presets
+You can save filter presets on list views for quick access to frequently used filters (e.g., “Out of Stock Products”, “High-Value Orders”).
+
+**To save a filter preset:**
+1. Go to a list view (e.g., Products).
+2. Apply filters (such as channel or search terms).
+3. Click the **+** icon next to the list title.
+4. Enter a name for your preset and click **Save**.
+
+:::note
+Filter presets are saved in your browser’s local storage, meaning they are only available on the device and browser where they were created. 
+They will not sync across devices or browsers.
+:::
+
+### Product Grid Customization
+You can customize which columns are visible in list views. 
+Rearrange columns by dragging and dropping, or toggle columns on and off. Grid customization is saved per user.
+
+:::note
+Your column preferences are stored in your user metadata, making them available across different browsers and devices when you're logged into your staff account.
+:::
+
+### Feature Preview
+You can enable preview features from your account settings.
+
+**To access feature previews:**
+1. In the left navigation menu, click the **⋮** (three dots) next to your name.
+2. Click **Features Preview**.
+3. Enable or disable available preview features as needed. 
+
+:::note
+Feature preview preferences are stored in your user metadata, so they persist across devices and sessions.
+:::
