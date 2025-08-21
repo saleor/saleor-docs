@@ -68,6 +68,7 @@ export const coreConcepts = [
   title("Shipping"),
   "developer/shipping/shipping-zone",
   "developer/shipping/shipping-method",
+  "developer/shipping/shipping-methods-in-orders",
 
   title("Discounts"),
   "developer/discounts/overview",
