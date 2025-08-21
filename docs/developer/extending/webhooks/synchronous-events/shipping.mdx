@@ -20,19 +20,19 @@ sequenceDiagram
     Shipping App-->>-Saleor: setShippingMethodForOrder
 ```
 
-### Required permissions
+## Required Permissions
 
 - `MANAGE_SHIPPING`
 - `MANAGE_ORDERS`
 - `MANAGE_CHECKOUTS`
 
-### List external shipping methods
+## List External Shipping Methods
 
 This solution can be used whenever shipping methods need to be fetched from a 3rd party API or when the pricing logic built into Saleor is insufficient for your needs.
 
 External shipping methods can be used alone or with internal shipping methods. Saleor will return both the internal methods (defined through the Saleor Dashboard and stored in the `ShippingMethod` model) and external methods returned from the sync webhook.
 
-#### Subscribe to the webhook
+### Subscribe to the Webhook
 
 Saleor Apps can subscribe to the `SHIPPING_LIST_METHODS_FOR_CHECKOUT` synchronous webhook. It is called whenever
 shipping methods are queried for a checkout object.
@@ -57,7 +57,7 @@ Due to circular reference, `ShippingListMethodsForCheckout` subscription queries
 
 :::
 
-#### Request format
+### Request Format
 
 This is an example response from the application:
 
@@ -147,7 +147,7 @@ This is an example response from the application:
 ]
 ```
 
-#### Response format
+### Response Format
 
 This is an example response from the application:
 
@@ -205,7 +205,7 @@ Since **Saleor 3.21**, the `currency` returned by the app must match the checkou
  :::
 
 
-#### Selecting shipping methods
+### Selecting Shipping Methods
 
 External shipping methods have an ID of the following format: `app:<app-database-id>:<id-returned-by-webhook>` encoded in Base64.
 
@@ -235,11 +235,11 @@ mutation {
 
 Information about an external shipping method is stored in the order's private metadata. This entry should be kept to allow the shipping method to be correctly displayed in the dashboard.
 
-### Filter shipping methods
+## Filter Shipping Methods
 
 This solution allows you to control which shipping methods (internal or external) should be available to customers on the storefront or later on order.
 
-#### Subscribe to the webhook
+### Subscribe to the Webhook
 
 Saleor Apps can subscribe to the synchronous webhooks:
 
@@ -272,7 +272,7 @@ subscription {
 }
 :::
 
-#### Request format
+### Request Format
 
 Example request for `CHECKOUT_FILTER_SHIPPING_METHODS`:
 
@@ -417,7 +417,7 @@ Example request for `ORDER_FILTER_SHIPPING_METHODS`:
 }
 ```
 
-#### Response format
+### Response Format
 
 This is an example response from the application:
 
@@ -448,7 +448,7 @@ This is an example response from the application:
  These queries **will not** make external API calls for filtering shipping methods.
  :::
 
-#### Implementation guide
+### Implementation Guide
 
 `ShippingMethod` objects returned by `Checkout.shippingMethods` and `Order.shippingMethods` will have 2 attributes:
 
@@ -473,6 +473,64 @@ Even though external methods are also subject to filtering, we recommend integra
 as every single synchronous webhook affects the response time of your Saleor API.
 :::
 
-### Community resources
+## Caching Behavior on Checkout
+
+This chapter explains how Saleor handles caching of shipping webhook responses, 
+how the cache is invalidated, and when shipping webhooks are triggered during checkout.
+
+### Cache TTLs
+- `CACHE_TIME_SHIPPING_LIST_METHODS_FOR_CHECKOUT` for external shipping methods: 12 hours
+- `CACHE_EXCLUDED_SHIPPING_TIME` for filtering shipping methods: 3 minutes
+
+### Cache Invalidation
+The cache is invalidated when any of the following checkout mutations run:
+
+- `checkoutCreate`
+- `checkoutCreateFromOrder`
+- `checkoutCustomerAttach`, `checkoutCustomerDetach`
+- `checkoutDeliveryMethodUpdate`, `checkoutShippingMethodUpdate`
+- `checkoutShippingAddressUpdate`, `checkoutBillingAddressUpdate`
+- `checkoutEmailUpdate`, `checkoutLanguageCodeUpdate`
+- `checkoutLinesAdd`, `checkoutLinesUpdate`, `checkoutLineDelete`
+- `checkoutAddPromoCode`, `checkoutRemovePromoCode`
+- `updateMetadata` (on the checkout)
+- `updatePrivateMetadata` (on the checkout)
+
+### Non-Checkout Cache Invalidation
+These operations also invalidate shipping cache:
+
+- Create/Update/Delete of catalogue promotions
+- Create/Update/Delete of order promotions applied to the checkout
+- Create/Update/Delete of variant attributes attached to checkout lines
+- Changing `Product` or `ProductVariant` names
+
+### Query-Triggered Webhooks
+When the cache is invalid, querying these checkout fields triggers shipping webhooks:
+
+- Shipping details:
+  - `checkout.shippingMethod`
+  - `checkout.shippingMethods`
+  - `checkout.availableShippingMethods`
+  - `checkout.deliveryMethod`
+- Price fields:
+  - `checkout.shippingPrice`
+  - `checkout.totalPrice`
+  - `checkout.subtotalPrice`
+  - `checkout.totalBalance`
+  - `checkout.lines[].unitPrice`
+  - `checkout.lines[].totalPrice`
+- Payment statuses:
+  - `checkout.authorizeStatus`
+  - `checkout.chargeStatus`
+
+### Summary
+
+- Saleor caches shipping webhook responses to reduce API calls.
+- TTLs are currently 12 hours for external shipping methods and 3 minutes for filtering methods.
+- Cache is invalidated by specific checkout mutations, checkout-related queries, and some non-checkout operations.
+- Queries accessing key checkout fields may trigger webhooks if the cache is invalid.
+- Developers should consider cache behavior when building shipping apps to avoid redundant calls and ensure accurate shipping methods.
+
+## Community Resources
 
 - [Demo shipping app](https://github.com/saleor/dummy-shipping-app)
