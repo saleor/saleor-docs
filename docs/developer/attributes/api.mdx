@@ -45,6 +45,16 @@ To fetch the list of attributes, use the `attributes` query:
         slug
         inputType
         entityType
+        referenceTypes {
+          ...on ProductType {
+            id
+            slug
+          }
+          ...on PageType {
+            id
+            slug
+          }
+        }
         unit
         choices(first: 5) {
           edges {
@@ -65,7 +75,9 @@ The `attributes` field supports pagination and filtering, e.g., searching attrib
 - `name` - Name of the attribute, use it to render attribute in the frontend.
 - `slug` - A unique attribute handle you can use to fetch an attribute or reference it in filters.
 - `inputType` - Represents the input type.
-- `entityType` - Used only with `REFERENCE` input types; represents the type of entities associated as references, e.g., `PAGE` or `PRODUCT`.
+- `entityType` - Used only with `REFERENCE` and `SINGLE_REFERENCE` input types; represents the type of entities associated as references, e.g., `PAGE` or `PRODUCT`.
+- `referenceTypes` - Allowed target types for reference attributes. For attributes with the `PRODUCT` or `PRODUCT_VARIANT` entity type, this lists allowed product types;
+for attributes with the `PAGE` entity type, this lists allowed page types. Not supported for `CATEGORY` or `COLLECTION` reference attributes.
 - `unit` - Used only with `NUMERIC` input types; represents the optional measurement unit.
 - `choices` - Used only with `DROPDOWN`, `MULTISELECT` and  `SWATCH`; a list of predefined choices you can use as values. The `choices` field supports pagination and filtering, e.g., searching choices by name.
 
@@ -147,6 +159,107 @@ Response:
         }
       ]
     }
+  }
+}
+```
+
+## Setting allowed reference types
+
+The attribute’s `inputType` must be `REFERENCE` or `SINGLE_REFERENCE`, and `entityType` must be `PRODUCT`, `PRODUCT_VARIANT`, or `PAGE` to use `referenceTypes`.
+
+### Creating an attribute with allowed reference types
+
+Create a `PRODUCT` reference attribute with restricted product types with the use of [`attributeCreate`](/api-reference/attributes/mutations/attribute-create) mutation:
+```graphql
+mutation {
+  attributeCreate(
+    input: {
+      name: "Related Products"
+      slug: "related-products"
+      type: PRODUCT_TYPE
+      inputType: REFERENCE
+      entityType: PRODUCT
+      referenceTypes: ["UHJvZHVjdFR5cGU6MQ=="]
+    }
+  ) {
+    attribute {
+      id
+      referenceTypes {
+        ...on ProductType {
+          id
+          slug
+        }
+      }
+    }
+    errors { field code message }
+  }
+}
+```
+
+Create a `PAGE` single-reference attribute with restricted page types:
+```graphql
+mutation {
+  attributeCreate(
+    input: {
+      name: "Related Page"
+      slug: "related-page"
+      type: PAGE_TYPE
+      inputType: SINGLE_REFERENCE
+      entityType: PAGE
+      referenceTypes: ["UGFnZVR5cGU6MQ=="]
+    }
+  ) {
+    attribute {
+      id
+      referenceTypes {
+        ...on PageType {
+          id
+          slug
+        }
+      }
+    }
+    errors { field code message }
+  }
+}
+```
+
+### Update allowed reference types
+
+Adjust the allowed product types for a `PRODUCT` reference attribute with the use of [`attributeUpdate`](/api-reference/attributes/mutations/attribute-update) mutation:
+```graphql
+mutation {
+  attributeUpdate(
+    id: "QXR0cmlidXRlOjE=",
+    input: { referenceTypes: ["UHJvZHVjdFR5cGU6MQ==", "UHJvZHVjdFR5cGU6Mg=="] }
+  ) {
+    attribute {
+      id
+      referenceTypes {
+        ...on ProductType {
+          id
+          slug
+        }
+      }
+    }
+    errors { field code message }
+  }
+}
+```
+
+Clear restrictions (disables type validation for future updates/new values; existing references are not modified):
+```graphql
+mutation {
+  attributeUpdate(id: "QXR0cmlidXRlOjE=", input: { referenceTypes: [] }) {
+    attribute {
+      id
+      referenceTypes {
+        ...on ProductType {
+          id
+          slug
+        }
+      }
+    }
+    errors { field code message }
   }
 }
 ```
