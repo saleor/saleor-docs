@@ -1,0 +1,158 @@
+---
+sidebar_label: Architecture
+sidebar_position: 2
+title: NP Atobarai App Architecture
+---
+
+## Assumptions
+
+First, lets highlight the assumptions that the app is based on. These are decisions made by Saleor product team. We may add more assumptions when we add more features,
+but the ones already set are pretty much final.
+
+That means:
+- You can rely on them when building your Store, and they will not change.
+- You should not use this App if you do not agree with them.
+- Once we decide to change them, the new major version will be released.
+
+## Supporting Charge flow
+
+App supports only Charge flow that can be set in Saleor channel settings. Saleor has limitation to allow fulfillments only when the order is fully charged.
+
+App will proceed following flows (simplified)
+
+#### Charge Flow
+
+`CHARGE_REQUEST` → `CHARGE_SUCCESS`
+
+## Supported payment flows
+
+This chapter lists flows possible to execute, including Storefront, Saleor, App and NP Atobarai.
+
+Note: Flows that assume operation in Saleor Dashboard can be also executed with graphQL
+
+Note: For brevity, diagrams highlight the most important parts of the flow and do not duplicate operations that are not relevant to the flow.
+
+### Render payment UI
+
+```mermaid
+sequenceDiagram
+    actor Storefront
+    actor Saleor
+    actor NP Atobarai App
+    actor NP Atobarai API
+
+    autonumber
+    NP Atobarai API->>NP Atobarai App: Configure app with required settings
+    note over NP Atobarai App: App must be configured first
+
+    Storefront->>Saleor: mutation paymentGatewayInitialize
+    Saleor->>NP Atobarai App: Webhook: PAYMENT_GATEWAY_INITIALIZE_SESSION
+    NP Atobarai App ->> Saleor: Validates checkout / order data 
+    Saleor ->> Storefront: Responds with validation errors in "data" field
+    Storefront-->>Storefront: Renders custom NP Atobarai UI
+```
+
+### Payment
+
+```mermaid
+sequenceDiagram
+    actor Storefront
+    actor Saleor
+    actor NP Atobarai App
+    actor NP Atobarai API
+
+    Storefront->>Saleor: mutation transactionInitializeSession
+    Saleor->>NP Atobarai App: Webhook: TRANSACTION_INITIALIZE_SESSION
+    NP Atobarai App ->> NP Atobarai API: Register Transaction
+    alt NP Atobarai API fails
+        NP Atobarai API->>NP Atobarai App: Fail to register transaction
+        NP Atobarai App ->> Saleor: Respond with CHARGE_FAILURE
+        Saleor ->> Storefront: Return failed mutation
+        Storefront ->> Storefront: Render failure and prompt to try again
+    else NP Atobarai successfully registers transaction
+        NP Atobarai API->>NP Atobarai App: Success: Provide transaction ID
+        NP Atobarai App ->> Saleor: Respond with CHARGE_SUCCESS
+        Saleor ->> Storefront: Return CHARGE_SUCCESS
+        Storefront ->> Storefront: Render custom UI with success message
+        Storefront->>Storefront: Can complete the checkout
+        Saleor->>Saleor: Merchant can refund
+    end
+```
+
+### Reporting fulfillment to NP Atobarai
+
+```mermaid
+sequenceDiagram
+    actor Staff User
+    actor Saleor
+    actor NP Atobarai App
+    actor NP Atobarai API
+
+    Staff User->>Saleor: Fulfill order with tracking number <br/> update fulfilment tracking number
+    Saleor->>NP Atobarai App: Async Webhook: FULFILLMENT_TRACKING_NUMBER_UPDATED
+    NP Atobarai App ->> NP Atobarai API: Report Fulfillment
+    alt NP Atobarai API fails
+        NP Atobarai API->>NP Atobarai App: Fail to report fulfillment
+        NP Atobarai App ->> Saleor: Respond with FAILURE and add order note with error
+    else NP Atobarai successfully reports fulfillment
+        NP Atobarai API->>NP Atobarai App: Success
+        NP Atobarai App ->> Saleor: Respond with SUCCESS and add order note with success
+    end
+```
+
+
+### Refunding funds from Saleor Dashboard
+
+#### Before fulfillment has been reported in NP Atobarai
+
+```mermaid
+sequenceDiagram
+    actor Staff User
+    actor Saleor
+    actor NP Atobarai App
+    actor NP Atobarai API
+
+    Staff User->>Saleor: Refund transaction in Dashboard <br/>(REFUND_REQUEST)
+    Saleor->>NP Atobarai App: Webhook: TRANSACTION_REFUND_REQUESTED
+    alt is refund for full amount of the order
+        NP Atobarai App->>NP Atobarai API: Cancel Transaction
+        NP Atobarai API->>NP Atobarai App: Result with success of failure
+        NP Atobarai App ->> Saleor: Respond with REFUND_SUCCESS / REFUND_FAILURE
+    else is refund for partial amount of the order
+        NP Atobarai App->>NP Atobarai API: Update Transaction
+        NP Atobarai API->>NP Atobarai App: Result with success of failure
+        NP Atobarai App ->> Saleor: Respond with REFUND_SUCCESS / REFUND_FAILURE
+    else is refund with grantedRefund
+        NP Atobarai App->>NP Atobarai API: Update Transaction
+        NP Atobarai API->>NP Atobarai App: Result with success of failure
+        NP Atobarai App ->> Saleor: Respond with REFUND_SUCCESS / REFUND_FAILURE
+    end
+```
+
+
+#### After fulfillment has been reported in NP Atobarai
+
+
+```mermaid
+sequenceDiagram
+    actor Staff User
+    actor Saleor
+    actor NP Atobarai App
+    actor NP Atobarai API
+
+    Staff User->>Saleor: Refund transaction in Dashboard <br/>(REFUND_REQUEST)
+    Saleor->>NP Atobarai App: Webhook: TRANSACTION_REFUND_REQUESTED
+    alt is refund for full amount of the order
+        NP Atobarai App->>NP Atobarai API: Cancel Transaction
+        NP Atobarai API->>NP Atobarai App: Result with success of failure
+        NP Atobarai App ->> Saleor: Respond with REFUND_SUCCESS / REFUND_FAILURE
+    else is refund for partial amount of the order
+        NP Atobarai App->>NP Atobarai API: Cancel transaction and create new transaction
+        NP Atobarai API->>NP Atobarai App: Result with success of failure
+        NP Atobarai App ->> Saleor: Respond with REFUND_SUCCESS / REFUND_FAILURE
+    else is refund with grantedRefund
+        NP Atobarai App->>NP Atobarai API: Cancel transaction and create new transaction
+        NP Atobarai API->>NP Atobarai App: Result with success of failure
+        NP Atobarai App ->> Saleor: Respond with REFUND_SUCCESS / REFUND_FAILURE
+    end
+```
