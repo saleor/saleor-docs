@@ -1,0 +1,49 @@
+---
+title: Upgrading From 3.21 To 3.22
+sidebar_position: 0
+---
+
+:::info
+To follow the zero-downtime strategy when upgrading to 3.21, **It is recommended to first migrate to latest 3.20.X** and turn on the Celery worker to process all data migrations asynchronously.
+Otherwise, you will need to downtime your solution to ensure correct data migration.
+:::
+
+
+## Deprecation of Saleor plugins
+
+Following plugins are now marked as deprecated:
+
+| Plugin Name | Plugin ID | Possible replacements |
+|-------------|-----------|-------------|
+| Braintree | `mirumee.payments.braintree` | [Juspay Hyperswitch App](https://docs.hyperswitch.io/explore-hyperswitch/e-commerce-platform-plugins/saleor-app) or [Custom App](../../developer/extending/apps/overview.mdx) |
+| Razorpay | `mirumee.payments.razorpay` | [Juspay Hyperswitch App](https://docs.hyperswitch.io/explore-hyperswitch/e-commerce-platform-plugins/saleor-app) or [Custom App](../../developer/extending/apps/overview.mdx) |
+| Sendgrid | `mirumee.notifications.sendgrid_email` | [Saleor SMTP App](https://apps.saleor.io/apps/smtp) |
+| Dummy | `mirumee.payments.dummy` | [Saleor Dummy Payment App](https://github.com/saleor/dummy-payment-app) |
+| DummyCreditCard | `mirumee.payments.dummy_credit_card` | [Saleor Dummy Payment App](https://github.com/saleor/dummy-payment-app) |
+| Avalara | `mirumee.taxes.avalara` | [Saleor Avalara AvaTax App](https://apps.saleor.io/apps/avatax) |
+
+We plan to remove deprecated plugins in the future versions of Saleor.
+
+## Changes to orders with a zero total amount
+
+The following changes were implemented to orders with a zero total amount:
+
+- No manual charge (`Transaction` or `Payment`) object will be created.
+- The `OrderEvents.ORDER_MARKED_AS_PAID` event will no longer be emitted.
+
+## Automatic checkout completion behavior change for checkouts with total being 0
+
+Before version 3.22, the following scenario would result in automatic checkout completion. In version 3.22 and onwards, this behavior has changed.
+
+Preconditions:
+- Channel has an automatic checkout completion feature enabled
+- Checkout has a total amount equal to zero
+- Checkout has lines
+
+Upon processing a transaction, the checkout would have been completed because then, it was not considered fully paid. Transaction logic recognized the authorization status change, which triggered automatic checkout completion.
+
+Now, upon processing a transaction, the checkout will not get completed because checkout is already considered fully paid; therefore, transaction logic does not recognize any authorization status change thus automatic checkout completion is not triggered.
+
+## Behavior change for creating a Payment (old API) for a Checkout object with an existing Transaction (new API)
+
+Creating a Payment (old API) for a Checkout object with an existing Transaction (new API) is no longer permitted as it leads to inconsistent behavior.

@@ -1,0 +1,37 @@
+---
+sidebar_label: Migration from plugin
+sidebar_position: 10
+title: NP Atobarai App - migration from plugin
+---
+
+
+You should consider migrating from the [NP Atobrai Plugin](../../legacy-plugins/np-atobarai) to the App. This document will help you with that.
+
+## Why migrate?
+
+Plugins API in Saleor are deprecated, and we are proceeding to remove plugins in favor of Apps. Existing plugins are not maintained. Apps are more powerful, and they are the future of Saleor extensions.
+
+## Differences between plugin and the App
+
+| Plugin | App |
+| ------- | ------- |
+| Using Payments API | Using Transactions API |
+  
+
+## Migration guide
+
+Note down your `merchantCode`, `spCode` and `terminalId` from already existing configuration - they will be needed to create a new one in app. After you create configuration you need to assign it to channel that has currency of `JPY` and then you are ready to use app! See detailed guide on what changed in different steps of the payment process:
+
+### Fetching configuration
+
+The plugin uses the `avaiablePaymentGateways` query to fetch the configuration of the payment gateway. The App uses the `paymentGatewayInitialize` mutation to fetch the configuration.
+
+### Payment mutations
+
+The Plugin uses `checkoutPaymentCreate` mutation to create a payment. The App uses `transactionInitializeSession` and `transactionProcessSession` mutations to create a payment.
+
+### Running `checkoutComplete`
+
+The `checkoutComplete` mutation should be now run at the end of the process, when transactions are reported.
+
+`checkoutConfirm` response fields: `confirmationNeeded` and `confirmationData` should be ignored now.

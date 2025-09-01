@@ -48,6 +48,7 @@ export const buildingApps = [
   "developer/extending/apps/developing-apps/apps-patterns/persistence-with-metadata-manager",
   "developer/extending/apps/building-payment-app",
   "developer/extending/apps/installation-protection",
+  "developer/extending/apps/developing-apps/generating-types-for-sync-webhooks",
 
   // {
   //   type: "category",

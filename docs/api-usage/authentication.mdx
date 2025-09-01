@@ -69,7 +69,7 @@ Logging in can be implemented via Server Actions:
 
 Then, you can use `getServerAuthClient().fetchWithAuth` for any queries and mutations.
 
-For a full working example, see the [Saleor Auth SDK example](https://github.com/saleor/example-auth-sdk/tree/main/app/ssr/page.tsx).
+For a full working example, see the [Saleor Auth SDK example](https://github.com/saleor/examples/blob/main/example-auth-nextjs-apollo-urql/app/ssr/page.tsx).
 
 :::caution
 Make sure a new instance of auth client is created for each request.
@@ -161,7 +161,7 @@ export default function LoginPage() {
       password: "admin",
     });
 
-    if (result.data.tokenCreate.errors) {
+    if (result.data.tokenCreate.errors.length) {
       // handle errors
     }
   };
@@ -199,7 +199,7 @@ export default function LoginPage() {
 Check the [Saleor Auth SDK](https://github.com/saleor/auth-sdk) docs for more details and examples.
 
 You can also check Saleor Auth examples live at [saleor-auth-examples.vercel.app](https://saleor-auth-examples.vercel.app/)
-along with the [source code](https://github.com/saleor/example-auth-sdk).
+along with the [source code](https://github.com/saleor/examples/tree/main/example-auth-nextjs-apollo-urql).
 
 Follow a complete [video tutorial](https://www.youtube.com/watch?v=t6nxBk7JHCw) on YouTube.
 
@@ -208,6 +208,14 @@ Follow a complete [video tutorial](https://www.youtube.com/watch?v=t6nxBk7JHCw) 
 ### Email and Password
 
 This is the most common way of authenticating users. It is used in the Saleor Storefront and Dashboard.
+
+:::caution
+If you are using a Single Sign-On provider, you will not be able to log in using email and password, 
+as no password exists in the environment's database for SSO users. 
+
+However, if your account was first created by Saleor or you set a password using the "forgot password" feature, 
+both SSO and email/password logins may be available.
+:::
 
 To authenticate a user, you need to use the [`tokenCreate`](api-reference/authentication/mutations/token-create.mdx) mutation. It takes an email and password as input and returns an **access token** that can be used to access resources related to the user and a **refresh token** that can be used to generate future access tokens.
 
@@ -685,7 +693,12 @@ Next, redirect the user to the identity provider's logout page.
 
 ## App authentication
 
-Unlike regular users, Saleor Apps have long-living tokens they can use to communicate with the API. The tokens are assigned at the App installation time and must be stored securely.
+Saleor Apps are a primary method for extending Saleor's core functionalities.
+
+Unlike regular users, Saleor Apps have long-living tokens they can use to communicate with the API.  
+These tokens are generated when an app is installed or created and must be stored securely. 
+To obtain an auth token, you must either [install a third-party app](/developer/extending/apps/installing-apps.mdx) 
+or [create a local app](/developer/extending/webhooks/creating.mdx#app-creation).
 
 The authorization header for Apps is similar to the one used for users:
 

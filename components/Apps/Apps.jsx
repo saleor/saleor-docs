@@ -2,6 +2,7 @@ import Link from "@docusaurus/Link";
 import React from "react";
 
 import Adyen from "../../static/img/apps/adyen.svg";
+import Stripe from "../../static/img/apps/app-payment-stripe.svg";
 import ProductFeed from "../../static/img/apps/app-products-feed.svg";
 import Avatax from "../../static/img/apps/avatax.svg";
 import CMS from "../../static/img/apps/cms-hub.svg";
@@ -22,6 +23,7 @@ const Shell = ({ color, title, children, href = "" }) => {
     </Link>
   );
 };
+
 const Apps = () => {
   return (
     <div className={s.root}>
@@ -88,10 +90,13 @@ const Apps = () => {
           <Segment />
         </Shell>
 
-        {/*missing docs*/}
-        {/*<Shell color={"rgb(99, 91, 255)"} title={"Stipe"}>*/}
-        {/*  <Stripe />*/}
-        {/*</Shell>*/}
+        <Shell
+          color={"rgb(99, 91, 255)"}
+          title={"Stripe"}
+          href={"developer/app-store/apps/stripe/overview"}
+        >
+          <Stripe />
+        </Shell>
 
         {/*missing docs*/}
         {/*<Shell color={"rgb(86, 189, 104)"} title={"Taxjar"}>*/}

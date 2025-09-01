@@ -20,15 +20,15 @@ sequenceDiagram
         User via storefront <<->> Stripe API: Pass sensitive data, including credit card number and PIIs<br/>to render the payment UI
     end
 
-    User via storefront ->> Saleor: Pass non-sensitive payment data
+    User via storefront ->> Saleor: Pass non-sensitive payment data*
     create participant Saleor database
     Saleor ->> Saleor database: Store internal transaction model (non sensitive)
-    Saleor ->> Stripe App: Pass through non-sensitive payment data
-    Stripe App ->> Stripe API: Pass through non-sensitive payment data
+    Saleor ->> Stripe App: Pass through non-sensitive payment data*
+    Stripe App ->> Stripe API: Pass through non-sensitive payment data*
     create participant Stripe App database
     Stripe App ->> Stripe App database: Store internal transaction model (non sensitive)
 
-    Stripe API ->> Stripe App: Provide payment intent details (including PII and non-sensitive payment data)
+    Stripe API ->> Stripe App: Provide payment intent details (including PII and non-sensitive payment data*)
     Stripe App ->> Saleor: Pass client secret from Stripe
     Saleor ->> Saleor database: Update transaction model (non sensitive)
     Saleor ->> User via storefront: Pass through client secret from Stripe
@@ -38,3 +38,7 @@ sequenceDiagram
         User via storefront <<->> Stripe: Process payment, 3d secure flow
     end
 ```
+
+*Passes non-PCI DSS regulated payment information, such as payment method type
+
+For more information about Stripe PCI DSS compliance - see their [docs](https://docs.stripe.com/security).
