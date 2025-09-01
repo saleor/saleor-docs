@@ -2,8 +2,9 @@
 title: Environment Management
 ---
 
-An Environment is a single instance of the Saleor Software, including:
+An Environment is a single instance of the Saleor, including:
 
+- Database
 - GraphQL API
 - API Playground
 - Saleor Dashboard
@@ -58,13 +59,24 @@ To learn more, see the [GraphQL API overview](/api-usage/overview.mdx).
 
 ### Version upgrades
 
-Saleor versions can be upgraded on demand via the Cloud Console. Sequential upgrades (from one minor to the next minor) are backward compatible and do not require downtime. Thus, upgrades are never disruptive.
+Saleor versions can be upgraded on demand via the Cloud Console. 
 
-Each environment has independent version management, making it possible to test new features before production upgrades.
+- **Sequential upgrades** (from one minor version to the next) do not require downtime.
+- Each environment has **independent version management**, allowing you to test new features safely before applying them to production.
 
-:::note
-Projects without a production environment (aka free projects) automatically upgrade to the latest version. To disable automatic version upgrades of sandboxes, you would need to have a production instance in the same project.
-:::
+When you see a new Saleor version number (e.g., `3.21.1`), it follows a standard pattern: Major.Minor.Patch. 
+- Patch Release: `3.21.0 → 3.21.1` - Bug fixes and security updates, no new features. 
+- Minor Release: `3.20 → 3.21` - Backward-compatible improvements and new features. 
+- Major Release: `3.x → 4.0` - May include breaking changes and require migration work. 
+
+The table below shows how environments are updated:
+
+| Project type       | Environment | Patch       | Minor      | 
+| ------------------ | ----------- | ----------- | ---------- |
+| Developer Project  | Sandbox     | Automatic   | Automatic  | 
+| Production Project | Sandbox     | Automatic   | Manual — requires **Manage Sandbox Environments** permission    | 
+| Production Project | Production  | Automatic   | Manual — requires **Manage Production Environments** permission |
+
 
 ### Access Control
 
@@ -83,12 +95,13 @@ We strongly recommend that production domains do not contain words that suggest 
 
 ### Maintenance mode
 
-Maintenance mode temporarily disables access to the API and pauses webhook processing. 
-Use it during planned maintenance windows or when performing data operations that must not be interrupted.
+Use maintenance mode during planned maintenance windows or when performing data operations that must not be interrupted.
 
-- API requests will return a maintenance response.
-- Webhooks are not delivered while maintenance mode is enabled.
-- You can enable/disable maintenance mode from the environment page in the Cloud Console.
+When enabled:
+
+- API requests return a maintenance response.
+- Webhooks are not delivered.
+- You can enable or disable maintenance mode from the environment page in the Cloud Console.
 
 ### Demote
 
@@ -99,7 +112,7 @@ Saleor Cloud Console lets you manage environment data in a few ways: you can loa
 
 ### Snapshots
 
-Database snapshots can be created and replicated from any sandbox or production environment, allowing staging environments to be created.
+Database snapshots let you capture and replicate the state of any sandbox or production environment. They are especially useful for creating staging environments
 
 :::info
 Production environments automatically create daily snapshots, which are retained for 7 days.
@@ -108,30 +121,25 @@ Production environments automatically create daily snapshots, which are retained
 This feature enables productive workflows for development and testing, for example:
 
 - Replicating the latest production data to a staging environment.
-- Creating integration tests. You can create snapshots that would be used as a starting point for integration tests.
-- Migration scripts. During the development of migration scripts, it might be desirable to do it in steps, where each successful step can be saved and reverted during the development of the next step.
+- Running integration tests from a consistent starting point.
+- Developing migration scripts step by step, saving each successful stage and reverting if needed.
 
 Follow the quickstart guide to learn [how to use snapshots](/quickstart/cloud.mdx).
 
-
 ### Clear database
 
-Completely removes all data from the environment's database. This cannot be undone.
+Completely removes all business-related records (orders, products, categories, customer accounts, vouchers, gift cards). This action cannot be undone.
 
-Use this when you want to start from a clean slate in a sandbox environment. 
+Use this in a sandbox environment when you want to start from a clean slate.
 
-Removes all shop data while keeping your environment’s configuration intact. This cannot be undone.
-
-This command deletes business-related records such as orders, products, categories, customer accounts, 
-vouchers, and gift cards, but it does not remove critical configuration, including:
-
-- Staff accounts
-- Superuser accounts
+It does not remove environment configuration, such as:
+- Staff and superuser accounts
 - Channels
 - Plugin configurations
 - Apps
 - Site settings
 - Navigation menus
+
 
 ### Replace database with a sample
 
@@ -155,9 +163,9 @@ You can create a new environment later and restore data from this snapshot. See 
 If your environment has been automatically deleted due to inactivity, you can restore it from a snapshot within 7 days. Final snapshot is created automatically before deletion. You don't need to contact support to restore your environment - you can do it yourself by following these steps:
 
 1. Go to the cloud project and click `New Sandbox`.
-2. Fill the form you can set the same sandbox domain as before.
+2. Fill out the form. You can set the same sandbox domain as before.
 3. In the database section select `Use snapshot` option.
-4. Choose the snapshot with `final` in name (this is the backup created before the environment was deleted).
+4. Choose the snapshot with `final` in its name (this is the backup created before the environment was deleted).
 
 :::note
 Snapshots from deleted environments are retained for 7 days.
