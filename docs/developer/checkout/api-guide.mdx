@@ -1,7 +1,7 @@
 ---
 title: Checkout API Guide
 sidebar_label: API Guide
-hide_table_of_contents: true
+
 ---
 
 import Tabs from "@theme/Tabs";
@@ -23,36 +23,13 @@ To create a [`Checkout`](api-reference/checkout/objects/checkout.mdx) object, us
 
 [`Checkout.channel.countries`](/api-reference/channels/objects/channel#channelcountriescountrydisplay---) provides a list of countries to which shipping is available, which is derived from all shipping methods assigned to a channel of the checkout. This can be useful to render country picker at the checkout view.
 </div>
+
 <Tabs>
-<TabItem value="GraphQL">
+<TabItem value="Mutation">
 
 ```graphql
-mutation {
-  checkoutCreate(
-    input: {
-      channel: "default-channel"
-      email: "customer@example.com"
-      lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjk3" }]
-      shippingAddress: {
-        firstName: "John"
-        lastName: "Doe"
-        streetAddress1: "1470  Pinewood Avenue"
-        city: "Michigan"
-        postalCode: "49855"
-        country: US
-        countryArea: "MI"
-      }
-      billingAddress: {
-        firstName: "John"
-        lastName: "Doe"
-        streetAddress1: "1470  Pinewood Avenue"
-        city: "Michigan"
-        postalCode: "49855"
-        country: US
-        countryArea: "MI"
-      }
-    }
-  ) {
+mutation CheckoutCreate($input: CheckoutCreateInput!) {
+  checkoutCreate(input: $input) {
     checkout {
       id
       totalPrice {
@@ -89,8 +66,42 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-    </TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "channel": "default-channel",
+    "email": "customer@example.com",
+    "lines": [
+      {
+        "quantity": 1,
+        "variantId": "UHJvZHVjdFZhcmlhbnQ6Mjk3"
+      }
+    ],
+    "shippingAddress": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "streetAddress1": "1470  Pinewood Avenue",
+      "city": "Michigan",
+      "postalCode": "49855",
+      "country": "US",
+      "countryArea": "MI"
+    },
+    "billingAddress": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "streetAddress1": "1470  Pinewood Avenue",
+      "city": "Michigan",
+      "postalCode": "49855",
+      "country": "US",
+      "countryArea": "MI"
+    }
+  }
+}
+```
+</TabItem>
 
 <TabItem value={"Result"}>
 ```json
@@ -145,7 +156,8 @@ mutation {
   }
 }
 ```
-    </TabItem>
+</TabItem>
+
 </Tabs>
 </TwoColumn>
 
@@ -156,13 +168,10 @@ When an anonymous checkout has been created without an email, the email must be 
 </div>
 
 <Tabs>
-<TabItem value={"GraphQL"}>
-```graphql {2-4}
-mutation {
-  checkoutEmailUpdate(
-    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
-    email: "test_customer@example.com"
-  ) {
+<TabItem value={"Mutation"}>
+```graphql
+mutation CheckoutEmailUpdate($id: ID, $email: String!) {
+  checkoutEmailUpdate(id: $id, email: $email) {
     checkout {
       id
       email
@@ -175,14 +184,23 @@ mutation {
 }
 ```
 </TabItem>
-<TabItem value={"Result"}>
 
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk",
+  "email": "test_customer@example.com"
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
 ```json {6}
 {
   "data": {
-    "checkoutDeliveryMethodUpdate": {
+    "checkoutEmailUpdate": {
       "checkout": {
-        "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+        "id": "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk",
         "email": "test_customer@example.com"
       },
       "errors": []
@@ -190,8 +208,8 @@ mutation {
   }
 }
 ```
-
 </TabItem>
+
 </Tabs>
 </TwoColumn>
 
@@ -207,13 +225,10 @@ If the quantity is changed to **`0`**, it wll be removed from checkout.
 </div>
 
 <Tabs>
-<TabItem value={"GraphQL"}>
-```graphql {4}
-mutation {
-  checkoutLinesAdd(
-    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
-    lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0" }]
-  ) {
+<TabItem value={"Mutation"}>
+```graphql
+mutation CheckoutLinesAdd($id: ID, $lines: [CheckoutLineInput!]!) {
+  checkoutLinesAdd(id: $id, lines: $lines) {
     checkout {
       lines {
         id
@@ -233,8 +248,23 @@ mutation {
 }
 ```
 </TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk",
+  "lines": [
+    {
+      "quantity": 1,
+      "variantId": "UHJvZHVjdFZhcmlhbnQ6Mjc0"
+    }
+  ]
+}
+```
+</TabItem>
+
 <TabItem value={"Response"}>
-```json {16-17}
+```json
 {
   "data": {
     "checkoutLinesAdd": {
@@ -260,30 +290,25 @@ mutation {
 }
 ```
 </TabItem>
+
 </Tabs>
 </TwoColumn>
 
 <TwoColumn>
 <div>
-## Creating Two Lines Using a Single Variant
+### Creating Two Lines Using a Single Variant
 
 By default if a single variant is added multiple times, the quantity of the variant is increased without adding a new line.
-To add the same variant as a separate line, use the `forceNewLine` flag.
+To add the same variant as a separate line, use the `forceNewLine` flag 
 
 When `forceNewLine` is not used and the variant exists in multiple lines - **Saleor will create a new line with provided quantity**
 
 </div>
 <Tabs>
-<TabItem value={"GraphQL"}>
-```graphql {5}
-mutation {
-  checkoutLinesAdd(
-    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
-    lines: [
-      { quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0", forceNewLine: true }
-      { quantity: 2, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjc0" }
-    ]
-  ) {
+<TabItem value={"Mutation"}>
+```graphql
+mutation CheckoutLinesAdd($id: ID, $lines: [CheckoutLineInput!]!) {
+  checkoutLinesAdd(id: $id, lines: $lines) {
     checkout {
       lines {
         id
@@ -303,6 +328,26 @@ mutation {
 }
 ```
 </TabItem>
+
+<TabItem value={"Variables"}>
+ ```json
+{
+  "id": "Q2hlY2tvdXQ6ZmE5ZjBkMjYtMWM3NC00MDgyLTk3MzktYTIxOGE2NzVjMDZk",
+  "lines": [
+    {
+      "quantity": 1,
+      "variantId": "UHJvZHVjdFZhcmlhbnQ6Mjc0",
+      "forceNewLine": true
+    },
+    {
+      "quantity": 2,
+      "variantId": "UHJvZHVjdFZhcmlhbnQ6Mjc0"
+    }
+  ]
+}
+```
+</TabItem>
+
 <TabItem value={"Response"}>
  ```json
 {
@@ -337,12 +382,13 @@ mutation {
 }
 ```
 </TabItem>
+
 </Tabs>
 </TwoColumn>
 
 <TwoColumn>
 <div>
-## Setting Custom Line Prices
+### Setting Custom Line Prices
 
 This feature is **only available for apps** with `HANDLE_CHECKOUTS` permission.
 
@@ -362,15 +408,9 @@ in the following mutations:
 </div>
 <Tabs>
 <TabItem value={"GraphQL"}>
-
-```graphql {5}
-mutation {
-  checkoutLinesAdd(
-    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
-    lines: [
-      { quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6MzA2", price: 16.22 }
-    ]
-  ) {
+```graphql
+mutation CheckoutLinesAdd($id: ID, $lines: [CheckoutLineInput!]!) {
+  checkoutLinesAdd(id: $id, lines: $lines) {
     checkout {
       id
       lines {
@@ -397,8 +437,23 @@ mutation {
   }
 }
 ```
-
 </TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+  "lines": [
+    {
+      "quantity": 1,
+      "variantId": "UHJvZHVjdFZhcmlhbnQ6MzA2",
+      "price": 16.22
+    }
+  ]
+}
+```
+</TabItem>
+
 <TabItem value={"Response"}>
 ```json
 {
@@ -431,17 +486,20 @@ mutation {
 }
 ```
 </TabItem>
+
 </Tabs>
 </TwoColumn>
 
 <TwoColumn>
 <div>
 
-## Update Shipping Address
+## Update Shipping and Billing Address
 
 Use [`checkoutShippingAddressUpdate`](/api-reference/checkout/mutations/checkout-shipping-address-update.mdx) and [`checkoutBillingAddressUpdate`](api-reference/checkout/mutations/checkout-billing-address-update.mdx) mutations to set the destination address.
 
 Keep in mind that address affects the availability of the products.
+
+Read more about [shipping and billing](/developer/checkout/address.mdx) in checkout.
 
 </div>
 <Tabs>
@@ -465,24 +523,25 @@ mutation checkoutShippingAddressUpdate($checkoutId: ID!, $shippingAddress: Addre
 }
 
 fragment AddressFragment on Address {
-    id
-    city
-    phone
-    postalCode
-    companyName
-    cityArea
-    streetAddress1
-    streetAddress2
-    countryArea
-    country {
-        country
-        code
-    }
-    firstName
-    lastName
+  id
+  city
+  phone
+  postalCode
+  companyName
+  cityArea
+  streetAddress1
+  streetAddress2
+  countryArea
+  country {
+    country
+    code
+  }
+  firstName
+  lastName
 }
 ````
 </TabItem>
+
 <TabItem value={"Variables"}>
 ```json
 {
@@ -582,22 +641,21 @@ See GraphQL documentation to [learn more about unions](https://graphql.org/learn
 <Tabs>
 <TabItem value={"Mutation"}>
 ```graphql
-mutation {
+mutation CheckoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
   checkoutDeliveryMethodUpdate(
-    id: "Q2hlY2tvdXQ6MDk1MmNiNWUtMzZkYi00YTQ5LThhN2MtZjAyNGE2M2Y1NzNj"
-    deliveryMethodId: "U2hpcHBpbmdNZXRob2Q6MTU="
-  ) {
+    id: $id, deliveryMethodId: $deliveryMethodId) 
+  {
     errors {
       message
       field
     }
     checkout {
-      deliveryMethod{
-        ...on Warehouse{
+      deliveryMethod {
+        ... on Warehouse {
           id
           name
         }
-        ... on ShippingMethod{
+        ... on ShippingMethod {
           id
           name
         }
@@ -608,6 +666,16 @@ mutation {
 }
 ```
 </TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+  "deliveryMethodId": "U2hpcHBpbmdNZXRob2Q6MTU="
+}
+```
+</TabItem>
+
 <TabItem value={"Response"}>
 ```json
 {
@@ -637,6 +705,213 @@ mutation {
 
 <TwoColumn>
 <div>
+## Apply a Promo Code
+
+Use [`checkoutAddPromoCode`](api-reference/checkout/mutations/checkout-add-promo-code.mdx) to add a voucher code or gift card to a checkout.
+
+For more details, see [vouchers](/developer/discounts/vouchers.mdx) and [gift cards](/developer/gift-cards.mdx).
+
+</div>
+<Tabs>
+<TabItem value={"Mutation"}>
+```graphql
+mutation CheckoutAddPromoCode($id: ID, $promoCode: String!) {
+  checkoutAddPromoCode(id: $id, promoCode: $promoCode) {
+    checkout {
+      id
+      discount {
+        amount
+        currency
+      }
+      totalPrice {
+        gross {
+          amount
+          currency
+        }
+      }
+      voucherCode
+      giftCards{
+        last4CodeChars
+      }
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZDYyNzk4OTgtNmE2My00NTk3LWFhYTktMTVhOWEwN2I1MzFm",
+  "promoCode": "WELCOME10"
+}
+```
+</TabItem>
+
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "checkoutAddPromoCode": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6ZDYyNzk4OTgtNmE2My00NTk3LWFhYTktMTVhOWEwN2I1MzFm",
+        "discount": {
+          "amount": 40,
+          "currency": "USD"
+        },
+        "totalPrice": {
+          "gross": {
+            "amount": 40,
+            "currency": "USD"
+          }
+        },
+        "voucherCode": "WELCOME10",
+        "giftCards": []
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+
+</Tabs>
+</TwoColumn>
+
+<TwoColumn>
+<div>
+## Attach Customer to Checkout
+
+Use [`checkoutCustomerAttach`](api-reference/checkout/mutations/checkout-customer-attach.mdx) to assign a user to an anonymous checkout.
+
+- When called by a logged-in customer, provide the `checkoutId`.
+- When called by an App, provide `checkoutId` and `customerId` and require the `IMPERSONATE_USER` permission.
+
+</div>
+<Tabs>
+<TabItem value={"Mutation"}>
+```graphql
+mutation CheckoutCustomerAttach($id: ID, $customerId: ID) {
+  checkoutCustomerAttach(id: $id, customerId: $customerId) {
+    checkout {
+      id
+      email
+      user {
+        id
+        email
+      }
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZDYyNzk4OTgtNmE2My00NTk3LWFhYTktMTVhOWEwN2I1MzFm",
+  "customerId": "VXNlcjoxNA=="
+}
+```
+</TabItem>
+
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "checkoutCustomerAttach": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6ZDYyNzk4OTgtNmE2My00NTk3LWFhYTktMTVhOWEwN2I1MzFm",
+        "email": "gary.fisher@example.com",
+        "user": {
+          "id": "VXNlcjoxNA==",
+          "email": "gary.fisher@example.com"
+        }
+      },
+      "errors": []
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 1,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+</TabItem>
+
+</Tabs>
+</TwoColumn>
+
+<TwoColumn>
+<div>
+## Detach Customer from Checkout
+
+Use [`checkoutCustomerDetach`](api-reference/checkout/mutations/checkout-customer-detach.mdx) to remove the assigned user from a checkout.
+
+</div>
+<Tabs>
+<TabItem value={"Mutation"}>
+```graphql
+mutation CheckoutCustomerDetach($id: ID) {
+  checkoutCustomerDetach(id: $id) {
+    checkout {
+      id
+      email
+      user {
+        id
+      }
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZDYyNzk4OTgtNmE2My00NTk3LWFhYTktMTVhOWEwN2I1MzFm"
+}
+```
+</TabItem>
+
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "checkoutCustomerDetach": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6ZDYyNzk4OTgtNmE2My00NTk3LWFhYTktMTVhOWEwN2I1MzFm",
+        "email": "gary.fisher@example.com",
+        "user": null
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+</TwoColumn>
+
+<TwoColumn>
+<div>
 ## Completing checkout
 Checkout can be completed if all [requirements are satisfied](/developer/checkout/lifecycle#completing-checkout).
 
@@ -644,12 +919,10 @@ When the checkout is fully paid, the webhook [`CHECKOUT_FULLY_PAID`](api-referen
 
 </div>
 <Tabs>
-<TabItem value={"GraphQL"}>
-```graphql {2-4}
-mutation {
-  checkoutComplete(
-    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
-  ) {
+<TabItem value={"Mutation"}>
+```graphql
+mutation CheckoutComplete($id: ID) {
+  checkoutComplete(id: $id) {
     order {
       id
       status
@@ -662,6 +935,15 @@ mutation {
 }
 ```
 </TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZDYyNzk4OTgtNmE2My00NTk3LWFhYTktMTVhOWEwN2I1MzFm"
+}
+```
+</TabItem>
+
 <TabItem value={"Result"}>
 ```json
 {
@@ -680,9 +962,3 @@ mutation {
 </Tabs>
 </TwoColumn>
 
-
-### Other Mutations and Queries
-
-- [`checkoutAddPromoCode`](api-reference/checkout/mutations/checkout-add-promo-code.mdx) - Add a promo code to the checkout.
-- [`customerAttach`](/api-reference/checkout/mutations/checkout-customer-attach.mdx) - Attach a user to the checkout.
-- [`customerDetach`](/api-reference/checkout/mutations/checkout-customer-detach) - Detach a user from the checkout.
