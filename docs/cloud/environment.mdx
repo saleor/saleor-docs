@@ -1,6 +1,14 @@
 ---
 title: Environment Management
 ---
+
+An Environment is a single instance of the Saleor, including:
+
+- Database
+- GraphQL API
+- API Playground
+- Saleor Dashboard
+
 ## Production vs Sandbox
 
 Saleor Cloud provides two types of environments: Sandbox (for development and testing) and Production (for live stores). While they may look similar at first glance, they behave differently in important ways.
@@ -47,9 +55,64 @@ You can access the GraphQL API Playground directly from the environment page by 
 
 To learn more, see the [GraphQL API overview](/api-usage/overview.mdx).
 
-## Snapshots
+## Manage Environment
 
-Database snapshots can be created and replicated from any sandbox or production environment, allowing staging environments to be created.
+### Version upgrades
+
+Saleor versions can be upgraded on demand via the Cloud Console. 
+
+- **Sequential upgrades** (from one minor version to the next) do not require downtime.
+- Each environment has **independent version management**, allowing you to test new features safely before applying them to production.
+
+When you see a new Saleor version number (e.g., `3.21.1`), it follows a standard pattern: Major.Minor.Patch. 
+- Patch Release: `3.21.0 → 3.21.1` - Bug fixes, security updates, and sometimes small new functionalities. 
+- Minor Release: `3.20 → 3.21` - New features, improvements, and breaking changes.
+- Major Release: `3.x → 4.0` - Significant architectural changes.
+
+The table below shows how environments are updated:
+
+| Project type       | Environment | Patch       | Minor      | 
+| ------------------ | ----------- | ----------- | ---------- |
+| Developer Project  | Sandbox     | Automatic   | Automatic  | 
+| Production Project | Sandbox     | Automatic   | Manual — requires **Manage Sandbox Environments** permission    | 
+| Production Project | Production  | Automatic   | Manual — requires **Manage Production Environments** permission |
+
+
+### Access Control
+
+To control `Trusted client origins`, `Allowed API origins` and `API Password Protection`, see the guide for [API access restriction](/cloud/restricting-api-access.mdx).
+
+### Subdomain Management
+
+Subdomains of your environments (for example, `[your_subdomain].saleor.cloud`) can be changed on demand in the Cloud Console.
+
+Changing the subdomain may impact apps. Update any hard‑coded callbacks, CORS/allowed origins, and external services accordingly.
+
+::::warning
+Before promoting an environment to production, review its domain name. 
+We strongly recommend that production domains do not contain words that suggest non‑production usage, such as "test", "staging", or "sandbox".
+::::
+
+### Maintenance mode
+
+Use maintenance mode during planned maintenance windows or when performing data operations that must not be interrupted.
+
+When enabled:
+
+- API requests return a maintenance response.
+- Webhooks are not delivered.
+- You can enable or disable maintenance mode from the environment page in the Cloud Console.
+
+### Demote
+
+Demoting a production environment converts it back to a sandbox. A demoted environment must not be used for live commerce.
+
+## Data Management
+Saleor Cloud Console lets you manage environment data in a few ways: you can load a sample database, create and restore snapshots, or clear the database.
+
+### Snapshots
+
+Database snapshots let you capture and replicate the state of any sandbox or production environment. They are especially useful for creating staging environments
 
 :::info
 Production environments automatically create daily snapshots, which are retained for 7 days.
@@ -58,41 +121,52 @@ Production environments automatically create daily snapshots, which are retained
 This feature enables productive workflows for development and testing, for example:
 
 - Replicating the latest production data to a staging environment.
-- Creating integration tests. You can create snapshots that would be used as a starting point for integration tests.
-- Migration scripts. During the development of migration scripts, it might be desirable to do it in steps, where each successful step can be saved and reverted during the development of the next step.
+- Running integration tests from a consistent starting point.
+- Developing migration scripts step by step, saving each successful stage and reverting if needed.
 
 Follow the quickstart guide to learn [how to use snapshots](/quickstart/cloud.mdx).
 
-## Restoring deleted environments
+### Clear database
+
+Completely removes all business-related records (orders, products, categories, customer accounts, vouchers, gift cards). This action cannot be undone.
+
+Use this in a sandbox environment when you want to start from a clean slate.
+
+It does not remove environment configuration, such as:
+- Staff and superuser accounts
+- Channels
+- Plugin configurations
+- Apps
+- Site settings
+- Navigation menus
+
+
+### Replace database with a sample
+
+Erases all existing business-related records and environment configuration (like staff members and permissions) and loads a sample dataset. 
+This is useful for demos and quick evaluations.
+
+
+## Removing environment
+
+### Delete environment
+You can delete an environment from the Cloud Console.
+
+::::warning
+Deletion is permanent. Once deleted, the environment itself cannot be restored. 
+Before deletion, Saleor automatically creates a final snapshot. 
+You can create a new environment later and restore data from this snapshot. See "Restoring deleted environments" below.
+::::
+
+###  Restoring deleted environments
 
 If your environment has been automatically deleted due to inactivity, you can restore it from a snapshot within 7 days. Final snapshot is created automatically before deletion. You don't need to contact support to restore your environment - you can do it yourself by following these steps:
 
 1. Go to the cloud project and click `New Sandbox`.
-2. Fill the form you can set the same sandbox domain as before.
+2. Fill out the form. You can set the same sandbox domain as before.
 3. In the database section select `Use snapshot` option.
-4. Choose the snapshot with `final` in name (this is the backup created before the environment was deleted).
+4. Choose the snapshot with `final` in its name (this is the backup created before the environment was deleted).
 
 :::note
 Snapshots from deleted environments are retained for 7 days.
 :::
-
-## Version upgrades
-
-Saleor versions can be upgraded on demand via the console. Sequential upgrades (from one minor to the next minor) are backward compatible and do not require downtime. Thus, upgrades are never disruptive.
-
-Each environment has independent version management, thus making it possible to test new features before production upgrades.
-
-:::note
-Projects without a production environment (aka free projects) automatically upgrade to the latest version. To disable automatic version upgrades of sandboxes, you would need to have a production instance in the same project.
-:::
-
-
-## Access Control
-
-To control `Trusted client origins` and `Allowed API origins`, see the guide for [API access restriction](/cloud/restricting-api-access.mdx).
-
-
-## Subdomain Management
-
-Subdomains of your environments (e.g., `[your_subdomain].saleor.cloud`) can be changed of your instance on demand via console.
-
