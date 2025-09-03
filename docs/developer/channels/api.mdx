@@ -4,27 +4,28 @@ sidebar_label: API guide
 description: Learn how to manage channels using Saleor API. Create, update, and delete channels, reorder warehouses, and get channel details.
 ---
 
-### Getting channel details
+## Getting Channel Details
 
-Use [`channel`](api-reference/channels/queries/channel.mdx) query to get channel details.
+Use the [`channel`](api-reference/channels/queries/channel.mdx) query to get channel details.
 
-Channel query requires channel ID or channel slug.
+The `channel` query requires a channel ID or channel slug.
 
 Available fields:
 
 - `id`: Channel object ID
-- `slug`: When using channel-dependant queries, the slug is used to select the right one (for example, when requesting Product details)
+- `slug`: When using channel-dependent queries, the slug is used to select the right channel (for example, when requesting product details).
 - `name`: Channel name
-- `isActive`: Flag signalling that the channel is available for shop customers.
+- `isActive`: Flag signaling that the channel is available for shop customers.
 - `currencyCode`: Currency code used by the channel.
 - `hasOrders`: Returns `true` when there are already created orders using that channel. If that's the only channel using this currency, you won't be able to remove it.
-- `defaultCountry`: Default country for the channel. The default country will be used in checkout to determine the stock quantities or calculate taxes when the country was not explicitly provided, either as a query parameter or through a shipping address.
+- `defaultCountry`: Default country for the channel. The default country is used in checkout to determine stock quantities or calculate taxes when the country is not explicitly provided, either as a query parameter or through a shipping address.
 - `warehouses`: Warehouses that are available in the given channel.
 - `countries`: List of shippable countries for the channel.
 - `availableShippingMethodsPerCountry`: Shipping methods that are available for the channel.
-- `stockSettings`: contains all stock-related settings,
-  e.g. the [allocation strategy](developer/stock/stock-allocation.mdx#allocation-strategies) for the channel.
+- `stockSettings`: Contains all stock-related settings, e.g., the [allocation strategy](developer/stock/stock-allocation.mdx#allocation-strategies) for the channel.
 - `orderSettings`: Channel-specific order settings.
+- `checkoutSettings`: Controls automatic checkout completion and error handling.
+- `paymentSettings`: Defines the default transaction flow strategy: `AUTHORIZATION` or `CHARGE`.
 
 Request:
 
@@ -124,24 +125,23 @@ Response:
 }
 ```
 
-### Permissions
+## Permissions
 
 Listing channels is allowed only for users with the active [`isStaff`](api-reference/users/objects/user.mdx#userisstaffboolean---) flag.
 
 You need the `MANAGE_CHANNELS` permission to create, edit, and remove channels.
-Changing `ChannelListing` does not require additional permissions. For example, changing Product availability requires only `MANAGE_PRODUCTS` permission.
+Changing `ChannelListing` does not require additional permissions. For example, changing product availability requires only the `MANAGE_PRODUCTS` permission.
 
 Objects with customized per-channel visibility are restricted by channel permissions.
-If a user with restricted channel access fetches per-channel objects, only objects from accessible channels will be returned.
-You can read more about channel permissions [here](developer/permissions.mdx).
+If a user with restricted channel access fetches per-channel objects, only objects from accessible channels are returned.
+Read more about channel permissions in [Permissions](developer/permissions.mdx).
 
-### Creating a new channel
+## Creating a new channel
 
-You can create a new channel using [`channelCreate`](api-reference/channels/mutations/channel-create.mdx) mutation.
-During checkout creation, you can define the allocation strategy. Right now the
-two possible options are available: `PRIORITIZE_HIGH_STOCK` and `PRIORITIZE_SORTING_ORDER`,
-the `PRIORITIZE_SORTING_ORDER` strategy is used as default.
-You can read more about the allocation strategies [`here`](developer/stock/stock-allocation.mdx#allocation-strategies).
+You can create a new channel using the [`channelCreate`](api-reference/channels/mutations/channel-create.mdx) mutation.
+During channel creation, you can define the allocation strategy. Currently, two options are available: `PRIORITIZE_HIGH_STOCK` and `PRIORITIZE_SORTING_ORDER`. 
+The `PRIORITIZE_SORTING_ORDER` strategy is used by default. 
+Read more about allocation strategies in [Stock allocation](developer/stock/stock-allocation.mdx#allocation-strategies).
 
 Request:
 
@@ -205,113 +205,19 @@ Response:
 }
 ```
 
-### Channel list
+## Channel Settings
+Each channel can have an independent configuration for orders, checkout, stock, and payments.
+These settings are available under the fields: `orderSettings`, `checkoutSettings`, `stockSettings`, and `paymentSettings`.
 
-Because some of the channels may be considered non-public (for example - a channel for business partners), non-staff users cannot use the [`channels`](api-reference/channels/queries/channels.mdx) query.
+### Reorder Warehouses Within Channels
 
-Request:
-
-```graphql
-query {
-  channels {
-    name
-  }
-}
-```
-
-Response:
-
-```json
-{
-  "data": {
-    "channels": [
-      {
-        "name": "Mobile"
-      },
-      {
-        "name": "Website"
-      }
-    ]
-  }
-}
-```
-
-#### Activate / Deactivate channel
-
-If you want to make the channel unavailable for customers, you can change its status to `deactivated` using [`channelDeactivate`](api-reference/channels/mutations/channel-deactivate.mdx) mutation:
-
-```graphql
-mutation {
-  channelDeactivate(slug: "default-channel") {
-    channel {
-      name
-      isActive
-    }
-    errors {
-      message
-    }
-  }
-}
-```
-
-Response:
-
-```json
-{
-  "data": {
-    "channelDeactivate": {
-      "channel": {
-        "name": "Facebook",
-        "isActive": false
-      },
-      "channelErrors": []
-    }
-  }
-}
-```
-
-And to reverse the previous operation use the [`channelActivate`](api-reference/channels/mutations/channel-activate.mdx) mutation:
-
-```graphql
-mutation {
-  channelActivate(slug: "default-channel") {
-    channel {
-      name
-      isActive
-    }
-    errors {
-      message
-    }
-  }
-}
-```
-
-Response:
-
-```json
-{
-  "data": {
-    "channelDeactivate": {
-      "channel": {
-        "name": "Facebook",
-        "isActive": true
-      },
-      "channelErrors": []
-    }
-  }
-}
-```
-
-### Reorder warehouses within channels
-
-The warehouses assigned to the channel can be sorted. The provided order defines the
-warehouses' order used in `PRIORITIZE_SORTING_ORDER`
+The warehouses assigned to the channel can be sorted. The provided order defines the 
+warehouses order used in the `PRIORITIZE_SORTING_ORDER` 
 [allocation strategy](developer/stock/stock-allocation.mdx#allocation-strategies).
-The `sort_order` in `moves` input represents the new relative position of the item.
-So when 1 is provided, the item will be moved one position forward; when -1 - one
-position backward.
+The `sortOrder` in the `moves` input represents the new relative position of the item. 
+When `1` is provided, the item is moved one position forward; when `-1`, one position backward.
 
-Let's assume that we have a `channel` with three warehouses in the following order.
+Assume we have a `channel` with three warehouses in the following order:
 
 ```json
 {
@@ -337,8 +243,7 @@ Let's assume that we have a `channel` with three warehouses in the following ord
 }
 ```
 
-To move the `americas` warehouse to the first place and the `europe` warehouse to
-third, we can run the following mutation.
+To move the `americas` warehouse to the first position and the `europe` warehouse to the third position, run the following mutation:
 
 ```graphql
 mutation {
@@ -374,7 +279,7 @@ mutation {
 }
 ```
 
-And as a response, we get:
+Response:
 
 ```json
 {
@@ -402,18 +307,137 @@ And as a response, we get:
   }
 }
 ```
+### Order Settings
+Channel-level `orderSettings` influence how orders behave after being placed (post-checkout or created from draft).
+You can define auto-confirmation, gift card auto-fulfillment, order expiration, and whether unpaid orders are allowed.
 
-### Removing a channel
+Read more about [order settings](developer/order/overview.mdx#channel-specific-settings).
+
+### Checkout Settings
+Channel-specific checkout behavior allows you to enable automatic completion of paid checkouts.
+
+Read more about [automatic checkout completion](developer/payments/transactions.mdx#automatic-checkout-completion).
+
+### Payment Settings
+
+Channel-level `paymentSettings` influence how the payment flow is handled. Use `defaultTransactionFlowStrategy` to set the default flow.
+
+Read more about the [transaction strategy](developer/payments/transaction-flow-strategy.mdx).
+
+## Channel List
+
+Because some channels may be considered non-public (for example, a channel for business partners), non-staff users cannot use the [`channels`](api-reference/channels/queries/channels.mdx) query.
+
+Request:
+
+```graphql
+query {
+  channels {
+    name
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "channels": [
+      {
+        "name": "Mobile"
+      },
+      {
+        "name": "Website"
+      }
+    ]
+  }
+}
+```
+## Managing Channels
+
+### Activate or Deactivate a Channel
+
+To make a channel unavailable for customers, change its status to `deactivated` using the [`channelDeactivate`](api-reference/channels/mutations/channel-deactivate.mdx) mutation:
+
+```graphql
+mutation {
+  channelDeactivate(slug: "default-channel") {
+    channel {
+      name
+      isActive
+    }
+    errors {
+      message
+    }
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "channelDeactivate": {
+      "channel": {
+        "name": "Facebook",
+        "isActive": false
+      },
+      "channelErrors": []
+    }
+  }
+}
+```
+
+To reverse the previous operation, use the [`channelActivate`](api-reference/channels/mutations/channel-activate.mdx) mutation:
+
+```graphql
+mutation {
+  channelActivate(slug: "default-channel") {
+    channel {
+      name
+      isActive
+    }
+    errors {
+      message
+    }
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "data": {
+    "channelActivate": {
+      "channel": {
+        "name": "Facebook",
+        "isActive": true
+      },
+      "channelErrors": []
+    }
+  }
+}
+```
+
+### Update Channel
+
+Use the [`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation to edit channel fields such as `name`, `slug`, or settings.
+
+### Removing a Channel
 
 Channels can be removed only when:
 
 - There are no orders created in them.
-- If there are orders created, `targetChannel` is required. Its currency has to be the same as the channel you are about to delete. All orders will be moved to `targetChannel`.
+- If there are existing orders, `targetChannel` is required. Its currency must be the same as the channel you are about to delete. 
+All orders will be moved to `targetChannel`.
 
-[`channelDelete`](api-reference/channels/mutations/channel-delete.mdx) mutation takes [input](api-reference/channels/inputs/channel-delete-input.mdx):
+The [`channelDelete`](api-reference/channels/mutations/channel-delete.mdx) mutation takes [input](api-reference/channels/inputs/channel-delete-input.mdx):
 
-- `id`: ID of the Channel that will be deleted
-- `channelId`: all existing orders will be moved into this channel
+- `id`: ID of the channel that will be deleted
+- `channelId`: ID of the target channel to which all existing orders will be moved
 
 ```graphql
 channelDelete(
@@ -426,7 +450,7 @@ input ChannelDeleteInput {
 }
 ```
 
-### Errors
+## Errors
 
 ```graphql
 type ChannelError {
