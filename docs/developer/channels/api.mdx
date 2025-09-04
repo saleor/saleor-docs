@@ -149,13 +149,10 @@ Objects with customized per-channel visibility are restricted by channel permiss
 If a user with restricted channel access fetches per-channel objects, only objects from accessible channels are returned.
 Read more about channel permissions in [Permissions](developer/permissions.mdx).
 
-## Creating a new channel
+## Creating a New Channel
 
 You can create a new channel using the [`channelCreate`](api-reference/channels/mutations/channel-create.mdx) mutation.
-During channel creation, you can define the allocation strategy. Currently, two options are available: `PRIORITIZE_HIGH_STOCK` and `PRIORITIZE_SORTING_ORDER`. 
-The `PRIORITIZE_SORTING_ORDER` strategy is used by default. 
-Read more about allocation strategies in [Stock allocation](developer/stock/stock-allocation.mdx#allocation-strategies).
-
+During channel creation, you can configure not only slug or currency but also stock, order, checkout, payment behaviors, and assign warehouses and shipping zones.
 <Tabs>
 <TabItem value="Mutation">
 ```graphql
@@ -173,6 +170,18 @@ mutation channelCreate($input: ChannelCreateInput!) {
       }
       stockSettings {
         allocationStrategy
+      }
+      orderSettings {
+        automaticallyConfirmAllNewOrders
+      }
+      checkoutSettings {
+        automaticallyCompleteFullyPaidCheckouts
+      }
+      paymentSettings {
+        defaultTransactionFlowStrategy
+      }
+      warehouses {
+        name
       }
     }
     errors {
@@ -195,7 +204,23 @@ mutation channelCreate($input: ChannelCreateInput!) {
     "slug": "mobile",
     "stockSettings": {
       "allocationStrategy": "PRIORITIZE_HIGH_STOCK"
-    }
+    },
+    "orderSettings": {
+      "automaticallyConfirmAllNewOrders": true
+    },
+    "checkoutSettings": {
+      "automaticallyCompleteFullyPaidCheckouts": true
+    },
+    "paymentSettings": {
+      "defaultTransactionFlowStrategy": "CHARGE"
+    },
+    "addWarehouses": [
+      "V2FyZWhvdXNlOjQwZWY1MTQwLWQ5OTYtNDVlNy04NzUzLTlkZThkMTdhMjg1Yw=="
+    ],
+    "addShippingZones": [
+      "U2hpcHBpbmdab25lOjI=",
+      "U2hpcHBpbmdab25lOjU="
+    ]
   }
 }
 ```
@@ -218,7 +243,21 @@ mutation channelCreate($input: ChannelCreateInput!) {
         },
         "stockSettings": {
           "allocationStrategy": "PRIORITIZE_HIGH_STOCK"
-        }
+        },
+        "orderSettings": {
+          "automaticallyConfirmAllNewOrders": true
+        },
+        "checkoutSettings": {
+          "automaticallyCompleteFullyPaidCheckouts": true
+        },
+        "paymentSettings": {
+          "defaultTransactionFlowStrategy": "CHARGE"
+        },
+        "warehouses": [
+          {
+            "name": "Default"
+          }
+        ]
       },
       "errors": []
     }
@@ -232,11 +271,19 @@ mutation channelCreate($input: ChannelCreateInput!) {
 Each channel can have an independent configuration for orders, checkout, stock, and payments.
 These settings are available under the fields: `orderSettings`, `checkoutSettings`, `stockSettings`, and `paymentSettings`.
 
-### Reorder Warehouses Within Channels
+### Stock Settings
+Channel-level stock settings control how inventory is allocated to orders.
 
-The warehouses assigned to the channel can be sorted. The provided order defines the 
-warehouses order used in the `PRIORITIZE_SORTING_ORDER` 
-[allocation strategy](developer/stock/stock-allocation.mdx#allocation-strategies).
+- `allocationStrategy`: Determines which warehouse is used first when reserving stock.
+  - `PRIORITIZE_HIGH_STOCK`: Prefer warehouses with higher on-hand stock.
+  - `PRIORITIZE_SORTING_ORDER`: Follow the warehouse order defined for the channel (default).
+
+Read more about [stock allocation](developer/stock/stock-allocation.mdx).
+
+#### Reorder Warehouses Within Channels
+
+You can change the warehouse order using the [`channelReorderWarehouses`](api-reference/channels/mutations/channel-reorder-warehouses.mdx) mutation.
+
 The `sortOrder` in the `moves` input represents the new relative position of the item. 
 When `1` is provided, the item is moved one position forward; when `-1`, one position backward.
 
@@ -340,7 +387,7 @@ mutation channelReorderWarehouses($channelId: ID!, $moves: [ReorderInput!]!) {
 </Tabs>
 
 ### Order Settings
-Channel-level `orderSettings` influence how orders behave after being placed (post-checkout or created from draft).
+Channel-level order settings influence how orders behave after being placed (post-checkout or created from draft).
 You can define auto-confirmation, gift card auto-fulfillment, order expiration, and whether unpaid orders are allowed.
 
 Read more about [order settings](developer/order/overview.mdx#channel-specific-settings).
@@ -352,7 +399,7 @@ Read more about [automatic checkout completion](developer/payments/transactions.
 
 ### Payment Settings
 
-Channel-level `paymentSettings` influence how the payment flow is handled. Use `defaultTransactionFlowStrategy` to set the default flow.
+Channel-level payment settings influence how the payment flow is handled. Use `defaultTransactionFlowStrategy` to set the default flow.
 
 Read more about the [transaction strategy](developer/payments/transaction-flow-strategy.mdx).
 
@@ -573,8 +620,8 @@ mutation ChannelUpdate($id: ID!, $input: ChannelUpdateInput!) {
 Channels can be removed only when:
 
 - There are no orders created in them.
-- If there are existing orders, `targetChannel` is required. Its currency must be the same as the channel you are about to delete. 
-All orders will be moved to `targetChannel`.
+- If there are existing orders, it is required to provide the ID of a destination channel in `ChannelDeleteInput` using the field `channelId`. 
+Its currency must be the same as the channel you are about to delete. All orders will be moved to this channel.
 
 Use [`channelDelete`](api-reference/channels/mutations/channel-delete.mdx) to remove channel.
 
