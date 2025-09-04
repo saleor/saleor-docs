@@ -27,11 +27,14 @@ Available fields:
 - `checkoutSettings`: Controls automatic checkout completion and error handling.
 - `paymentSettings`: Defines the default transaction flow strategy: `AUTHORIZATION` or `CHARGE`.
 
-Request:
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
-query {
-  channel(slug: "mobile") {
+query channel($slug: String) {
+  channel(slug: $slug) {
     id
     slug
     name
@@ -65,9 +68,17 @@ query {
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "slug": "mobile"
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -124,6 +135,8 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 ## Permissions
 
@@ -143,19 +156,11 @@ During channel creation, you can define the allocation strategy. Currently, two 
 The `PRIORITIZE_SORTING_ORDER` strategy is used by default. 
 Read more about allocation strategies in [Stock allocation](developer/stock/stock-allocation.mdx#allocation-strategies).
 
-Request:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  channelCreate(
-    input: {
-      currencyCode: "USD"
-      defaultCountry: US
-      name: "Mobile"
-      slug: "mobile"
-      stockSettings: { allocationStrategy: PRIORITIZE_HIGH_STOCK }
-    }
-  ) {
+mutation channelCreate($input: ChannelCreateInput!) {
+  channelCreate(input: $input) {
     channel {
       id
       isActive
@@ -178,9 +183,25 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "currencyCode": "USD",
+    "defaultCountry": "US",
+    "name": "Mobile",
+    "slug": "mobile",
+    "stockSettings": {
+      "allocationStrategy": "PRIORITIZE_HIGH_STOCK"
+    }
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -204,6 +225,8 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 ## Channel Settings
 Each channel can have an independent configuration for orders, checkout, stock, and payments.
@@ -245,23 +268,11 @@ Assume we have a `channel` with three warehouses in the following order:
 
 To move the `americas` warehouse to the first position and the `europe` warehouse to the third position, run the following mutation:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  channelReorderWarehouses(
-    channelId: "Q2hhbm5lbDox"
-    moves: [
-      {
-        # move for `americas` warehouse
-        id: "V2FyZWhvdXNlOjY4M2FkMzZhLTRmNjktNDI2ZS1iYzUyLTMyZGJiZTQ2NjUyZA=="
-        sortOrder: -2
-      }
-      {
-        # move for `europe` warehouse
-        id: "V2FyZWhvdXNlOjU1NTZiOWI0LTc1ZTItNGI3YS1hZWM1LTQxOTY4NDA2OGE4OA=="
-        sortOrder: 1
-      }
-    ]
-  ) {
+mutation channelReorderWarehouses($channelId: ID!, $moves: [ReorderInput!]!) {
+  channelReorderWarehouses(channelId: $channelId, moves: $moves) {
     channel {
       id
       warehouses {
@@ -278,9 +289,27 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "channelId": "Q2hhbm5lbDox",
+  "moves": [
+    {
+      "id": "V2FyZWhvdXNlOjY4M2FkMzZhLTRmNjktNDI2ZS1iYzUyLTMyZGJiZTQ2NjUyZA==",
+      "sortOrder": -2
+    },
+    {
+      "id": "V2FyZWhvdXNlOjU1NTZiOWI0LTc1ZTItNGI3YS1hZWM1LTQxOTY4NDA2OGE4OA==",
+      "sortOrder": 1
+    }
+  ]
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -307,6 +336,9 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 ### Order Settings
 Channel-level `orderSettings` influence how orders behave after being placed (post-checkout or created from draft).
 You can define auto-confirmation, gift card auto-fulfillment, order expiration, and whether unpaid orders are allowed.
@@ -327,9 +359,8 @@ Read more about the [transaction strategy](developer/payments/transaction-flow-s
 ## Channel List
 
 Because some channels may be considered non-public (for example, a channel for business partners), non-staff users cannot use the [`channels`](api-reference/channels/queries/channels.mdx) query.
-
-Request:
-
+<Tabs>
+<TabItem value="Query">
 ```graphql
 query {
   channels {
@@ -337,9 +368,9 @@ query {
   }
 }
 ```
+</TabItem>
 
-Response:
-
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -354,15 +385,20 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 ## Managing Channels
 
 ### Activate or Deactivate a Channel
 
 To make a channel unavailable for customers, change its status to `deactivated` using the [`channelDeactivate`](api-reference/channels/mutations/channel-deactivate.mdx) mutation:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  channelDeactivate(slug: "default-channel") {
+mutation channelDeactivate($id: ID!) {
+  channelDeactivate(id: $id) {
     channel {
       name
       isActive
@@ -373,9 +409,17 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hhbm5lbDox"
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -389,12 +433,16 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 To reverse the previous operation, use the [`channelActivate`](api-reference/channels/mutations/channel-activate.mdx) mutation:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  channelActivate(slug: "default-channel") {
+mutation channelActivate($id: ID!) {
+  channelActivate(id: $id) {
     channel {
       name
       isActive
@@ -405,9 +453,17 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hhbm5lbDox"
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -421,10 +477,96 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 
 ### Update Channel
 
-Use the [`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation to edit channel fields such as `name`, `slug`, or settings.
+Use the [`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation to edit channel fields such as `name`, `shipping zones` or `settings`.
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ChannelUpdate($id: ID!, $input: ChannelUpdateInput!) {
+  channelUpdate(id: $id, input: $input) {
+    channel {
+      id
+      slug
+      warehouses{
+        name
+      }
+      orderSettings {
+        automaticallyConfirmAllNewOrders
+      }
+      checkoutSettings {
+        automaticallyCompleteFullyPaidCheckouts
+      }
+      paymentSettings {
+        defaultTransactionFlowStrategy
+      }
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hhbm5lbDoxMjM=",
+  "input": {
+    "addShippingZones": ["U2hpcHBpbmdab25lOjI=", "U2hpcHBpbmdab25lOjU="],
+    "addWarehouses": ["V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="],
+    "orderSettings": {
+      "automaticallyConfirmAllNewOrders": true
+    },
+    "checkoutSettings": {
+      "automaticallyCompleteFullyPaidCheckouts": true
+    },
+    "paymentSettings": {
+      "defaultTransactionFlowStrategy": "CHARGE"
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "channelUpdate": {
+      "channel": {
+        "id": "Q2hhbm5lbDoxMjM=",
+        "slug": "us",
+        "warehouses": [
+          {
+            "name": "Americas"
+          }
+        ],
+        "orderSettings": {
+          "automaticallyConfirmAllNewOrders": true
+        },
+        "checkoutSettings": {
+          "automaticallyCompleteFullyPaidCheckouts": true
+        },
+        "paymentSettings": {
+          "defaultTransactionFlowStrategy": "CHARGE"
+        }
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 ### Removing a Channel
 
@@ -434,50 +576,49 @@ Channels can be removed only when:
 - If there are existing orders, `targetChannel` is required. Its currency must be the same as the channel you are about to delete. 
 All orders will be moved to `targetChannel`.
 
-The [`channelDelete`](api-reference/channels/mutations/channel-delete.mdx) mutation takes [input](api-reference/channels/inputs/channel-delete-input.mdx):
+Use [`channelDelete`](api-reference/channels/mutations/channel-delete.mdx) to remove channel.
 
-- `id`: ID of the channel that will be deleted
-- `channelId`: ID of the target channel to which all existing orders will be moved
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-channelDelete(
-  id: ID!
-  input: ChannelDeleteInput
-): ChannelDelete
-
-input ChannelDeleteInput {
-  channelId: ID! # ID of the channel to migrate orders from origin channel.
+mutation channelDelete($id: ID!, $input: ChannelDeleteInput) {
+  channelDelete(id: $id, input: $input) {
+    errors {
+      field
+      code
+      message
+    }
+    channel{
+      name
+    }
+  }
 }
 ```
+</TabItem>
 
-## Errors
-
-```graphql
-type ChannelError {
-  field: String
-  message: String
-  code: ChannelErrorCode!
-}
-
-enum ChannelErrorCode {
-  ALREADY_EXISTS
-  GRAPHQL_ERROR
-  INVALID
-  NOT_FOUND
-  REQUIRED
-  UNIQUE
-  CHANNEL_TARGET_ID_MUST_BE_DIFFERENT
-  CHANNELS_CURRENCY_MUST_BE_THE_SAME
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hhbm5lbDoxMjI=",
+  "input": {
+    "channelId": "Q2hhbm5lbDox"
+  }
 }
 ```
+</TabItem>
 
-[`ChannelErrorCode`](api-reference/channels/enums/channel-error-code.mdx) values:
-
-- `ALREADY_EXISTS`: Object already exists in the database
-- `GRAPHQL_ERROR`: Wrong query
-- `INVALID`: Invalid data provided
-- `NOT_FOUND`: Could not found object
-- `REQUIRED`: Missing required fields
-- `UNIQUE`: Provided value for field needs to be unique
-- `CHANNEL_TARGET_ID_MUST_BE_DIFFERENT`: Cannot move orders into the channel you want to delete
-- `CHANNELS_CURRENCY_MUST_BE_THE_SAME`: Target channel has to have the same currency
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "channelDelete": {
+      "errors": [],
+      "channel": {
+        "name": "us"
+      }
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
