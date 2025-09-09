@@ -2,6 +2,8 @@
 title: Order Fulfillment
 ---
 ## Introduction
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 Order fulfillment is the process of handling and delivering goods to customers. 
 In Saleor, fulfillments represent the shipping and logistics stage of an order.
@@ -147,15 +149,11 @@ You can enhance the fulfillment process with these additional options:
 
 Here's an example of creating a fulfillment:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation FulfillOrder {
-  orderFulfill(
-    order: "T3JkZXI6OTE3Yjc2NDQtY2Q0Zi00ZjcyLTkzNjktMGNhYTk4ODEyNDQy"
-    input: {lines: [
-      {orderLineId: "T3JkZXJMaW5lOjM1YzEwNjNkLTYyNjQtNGExMi1hYzBlLWRhMzg1ZDM3ZGRhNA==", stocks: [{quantity: 2, warehouse: "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="}]}, 
-      {orderLineId: "T3JkZXJMaW5lOmJmYzQzMDg2LTlkM2ItNGM2MS1hMGJkLTRkNGE2YmIyNWZiNw==", stocks: [{quantity: 3, warehouse: "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="}]}
-      ], notifyCustomer: false, allowStockToBeExceeded: false, trackingNumber: "28074624654"}
-  ) {
+mutation FulfillOrder($id: ID, $input: OrderFulfillInput!) {
+  orderFulfill(order: $id, input: $input) {
     errors {
       field
       code
@@ -187,9 +185,43 @@ mutation FulfillOrder {
     __typename
   }
 }
-
 ```
-**Example respose**
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "T3JkZXI6OTE3Yjc2NDQtY2Q0Zi00ZjcyLTkzNjktMGNhYTk4ODEyNDQy",
+  "input": {
+    "lines": [
+      {
+        "orderLineId": "T3JkZXJMaW5lOjM1YzEwNjNkLTYyNjQtNGExMi1hYzBlLWRhMzg1ZDM3ZGRhNA==",
+        "stocks": [
+          {
+            "quantity": 2,
+            "warehouse": "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="
+          }
+        ]
+      },
+      {
+        "orderLineId": "T3JkZXJMaW5lOmJmYzQzMDg2LTlkM2ItNGM2MS1hMGJkLTRkNGE2YmIyNWZiNw==",
+        "stocks": [
+          {
+            "quantity": 3,
+            "warehouse": "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="
+          }
+        ]
+      }
+    ],
+    "notifyCustomer": false,
+    "allowStockToBeExceeded": false,
+    "trackingNumber": "28074624654"
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -236,6 +268,8 @@ mutation FulfillOrder {
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 :::note
 - Creating a fulfillment will trigger the following async webhook events:
@@ -256,15 +290,11 @@ Fulfillments can be canceled using the [`orderFulfillmentCancel`](/api-reference
 - `warehouseId` - The ID of the warehouse where the items should be restocked
 
 Here's an example of cancelling a fulfillment:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation OrderFulfillmentCancel {
-  orderFulfillmentCancel(
-    id: "RnVsZmlsbG1lbnQ6MTEw",
-    input: {
-      warehouseId: "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="
-    }
-  ) {
+mutation OrderFulfillmentCancel($id: ID!, $input: FulfillmentCancelInput) {
+  orderFulfillmentCancel(id: $id, input: $input) {
     errors {
       field
       code
@@ -297,10 +327,20 @@ mutation OrderFulfillmentCancel {
   }
 }
 ```
+</TabItem>
 
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "RnVsZmlsbG1lbnQ6MTEw",
+  "input": {
+    "warehouseId": "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="
+  }
+}
+```
+</TabItem>
 
-**Example Response**
-
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -345,6 +385,8 @@ mutation OrderFulfillmentCancel {
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 :::note
 - Canceling a fulfillment will trigger the `FULFILLMENT_CANCELED` webhook event
@@ -367,13 +409,14 @@ Fulfillments can be approved using the [`orderFulfillmentApprove`](/api-referenc
   - We recommend testing this behavior with both track inventory enabled and disabled
 
 Here's an example of approving a fulfillment:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation OrderFulfillmentApprove {
+mutation OrderFulfillmentApprove($id: ID!, $notifyCustomer: Boolean!, $allowStockToBeExceeded: Boolean) {
   orderFulfillmentApprove(
-    id: "RnVsZmlsbG1lbnQ6MTIw"
-    notifyCustomer: true
-    allowStockToBeExceeded: true
+    id: $id
+    notifyCustomer: $notifyCustomer
+    allowStockToBeExceeded: $allowStockToBeExceeded
   ) {
     errors {
       field
@@ -406,9 +449,19 @@ mutation OrderFulfillmentApprove {
   }
 }
 ```
+</TabItem>
 
-**Example Response**
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "RnVsZmlsbG1lbnQ6MTIw",
+  "notifyCustomer": true,
+  "allowStockToBeExceeded": true
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -452,6 +505,8 @@ mutation OrderFulfillmentApprove {
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 :::note
 - Approving a fulfillment will trigger the `FULFILLMENT_APPROVED` webhook event
@@ -476,13 +531,11 @@ The [`orderFulfillmentUpdateTracking`](/api-reference/orders/mutations/order-ful
 - `notifyCustomer` - When enabled, a notification about the updated tracking number is triggered via the configured plugins or apps.
 
 Here's an example of updating tracking number for fulfillment:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation OrderFulfillmentUpdateTracking {
-  orderFulfillmentUpdateTracking(
-    id: "RnVsZmlsbG1lbnQ6MTIw"
-    input: {trackingNumber: "12345678", notifyCustomer: true}
-  ) {
+mutation OrderFulfillmentUpdateTracking($id: ID!, $input: FulfillmentUpdateTrackingInput!) {
+  orderFulfillmentUpdateTracking(id: $id, input: $input) {
     errors {
       field
       code
@@ -505,10 +558,21 @@ mutation OrderFulfillmentUpdateTracking {
   }
 }
 ```
+</TabItem>
 
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "RnVsZmlsbG1lbnQ6MTIw",
+  "input": {
+    "trackingNumber": "12345678",
+    "notifyCustomer": true
+  }
+}
+```
+</TabItem>
 
-**Example Response**
-
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -539,6 +603,9 @@ mutation OrderFulfillmentUpdateTracking {
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 
 :::note
 - Updating a tracking number will trigger the `FULFILLMENT_TRACKING_NUMBER_UPDATED` webhook event
@@ -579,7 +646,8 @@ mutation provides a way to handle various return scenarios, including items retu
        3. Fulfill the replacement order
 
 Here's an example of processing returns and replacements:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation OrderFulfillmentReturnProducts($orderId: ID!, $input: OrderReturnProductsInput!) {
   orderFulfillmentReturnProducts(order:$orderId, input:$input) {
@@ -620,9 +688,9 @@ mutation OrderFulfillmentReturnProducts($orderId: ID!, $input: OrderReturnProduc
   }
 }
 ```
+</TabItem>
 
-**Example Variables:**
-
+<TabItem value={"Variables"}>
 ```json
 {
   "orderId": "T3JkZXI6NjAzYWI5OWMtY2EzZC00NzQwLWIxMDMtMjRhYzMyYmM0MjE2",
@@ -645,9 +713,9 @@ mutation OrderFulfillmentReturnProducts($orderId: ID!, $input: OrderReturnProduc
   }
 }
 ```
+</TabItem>
 
-**Example Response:**
-
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -702,7 +770,8 @@ mutation OrderFulfillmentReturnProducts($orderId: ID!, $input: OrderReturnProduc
   }
 }
 ```
-
+</TabItem>
+</Tabs>
 
 3. **Return and Refund**
 :::warning

@@ -1,6 +1,8 @@
 ---
 title: Address Validation
 ---
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 Address format varies between each country. Saleor has a backend validation library that helps you gather data required by postal services.
 
@@ -15,6 +17,8 @@ Validation is only performed on the format of address data. To check if the addr
 Using the [addressValidationRules](api-reference/users/queries/address-validation-rules.mdx) query, API clients can fetch validation rules depending on the selected country. Based on the ruleset, some address fields can be hidden (e.g. `countryArea`).
 Saleor Core uses [Google i18n address](https://github.com/mirumee/google-i18n-address) under the hood, with a ruleset from [Google Address Data](https://chromium-i18n.appspot.com/ssl-address).
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
 query {
   addressValidationRules(countryCode: PL) {
@@ -25,9 +29,9 @@ query {
   }
 }
 ```
+</TabItem>
 
-Response:
-
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -47,6 +51,9 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 
 Depending on the country, not all `allowedFields` fields are necessary. Nevertheless, additional info can be helpful for postal services.
 
@@ -62,19 +69,12 @@ a proper mapping, the value `Dublin` will be recognized as a valid country area 
 
 As an example of the address validation API, we will set the billing address in the checkout. The operation can be made with [checkoutBillingAddressUpdate](api-reference/checkout/mutations/checkout-billing-address-update.mdx):
 
+
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  checkoutBillingAddressUpdate(
-    billingAddress: {
-      country: PL
-      firstName: "John"
-      lastName: "Smith"
-      streetAddress1: "ul. Tęczowa 7"
-      postalCode: "53-030"
-      city: "Wroclaw"
-    }
-    token: "58f4ca17-9c6f-437b-8204-beb47bbee364"
-  ) {
+mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!) {
+  checkoutBillingAddressUpdate(id: $id, billingAddress: $billingAddress) {
     checkout {
       billingAddress {
         firstName
@@ -92,9 +92,25 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-Successful response:
+<TabItem value={"Variables"}>
+```json
+{
+  "billingAddress": {
+    "country": "PL",
+    "firstName": "John",
+    "lastName": "Smith",
+    "streetAddress1": "ul. Tęczowa 7",
+    "postalCode": "53-030",
+    "city": "Wroclaw"
+  },
+  "id": "Q2hlY2tvdXQ6YzRhMzMxNTYtNjRlMS00MzkzLWFjYmMtODIzZDRhNTE1Mjdi"
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -113,22 +129,28 @@ Successful response:
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 
 ### Errors
 
 Let's create an example of address validation errors. The address below is missing a few fields and has the wrong postal code:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  checkoutBillingAddressUpdate(
-    billingAddress: {
-      country: PL
-      firstName: "John"
-      lastName: "Smith"
-      postalCode: "Wrong Code"
+mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!) {
+  checkoutBillingAddressUpdate(id: $id, billingAddress: $billingAddress) {
+    checkout {
+      billingAddress {
+        firstName
+        lastName
+        streetAddress1
+        city
+        postalCode
+      }
     }
-    token: "58f4ca17-9c6f-437b-8204-beb47bbee364"
-  ) {
     errors {
       field
       message
@@ -137,9 +159,23 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "billingAddress": {
+    "country": "PL",
+    "firstName": "John",
+    "lastName": "Smith",
+    "postalCode": "Wrong Code"
+  },
+  "id": "Q2hlY2tvdXQ6YzRhMzMxNTYtNjRlMS00MzkzLWFjYmMtODIzZDRhNTE1Mjdi"
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -170,6 +206,9 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 
 Each field is validated separately, and each issue has a corresponding error code:
 

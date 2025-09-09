@@ -2,6 +2,9 @@
 title: Shipping and Billing
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 ## Shipping
 
 This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To signify whether shipping is required, use the `isShippingRequired` field in the [`Checkout`](api-reference/checkout/objects/checkout.mdx) object.
@@ -29,19 +32,11 @@ sequenceDiagram
 
 Address can be assigned using the [`checkoutShippingAddressUpdate`](api-reference/checkout/mutations/checkout-shipping-address-update.mdx) mutation:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  checkoutShippingAddressUpdate(
-    shippingAddress: {
-      country: PL
-      firstName: "John"
-      lastName: "Smith"
-      streetAddress1: "ul. Tęczowa 7"
-      postalCode: "53-030"
-      city: "Wroclaw"
-    }
-    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
-  ) {
+mutation checkoutShippingAddressUpdate($id: ID, $address: AddressInput!) {
+  checkoutShippingAddressUpdate(id: $id, shippingAddress: $address) {
     checkout {
       shippingAddress {
         firstName
@@ -59,9 +54,24 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-Successful response:
-
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+  "address": {
+    "country": "PL",
+    "firstName": "John",
+    "lastName": "Smith",
+    "streetAddress1": "ul. Tęczowa 7",
+    "postalCode": "53-030",
+    "city": "Wroclaw"
+  }
+}
+```
+</TabItem>
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -80,6 +90,8 @@ Successful response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 More information about address validation can be found on the [address validation](developer/address.mdx) page.
 
@@ -101,9 +113,11 @@ This process ensures that the address you want to use is both set as your accoun
 
 After choosing the shipping address, API can be queried for available delivery methods in the user area:
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
-query {
-  checkout(id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw") {
+query GetCheckout($id: ID) {
+  checkout(id: $id) {
     shippingMethods {
       id
       name
@@ -121,9 +135,17 @@ query {
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -166,6 +188,8 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 Shipping methods can be internal (defined in the Saleor Dashboard) or [external](developer/extending/webhooks/synchronous-events/shipping.mdx) (coming from the 3-rd party). Collection points are [warehouses](api-reference/products/objects/warehouse.mdx) that allow picking-up orders e.g. for click & collect flow.
 
@@ -182,12 +206,11 @@ In the following mutation, we assign a delivery method to the checkout using IDs
 
 Please note, that selecting `collectionPoint` or `shippingMethod` is mandatory for the checkout flow. In other words, setting `deliveryMethod` is mandatory.
 
-```graphql {2-5}
-mutation {
-  checkoutDeliveryMethodUpdate(
-    id: "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
-    deliveryMethodId: "U2hpcHBpbmdNZXRob2Q6MTM="
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
+  checkoutDeliveryMethodUpdate(id: $id, deliveryMethodId: $deliveryMethodId) {
     checkout {
       id
       deliveryMethod {
@@ -213,22 +236,31 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-As a result, we get an updated checkout object with a delivery method set:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6NmFkODZhOTgtZDA1Yi00YTA5LTllMTEtZjRmMmVkY2I1ZDk1",
+  "deliveryMethodId": "U2hpcHBpbmdNZXRob2Q6MzE="
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json {7}
 {
   "data": {
     "checkoutDeliveryMethodUpdate": {
       "checkout": {
-        "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+        "id": "Q2hlY2tvdXQ6NmFkODZhOTgtZDA1Yi00YTA5LTllMTEtZjRmMmVkY2I1ZDk1",
         "deliveryMethod": {
-          __typename: "ShippingMethod"
-          "name": "UPS"
+          "__typename": "ShippingMethod",
+          "name": "ups"
         },
         "totalPrice": {
           "gross": {
-            "amount": 25.99,
+            "amount": 190,
             "currency": "USD"
           }
         }
@@ -238,6 +270,8 @@ As a result, we get an updated checkout object with a delivery method set:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 ### Switching from C&C to Standard Delivery Method
 
@@ -245,15 +279,68 @@ After choosing the click & collect option on a checkout, going back to a standar
 
 1. First use [`checkoutDeliveryMethodUpdate`](api-reference/checkout/mutations/checkout-delivery-method-update.mdx) (just with `id` or `token` provided). This will remove the collection point from checkout and also remove the shipping address.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  checkoutDeliveryMethodUpdate(id: "your_checkout_id") {
+mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
+  checkoutDeliveryMethodUpdate(id: $id, deliveryMethodId: $deliveryMethodId) {
     checkout {
       id
+      deliveryMethod {
+        __typename
+        ... on Warehouse {
+          name
+        }
+        ... on ShippingMethod {
+          name
+        }
+      }
+      totalPrice {
+        gross {
+          amount
+          currency
+        }
+      }
+    }
+    errors {
+      field
+      message
     }
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json {6}
+{
+  "data": {
+    "checkoutDeliveryMethodUpdate": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6NmFkODZhOTgtZDA1Yi00YTA5LTllMTEtZjRmMmVkY2I1ZDk1",
+        "deliveryMethod": null,
+        "totalPrice": {
+          "gross": {
+            "amount": 180,
+            "currency": "USD"
+          }
+        }
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 2. Now [`checkoutShippingAddressUpdate`](api-reference/checkout/mutations/checkout-shipping-address-update.mdx) can be used to set the new shipping address for checkout.
 3. Finally, use [`checkoutDeliveryMethodUpdate`](api-reference/checkout/mutations/checkout-delivery-method-update.mdx) with `deliveryMethodId` to set the standard delivery method.
@@ -274,21 +361,11 @@ The [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) mut
 
 The mutation accepts [validationRules](api-reference/checkout/inputs/checkout-validation-rules.mdx) as an [input](api-reference/checkout/inputs/checkout-create-input.mdx) field.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  checkoutCreate(
-    input: {
-      channel: "default-channel"
-      email: "customer@example.com"
-      lines: [{ quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6Mjk3" }]
-      shippingAddress: { country: US }
-      billingAddress: { postalCode: "XX-YYY", country: US }
-      validationRules: {
-        shippingAddress: { checkRequiredFields: false }
-        billingAddress: { checkRequiredFields: false, checkFieldsFormat: false }
-      }
-    }
-  ) {
+mutation checkoutCreate($input: CheckoutCreateInput!) {
+  checkoutCreate(input: $input) {
     checkout {
       id
     }
@@ -299,9 +376,42 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-The response contains the created checkout object:
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "channel": "default-channel",
+    "email": "customer@example.com",
+    "lines": [
+      {
+        "quantity": 1,
+        "variantId": "UHJvZHVjdFZhcmlhbnQ6Mjk3"
+      }
+    ],
+    "shippingAddress": {
+      "country": "US"
+    },
+    "billingAddress": {
+      "postalCode": "XX-YYY",
+      "country": "US"
+    },
+    "validationRules": {
+      "shippingAddress": {
+        "checkRequiredFields": false
+      },
+      "billingAddress": {
+        "checkRequiredFields": false,
+        "checkFieldsFormat": false
+      }
+    }
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -314,17 +424,22 @@ The response contains the created checkout object:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 #### CheckoutShippingAddressUpdate
 
 The [`checkoutShippingAddressUpdate`](api-reference/checkout/mutations/checkout-shipping-address-update.mdx) mutation has an optional field for controlling the shipping address validation: [validationRules](api-reference/checkout/inputs/checkout-address-validation-rules.mdx).
 
+
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
+mutation checkoutShippingAddressUpdate($id: ID, $address: AddressInput!, $validationRules: CheckoutAddressValidationRules) {
   checkoutShippingAddressUpdate(
-    id: "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk"
-    shippingAddress: { postalCode: "12-333", country: PL }
-    validationRules: { checkRequiredFields: false }
+    id: $id
+    shippingAddress: $address
+    validationRules: $validationRules
   ) {
     errors {
       field
@@ -346,9 +461,24 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-The response contains the updated checkout object:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk",
+  "address": {
+    "postalCode": "12-333",
+    "country": "PL"
+  },
+  "validationRules": {
+    "checkRequiredFields": false
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -370,17 +500,21 @@ The response contains the updated checkout object:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 #### CheckoutBillingAddressUpdate
 
 The [`checkoutBillingAddressUpdate`](api-reference/checkout/mutations/checkout-billing-address-update.mdx) mutation has an optional field for controlling the billing address validation: [validationRules](api-reference/checkout/inputs/checkout-address-validation-rules.mdx).
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
+mutation checkoutBillingAddressUpdate($id: ID, $address: AddressInput!, $validationRules: CheckoutAddressValidationRules) {
   checkoutBillingAddressUpdate(
-    id: "Q2hlY2tvdXQ6ZTM4NjMyYzItZTg5NS00ZjE4LTg3YTMtNjIwNGU0NzlmYjUw"
-    validationRules: { checkFieldsFormat: false, checkRequiredFields: false }
-    billingAddress: { country: GB, postalCode: "XX YYY" }
+    id: $id
+    validationRules: $validationRules
+    billingAddress: $address
   ) {
     checkout {
       id
@@ -398,9 +532,25 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-The response contains the updated checkout object:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk",
+  "validationRules": {
+    "checkFieldsFormat": false,
+    "checkRequiredFields": false
+  },
+  "address": {
+    "country": "GB",
+    "postalCode": "XX YYY"
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -422,6 +572,8 @@ The response contains the updated checkout object:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 :::note
 The information about address validation can be found on the [address validation](developer/address.mdx) page.
@@ -459,9 +611,11 @@ In this case, the shipping address will not be saved to the customer’s address
 ### Applicable Checkout Mutations
 The default behavior can be adjusted in the following checkout mutations:
 - [checkoutCreate](/api-reference/checkout/mutations/checkout-create.mdx)
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation createCheckout($input: CheckoutCreateInput!) {
-  checkoutCreate(input: $input){
+  checkoutCreate(input: $input) {
     checkout {
       id
     }
@@ -472,13 +626,20 @@ mutation createCheckout($input: CheckoutCreateInput!) {
   }
 }
 ```
-input data:
-```json {6,16}
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json {11,21}
 {
   "input": {
     "channel": "default-channel",
     "email": "customer@example.com",
-    "lines": [{ "quantity": 1, "variantId": "UHJvZHVjdFZhcmlhbnQ6Mjk3" }],
+    "lines": [
+      {
+        "quantity": 1,
+        "variantId": "UHJvZHVjdFZhcmlhbnQ6Mjk3"
+      }
+    ],
     "saveShippingAddress": false,
     "shippingAddress": {
       "firstName": "John",
@@ -502,13 +663,14 @@ input data:
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 - [checkoutShippingAddressUpdate](/api-reference/checkout/mutations/checkout-shipping-address-update.mdx)
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation checkoutShippingAddressUpdate(
-  $id: ID,
-  $shippingAddress: AddressInput!
-  $saveAddress: Boolean
-){
+mutation checkoutShippingAddressUpdate($id: ID, $shippingAddress: AddressInput!, $saveAddress: Boolean) {
   checkoutShippingAddressUpdate(
     id: $id
     shippingAddress: $shippingAddress
@@ -534,21 +696,26 @@ mutation checkoutShippingAddressUpdate(
   }
 }
 ```
-input data:
-```json {4}
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json {6}
 {
   "id": "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk",
-  "shippingAddress": { "postalCode": "12-333"},
+  "shippingAddress": {
+    "postalCode": "12-333"
+  },
   "saveAddress": false
 }
 ```
+</TabItem>
+</Tabs>
+
 - [checkoutBillingAddressUpdate](/api-reference/checkout/mutations/checkout-billing-address-update.mdx)
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation checkoutBillingAddressUpdate(
-  $id: ID,
-  $billingAddress: AddressInput!
-  $saveAddress: Boolean
-){
+mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!, $saveAddress: Boolean) {
   checkoutBillingAddressUpdate(
     id: $id
     billingAddress: $billingAddress
@@ -574,14 +741,21 @@ mutation checkoutBillingAddressUpdate(
   }
 }
 ```
-input data:
-```json {4}
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json {6}
 {
-  "id": "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk"
-  "billingAddress": { "postalCode": "12-333"}
+  "id": "Q2hlY2tvdXQ6MjU1MmYxYTctN2Q3MC00ODg5LTg1OWYtNGNiNWNlMGI4Zjhk",
+  "billingAddress": {
+    "postalCode": "12-333"
+  },
   "saveAddress": false
 }
 ```
+</TabItem>
+</Tabs>
+
 
 ### Important Notes
 
@@ -590,6 +764,8 @@ Attempting to set `saveShippingAddress` or `saveBillingAddress` without includin
 `shippingAddress` or `billingAddress` will result in an error.
 
 For example, providing `saveShippingAddress` in the `checkoutCreate` mutation without including `shippingAddress` will raise an error:
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation createCheckout($input: CheckoutCreateInput!) {
   checkoutCreate(input: $input){
@@ -603,17 +779,45 @@ mutation createCheckout($input: CheckoutCreateInput!) {
   }
 }
 ```
-invalid input data:
+</TabItem>
+
+<TabItem value={"Variables"}>
 ```json
 {
   "input": {
-    "channel": "default-channel"
-    "email": "customer@example.com"
-    "lines": [{ "quantity": 1, "variantId": "UHJvZHVjdFZhcmlhbnQ6Mjk3" }]
+    "channel": "default-channel",
+    "email": "customer@example.com",
+    "lines": [
+      {
+        "quantity": 1,
+        "variantId": "UHJvZHVjdFZhcmlhbnQ6NDM4"
+      }
+    ],
     "saveShippingAddress": true
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "checkoutCreate": {
+      "checkout": null,
+      "errors": [
+        {
+          "field": "saveShippingAddress",
+          "code": "MISSING_ADDRESS_DATA"
+        }
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 
 :::warning
 Any update to the address, even a partial change, resets the `saveAddress` flag to its default behavior.

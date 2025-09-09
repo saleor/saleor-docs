@@ -4,6 +4,9 @@ sidebar_label: Overview
 description: Overview of stock business logic in Saleor.
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 ## Warehouse
 Warehouse represents a location where products are stocked for fulfillment or customer collection. 
 To effectively manage your inventory, Saleor allows the creation of multiple warehouses. 
@@ -42,18 +45,11 @@ You can create warehouses either via the Saleor Dashboard or using the GraphQL A
 
 To create a warehouse programmatically, use the [`createWarehouse`](api-reference/products/mutations/create-warehouse.mdx) 
 mutation. This method allows for additional fields such as `externalReference` and `email`.
-
-```graphql {2-9}
-mutation {
-  createWarehouse(
-    input: {
-      name: "Example warehouse", 
-      slug: "example-warehouse", 
-      email: "example-warehouse@example.com", 
-      externalReference: "Warehouse_001", 
-      address: {streetAddress1: "Teczowa 8", city: "Wroclaw", country: PL, postalCode: "53-601", companyName: "Amazing Company Inc"}
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation createWarehouse($input: WarehouseCreateInput!) {
+  createWarehouse(input: $input) {
     warehouse {
       id
       name
@@ -73,9 +69,29 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-As a response we get the newly created warehouse:
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "name": "Example warehouse",
+    "slug": "example-warehouse",
+    "email": "example-warehouse@example.com",
+    "externalReference": "Warehouse_001",
+    "address": {
+      "streetAddress1": "Teczowa 8",
+      "city": "Wroclaw",
+      "country": "PL",
+      "postalCode": "53-601",
+      "companyName": "Amazing Company Inc"
+    }
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -96,6 +112,8 @@ As a response we get the newly created warehouse:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 ### Warehouse Update
 Once created, following warehouse fields can be updated: `name`, `slug`, `email`, 
@@ -128,13 +146,11 @@ The first step is to assign your warehouses to the relevant sales channels using
 ##### API
 
 Use the [`channelUpdate`](api-reference/channels/mutations/channel-update.mdx) mutation to add a warehouse to a channel:
-
-```graphql {2-4}
-mutation {
-  channelUpdate(
-    id: "Q2hhbm5lbDoxMQ=="
-    input: {addWarehouses: ["V2FyZWhvdXNlOjA4N2I2MzhlLWIxYzYtNDk5Mi1hMWQ1LTZiOWI5N2FjODU1Zg=="]}
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation channelUpdate($id: ID!, $input: ChannelUpdateInput!) {
+  channelUpdate(id: $id, input: $input) {
     channel {
       id
       warehouses {
@@ -151,6 +167,53 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hhbm5lbDoxMQ==",
+  "input": {
+    "addWarehouses": [
+      "V2FyZWhvdXNlOjA4N2I2MzhlLWIxYzYtNDk5Mi1hMWQ1LTZiOWI5N2FjODU1Zg=="
+    ]
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "channelUpdate": {
+      "channel": {
+        "id": "Q2hhbm5lbDox",
+        "warehouses": [
+          {
+            "slug": "gr"
+          },
+          {
+            "slug": "asia"
+          },
+          {
+            "slug": "americas"
+          },
+          {
+            "slug": "default"
+          },
+          {
+            "slug": "default-for-click-and-collect"
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 #### Assign Warehouses to the Shipping Zone
 Once a warehouse is linked to at least one channel, it becomes eligible 
@@ -220,10 +283,11 @@ Saleor provides stock querying capabilities that help you:
 
 #### Get All Stocks
 You can use the [`stocks`](/api-reference/products/queries/stocks.mdx) query to get all stocks or apply a search filter to get only stocks for variants or a warehouse with a specific name.
-
-```graphql 
-query Stocks {
-  stocks(first: 10, filter: {search: "Europe"}) {
+<Tabs>
+<TabItem value="Query">
+```graphql
+query Stocks($first: Int, $filter: StockFilterInput) {
+  stocks(first: $first, filter: $filter) {
     totalCount
     edges {
       node {
@@ -243,13 +307,71 @@ query Stocks {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "first": 2,
+  "filter": {
+    "search": "Europe"
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "stocks": {
+      "totalCount": 12,
+      "edges": [
+        {
+          "node": {
+            "id": "U3RvY2s6Mg==",
+            "quantity": 175,
+            "warehouse": {
+              "id": "V2FyZWhvdXNlOjI1YzdlZDNlLTljYjQtNDUzNi04ZGNjLTgzZTdlNDIzZTNjMQ==",
+              "name": "Europe",
+              "slug": "europe"
+            },
+            "productVariant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6MzI0",
+              "name": "MP3"
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "U3RvY2s6MTM4",
+            "quantity": 405,
+            "warehouse": {
+              "id": "V2FyZWhvdXNlOjI1YzdlZDNlLTljYjQtNDUzNi04ZGNjLTgzZTdlNDIzZTNjMQ==",
+              "name": "Europe",
+              "slug": "europe"
+            },
+            "productVariant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6MzQx",
+              "name": "40"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 #### Get Single Stock
 To retrieve detailed information about a specific [`stock`](/api-reference/products/queries/stock.mdx) entry:
-
+<Tabs>
+<TabItem value="Query">
 ```graphql
-query Stock {
-  stock(id: "U3RvY2s6NjM0") {
+query Stock($id: ID!) {
+  stock(id: $id) {
     id
     quantity
     warehouse {
@@ -263,16 +385,47 @@ query Stock {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "U3RvY2s6NjM0"
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "stock": {
+      "id": "U3RvY2s6Mg==",
+      "quantity": 175,
+      "warehouse": {
+        "id": "V2FyZWhvdXNlOjI1YzdlZDNlLTljYjQtNDUzNi04ZGNjLTgzZTdlNDIzZTNjMQ==",
+        "name": "Europe"
+      },
+      "productVariant": {
+        "id": "UHJvZHVjdFZhcmlhbnQ6MzI0",
+        "name": "MP3"
+      }
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 
 #### Get Warehouse Stocks
 To view all stock entries for a specific [`warehouse`](/api-reference/products/queries/warehouse.mdx), including detailed product information and quantity:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-query WarehouseStocks {
-  warehouse(
-    id: "V2FyZWhvdXNlOjI1YzdlZDNlLTljYjQtNDUzNi04ZGNjLTgzZTdlNDIzZTNjMQ=="
-  ) {
-    stocks(first: 10) {
+query WarehouseStocks($id: ID) {
+  warehouse(id: $id) {
+    stocks(first: 2) {
       totalCount
       edges {
         node {
@@ -299,6 +452,74 @@ query WarehouseStocks {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ=="
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "warehouse": {
+      "stocks": {
+        "totalCount": 18,
+        "edges": [
+          {
+            "node": {
+              "id": "U3RvY2s6Nw==",
+              "warehouse": {
+                "id": "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ==",
+                "name": "Americas"
+              },
+              "productVariant": {
+                "id": "UHJvZHVjdFZhcmlhbnQ6MzI0",
+                "sku": "headless-omnichannel-mp3",
+                "name": "MP3",
+                "product": {
+                  "id": "UHJvZHVjdDoxMjY=",
+                  "name": "Headless + Omnichannel in a pill"
+                }
+              },
+              "quantity": 171,
+              "quantityAllocated": 41,
+              "quantityReserved": 0
+            }
+          },
+          {
+            "node": {
+              "id": "U3RvY2s6MTQz",
+              "warehouse": {
+                "id": "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ==",
+                "name": "Americas"
+              },
+              "productVariant": {
+                "id": "UHJvZHVjdFZhcmlhbnQ6MzQx",
+                "sku": "118223582",
+                "name": "40",
+                "product": {
+                  "id": "UHJvZHVjdDoxMzA=",
+                  "name": "Paul's Balance 420"
+                }
+              },
+              "quantity": 384,
+              "quantityAllocated": 45,
+              "quantityReserved": 0
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 ## Webhooks
 
