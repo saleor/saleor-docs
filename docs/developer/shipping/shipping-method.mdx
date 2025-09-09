@@ -3,6 +3,9 @@ title: Shipping Methods
 description: Overview of shipping methods business logic and configuration in Saleor.
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 # Shipping Methods
 
 Shipping Methods define the available delivery options and their associated costs within a specific shipping zone.
@@ -62,18 +65,11 @@ but require a minimum order of $50 in your marketplace channel.
 
 1. Use the [`shippingPriceCreate`](/api-reference/shipping/mutations/shipping-price-create.mdx) 
 mutation with `"type": "PRICE"`:
-
-    ```graphql {2-9}
-    mutation {
-      shippingPriceCreate(
-        input: {
-          shippingZone: "U2hpcHBpbmdab25lOjE4", 
-          type: PRICE, 
-          name: "Post Office", 
-          minimumDeliveryDays: 2, 
-          maximumDeliveryDays: 7
-        }
-      ) {
+    <Tabs>
+    <TabItem value="Mutation">
+    ```graphql
+    mutation ShippingPriceCreate($input: ShippingPriceInput!) {
+      shippingPriceCreate(input: $input) {
         errors {
           field
           code
@@ -85,47 +81,34 @@ mutation with `"type": "PRICE"`:
           name
           minimumDeliveryDays
           maximumDeliveryDays
-          minimumOrderWeight {
-            value
-            unit
-          }
-          maximumOrderWeight {
-            value
-            unit
-          }
-          channelListings {
-            channel {
-              slug
-            }
-            minimumOrderPrice {
-              amount
-            }
-            maximumOrderPrice {
-              amount
-            }
-            price {
-              amount
-            }
-          }
         }
       }
     }
     ```
+    </TabItem>
+
+    <TabItem value={"Variables"}>
+    ```json
+    {
+      "input": {
+        "shippingZone": "U2hpcHBpbmdab25lOjE4",
+        "type": "PRICE",
+        "name": "Post Office",
+        "minimumDeliveryDays": 2,
+        "maximumDeliveryDays": 7
+      }
+    }
+    ```
+    </TabItem>
+    </Tabs>
 
 2. Make the shipping method available in channels using 
 [`shippingMethodChannelListingUpdate`](/api-reference/shipping/mutations/shipping-method-channel-listing-update.mdx):
-
-    ```graphql {2-9}
-    mutation {
-      shippingMethodChannelListingUpdate(
-        id: "U2hpcHBpbmdNZXRob2RUeXBlOjM3"
-        input: {
-          addChannels: [{
-            channelId: "Q2hhbm5lbDo1NA==", 
-            maximumOrderPrice: 1000, 
-            price: 9.99}]
-        }
-      ) {
+    <Tabs>
+    <TabItem value="Mutation">
+    ```graphql
+    mutation ShippingMethodChannelListingUpdate($id: ID!, $input: ShippingMethodChannelListingInput!) {
+      shippingMethodChannelListingUpdate(id: $id, input: $input) {
         errors {
           field
           code
@@ -163,6 +146,26 @@ mutation with `"type": "PRICE"`:
       }
     }
     ```
+    </TabItem>
+
+    <TabItem value={"Variables"}>
+    ```json
+    {
+      "id": "U2hpcHBpbmdNZXRob2RUeXBlOjM3",
+      "input": {
+        "addChannels": [
+          {
+            "channelId": "Q2hhbm5lbDo1NA==",
+            "maximumOrderPrice": 1000,
+            "price": 9.99
+          }
+        ]
+      }
+    }
+    ```
+    </TabItem>
+    </Tabs>
+
 
 ### Weight-Based Methods
 
@@ -178,9 +181,11 @@ See the list of [spported weight units](/api-reference/miscellaneous/enums/weigh
     You can update the unit in the Dashboard by going to the Shipping Zones list 
     and clicking the settings icon in the top-right corner, or by using the mutation below:
 
-    ```graphql {2}
-    mutation {
-      shopSettingsUpdate(input: {defaultWeightUnit: G}) {
+    <Tabs>
+    <TabItem value="Mutation">
+    ```graphql
+    mutation ShopSettingsUpdate($input: ShopSettingsInput!) {
+      shopSettingsUpdate(input: $input) {
         errors {
           code
           field
@@ -192,23 +197,27 @@ See the list of [spported weight units](/api-reference/miscellaneous/enums/weigh
       }
     }
     ```
+    </TabItem>
+
+    <TabItem value={"Variables"}>
+    ```json
+    {
+      "input": {
+        "defaultWeightUnit": "G"
+      }
+    }
+    ```
+    </TabItem>
+    </Tabs>
 
 2. Use the [`shippingPriceCreate`](/api-reference/shipping/mutations/shipping-price-create.mdx) 
 mutation with `"type": "WEIGHT"`, additionally you can specify weight range with `minimumOrderWeight` and `maximumOrderWeight`
 
-    ```graphql {2-11}
-    mutation {
-      shippingPriceCreate(
-        input: {
-          shippingZone: "U2hpcHBpbmdab25lOjE4", 
-          type: WEIGHT, 
-          name: "Post Office", 
-          minimumDeliveryDays: 2, 
-          maximumDeliveryDays: 7, 
-          minimumOrderWeight: 2, 
-          maximumOrderWeight: 20
-        }
-      ) {
+    <Tabs>
+    <TabItem value="Mutation">
+    ```graphql
+    mutation ShippingPriceCreate($input: ShippingPriceInput!) {
+      shippingPriceCreate(input: $input) {
         errors {
           field
           code
@@ -228,38 +237,37 @@ mutation with `"type": "WEIGHT"`, additionally you can specify weight range with
             value
             unit
           }
-          channelListings {
-            channel {
-              slug
-            }
-            minimumOrderPrice {
-              amount
-            }
-            maximumOrderPrice {
-              amount
-            }
-            price {
-              amount
-            }
-          }
         }
       }
     }
     ```
+    </TabItem>
+
+    <TabItem value={"Variables"}>
+    ```json
+    {
+      "input": {
+        "shippingZone": "U2hpcHBpbmdab25lOjE4",
+        "type": "WEIGHT",
+        "name": "Post Office",
+        "minimumDeliveryDays": 2,
+        "maximumDeliveryDays": 7,
+        "minimumOrderWeight": 2,
+        "maximumOrderWeight": 20
+      }
+    }
+    ```
+    </TabItem>
+    </Tabs>
 
 3. Make the shipping method available in channels using 
 [`shippingMethodChannelListingUpdate`](/api-reference/shipping/mutations/shipping-method-channel-listing-update.mdx):
 
-    ```graphql {2-8}
-    mutation {
-      shippingMethodChannelListingUpdate(
-        id: "U2hpcHBpbmdNZXRob2RUeXBlOjM5"
-        input: {
-          addChannels: [{
-            channelId: "Q2hhbm5lbDo1NA==", 
-            price: 9.99}]
-        }
-      ) {
+    <Tabs>
+    <TabItem value="Mutation">
+    ```graphql
+    mutation ShippingMethodChannelListingUpdate($id: ID!, $input: ShippingMethodChannelListingInput!) {
+      shippingMethodChannelListingUpdate(id: $id, input: $input) {
         errors {
           field
           code
@@ -297,6 +305,24 @@ mutation with `"type": "WEIGHT"`, additionally you can specify weight range with
       }
     }
     ```
+    </TabItem>
+
+    <TabItem value={"Variables"}>
+    ```json
+    {
+      "id": "U2hpcHBpbmdNZXRob2RUeXBlOjM5",
+      "input": {
+        "addChannels": [
+          {
+            "channelId": "Q2hhbm5lbDo1NA==",
+            "price": 9.99
+          }
+        ]
+      }
+    }
+    ```
+    </TabItem>
+    </Tabs>
 
 ## Advanced Configuration
 
@@ -309,17 +335,11 @@ You can configure postal code rules to control where shipping methods are availa
 
 Configure postal codes using the [`shippingPriceUpdate`](/api-reference/shipping/mutations/shipping-price-update.mdx) 
 mutation, below example shows how to exclude one postal code for existing shipping method:
-
-```graphql {2-7}
-mutation {
-  shippingPriceUpdate(
-    id: "U2hpcHBpbmdNZXRob2RUeXBlOjE1"
-    input: {
-      addPostalCodeRules: [{end: "", start: "83-330"}], 
-      deletePostalCodeRules: [], 
-      inclusionType: EXCLUDE
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ShippingPriceUpdate($id: ID!, $input: ShippingPriceInput!) {
+  shippingPriceUpdate(id: $id, input: $input) {
     errors {
       field
       code
@@ -336,6 +356,26 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "U2hpcHBpbmdNZXRob2RUeXBlOjE1",
+  "input": {
+    "addPostalCodeRules": [
+      {
+        "end": "",
+        "start": "83-330"
+      }
+    ],
+    "deletePostalCodeRules": [],
+    "inclusionType": "EXCLUDE"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 ### Product Exclusions
 
@@ -347,12 +387,12 @@ to add products to the exclusion list
 to remove products from the exclusion list
 
 Here is example for excluding products:
-```graphql {2-4}
-mutation {
-  shippingPriceExcludeProducts(
-    id: "U2hpcHBpbmdNZXRob2RUeXBlOjE1"
-    input: {products: ["UHJvZHVjdDoxNDQ="]}
-  ) {
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ShippingPriceExcludeProducts($id: ID!, $input: ShippingPriceExcludeProductsInput!) {
+  shippingPriceExcludeProducts(id: $id, input: $input) {
     errors {
       field
       code
@@ -371,6 +411,22 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "U2hpcHBpbmdNZXRob2RUeXBlOjE1",
+  "input": {
+    "products": [
+      "UHJvZHVjdDoxNDQ="
+    ]
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 ### Delivery Time Estimates
 
 Configure delivery time estimates to help customers choose the right shipping method:

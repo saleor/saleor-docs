@@ -1,5 +1,8 @@
 # Menu
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 ## Overview
 
 Menus are assembly structures that group and organize entities in your store. They create hierarchical relationships between categories, collections, and pages. The most common use case is storefront navigation.
@@ -69,8 +72,18 @@ Menu operations require the [`MANAGE_MENUS`](developer/permissions.mdx#available
 
 ### Creating a Menu
 
-A menu requires a name and can optionally have a slug. You can create a menu with or without items with the [`menuCreate`](/api-reference/menu/mutations/menu-create) mutation:
+A menu requires a name and can optionally have a slug. 
 
+You can create a menu with or without items with the [`menuCreate`](/api-reference/menu/mutations/menu-create) mutation.
+A menu item can link to one of the following entities:
+
+- Category
+- Collection
+- Page
+- URL
+
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation CreateMenu($input: MenuCreateInput!) {
   menuCreate(input: $input) {
@@ -92,50 +105,51 @@ mutation CreateMenu($input: MenuCreateInput!) {
   }
 }
 ```
+</TabItem>
 
-A menu item can link to one of the following entities:
-
-- Category
-- Collection
-- Page
-- URL
-
-Here is an example input for creating a menu:
-
+<TabItem value={"Variables"}>
 ```json
 {
-  "name": "Example Menu Item",
-  "slug": "example-menu-item",
-  "items": [
-    {
-      "name": "Category Menu Item",
-      "category": "Q2F0ZWdvcnk6MjY="
-    },
-    {
-      "name": "Collection Menu Item",
-      "collection": "Q29sbGVjdGlvbjozMjA="
-    },
-    {
-      "name": "Page Menu Item",
-      "page": "UGFnZToxMjM="
-    },
-    {
-      "name": "URL Menu Item",
-      "url": "https://www.saleor.io"
-    }
-  ]
+  "input": {
+    "name": "Example Menu Item",
+    "slug": "example-menu-item",
+    "items": [
+      {
+        "name": "Category Menu Item",
+        "category": "Q2F0ZWdvcnk6MjY="
+      },
+      {
+        "name": "Collection Menu Item",
+        "collection": "Q29sbGVjdGlvbjozMjA="
+      },
+      {
+        "name": "Page Menu Item",
+        "page": "UGFnZToxMjM="
+      },
+      {
+        "name": "URL Menu Item",
+        "url": "https://www.saleor.io"
+      }
+    ]
+  }
 }
 ```
+</TabItem>
+</Tabs>
 
-You can also create the menu item itself through the [`menuItemCreate`](/api-reference/menu/mutations/menu-item-create) mutation:
+You can also create the menu item itself through the [`menuItemCreate`](/api-reference/menu/mutations/menu-item-create) mutation.
 
+Menu items can be nested to create a hierarchy. For example, the following input creates a menu item as a child of another menu item:
+
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation CreateMenuItem($input: MenuItemCreateInput!) {
   menuItemCreate(input: $input) {
     menuItem {
       id
       name
-      slug
+      level
       children {
         id
         name
@@ -145,22 +159,31 @@ mutation CreateMenuItem($input: MenuItemCreateInput!) {
   }
 }
 ```
+</TabItem>
 
-Menu items can be nested to create a hierarchy. For example, the following input creates a menu item as a child of another menu item:
-
+<TabItem value={"Variables"}>
 ```json
 {
-  "name": "Parent Menu Item",
-  "url": "https://www.saleor.io",
-  "parent": "Q2F0ZWdvcnk6MjY=",
+  "input": {
+    "menu": "TWVudToy",
+    "name": "Parent Menu Item",
+    "url": "https://www.saleor.io",
+    "parent": "Q2F0ZWdvcnk6MjY="
+  }
 }
 ```
+</TabItem>
+</Tabs>
 
 ### Getting Menus
 
 To retrieve all menus, use the [`menus`](/api-reference/menu/queries/menus) query:
 
+
+<Tabs>
+<TabItem value="Query">
 ```graphql
+query Menus($first: Int) {
   menus(first: $first) {
     edges {
       node {
@@ -192,13 +215,26 @@ To retrieve all menus, use the [`menus`](/api-reference/menu/queries/menus) quer
       }
     }
   }
+}
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+"first": 2
+}
+```
+</TabItem>
+</Tabs>
 
 To get a specific menu by ID, name, or slug, use the [`menu`](/api-reference/menu/queries/menu) query:
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
-query GetMenu($id: ID, $name: String, $slug: String) {
-  menu(id: $id, name: $name, slug: $slug) {
+query GetMenuBySlug($slug: String, $channel: String) {
+  menu(slug: $slug, channel:$channel) {
     id
     name
     slug
@@ -222,11 +258,24 @@ query GetMenu($id: ID, $name: String, $slug: String) {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "slug": "footer",
+  "channel": "default-channel"
+}
+```
+</TabItem>
+</Tabs>
 
 ### Deleting a Menu
 
 To remove a menu and all its items, use the [`menuDelete`](/api-reference/menu/mutations/menu-delete) mutation:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation DeleteMenu($id: ID!) {
   menuDelete(id: $id) {
@@ -243,6 +292,17 @@ mutation DeleteMenu($id: ID!) {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "TWVudToy"
+}
+```
+</TabItem>
+</Tabs>
+
 
 ## Webhooks
 
