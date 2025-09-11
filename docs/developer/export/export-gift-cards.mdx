@@ -1,6 +1,8 @@
 ---
 title: Exporting Gift Cards
 ---
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 Exporting gift cards allows downloading a list of gift card codes to a CSV or an XLSX file.
 You can export all gift cards, filtered gift cards, or gift cards with specific IDs, but only unused cards will be exported.
@@ -49,9 +51,11 @@ For details, look at [export mutations descriptions](export-overview#mutations).
 The following example shows how to export all gift cards with all available fields
 to a CSV file.
 
-```graphql {2}
-mutation {
-  exportGiftCards(input: { scope: ALL, fileType: CSV }) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ExportGiftCards($input: ExportGiftCardsInput!) {
+  exportGiftCards(input: $input) {
     exportFile {
       id
       status
@@ -67,9 +71,18 @@ mutation {
   }
 }
 ```
-
-In the response, we get the workers information:
-
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "scope": "ALL",
+    "fileType": "CSV"
+  }
+}
+```
+</TabItem>
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -86,6 +99,8 @@ In the response, we get the workers information:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 Once the task is finished, the `url` field will contain the URL address of the exported file. If the `User` triggers export, the link to the file will be sent by email to the requestor.
 To check if the URL is ready, you can fetch [ExportFile](export-overview#fetching-exportfile-instance).
@@ -97,11 +112,11 @@ parameter.
 
 The following example only includes gift cards that have a `birthday` tag.
 
-```graphql {3}
-mutation {
-  exportGiftCards(
-    input: { scope: FILTER, fileType: XLSX, filter: { tags: ["birthday"] } }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ExportGiftCards($input: ExportGiftCardsInput!) {
+  exportGiftCards(input: $input) {
     exportFile {
       id
       status
@@ -117,21 +132,34 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"} default>
+```json
+{
+  "input": {
+    "scope": "FILTER",
+    "fileType": "XLSX",
+    "filter": {
+      "tags": [
+        "birthday"
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 ### Exporting Gift Cards With Specified IDs
 
 To export only gift cards with provided IDs, you need to set the `scope` to `IDS` and include the `ids`
 parameter. Lets see an example:
 
-```graphql {4,6}
-mutation {
-  exportGiftCards(
-    input: {
-      scope: IDS
-      fileType: CSV
-      ids: ["R2lmdENhcmQ6MjU=", "R2lmdENhcmQ6MjY=", "R2lmdENhcmQ6Mjc="]
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ExportGiftCards($input: ExportGiftCardsInput!) {
+  exportGiftCards(input: $input) {
     exportFile {
       id
       status
@@ -147,3 +175,21 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"} default>
+```json
+{
+  "input": {
+    "scope": "IDS",
+    "fileType": "CSV",
+    "ids": [
+      "R2lmdENhcmQ6MjU=",
+      "R2lmdENhcmQ6MjY=",
+      "R2lmdENhcmQ6Mjc="
+    ]
+  }
+}
+```
+</TabItem>
+</Tabs>
+

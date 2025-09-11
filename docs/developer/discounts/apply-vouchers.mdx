@@ -4,6 +4,9 @@ sidebar_label: Applying Vouchers
 description: Learn how to apply vouchers in Saleor, including both customer checkouts and staff draft orders. See how discounts are reflected in prices, how vouchers combine with promotions, and what triggers automatic invalidation.
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 Applying vouchers is the process of redeeming a voucher code during checkout or when creating a draft order.  
 Once applied, the discount is reflected in product line prices or order subtotal. 
 Vouchers can be combined with catalog promotions, but their behavior depends on how they were configured.  
@@ -22,11 +25,12 @@ and pass `voucherCode` as an argument.
 In the example below, the entire order voucher with a fixed discount of **$5** is applied at checkout.
 The order consists of two lines: the first for **$4** and the second for **$45**.
 
+<Tabs>
+<TabItem value="Mutation">
+
 ```graphql
-mutation {
-  checkoutAddPromoCode(
-    token: 7303902b-dda8-4357-95a0-64b83b59e2e2, promoCode: "DISCOUNT"
-  ) {
+mutation CheckoutAddPromoCode($id: ID, $promoCode: String!) {
+  checkoutAddPromoCode(id: $id, promoCode: $promoCode) {
     errors {
       field
       message
@@ -80,9 +84,18 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-Here is the response:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZDYyNzk4OTgtNmE2My00NTk3LWFhYTktMTVhOWEwN2I1MzFm",
+  "promoCode": "DISCOUNT"
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json {11,27-37,52-62}
 {
   "data": {
@@ -164,6 +177,8 @@ Here is the response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 The discount is visible on both the `checkout.discount` field and the prices in `checkout.lines`.
 In the first line, the `totalPrice` is **$0.41** less than the `undiscountedTotalPrice`,
@@ -511,7 +526,8 @@ To apply a shipping voucher, the checkout must include shippable products, a pro
 In this example the checkout consists of one line for **$100**, shipping price for **$20** and **50%** shipping voucher. 
 The discount affects shipping price only.
 
-Request:
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation AddCheckoutPromoCode($checkoutId: ID!, $promoCode: String!) {
   checkoutAddPromoCode(id: $checkoutId, promoCode: $promoCode) {
@@ -542,41 +558,43 @@ mutation AddCheckoutPromoCode($checkoutId: ID!, $promoCode: String!) {
   }
 }
 ```
+</TabItem>
 
+<TabItem value={"Variables"}>
 ```json
 {
   "checkoutId": "Q2hlY2tvdXQ6ZDgwMWI3MjUtNzBmMC00NGNiLWFmNjctMmNmYjc4YmY5MTU4",
   "promoCode": "code-123"
 }
 ```
+</TabItem>
 
-
-Response:
+<TabItem value={"Result"}>
 ```json
 {
    "data":{
-      "checkoutAddPromoCode": {
-         "checkout": {
-            "id": "Q2hlY2tvdXQ6ZDgwMWI3MjUtNzBmMC00NGNiLWFmNjctMmNmYjc4YmY5MTU4",
-            "token": "d801b725-70f0-44cb-af67-2cfb78bf9158",
-            "voucherCode": "code-123",
-            "discountName": "half-shipping",
-            "discount": {
-               "amount": 10.0
+      "checkoutAddPromoCode":{
+         "checkout":{
+            "id":"Q2hlY2tvdXQ6ZDgwMWI3MjUtNzBmMC00NGNiLWFmNjctMmNmYjc4YmY5MTU4",
+            "token":"d801b725-70f0-44cb-af67-2cfb78bf9158",
+            "voucherCode":"code-123",
+            "discountName":"half-shipping",
+            "discount":{
+               "amount":10.0
             },
-            "totalPrice": {
-               "net": {
-                  "amount": 110.0
+            "totalPrice":{
+               "net":{
+                  "amount":110.0
                }
             },
-            "subtotalPrice": {
-               "net": {
-                  "amount": 100.0
+            "subtotalPrice":{
+               "net":{
+                  "amount":100.0
                }
             },
-            "shippingPrice": {
-               "net": {
-                  "amount": 10.0
+            "shippingPrice":{
+               "net":{
+                  "amount":10.0
                }
             }
          }
@@ -584,6 +602,8 @@ Response:
    }
 }
 ```
+</TabItem>
+</Tabs>
 
 For more complex cases, please check [Examples](developer/discounts/examples.mdx) section.
 
@@ -608,52 +628,56 @@ Since the shipping method is removed, the shipping voucher is also automatically
 
 **Before removing a line:**
 ```json
-"checkout": {
-            "isShippingRequired": true,
-            "voucherCode": "shipping",
-            "deliveryMethod": {
-                "id": "U2hpcHBpbmdNZXRob2Q6MzE=",
-                "name": "ups",
-            },
-            "lines": [
-                {
-                    "id": "Q2hlY2tvdXRMaW5lOmE4NWJjNDkwLTEwMjAtNDU5Zi1iYmMzLWNmZTYyYmI4Y2I1Ng==",
-                    "quantity": 1,
-                    "requiresShipping": true,
-                },
-                {
-                    "id": "Q2hlY2tvdXRMaW5lOmVkMDE2YzY0LTdhZjctNGI0Ny1hYjJjLWJmMDc2NWM3MzQxNg==",
-                    "quantity": 2,
-                    "requiresShipping": false,
-                }
-            ],
-            "totalPrice": {
-                "gross": {
-                    "amount": 120.0
-                }
-            }
-        }
+{
+   "checkout":{
+      "isShippingRequired":true,
+      "voucherCode":"shipping",
+      "deliveryMethod":{
+         "id":"U2hpcHBpbmdNZXRob2Q6MzE=",
+         "name":"ups"
+      },
+      "lines":[
+         {
+            "id":"Q2hlY2tvdXRMaW5lOmE4NWJjNDkwLTEwMjAtNDU5Zi1iYmMzLWNmZTYyYmI4Y2I1Ng==",
+            "quantity":1,
+            "requiresShipping":true
+         },
+         {
+            "id":"Q2hlY2tvdXRMaW5lOmVkMDE2YzY0LTdhZjctNGI0Ny1hYjJjLWJmMDc2NWM3MzQxNg==",
+            "quantity":2,
+            "requiresShipping":false
+         }
+      ],
+      "totalPrice":{
+         "gross":{
+            "amount":120.0
+         }
+      }
+   }
+}
 ```
 
 **After removing one line (shipping method becomes invalid):**
 ```json
-"checkout": {
-            "isShippingRequired": false,
-            "voucherCode": null,         // voucher removed
-            "deliveryMethod": null,      // shipping method removed
-            "lines": [
-                {
-                    "id": "Q2hlY2tvdXRMaW5lOmVkMDE2YzY0LTdhZjctNGI0Ny1hYjJjLWJmMDc2NWM3MzQxNg==",
-                    "quantity": 2,
-                    "requiresShipping": false,
-                }
-            ],
-            "totalPrice": {
-                "gross": {
-                    "amount": 80.0
-                }
-            }
-        }
+{
+   "checkout":{
+      "isShippingRequired":false,
+      "voucherCode":null,
+      "deliveryMethod":null,
+      "lines":[
+         {
+            "id":"Q2hlY2tvdXRMaW5lOmVkMDE2YzY0LTdhZjctNGI0Ny1hYjJjLWJmMDc2NWM3MzQxNg==",
+            "quantity":2,
+            "requiresShipping":false
+         }
+      ],
+      "totalPrice":{
+         "gross":{
+            "amount":80.0
+         }
+      }
+   }
+}
 ```
 ### Subtotal change invalidates minimum spent voucher
 
@@ -668,52 +692,56 @@ The voucher is automatically removed, but the shipping method remains assigned.
 
 **Before removing a line:**
 ```json
-"checkout": {
-            "voucherCode": "minus15",
-            "deliveryMethod": {
-                "id": "U2hpcHBpbmdNZXRob2Q6MzE=",
-                "name": "ups",
-                "active": true
-            },
-            "lines": [
-                {
-                    "id": "Q2hlY2tvdXRMaW5lOjBiNTQyOGUwLTY0YmQtNGZkZS05MDExLWY2ODYzZDI2MjIzYQ==",
-                    "quantity": 1
-                },
-                {
-                    "id": "Q2hlY2tvdXRMaW5lOjQyOWNhMzZkLTIwZTMtNDc4OS1hN2JhLTcxOTFjZDAwOGFjZg==",
-                    "quantity": 2
-                }
-            ],
-            "totalPrice": {
-                "gross": {
-                    "amount": 112.0
-                }
-            }
-        }
+{
+   "checkout":{
+      "voucherCode":"minus15",
+      "deliveryMethod":{
+         "id":"U2hpcHBpbmdNZXRob2Q6MzE=",
+         "name":"ups",
+         "active":true
+      },
+      "lines":[
+         {
+            "id":"Q2hlY2tvdXRMaW5lOjBiNTQyOGUwLTY0YmQtNGZkZS05MDExLWY2ODYzZDI2MjIzYQ==",
+            "quantity":1
+         },
+         {
+            "id":"Q2hlY2tvdXRMaW5lOjQyOWNhMzZkLTIwZTMtNDc4OS1hN2JhLTcxOTFjZDAwOGFjZg==",
+            "quantity":2
+         }
+      ],
+      "totalPrice":{
+         "gross":{
+            "amount":112.0
+         }
+      }
+   }
+}
 ```
 
 **After removing one line (subtotal below requirement):**
 ```json
-"checkout": {
-            "voucherCode": null,
-            "deliveryMethod": {
-                "id": "U2hpcHBpbmdNZXRob2Q6MzE=",
-                "name": "ups",
-                "active": true
-            },
-            "lines": [
-                {
-                    "id": "Q2hlY2tvdXRMaW5lOjBiNTQyOGUwLTY0YmQtNGZkZS05MDExLWY2ODYzZDI2MjIzYQ==",
-                    "quantity": 1
-                }
-            ],
-            "totalPrice": {
-                "gross": {
-                    "amount": 50.0
-                }
-            }
-        }
+{
+   "checkout":{
+      "voucherCode":null,
+      "deliveryMethod":{
+         "id":"U2hpcHBpbmdNZXRob2Q6MzE=",
+         "name":"ups",
+         "active":true
+      },
+      "lines":[
+         {
+            "id":"Q2hlY2tvdXRMaW5lOjBiNTQyOGUwLTY0YmQtNGZkZS05MDExLWY2ODYzZDI2MjIzYQ==",
+            "quantity":1
+         }
+      ],
+      "totalPrice":{
+         "gross":{
+            "amount":50.0
+         }
+      }
+   }
+}
 ```
 
 ## Combining Promotions and Vouchers

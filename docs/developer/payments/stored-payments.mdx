@@ -2,6 +2,9 @@
 title: Stored Payment Methods
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 ## Stored payment methods
 
 A stored payment method is a payment method saved by a customer for later use. It allows the user to use it without the need to provide all payment details again.
@@ -63,14 +66,12 @@ sequenceDiagram
 
 The following example shows how to use the [storedPaymentMethodRequestDelete](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation to request deletion of stored payment method:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  storedPaymentMethodRequestDelete(
-    id: "YXBwOmR1bW15LnBheW1lbnQ6cGF5bWVudC1tZXRob2Qx"
-    channel: "default-channel"
-  ) {
+mutation StoredPaymentMethodRequestDelete($id: ID!, $channel: String!) {
+  storedPaymentMethodRequestDelete(id: $id, channel: $channel) {
     result
-    message
     errors {
       field
       message
@@ -79,6 +80,17 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "YXBwOmR1bW15LnBheW1lbnQ6cGF5bWVudC1tZXRob2Qx",
+  "channel": "default-channel"
+}
+```
+</TabItem>
+</Tabs>
 
 As a response, the mutation will return a [result](api-reference/payments/enums/stored-payment-method-request-delete-result.mdx) field which determines the status of the requested action.
 In case of a failure result, the [errors](api-reference/payments/objects/payment-method-request-delete-error.mdx) list will contain details of the failed action.
@@ -141,16 +153,8 @@ This mutation triggers the synchronous webhook [PAYMENT_GATEWAY_INITIALIZE_TOKEN
 The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](api-reference/checkout/objects/checkout.mdx#checkoutavailablepaymentgatewayspaymentgateway---) or `shop.availablePaymentGateways`. The JSON `data` is passed to the payment app via the synchronous webhook.
 
 ```graphql
-mutation PaymentGatewayInitializeTokenization(
-  $id: String!
-  $channel: String!
-  $data: JSON
-) {
-  paymentGatewayInitializeTokenization(
-    id: $id
-    channel: $channel
-    data: $data
-  ) {
+mutation PaymentGatewayInitializeTokenization($id: String!, $channel: String!, $data: JSON) {
+  paymentGatewayInitializeTokenization(id: $id, channel: $channel, data: $data) {
     result
     data
     errors {
@@ -175,14 +179,15 @@ More details about the triggered webhook [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATIO
 The [paymentMethodInitializeTokenization](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation starts the process of tokenizing the payment method. This mutation triggers the synchronous webhook [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_method_initialize_tokenization_session), which is sent to the app with the provided [id](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx#paymentmethodinitializetokenizationidstring---).
 
 The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](api-reference/checkout/objects/checkout.mdx#checkoutavailablepaymentgatewayspaymentgateway---) or [shop.availablePaymentGateways](api-reference/miscellaneous/objects/shop.mdx#shopavailablepaymentgatewayspaymentgateway---). The JSON [data](api-reference/payments/mutations/payment-method-initialize-tokenization.mdx#paymentmethodinitializetokenizationdatajson--) is passed to the payment app via the synchronous webhook. The `paymentFlowToSupport` is a value from the [TokenizedPaymentFlowEnum](api-reference/payments/enums/tokenized-payment-flow-enum.mdx). It represents the requested payment flow that the payment method should follow.
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
+mutation paymentMethodInitializeTokenization($id: String!, $channel: String!, $paymentFlowToSupport: TokenizedPaymentFlowEnum!, $data: JSON) {
   paymentMethodInitializeTokenization(
-    id: "YXBwOmR1bW15LnBheW1lbnQ="
-    channel: "default-channel"
-    data: {"foo": "bar"}
-    paymentFlowToSupport: INTERACTIVE
+    id: $id
+    channel: $channel
+    data: $data
+    paymentFlowToSupport: $paymentFlowToSupport
   ) {
     result
     data
@@ -195,6 +200,22 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "YXBwOmR1bW15LnBheW1lbnQ=",
+  "channel": "default-channel",
+  "data": {
+    "foo": "bar"
+  },
+  "paymentFlowToSupport": "INTERACTIVE"
+}
+```
+</TabItem>
+</Tabs>
+
 
 In the response, Saleor returns:
 

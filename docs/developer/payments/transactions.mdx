@@ -1,6 +1,8 @@
 ---
 title: Transactions
 ---
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 A transaction represents a payment instance created in Order or Checkout. It holds a list of events that make up the payment process. Each event has a type that describes the action taken on the transaction. You can see the complete list of events in the [`TransactionEventTypeEnum`](api-reference/payments/enums/transaction-event-type-enum.mdx).
 
@@ -36,28 +38,42 @@ The following example shows how you can use the [`transactionCreate`](/api-refer
 The transaction was authorized, and the payment was made with a credit card. The actions that can be called from Saleor are: `CANCEL` and `CHARGE`.
 The authorized amount is **$99**.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  transactionCreate(
-    id: "Q2hlY2tvdXQ6MWQzNmU5YzctYWEwYS00NzM5LTk0MGQtNzdjNmU4Mjc5YmQ0"
-    transaction: {
-      name: "Credit card"
-      message: "Authorized"
-      pspReference: "PSP-ref123"
-      availableActions: [CANCEL, CHARGE]
-      amountAuthorized: { currency: "USD", amount: 99 }
-      externalUrl: "https://saleor.io/payment-id/123"
-    }
-  ) {
+mutation TransactionCreate($id: ID!, $transaction: TransactionCreateInput!) {
+  transactionCreate(id: $id, transaction: $transaction) {
     transaction {
       id
     }
   }
 }
 ```
+</TabItem>
 
-The response:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6MWQzNmU5YzctYWEwYS00NzM5LTk0MGQtNzdjNmU4Mjc5YmQ0",
+  "transaction": {
+    "name": "Credit card",
+    "message": "Authorized",
+    "pspReference": "PSP-ref123",
+    "availableActions": [
+      "CANCEL",
+      "CHARGE"
+    ],
+    "amountAuthorized": {
+      "currency": "USD",
+      "amount": 99
+    },
+    "externalUrl": "https://saleor.io/payment-id/123"
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -75,6 +91,8 @@ The response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 :::info
 
@@ -104,22 +122,14 @@ The following example shows how you can use the [`transactionUpdate`](api-refere
 
 The available action is `REFUND`. The authorized funds are charged, so `amountAuthorized` is **$0** and `amountCharged` is **$99**.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
+mutation TransactionUpdate($id: ID, $transaction: TransactionUpdateInput, $transactionEvent: TransactionEventInput) {
   transactionUpdate(
-    id: "VHJhbnNhY3Rpb25JdGVtOjE="
-    transaction: {
-      name: "Credit card"
-      message: "Authorized"
-      pspReference: "PSP-ref123"
-      availableActions: [REFUND]
-      amountAuthorized: { currency: "USD", amount: 0 }
-      amountCharged: { currency: "USD", amount: 99 }
-    }
-    transactionEvent: {
-      message: "Payment charged"
-      pspReference: "PSP-ref123.charge"
-    }
+    id: $id
+    transaction: $transaction
+    transactionEvent: $transactionEvent
   ) {
     transaction {
       id
@@ -127,9 +137,37 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-The response:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "VHJhbnNhY3Rpb25JdGVtOjE=",
+  "transaction": {
+    "name": "Credit card",
+    "message": "Authorized",
+    "pspReference": "PSP-ref123",
+    "availableActions": [
+      "REFUND"
+    ],
+    "amountAuthorized": {
+      "currency": "USD",
+      "amount": 0
+    },
+    "amountCharged": {
+      "currency": "USD",
+      "amount": 99
+    }
+  },
+  "transactionEvent": {
+    "message": "Payment charged",
+    "pspReference": "PSP-ref123.charge"
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -147,6 +185,8 @@ The response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 :::note
 
@@ -154,22 +194,14 @@ During the update of transactions, all funds that go to a new state should be su
 Assuming we have a transaction with `authorizedAmount` equal to 100 USD. Moving the `authorizedAmount` to `chargedAmount` requires setting the `authorizedAmount` to 0.
 
 This complexity is handled automatically when Payment Apps are used instead of a custom app.
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
+mutation TransactionUpdate($id: ID, $transaction: TransactionUpdateInput, $transactionEvent: TransactionEventInput) {
   transactionUpdate(
-    id: "VHJhbnNhY3Rpb25JdGVtOjE="
-    transaction: {
-      status: "Charged"
-      availableActions: [REFUND]
-      amountAuthorized: { currency: "USD", amount: 0 }
-      amountCharged: { currency: "USD", amount: 100 }
-    }
-    transactionEvent: {
-      status: SUCCESS
-      name: "Charged credit card"
-      reference: "PSP-ref123.charge"
-    }
+    id: $id
+    transaction: $transaction
+    transactionEvent: $transactionEvent
   ) {
     transaction {
       id
@@ -177,6 +209,33 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "VHJhbnNhY3Rpb25JdGVtOjE=",
+  "transaction": {
+    "availableActions": [
+      "REFUND"
+    ],
+    "amountAuthorized": {
+      "currency": "USD",
+      "amount": 0
+    },
+    "amountCharged": {
+      "currency": "USD",
+      "amount": 100
+    }
+  },
+  "transactionEvent": {
+    "message": "Payment charged",
+    "pspReference": "PSP-ref123.charge"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 :::
 
@@ -215,17 +274,19 @@ The report is a success charge action, with 20 as an amount. The currency is the
 for the transaction. Available action that can proceed for a transaction is `REFUND`.
 The provided data will be used to create a new [TransactionEvent](/api-reference/payments/objects/transaction-event) object that will be included in the recalculation process.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation TransactionEventReport {
+mutation TransactionEventReport($amount: PositiveDecimal, $availableActions: [TransactionActionEnum!], $externalUrl: String, $id: ID, $message: String, $pspReference: String!, $time: DateTime, $type: TransactionEventTypeEnum!) {
   transactionEventReport(
-    id: "VHJhbnNhY3Rpb25JdGVtOjE="
-    type: CHARGE_SUCCESS
-    amount: 20
-    pspReference: "psp-123"
-    time: "2022-01-01"
-    externalUrl: "https://saleor.io/event-details/123"
-    message: "Charge completed"
-    availableActions: [REFUND]
+    id: $id
+    type: $type
+    amount: $amount
+    pspReference: $pspReference
+    time: $time
+    externalUrl: $externalUrl
+    message: $message
+    availableActions: $availableActions
   ) {
     errors {
       field
@@ -241,6 +302,25 @@ mutation TransactionEventReport {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "VHJhbnNhY3Rpb25JdGVtOjE=",
+  "type": "CHARGE_SUCCESS",
+  "amount": 20,
+  "pspReference": "psp-123",
+  "time": "2022-01-01",
+  "externalUrl": "https://saleor.io/event-details/123",
+  "message": "Charge completed",
+  "availableActions": [
+    "REFUND"
+  ]
+}
+```
+</TabItem>
+</Tabs>
 
 In the response, Saleor returns:
 
@@ -488,23 +568,17 @@ The following mutations accept a `paymentMethodDetails` input field:
 
 Example: Storing `card` details via `transactionEventReport`:
 
-```graphql {7-16}
-mutation TransactionEventReport {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation TransactionEventReport($amount: PositiveDecimal, $availableActions: [TransactionActionEnum!], $id: ID, $pspReference: String!, $type: TransactionEventTypeEnum!, $paymentMethodDetails: PaymentMethodDetailsInput) {
   transactionEventReport(
-    id: "VHJhbnNhY3Rpb25JdGVtOjE="
-    type: CHARGE_SUCCESS
-    amount: 20
-    pspReference: "psp-123"
-    paymentMethodDetails: {
-      card: {
-        name: "Payment name", 
-        brand: "BRAND", 
-        firstDigits: "1234", 
-        lastDigits: "4321", 
-        expMonth: 11, 
-        expYear: 2000
-      }
-    }
+    id: $id
+    type: $type
+    amount: $amount
+    pspReference: $pspReference
+    availableActions: $availableActions
+    paymentMethodDetails: $paymentMethodDetails
   ) {
     errors {
       field
@@ -520,21 +594,42 @@ mutation TransactionEventReport {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "VHJhbnNhY3Rpb25JdGVtOjE=",
+  "type": "CHARGE_SUCCESS",
+  "amount": 20,
+  "pspReference": "psp-123",
+  "paymentMethodDetails": {
+    "card": {
+      "name": "Payment name",
+      "brand": "BRAND",
+      "firstDigits": "1234",
+      "lastDigits": "4321",
+      "expMonth": 11,
+      "expYear": 2000
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 Example: Storing non-card (`other`) details via `transactionEventReport`:
 
-```graphql {7-11}
-mutation TransactionEventReport {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation TransactionEventReport($amount: PositiveDecimal, $id: ID, $pspReference: String!, $type: TransactionEventTypeEnum!, $paymentMethodDetails: PaymentMethodDetailsInput) {
   transactionEventReport(
-    id: "VHJhbnNhY3Rpb25JdGVtOjE="
-    type: CHARGE_SUCCESS
-    amount: 20
-    pspReference: "psp-123"
-    paymentMethodDetails: {
-      other: {
-        name: "Cash"
-      }
-    }
+    id: $id
+    type: $type
+    amount: $amount
+    pspReference: $pspReference
+    paymentMethodDetails: $paymentMethodDetails
   ) {
     errors {
       field
@@ -550,7 +645,24 @@ mutation TransactionEventReport {
   }
 }
 ```
+</TabItem>
 
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "VHJhbnNhY3Rpb25JdGVtOjE=",
+  "type": "CHARGE_SUCCESS",
+  "amount": 20,
+  "pspReference": "psp-123",
+  "paymentMethodDetails": {
+    "other": {
+      "name": "Cash"
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 ### Webhooks
 
@@ -572,6 +684,8 @@ is set to `FULL`.
 This occurs when the total of `authorizedAmount`, `chargedAmount`, `authorizePendingAmount`, and `chargePendingAmount` from all transactions connected to the `Checkout` covers the [`checkout.totalPrice`](/api-reference/checkout/objects/checkout#checkoutsubtotalpricetaxedmoney---).
 
 To enable automatic checkout completion, update the channel checkout settings using the configuration example below:
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation UpdateChannel($id: ID!,$input: ChannelUpdateInput!){
   channelUpdate(id: $id, input: $input){
@@ -589,7 +703,9 @@ mutation UpdateChannel($id: ID!,$input: ChannelUpdateInput!){
   }
 }
 ```
-Query variables:
+</TabItem>
+
+<TabItem value={"Variables"}>
 ```json
 {
   "id": "Q2hhbm5lbDox",
@@ -600,6 +716,8 @@ Query variables:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 :::warning
 If any issues occur during checkout validation, the checkout will not be completed.

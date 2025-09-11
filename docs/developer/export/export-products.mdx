@@ -1,6 +1,8 @@
 ---
 title: Exporting Products
 ---
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 This guide describes how to export products from the Saleor GraphQL API. Exporting products can help create backups of your data or simplify bulk editing.
 
@@ -67,31 +69,12 @@ to CSV file.
 The order of fields that you pass defines the order of headers in the exported file.
 Exporting any of `price` fields adds a `currency` field by default.
 
-```graphql {7-22}
-mutation {
+<Tabs>
+<TabItem value="Mutation">
+```graphql 
+mutation ExportProducts($input: ExportProductsInput!){
   exportProducts(
-    input: {
-      scope: ALL
-      fileType: CSV
-      exportInfo: {
-        fields: [
-          NAME
-          DESCRIPTION
-          PRODUCT_TYPE
-          CATEGORY
-          VISIBLE
-          COLLECTIONS
-          CHARGE_TAXES
-          PRODUCT_IMAGES
-          VARIANT_SKU
-          VARIANT_PRICE
-          COST_PRICE
-          VARIANT_IMAGES
-          PRODUCT_WEIGHT
-          VARIANT_WEIGHT
-        ]
-      }
-    }
+    input:$input
   ) {
     exportFile {
       id
@@ -108,9 +91,34 @@ mutation {
   }
 }
 ```
-
-In the response, we get the workers information:
-
+</TabItem>
+<TabItem value={"Variables"} default>
+```json {7-18}
+{
+  "input": {
+    "scope": "ALL",
+    "fileType": "CSV",
+    "exportInfo": {
+      "fields": [
+        "NAME",
+        "DESCRIPTION",
+        "PRODUCT_TYPE",
+        "CATEGORY",
+        "PRODUCT_WEIGHT",
+        "COLLECTIONS",
+        "CHARGE_TAXES",
+        "PRODUCT_IMAGES",
+        "VARIANT_ID",
+        "VARIANT_SKU",
+        "VARIANT_MEDIA",
+        "VARIANT_WEIGHT"
+      ]
+    }
+  }
+}
+```
+</TabItem>
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -127,6 +135,8 @@ In the response, we get the workers information:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 Once the task is finished, the `url` field will contain the URL address of the exported file. If the `User` triggers export, the link to the file will be sent by email to the requestor.
 To check if the URL is ready, you can fetch [ExportFile](export-overview#fetching-exportfile-instance).
@@ -138,19 +148,11 @@ parameter.
 
 The following example will only export published products from two specific categories:
 
-```graphql {4,7-10}
-mutation {
-  exportProducts(
-    input: {
-      scope: FILTER
-      fileType: CSV
-      exportInfo: { fields: [NAME, DESCRIPTION, PRODUCT_TYPE, VARIANT_SKU] }
-      filter: {
-        isPublished: true
-        categories: ["Q2F0ZWdvcnk6Nw==", "Q2F0ZWdvcnk6MjI="]
-      }
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ExportProducts($input: ExportProductsInput!) {
+  exportProducts(input: $input) {
     exportFile {
       id
       status
@@ -166,22 +168,44 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"} default>
+```json {3,13-19}
+{
+  "input": {
+    "scope": "FILTER",
+    "fileType": "CSV",
+    "exportInfo": {
+      "fields": [
+        "NAME",
+        "DESCRIPTION",
+        "PRODUCT_TYPE",
+        "VARIANT_SKU"
+      ]
+    },
+    "filter": {
+      "isPublished": true,
+      "categories": [
+        "Q2F0ZWdvcnk6Nw==",
+        "Q2F0ZWdvcnk6MjI="
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 ### Exporting Products With Specified IDs
 
 To export only products with provided IDs you need to set the `scope` to `IDS` and include the `ids`
 parameter.
 
-```graphql {4,7}
-mutation {
-  exportProducts(
-    input: {
-      scope: IDS
-      fileType: CSV
-      exportInfo: { fields: [NAME, DESCRIPTION, PRODUCT_TYPE, VARIANT_SKU] }
-      ids: ["UHJvZHVjdDo3Mg==", "UHJvZHVjdDo4Nw==", "UHJvZHVjdDoxMTU="]
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ExportProducts($input: ExportProductsInput!) {
+  exportProducts(input: $input) {
     exportFile {
       id
       status
@@ -197,6 +221,32 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"} default>
+```json {3,13-17}
+{
+  "input": {
+    "scope": "IDS",
+    "fileType": "CSV",
+    "exportInfo": {
+      "fields": [
+        "NAME",
+        "DESCRIPTION",
+        "PRODUCT_TYPE",
+        "VARIANT_SKU"
+      ]
+    },
+    "ids": [
+      "UHJvZHVjdDo3Mg==",
+      "UHJvZHVjdDo4Nw==",
+      "UHJvZHVjdDoxMTU="
+    ]
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 
 ### Selecting Warehouses and Attributes
 
@@ -213,22 +263,11 @@ Attributes value will be visible in the column:
 Below you can find an example of exporting warehouses and
 attributes data.
 
-```graphql {8-12}
-mutation {
-  exportProducts(
-    input: {
-      scope: ALL
-      fileType: CSV
-      exportInfo: {
-        fields: [NAME, VARIANT_SKU]
-        warehouses: [
-          "V2FyZWhvdXNlOjA1ZmFmZjRmLTViYWItNDIzNC04MTBhLTM5NjI5MDMyMWFkMg=="
-          "V2FyZWhvdXNlOjQ3Mjc3NjM2LTQ1MWItNGNmZi04OWJkLWM5MTA4OWNiNTdkYQ=="
-        ]
-        attributes: ["QXR0cmlidXRlOjE1", "QXR0cmlidXRlOjE4"]
-      }
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ExportProducts($input: ExportProductsInput!) {
+  exportProducts(input: $input) {
     exportFile {
       id
       status
@@ -244,3 +283,29 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"} default>
+```json {10-17}
+{
+  "input": {
+    "scope": "ALL",
+    "fileType": "CSV",
+    "exportInfo": {
+      "fields": [
+        "NAME",
+        "VARIANT_SKU"
+      ],
+      "warehouses": [
+        "V2FyZWhvdXNlOjA1ZmFmZjRmLTViYWItNDIzNC04MTBhLTM5NjI5MDMyMWFkMg==",
+        "V2FyZWhvdXNlOjQ3Mjc3NjM2LTQ1MWItNGNmZi04OWJkLWM5MTA4OWNiNTdkYQ=="
+      ],
+      "attributes": [
+        "QXR0cmlidXRlOjE1",
+        "QXR0cmlidXRlOjE4"
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
