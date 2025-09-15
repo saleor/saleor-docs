@@ -627,3 +627,60 @@ Starting from version 3.21, this behavior has changed: if an `email` is explicit
 ## Change in default `orderSettings.markAsPaidStrategy`
 
 When creating new channels in Saleor 3.21, the default value for `paymentSettings.defaultTransactionFlowStrategy` is now set to [`MarkAsPaidStrategyEnum.TRANSACTION_FLOW`](https://docs.saleor.io/api-reference/channels/enums/mark-as-paid-strategy-enum#markaspaidstrategyenumtransaction_flow).
+
+
+## Behavior change in `accountRegister` mutation
+
+#### Before Saleor 3.21
+
+When calling `accountRegister` for an already existing user, Saleor returned an error response, for example:
+
+```json
+{
+  "data": {
+    "accountRegister": {
+      "errors": [
+        {
+          "field": "email",
+          "message": "User with this Email already exists.",
+          "code": "UNIQUE"
+        }
+      ],
+      "user": null
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 1,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+#### From Saleor 3.21+
+
+To prevent user enumeration attacks, the `accountRegister` mutation no longer returns an error when the user already exists. 
+Instead, it always returns a user object. The id field is always set to an empty string:
+
+```json
+{
+  "data": {
+    "accountRegister": {
+      "errors": [],
+      "user": {
+        "id": "",
+        "email": "existing-user@example.com"
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+If your application needs to verify whether a user with the given email already exists in Saleor, you must perform an additional [query](/api-reference/users/queries/user.mdx).
+This step needs to be performed by app with proper permissions.
