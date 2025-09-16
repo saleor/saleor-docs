@@ -2,6 +2,9 @@
 title: Permissions
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 ## User permissions
 
 The user permissions are divided into data and channel permissions.
@@ -47,19 +50,11 @@ mutation. This method allows for assigning users during group creation.
 
 #### Creating the group without channel restriction
 
-Request:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  permissionGroupCreate(
-    input: {
-      addPermissions: [MANAGE_GIFT_CARD, MANAGE_DISCOUNTS]
-      addUsers: []
-      name: "Sale managers"
-      restrictedAccessToChannels: false
-      addChannels: []
-    }
-  ) {
+mutation PermissionGroupCreate($input: PermissionGroupCreateInput!) {
+  permissionGroupCreate(input: $input) {
     errors {
       message
     }
@@ -77,9 +72,23 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-A successful response:
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+      "addPermissions": ["MANAGE_GIFT_CARD", "MANAGE_DISCOUNTS"],
+      "addUsers": [],
+      "name": "Sale managers",
+      "restrictedAccessToChannels": false,
+      "addChannels": []
+    }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -110,22 +119,16 @@ A successful response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 #### Creating a group with channel restrictions
 
-Request:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  permissionGroupCreate(
-    input: {
-      addPermissions: [MANAGE_ORDERS]
-      addUsers: []
-      name: "Order managers for channel USD"
-      restrictedAccessToChannels: true
-      addChannels: ["Q2hhbm5lbDoy"]
-    }
-  ) {
+mutation PermissionGroupCreate($input: PermissionGroupCreateInput!) {
+  permissionGroupCreate(input: $input) {
     errors {
       message
     }
@@ -143,8 +146,27 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-A successful response:
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "addPermissions": [
+      "MANAGE_ORDERS"
+    ],
+    "addUsers": [],
+    "name": "Order managers for channel USD",
+    "restrictedAccessToChannels": true,
+    "addChannels": [
+      "Q2hhbm5lbDoy"
+    ]
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
 
 ```json
 {
@@ -170,6 +192,8 @@ A successful response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 As we can see, the `accessibleChannels` field differs from the previous example. The users from this
 group will have access only to data from the `channel-pln` channel.
@@ -183,16 +207,28 @@ in `addChannels` field will be ignored.
 
 To remove a group, use the [`permissionGroupDelete`](api-reference/users/mutations/permission-group-delete.mdx) mutation:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  permissionGroupDelete(
-    id: "R3JvdXA6NDM="
-  ) {
+mutation PermissionGroupDelete($id: ID!) {
+  permissionGroupDelete(id: $id) {
     errors {
+      code
       message
     }
+  }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "R3JvdXA6NDM=",
+}
+```
+</TabItem>
+</Tabs>
 
 ### Modifying a group
 
@@ -201,25 +237,36 @@ mutation {
 The [`permissionGroupUpdate`](api-reference/users/mutations/permission-group-update.mdx) mutation takes a list of user IDs you would like to add or remove from the group. Having the same user in both lists will result in an error.
 
 Example request:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  permissionGroupUpdate(
-    id: "R3JvdXA6NDM="
-    input: {
-      name: "Sale managers"
-      addPermissions: []
-      removePermissions: []
-      addUsers: ["VXNlcjozMg=="]
-      removeUsers: []
-    }
-  ) {
+mutation PermissionGroupUpdate($id: ID!, $input: PermissionGroupUpdateInput!) {
+  permissionGroupUpdate(id: $id, input: $input) {
     errors {
       message
     }
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "R3JvdXA6NDM=",
+  "input": {
+    "name": "Sale managers",
+    "addPermissions": [],
+    "removePermissions": [],
+    "addUsers": [
+      "VXNlcjozMg=="
+    ],
+    "removeUsers": []
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 #### Managing the group channels
 
@@ -228,24 +275,37 @@ mutation takes a list of channel IDs you would like to add or remove from the gr
 Having the same channels in both lists will result in an error.
 
 Example request:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  permissionGroupUpdate(
-    id: "R3JvdXA6MjY="
-    input: {
-      addPermissions: []
-      removePermissions: []
-      addChannels: ["Q2hhbm5lbDox"]
-      removeChannels: ["Q2hhbm5lbDoy"]
-    }
-  ) {
+mutation PermissionGroupUpdate($id: ID!, $input: PermissionGroupUpdateInput!) {
+  permissionGroupUpdate(id: $id, input: $input) {
     errors {
       message
     }
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "R3JvdXA6MjY=",
+  "input": {
+    "addPermissions": [],
+    "removePermissions": [],
+    "addChannels": [
+      "Q2hhbm5lbDox"
+    ],
+    "removeChannels": [
+      "Q2hhbm5lbDoy"
+    ]
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 :::important
 When the `restrictedAccessToChannels` flag is changed from `true` to `false`, all currently assigned channels will be cleared.

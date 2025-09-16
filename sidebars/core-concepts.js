@@ -111,8 +111,8 @@ export const coreConcepts = [
   "developer/bulks/error-policy",
 
   title("Exporting"),
-  "developer/export/export-gift-cards",
   "developer/export/export-overview",
+  "developer/export/export-gift-cards",
   "developer/export/export-products",
   "developer/export/export-voucher-codes",
 ];
