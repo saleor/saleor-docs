@@ -2,6 +2,9 @@
 title: Taxes
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 Saleor offers two ways of calculating taxes: flat rates and dynamic taxes.
 
 Flat rates allow you to configure static tax rates per country and channel, and assign them to products via tax classes. Dynamic taxes, on the other hand, enable you to delegate tax calculations to 3rd-party tax providers like Avalara, TaxJar, or entirely custom tax apps.
@@ -83,12 +86,11 @@ query TaxConfiguration {
 
 The `taxConfigurationUpdate` mutation allows you to update the specific tax configuration. The example below shows how to set the tax calculation strategy to dynamic taxes (in API represented as the `TAX_APP` option):
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  taxConfigurationUpdate(
-    id: "VGF4Q29uZmlndXJhdGlvbjox"
-    input: { taxCalculationStrategy: TAX_APP }
-  ) {
+mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
+  taxConfigurationUpdate(id: $id, input: $input) {
     errors {
       field
       message
@@ -99,27 +101,28 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "VGF4Q29uZmlndXJhdGlvbjox",
+  "input": {
+    "taxCalculationStrategy": "TAX_APP"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 ### Overriding tax configuration per country
 
 Tax configurations specific to a channel can be modified for different countries. For example, a single sales channel may use flat rates for EU countries but use the tax app for the US. To represent this scenario in Saleor, you would set flat rates as the channel's default tax calculation strategy and override the configuration for the US to use dynamic taxes.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  taxConfigurationUpdate(
-    id: "VGF4Q29uZmlndXJhdGlvbjox"
-    input: {
-      taxCalculationStrategy: FLAT_RATES
-      updateCountriesConfiguration: [
-        {
-          countryCode: US
-          taxCalculationStrategy: TAX_APP
-          displayGrossPrices: false
-          chargeTaxes: true
-        }
-      ]
-    }
-  ) {
+mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
+  taxConfigurationUpdate(id: $id, input: $input) {
     errors {
       field
       message
@@ -138,45 +141,35 @@ mutation {
   }
 }
 ```
-
-To remove the country-specific configuration, use the `removeCountriesConfiguration` field and provide the country code for which to remove the configuration:
-
-```graphql
-mutation {
-  taxConfigurationUpdate(
-    id: "VGF4Q29uZmlndXJhdGlvbjox"
-    input: { removeCountriesConfiguration: [US] }
-  ) {
-    errors {
-      field
-      message
-    }
-    taxConfiguration {
-      countries {
-        country {
-          code
-        }
-        taxCalculationStrategy
+</TabItem>
+<TabItem value={"Variables"} default>
+```json
+{
+  "id": "VGF4Q29uZmlndXJhdGlvbjox",
+  "input": {
+    "taxCalculationStrategy": "FLAT_RATES",
+    "updateCountriesConfiguration": [
+      {
+        "countryCode": "US",
+        "taxCalculationStrategy": "TAX_APP",
+        "displayGrossPrices": false,
+        "chargeTaxes": true
       }
-    }
+    ]
   }
 }
 ```
+</TabItem>
+</Tabs>
 
-## Flat rates
 
-Flat rates are the default tax calculation strategy that is enabled for any new sales channel. With this method, you can configure static tax rates and associate them with products, product types, or shipping methods. Tax rates can be defined as default country rates or overridden for specific products with tax classes.
+To remove the country-specific configuration, use the `removeCountriesConfiguration` field and provide the country code for which to remove the configuration:
 
-### Enabling flat rates for a channel
-
-To enable flat rates, use the following mutation:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  taxConfigurationUpdate(
-    id: "VGF4Q29uZmlndXJhdGlvbjox"
-    input: { taxCalculationStrategy: FLAT_RATES }
-  ) {
+mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
+  taxConfigurationUpdate(id: $id, input: $input) {
     errors {
       field
       message
@@ -187,6 +180,56 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"} default>
+```json
+{
+  "id": "VGF4Q29uZmlndXJhdGlvbjox",
+  "input": {
+    "removeCountriesConfiguration": [
+      "US"
+    ]
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+## Flat rates
+
+Flat rates are the default tax calculation strategy that is enabled for any new sales channel. With this method, you can configure static tax rates and associate them with products, product types, or shipping methods. Tax rates can be defined as default country rates or overridden for specific products with tax classes.
+
+### Enabling flat rates for a channel
+
+To enable flat rates, use the following mutation:
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
+  taxConfigurationUpdate(id: $id, input: $input) {
+    errors {
+      field
+      message
+    }
+    taxConfiguration {
+      taxCalculationStrategy
+    }
+  }
+}
+```
+</TabItem>
+<TabItem value={"Variables"} default>
+```json
+{
+  "id": "VGF4Q29uZmlndXJhdGlvbjox",
+  "input": {
+    "taxCalculationStrategy": "FLAT_RATES"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 `VGF4Q29uZmlndXJhdGlvbjox` is the ID of the tax configuration object related to the channel. See [Fetching tax configurations](developer/taxes.mdx#fetching-tax-configurations) to learn how to get the ID.
 
@@ -194,11 +237,14 @@ mutation {
 
 The default country rate is used for products and shipping methods when there is no other tax class assigned to them. To provide a default tax rate for a country, use the following mutation:
 
+
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
+mutation TaxCountryConfigurationUpdate($countryCode: CountryCode!, $updateTaxClassRates: [TaxClassRateInput!]!) {
   taxCountryConfigurationUpdate(
-    countryCode: PL
-    updateTaxClassRates: [{ rate: 23 }]
+    countryCode: $countryCode
+    updateTaxClassRates: $updateTaxClassRates
   ) {
     taxCountryConfiguration {
       country {
@@ -215,6 +261,20 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "countryCode": "PL",
+  "updateTaxClassRates": [
+    {
+      "rate": 23
+    }
+  ]
+}
+```
+</TabItem>
+</Tabs>
 
 In this example, we’re setting the default tax rate for Poland to 23%.
 
@@ -222,14 +282,11 @@ In this example, we’re setting the default tax rate for Poland to 23%.
 
 To create a tax rate that would be used only for specific products, you must create a tax class and assign it to the product. In the example below, we’re creating a tax class “Healthcare products” with an 8% tax rate for Poland:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  taxClassCreate(
-    input: {
-      name: "Healthcare products"
-      createCountryRates: [{ countryCode: PL, rate: 8 }]
-    }
-  ) {
+mutation TaxClassCreate($input: TaxClassCreateInput!) {
+  taxClassCreate(input: $input) {
     errors {
       field
       message
@@ -243,12 +300,32 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "name": "Healthcare products",
+    "createCountryRates": [
+      {
+        "countryCode": "PL",
+        "rate": 8
+      }
+    ]
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 
 To assign the tax class to a product, use the following mutation:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  productUpdate(id: "UHJvZHVjdDox", input: { taxClass: "VGF4Q2xhc3M6Mg==" }) {
+mutation ProductUpdate($id: ID, $input: ProductInput!) {
+  productUpdate(id: $id, input: $input) {
     errors {
       field
       message
@@ -261,6 +338,18 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UHJvZHVjdDox",
+  "input": {
+    "taxClass": "VGF4Q2xhc3M6Mg=="
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 When the product is added to checkout, Saleor will use the 8% tax rate.
 
@@ -279,12 +368,11 @@ Saleor supports two different methods for calculating tax rates:
 
 To calculate taxes on shipping, you can either configure [the default tax rate for a country](developer/taxes.mdx#creating-a-default-country-rate) or create a custom tax class and assign it to the shipping method. Here is an example:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  shippingPriceUpdate(
-    id: "U2hpcHBpbmdNZXRob2RUeXBlOjE="
-    input: { taxClass: "VGF4Q2xhc3M6Mg==" }
-  ) {
+mutation ShippingPriceUpdate($id: ID!, $input: ShippingPriceInput!) {
+  shippingPriceUpdate(id: $id, input: $input) {
     errors {
       field
       message
@@ -297,7 +385,18 @@ mutation {
   }
 }
 ```
-
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "U2hpcHBpbmdNZXRob2RUeXBlOjE=",
+  "input": {
+    "taxClass": "VGF4Q2xhc3M6Mg=="
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 #### Using weighted shipping tax rate
 
@@ -315,15 +414,11 @@ If enabled with any other strategy, the mutation will raise an exception.
 
 To enable weighted tax calculation for shipping, use the following mutation:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  taxConfigurationUpdate(
-    id: "VGF4Q29uZmlndXJhdGlvbjox"
-    input: {
-      useWeightedTaxForShipping: true, 
-      taxCalculationStrategy: FLAT_RATES
-    }
-  ) {
+mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
+  taxConfigurationUpdate(id: $id, input: $input) {
     taxConfiguration {
       useWeightedTaxForShipping
     }
@@ -334,32 +429,35 @@ mutation {
   }
 }
 ```
-
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "VGF4Q29uZmlndXJhdGlvbjox",
+  "input": {
+    "useWeightedTaxForShipping": true,
+    "taxCalculationStrategy": "FLAT_RATES"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 ##### Enabling for a specific country
 
 You can also configure the weighted shipping tax rate for specific countries:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  taxConfigurationUpdate(
-    id: "VGF4Q29uZmlndXJhdGlvbjox"
-    input: {
-      updateCountriesConfiguration: [
-        {
-          countryCode: CA, 
-          taxCalculationStrategy: FLAT_RATES, 
-          useWeightedTaxForShipping: true, 
-          chargeTaxes: true, 
-          displayGrossPrices: true
-        }
-      ]
-    }
-  ) {
+mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
+  taxConfigurationUpdate(id: $id, input: $input) {
     taxConfiguration {
       useWeightedTaxForShipping
       countries {
-        countryCode
+        country {
+          code
+        }
         useWeightedTaxForShipping
       }
     }
@@ -370,6 +468,26 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"} default>
+```json
+{
+  "id": "VGF4Q29uZmlndXJhdGlvbjox",
+  "input": {
+    "updateCountriesConfiguration": [
+      {
+        "countryCode": "CA",
+        "taxCalculationStrategy": "FLAT_RATES",
+        "useWeightedTaxForShipping": true,
+        "chargeTaxes": true,
+        "displayGrossPrices": true
+      }
+    ]
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 This mutation enables weighted tax calculation for orders shipped to `Canada`.
 
@@ -431,14 +549,16 @@ When using flat rates, the API can list products with prices that include tax ra
 
 In this example, we are fetching a product list with prices for Poland.
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
-{
-  products(channel: "default-channel", first: 20) {
+query Products($first: Int, $channel: String, $address: AddressInput) {
+  products(first: $first, channel: $channel) {
     edges {
       node {
         id
         name
-        pricing(address: { country: PL }) {
+        pricing(address: $address) {
           priceRange {
             start {
               currency
@@ -456,6 +576,19 @@ In this example, we are fetching a product list with prices for Poland.
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "first": 20,
+  "channel": "default-channel",
+  "address": {
+    "country": "PL"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 ### Rounding
 
@@ -479,22 +612,35 @@ To learn more about configuring dynamic taxes, navigate to the [Tax Webhooks](de
 
 To enable dynamic taxes in a channel use:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  taxConfigurationUpdate(
-    id: "VGF4Q29uZmlndXJhdGlvbjox"
-    input: { taxCalculationStrategy: TAX_APP, taxAppId: "saleor.tax" }
-  ) {
+mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
+  taxConfigurationUpdate(id: $id, input: $input) {
     errors {
       field
       message
     }
     taxConfiguration {
       taxCalculationStrategy
+      taxAppId
     }
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "VGF4Q29uZmlndXJhdGlvbjox",
+  "input": {
+    "taxCalculationStrategy": "TAX_APP",
+    "taxAppId": "saleor.tax"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 If you decide to set `taxAppId` [checkoutComplete](api-reference/checkout/mutations/checkout-complete.mdx) and [draftOrderComplete](api-reference/orders/mutations/draft-order-complete.mdx) mutations will fail if your Tax App doesn't respond or provide invalid data.
 From Saleor 4.0 forward `taxAppId` will become mandatory when `TAX_APP` is set as `taxCalculationStrategy`.
@@ -508,12 +654,12 @@ The [Tax Exemption API](api-reference/taxes/mutations/tax-exemption-manage.mdx) 
 
 To exempt a checkout from taxes, use the following mutation:
 
+
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  taxExemptionManage(
-    id: "Q2hlY2tvdXQ6ZTZiMzAzYmMtMzc2Zi00YThkLTkxYzAtNmU3MjYyNDU1OWU3"
-    taxExemption: true
-  ) {
+mutation TaxExemptionManage($id: ID!, $taxExemption: Boolean!) {
+  taxExemptionManage(id: $id, taxExemption: $taxExemption) {
     errors {
       field
       message
@@ -526,6 +672,16 @@ mutation {
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZTZiMzAzYmMtMzc2Zi00YThkLTkxYzAtNmU3MjYyNDU1OWU3",
+  "taxExemption": true
+}
+```
+</TabItem>
+</Tabs>
 
 For orders, pass the order ID as an argument and adjust the query to fetch the order data in the `taxableObject` field. To re-enable tax charging, pass `taxExemption: false`.
 

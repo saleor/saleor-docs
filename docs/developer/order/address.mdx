@@ -1,6 +1,8 @@
 ---
 title: Shipping and Billing
 ---
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 ## Customer Address Saving Strategies
 
@@ -21,20 +23,20 @@ By default, both billing and shipping addresses are not saved in the customer's 
 ### Applicable Order Mutations
 The default behavior can be adjusted in the following order mutations:
 - [draftOrderCreate](/api-reference/orders/mutations/draft-order-create)
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation DraftOrderCreate(
-  $input: DraftOrderCreateInput!
-) {
-  draftOrderCreate(
-    input: $input
-  ) {
+mutation DraftOrderCreate($input: DraftOrderCreateInput!) {
+  draftOrderCreate(input: $input) {
     order {
       id
     }
   }
-} 
+}
 ```
-example input data:
+</TabItem>
+
+<TabItem value={"Variables"}>
 ```json {5,15}
 {
   "input": {
@@ -42,57 +44,60 @@ example input data:
     "lines": [{ "quantity": 1, "variantId": "UHJvZHVjdFZhcmlhbnQ6Mjk3" }],
     "saveBillingAddress": true,
     "billingAddress": {
-      "firstName": "John"
-      "lastName": "Doe"
-      "streetAddress1": "1470  Pinewood Avenue"
-      "city": "Michigan"
-      "postalCode": "49855"
-      "country": "US"
+      "firstName": "John",
+      "lastName": "Doe",
+      "streetAddress1": "1470  Pinewood Avenue",
+      "city": "Michigan",
+      "postalCode": "49855",
+      "country": "US",
       "countryArea": "MI"
     },
     "saveShippingAddress": false,
     "shippingAddress": {
-      "firstName": "John"
-      "lastName": "Doe"
-      "streetAddress1": "1470  Pinewood Avenue"
-      "city": "Michigan"
-      "postalCode": "49855"
-      "country": "US"
+      "firstName": "John",
+      "lastName": "Doe",
+      "streetAddress1": "1470  Pinewood Avenue",
+      "city": "Michigan",
+      "postalCode": "49855",
+      "country": "US",
       "countryArea": "MI"
     },
-    "channelId": "Q2hhbm5lbDoyMjQ0",
+    "channelId": "Q2hhbm5lbDoyMjQ0"
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 - [draftOrderUpdate](/api-reference/orders/mutations/draft-order-update.mdx)
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation DraftOrderUpdate(
-  $id: ID!,
-  $input: DraftOrderInput!,
-) {
-  draftOrderUpdate(
-    id: $id,
-    input: $input
-  ) {
+mutation DraftOrderUpdate($id: ID!, $input: DraftOrderInput!) {
+  draftOrderUpdate(id: $id, input: $input) {
     order {
-        userEmail
-        externalReference
+      userEmail
+      externalReference
     }
   }
 }
 ```
-example input data:
+</TabItem>
+
+<TabItem value={"Variables"}>
 ```json {7}
 {
   "id": "T3JkZXI6ZGJlZjkxZmQtMjMxZS00ZGNmLTk5ZGMtNGQxOTBhNDFjYTQ1",
   "input": {
     "shippingAddress": {
-        "postalCode": "22-356"
+      "postalCode": "22-356"
     },
     "saveShippingAddress": false
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 ### Important Notes
 
@@ -101,33 +106,57 @@ Attempting to set `saveShippingAddress` or `saveBillingAddress` without includin
 `shippingAddress` or `billingAddress` will result in an error.
 
 For example, providing `saveShippingAddress` in the `draftOrderUpdate` mutation without including `shippingAddress` will raise an error:
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation DraftOrderUpdate(
-  $id: ID!,
-  $input: DraftOrderInput!,
-) {
-  draftOrderUpdate(
-    id: $id,
-    input: $input
-  ) {
+mutation DraftOrderUpdate($id: ID!, $input: DraftOrderInput!) {
+  draftOrderUpdate(id: $id, input: $input) {
     order {
       userEmail
       externalReference
     }
+    errors {
+      field
+      code
+      message
+    }
   }
 }
-```
 
-invalid input data:
-```json {5}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
 {
-  "id": "T3JkZXI6ZGJlZjkxZmQtMjMxZS00ZGNmLTk5ZGMtNGQxOTBhNDFjYTQ1",
+  "id": "T3JkZXI6YjkzODYwMGMtYWJhZi00ZmEyLWE0ZTEtODY5MDQ2OWEyNGIy",
   "input": {
     "externalReference": "ref-XYZ",
     "saveShippingAddress": false
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "draftOrderUpdate": {
+      "order": null,
+      "errors": [
+        {
+          "field": "saveShippingAddress",
+          "code": "MISSING_ADDRESS_DATA",
+          "message": "This option can only be selected if a shipping address is provided."
+        }
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 :::warning
 Any update to the address, even a partial change, resets the `saveAddress` flag to its default behavior.

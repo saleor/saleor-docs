@@ -2,6 +2,9 @@
 title: Refunds
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 There are two ways to process refunds:
 
 - Manual refund: This method involves directly refunding the payment through the payment app.
@@ -13,41 +16,43 @@ The manual refund can be triggered by calling `transactionRequestAction`. If the
 
 The below example shows how to trigger the manual refund:
 
-```graphql {3-5}
-mutation {
-  transactionRequestAction(
-    id: "VHJhbnNhY3Rpb25JdGVtOjljY2NkYTYyLTllMjktNGE0OC05NzIyLWRlYzAwOTRmZmY5Yg=="
-    actionType: REFUND
-    amount: "10"
-    reason: "Customer requested a refund"
-    reasonReference: "xXyzaXdaxbX" # ID of a model representing the reason for the refund
-
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation TransactionRequestAction($id: ID, $actionType: TransactionActionEnum!, $amount: PositiveDecimal) {
+  transactionRequestAction(id: $id, actionType: $actionType, amount: $amount) {
     transaction {
       events {
         id
-        message # Will contain the "reason" value
+        message
         pspReference
         amount {
           amount
         }
         type
-        reasonReference {
-          id
-        }
       }
     }
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "VHJhbnNhY3Rpb25JdGVtOjljY2NkYTYyLTllMjktNGE0OC05NzIyLWRlYzAwOTRmZmY5Yg==",
+  "actionType": "REFUND",
+  "amount": "10"
+}
+```
+</TabItem>
+</Tabs>
 
 The mutation accepts below arguments:
 
 - `id` - ID of the transaction which will be used to trigger the refund action.
 - `actionType` - The type of action to be performed on the requested `TransactionItem`. For a refund action, use `REFUND`.
 - `amount` - The amount of the action. The amount is rounded based on the given currency precision. If not provided Saleor will use `TransactionItem.chargedAmount`.
-- `reason` - Optional plain text reason for the refund. Will be populated to the `TransactionEvent.message` field.
-- `reasonReference` - The ID of a model representing the reason for the refund. This is useful for tracking and reporting purposes, like aggregating refunds by specific type.
 
 ## Grant refunds
 
@@ -87,29 +92,11 @@ For example:
 
 The following example shows how to create the granted refund with the assigned `TransactionItem` for the order.
 
-```graphql {3-19}
-mutation {
-  orderGrantRefundCreate(
-    id: "T3JkZXI6NWZlOTE5NzItYjg3OC00Y2QyLTkyN2UtZTQwZDJjZDRjMmEz"
-    input: {
-      transactionId: "VHJhbnNhY3Rpb25JdGVtOmUzOTVjNzdmLWFmNjQtNDRmZC05NmRiLThkZmNkMDYwNmZmOA=="
-      lines: [
-        {
-          id: "T3JkZXJMaW5lOjdlNzg5NzY0LTUyZWMtNDU3Mi05NWNkLTM5ZjQ0OTJmZDk4ZA=="
-          quantity: 5
-          reason: "Line reason"
-        }
-        {
-          id: "T3JkZXJMaW5lOjdlNzg5NzY0LTUyZWMtNDU3Mi05NWNkLTM5ZjQ0OTJmZDk4Z1=="
-          quantity: 5
-        }
-      ]
-      grantRefundForShipping: true
-      amount: 10
-      reason: "Returned by customer"
-
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation OrderGrantRefundCreate($id: ID!, $input: OrderGrantRefundCreateInput!) {
+  orderGrantRefundCreate(id: $id, input: $input) {
     grantedRefund {
       id
     }
@@ -130,6 +117,33 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "T3JkZXI6NWZlOTE5NzItYjg3OC00Y2QyLTkyN2UtZTQwZDJjZDRjMmEz",
+  "input": {
+    "transactionId": "VHJhbnNhY3Rpb25JdGVtOmUzOTVjNzdmLWFmNjQtNDRmZC05NmRiLThkZmNkMDYwNmZmOA==",
+    "lines": [
+      {
+        "id": "T3JkZXJMaW5lOjdlNzg5NzY0LTUyZWMtNDU3Mi05NWNkLTM5ZjQ0OTJmZDk4ZA==",
+        "quantity": 5,
+        "reason": "Line reason"
+      },
+      {
+        "id": "T3JkZXJMaW5lOjdlNzg5NzY0LTUyZWMtNDU3Mi05NWNkLTM5ZjQ0OTJmZDk4Z1==",
+        "quantity": 5
+      }
+    ],
+    "grantRefundForShipping": true,
+    "amount": 10,
+    "reason": "Returned by customer"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 The mutation accepts below arguments:
 
@@ -139,32 +153,17 @@ The mutation accepts below arguments:
 - `id` - ID of the `OrderLine`.
 - `quantity` - The quantity of the specific lines planned to refund.
 - `reason` - Reason of the refund related to the specific line.
-- `reasonReference` - The ID of a model representing the reason for the refund. This is useful for tracking and reporting purposes, like aggregating refunds by specific type.
 - `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
 - `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
 - `transactionId` - ID of `TransactionItem` that will be used to process the refund. If `amount` is provided in the input, the `transaction.chargedAmount` needs to be equal to or greater than the provided `amount`. If `amount` is not provided in the input and calculated automatically by Saleor, the `min(calculatedAmount, transaction.chargedAmount)` will be used. This field was added in Saleor 3.20, and it will be a mandatory input field starting from Saleor 3.21.
 
 The below example shows how to update the existing granted refund
 
-```graphql {3-15}
-mutation {
-  orderGrantRefundUpdate(
-    id: "T3JkZXJHcmFudGVkUmVmdW5kOjE="
-    input: {
-      addLines: [
-        {
-          id: "T3JkZXJMaW5lOjgzYmZmZWI3LTVkNjEtNDMzZS1iOGFkLTFhMTE1NWI2ZTgwNg=="
-          quantity: 3
-        }
-      ]
-      removeLines: []
-      transactionId: "VHJhbnNhY3Rpb25JdGVtOmUzOTVjNzdmLWFmNjQtNDRmZC05NmRiLThkZmNkMDYwNmZmOA=="
-      amount: 10
-      grantRefundForShipping: false
-      reason: "New reason"
-      reasonReference: "xXyzaXdaxbX"
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation OrderGrantRefundUpdate($id: ID!, $input: OrderGrantRefundUpdateInput!) {
+  orderGrantRefundUpdate(id: $id, input: $input) {
     grantedRefund {
       id
     }
@@ -181,6 +180,29 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "T3JkZXJHcmFudGVkUmVmdW5kOjE=",
+  "input": {
+    "addLines": [
+      {
+        "id": "T3JkZXJMaW5lOjgzYmZmZWI3LTVkNjEtNDMzZS1iOGFkLTFhMTE1NWI2ZTgwNg==",
+        "quantity": 3
+      }
+    ],
+    "removeLines": [],
+    "transactionId": "VHJhbnNhY3Rpb25JdGVtOmUzOTVjNzdmLWFmNjQtNDRmZC05NmRiLThkZmNkMDYwNmZmOA==",
+    "amount": 10,
+    "grantRefundForShipping": false,
+    "reason": "New reason"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 The mutation accepts below arguments:
 
@@ -190,7 +212,6 @@ The mutation accepts below arguments:
 - `id` - ID of the `OrderLine`.
 - `quantity` - The quantity of the specific lines planned to refund.
 - `reason` - Reason for the planned refund related to the specific line.
-- `reasonReference` - The ID of a model representing the reason for the refund. This is useful for tracking and reporting purposes, like aggregating refunds by specific type.
 - `removeLines` - List of `OrderGrantedRefundLine`'s IDs that should be removed from `OrderGrantedRefund`.
 - `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
 - `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
@@ -204,11 +225,11 @@ When `OrderGrantedRefund.status` is `SUCCESS` or `PENDING`, only `reason` can be
 
 Below example shows how to trigger the refund based on `OrderGrantedRefund`:
 
-```graphql {2}
-mutation {
-  transactionRequestRefundForGrantedRefund(
-    grantedRefundId: "T3JkZXJHcmFudGVkUmVmdW5kOjE="
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation TransactionRequestRefundForGrantedRefund($grantedRefundId: ID!) {
+  transactionRequestRefundForGrantedRefund(grantedRefundId: $grantedRefundId) {
     transaction {
       id
     }
@@ -220,6 +241,16 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "grantedRefundId": "T3JkZXJHcmFudGVkUmVmdW5kOjE="
+}
+```
+</TabItem>
+</Tabs>
 
 To request a refund, you need to provide the `grantedRefundId` field. The mandatory refund details are stored as `OrderGrantedRefund`, so the refund request will be created based on this data.
 The `OrderGrantedRefund.status` field will be updated based on the result of the refund action. The `TransactionEvent`s related to the requested action will be accessible via `OrderGrantedRefund.transactionEvents` field.
@@ -303,39 +334,3 @@ Below is an example order with multiple transactions and `totalRemainingGrant` a
   It also means that `totalChargedAmount` includes `amountChargePending`, and `totalRefundedAmount` includes `amountRefundPending`.
 - Authorized amounts, including `amountAuthorized` and `amountAuthorizePending`, are also considered processed. These amounts will contribute to the overall processed totals and impact the `overchargedAmount`.
   :::
-
-
-
-
-## Refund settings
-
-:::note
-Available from 3.22
-:::
-
-While `reason` field is optional and remains a plain text field, the `reasonReference` can be configured:
-- Require staff user to pass `reasonReference` for all refunds.
-- Make `reasonReference` optional
-
-To change the settings, you can either use the Dashboard or a mutation
-
-```graphql
-mutation UpdateRefundSettings($id: ID) {
-    refundSettingsUpdate(input: {
-      reasonReferenceType: $id
-    }) {
-        reasonReferenceType
-    }
-}
-```
-
-- input `reasonReferenceType` - the ID of a Model Type. All models that are instances of this type will be available to reference in the reasons.
-
-Mutation returns `RefundSettings` object with `reasonReferenceType: PageType` if set.
-
-Once `reasonReferenceType` is set, staff users will have to provide the `reasonReference` field when processing refunds.
-The `reasonReference` will be validated against the provided type, and if it does not match, an error will be returned.
-
-However, apps can still process refunds without providing the `reasonReference` field, as it is not a mandatory field for apps.
-
-To disable the requirement, perform `mutation refundReasonReferenceTypeClear`

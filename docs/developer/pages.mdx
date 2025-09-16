@@ -1,5 +1,8 @@
 # Pages
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 ## Overview
 
 Pages provide a flexible mechanism for managing both traditional content and structured data entities that extend your commerce domain beyond the standard Product/Category/Collection model. Think of them as structured documents within Saleor.
@@ -89,7 +92,7 @@ In the storefront UI, this structure enables rich product pages that showcase th
 
 ### Creating a Page
 
-To create a page through API, you must first define the page type and any required attributes.
+To [create a page](/api-reference/pages/mutations/page-create.mdx) through API, you must first define the [page type](/api-reference/pages/mutations/page-type-create) and any required attributes.
 
 
 :::info
@@ -98,14 +101,11 @@ Creating a page requires the [`MANAGE_PAGES` permission](developer/permissions.m
 
 :::
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  pageCreate(input: {
-    title: "Citrus Zest",
-    slug: "citrus-zest",
-    isPublished: true,
-    pageType: "UGFnZVR5cGU6NDY=",
-  }) {
+mutation PageCreate($input: PageCreateInput!) {
+  pageCreate(input: $input) {
     page {
       id
       title
@@ -117,12 +117,29 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "title": "Citrus Zest",
+    "slug": "citrus-zest",
+    "isPublished": true,
+    "pageType": "UGFnZVR5cGU6NDY="
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 
 ### Getting Pages
 
-You can get individual page details using the `page` query:
+You can get individual page details using the [`page`](/api-reference/pages/queries/page.mdx) query:
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
 query GetPage($id: ID!) {
   page(id: $id) {
@@ -141,41 +158,70 @@ query GetPage($id: ID!) {
   }
 }
 ```
+</TabItem>
 
-or you can get multiple pages using the `pages` query:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UGFnZToz"
+}
+```
+</TabItem>
+</Tabs>
 
+or you can get multiple pages using the [`pages`](/api-reference/pages/queries/pages.mdx) query:
+
+<Tabs>
+<TabItem value="Query">
 ```graphql
-query GetPages($ids: [ID!]!) {
-  pages(ids: $ids) {
-    id
-    title
-    attributes {
-      attribute {
-        name
-        slug
-      }
-      values {
-        name
+query GetPages($first: Int, $filter: PageFilterInput) {
+  pages(first: $first, filter: $filter) {
+    totalCount
+    edges {
+      node {
+        id
+        title
+        attributes {
+          attribute {
+            name
+            slug
+          }
+          values {
+            name
+          }
+        }
       }
     }
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "first": 5,
+  "filter": {
+    "ids": ["UGFnZToz", "UGFnZTo0"]
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 
 ### Linking Pages
 
-Pages can reference or be referenced by other entities through attribute of type [REFERENCE](api-reference/attributes/enums/attribute-input-type-enum.mdx#attributeinputtypeenumreference). The selection of referenceable entities is determined by [`AttributeEntityTypeEnum`](api-reference/attributes/enums/attribute-entity-type-enum.mdx) and currently includes `PAGE`, `PRODUCT` and `PRODUCT_VARIANT`.
+Pages can reference or be referenced by other entities through attribute of type 
+[REFERENCE](api-reference/attributes/enums/attribute-input-type-enum.mdx#attributeinputtypeenumreference). 
+The selection of referenceable entities is determined by [`AttributeEntityTypeEnum`](api-reference/attributes/enums/attribute-entity-type-enum.mdx) 
+and currently includes `PAGE`, `PRODUCT` and `PRODUCT_VARIANT`.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  productUpdate(id: "UHJvZHVjdElE", input: {
-    attributes: [
-      {
-        id: "QXR0cmlidXRlSWQ=", # Product Attribute of type REFERENCE for scent profiles
-        references: ["UGFnZUlE"] # ID of the Citrus Zest page
-      }
-    ]
-  }) {
+mutation ProductUpdate($id: ID, $input: ProductInput!) {
+  productUpdate(id: $id, input: $input) {
     product {
       id
       name
@@ -187,12 +233,34 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UHJvZHVjdElE",
+  "input": {
+    "attributes": [
+      {
+        "id": "QXR0cmlidXRlSWQ=",   # Product Attribute of type REFERENCE for scent profiles
+        "references": [
+          "UGFnZUlE"   # ID of the Citrus Zest page
+        ]
+      }
+    ]
+  }
+}
+
+```
+</TabItem>
+</Tabs>
+
 
 You can also model relationships between Pages using a reference attribute or by embedding slugs/IDs in the page metadata.
 
 #### Querying Linked Entities
 
-Below is an example of how to query the linked entities using the `product` query:
+Below is an example of how to query the linked entities using the [`product`](/api-reference/products/queries/product.mdx) query:
 
 ```graphql
 query GetProductWithScentProfiles($productId: ID!) {
@@ -226,14 +294,13 @@ If `isPublished` is false, only users with the [`MANAGE_PAGES`](developer/permis
 
 :::
 
-You can update the value of those fields using `pageUpdate` mutation:
+You can update the value of those fields using [`pageUpdate`](/api-reference/pages/mutations/page-update.mdx) mutation:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  pageUpdate(id: "UGFnZUlE", input: {
-    isPublished: true,
-    publicationDate: "2025-04-15"
-  }) {
+mutation PageUpdate($id: ID!, $input: PageInput!) {
+  pageUpdate(id: $id, input: $input) {
     page {
       id
       title
@@ -246,23 +313,52 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UGFnZUlE",
+  "input": {
+    "isPublished": true,
+    "publicationDate": "2025-04-15"
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 
 ### Deleting Pages
 
-Use `pageDelete` for single pages or `pageBulkDelete` for multiple. Deleting a Page is permanent. Deleting a Page Type might be restricted if Pages are using it.
+Use [`pageDelete`](/api-reference/pages/mutations/page-delete.mdx) for single pages 
+or [`pageBulkDelete`](/api-reference/pages/mutations/page-bulk-delete.mdx) for multiple. 
+Deleting a Page is permanent. Deleting a Page Type might be restricted if Pages are using it.
 
 ```graphql
 mutation DeletePage($id: ID!) {
   pageDelete(id: $id) {
-    page { id }
-    errors { ... }
+    page {
+      id
+    }
+    errors {
+      field
+      code
+      message
+    }
   }
 }
+```
 
+```graphql
 mutation DeleteMultiplePages($ids: [ID!]!) {
   pageBulkDelete(ids: $ids) {
     count
-    errors { ... }
+    errors {
+      field
+      code
+      message
+    }
   }
 }
 ```

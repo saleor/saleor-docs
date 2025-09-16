@@ -1,0 +1,45 @@
+---
+sidebar_label: Overview
+sidebar_position: 1
+title: NP Atobarai App Overview
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.jsx";
+
+<AppMetadata
+  minSaleorVersion="3.20"
+  githubUrl="https://github.com/saleor/apps/tree/main/apps/np-atobarai"
+/>
+
+_NP Atobarai (japanese: NP 後払い)_ is a deferred payment method dedicated to the Japanese market.
+
+Net Protections, the gateway operator, performs a credit check when a transaction is registered. Once an order is placed, the customer receives a paper invoice (via a traditional post) that can pay up to 14 days, e.g. in a local convenience store.
+
+The merchant receives funds once as soon as the shipment is delivered, regardless of the payment status on the customer's end.
+
+## Features
+
+- App integrates with [NP Atobarai](https://np-atobarai.jp/) payment gateway.
+- App provides `PAYMENT_GATEWAY_INITIALIZE_SESSION` mutation to validate required data: shipping and billing addresses, phone number, currency, and email.
+- App supports refunds.
+- App is using "Individual Real Time Registration Mode (Sync)". This means that each "Register transaction" API call is requesting only a single transaction and the credit check result is available immediately.
+
+
+## Limitations and assumptions
+
+Before installing this app, please review these limitations to ensure they don't conflict with your requirements.
+
+- App works only for channels with `JPY` currency.
+- App creates transactions within NP Atobarai during the fulfillment process, exactly when tracking number is updated. That means in case of invalid data, direct feedback on the storefront is not possible.
+- App works only on `CHARGE` flows. Saleor has limitation to allow fulfillments only when the order is fully charged.
+- When a customer does not pick up the delivery, the app will **not** report this to Saleor. Order will remain in the `FULFILLED` and `PAID` state. However, this should be safe, because NP Atobarai should not allow user to pick up the good without paying.
+- The App creates only one transaction in NP Atobarai and expects only one to exist for a single transaction in Saleor. If NP Atobarai returns multiple transactions, the app will report `CHARGE_FAILURE`
+- The App uses Saleor `transaction.token` as a identifier set in NP Atobarai, due to ID characters limit.
+- Tracking number set on Saleor fulfillment must have at most 20 characters.
+- Split payments are not supported. App work **only** if a single Atobarai transaction is created to the checkout/order.
+- The shipment has to be fulfilled using one of the supported local carriers.
+
+
+## Next steps
+
+Explore the App's [architecture](./architecture.mdx) or proceed to the [configuration](./configuration.mdx) guide.

@@ -3,6 +3,9 @@ title: Checkout Lifecycle
 sidebar_label: Lifecycle
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 ## Checkout Creation
 
 Upon creation, `checkout` is assigned to a channel that influences product stock, availability, and price. The channel can not be changed after the checkout is created. Learn more about [Channels](/developer/channels/overview.mdx).
@@ -58,11 +61,15 @@ The release action is triggered only once. If a subscription for a release event
 
 To fetch paid checkouts, use the below query:
 
-```graphql {4}
-{
-  checkouts(first: 10, filter: { authorizeStatus: [PARTIAL, FULL] }) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql 
+query checkouts($first: Int, $filter: CheckoutFilterInput) {
+  checkouts(first: $first, filter: $filter) {
+    totalCount
     edges {
       node {
+        id
         totalBalance {
           amount
         }
@@ -71,3 +78,50 @@ To fetch paid checkouts, use the below query:
   }
 }
 ```
+
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json {4-7}
+{
+  "first": 2,
+  "filter": {
+    "authorizeStatus": [
+      "PARTIAL",
+      "FULL"
+    ]
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "checkouts": {
+      "totalCount": 8,
+      "edges": [
+        {
+          "node": {
+            "id": "Q2hlY2tvdXQ6NjljMjZmM2ItNzEzYy00YWI4LTk4MWMtMGJkYWJhZGQ4N2Yx",
+            "totalBalance": {
+              "amount": 90
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "Q2hlY2tvdXQ6MjMzNjllMDYtM2ZlYi00MWEzLWFjMTYtMTE2NjE3ZWIzYTQ5",
+            "totalBalance": {
+              "amount": 117.51
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>

@@ -2,9 +2,19 @@
 title: Gift Cards
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 Gift cards in Saleor are digital codes that customers can redeem during checkout to reduce the total order amount. In Saleor, they can be created by staff or purchased directly at checkout.
 
 Gift cards are not assigned to any channel and can be used in any channel whose currency matches the gift card's currency. During the first gift card usage, the customer user is assigned the gift card, which can then only be used by this user.
+
+:::note
+**Gift Cards vs Vouchers**
+
+Gift cards reduce the total price and are currency-based, usable across channels with the same currency. 
+Vouchers discount the subtotal, unit price, or shipping and are scoped to channels.
+:::
 
 ## Creating and Managing Gift Cards
 
@@ -15,17 +25,11 @@ Staff users with the `MANAGE_GIFT_CARD` permission can create gift cards directl
 #### Single Gift Card Creation
 The following example shows how to create a single gift card. Once you provide the `userEmail` and configure the email plugin for the given channel, the gift card is sent to the customer, and the `SENT_TO_CUSTOMER` event is created. In this example, providing the `expiryDate` value will set the expiry date. If you want to create a non-expiring card, do not provide the `expiryDate` value.
 
-```graphql {2-10}
-mutation {
-  giftCardCreate(
-    input: {
-      balance: { amount: 100, currency: "USD" }
-      userEmail: "test@example.com"
-      channel: "channel-USD"
-      expiryDate: "2050-10-10"
-      isActive: true
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation giftCardCreate($input: GiftCardCreateInput!) {
+  giftCardCreate(input: $input) {
     giftCard {
       id
       code
@@ -47,29 +51,131 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-#### Bulk Gift Card Creation
-Creating gift cards in bulk is similar, but you need to specify the number of gift cards to create and the tag value which will be assigned to all created gift cards.
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "balance": {
+      "amount": 100,
+      "currency": "USD"
+    },
+    "userEmail": "test@example.com",
+    "channel": "channel-USD",
+    "expiryDate": "2050-10-10",
+    "isActive": true
+  }
+}
+```
+</TabItem>
 
-```graphql {2-9}
-mutation {
-  giftCardBulkCreate(
-    input: {
-      count: 5
-      tag: "example-tag"
-      isActive: true
-      balance: { amount: 200.0, currency: "USD" }
-    }
-  ) {
-    giftCards {
-      id
-      code
-      isActive
-      tag
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "giftCardCreate": {
+      "giftCard": {
+        "id": "R2lmdENhcmQ6MjQ1",
+        "code": "0A65-0A28-1347",
+        "last4CodeChars": "1347",
+        "isActive": true,
+        "expiryDate": "2050-10-10",
+        "initialBalance": {
+          "currency": "USD",
+          "amount": 100
+        },
+        "currentBalance": {
+          "currency": "USD",
+          "amount": 100
+        },
+        "events": [
+          {
+            "type": "ISSUED"
+          }
+        ]
+      }
     }
   }
 }
 ```
+</TabItem>
+</Tabs>
+
+
+#### Bulk Gift Card Creation
+Creating gift cards in bulk is similar, but you need to specify the number of gift cards to create and the tag value which will be assigned to all created gift cards.
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation giftCardBulkCreate($input: GiftCardBulkCreateInput!) {
+  giftCardBulkCreate(input: $input) {
+    giftCards {
+      id
+      code
+      isActive
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "count": 5,
+    "tags": ["example-tag"],
+    "isActive": true,
+    "balance": {
+      "amount": 200,
+      "currency": "USD"
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "giftCardBulkCreate": {
+      "giftCards": [
+        {
+          "id": "R2lmdENhcmQ6MjQ2",
+          "code": "F5A2-81C9-E289",
+          "isActive": true
+        },
+        {
+          "id": "R2lmdENhcmQ6MjQ3",
+          "code": "FA61-39FC-03DE",
+          "isActive": true
+        },
+        {
+          "id": "R2lmdENhcmQ6MjQ4",
+          "code": "0A7B-2E6F-06A8",
+          "isActive": true
+        },
+        {
+          "id": "R2lmdENhcmQ6MjQ5",
+          "code": "F7C9-7479-8AE6",
+          "isActive": true
+        },
+        {
+          "id": "R2lmdENhcmQ6MjUw",
+          "code": "60C5-10B9-DF19",
+          "isActive": true
+        }
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 
 After creation, you can export the gift card codes to CSV. Read more about [exporting gift cards](export/export-gift-cards).
 
@@ -77,16 +183,11 @@ After creation, you can export the gift card codes to CSV. Read more about [expo
 
 #### Resending Gift Cards
 You can resend the gift card to the customer at any time after creation. If the `userEmail` is not provided, the card is sent to the customer who already used the card. If the card hasn't been used yet, it is sent to the customer who created it.
-
-```graphql {2-8}
-mutation {
-  giftCardResend(
-    input: {
-      id: "R2lmdENhcmQ6MjU="
-      channel: "default-channel"
-      email: "saleor@example.com"
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation giftCardResend($input: GiftCardResendInput!) {
+  giftCardResend(input: $input) {
     giftCard {
       id
       code
@@ -102,7 +203,52 @@ mutation {
     }
   }
 }
+
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "id": "R2lmdENhcmQ6MjUw",
+    "channel": "default-channel",
+    "email": "saleor@example.com"
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "giftCardResend": {
+      "giftCard": {
+        "id": "R2lmdENhcmQ6MjUw",
+        "code": "60C5-10B9-DF19",
+        "events": [
+          {
+            "type": "ISSUED",
+            "user": {
+              "email": "staff_user@saleor.io"
+            },
+            "app": null
+          }
+        ]
+      }
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 1,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 #### Updating Gift Cards
 After creation, the tag, expiry date, and balance amount can be updated.
@@ -111,16 +257,11 @@ After creation, the tag, expiry date, and balance amount can be updated.
 Updating the balanceAmount will update both current and initial ballance, no matter if the card has already been used.
 :::
 
-```graphql {2-9}
-mutation {
-  giftCardUpdate(
-    id: "R2lmdENhcmQ6MjU=",
-    input: {
-      balanceAmount: 70,
-      expiryDate: "2040-10-10",
-      tag: "new-tag",
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation giftCardUpdate($id: ID!, $input: GiftCardUpdateInput!) {
+  giftCardUpdate(id: $id, input: $input) {
     giftCard {
       id
       expiryDate
@@ -136,8 +277,8 @@ mutation {
         type
         expiryDate
         oldExpiryDate
-        oldTag
-        tag
+        oldTags
+        tags
         balance {
           initialBalance {
             amount
@@ -161,13 +302,130 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "R2lmdENhcmQ6MjUw",
+  "input": {
+    "balanceAmount": 70,
+    "expiryDate": "2040-10-10",
+    "addTags": [
+      "new-tag"
+    ]
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "giftCardUpdate": {
+      "giftCard": {
+        "id": "R2lmdENhcmQ6MjUw",
+        "expiryDate": "2040-10-10",
+        "initialBalance": {
+          "currency": "USD",
+          "amount": 70
+        },
+        "currentBalance": {
+          "currency": "USD",
+          "amount": 70
+        },
+        "events": [
+          {
+            "type": "ISSUED",
+            "expiryDate": null,
+            "oldExpiryDate": null,
+            "oldTags": null,
+            "tags": null,
+            "balance": {
+              "initialBalance": {
+                "amount": 200,
+                "currency": "USD"
+              },
+              "oldInitialBalance": null,
+              "currentBalance": {
+                "amount": 200,
+                "currency": "USD"
+              },
+              "oldCurrentBalance": null
+            }
+          },
+          {
+            "type": "RESENT",
+            "expiryDate": null,
+            "oldExpiryDate": null,
+            "oldTags": null,
+            "tags": null,
+            "balance": null
+          },
+          {
+            "type": "BALANCE_RESET",
+            "expiryDate": null,
+            "oldExpiryDate": null,
+            "oldTags": null,
+            "tags": null,
+            "balance": {
+              "initialBalance": {
+                "amount": 70,
+                "currency": "USD"
+              },
+              "oldInitialBalance": {
+                "amount": 200,
+                "currency": "USD"
+              },
+              "currentBalance": {
+                "amount": 70,
+                "currency": "USD"
+              },
+              "oldCurrentBalance": {
+                "amount": 200,
+                "currency": "USD"
+              }
+            }
+          },
+          {
+            "type": "EXPIRY_DATE_UPDATED",
+            "expiryDate": "2040-10-10",
+            "oldExpiryDate": null,
+            "oldTags": null,
+            "tags": null,
+            "balance": null
+          },
+          {
+            "type": "TAGS_UPDATED",
+            "expiryDate": null,
+            "oldExpiryDate": null,
+            "oldTags": [
+              "example-tag"
+            ],
+            "tags": [
+              "example-tag",
+              "new-tag"
+            ],
+            "balance": null
+          }
+        ]
+      }
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 #### Activating and Deactivating Gift Cards
 Cards can be activated and deactivated at any time, either individually or in bulk.
 
-```graphql {2}
-mutation {
-  giftCardDeactivate(id: "R2lmdENhcmQ6MjY=") {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation giftCardDeactivate($id: ID!) {
+  giftCardDeactivate(id: $id) {
     giftCard {
       id
       isActive
@@ -178,6 +436,52 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "R2lmdENhcmQ6MjUw"
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "giftCardDeactivate": {
+      "giftCard": {
+        "id": "R2lmdENhcmQ6MjUw",
+        "isActive": false,
+        "events": [
+          {
+            "type": "ISSUED"
+          },
+          {
+            "type": "RESENT"
+          },
+          {
+            "type": "BALANCE_RESET"
+          },
+          {
+            "type": "EXPIRY_DATE_UPDATED"
+          },
+          {
+            "type": "TAGS_UPDATED"
+          },
+          {
+            "type": "DEACTIVATED"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 
 For bulk operations, use [`giftCardBulkActivate`](api-reference/gift-cards/mutations/gift-card-bulk-activate.mdx) and [`giftCardBulkDeactivate`](api-reference/gift-cards/mutations/gift-card-bulk-deactivate.mdx) mutations.
 
@@ -207,14 +511,11 @@ Gift card settings can be configured to:
 
 Example of setting expiry period to 1 year:
 
-```graphql {2-7}
-mutation {
-  giftCardSettingsUpdate(
-    input: {
-      expiryType: EXPIRY_PERIOD
-      expiryPeriod: { type: YEAR, amount: 1 }
-    }
-  ) {
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation giftCardSettingsUpdate($input: GiftCardSettingsUpdateInput!) {
+  giftCardSettingsUpdate(input: $input) {
     giftCardSettings {
       expiryType
       expiryPeriod {
@@ -225,6 +526,39 @@ mutation {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "expiryType": "EXPIRY_PERIOD",
+    "expiryPeriod": {
+      "type": "YEAR",
+      "amount": 1
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "giftCardSettingsUpdate": {
+      "giftCardSettings": {
+        "expiryType": "EXPIRY_PERIOD",
+        "expiryPeriod": {
+          "type": "YEAR",
+          "amount": 1
+        }
+      }
+    }
+  }
+```
+</TabItem>
+</Tabs>
 
 ## Using Gift Cards in Checkout
 

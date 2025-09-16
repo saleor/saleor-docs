@@ -6,4 +6,5 @@ export const cloudSidebar = [
   "cloud/saas-self-host",
   "cloud/environment",
   "cloud/restricting-api-access",
+  "cloud/configuration",
 ];

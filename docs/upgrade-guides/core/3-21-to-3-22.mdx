@@ -43,3 +43,119 @@ Preconditions:
 Upon processing a transaction, the checkout would have been completed because then, it was not considered fully paid. Transaction logic recognized the authorization status change, which triggered automatic checkout completion.
 
 Now, upon processing a transaction, the checkout will not get completed because checkout is already considered fully paid; therefore, transaction logic does not recognize any authorization status change thus automatic checkout completion is not triggered.
+
+## Behavior change for creating a Payment (old API) for a Checkout object with an existing Transaction (new API)
+
+Creating a Payment (old API) for a Checkout object with an existing Transaction (new API) is no longer permitted as it leads to inconsistent behavior.
+
+
+## Deprecation of the `attribute` and `attributes` fields in the `Page`, `Product`, and `ProductVariant` types
+
+The `attribute` and `attributes` fields are deprecated, along with the `SelectedAttribute` type. 
+They are replaced by the `assignedAttribute` and `assignedAttributes` fields on `Page`, `Product`, and `ProductVariant`, 
+which use the `AssignedAttribute` interface. 
+Each attribute type now has its own dedicated shape built on top of `AttributeInterface`, instead of the previous generic `AttributeValue` with unrelated fields.
+
+The `SelectedAttribute` returns multiple optional and unrelated fields:
+
+```graphql
+{
+  product(slug: "apple-juice", channel: "default-channel") {
+    attribute(slug: "multi-select") {
+      attribute {
+        id
+      }
+      values {
+        id
+        name
+        slug
+        value
+        reference
+        file {
+          url
+        }
+        date
+        dateTime
+        boolean
+        richText
+        plainText
+        translation(languageCode: FR) {
+          name
+          richText
+          plainText
+        }
+      }
+    }
+  }
+}
+```
+
+The newly introduced `AssignedAttribute` provides a strictly typed structure that only returns fields relevant to the specific attribute type.
+
+```graphql
+{
+  product(slug: "apple-juice", channel: "default-channel") {
+    assignedAttribute(slug: "multi-select") {
+      attribute {
+        id
+      }
+      ... on AssignedMultiChoiceAttribute {
+        value {
+          name
+          slug
+          translation(languageCode: FR)
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+Previously, fetching a reference attribute required two steps: first retrieving the reference id, and then fetching the page using that ID.
+
+```graphql
+{
+  product(slug: "apple-juice", channel: "default-channel") {
+    attribute(slug: "reference-to-page") {
+      attribute {
+        id
+      }
+      values {
+        pageIdReference: reference
+      }
+    }
+  }
+}
+```
+
+
+```graphql
+{
+  page(id: "<pageIdReference>") {
+    title
+  }
+}
+```
+
+`assignedAttribute(s)` provides a specific type for each kind of reference, allowing the reference object to be fetched in a single query.
+
+```graphql
+{
+  product(slug: "apple-juice", channel: "default-channel") {
+    assignedAttribute(slug: "reference-to-page") {
+      attribute {
+        id
+      }
+      ...on AssignedMultiPageReferenceAttribute{
+        value{
+          title
+        }
+      }
+    }
+  }
+}
+```
+
+

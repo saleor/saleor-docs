@@ -1,0 +1,199 @@
+---
+sidebar_label: Storefront integration
+sidebar_position: 5
+title: NP Atobarai App Storefront Integration
+---
+
+:::note
+App will be installed with Manifest ID `saleor.app.payment.np-atobarai`. This ID will be publicly available for the Storefront to choose a payment gateway.
+:::
+
+### Assumptions
+
+- For brevity, we do not handle errors in code examples and omit non-essential code. In the real storefront you will add much more code around loading, error handling, notifications, etc.
+- Guide is not using Idempotency Key
+
+### Prerequisites
+
+To initialize the payment, you should have implemented flow that will:
+- Create a checkout with supported shipping method
+- Set required fields, like address and shipping method
+- Have a final amount to pay calculated
+
+In this guide we will render a part of the UI that will have the "PAY" button rendered and working.
+
+## Initialize gateway
+
+The first step we need to do is validation of order / checkout data.
+
+Prepare the following GraphQL mutation:
+
+```graphql
+mutation PaymentGatewayInitalize(
+  $checkoutId: ID!
+  $amount: PositiveDecimal
+  $data: JSON
+) {
+  paymentGatewayInitialize(
+    id: $checkoutId
+    paymentGateways: [{ id: "saleor.app.payment.np-atobarai" }]
+    amount: $amount
+  ) {
+    gatewayConfigs {
+      id
+      data
+      errors {
+        field
+        message
+        code
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+
+```
+
+If the app is properly configured and has valid checkout data, you should receive a response like this:
+
+```json
+{
+  "data": {
+    "paymentGatewayInitialize": {
+      "gatewayConfigs": [
+        {
+          "id": "saleor.app.payment.np-atobarai",
+          "data": {},
+          "errors": []
+        }
+      ],
+      "errors": []
+    }
+  },
+}
+```
+
+## Submitting payment
+
+The next step is to submit payment to NP Atobarai app so it can register transaction. You can do this by using `initalizeTransaction` mutation:
+
+```graphql
+mutation TransactionInitialize(
+  $checkoutId: ID!
+  $amount: PositiveDecimal!
+) {
+  transactionInitialize(
+    id: $checkoutId
+    paymentGateway: { id: "saleor.app.payment.np-atobarai" }
+    amount: $amount
+  ) {
+    transaction {
+      id
+    }
+    transactionEvent {
+      pspReference
+      message
+      type
+    }
+    data
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+You should get this response from Saleor:
+
+```json
+{
+  "data": {
+    "transactionInitialize": {
+      "transaction": {
+        "id": "SALEOR_TRANSACTION_ID"
+      },
+      "transactionEvent": {
+        "pspReference": "NP_ATOBARAI_TRANSACTION_ID",
+        "message": "Successfully registered NP Atobarai transaction",
+        "type": "CHARGE_SUCCESS"
+      },
+      "data": null,
+      "errors": []
+    }
+  },
+}
+```
+
+If `transactionEvent.type` is `CHARGE_ACTION_REQUIRED` you can either show different payment method of update data in checkout and run `processSession` mutation to update transaction in NP Atobarai API:
+
+```graphql
+mutation TransactionProcess($transactionId: ID!) {
+  transactionProcess(id: $transactionId) {
+    transaction {
+      id
+    }
+    transactionEvent {
+      pspReference
+      message
+      type
+    }
+    data
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+## Completing the checkout
+
+Once you have successfully submitted payment you can now complete checkout and convert it to order:
+
+```graphql
+mutation CompleteCheckout($checkoutId: ID!) {
+  checkoutComplete(id: $checkoutId) {
+    order {
+      id
+      lines {
+        id
+        quantity
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+At this point, if no errors are returned, checkout is completed and the order is created.
+
+## Idempotency Key
+
+Both Saleor support idempotency to ensure that the same request (from the business perspective - like request to pay) is not executed multiple times.
+
+Saleor will automatically generate the Idempotency Key. If you want to control the Key usage, like setting your own, you can pass it to [the mutation](../../../../api-reference/payments/mutations/transaction-initialize)
+
+## Fulfilling the order  
+
+To proceed with the delivery, you need to create a first fulfillment using `fulfillmentCreate` mutation. You need to pass the `trackingNumber` to the mutation, or run a separate `fulfillmentUpdateTrackingNumber` mutation to set the tracking number later. App will report shipment to NP Atobarai using `trackingNumber` and NP Atobarai transaction id. App will also add order note with result of reporting shipment to NP Atobarai.
+
+These operations can be performed within the Dashboard or using `orderFulfill` mutation.
+
+
+### Supporting multiple shipping carriers
+
+For a single shipping carrier, it is sufficient to set up a global shipping company code in the plugin settings.
+
+In order to support dynamic carrier codes, the plugin supports a way of overriding the default code
+by specifying a custom code in Fulfillment's private metadata under the `np-atobarai.pd-company-code` key.
