@@ -3,6 +3,9 @@ title: Manage Account as a Customer
 sidebar_label: Manage Account as a Customer
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 This guide describes how to use the Saleor GraphQL API to register a new account as a customer and do everyday account management operations.
 
 ## Multiple channels and users
@@ -46,6 +49,8 @@ To create a new customer account, use the [`accountRegister`](/api-reference/use
 - `password`: user's password.
 - `channel`: the slug of the channel used to sign up.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation AccountRegister($input: AccountRegisterInput!) {
   accountRegister(input: $input) {
@@ -61,7 +66,9 @@ mutation AccountRegister($input: AccountRegisterInput!) {
   }
 }
 ```
-Variables:
+</TabItem>
+
+<TabItem value={"Variables"}>
 ```json
 {
   "input": {
@@ -72,8 +79,9 @@ Variables:
 }
 ```
 
-As a result, we get the data of the newly created user:
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -88,6 +96,8 @@ As a result, we get the data of the newly created user:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 The [`isActive`](api-reference/users/objects/user.mdx#userisactiveboolean---) flag informs that the account is active. If `active` is set to `False` the user can never log in.
 
@@ -126,6 +136,8 @@ The mutation takes the following input fields:
 
 This example assumes that you're running the storefront locally with the default settings (running on port `3001`):
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation RegisterWithConfirmation($input: AccountRegisterInput!) {
   accountRegister(input: $input) {
@@ -142,7 +154,9 @@ mutation RegisterWithConfirmation($input: AccountRegisterInput!) {
 }
 ```
 
-Variables:
+</TabItem>
+
+<TabItem value={"Variables"}>
 ```json
 {
   "input": {
@@ -153,8 +167,9 @@ Variables:
   }
 }
 ```
-As a result, we get the data of the newly created but yet inactive user:
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -169,6 +184,8 @@ As a result, we get the data of the newly created but yet inactive user:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 At the same time, the user `customer@example.com` should receive an email with a confirmation link based on the provided `redirectUrl` path, for example:
 
@@ -178,6 +195,8 @@ http://localhost:3001/account-confirm/?email=customer%40example.com&token=5fc-9f
 
 The link contains two query parameters—`email` and `token` — which are required to proceed with the second mutation, [`confirmAccount`](/api-reference/users/mutations/confirm-account.mdx):
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation ConfirmAccount($email: String!, $token: String!) {
   confirmAccount(email: $email, token: $token) {
@@ -193,16 +212,18 @@ mutation ConfirmAccount($email: String!, $token: String!) {
   }
 }
 ```
+</TabItem>
 
-Variables:
+<TabItem value={"Variables"}>
 ```json
 {
   "email": "customer@example.com",
   "token": "5fc-9f2116f96bdafd612cf4"
 }
 ```
-If the token is valid, the user will be successfully confirmed:
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -217,6 +238,8 @@ If the token is valid, the user will be successfully confirmed:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 ## Re-requesting email confirmation
 
@@ -228,7 +251,8 @@ The mutation takes the following input fields:
 - `channel`: the slug of the channel used to sign up.
 
 This example assumes that you're running the storefront locally with the default settings (running on port `3001`):
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation SendConfirmationEmail($channel: String!, $redirectUrl: String!) {
   sendConfirmationEmail(redirectUrl: $redirectUrl, channel: $channel) {
@@ -239,14 +263,18 @@ mutation SendConfirmationEmail($channel: String!, $redirectUrl: String!) {
   }
 }
 ```
+</TabItem>
 
-Variables:
+<TabItem value={"Variables"}>
 ```json
 {
   "redirectUrl": "http://localhost:3001/account-confirm/",
   "channel": "default-channel"
 }
 ```
+</TabItem>
+</Tabs>
+
 This mutation requires the caller to be [authenticated](api-usage/authentication.mdx).
 
 At the same time, the authenticated user should receive an email with a confirmation link based on the provided `redirectUrl` path, for example:
@@ -257,7 +285,9 @@ http://localhost:3001/account-confirm/?email=customer%40example.com&token=5fc-9f
 
 The link contains two query parameters—`email` and `token` — which are required to proceed with the second mutation, [`confirmAccount`](/api-reference/users/mutations/confirm-account.mdx):
 
-```graphql {2-5}
+<Tabs>
+<TabItem value="Mutation">
+```graphql
 mutation ConfirmAccount($email: String!, $token: String!) {
   confirmAccount(email: $email, token: $token) {
     errors {
@@ -273,16 +303,18 @@ mutation ConfirmAccount($email: String!, $token: String!) {
 }
 ```
 
-Variables:
+</TabItem>
+
+<TabItem value={"Variables"}>
 ```json
 {
   "email": "customer@example.com",
   "token": "5fc-9f2116f96bdafd612cf4"
 }
 ```
+</TabItem>
 
-If the token is valid, the user will be successfully confirmed:
-
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -297,6 +329,8 @@ If the token is valid, the user will be successfully confirmed:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 ## Resetting the password
 
@@ -306,10 +340,17 @@ The mutation takes the following input fields:
 
 - `email`: user's email address.
 - `redirectUrl`: path to a view where the user should be redirected to reset the password.
+- `channel`: Slug of a channel which will be used to notify the user.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation RequestPasswordReset($email: String!, $redirectUrl: String!) {
-  requestPasswordReset(email: $email, redirectUrl: $redirectUrl) {
+mutation RequestPasswordReset($email: String!, $redirectUrl: String!, $channel: String) {
+  requestPasswordReset(
+    email: $email
+    redirectUrl: $redirectUrl
+    channel: $channel
+  ) {
     errors {
       field
       code
@@ -317,14 +358,18 @@ mutation RequestPasswordReset($email: String!, $redirectUrl: String!) {
   }
 }
 ```
+</TabItem>
 
-Variables:
+<TabItem value={"Variables"}>
 ```json
 {
   "email": "customer@example.com",
   "redirectUrl": "http://localhost:3001/reset-password/"
+  "channel": "default-channel"
 }
 ```
+</TabItem>
+</Tabs>
 
 As a result, if there are no errors in the response, the system sends an email to `customer@example.com` with a link to provide a new password, for example:
 
@@ -340,6 +385,8 @@ The mutation takes the following input fields:
 - `email`: user's email address.
 - `password`: the new password.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation SetPassword($email: String!, $password: String!, $token: String!) {
   setPassword(email: $email, password: $password, token: $token) {
@@ -350,8 +397,9 @@ mutation SetPassword($email: String!, $password: String!, $token: String!) {
   }
 }
 ```
+</TabItem>
 
-Variables:
+<TabItem value={"Variables"}>
 ```json
 {
   "token": "5fc-9f2116f96bdafd612cf4",
@@ -359,6 +407,8 @@ Variables:
   "password": "new-secret"
 }
 ```
+</TabItem>
+</Tabs>
 
 If there are no errors in the response, the password is successfully changed.
 
@@ -369,6 +419,8 @@ If you wish to change your password as an authenticated customer, use the [`pass
 - `oldPassword`: the current user's password.
 - `newPassword`: the new password.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation PasswordChange($oldPassword: String, $newPassword: String!) {
   passwordChange(oldPassword: $oldPassword, newPassword: $newPassword) {
@@ -379,14 +431,17 @@ mutation PasswordChange($oldPassword: String, $newPassword: String!) {
   }
 }
 ```
+</TabItem>
 
-Variables:
+<TabItem value={"Variables"}>
 ```jsom
 {
   "oldPassword": "secret",
   "newPassword": "new-secret"
 }
 ```
+</TabItem>
+</Tabs>
 If no errors are returned, the password has been changed successfully.
 
 This mutation requires the caller to be [authenticated](api-usage/authentication.mdx).
@@ -401,6 +456,8 @@ The mutation takes the following input fields:
 - `password`: the current user's password.
 - `redirectUrl`: path to a view where the user should be redirected to confirm the new email address.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation RequestEmailChange($newEmail: String!, $password: String!, $redirectUrl: String!) {
   requestEmailChange(
@@ -418,8 +475,9 @@ mutation RequestEmailChange($newEmail: String!, $password: String!, $redirectUrl
   }
 }
 ```
+</TabItem>
 
-Variables:
+<TabItem value={"Variables"}>
 ```json
 {
   "newEmail": "new-address@example.com",
@@ -427,9 +485,9 @@ Variables:
   "redirectUrl": "http://localhost:3001/confirm-email/"
 }
 ```
+</TabItem>
 
-If there are no errors, the mutation sends an email to the `newEmail` address with a link to confirm the operation. In this example, we also return the `email` of the current user. As you can see in the response below, the email hasn't been updated yet.
-
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -442,6 +500,8 @@ If there are no errors, the mutation sends an email to the `newEmail` address wi
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 The confirmation links include an additional query-string parameter `token` which is required to confirm the operation, e.g.:
 
@@ -453,6 +513,8 @@ To confirm the operation, we need to use the [`confirmEmailChange`](/api-referen
 
 - `token`: a unique token that was included in the link in the email.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation ConfirmEmailChange($token: String!) {
   confirmEmailChange(token: $token) {
@@ -466,16 +528,17 @@ mutation ConfirmEmailChange($token: String!) {
   }
 }
 ```
+</TabItem>
 
-Variables:
+<TabItem value={"Variables"}>
 ```json
 {
   "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODYxNzY5OTQsIm9sZF9lbWFpbCI6ImFkbWluQGV4YW1wbGUuY29tIiwibmV3X2VtYWlsIjoibmV3LWFkZHJlc3NAZXhhbXBsZS5jb20iLCJ1c2VyX3BrIjoyMX0.aGAo28Ss_zOn_TwAzLCXdY1xENpf_-uw2khORoodKR8"
 }
 ```
+</TabItem>
 
-If the token is valid the email should be now updated:
-
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -488,6 +551,8 @@ If the token is valid the email should be now updated:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 Both mutations require the caller to be [authenticated](api-usage/authentication.mdx).
 
@@ -497,6 +562,8 @@ If you wish to remove your own customer account, you can do so by using two muta
 
 - `redirectUrl`: path to a view where the user can confirm deleting the account.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
 mutation AccountRequestDeletion($redirectUrl: String!) {
   accountRequestDeletion(redirectUrl: $redirectUrl) {
@@ -508,13 +575,16 @@ mutation AccountRequestDeletion($redirectUrl: String!) {
   }
 }
 ```
+</TabItem>
 
-Variables:
+<TabItem value={"Variables"}>
 ```json
 {
   "redirectUrl": "http://localhost:3001/confirm-delete/"
 }
 ```
+</TabItem>
+</Tabs>
 
 As a result, if there are no errors, the user receives an email with a link to confirm deleting their account. The link includes the `token` query parameter that is required in the second mutation:
 
@@ -526,6 +596,8 @@ To confirm deleting the account, use the [`accountDelete`](/api-reference/users/
 
 - `token`: a unique token that was included in the link in the email.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql {2}
 mutation AccountDelete($token: String!) {
   accountDelete(token: $token) {
@@ -537,13 +609,17 @@ mutation AccountDelete($token: String!) {
   }
 }
 ```
+</TabItem>
 
-Variables:
+<TabItem value={"Variables"}>
 ```json
 {
   "token": "5ff-b5818345d8b64331b068"
 }
 ```
+</TabItem>
+</Tabs>
+
 As a result, the account is now deleted.
 
 Both mutations require the caller to be [authenticated](api-usage/authentication.mdx).

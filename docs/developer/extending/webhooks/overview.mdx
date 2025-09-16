@@ -103,3 +103,77 @@ You can follow some good practices to avoid webhook timeouts:
 - If you're using serverless functions to accept webhooks, be aware of cold starts. Make sure the application is fast to respond even if it was not invoked in a while.
 - If you use Serverless environment consider migrating to Edge runtime (e.g. Cloudflare Workers, Vercel Edge Runtime, Deno Deploy) which has much lower cold starts (close to 0)
 - The 20-second limit is there to act as a fail-safe mechanism. We recommend ensuring your application never gets close to that limit, even under heavy load. For some events, even a one-second delay can result in a poor user experience.
+
+## Webhook Dry Run
+
+Saleor provides a [`webhookDryRun`](/api-reference/webhooks/mutations/webhook-dry-run.mdx) mutation 
+that lets you test what a webhook payload would look like, without actually sending it to the target URL. 
+This is useful for debugging subscription queries, ensuring your payload format is correct, and testing integrations safely.
+
+:::warning
+The dry run feature works only for **asynchronous webhooks**. For details, see [dry run limitations](#dry-run-limitations)
+:::
+
+Mutation example: 
+
+```graphql
+mutation TriggerWebhookDryRun($objectId: ID!, $query: String!) {
+  webhookDryRun(objectId: $objectId, query: $query) {
+    payload
+    errors {
+      field
+      message
+    }
+  }
+}
+``` 
+
+Variables:
+```json
+{
+  "objectId": "UHJvZHVjdDoxNTI=",
+  "query": "subscription {\n  event {\n    ... on ProductUpdated {\n      __typename\n      product{\n        id\n        name\n        description\n      }\n    }\n  }\n}\n"
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "webhookDryRun": {
+      "payload": "{\"__typename\": \"ProductUpdated\", \"product\": {\"id\": \"UHJvZHVjdDoxNTI=\", \"name\": \"Apple Juice\", \"description\": \"{\\\"time\\\": 1653425438149, \\\"blocks\\\": [{\\\"id\\\": \\\"rGR983yNVl\\\", \\\"data\\\": {\\\"text\\\": \\\"<b>Fell straight from the tree</b>, on to Newton\\\\u2019s head, then into the bottle. The autumn taste of English apples. Brought to you by gravity.\\\"}, \\\"type\\\": \\\"paragraph\\\"}], \\\"version\\\": \\\"2.22.2\\\"}\"}}",
+      "errors": [],
+      "__typename": "WebhookDryRun"
+    }
+  }
+}
+```
+The `webhookDryRun` mutation requires the same permissions as the event being tested.
+
+Example: If the subscription queried OrderCreated, the user would need `MANAGE_ORDERS`.
+
+
+### Using Dry Run from the Dashboard
+
+You don’t need to run the mutation manually to benefit from dry runs.
+
+From the Saleor Dashboard, you can:
+
+1. Navigate to your app select a webhook.
+2. In the subscription payload editor, click the play button ▶️.
+3. You’ll be prompted to choose an object (e.g., a product, order, or other supported type).
+
+Saleor will run the dry run query for that object and show you the generated payload directly in the dashboard.
+
+### Dry Run Limitations
+Not all events can be triggered using dry run.
+
+**Not supported in dry run:**
+- **Synchronous events**: tax calculation, external/filtering shipping methods
+- **Transactions**: captures, refunds, authorization, processing, session initialization
+- **Stored payment methods**: tokenization or deletion requests
+- **User account management events**: confirmation, password change
+- **Fulfillments**: creation, approvals
+- **Gift Card Sending**: sending to customers
+- **Thumbnail Creation**: media-related events
+- **Order Bulk Imports**: batch events

@@ -54,6 +54,7 @@ export const coreConcepts = [
   "developer/payments/overview",
   "developer/payments/payment-apps",
   "developer/payments/transactions",
+  "developer/payments/transaction-flow-strategy",
   "developer/payments/lifecycle",
   "developer/payments/refunds",
   "developer/payments/stored-payments",
@@ -110,8 +111,8 @@ export const coreConcepts = [
   "developer/bulks/error-policy",
 
   title("Exporting"),
-  "developer/export/export-gift-cards",
   "developer/export/export-overview",
+  "developer/export/export-gift-cards",
   "developer/export/export-products",
   "developer/export/export-voucher-codes",
 ];

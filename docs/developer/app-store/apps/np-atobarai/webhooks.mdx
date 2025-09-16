@@ -1,0 +1,74 @@
+---
+sidebar_label: Webhooks
+sidebar_position: 4
+title: NP Atobarai App Webhooks
+---
+
+This page covers each webhook behavior, data it expects and returns and what it can return.
+
+## Saleor Webhooks
+
+App supports the following synchronous and asynchronous webhooks.  All of these webhooks are executed as a result of explicit mutations called by storefront (to manage payments) or by Dashboard (to refund payments or to update tracking number).
+
+Check the [Transactions documentation](/developer/payments/transactions.mdx) to learn more.
+
+### `PaymentGatewayInitializeSession`
+
+This webhook checks if the App is properly configured and checkout or order has valid data. If there is invalid data in checkout / order app will return error in `data` field. See [errors](./errors.mdx) for more information on possible app errors.
+
+App will validate if checkout or order has:
+
+* `JPY` as currencyCode (based on checkout / order channel)
+* `JP` as shipping address country
+* billing address phone that starts with `+81`
+* email
+
+### `TransactionInitializeSession`
+
+This webhook takes data from checkout or order and registers transaction in NP Atobarai.
+
+If NP Atobarai returns pending credit check, the app will return `CHARGE_ACTION_REQUIRED` as a transaction event result. At this point storefront can fix problematic data and retry the payment using `transactionProcess` mutation.
+
+Error that may be raised by NP Atobarai:
+
+```
+- RE009:lack of address information
+- RE014:address_confirmation of work
+- RE015:Address_Insufficient delivery destination information
+- RE020:Address_Confirmation of work at delivery destination
+- RE021:TEL_Phone number error
+- RE023:TEL_phone number error of delivery destination
+- RE026:Other_Reason of merchant
+```
+
+If transaction is created successfully, the app will return transaction event with `CHARGE_SUCESS` result to Saleor.
+
+### `TransactionProcessSession`
+
+`TransactionProcessSession` is supposed to be executed once `TransactionInitializeSession` returns `CHARGE_ACTION_REQUIRED` as a transaction event result. Ask storefront user to update checkout or order fields and call `TransactionProcessSession` to update transaction with the new fields.
+
+If transaction is updated successfully, the app will return transaction event with `CHARGE_SUCESS` result to Saleor.
+
+### `TransactionRefundRequested`
+
+This webhook is executed when a staff user wants to refund the payment. App will try figure out if refund action was requested before adding tracking number to the fulfillment or after.
+
+#### Before adding tracking number
+
+App will execute following logic based on payment amounts:
+* Refunding full amount of the order - app will cancel the transaction in NP Atobarai
+* Refunding partial amount of the order - app will update transaction with new line `Discount` that is the same as partial refund
+* Refunding with line items (grantedRefund) - app will update transaction with the new lines
+
+#### After adding tracking number
+
+App will execute following logic based on payment amounts:
+* Refunding full amount of the order - app will cancel the transaction in NP Atobarai
+* Refunding partial amount of the order - app will cancel the transaction in NP Atobarai and create new one with new line `Discount` that is the same as partial refund
+* Refunding with line items (grantedRefund) - app will cancel the transaction in NP Atobarai and create new one with new line items based on items that were not included in grantedRefund
+
+In both cases if all operations succeeds app will report `REFUND_SUCCESS` event or `REFUND_FAILURE` event is case of the error.
+
+### `FulfilmentTrackingNumberUpdated`
+
+This asynchronous webhook is execturd when a staff user updated tracking number of the fulfillment. App will report fulfillment to NP Atobarai with tracking number provided in the webhook payload. Based on NP Atobarai API response (success or failure) app will add order note with operation result.

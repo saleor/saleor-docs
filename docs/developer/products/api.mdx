@@ -4,6 +4,9 @@ sidebar_label: API guide
 description: Learn how to fetch products from the Saleor GraphQL API using example steps.
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 This guide describes how to obtain products from the Saleor GraphQL API.
 
 You can either retrieve a single product or a list of products. You may require a list of products in many situations, for example, when you need to display the catalog in your storefront or to provide a third-party service with a list of products available in your store.
@@ -33,9 +36,11 @@ To fetch a product list, you need to run the `products` query. The `products` fi
 
 Let's take a look at an example query to fetch a list of products:
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
-{
-  products(first: 2, channel: "default-channel") {
+query Products($first: Int, $channel: String) {
+  products(first: $first, channel: $channel) {
     edges {
       node {
         id
@@ -45,9 +50,18 @@ Let's take a look at an example query to fetch a list of products:
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "first": 2,
+  "channel": "default-channel"
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -70,6 +84,8 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 In this example, for each product, we want to return the following fields:
 
@@ -98,21 +114,35 @@ For advanced search capabilities, explore the [Saleor Search App](/developer/app
   - `stockAvailability: OUT_OF_STOCK`: only out-of-stock products.
 
 Here is an example query that looks for the first three products containing the term "juice" in the title or description:
-
+<Tabs>
+<TabItem value="Query">
 ```graphql
-{
-  products(first: 3, channel: "default-channel", filter: { search: "juice" }) {
+query Products($first: Int, $channel: String, $filter: ProductFilterInput) {
+  products(first: $first, channel: $channel, filter: $filter) {
     edges {
       node {
+        id
         name
       }
     }
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "first": 3,
+  "channel": "default-channel",
+  "filter": {
+    "search": "juice"
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -138,6 +168,9 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 
 ### Sorting
 
@@ -163,40 +196,36 @@ In [`products`](api-reference/products/queries/products.mdx) you can also sort t
 
 This example shows how to sort the products list by the minimal variant price, lowest to highest:
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
-{
-  products(
-    first: 2
-    channel: "default-channel"
-    sortBy: { field: MINIMAL_PRICE, direction: ASC }
-  ) {
+query Products($first: Int, $channel: String, $sortBy: ProductOrder) {
+  products(first: $first, channel: $channel, sortBy: $sortBy) {
     edges {
       node {
+        id
         name
-        pricing {
-          priceRange {
-            start {
-              gross {
-                amount
-                currency
-              }
-            }
-            stop {
-              gross {
-                amount
-                currency
-              }
-            }
-          }
-        }
       }
     }
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "first": 2,
+  "channel": "default-channel",
+  "sortBy": {
+    "field": "MINIMAL_PRICE",
+    "direction": "ASC"
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -249,26 +278,36 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 ### Get a product by ID
 
 The following query retrieves the product with the associated ID. It returns the product fields specified in the query.
 
-| Query arguments |                                                          |
-| --------------- | -------------------------------------------------------- |
-| id: ID!         | The ID of the product to return                          |
-| channel: String | Slug of a channel for which the data should be returned. |
-
-```graphql title="Query"
-{
-  product(id: "UHJvZHVjdDoxOTg=", channel: "default-channel") {
+<Tabs>
+<TabItem value="Query">
+```graphql
+query Product($id: ID, $channel: String) {
+  product(id: $id, channel: $channel) {
     id
     name
   }
 }
 ```
+</TabItem>
 
-```json title="Response"
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UHJvZHVjdDoxOTg=",
+  "channel": "default-channel"
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
 {
   "data": {
     "product": {
@@ -284,53 +323,124 @@ The following query retrieves the product with the associated ID. It returns the
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 
 ## Retrieving product variants
 
 To obtain product variants, query the `variants` field on the `Product` type:
-
+<Tabs>
+<TabItem value="Query">
 ```graphql
-{
-  products(first: 1, channel: "default-channel") {
+query ProductsWithVariants($firstProducts: Int, $channel: String, $firstVariants: Int) {
+  products(first: $firstProducts, channel: $channel) {
+    totalCount
     edges {
       node {
         id
         name
-        variants {
-          id
-          name
+        productVariants(first: $firstVariants) {
+          totalCount
+          edges{
+            node{
+              id
+              name
+            }
+          }
         }
       }
     }
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "firstProducts": 2,
+  "channel": "default-channel",
+  "firstVariants": 5
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
     "products": {
+      "totalCount": 37,
       "edges": [
         {
           "node": {
-            "id": "UHJvZHVjdDoxMzc=",
-            "name": "Blue Polygon Shirt",
-            "variants": [
-              {
-                "id": "UHJvZHVjdFZhcmlhbnQ6MzYx",
-                "name": "M"
-              },
-              {
-                "id": "UHJvZHVjdFZhcmlhbnQ6MzYy",
-                "name": "L"
-              },
-              {
-                "id": "UHJvZHVjdFZhcmlhbnQ6MzYz",
-                "name": "XL"
-              }
-            ]
+            "id": "UHJvZHVjdDo3OQ==",
+            "name": "Bean Juice",
+            "productVariants": {
+              "totalCount": 3,
+              "edges": [
+                {
+                  "node": {
+                    "id": "UHJvZHVjdFZhcmlhbnQ6MjI1",
+                    "name": "2l"
+                  }
+                },
+                {
+                  "node": {
+                    "id": "UHJvZHVjdFZhcmlhbnQ6MjIz",
+                    "name": "500ml"
+                  }
+                },
+                {
+                  "node": {
+                    "id": "UHJvZHVjdFZhcmlhbnQ6MjI0",
+                    "name": "1l"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "UHJvZHVjdDoxMTU=",
+            "name": "Black Hoodie",
+            "productVariants": {
+              "totalCount": 5,
+              "edges": [
+                {
+                  "node": {
+                    "id": "UHJvZHVjdFZhcmlhbnQ6Mjk5",
+                    "name": "XL"
+                  }
+                },
+                {
+                  "node": {
+                    "id": "UHJvZHVjdFZhcmlhbnQ6Mjk4",
+                    "name": "L"
+                  }
+                },
+                {
+                  "node": {
+                    "id": "UHJvZHVjdFZhcmlhbnQ6MzAw",
+                    "name": "XXL"
+                  }
+                },
+                {
+                  "node": {
+                    "id": "UHJvZHVjdFZhcmlhbnQ6Mjk2",
+                    "name": "S"
+                  }
+                },
+                {
+                  "node": {
+                    "id": "UHJvZHVjdFZhcmlhbnQ6Mjk3",
+                    "name": "M"
+                  }
+                }
+              ]
+            }
           }
         }
       ]
@@ -338,6 +448,8 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 Like products, here we're asking for two fields from each variant:
 
@@ -407,11 +519,12 @@ See [Prices](api-usage/prices.mdx) for more information about money types.
 You can fetch prices including taxes specific to a country. To do that, pass the `address` parameter in the `pricing` field, including the country code for which the tax should be calculated. The `address` parameter is available in the `Product.pricing` and `ProductVariant.pricing` fields.
 
 In the example below, we fetch the price of a product variant for Poland, where the standard VAT rate is 23%:
-
-```graphql {3}
-{
-  productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
-    pricing(address: { country: PL }) {
+<Tabs>
+<TabItem value="Query">
+```graphql
+query ProductVariant($id: ID, $channel: String, $address: AddressInput) {
+  productVariant(id: $id, channel: $channel) {
+    pricing(address: $address) {
       price {
         net {
           amount
@@ -427,9 +540,21 @@ In the example below, we fetch the price of a product variant for Poland, where 
   }
 }
 ```
+</TabItem>
 
-Result:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UHJvZHVjdFZhcmlhbnQ6MjAz",
+  "channel": "default-channel",
+  "address": {
+    "country": "US"
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -451,6 +576,8 @@ Result:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 The tax equals 1.15, which is 23% of the net price. The gross price is the sum of the net price and the tax.
 
@@ -465,18 +592,31 @@ Learn more about [Taxes](developer/taxes.mdx)
 Stock availability of products is defined for each variant and warehouse. There are two fields that allow you to fetch the stock information in the public API.
 
 To fetch the stock availability, use the `Product.isAvailable` field:
-
+<Tabs>
+<TabItem value="Query">
 ```graphql {4}
-{
-  product(id: "UHJvZHVjdDo3Mg==", channel: "default-channel") {
+query Product($id: ID, $channel: String, $address: AddressInput) {
+  product(id: $id, channel: $channel) {
     name
-    isAvailable(address: { country: US })
+    isAvailable(address: $address)
   }
 }
 ```
+</TabItem>
 
-Result:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UHJvZHVjdDo3Mg==",
+  "channel": "default-channel",
+  "address": {
+    "country": "US"
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -487,6 +627,8 @@ Result:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 The `address` parameter checks the quantity in a warehouse connected with a shipping zone that includes the given address. If not provided, Saleor will use a warehouse with the highest available quantity.
 
@@ -496,17 +638,30 @@ The `isAvailable` field is `True` when:
 - The product is published in the given channel and available for purchase.
 
 To fetch the available quantity, use the `ProductVariant.quantityAvailable` field:
-
-```graphql {3}
-{
-  productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
-    quantityAvailable(address: { country: US })
+<Tabs>
+<TabItem value="Query">
+```graphql
+query ProductVariant($id: ID, $channel: String, $address: AddressInput) {
+  productVariant(id: $id, channel: $channel) {
+    quantityAvailable(address: $address)
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UHJvZHVjdFZhcmlhbnQ6MjAz",
+  "channel": "default-channel",
+  "address": {
+    "country": "US"
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -516,6 +671,8 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 A warehouse is chosen based on the argument `address`. If the argument is omitted, API will return the highest available quantity.
 
@@ -532,12 +689,11 @@ For creating integrations with an external stock management system, you will nee
 :::
 
 To clarify the difference between `quantityAvailable` and stocks, we will query both for the product variant:
-
-Request:
-
+<Tabs>
+<TabItem value="Query">
 ```graphql {3,8-9}
-query {
-  productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
+query ProductVariant($id: ID, $channel: String) {
+  productVariant(id: $id, channel: $channel) {
     quantityAvailable
     stocks {
       warehouse {
@@ -549,9 +705,18 @@ query {
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UHJvZHVjdFZhcmlhbnQ6MjAz",
+  "channel": "default-channel"
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json {4,10-11,17-18}
 {
   "data": {
@@ -577,6 +742,8 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 - The `quantityAvailable` is a sum of stock quantities from all available stocks.
   In this case, the sum is higher than the `MAX_CHECKOUT_LINE_QUANTITY`, so the maximum
@@ -596,14 +763,12 @@ supports the provided address. When the address is not provided, the highest qua
 from available shipping zones is returned.
 
 To get the `quantityAvailable` for a particular address use the `address` parameter:
-Request:
-
-```graphql {3-5}
-query {
-    productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MjAz", channel: "default-channel") {
-    quantityAvailable(
-      address: {"country": "US"}
-    )
+<Tabs>
+<TabItem value="Mutation">
+```graphql {3}
+query ProductVariant($id: ID, $channel: String, $address: AddressInput) {
+  productVariant(id: $id, channel: $channel) {
+    quantityAvailable(address: $address)
     stocks {
       warehouse {
         slug
@@ -614,9 +779,21 @@ query {
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UHJvZHVjdFZhcmlhbnQ6MjAz",
+  "channel": "default-channel",
+  "address": {
+    "country": "US"
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json {4,10-11,17-18}
 {
   "data": {
@@ -642,6 +819,9 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
+
 
 In the response, we get the available quantity of 20 as the `americas` is the only
 warehouse available in the `US`.
@@ -677,9 +857,11 @@ Product media are images or videos associated with products and used to render p
 
 Here's a query that asks for both the thumbnail and all media of the first product, optimized for display at 100×100px:
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
-{
-  products(first: 1, channel: "default-channel") {
+query products($first: Int, $channel: String) {
+  products(first: $first, channel: $channel) {
     edges {
       node {
         id
@@ -696,9 +878,18 @@ Here's a query that asks for both the thumbnail and all media of the first produ
   }
 }
 ```
+</TabItem>
 
-Response:
+<TabItem value={"Variables"}>
+```json
+{
+  "first": 1,
+  "channel": "default-channel"
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -728,18 +919,17 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 ## Products Query Example
 
 Here's a more complex GraphQL query that combines all of the above information:
-
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-{
-  products(
-    first: 2
-    channel: "default-channel"
-    sortBy: { field: NAME, direction: ASC }
-  ) {
+query products($first: Int, $channel: String, $sortBy: ProductOrder) {
+  products(first: $first, channel: $channel, sortBy: $sortBy) {
     edges {
       node {
         id
@@ -776,6 +966,22 @@ Here's a more complex GraphQL query that combines all of the above information:
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "first": 1,
+  "channel": "default-channel",
+  "sortBy": {
+    "field": "NAME",
+    "direction": "ASC"
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 
 ## Create Products
 
@@ -798,16 +1004,12 @@ Before you can create a product, ensure the following exist:
 1. [`productCreate`](/api-reference/products/mutations/product-create)
   Creates the base product with core fields: name, description, product type, category, etc.
 
+<Tabs>
+<TabItem value="Mutation">
+
 ```graphql
-mutation ProductCreate {
-  productCreate(
-    input: {
-      name: "T-Shirt", 
-      description: "{\"blocks\":[{\"type\":\"paragraph\",\"data\":{\"text\":\"A comfortable cotton t-shirt\"}}]}", 
-      productType: "UHJvZHVjdFR5cGU6MjA=", 
-      category: "Q2F0ZWdvcnk6Mzk=", 
-      attributes: [{id: "QXR0cmlidXRlOjM2", values: ["cotton"]}]}
-  ) {
+mutation ProductCreate($input: ProductCreateInput!) {
+  productCreate(input: $input) {
     product {
       id
       name
@@ -821,24 +1023,41 @@ mutation ProductCreate {
 }
 ```
 
+</TabItem>
+
+<TabItem value={"Variables"}>
+
+```json
+{
+  "input": {
+    "name": "T-Shirt",
+    "description": "{\"blocks\":[{\"type\":\"paragraph\",\"data\":{\"text\":\"A comfortable cotton t-shirt\"}}]}",
+    "productType": "UHJvZHVjdFR5cGU6MjA=",
+    "category": "Q2F0ZWdvcnk6Mzk=",
+    "attributes": [
+      {
+        "id": "QXR0cmlidXRlOjM2",
+        "values": [
+          "cotton"
+        ]
+      }
+    ]
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 2. [`productChannelListingUpdate`](/api-reference/products/mutations/product-channel-listing-update)
   Assigns the product to one or more sales channels. This step is necessary to:
     - Publish the product
     - Define if it's available for purchase
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation ProductChannelListing {
-  productChannelListingUpdate(
-    id: "UHJvZHVjdDoxNzQ="
-    input: {
-      updateChannels: {
-        channelId: "Q2hhbm5lbDox", 
-        isPublished: true, 
-        visibleInListings: true, 
-        isAvailableForPurchase: true
-      }
-    }
-  ) {
+mutation ProductChannelListing($id: ID!, $input: ProductChannelListingUpdateInput!) {
+  productChannelListingUpdate(id: $id, input: $input) {
     product {
       id
     }
@@ -849,6 +1068,24 @@ mutation ProductChannelListing {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UHJvZHVjdDoxNzQ=",
+  "input": {
+    "updateChannels": {
+      "channelId": "Q2hhbm5lbDox",
+      "isPublished": true,
+      "visibleInListings": true,
+      "isAvailableForPurchase": true
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 :::tip  
 You can create variants individually or in bulk, depending on your use case:
@@ -859,20 +1096,11 @@ You can create variants individually or in bulk, depending on your use case:
 3. [`productVariantCreate`](/api-reference/products/mutations/product-variant-create)
   Creates a variant for the product. Variants are required even if your product has no variations – this is how Saleor handles SKUs, pricing, and inventory.
 	
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation VariantCreate{
-  productVariantCreate(input: {
-    product: "UHJvZHVjdDoxNzQ="
-    sku: "128223592"
-    attributes: [
-    {
-      id: "QXR0cmlidXRlOjM4",
-      values: [
-        "M"
-      ]
-    }
-  ]
-  }) {
+mutation VariantCreate($input: ProductVariantCreateInput!) {
+  productVariantCreate(input: $input) {
     productVariant {
       id
       name
@@ -884,6 +1112,27 @@ mutation VariantCreate{
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "product": "UHJvZHVjdDoxNzQ=",
+    "sku": "128223592",
+    "attributes": [
+      {
+        "id": "QXR0cmlidXRlOjM4",
+        "values": [
+          "M"
+        ]
+      }
+    ]
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 4. [`productVariantChannelListingUpdate`](/api-reference/products/mutations/product-variant-channel-listing-update)
     Sets prices for the variant per channel. Without this, variants won't appear in the storefront or checkout.
@@ -892,12 +1141,12 @@ mutation VariantCreate{
   In Saleor, price and inventory are stored at the variant level to allow multi-variant products (e.g., sizes or colors) to have unique pricing and stock. Even single-variant products follow this structure for consistency.
 :::
 
+<Tabs>
+<TabItem value="Mutation">
+
 ```graphql
-mutation VariantChannelListing {
-  productVariantChannelListingUpdate(
-    id: "UHJvZHVjdFZhcmlhbnQ6NDQy"
-    input: [{channelId: "Q2hhbm5lbDox", price: 19.99, costPrice: 5}]
-  ) {
+mutation VariantChannelListing($id: ID, $input: [ProductVariantChannelListingAddInput!]!) {
+  productVariantChannelListingUpdate(id: $id, input: $input) {
     variant {
       id
     }
@@ -908,17 +1157,32 @@ mutation VariantChannelListing {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UHJvZHVjdFZhcmlhbnQ6NDQy",
+  "input": [
+    {
+      "channelId": "Q2hhbm5lbDox",
+      "price": 19.99,
+      "costPrice": 5
+    }
+  ]
+}
+```
+</TabItem>
+</Tabs>
 
 5. [`productVariantStocksCreate`](/api-reference/products/mutations/product-variant-stocks-create)
     Links the variant to a warehouse and sets stock quantities.
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation VariantStocksCreate {
-  productVariantStocksCreate(
-    variantId: "UHJvZHVjdFZhcmlhbnQ6NDQy"
-    stocks: [
-      {warehouse: "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ==", quantity: 100}]
-  ) {
+mutation VariantStocksCreate($variantId: ID!, $stocks: [StockInput!]!) {
+  productVariantStocksCreate(variantId: $variantId, stocks: $stocks) {
     productVariant {
       id
     }
@@ -929,6 +1193,22 @@ mutation VariantStocksCreate {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "variantId": "UHJvZHVjdFZhcmlhbnQ6NDQy",
+  "stocks": [
+    {
+      "warehouse": "V2FyZWhvdXNlOjc1MjYwYWRjLTJjZjAtNGQ0ZC1hOTM5LTBmZGY2Y2FlYjBjMQ==",
+      "quantity": 100
+    }
+  ]
+}
+```
+</TabItem>
+</Tabs>
 
 
 ### Managing Media
@@ -940,14 +1220,11 @@ mutation VariantStocksCreate {
 
 Creating product media with an external image URL example:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation ProductMediaCreate{
-  productMediaCreate(input: {
-    product: "UHJvZHVjdDoxNzQ=",
-    mediaUrl:"https://user-images.githubusercontent.com/4006792/214636328-8e4f83e8-66cb-4114-a3d8-473eb908b9c3.png",
-    alt: "image description"
-  
-  }) {
+mutation ProductMediaCreate($input: ProductMediaCreateInput!) {
+  productMediaCreate(input: $input) {
     media {
       id
       url
@@ -959,15 +1236,28 @@ mutation ProductMediaCreate{
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "product": "UHJvZHVjdDoxNzQ=",
+    "mediaUrl": "https://user-images.githubusercontent.com/4006792/214636328-8e4f83e8-66cb-4114-a3d8-473eb908b9c3.png",
+    "alt": "image description"
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 [`variantMediaAssign`](/api-reference/products/mutations/variant-media-assign) – There is no dedicated upload mutation for variant media. Assign uploaded product media to specific variants (e.g., color-specific images).
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql 
-mutation VariantMediaAssign {
-  variantMediaAssign(
-    mediaId: "UHJvZHVjdE1lZGlhOjU3"
-    variantId: "UHJvZHVjdFZhcmlhbnQ6MzU0"
-  ) {
+mutation VariantMediaAssign($variantId: ID!, $mediaId: ID!) {
+  variantMediaAssign(variantId: $variantId, mediaId: $mediaId) {
     errors {
       field
       code
@@ -980,15 +1270,25 @@ mutation VariantMediaAssign {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "mediaId": "UHJvZHVjdE1lZGlhOjU3",
+  "variantId": "UHJvZHVjdFZhcmlhbnQ6MzU0"
+}
+```
+</TabItem>
+</Tabs>
 
 [`productMediaReorder`](/api-reference/products/mutations/product-media-reorder) - Allows to change ordering of the product media.
  
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation MediaReorder {
-  productMediaReorder(
-    productId: "UHJvZHVjdDoxMzU="
-    mediaIds: ["UHJvZHVjdE1lZGlhOjYw", "UHJvZHVjdE1lZGlhOjE5", "UHJvZHVjdE1lZGlhOjIw", "UHJvZHVjdE1lZGlhOjU3", "UHJvZHVjdE1lZGlhOjU4", "UHJvZHVjdE1lZGlhOjU5"]
-  ) {
+mutation MediaReorder($productId: ID!, $mediaIds: [ID!]!) {
+  productMediaReorder(productId: $productId, mediaIds: $mediaIds) {
     errors {
       field
       code
@@ -1001,15 +1301,32 @@ mutation MediaReorder {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "productId": "UHJvZHVjdDoxMzU=",
+  "mediaIds": [
+    "UHJvZHVjdE1lZGlhOjYw",
+    "UHJvZHVjdE1lZGlhOjE5",
+    "UHJvZHVjdE1lZGlhOjIw",
+    "UHJvZHVjdE1lZGlhOjU3",
+    "UHJvZHVjdE1lZGlhOjU4",
+    "UHJvZHVjdE1lZGlhOjU5"
+  ]
+}
+```
+</TabItem>
+</Tabs>
 
 [`productMediaUpdate`](/api-reference/products/mutations/product-media-update) Update media description
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation ProductMediaUpdate {
-  productMediaUpdate(
-    id: "UHJvZHVjdE1lZGlhOjYx"
-    input: {alt: "updated media description"}
-  ) {
+mutation ProductMediaUpdate($id: ID!, $input: ProductMediaUpdateInput!) {
+  productMediaUpdate(id: $id, input: $input) {
     errors {
       field
       code
@@ -1018,3 +1335,16 @@ mutation ProductMediaUpdate {
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "UHJvZHVjdE1lZGlhOjYx",
+  "input": {
+    "alt": "updated media description"
+  }
+}
+```
+</TabItem>
+</Tabs>

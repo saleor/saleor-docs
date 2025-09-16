@@ -3,6 +3,9 @@ title: Checkout Troubleshooting
 sidebar_label: Troubleshooting
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 ### Missing Shipping Methods
 
 1. Shipping methods are contextual to channels and need to be enabled in the channel the checkout is created.
@@ -38,17 +41,38 @@ Set up the `CHECKOUT_FULLY_PAID` webhook, and create an app to call the `checkou
 Implement a periodic check to query for fully paid checkouts that have not been completed, then complete them manually.
 To retrieve uncompleted checkouts, use the `checkouts` query with a filter for `authorizeStatus: FULL`, as shown below:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-query {
-  checkouts(filter: {authorizeStatus: [FULL]}) {
+query checkouts($first: Int, $filter: CheckoutFilterInput) {
+  checkouts(first: $first, filter: $filter) {
+    totalCount
     edges {
       node {
         id
+        totalBalance {
+          amount
+        }
       }
     }
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "first": 2,
+  "filter": {
+    "authorizeStatus": [
+      "FULL"
+    ]
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 :::note
 These solutions do not apply to partially paid checkouts, which require additional handling.

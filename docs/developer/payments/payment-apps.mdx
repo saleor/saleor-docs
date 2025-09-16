@@ -2,6 +2,9 @@
 title: Using Payment Apps
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 Payment App is a Saleor App that handles the payment process for a specific payment provider.
 End users are unaware of the payment app's existence as they communicate only with Saleor via GraphQL API.
 Saleor then communicates with the app using synchronous webhooks, automatically [updates statuses and balances](/developer/payments/lifecycle.mdx#transactions-recalculation-of-amounts), and returns the response to the storefront. Checkout is finalized with the [`checkoutComplete`](api-reference/checkout/mutations/checkout-complete.mdx) mutation.
@@ -91,14 +94,14 @@ The [`paymentGatewayInitialize`](api-reference/payments/mutations/payment-gatewa
 
 The following example shows how to use the [`paymentGatewayInitialize`](api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation to initialize the payment gateways:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
+mutation PaymentGatewayInitialize($id: ID!, $amount: PositiveDecimal, $paymentGateways: [PaymentGatewayToInitialize!]) {
   paymentGatewayInitialize(
-    id: "Q2hlY2tvdXQ6ZmIxMzljMjgtYWY4OS00Mzk2LWEyMjgtZmM2ZDg0NGFhOWY3"
-    amount: 100
-    paymentGateways: [
-      { id: "app.saleor.payment", data: { details: { passed: "to-app" } } }
-    ]
+    id: $id
+    amount: $amount
+    paymentGateways: $paymentGateways
   ) {
     gatewayConfigs {
       id
@@ -117,9 +120,28 @@ mutation {
   }
 }
 ```
+</TabItem>
 
-The response:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZmIxMzljMjgtYWY4OS00Mzk2LWEyMjgtZmM2ZDg0NGFhOWY3",
+  "amount": 100,
+  "paymentGateways": [
+    {
+      "id": "app.saleor.payment",
+      "data": {
+        "details": {
+          "passed": "to-app"
+        }
+      }
+    }
+  ]
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -138,6 +160,8 @@ The response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 The mutation will trigger the [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#webhookeventtypesyncenumpayment_gateway_initialize_session) webhook.
 For more details about this webhook, please refer to the [Transaction events guide](developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-payment-gateway-session).
@@ -201,16 +225,11 @@ For more details about this webhook, please refer to the [Transaction events gui
 
 The following example demonstrates how to use the [`transactionInitialize`](api-reference/payments/mutations/transaction-initialize.mdx) mutation to initiate payment processing:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation TransactionInitialize {
-  transactionInitialize(
-    amount: 100
-    id: "Q2hlY2tvdXQ6MzE3NDk5MjgtZDFkMC00NjdjLTgxNjktMGRiZGM4ZGJhMGZh"
-    paymentGateway: {
-      id: "app.saleor.payment"
-      data: { details: "passed-to-app" }
-    }
-  ) {
+mutation TransactionInitialize($id: ID!, $amount: PositiveDecimal, $paymentGateway: PaymentGatewayToInitialize!) {
+  transactionInitialize(id: $id, amount: $amount, paymentGateway: $paymentGateway) {
     transaction {
       id
     }
@@ -226,9 +245,24 @@ mutation TransactionInitialize {
   }
 }
 ```
+</TabItem>
 
-The response:
+<TabItem value={"Variables"}>
+```json
+{
+  "amount": 100,
+  "id": "Q2hlY2tvdXQ6MzE3NDk5MjgtZDFkMC00NjdjLTgxNjktMGRiZGM4ZGJhMGZh",
+  "paymentGateway": {
+    "id": "app.saleor.payment",
+    "data": {
+      "details": "passed-to-app"
+    }
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -248,6 +282,8 @@ The response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 The current status of payment can be determined based on the value of [`transactionEvent.type`](api-reference/payments/enums/transaction-event-type-enum.mdx):
 
@@ -287,12 +323,11 @@ For more details about this webhook, refer to the [Transaction events guide](dev
 
 The following example demonstrates how to use the [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) mutation to process the payment:
 
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation TransactionInitialize {
-  transactionProcess(
-    id: "VHJhbnNhY3Rpb25JdGVtOjhhMzE1ODVlLWE1MTktNDVkMS1hNTFmLTYwZGZlNGRkM2FkNg"
-    data: { additional: { actions: "details" } }
-  ) {
+mutation TransactionProcess($id: ID, $data: JSON) {
+  transactionProcess(id: $id, data: $data) {
     transaction {
       id
     }
@@ -308,9 +343,22 @@ mutation TransactionInitialize {
   }
 }
 ```
+</TabItem>
 
-The response:
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "VHJhbnNhY3Rpb25JdGVtOjhhMzE1ODVlLWE1MTktNDVkMS1hNTFmLTYwZGZlNGRkM2FkNg",
+  "data": {
+    "additional": {
+      "actions": "details"
+    }
+  }
+}
+```
+</TabItem>
 
+<TabItem value={"Result"}>
 ```json
 {
   "data": {
@@ -330,6 +378,8 @@ The response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
 The current status of payment can be determined based on the value of [`transactionEvent.type`](api-reference/payments/enums/transaction-event-type-enum.mdx).
 On some occasions, multiple calls to [`transactionProcess`](api-reference/payments/mutations/transaction-process.mdx) may be required to proceed with the payment.
@@ -340,18 +390,31 @@ On some occasions, multiple calls to [`transactionProcess`](api-reference/paymen
 
 `availablePaymentGateways` on Checkout returns apps that listen to `TRANSACTION_INITIALIZE_SESSION` event. Ensure your app has active webhook for this event.
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
-query{
-  app(id: "<MY_APP_ID>"){
-    webhooks{
-      syncEvents{
-        eventType # Should include TRANSACTION_INITIALIZE_SESSION
+query App($id: ID) {
+  app(id: $id) {
+    webhooks {
+      syncEvents { 
+        eventType   # Should include TRANSACTION_INITIALIZE_SESSION
       }
-      isActive # Should be true
+      isActive  # Should be true
     }
   }
 }
 ```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "QXBwOjE="
+}
+```
+</TabItem>
+</Tabs>
+
 
 ## Related Resources
 

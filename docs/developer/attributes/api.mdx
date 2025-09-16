@@ -83,18 +83,25 @@ for attributes with the `PAGE` entity type, this lists allowed page types. Not s
 
 ## Fetching assigned attributes
 
-Attributes assigned to an object are represented by the [`SelectedAttribute`](api-reference/attributes/objects/selected-attribute.mdx) GraphQL type. Below is the example of fetching attributes assigned to a product:
+Attributes assigned to an object are represented by the [`AssignedAttribute`](api-reference/attributes/interfaces/assigned-attribute.mdx) GraphQL interface. 
+Below is an example of fetching the size attribute (of single-choice type) and multiple references to pages connected to the product.
 
 ```graphql
 {
   product(slug: "colored-parrot-cushion", channel: "default-channel") {
     name
-    attributes {
-      attribute {
-        slug
+    size: assignedAttribute(slug: "size") {
+      ... on AssignedSingleChoiceAttribute {
+        value {
+          slug
+        }
       }
-      values {
-        slug
+    }
+    materialReferences: assignedAttribute(slug: "material-ref") {
+      ... on AssignedMultiPageReferenceAttribute {
+        value {
+          title
+        }
       }
     }
   }
@@ -110,10 +117,10 @@ A user can use a `slug` to filter products by attributes. The query parameters c
 An example of a [`products`](api-reference/products/queries/products.mdx) query:
 
 ```graphql
-query {
+{
   products(
     first: 5
-    filter: { attributes: [{ slug: "bucket-size", values: "25l" }] }
+    where: {attributes: [{slug: "bucket-size", value: {name: {eq: "25l"}}}]}
     channel: "default-channel"
   ) {
     edges {
