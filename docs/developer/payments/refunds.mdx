@@ -43,8 +43,8 @@ mutation TransactionRequestAction($id: ID, $actionType: TransactionActionEnum!, 
   "id": "VHJhbnNhY3Rpb25JdGVtOjljY2NkYTYyLTllMjktNGE0OC05NzIyLWRlYzAwOTRmZmY5Yg==",
   "actionType": "REFUND",
   "amount": "10",
-  "refundReason": "Customer requested a refund"
-  "refundReasonReference": "xXyzaXdaxbX" # ID of a model representing the reason for the refund
+  "refundReason": "Customer requested a refund",
+  "refundReasonReference": "UGFnZTox"  # ID of a model representing the reason for the refund
 }
 ```
 </TabItem>
@@ -144,7 +144,7 @@ mutation OrderGrantRefundCreate($id: ID!, $input: OrderGrantRefundCreateInput!) 
     "grantRefundForShipping": true,
     "amount": 10,
     "reason": "Returned by customer",
-    "reasonReference": "xXyzaXdaxbX" # ID of a Page
+    "reasonReference": "UGFnZTox" # ID of a Page
   }
 }
 ```
@@ -355,9 +355,9 @@ Staff users with `MANAGE_SETTINGS` permission can access additional refunds conf
 
 Configuration is global and reflected on every channel.
 
-Currently, `RefundSettings` type controls a single behavior: whether the "reason reference" is required when the refund is created or updated.
+Currently, `RefundSettings` type controls a single behavior: whether the `reasonReference` is required when the refund is created or updated.
 
-### Setting refund reason type requirement
+### Setting Refund Reason Type Requirement
 
 You can decide you want a strict policy to require a reason reference for every refund. Such reference will be a relation to a `Page` type. To enable that, you need first to create a Page Type dedicated for such refunds. You can do that in the Dashboard or by `pageTypeCreate` mutation.
 
@@ -389,7 +389,7 @@ Once you have a `PageType` ID, you can set it in the `refundSettingsUpdate` muta
 
 Now, every time a *staff user* tries to create a refund via `transactionActionRequest` or `orderGrantRefundCreate`/`orderGrantRefundUpdate` mutations (or via Dashboard), they will be required to provide a reason reference. The existing "reason" field will still be available, but it will be optional.
 
-Note that permitted `App` will be able to omit this setting. For the User, the ValidationError will be raised if the reason reference is not provided. App can omit this field for more powerful workflows.
+Note that permitted `App` will be able to omit this setting. For the *staff user*, the ValidationError will be raised if the reason reference is not provided. App can omit this field for more powerful workflows.
 
 Apart from that, the `refundReason` provided in refund mutations must be a valid `Page` ID of the type set in the `refundReasonReferenceType` setting. If not, a ValidationError will be raised as well. 
 
