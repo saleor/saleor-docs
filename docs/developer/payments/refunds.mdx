@@ -10,6 +10,10 @@ There are two ways to process refunds:
 - Manual refund: This method involves directly refunding the payment through the payment app.
 - Refund based on `OrderGrantedRefund`: This method triggers the refund request based on the details stored in `OrderGrantedRefund`.
 
+:::note
+You may have seen we start referencing `Page` as a `Model`. While in the API we still use `Page` name for backwards compatibility, we will be renaming it to `Model` in the future.
+:::
+
 ## Manual refund
 
 The manual refund can be triggered by calling `transactionRequestAction`. If the refund is successful, the `transaction.chargedAmount` will be reduced. The order's `authorizeStatus`, `chargeStatus`, and `totalBalance` will also be recalculated based on the new values of `chargedAmount` and `refundedAmount`. This method is useful when handling overcharged orders.
@@ -42,7 +46,9 @@ mutation TransactionRequestAction($id: ID, $actionType: TransactionActionEnum!, 
 {
   "id": "VHJhbnNhY3Rpb25JdGVtOjljY2NkYTYyLTllMjktNGE0OC05NzIyLWRlYzAwOTRmZmY5Yg==",
   "actionType": "REFUND",
-  "amount": "10"
+  "amount": "10",
+  "refundReason": "Customer requested a refund",
+  "refundReasonReference": "UGFnZTox"  # ID of a Page/Model representing the reason for the refund
 }
 ```
 </TabItem>
@@ -53,6 +59,9 @@ The mutation accepts below arguments:
 - `id` - ID of the transaction which will be used to trigger the refund action.
 - `actionType` - The type of action to be performed on the requested `TransactionItem`. For a refund action, use `REFUND`.
 - `amount` - The amount of the action. The amount is rounded based on the given currency precision. If not provided Saleor will use `TransactionItem.chargedAmount`.
+- `refundReason` - Optional plain text reason for the refund. Will be populated to the `TransactionEvent.message` field.
+- `refundReasonReference` - The ID of a `Page` representing the reason for the refund. This is useful for tracking and reporting purposes, like aggregating refunds by specific type. See [configuration](#refund-reasons-configuration) to learn more.
+
 
 ## Grant refunds
 
@@ -138,7 +147,8 @@ mutation OrderGrantRefundCreate($id: ID!, $input: OrderGrantRefundCreateInput!) 
     ],
     "grantRefundForShipping": true,
     "amount": 10,
-    "reason": "Returned by customer"
+    "reason": "Returned by customer",
+    "reasonReference": "UGFnZTox" # ID of a Page
   }
 }
 ```
@@ -153,6 +163,7 @@ The mutation accepts below arguments:
 - `id` - ID of the `OrderLine`.
 - `quantity` - The quantity of the specific lines planned to refund.
 - `reason` - Reason of the refund related to the specific line.
+- `reasonReference` - ID of the `Page` representing the reason for the refund. See [configuration](#refund-reasons-configuration) to learn more.
 - `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
 - `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
 - `transactionId` - ID of `TransactionItem` that will be used to process the refund. If `amount` is provided in the input, the `transaction.chargedAmount` needs to be equal to or greater than the provided `amount`. If `amount` is not provided in the input and calculated automatically by Saleor, the `min(calculatedAmount, transaction.chargedAmount)` will be used. This field was added in Saleor 3.20, and it will be a mandatory input field starting from Saleor 3.21.
@@ -197,7 +208,8 @@ mutation OrderGrantRefundUpdate($id: ID!, $input: OrderGrantRefundUpdateInput!) 
     "transactionId": "VHJhbnNhY3Rpb25JdGVtOmUzOTVjNzdmLWFmNjQtNDRmZC05NmRiLThkZmNkMDYwNmZmOA==",
     "amount": 10,
     "grantRefundForShipping": false,
-    "reason": "New reason"
+    "reason": "New reason",
+    "reasonReference": "xXyzaXdaxbX" # ID of a Page
   }
 }
 ```
@@ -212,6 +224,7 @@ The mutation accepts below arguments:
 - `id` - ID of the `OrderLine`.
 - `quantity` - The quantity of the specific lines planned to refund.
 - `reason` - Reason for the planned refund related to the specific line.
+- `reasonReference` - ID of the `Page` representing the reason for the refund. See [configuration](#refund-reasons-configuration) to learn more.
 - `removeLines` - List of `OrderGrantedRefundLine`'s IDs that should be removed from `OrderGrantedRefund`.
 - `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
 - `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
@@ -334,3 +347,66 @@ Below is an example order with multiple transactions and `totalRemainingGrant` a
   It also means that `totalChargedAmount` includes `amountChargePending`, and `totalRefundedAmount` includes `amountRefundPending`.
 - Authorized amounts, including `amountAuthorized` and `amountAuthorizePending`, are also considered processed. These amounts will contribute to the overall processed totals and impact the `overchargedAmount`.
   :::
+
+
+## Refund reasons configuration
+
+:::note
+Available from 3.22
+:::
+
+Staff users with `MANAGE_SETTINGS` permission can access additional refunds configuration available in Dashboard and via API.
+
+Configuration is global and reflected on every channel.
+
+Currently, `RefundSettings` type controls a single behavior: whether the `reasonReference` is required when the refund is created or updated.
+
+### Setting Refund Reason Type Requirement
+
+You can decide you want a strict policy to require a reason reference for every refund. Such reference will be a relation to a `Page` type. To enable that, you need first to create a Page Type dedicated for such refunds. You can do that in the Dashboard or by `pageTypeCreate` mutation.
+
+Once you have a `PageType` ID, you can set it in the `refundSettingsUpdate` mutation.
+
+<Tabs>
+    <TabItem value="Mutation">
+    ```graphql
+    mutation SetRefundTypeRequired($pageTypeId:ID!){
+      refundSettingsUpdate(input:{
+        refundReasonReferenceType:$pageTypeId
+      }){
+        errors{
+          message
+        }
+      }
+    }
+    ```
+    </TabItem>
+    <TabItem value="Variables">
+    ```json
+    {
+      "pageTypeId": "your-id"
+    }
+    
+    ```
+    </TabItem>
+</Tabs>
+
+Now, every time a *staff user* tries to create a refund via `transactionActionRequest` or `orderGrantRefundCreate`/`orderGrantRefundUpdate` mutations (or via Dashboard), they will be required to provide a reason reference. The existing "reason" field will still be available, but it will be optional.
+
+Note that permitted `App` will be able to omit this setting. For the *staff user*, the ValidationError will be raised if the reason reference is not provided. App can omit this field for more powerful workflows.
+
+Apart from that, the `refundReason` provided in refund mutations must be a valid `Page` ID of the type set in the `refundReasonReferenceType` setting. If not, a ValidationError will be raised as well. 
+
+### Disabling refund reason type requirement
+
+To opt-out from this strict policy, staff user can disable it in the Dashboard or by running the `refundReasonReferenceClear` mutation:
+
+```graphql
+mutation DisableRefundTypeRequired {
+  refundReasonReferenceClear {
+    errors {
+      message
+    }
+  }
+}
+```
