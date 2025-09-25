@@ -26,7 +26,7 @@ export const coreConcepts = [
 
   title("Modeling"),
   "developer/modeling",
-  "developer/pages",
+  "developer/models",
   "developer/menu",
 
   title("Checkout"),
