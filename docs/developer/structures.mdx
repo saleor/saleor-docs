@@ -1,13 +1,19 @@
-# Menu
+# Structures
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
+:::info API Compatibility Notice
+
+While we've updated the terminology in the documentation to use "Structures", the API endpoints and GraphQL schema still use "menus" and "menu items". This is temporary, and we plan to update the API to match the new terminology soon.
+
+:::
+
 ## Overview
 
-Menus are assembly structures that group and organize entities in your store. They create hierarchical relationships between categories, collections, and models. The most common use case is storefront navigation.
+Structures are assembly mechanisms that group and organize entities in your store. They create hierarchical relationships between categories, collections, and models. The most common use case is storefront navigation.
 
-You can create menus in the Saleor Dashboard in the _Configuration_ → _Navigation_ page.
+You can create structures in the Saleor Dashboard in the _Configuration_ → _Navigation_ page.
 
 ## Example Use Case
 
@@ -15,67 +21,67 @@ You can create menus in the Saleor Dashboard in the _Configuration_ → _Navigat
 
 Consider an online electronics store that wants to create guided content helping customers choose and set up products for specific needs, like a "Home Office Setup Guide". This guide needs to link specific setup advice Models, relevant Product Categories, and perhaps a key Collection.
 
-Menus can model this curated, hierarchical structure:
+Structures can model this curated, hierarchical organization:
 
 ```mermaid
 graph TD
-    MenuGuide["Menu: Home Office Setup Guide<br/>"]
+    StructureGuide["Structure: Home Office Setup Guide<br/>"]
 
-    subgraph MenuItems
-        ItemPageErgonomics["Item 1: Ergonomics Tips (Model)"]
+    subgraph StructureItems
+        ItemModelErgonomics["Item 1: Ergonomics Tips (Model)"]
         ItemCatMonitors["Item 2: Monitors (Category)"]
         ItemSubNetworking["Item 3: Networking Setup (Parent)"]
-            ItemPageWifi["Item 3a: Wi-Fi Basics (Model)"]
-            ItemPageCable["Item 3b: Cable Management (Model)"]
+            ItemModelWifi["Item 3a: Wi-Fi Basics (Model)"]
+            ItemModelCable["Item 3b: Cable Management (Model)"]
             ItemCatRouters["Item 3c: Routers (Category)"]
         ItemCollBundles["Item 4: Office Bundles (Collection)"]
     end
 
     %% Relationships
-    MenuGuide --> ItemPageErgonomics
-    MenuGuide --> ItemCatMonitors
-    MenuGuide --> ItemSubNetworking
-    MenuGuide --> ItemCollBundles
+    StructureGuide --> ItemModelErgonomics
+    StructureGuide --> ItemCatMonitors
+    StructureGuide --> ItemSubNetworking
+    StructureGuide --> ItemCollBundles
 
-    ItemSubNetworking --> ItemPageWifi
-    ItemSubNetworking --> ItemPageCable
+    ItemSubNetworking --> ItemModelWifi
+    ItemSubNetworking --> ItemModelCable
     ItemSubNetworking --> ItemCatRouters
 
-    classDef Menu fill:#fffbe6,stroke:#333,stroke-width:1px;
+    classDef Structure fill:#fffbe6,stroke:#333,stroke-width:1px;
     classDef Item fill:#e3f2fd,stroke:#333,stroke-width:1px;
-    class MenuGuide Menu;
-    class ItemPageErgonomics,ItemCatMonitors,ItemSubNetworking,ItemCollBundles,ItemPageWifi,ItemPageCable,ItemCatRouters Item;
+    class StructureGuide Structure;
+    class ItemModelErgonomics,ItemCatMonitors,ItemSubNetworking,ItemCollBundles,ItemModelWifi,ItemModelCable,ItemCatRouters Item;
 ```
 
-- **Menu:** A Menu is created with the name "Home Office Setup Guide" and slug `home-office-guide`. This Menu itself represents the structured guide.
-- **Menu Items:**
+- **Structure:** A Structure is created with the name "Home Office Setup Guide" and slug `home-office-guide`. This Structure itself represents the organized guide.
+- **Structure Items:**
   - An item links directly to a `Model` titled "Ergonomics Tips" (perhaps a custom Model modeled for guides).
     - Another item links to the existing `Category` "Monitors".
-    - A parent item "Networking Setup" (linking perhaps to a generic URL or another Page) has child items:
+    - A parent item "Networking Setup" (linking perhaps to a generic URL or another Model) has child items:
       - A child item linking to a "Wi-Fi Basics" `Model`.
       - A child item linking to a "Cable Management" `Model`.
       - A child item linking to the "Routers" `Category`.
     - A final item links to a curated `Collection` named "Office Bundles".
 
 
-Instead of just being top-level navigation, this Menu (`home-office-guide`) **models a specific, curated relationship** between different types of content and commerce entities (Models, Categories, Collections). It defines a specific structure for the "Home Office Setup" topic that isn't captured by standard product categorization alone.
+Instead of just being top-level navigation, this Structure (`home-office-guide`) **models a specific, curated relationship** between different types of content and commerce entities (Models, Categories, Collections). It defines a specific organization for the "Home Office Setup" topic that isn't captured by standard product categorization alone.
 
-By querying this specific menu slug, an application can retrieve this curated structure and present the guide content in the intended order and hierarchy, demonstrating how Menus can assemble entities into a structured whole for purposes beyond simple site navigation.
+By querying this specific structure slug, an application can retrieve this curated organization and present the guide content in the intended order and hierarchy, demonstrating how Structures can assemble entities into a structured whole for purposes beyond simple site navigation.
 
 ## Lifecycle
 
 :::info
 
-Menu operations require the [`MANAGE_MENUS`](developer/permissions.mdx#available-permissions) permission.
+Structure operations require the [`MANAGE_MENUS`](developer/permissions.mdx#available-permissions) permission.
 
 :::
 
-### Creating a Menu
+### Creating a Structure
 
-A menu requires a name and can optionally have a slug. 
+A structure requires a name and can optionally have a slug. 
 
-You can create a menu with or without items with the [`menuCreate`](/api-reference/menu/mutations/menu-create) mutation.
-A menu item can link to one of the following entities:
+You can create a structure with or without items with the [`menuCreate`](/api-reference/menu/mutations/menu-create) mutation.
+A structure item can link to one of the following entities:
 
 - Category
 - Collection
@@ -111,23 +117,23 @@ mutation CreateMenu($input: MenuCreateInput!) {
 ```json
 {
   "input": {
-    "name": "Example Menu Item",
-    "slug": "example-menu-item",
+    "name": "Example Structure Item",
+    "slug": "example-structure-item",
     "items": [
       {
-        "name": "Category Menu Item",
+        "name": "Category Structure Item",
         "category": "Q2F0ZWdvcnk6MjY="
       },
       {
-        "name": "Collection Menu Item",
+        "name": "Collection Structure Item",
         "collection": "Q29sbGVjdGlvbjozMjA="
       },
       {
-        "name": "Page Menu Item",
+        "name": "Model Structure Item",
         "page": "UGFnZToxMjM="
       },
       {
-        "name": "URL Menu Item",
+        "name": "URL Structure Item",
         "url": "https://www.saleor.io"
       }
     ]
@@ -137,9 +143,9 @@ mutation CreateMenu($input: MenuCreateInput!) {
 </TabItem>
 </Tabs>
 
-You can also create the menu item itself through the [`menuItemCreate`](/api-reference/menu/mutations/menu-item-create) mutation.
+You can also create the structure item itself through the [`menuItemCreate`](/api-reference/menu/mutations/menu-item-create) mutation.
 
-Menu items can be nested to create a hierarchy. For example, the following input creates a menu item as a child of another menu item:
+Structure items can be nested to create a hierarchy. For example, the following input creates a structure item as a child of another structure item:
 
 <Tabs>
 <TabItem value="Mutation">
@@ -166,7 +172,7 @@ mutation CreateMenuItem($input: MenuItemCreateInput!) {
 {
   "input": {
     "menu": "TWVudToy",
-    "name": "Parent Menu Item",
+    "name": "Parent Structure Item",
     "url": "https://www.saleor.io",
     "parent": "Q2F0ZWdvcnk6MjY="
   }
@@ -175,9 +181,9 @@ mutation CreateMenuItem($input: MenuItemCreateInput!) {
 </TabItem>
 </Tabs>
 
-### Getting Menus
+### Getting Structures
 
-To retrieve all menus, use the [`menus`](/api-reference/menu/queries/menus) query:
+To retrieve all structures, use the [`menus`](/api-reference/menu/queries/menus) query:
 
 
 <Tabs>
@@ -228,7 +234,7 @@ query Menus($first: Int) {
 </TabItem>
 </Tabs>
 
-To get a specific menu by ID, name, or slug, use the [`menu`](/api-reference/menu/queries/menu) query:
+To get a specific structure by ID, name, or slug, use the [`menu`](/api-reference/menu/queries/menu) query:
 
 <Tabs>
 <TabItem value="Query">
@@ -270,9 +276,9 @@ query GetMenuBySlug($slug: String, $channel: String) {
 </TabItem>
 </Tabs>
 
-### Deleting a Menu
+### Deleting a Structure
 
-To remove a menu and all its items, use the [`menuDelete`](/api-reference/menu/mutations/menu-delete) mutation:
+To remove a structure and all its items, use the [`menuDelete`](/api-reference/menu/mutations/menu-delete) mutation:
 
 <Tabs>
 <TabItem value="Mutation">
@@ -306,7 +312,7 @@ mutation DeleteMenu($id: ID!) {
 
 ## Webhooks
 
-Here are the webhooks that are available for menus:
+Here are the webhooks that are available for structures:
 
 - [`MENU_CREATED`](/api-reference/menu/objects/menu-created)
 - [`MENU_UPDATED`](/api-reference/menu/objects/menu-updated)
