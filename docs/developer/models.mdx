@@ -1,38 +1,44 @@
-# Pages
+# Models
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
+:::warning API Compatibility Notice
+
+While we've updated the terminology in the documentation to use "Models" and "Model Types", the API endpoints and GraphQL schema still use `pages` and `pageTypes`. This is temporary, and we plan to update the API to match the new terminology soon.
+
+:::
+
 ## Overview
 
-Pages provide a flexible mechanism for managing both traditional content and structured data entities that extend your commerce domain beyond the standard Product/Category/Collection model. Think of them as structured documents within Saleor.
+Models provide a flexible mechanism for managing both traditional content and structured data entities that extend your commerce domain beyond the standard Product/Category/Collection model. Think of them as structured documents within Saleor.
 
 ## Core Concepts
 
-### Page Types
+### Model Types
 
-A Page Type defines the schema for a group of pages. It determines what attributes a page will have and how the page can be used. Think of Page Types as templates or models. For instance, a "Blog Post" page type might have attributes like `Author`, `PublishedDate`, and `Tags`.
+A Model Type defines the schema for a group of models. It determines what attributes a model will have and how the model can be used. Think of Model Types as templates or schemas. For instance, a "Blog Post" model type might have attributes like `Author`, `PublishedDate`, and `Tags`.
 
-You must create a Page Type before you can create any Page.
+You must create a Model Type before you can create any Model.
 
 :::info
 
-You can manage Page Types in the Dashboard's -> _Configuration_ -> _Page Types_ view.
+You can manage Model Types in the Dashboard's -> Modeling -> _Model Types_ view.
 
 :::
 
 ### Attributes
 
-Attributes define typed fields that can be reused across products and pages. When creating an attribute, it must be explicitly [assigned to either `PRODUCT` or `PAGE` type](api-reference/attributes/enums/attribute-type-enum.mdx).
+Attributes define typed fields that can be reused across products and models. When creating an attribute, it must be explicitly [assigned to either `PRODUCT` or `PAGE` type](api-reference/attributes/enums/attribute-type-enum.mdx).
 
-### Pages
+### Models
 
-A Page is an instance of a Page Type, enriched with specific attribute values and optionally a rich content block. Pages can be created, linked to other entities, published, or removed.
+A Model is an instance of a Model Type, enriched with specific attribute values and optionally a rich content block. Models can be created, linked to other entities, published, or removed.
 
 
 :::info
 
-You can manage Pages in the Dashboard's -> _Content_ view.
+You can manage Models in the Dashboard's -> Modeling -> _Models_ view.
 
 :::
 
@@ -49,24 +55,24 @@ graph TD
   ProductTypeFragrance["Product Type: Fragrance"]
   ProductFragrance["Product: Sunlit Grove"]
   AttributeScentProfiles["Product Attribute: Scent Profiles (REFERENCE)"]
-  PageTypeScentProfile["Page Type: Scent Profile"]
-  PageCitrus["Page: Citrus Zest"]
-  PageGreen["Page: Green Woods"]
+  ModelTypeScentProfile["Model Type: Scent Profile"]
+  ModelCitrus["Model: Citrus Zest"]
+  ModelGreen["Model: Green Woods"]
   AttrFamily["Attribute: Scent Family (Dropdown)"]
   AttrNotes["Attribute: Notes Description (Rich Text)"]
 
   ProductTypeFragrance --> ProductFragrance
   ProductFragrance --> AttributeScentProfiles
-  AttributeScentProfiles --> PageCitrus
-  AttributeScentProfiles --> PageGreen
+  AttributeScentProfiles --> ModelCitrus
+  AttributeScentProfiles --> ModelGreen
 
-  PageCitrus --> AttrFamily
-  PageCitrus --> AttrNotes
-  PageGreen --> AttrFamily
-  PageGreen --> AttrNotes
+  ModelCitrus --> AttrFamily
+  ModelCitrus --> AttrNotes
+  ModelGreen --> AttrFamily
+  ModelGreen --> AttrNotes
 
-  PageTypeScentProfile --> PageCitrus
-  PageTypeScentProfile --> PageGreen
+  ModelTypeScentProfile --> ModelCitrus
+  ModelTypeScentProfile --> ModelGreen
 ```
 
 
@@ -74,8 +80,8 @@ graph TD
 - **Product Attribute:** `Scent Profiles`
   - Type: `REFERENCE`
   - Entity: `Page`
-- **Page Type:** `Scent Profile`
-- **Page Attributes:**
+- **Model Type:** `Scent Profile`
+- **Model Attributes:**
   - `Scent Family` – Dropdown field (e.g., _Citrus_, _Woody_, _Floral_)
   - `Notes Description` – Rich text field (e.g., _Bright and zesty with a hint of green bitterness_)
 
@@ -84,20 +90,20 @@ For the fragrance **Sunlit Grove**, the following scent profiles might be select
 - `Citrus Zest`
 - `Green Woods`
 
-Each of these is a **Page** of type `Scent Profile`, reused across multiple products and enriched with structured attributes.
+Each of these is a **Model** of type `Scent Profile`, reused across multiple products and enriched with structured attributes.
 
 In the storefront UI, this structure enables rich product pages that showcase the fragrance's composition. For example, the Sunlit Grove product page might display its scent profiles in a dedicated section, with each profile (Citrus Zest, Green Woods) showing its family type and detailed notes description.
 
 ## Lifecycle
 
-### Creating a Page
+### Creating a Model
 
-To [create a page](/api-reference/pages/mutations/page-create.mdx) through API, you must first define the [page type](/api-reference/pages/mutations/page-type-create) and any required attributes.
+To [create a model](/api-reference/pages/mutations/page-create.mdx) through API, you must first define the [model type](/api-reference/pages/mutations/page-type-create) and any required attributes.
 
 
 :::info
 
-Creating a page requires the [`MANAGE_PAGES` permission](developer/permissions.mdx#available-permissions).
+Creating a model requires the [`MANAGE_PAGES` permission](developer/permissions.mdx#available-permissions).
 
 :::
 
@@ -134,9 +140,9 @@ mutation PageCreate($input: PageCreateInput!) {
 </Tabs>
 
 
-### Getting Pages
+### Getting Models
 
-You can get individual page details using the [`page`](/api-reference/pages/queries/page.mdx) query:
+You can get individual model details using the [`page`](/api-reference/pages/queries/page.mdx) query:
 
 <Tabs>
 <TabItem value="Query">
@@ -169,7 +175,7 @@ query GetPage($id: ID!) {
 </TabItem>
 </Tabs>
 
-or you can get multiple pages using the [`pages`](/api-reference/pages/queries/pages.mdx) query:
+or you can get multiple models using the [`pages`](/api-reference/pages/queries/pages.mdx) query:
 
 <Tabs>
 <TabItem value="Query">
@@ -210,9 +216,9 @@ query GetPages($first: Int, $filter: PageFilterInput) {
 </Tabs>
 
 
-### Linking Pages
+### Linking Models
 
-Pages can reference or be referenced by other entities through attribute of type 
+Models can reference or be referenced by other entities through attribute of type 
 [REFERENCE](api-reference/attributes/enums/attribute-input-type-enum.mdx#attributeinputtypeenumreference). 
 The selection of referenceable entities is determined by [`AttributeEntityTypeEnum`](api-reference/attributes/enums/attribute-entity-type-enum.mdx) 
 and currently includes `PAGE`, `PRODUCT` and `PRODUCT_VARIANT`.
@@ -244,7 +250,7 @@ mutation ProductUpdate($id: ID, $input: ProductInput!) {
       {
         "id": "QXR0cmlidXRlSWQ=",   # Product Attribute of type REFERENCE for scent profiles
         "references": [
-          "UGFnZUlE"   # ID of the Citrus Zest page
+          "UGFnZUlE"   # ID of the Citrus Zest model
         ]
       }
     ]
@@ -256,7 +262,7 @@ mutation ProductUpdate($id: ID, $input: ProductInput!) {
 </Tabs>
 
 
-You can also model relationships between Pages using a reference attribute or by embedding slugs/IDs in the page metadata.
+You can also model relationships between Models using a reference attribute or by embedding slugs/IDs in the model metadata.
 
 #### Querying Linked Entities
 
@@ -273,20 +279,20 @@ query GetProductWithScentProfiles($productId: ID!) {
         slug # We are looking for "scent-profiles"
       }
       values {
-        reference # This gives the Page ID
+        reference # This gives the Model ID
       }
     }
   }
 }
 ```
 
-The response will contain the ids of the linked pages. You can then use the [`page` query](#getting-pages) to get the details of the linked pages.
+The response will contain the ids of the linked models. You can then use the [`page` query](#getting-models) to get the details of the linked models.
 
-### Publishing Pages
+### Publishing Models
 
-Pages can be visible or hidden. You can control their visibility using:
+Models can be visible or hidden. You can control their visibility using:
 - `isPublished` (Boolean): Sets current visibility.
-- `publicationDate` (Date): Can schedule a future publication. The page won't appear on the storefront until this date.
+- `publicationDate` (Date): Can schedule a future publication. The model won't appear on the storefront until this date.
 
 :::info
 
@@ -329,11 +335,11 @@ mutation PageUpdate($id: ID!, $input: PageInput!) {
 </Tabs>
 
 
-### Deleting Pages
+### Deleting Models
 
-Use [`pageDelete`](/api-reference/pages/mutations/page-delete.mdx) for single pages 
+Use [`pageDelete`](/api-reference/pages/mutations/page-delete.mdx) for single models 
 or [`pageBulkDelete`](/api-reference/pages/mutations/page-bulk-delete.mdx) for multiple. 
-Deleting a Page is permanent. Deleting a Page Type might be restricted if Pages are using it.
+Deleting a Model is permanent. Deleting a Model Type might be restricted if Models are using it.
 
 ```graphql
 mutation DeletePage($id: ID!) {
@@ -365,7 +371,7 @@ mutation DeleteMultiplePages($ids: [ID!]!) {
 
 ## Webhooks
 
-Here are the webhooks that are available for pages:
+Here are the webhooks that are available for models:
 
 - [`PAGE_TYPE_CREATED`](/api-reference/pages/objects/page-type-created.mdx)
 - [`PAGE_TYPE_UPDATED`](/api-reference/pages/objects/page-type-updated.mdx)
@@ -373,3 +379,4 @@ Here are the webhooks that are available for pages:
 - [`PAGE_CREATED`](/api-reference/pages/objects/page-created.mdx)
 - [`PAGE_UPDATED`](/api-reference/pages/objects/page-updated.mdx)
 - [`PAGE_DELETED`](/api-reference/pages/objects/page-deleted.mdx)
+
