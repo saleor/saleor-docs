@@ -18,6 +18,11 @@ const highlight = async () => {
   }
 };
 
+/**
+ * Every time we update docs to the next version, bump this, so highlights are rebuilt
+ */
+const NEXT_UNRELEASED_VERSION = "3.23";
+
 const highlightSaleorVersion = (file) => {
   const re = /^.*Added in Saleor.*\d\.$/gm;
 
@@ -30,8 +35,7 @@ const highlightSaleorVersion = (file) => {
       );
       let badgeText = version.replace(/\.$/, "");
 
-      // Change that upon releasing a new version
-      if (badgeText.includes("3.22")) {
+      if (badgeText.includes(NEXT_UNRELEASED_VERSION)) {
         badgeText = badgeText + " (unreleased)";
       }
       if (block.startsWith(">")) {
