@@ -1,0 +1,71 @@
+---
+sidebar_label: ACP Feed (Beta)
+title: Agentic Commerce Protocol Feed (Beta)
+sidebar_position: 6
+description: Agentic Commerce Protocol Feed (Beta)
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.jsx";
+
+<AppMetadata
+minSaleorVersion="3.21"
+/>
+
+This app exports Saleor catalog to [ACP Feed format](https://developers.openai.com/commerce/specs/feed). It allows
+compliant platforms like ChatGPT to index and display Saleor products directly within the Chat.
+
+:::note
+App is in beta mode. We will continue improving the app once ACP gets more mature and adopted.
+:::
+
+## Features
+
+- Scans Saleor database on demand
+- Creates a JSON file with mapped items
+
+## Assumptions & limitations
+
+- App is frontend-only and all logic happens within Saleor Dashboard App page.
+- App does not auto-update on product changes. Additional scan must be run.
+- App does not upload feed to OpenAI or any other platform. Result file must be uploaded manually.
+
+## Permissions required by the app
+
+- `MANAGE_PRODUCTS`
+
+## Pre-requisites
+
+App requires attributes to be created and assigned to product variants.
+
+## Configuration
+
+App generates a single feed per channel. Each time feed is generated, following fields should be provided. We recommend
+to provide all of them.
+Some of the fields (according to spec) are required. If the attributes mapping is missing, variants will be missing in
+the output file. Some attributes are optional,
+but we recommend to field them all.
+
+Attributes should exist on variants, not on products.
+
+- Channel: Provide a channel which will be scanned as products source
+- Size attribute slug: Attribute slug that stores size attribute. Should be single choice or plain text.
+- Brand attribute slug: Attribute slug that stores brand attribute. Should be single choice or plain text.
+- Color attribute slug: Attribute slug that stores color attribute. Should be single choice or plain text.
+- Material attribute slug: Attribute slug that stores material attribute. Should be single choice or plain text.
+- Condition attribute slug: Attribute slug that stores condition attribute. Should be single choice or plain text.
+  Should be "new", "used" or "refurbished"
+- Return window attribute slug: Attribute slug that stores time in days when product can be returned. Should be numeric
+  or string attribute with valid integer value.
+- Image fallback URL: When no image added on variant nor product, this image will be used as a fallback
+- Seller name: Name of the merchant to display
+- Root storefront URL: Address of the storefront
+- Privacy Policy URL, Terms of Service URL, Returns policy URL: Links to legal pages
+- Storefront template: Storefront URL with placeholders. Available placeholders are `{productId}`, `{variantSku}`,
+  `{productSlug}`, `{variantId}`
+
+## Troubleshooting
+
+### Result json is empty (`[]`)
+
+App doesn't map variants which miss required fields. Ensure you properly map attributes and provide valid slugs in the
+configuration
