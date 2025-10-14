@@ -1,0 +1,62 @@
+---
+title: Translations chaining
+---
+
+Saleor is great for working with global brands available worldwide. When using Saleor to translate your content,
+like products or attributes, you may notice that many languages exist in their local forms. For example, Portuguese and Portuguese (Brazil) or many dialects of English.
+
+In this guide, we will implement a chain of translations that will result in the best customer-facing experience.
+
+## The concept
+
+Chaining of translations is a mechanism where a fully translated language is the main one (English, Portuguese, Spanish, etc.), while dialects are partially "patched" to reflect local differences.
+
+## Example
+
+Let's have a product called **Pen**. Our HQ will be in the US, so our root translation is American English. We can have a short description:
+
+- **English:** It's a pen. No eraser needed!
+- **English (United Kingdom):** It's a pen. No rubber needed, innit mate!
+
+The product name (Pen) will stay the same for both languages, while the description changes. In Saleor Dashboard, we translate only the description.
+
+## Storefront implementation
+
+In the storefront, we must first recognize what language is active for the current user. Let's assume we have it stored.
+
+Then, we can execute the query to fetch a product:
+
+```graphql
+query {
+  product(slug:"pen") {
+    name
+    description
+    translation(languageCode:EN_GB) {
+      description
+      name
+    }
+  }
+}
+```
+
+As a result, we will see translated fields only if they are filled:
+
+```json
+  {
+    "product": {
+      "name": "Pen",
+      "description": "{\"time\": 1759301181747, \"blocks\": [{\"id\": \"FbMHH3B_mV\", \"data\": {\"text\": \"It's a pen. No eraser needed!\"}, \"type\": \"paragraph\"}], \"version\": \"2.30.7\"}",
+      "translation": {
+        "description": "{\"time\": 1759301204878, \"blocks\": [{\"id\": \"oW3SCISfmZ\", \"data\": {\"text\": \"It's a pen. No rubber needed!\"}, \"type\": \"paragraph\"}], \"version\": \"2.30.7\"}",
+        "name": null
+      }
+    }
+  }
+```
+
+Now, the storefront can decide to pick up the translated string and fall back to the main string if it doesn't exist:
+
+```js
+const productName = product.translation.name ?? product.name;
+const productDescription = product.translation.description ?? product.description;
+```
