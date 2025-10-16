@@ -1,6 +1,6 @@
 import { chapterTitle, hr } from "./utils";
 
-export const appStore = [
+export const extensions = [
   chapterTitle("developer/app-store/overview", "Extensions", "apps"),
 
   hr(),
@@ -75,7 +75,6 @@ export const appStore = [
       },
     ],
   },
-  "developer/app-store/plugins/stripe",
   { type: "html", value: "<hr/>" },
   {
     type: "category",
@@ -87,6 +86,7 @@ export const appStore = [
       "developer/app-store/legacy-plugins/dummy-credit-card",
       "developer/app-store/legacy-plugins/np-atobarai",
       "developer/app-store/legacy-plugins/user-emails",
+      "developer/app-store/legacy-plugins/stripe",
     ],
   },
 ];

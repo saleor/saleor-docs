@@ -1,6 +1,6 @@
 const { title, ref } = require("./sidebars/utils");
 const { buildingApps } = require("./sidebars/building-apps");
-const { appStore } = require("./sidebars/app-store");
+const { extensions } = require("./sidebars/extensions");
 const { coreConcepts } = require("./sidebars/core-concepts");
 const { community } = require("./sidebars/community");
 const { selfHosting } = require("./sidebars/self-hosting");
@@ -109,7 +109,7 @@ module.exports = {
   ],
   concepts: [backToHome, ...coreConcepts],
   recipes: [backToHome, ...recipesSidebar],
-  appStore: [backToHome, ...appStore],
+  appStore: [backToHome, ...extensions],
   buildingApps: [backToHome, ...buildingApps],
   graphql: [backToHome, ...graphqlSidebar],
   api: [
