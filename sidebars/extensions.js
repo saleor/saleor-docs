@@ -31,6 +31,7 @@ export const extensions = [
   "developer/app-store/plugins/oidc",
   "developer/app-store/apps/product-feed",
   "developer/app-store/apps/search",
+  "developer/app-store/apps/acp-feed",
   {
     type: "category",
     label: "SMTP",
