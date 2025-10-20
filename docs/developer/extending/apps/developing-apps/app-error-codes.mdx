@@ -1,8 +1,17 @@
 ---
-title: App error codes
+title: AppErrorCode
 ---
 
 Below you'll find explanations for `AppErrorCode` values that can be returned during various app-related operations in Saleor, such as installing an app, fetching its manifest, updating an app, or deleting it. Each section explains what the error means, when it can happen, and what you should check or do to resolve it.
+
+## `AppErrorCode.FORBIDDEN`
+This error is returned when the requester is authenticated but lacks the permissions required to perform a given mutation (for example, `appUpdate`, `appDelete`, `appTokenCreate`, or other app management mutations).
+
+- 🧐 **Cause**: The account or app calling the mutation does not include at least one of the permissions required by that API. Saleor blocks the operation before any additional validation runs.
+- 💡 **Debugging Tips**:
+  - Review the mutation's permission requirements in the API reference or the dashboard. Most app management mutations require both `AUTHENTICATED_STAFF_USER` and `MANAGE_APPS`, while some queries accept `AUTHENTICATED_APP`.
+  - Ensure the requester (staff user or app) actually possesses the required permission set. For staff accounts, verify group assignments; for apps, confirm the token was generated for an app with the needed permissions.
+  - If a staff user needs broader access, an administrator must grant the missing permission and retry the operation.
 
 ## `AppErrorCode.INVALID_URL_FORMAT`
 This error is raised when a URL is malformed or uses an unsupported scheme.
@@ -51,6 +60,15 @@ This error can be raised in two main scenarios:
     - Ensure any permission listed for an extension is also present in the main `permissions` list for the app.
     - Consult the [list of available permissions](/developer/permissions.mdx) to verify the permissions requested by your app.
 
+## `AppErrorCode.OUT_OF_SCOPE_APP`
+This error is raised when a staff user tries to manage an app whose permission scope is broader than their own. Saleor blocks updates, deletions, and token operations unless the requester can grant every permission that the app currently has.
+
+- 🧐 **Cause**: The requester is not a superuser and does not hold the full set of permissions assigned to the target app (for example, the app has `MANAGE_ORDERS` but the staff user does not).
+- 💡 **Debugging Tips**:
+  - Inspect the app's permission list in the dashboard or via the API. Collect the formatted permission codenames (e.g., `order.manage_orders`).
+  - Compare that list with the requester's permissions. Add any missing permissions to the staff user's role or ask someone who already has them to perform the action.
+  - Superusers bypass this check; if appropriate, have a superuser run the mutation.
+
 ## `AppErrorCode.MANIFEST_URL_CANT_CONNECT`
 This error means Saleor failed to establish a network connection to or retrieve content from the server hosting the `manifestUrl`, or an icon URL from the manifest.
 
@@ -85,13 +103,16 @@ This error means the manifest has invalid structure. This can include issues lik
   - Consider using Saleor's [`app-sdk`](/developer/extending/apps/developing-apps/app-sdk/overview.mdx) to construct the manifest, as it helps adhere to the documented structure.
 
 ## `AppErrorCode.REQUIRED`
-This error means the manifest is missing one or more mandatory top-level fields.
+This error means the manifest is missing required data. Saleor validates that mandatory fields exist at multiple levels within the manifest.
 
-- 🧐 **Cause**: Mandatory top-level fields (e.g., `id`, `version`, `name`, `tokenTargetUrl`) are missing from the manifest.
+- 🧐 **Cause**:
+    - Mandatory top-level fields (e.g., `id`, `version`, `name`, `tokenTargetUrl`) are missing.
+    - An extension definition omits required keys such as `label`, `url`, or `mount`.
+    - A webhook definition omits required keys such as `name`, `targetUrl`, or `query`.
 - 💡 **Debugging Tips**:
   - Inspect the full manifest content.
   - Check error details, which should indicate the specific required field(s) that are missing.
-  - Refer to Saleor's [App Manifest documentation](/developer/extending/apps/architecture/manifest.mdx) to ensure all required fields are present.
+  - Verify each extension and webhook entry also contains all mandatory fields documented in Saleor's [App Manifest documentation](/developer/extending/apps/architecture/manifest.mdx).
 
 ## `AppErrorCode.UNIQUE`
 This error means the `id` field (identifier) in the manifest is already used by another app in your Saleor instance.
