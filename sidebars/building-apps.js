@@ -23,6 +23,7 @@ export const buildingApps = [
   "developer/extending/apps/local-app-development",
   "developer/extending/apps/extending-dashboard-with-apps",
   "developer/extending/apps/developing-apps/troubleshooting",
+  "developer/extending/apps/developing-apps/app-error-codes",
   "developer/extending/apps/developing-apps/macaw-ui",
 
   title("App SDK"),
