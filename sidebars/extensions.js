@@ -31,7 +31,7 @@ export const extensions = [
   "developer/app-store/plugins/oidc",
   "developer/app-store/apps/product-feed",
   "developer/app-store/apps/search",
-  "developer/app-store/apps/acp-feed",
+  "developer/app-store/apps/instant-checkout",
   {
     type: "category",
     label: "SMTP",
