@@ -163,3 +163,215 @@ Previously, fetching a reference attribute required two steps: first retrieving 
 
 Starting with version 3.22, webhooks are no longer triggered for deactivated apps.
 In earlier versions, events continued to be sent through active webhooks even when the app itself was deactivated.
+
+
+
+## Saleor Dashboard - Removed feature flags
+
+The following feature flags have been permanently removed from Saleor Dashboard in the 3.22 release. **These flags were enabled by default in previous releases** and had to be manually disabled to revert to legacy behavior.
+
+:::danger Before upgrading to 3.22
+
+Verify you are not relying on any disabled feature flags. Once upgraded, you cannot revert to the legacy UI and functionality.
+
+:::
+
+:::note Version history
+
+| Version | Release Date | Key Changes |
+|---------|-------------|-------------|
+| 3.15.0 | Aug 2023 | Product filters added (disabled) |
+| 3.17.0 | Oct 2023 | Product filters enabled by default |
+| 3.19.0 | Feb 2024 | Discount rules added (disabled) |
+| 3.20.0 | Jul 2024 | Order filters added & enabled, Improved refunds added (disabled) |
+| 3.20.29 | Mar 2025 | App alerts added & enabled |
+| 3.21.0 | May 2025 | Extensions added & enabled, Discount rules enabled by default |
+| **3.22.2** | **Oct 2025** | **Feature flags removed (see below)** |
+
+:::
+
+Here are full details about removed feature flags and what they changed:
+
+### 1. Modern Filtering (`product_filters` + `order_filters`)
+
+**Product Filters:**
+- **Added:** v3.15.0
+- **Enabled by default:** v3.17.0
+
+**Order Filters:**
+- **Added & Enabled by default:** v3.20.0
+
+:::info Feature description
+
+Experience the new look and enhanced abilities of new filtering mechanism. Combine any criteria you want, and quickly browse their values. New filters have been added to the following pages:
+- Products list
+- Orders list
+- Collection list
+- Customers list
+- Vouchers list
+- Draft orders list
+- Gift cards list
+- Content (Models) list
+- Product types list
+- Staff members list
+- Attributes list
+
+:::
+
+**What's now always enabled:**
+- Modern expression-based filtering across all list pages
+- Dynamic combination of multiple filter criteria
+- Enhanced UI for browsing and selecting filter values
+- Improved performance for complex filtering scenarios
+
+**Legacy behavior (if you had these disabled):**
+- Traditional dropdown-based filters that couldn't be combined dynamically
+- Limited filter criteria options
+- Less flexible value browsing
+
+:::warning Action required
+
+If you disabled these flags, **test your filtering workflows** before upgrading. The legacy filter UI was removed in 3.22. In 3.22 some pages also use new `where` API for filtering, instead of `filter` (refer to 3.22 release notes).
+
+:::
+
+---
+
+### 2. App Alerts (`app_alerts`)
+
+**Added & Enabled by default:** v3.20.29
+
+:::info Feature description
+
+Benefit from new notifications in your Dashboard that alert you to issues with webhooks for your apps, helping you stay informed about potential problems. We're continuously working to expand this feature to provide more insights for your apps.
+
+:::
+
+**What's now always enabled:**
+- Webhook delivery status monitoring and alerts
+- Visual indicators in the Extensions list for apps with issues
+- Notifications for failed/pending webhook deliveries
+- Sidebar alerts when apps have problems
+
+**Legacy behavior (if you had this disabled):**
+- No visual indicators for problematic apps
+- Manual webhook log checking required to detect issues
+- No sidebar alerts for app problems
+
+:::tip Note
+
+If you disabled this flag, **expect to see new alert indicators** in your Extensions list and navigation after upgrading.
+
+:::
+
+---
+
+### 3. Improved Refunds (`improved_refunds`)
+
+**Added & Enabled by default:** v3.20.0
+
+:::info Feature description
+
+Enable the enhanced refund feature to streamline your refund process:
+- Choose between automatic calculations based on selected items or enter refund amounts directly for overcharges and custom adjustments.
+- Take advantage of separate permissions for drafting and finalizing refunds, enhancing control and security in the process.
+
+:::
+
+**What's now always enabled:**
+- Grant refund workflow with transaction selector
+- Separate pages for granting refunds with line items and manual refunds (no line items)
+- Automatic refund amount calculation based on selected items (can be edited for manual refund amount)
+- Draft refund state with separate permissions for draft creation and finalization
+- Enhanced refund table with transaction events, similar to order details
+
+**Legacy behavior (if you had this disabled):**
+- Basic refund table view without transaction grouping
+- Single transaction support only
+- No draft/finalize workflow separation
+- Simple refund summary without detailed transaction information
+- No transaction selector for return & replace flows
+
+:::warning Action required
+
+If you disabled this flag, **review your refund workflows and permissions.**
+
+:::
+
+---
+
+### 4. Discount Rules (`discounts_rules`)
+
+**Added:** v3.19.0
+**Enabled by default:** v3.21.0
+
+:::info Feature description
+
+Apply the new discounts rules to narrow your promotions audience. Set up conditions and channels that must be fulfilled to apply defined reward.
+
+:::
+
+**What's now always enabled:**
+- New UI that uses Promotion API
+- Rule-based promotions with conditions
+- Channel-specific discount configuration
+- Order-level promotion conditions
+- Catalog promotion management
+- Gift rewards for promotion rules
+- Enhanced discount audience targeting
+
+**Legacy behavior (if you had this disabled):**
+- Old discount/voucher system
+- No rule-based conditions for promotions
+- No channel-specific discount configuration
+- No order-level conditions support
+- Traditional voucher/discount creation flow without advanced targeting
+
+:::warning Action required
+
+If you disabled this flag, **test your discount and promotion workflows** before upgrading. UI for legacy system was removed.
+
+:::
+
+---
+
+### 5. Extensions (`extensions`)
+
+**Added & Enabled by default:** v3.21.0
+
+:::info Feature description
+
+New, reshaped experience for browsing, installing, and managing Saleor extensions. We are standardizing the extensibility model in Saleor by consolidating plugins, webhooks, and apps under a unified concept: extensions.
+
+:::
+
+**What's now always enabled:**
+- Unified `/extensions` interface for all extension types
+- Consolidated management for apps, plugins, and webhooks on a single list
+- New, improved flow for installing apps from manifest
+- Improved view for adding webhooks (Custom apps)
+- Explore extensions page with list of apps from appstore and disabled plugins
+
+**Legacy behavior (if you had this disabled):**
+- Separate navigation for Apps (`/apps/`), Plugins (`/plugins/`), and Webhooks (aka Custom apps)
+- Three different management interfaces
+- Webhooks & Events managed in Configuration section, not available in navbar
+- Custom apps managed separately from installed apps
+- Fragmented user experience across extension types
+
+:::warning Action required - apps
+
+If your app depended on `/apps/` path navigation via App Bridge, update it to use `/extensions`.
+
+:::
+
+
+:::tip Action required
+
+If you disabled this flag, **update any bookmarks or documentation** referencing old URLs:
+- `/apps/*` → `/extensions/installed` or `/extensions/custom/<id>`
+- `/plugins/*` → `/extensions/installed`
+- Configuration → Webhooks & Events → `/extensions/custom/<id>/webhook`
+
+:::
+
