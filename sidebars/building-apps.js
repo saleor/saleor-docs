@@ -40,8 +40,8 @@ export const buildingApps = [
 
   title("Starter kits"),
   "developer/extending/apps/developing-apps/app-template",
-  "developer/extending/apps/developing-apps/running-saleor-apps-locally",
   "developer/extending/apps/developing-apps/app-examples",
+  "developer/extending/apps/developing-apps/running-saleor-apps-locally",
 
   title("Guides"),
   "developer/extending/apps/updating-app-webhooks",
