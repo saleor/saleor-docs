@@ -167,6 +167,7 @@ module.exports = {
       apiKey: "021901243603f49a626be6b7435a2a8d",
       indexName: "saleor",
       placeholder: "Search Saleor Documentation",
+      insights: true,
     },
 
     colorMode: {
