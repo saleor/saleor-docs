@@ -668,34 +668,92 @@ mutation TransactionEventReport($amount: PositiveDecimal, $id: ID, $pspReference
 
 Follow [Transactions Webhook Events](/developer/extending/webhooks/synchronous-events/transaction.mdx) guide.
 
-### Automatic Checkout completion
+### Automatic Checkout Completion
 
-The `Checkout` can be automatically converted into an [`Order`](/api-reference/orders/objects/order.mdx), once the related [`TransactionItems`](/api-reference/payments/objects/transaction-item.mdx) fully cover `Checkout`.
+The `Checkout` can be automatically converted into an [`Order`](/api-reference/orders/objects/order.mdx) once the related [`TransactionItems`](/api-reference/payments/objects/transaction-item.mdx) fully cover the `Checkout`.
 
 :::caution
 This feature isn't compatible with [legacy Payments API](/developer/extending/plugins/payment-gateways.mdx) that uses [plugins](/developer/extending/plugins/overview.mdx) (instead of apps). For example this setting won't work with [Stripe plugin](/developer/app-store/legacy-plugins/stripe).
 
-Payments API uses `checkoutComplete` mutation to pass payment data to a plugin and return payment status, thanks to this `Order` is always created right after such payment is made. **This means that this setting doesn't impact Payments API**.
+Payments API uses `checkoutComplete` mutation to pass payment data to a plugin and return payment status, thanks to this `Order` is always created right after such payment is made.
+ **This means that this setting doesn't impact Payments API**.
 :::
 
-A checkout is considered fully covered when the [`Checkout.authorizeStatus`](/developer/payments/lifecycle.mdx#authorize-status) 
-is set to `FULL`.
 
-This occurs when the total of `authorizedAmount`, `chargedAmount`, `authorizePendingAmount`, and `chargePendingAmount` from all transactions connected to the `Checkout` covers the [`checkout.totalPrice`](/api-reference/checkout/objects/checkout#checkoutsubtotalpricetaxedmoney---).
+#### Automatic Checkout Completion Settings Details
+
+The `automatic_completion` field in `CheckoutSettingsInput` provides the following options for configuring automatic checkout completion:
+
+- **`enabled`**: A boolean value to enable or disable automatic checkout completion. When set to `true`, the system will attempt to complete checkouts automatically once they are fully covered.
+- **`delay`**: An optional integer value (in minutes) that specifies the delay before a checkout is automatically completed. If not provided, the default delay is 30 minutes.
+- **`cutOffDate`**: An optional ISO 8601 timestamp that defines the earliest checkout creation time eligible for automatic completion. Checkouts created before this date will not be automatically completed. If not provided, the current time is used as the default.
+
+To enable automatic checkout completion, update the channel checkout settings.
+For example with a `delay` and cut-off date:
+```graphql
+mutation {
+  channelUpdate(
+    id: "Q2hhbm5lbDox",
+    input: {
+      checkoutSettings: {
+        automaticCompletion: {
+          enabled: true,
+          delay: 120,
+          cutOffDate: "2025-11-01T00:00:00Z"
+        }
+      }
+    }
+  ) {
+    channel {
+      id
+      checkoutSettings {
+        automaticCompletion {
+          enabled
+          delay
+          cutOffDate
+        }
+      }
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+
+:::info
+Automatic checkout completion is managed by a scheduled task that runs every minute. During each run, up to 20 checkouts are processed. The system prioritizes:
+
+1. Checkouts that have never had an automatic completion attempt.
+2. Checkouts with the oldest `last_change` field.
+
+Checkouts modified more than 30 days ago are excluded from automatic completion.
+:::
+
+
+A checkout is considered fully covered when the [`Checkout.authorizeStatus`](/developer/payments/lifecycle.mdx#authorize-status) is set to `FULL`. This occurs when the total of `authorizedAmount`, `chargedAmount`, `authorizePendingAmount`, and `chargePendingAmount` from all transactions connected to the `Checkout` covers the [`checkout.totalPrice`](/api-reference/checkout/objects/checkout#checkoutsubtotalpricetaxedmoney---).
 
 To enable automatic checkout completion, update the channel checkout settings using the configuration example below:
+
 <Tabs>
 <TabItem value="Mutation">
 ```graphql
-mutation UpdateChannel($id: ID!,$input: ChannelUpdateInput!){
-  channelUpdate(id: $id, input: $input){
-    channel{
+mutation UpdateChannel($id: ID!, $input: ChannelUpdateInput!) {
+  channelUpdate(id: $id, input: $input) {
+    channel {
       id
       checkoutSettings {
-        automaticallyCompleteFullyPaidCheckouts
+        automaticCompletion {
+          enabled
+          delay
+          cutOffDate
+        }
       }
     }
-    errors{
+    errors {
       field
       code
       message
@@ -705,13 +763,17 @@ mutation UpdateChannel($id: ID!,$input: ChannelUpdateInput!){
 ```
 </TabItem>
 
-<TabItem value={"Variables"}>
+<TabItem value="Variables">
 ```json
 {
   "id": "Q2hhbm5lbDox",
   "input": {
     "checkoutSettings": {
-      "automaticallyCompleteFullyPaidCheckouts": true
+      "automaticCompletion": {
+        "enabled": true,
+        "delay": 60,
+        "cutOffDate": "2025-11-19T00:00:00Z"
+      }
     }
   }
 }
@@ -720,43 +782,36 @@ mutation UpdateChannel($id: ID!,$input: ChannelUpdateInput!){
 </Tabs>
 
 :::warning
-If any issues occur during checkout validation, the checkout will not be completed.
-The checkout does not pass the validation when:
-  - contains unavailable items:
-    - one of the checkout line has missing product or variant channel listing or the price is not set;
-    - one of the product is not available for purchase;
-    - one of the product is set as not visible to the customers;
-  - billing address is not set;
-  - attached voucher is not applicable;
-  - attached gift card is not valid;
-  - shipping method is invalid;
-  - channel is inactive.
+If any issues occur during checkout validation, the checkout will not be completed. Validation issues include:
 
-You can view the specific issues using the `Checkout.problems` query. For more details, please refer to the [Checkout Problems page](/developer/checkout/problems).
+- Unavailable items
+  - one of the checkout line has missing product or variant channel listing or the price is not set;
+  - one of the product is not available for purchase;
+  - one of the product is set as not visible to the customers;
+- Missing billing address.
+- Invalid voucher or gift card.
+- Invalid shipping method.
+- Inactive channel.
+
+Use the `Checkout.problems` query to identify specific issues. For more details, refer to the [Checkout Problems page](/developer/checkout/problems).
 :::
 
 :::danger
-**Once this setting is enabled, you should verify if your connected services, including storefront, can handle this flow.**
+**Ensure your connected services, including storefronts, can handle this flow before enabling this setting.**
 
-Please remember, that if setting is enabled:
-- `Checkout` will be deleted after checkout completion which means that any query or mutation relying on it will no longer work after that
-- Running `checkoutComplete` on a `Checkout` that was already completed, will return previously created `Order` object
-:::
-
-
-:::warning
-Checkout will be automatically completed even if some Transactions are still pending and waiting for confirmation from payment provider. Checkouts are considered "covered" as long as the total amount is covered (see when `authorizeStatus` is set to `FULL` in [payment lifecycle docs](/developer/payments/lifecycle.mdx#authorize-status)).
-
-Keep in mind that a pending Transaction might be rejected later, which will result in an unpaid order. To clear orders that remain unpaid you can use [Order Expiration feature](/developer/order/order-expiration.mdx)
+When enabled:
+- The `Checkout` will be deleted after completion, making any queries or mutations relying on it invalid.
+- Running `checkoutComplete` on an already completed `Checkout` will return the previously created `Order` object.
 :::
 
 :::caution
-Once `Checkout` is converted to into `Order`, the `authorizeStatus` might change from `FULL` to `NONE` or `PARTIAL`. This happens because [`Order.authorizeStatus`](/api-reference/orders/enums/order-authorize-status-enum.mdx#values) uses different logic to calculate its value.
+Checkouts will be automatically completed even if some transactions are still pending confirmation from the payment provider. Pending transactions might later be rejected, resulting in an unpaid order. Use the [Order Expiration feature](/developer/order/order-expiration.mdx) to handle unpaid orders.
 
-- **For checkouts**: pending Transactions **are** considered "paid" and are included in the [`Checkout.authorizeStatus`](/api-reference/checkout/enums/checkout-authorize-status-enum.mdx) calculation.
-- **For orders**: pending Transactions **are not** considered "paid" and will not be included in the [`Order.authorizeStatus`](/api-reference/orders/enums/order-authorize-status-enum.mdx#values) calculation.
+Additionally, once a `Checkout` is converted into an `Order`, the `authorizeStatus` might change from `FULL` to `NONE` or `PARTIAL` due to differences in calculation logic between `Checkout` and `Order` statuses.
 :::
 
-## Related resources
+
+
+## Related Resources
 
 - [Building Payment Apps](/developer/extending/apps/building-payment-app.mdx)
