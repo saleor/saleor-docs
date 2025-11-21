@@ -20,6 +20,36 @@ App tokens are long-lived and are used to access resources related to the app, s
 
 See [permissions](developer/permissions.mdx) for more information on permissions.
 
+## Choosing the Authentication Method
+When integrating with Saleor, one of the first decisions is which authentication mechanism to use.
+
+- **Public access (no token)**: Some GraphQL operations are public and require no authentication at all.
+This is the appropriate choice when your integration needs no permissions, such as retrieving public product data for a simple storefront.
+
+- **User-based authentication**: When a user is present (e.g., a storefront with customer login or dashboard staff user session), you typically use:
+
+  - [OIDC](#user-authentication-using-openid-connect) – the recommended method for user login
+  - [tokenCreate](#email-and-password) – based on JWT credentials
+
+- **App-based authentication**: If you are building machine-to-machine integrations, you use App Tokens, issued to a [Saleor App](#app-authentication). 
+
+  However, apps cannot install or manage other Apps. Those actions require a human user.
+
+- **Dashboard extension authentication**: Dashboard extensions receive a special dashboard extension JWT passed automatically via the [App SDK](developer/extending/apps/developing-apps/app-sdk/overview.mdx).
+
+
+```mermaid
+flowchart TD
+    A{Do you need permissions?} -->|No| X[No token needed - public API]
+    A -->|Yes| C{Is there a user present?}
+    C -->|No| D{Do you need to manage or install Apps?}
+    C -->|Yes| F{Are you building a dashboard extension?}
+    D -->|No| E[Use an App with a App Token]
+    D -->|Yes| Y[fa:fa-ban Forbidden! You need to have a user present]
+    F -->|No| G[Prefer OIDC, \`tokenCreate\` as fallback]
+    F -->|Yes| H[Use the App SDK, you will be passed a special access token]
+```
+
 ## Authentication with Auth SDK
 
 [Saleor Auth SDK](https://github.com/saleor/auth-sdk) is a TypeScript library for adding auth functionality to your
