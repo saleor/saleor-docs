@@ -1,31 +1,57 @@
 ---
-title: Sync webhooks circuit breakers
+title: Application Circuit Breakers
 description: Documentation for synchronous webhooks circuit breakers in Saleor
 ---
 
-Circuit breakers are a mechanism that temporarily shuts down an app in case of a high number of webhook errors. The feature is off by default.
+Saleor leverages external integrations for critical delegation tasks like payments and shipping.
+When these external services are down or become unreliable, it can slow down all requests that rely on them, eventually leading to the storefronts becoming unresponsive.
 
-## Breaker states
+To mitigate this risk, Saleor implements circuit breakers for synchronous webhooks. Circuit breakers are a mechanism that temporarily shuts down any app that is observed to misbehave, preventing it from affecting the overall system performance.
+
+Each application has its own circuit breaker that monitors the synchronous webhooks sent to it.
+When the number of failed requests exceeds a certain threshold, the breaker trips and all further requests to that app are rejected until a cooldown period has passed.
+
+## Breaker States
 
 ### Closed
 
-This is a normal operation state, all webhooks are sent as usual.
+This is the normal operation state for a healthy app. All webhooks are sent as usual.
 
 ### Open
 
-The breaker is open when the number of errors exceeds the threshold. In this state, all webhooks are rejected.
+The breaker becomes open when the number of errors exceeds the threshold. In this state, all webhooks are rejected and the app is not contacted at all, assuming to be down.
 
-### Half-open
+### Half-Open
 
-In this state, the breaker allows the requests like in closed state (allowing requests to pass through), however using different thresholds.
+Once a cooldown period has passed, the breaker allows the requests to be sent, but the threshold for tripping back to the open state is much lower than for the Closed state.
 
 :::warning
 
-This is different from common implementation of breakers in which the requests are throttled in half-open state.
+This is different from other implementations of breakers that may instead throttle requests while in the half-open state.
 
 :::
 
-## Configuring the feature
+## State Transition Diagram
+
+```mermaid
+stateDiagram-v2
+    A: Closed
+    B: Open
+    C: Half-Closed
+    [*] --> A
+    A --> B: Failure threshold reached
+    B --> C: Cooldown
+    C --> B: Failure threshold reached
+    C --> A: Success threshold reached
+```
+
+## Observability
+
+The breaker states can be observed on the `App` type using the following fields: [App.breakerState](api-reference/apps/objects/app.mdx#appbreakerstatecircuitbreakerstateenum---) and [App.breakerLastStateChange](api-reference/apps/objects/app.mdx#appbreakerlaststatechangedatetime--).
+
+A mutation exists to manually reset the breaker state: [appReenableSyncWebhooks](api-reference/apps/mutations/app-reenable-sync-webhooks.mdx). Using it allows the cooldown period to be skipped and forces the breaker to return to the closed state immediately.
+
+## Configuring the Feature
 
 To turn the feature on, set the `BREAKER_BOARD_ENABLED` environment variable to `True`.
 
@@ -35,7 +61,7 @@ For example: `"checkout_calculate_taxes, shipping_list_methods_for_checkout"`.
 `BREAKER_BOARD_DRY_RUN_SYNC_EVENTS` setting is off by default, if you set it to `True`, the breaker will act as it's on, but only in terms of logging, etc.
 However it will **not** block any requests. This is useful for testing the breaker without affecting the webhooks behavior.
 
-## Transitions between states
+## Transitions Between States
 
 :::info
 
@@ -71,24 +97,3 @@ These constants can be found [here](https://github.com/saleor/saleor/blob/main/s
 ### Half-open back to Closed
 
 If the number of successful requests is met, the breaker transitions back to the closed state. This is controlled by `BREAKER_BOARD_SUCCESS_COUNT_RECOVERY` constant, which defaults to 50.
-
-## State transition diagram
-
-```mermaid
-flowchart TD
-    A["CLOSED (working)"]
-    A --> C{failure min count > 100, failure rate > 35%?}
-    C -->|No| C{failure min count > 100, failure rate > 35%?}
-    C -->|Yes| D["OPEN (tripped)"]
-    D ---|"Cooldown"| E["HALF OPEN"]
-    E --- F{failure min count > 20, failure rate > 30%?}
-    F ---|"Yes"| D
-    F ---|"No"| G{"success count > 50?"}
-	G ---|"yes"| A
-	G ---|"No"| F
-```
-
-## Observability
-
-The breaker states can be observed on App type which includes two new fields - [App.breakerState](api-reference/apps/objects/app.mdx#appbreakerstatecircuitbreakerstateenum---) and [App.breakerLastStateChange](api-reference/apps/objects/app.mdx#appbreakerlaststatechangedatetime--).
-There is a mutation to manually reset the breaker state - [appReenableSyncWebhooks](api-reference/apps/mutations/app-reenable-sync-webhooks.mdx). It might be usefull if the network infrastructure on webhook end is responding correctly, but the breaker is still in open state and it's desired to resume the webhooks quickly.
