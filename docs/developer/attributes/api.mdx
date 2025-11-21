@@ -3,6 +3,8 @@ title: Attributes API guide
 sidebar_label: API guide
 description: Learn how to manage attributes in Saleor using the GraphQL API.
 ---
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
 ## Permissions
 
@@ -13,7 +15,7 @@ To edit and create attributes, a user needs to have the following permissions:
 
 To assign attributes to products and pages, a user needs only the following permissions: `MANAGE_PRODUCTS` and `MANAGE_PAGES`.
 
-## Input types
+## Input Types
 
 Each attribute has an input type defined upon attribute creation. Input types determine the data type you can enter as the attribute values in the dashboard. Available input types are defined in the [`AttributeInputTypeEnum`](api-reference/attributes/enums/attribute-input-type-enum.mdx) enum. Below is the list of available input types:
 
@@ -32,13 +34,16 @@ Each attribute has an input type defined upon attribute creation. Input types de
 | `DATE`               | Allows storing date values.                                                                             | Store release date of a product.                                                         |
 | `DATE_TIME`          | Allows storing date time values.                                                                        | Store release date with time of a product.                                               |
 
-## Fetching all attributes
+## Fetching Attributes
 
 To fetch the list of attributes, use the `attributes` query:
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
-{
-  attributes(first: 5) {
+query Attributes($first: Int, $where: AttributeWhereInput) {
+  attributes(first: $first, where: $where) {
+    totalCount
     edges {
       node {
         name
@@ -46,21 +51,20 @@ To fetch the list of attributes, use the `attributes` query:
         inputType
         entityType
         referenceTypes {
-          ...on ProductType {
+          ... on ProductType {
             id
             slug
           }
-          ...on PageType {
+          ... on PageType {
             id
             slug
           }
         }
         unit
-        choices(first: 5) {
+        choices(first: $first) {
           edges {
             node {
               name
-              slug
             }
           }
         }
@@ -69,6 +73,116 @@ To fetch the list of attributes, use the `attributes` query:
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "first": 5,
+  "where": {}
+}
+```
+</TabItem>
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "attributes": {
+      "totalCount": 20,
+      "edges": [
+        {
+          "node": {
+            "name": "Allegations",
+            "slug": "allegations",
+            "inputType": "MULTISELECT",
+            "entityType": null,
+            "referenceTypes": [],
+            "unit": null,
+            "choices": {
+              "edges": [
+                {
+                  "node": {
+                    "name": "Halal certified"
+                  }
+                },
+                {
+                  "node": {
+                    "name": "Suitable for vegetarians"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "node": {
+            "name": "Unit weight sold",
+            "slug": "unit-weight-sold",
+            "inputType": "DROPDOWN",
+            "entityType": null,
+            "referenceTypes": [],
+            "unit": null,
+            "choices": {
+              "edges": [
+                {
+                  "node": {
+                    "name": "80 g"
+                  }
+                },
+                {
+                  "node": {
+                    "name": "55 g"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "node": {
+            "name": "Storage conditions",
+            "slug": "storage-conditions",
+            "inputType": "PLAIN_TEXT",
+            "entityType": null,
+            "referenceTypes": [],
+            "unit": null,
+            "choices": {
+              "edges": []
+            }
+          }
+        },
+        {
+          "node": {
+            "name": "Servings",
+            "slug": "servings",
+            "inputType": "NUMERIC",
+            "entityType": null,
+            "referenceTypes": [],
+            "unit": null,
+            "choices": {
+              "edges": []
+            }
+          }
+        },
+        {
+          "node": {
+            "name": "Recipies",
+            "slug": "recipies",
+            "inputType": "REFERENCE",
+            "entityType": "PAGE",
+            "referenceTypes": [],
+            "unit": null,
+            "choices": {
+              "edges": []
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 The `attributes` field supports pagination and filtering, e.g., searching attributes by name. For each attribute, we fetch the following properties, some of which are used only with specific input types:
 
@@ -81,48 +195,321 @@ for attributes with the `PAGE` entity type, this lists allowed page types. Not s
 - `unit` - Used only with `NUMERIC` input types; represents the optional measurement unit.
 - `choices` - Used only with `DROPDOWN`, `MULTISELECT` and  `SWATCH`; a list of predefined choices you can use as values. The `choices` field supports pagination and filtering, e.g., searching choices by name.
 
-## Fetching assigned attributes
+## Fetching Product Assigned Attributes
 
 Attributes assigned to an object are represented by the [`AssignedAttribute`](api-reference/attributes/interfaces/assigned-attribute.mdx) GraphQL interface. 
-Below is an example of fetching the size attribute (of single-choice type) and multiple references to pages connected to the product.
+Below is an example of fetching the material attribute (of single-choice type) and single references to pages connected to the product.
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
-{
-  product(slug: "colored-parrot-cushion", channel: "default-channel") {
+query Product($productSlug: String, $channel: String, $languageCode: LanguageCodeEnum!) {
+  product(slug: $productSlug, channel: $channel) {
     name
-    size: assignedAttribute(slug: "size") {
+    material: assignedAttribute(slug: "material") {
       ... on AssignedSingleChoiceAttribute {
         value {
           slug
+          translation(languageCode:$languageCode)
         }
       }
     }
-    materialReferences: assignedAttribute(slug: "material-ref") {
-      ... on AssignedMultiPageReferenceAttribute {
+    brandReferences: assignedAttribute(slug: "brand") {
+      ... on AssignedSinglePageReferenceAttribute {
         value {
           title
+          translation(languageCode: $languageCode){
+            title
+          }
         }
       }
     }
   }
 }
 ```
+</TabItem>
+<TabItem value={"Values"}>
+```json
+{
+  "productSlug": "cubes-fountain-tee",
+  "channel": "default-channel",
+  "languageCode": "FR"
+}
+```
+</TabItem>
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "product": {
+      "name": "Cubes Fountain Tee",
+      "material": {
+        "value": {
+          "slug": "wool",
+          "translation": "Laine"
+        }
+      },
+      "brandReferences": {
+        "value": {
+          "title": "Saleor Loom",
+          "translation": null
+        }
+      }
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 Similarly, you can fetch assigned attributes for `ProductVariant` and `Page` types.
+  
+## Fetching Product With All Types of Assigned Attributes 
+To fetch all attributes assigned to products or variant with values use the [`ObjectWithAttributes`](api-reference/attributes/interfaces/object-with-attributes.mdx) interface.
 
-## Filtering by attributes
+<Tabs>
+<TabItem value="Query">
+```graphql
+query Product($productSlug: String, $channel: String) {
+  product(slug: $productSlug, channel: $channel) {
+    name
+    ...Attributes
+  }
+}
+
+fragment Attributes on ObjectWithAttributes {
+  assignedAttributes {
+    attribute {
+      id
+      slug
+    }
+    ... on AssignedNumericAttribute {
+      number: value
+    }
+    ... on AssignedTextAttribute {
+      text: value
+    }
+    ... on AssignedPlainTextAttribute {
+      plain_text: value
+    }
+    ... on AssignedFileAttribute {
+      file: value {
+        contentType
+      }
+    }
+    ... on AssignedSingleChoiceAttribute {
+      choice: value {
+        name
+        slug
+      }
+    }
+    ... on AssignedMultiChoiceAttribute {
+      choices: value {
+        name
+        slug
+      }
+    }
+    ... on AssignedSwatchAttribute {
+      swatch: value {
+        name
+        slug
+        hexColor
+        file {
+          url
+          contentType
+        }
+      }
+    }
+    ... on AssignedBooleanAttribute {
+      bool: value
+    }
+    ... on AssignedDateAttribute {
+      date: value
+    }
+    ... on AssignedDateTimeAttribute {
+      datetime: value
+    }
+    ... on AssignedSinglePageReferenceAttribute {
+      page_ref: value {
+        __typename
+        slug
+      }
+    }
+    ... on AssignedSingleProductReferenceAttribute {
+      product_ref: value {
+        __typename
+        slug
+      }
+    }
+    ... on AssignedSingleProductVariantReferenceAttribute {
+      variant_ref: value {
+        __typename
+        sku
+      }
+    }
+    ... on AssignedSingleCategoryReferenceAttribute {
+      category_ref: value {
+        __typename
+        slug
+      }
+    }
+    ... on AssignedSingleCollectionReferenceAttribute {
+      collection_ref: value {
+        __typename
+        slug
+      }
+    }
+    ... on AssignedMultiPageReferenceAttribute {
+      pages: value {
+        __typename
+        slug
+      }
+    }
+    ... on AssignedMultiProductReferenceAttribute {
+      products: value {
+        __typename
+        slug
+      }
+    }
+    ... on AssignedMultiProductVariantReferenceAttribute {
+      variants: value {
+        __typename
+        sku
+      }
+    }
+    ... on AssignedMultiCategoryReferenceAttribute {
+      categories: value {
+        __typename
+        slug
+      }
+    }
+    ... on AssignedMultiCollectionReferenceAttribute {
+      collections: value {
+        __typename
+        slug
+      }
+    }
+  }
+}
+```
+</TabItem>
+<TabItem value={"Values"}>
+```json
+{
+  "productSlug": "croissant",
+  "channel": "fr"
+}
+```
+</TabItem>
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "product": {
+      "name": "Croissant",
+      "assignedAttributes": [
+        {
+          "attribute": {
+            "id": "QXR0cmlidXRlOjI=",
+            "slug": "date-of-minimum-durability"
+          },
+          "choice": {
+            "name": "12 months",
+            "slug": "12-months"
+          }
+        },
+        {
+          "attribute": {
+            "id": "QXR0cmlidXRlOjM=",
+            "slug": "ingredients"
+          },
+          "plain_text": "WHEAT flour, water, fine butter (MILK) 18%, yeast, sugar, EGGS, salt, WHEAT gluten, flour treatment agents (alpha-amylases, ascorbic acid, hemicellulases).Barn laid EGGS. May contain traces of: sesame seeds, soya, nuts."
+        },
+        {
+          "attribute": {
+            "id": "QXR0cmlidXRlOjEx",
+            "slug": "recipies"
+          },
+          "pages": [
+            {
+              "__typename": "Page",
+              "slug": "croque-madame-style-croissant"
+            }
+          ]
+        },
+        {
+          "attribute": {
+            "id": "QXR0cmlidXRlOjEw",
+            "slug": "preparation"
+          },
+          "text": {
+            "time": 1763646632526,
+            "blocks": [
+              {
+                "id": "vEeXLCcGsW",
+                "data": {
+                  "text": "1. Tray arrangement: 9 items on a tray"
+                },
+                "type": "paragraph"
+              },
+              {
+                "id": "uNLl6ltoo-",
+                "data": {
+                  "text": "2. Defrosting: approximately 30-45 min at room temperature."
+                },
+                "type": "paragraph"
+              },
+              {
+                "id": "5VS-cD3n2k",
+                "data": {
+                  "text": "3. Preheating: 190°C"
+                },
+                "type": "paragraph"
+              },
+              {
+                "id": "ZTgGuqCC-X",
+                "data": {
+                  "text": "4. Backing: approximately 15-18 min at 165-170°C, open damper"
+                },
+                "type": "paragraph"
+              },
+              {
+                "id": "4LBhvtNCOR",
+                "data": {
+                  "text": "5. Rack in a temperature: 15 min at room temperature"
+                },
+                "type": "paragraph"
+              }
+            ],
+            "version": "2.30.7"
+          }
+        },
+        {
+          "attribute": {
+            "id": "QXR0cmlidXRlOjE=",
+            "slug": "storage-conditions"
+          },
+          "plain_text": "Store at -18°C or below before use. DO NOT REFREEZE ONCE THAWED."
+        }
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+## Filtering Products by Attributes
 
 A user can use a `slug` to filter products by attributes. The query parameters can be encoded in URL and will be the same in all languages.
 
 An example of a [`products`](api-reference/products/queries/products.mdx) query:
 
+<Tabs>
+<TabItem value="Query">
 ```graphql
-{
-  products(
-    first: 5
-    where: {attributes: [{slug: "bucket-size", value: {name: {eq: "25l"}}}]}
-    channel: "default-channel"
-  ) {
+query Products($first: Int, $channel: String, $where: ProductWhereInput) {
+  products(first: $first, where: $where, channel: $channel) {
     edges {
       node {
         name
@@ -131,9 +518,31 @@ An example of a [`products`](api-reference/products/queries/products.mdx) query:
   }
 }
 ```
-
-Response:
-
+</TabItem>
+<TabItem value={"Values"}>
+```json
+{
+  "first": 5,
+  "channel": "default-channel",
+  "where": {
+    "attributes": [
+      {
+        "slug": "material",
+        "value": {
+          "name": {
+            "oneOf": [
+              "Cotton",
+              "Wool"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}
+```
+</TabItem>
+<TabItem value={"Response"}>
 ```json
 {
   "data": {
@@ -141,27 +550,27 @@ Response:
       "edges": [
         {
           "node": {
-            "name": "Hyperspace Turquoise Paint"
+            "name": "Monospace Tee"
           }
         },
         {
           "node": {
-            "name": "Light Speed Yellow Paint"
+            "name": "Blue Polygon Shirt"
           }
         },
         {
           "node": {
-            "name": "Nebula Night Sky Paint"
+            "name": "Cubes Fountain Tee"
           }
         },
         {
           "node": {
-            "name": "Red Dwarf Red Paint"
+            "name": "Dark Polygon Tee"
           }
         },
         {
           "node": {
-            "name": "Space Dust Navy Paint"
+            "name": "Darko Polo"
           }
         }
       ]
@@ -169,104 +578,259 @@ Response:
   }
 }
 ```
+</TabItem>
+</Tabs>
 
-## Setting allowed reference types
+## Setting Allowed Reference Types
 
 The attribute’s `inputType` must be `REFERENCE` or `SINGLE_REFERENCE`, and `entityType` must be `PRODUCT`, `PRODUCT_VARIANT`, or `PAGE` to use `referenceTypes`.
 
-### Creating an attribute with allowed reference types
+### Creating an Attribute with Allowed Reference Types
 
 Create a `PRODUCT` reference attribute with restricted product types with the use of [`attributeCreate`](/api-reference/attributes/mutations/attribute-create) mutation:
-```graphql
-mutation {
-  attributeCreate(
-    input: {
-      name: "Related Products"
-      slug: "related-products"
-      type: PRODUCT_TYPE
-      inputType: REFERENCE
-      entityType: PRODUCT
-      referenceTypes: ["UHJvZHVjdFR5cGU6MQ=="]
-    }
-  ) {
+
+<Tabs>
+<TabItem value="Mutation" >
+```graphql {6}
+mutation attributeCreate($input: AttributeCreateInput!) {
+  attributeCreate(input: $input) {
     attribute {
       id
       referenceTypes {
-        ...on ProductType {
+        ... on ProductType {
+          __typename
           id
           slug
         }
       }
     }
-    errors { field code message }
+    errors {
+      field
+      code
+      message
+    }
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "name": "Related Products",
+    "slug": "related-products",
+    "type": "PRODUCT_TYPE",
+    "inputType": "REFERENCE",
+    "entityType": "PRODUCT",
+    "referenceTypes": [
+      "UHJvZHVjdFR5cGU6MQ=="
+    ]
+  }
+}
+```
+</TabItem>
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "attributeCreate": {
+      "attribute": {
+        "id": "QXR0cmlidXRlOjQ3",
+        "referenceTypes": [
+          {
+            "__typename": "ProductType",
+            "id": "UHJvZHVjdFR5cGU6MQ==",
+            "slug": "default-type"
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 Create a `PAGE` single-reference attribute with restricted page types:
-```graphql
-mutation {
-  attributeCreate(
-    input: {
-      name: "Related Page"
-      slug: "related-page"
-      type: PAGE_TYPE
-      inputType: SINGLE_REFERENCE
-      entityType: PAGE
-      referenceTypes: ["UGFnZVR5cGU6MQ=="]
-    }
-  ) {
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql {6}
+mutation attributeCreate($input: AttributeCreateInput!) {
+  attributeCreate(input: $input) {
     attribute {
       id
       referenceTypes {
-        ...on PageType {
+        ... on PageType {
+          __typename
           id
           slug
         }
       }
     }
-    errors { field code message }
+    errors {
+      field
+      code
+      message
+    }
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "input": {
+    "name": "Related Page",
+    "slug": "related-page",
+    "type": "PAGE_TYPE",
+    "inputType": "SINGLE_REFERENCE",
+    "entityType": "PAGE",
+    "referenceTypes": [
+      "UGFnZVR5cGU6MQ=="
+    ]
+  }
+}
+```
+</TabItem>
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "attributeCreate": {
+      "attribute": {
+        "id": "QXR0cmlidXRlOjQ4",
+        "referenceTypes": [
+          {
+            "__typename": "PageType",
+            "id": "UGFnZVR5cGU6MQ==",
+            "slug": "default-type"
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
-### Update allowed reference types
+### Update Allowed Reference Types
 
 Adjust the allowed product types for a `PRODUCT` reference attribute with the use of [`attributeUpdate`](/api-reference/attributes/mutations/attribute-update) mutation:
+
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  attributeUpdate(
-    id: "QXR0cmlidXRlOjE=",
-    input: { referenceTypes: ["UHJvZHVjdFR5cGU6MQ==", "UHJvZHVjdFR5cGU6Mg=="] }
-  ) {
+mutation attributeUpdate($id: ID, $input: AttributeUpdateInput!) {
+  attributeUpdate(id: $id, input: $input) {
     attribute {
       id
       referenceTypes {
-        ...on ProductType {
+        ... on ProductType {
           id
           slug
         }
       }
     }
-    errors { field code message }
+    errors {
+      field
+      code
+      message
+    }
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "QXR0cmlidXRlOjQ3",
+  "input": {
+    "referenceTypes": [
+      "UHJvZHVjdFR5cGU6MQ==",
+      "UHJvZHVjdFR5cGU6MjI="
+    ]
+  }
+}
+```
+</TabItem>
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "attributeUpdate": {
+      "attribute": {
+        "id": "QXR0cmlidXRlOjQ3",
+        "referenceTypes": [
+          {
+            "id": "UHJvZHVjdFR5cGU6MQ==",
+            "slug": "default-type"
+          },
+          {
+            "id": "UHJvZHVjdFR5cGU6MjI=",
+            "slug": "simple"
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
 
 Clear restrictions (disables type validation for future updates/new values; existing references are not modified):
+
+<Tabs>
+<TabItem value="Mutation">
 ```graphql
-mutation {
-  attributeUpdate(id: "QXR0cmlidXRlOjE=", input: { referenceTypes: [] }) {
+mutation attributeUpdate($id: ID, $input: AttributeUpdateInput!) {
+  attributeUpdate(id: $id, input: $input) {
     attribute {
       id
       referenceTypes {
-        ...on ProductType {
+        ... on ProductType {
           id
           slug
         }
       }
     }
-    errors { field code message }
+    errors {
+      field
+      code
+      message
+    }
   }
 }
 ```
+</TabItem>
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "QXR0cmlidXRlOjQ3",
+  "input": {
+    "referenceTypes": []
+  }
+}
+```
+</TabItem>
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "attributeUpdate": {
+      "attribute": {
+        "id": "QXR0cmlidXRlOjQ3",
+        "referenceTypes": []
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
