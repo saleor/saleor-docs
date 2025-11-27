@@ -146,6 +146,71 @@ It means the App will perform following mapping:
 
 For more information about how discounts work in Saleor see discounts [guide](developer/discounts/overview.mdx) from our docs.
 
+### Ship-from address override
+
+**Metadata key: `avataxShipFromAddress`**  
+**Object: `Checkout` or `Order`**  
+**Storage: private metadata**
+
+By default, the AvaTax app uses the address configured in the AvaTax app settings as the `shipFrom` address when calculating taxes.
+
+You can override the `shipFrom` address per checkout or order by setting **private metadata** with key `avataxShipFromAddress`. The value must be a JSON object where **all fields are strings**, including the zip code:
+
+- `street` (string)
+- `city` (string)
+- `state` (string)
+- `zip` (string, not a number)
+- `country` (string, 2-letter ISO country code, for example `US`)
+
+Example private metadata entry:
+
+```json
+{
+  "key": "avataxShipFromAddress",
+  "value": "{\"street\":\"123 Custom Street\",\"city\":\"Custom City\",\"state\":\"CA\",\"zip\":\"90210\",\"country\":\"US\"}"
+}
+```
+
+To set this value from Saleor, use the `updatePrivateMetadata` mutation and pass the checkout or order ID:
+
+```graphql
+mutation UpdateShipFromAddressPrivateMetadata {
+  updatePrivateMetadata(
+    id: "OBJECT_ID"
+    input: [
+      {
+        key: "avataxShipFromAddress"
+        value: "{\"street\":\"123 Custom Street\",\"city\":\"Custom City\",\"state\":\"CA\",\"zip\":\"90210\",\"country\":\"US\"}"
+      }
+    ]
+  ) {
+    item {
+      privateMetadata {
+        key
+        value
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+Where:
+
+- `OBJECT_ID` is the ID of the `Checkout` or `Order` object.
+- The `value` is a JSON-encoded string containing the ship-from address.
+
+:::note
+This override is evaluated when AvaTax calculates taxes. Make sure the `avataxShipFromAddress` private metadata is set before the relevant tax calculation (for example, before updating delivery method or completing the checkout).
+:::
+
+:::caution
+Use **private metadata** for this field. Private metadata is not exposed in the public GraphQL API and is only available to staff users and apps, which helps keep address details hidden from storefront clients.
+:::
+
 ## Troubleshooting
 
 ### "I configured the app, but the tax value is 0"
