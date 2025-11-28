@@ -562,6 +562,90 @@ mutation giftCardSettingsUpdate($input: GiftCardSettingsUpdateInput!) {
 
 ## Using Gift Cards in Checkout
 
+Using [Transaction API](/developer/payments/overview) you can use built-in payment gateway dedicated for consuming gift cards created in Saleor.
+
+### Applying Gift Cards
+To use a gift card in checkout, run the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize) mutation.
+
+:::important
+- The channel currency must match the gift card currency.
+- The card can be used multiple times until the balance is depleted.
+- The card can be attached to only a single checkout at the time. Attaching gift card to another checkout will detach it from a previous checkout.
+:::
+
+Example of using gift card to in a checkout. Notice `id` of payment gateway being set to `saleor.io.gift-card-payment-gateway`.
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation transactionInitialize($id: ID!, $amount: PositiveDecimal!, $paymentGateway: PaymentGatewayToInitialize!) {
+  transactionInitialize(id: $id, amount: $amount, paymentGateway: $paymentGateway) {
+    transactionEvent {
+      type
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6MjcyYzYxOGItZGU3My00Zjc0LTllNzYtZDMzNGQ1ZThkMTk0",
+  "amount": "3",
+  "paymentGateway": {
+    "id": "saleor.io.gift-card-payment-gateway",
+    "data": {
+      "code": "8554-B58D-06B9"
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "transactionInitialize": {
+      "transactionEvent": {
+        "type": "AUTHORIZATION_SUCCESS"
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+### Authorization Transaction Cancellations
+
+Upon successful transaction initialization requested amount of funds from gift card will be authorized to be charged upon order confirmation.
+
+Cancelling authorization transaction can be performed by:
+- Calling `transactionRequestAction` with `CANCEL` action
+- Applying gift card to another checkout
+
+### Charge Transaction Refunds
+
+Upon completing a checkout and confirming an order Saleor will attempt to charge funds from the gift card.
+
+For information about refunding charge transactions refer to [Refunds](/developer/payments/refunds).
+
+
+## Legacy using Gift Cards in Checkout
+
+:::important
+It's not recommended to use Gift Cards this way.
+You can disable legacy use of Gift Cards in Checkout by unsetting `allowLegacyGiftCardUse` flag in Channel configuration.
+:::
+
 ### Applying Gift Cards
 To use a gift card in checkout, run the [`checkoutAddPromoCode`](/api-reference/checkout/mutations/checkout-add-promo-code) mutation with the gift card code.
 
@@ -584,13 +668,15 @@ When multiple gift cards are used:
 - If the checkout total is less than the gift card amount, only the necessary portion will be used
 - The remaining balance stays on the gift card for future use
 
-### Balance Changes
+## Balance Changes
 Gift card balances are only updated after the order is completed:
 - Adding card to the checkout does not modify the card balance
 - Used amount will be deducted during checkout completion
-- If an order is cancelled, the gift card balance is not restored. You can restore current ballance using [`giftCardUpdate`](/api-reference/gift-cards/mutations/gift-card-update)
+- If an order is cancelled, the gift card balance is not restored
+  - You can restore current balance using [`giftCardUpdate`](/api-reference/gift-cards/mutations/gift-card-update)
+  - If you used Transaction API for applying gift card you can also [refund](#gift-card-charge-refunds) gift card transactions
 
-### Returns and Refunds
+## Returns and Refunds
 :::important
 Fulfilled gift cards cannot be returned or refunded. Once a gift card is fulfilled and sent to the customer, it cannot be reversed. This is because:
 - Gift cards are considered digital products
