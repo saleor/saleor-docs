@@ -8,7 +8,7 @@ import TabItem from "@theme/TabItem";
 
 This guide describes a mutation allowing users to create multiple orders in Saleor. Purpose of this mutation could be importing orders from other systems. The main assumption is to allow the user to specify as many fields as possible and skip most of the logic and calculations that are done when creating orders from draft or checkout. Among other things, the mutation allows specifying things like: order creation date, order number, order lines with net and gross line prices, payment transactions and fulfillments.
 
-## `orderBulkCreate`
+## [`orderBulkCreate`](/api-reference/orders/mutations/order-bulk-create.mdx)
 
 ### Example Mutation  
 
@@ -166,7 +166,6 @@ mutation OrderBulkCreate(
         }
         status
         created
-        languageCode
         collectionPointName
         redirectUrl
         origin
@@ -183,9 +182,9 @@ mutation OrderBulkCreate(
         }
         transactions {
           id
-          reference
-          type
-          status
+          name
+          pspReference
+          message
           authorizedAmount {
             amount
             currency
@@ -239,14 +238,14 @@ mutation OrderBulkCreate(
     {
       "channel": "default-channel",
       "createdAt": "2022-07-13T17:30:15+05:30",
-      "status": "DRAFT",
+      "status": "FULFILLED",
       "user": {
-        "email":"alec.thornton@example.com"
+        "email":"austin.sparks@example.com"
       },
       "billingAddress": {
         "firstName": "John Saleor",
-        "lastName": "Doe Mirumee",
-        "companyName": "Mirumee Software",
+        "lastName": "Doe",
+        "companyName": "Saleor Commrce",
         "streetAddress1": "Tęczowa 7",
         "streetAddress2": "",
         "postalCode": "53-601",
@@ -255,11 +254,24 @@ mutation OrderBulkCreate(
         "countryArea": "",
         "phone": "+48321321888"
       },
-      "currency": "PLN",
+      "shippingAddress": {
+        "firstName": "John Saleor",
+        "lastName": "Doe",
+        "companyName": "Saleor Commrce",
+        "streetAddress1": "Tęczowa 7",
+        "streetAddress2": "",
+        "postalCode": "53-601",
+        "country": "PL",
+        "city": "Wrocław",
+        "countryArea": "",
+        "phone": "+48321321888"
+      },
+      "currency": "USD",
       "languageCode": "PL",
       "deliveryMethod": {
-        "shippingMethodId": "U2hpcHBpbmdNZXRob2Q6MQ==",
-        "shippingTaxClassId": "VGF4Q2xhc3M6MQ==",
+        "shippingMethodId": "U2hpcHBpbmdNZXRob2Q6MTM=",
+        "shippingMethodName": "DHL",
+        "shippingTaxClassId": "VGF4Q2xhc3M6Mw==",
         "shippingPrice": {
             "gross": 120,
             "net": 100
@@ -280,7 +292,7 @@ mutation OrderBulkCreate(
       },
       "lines": [
         {
-          "variantId": "UHJvZHVjdFZhcmlhbnQ6NDAz",
+          "variantId": "UHJvZHVjdFZhcmlhbnQ6MzQx",
           "createdAt": "2022-07-20T17:30:15+05:30",
           "productName": "Product Name",
           "variantName": "Variant Name",
@@ -297,7 +309,7 @@ mutation OrderBulkCreate(
               "gross": 120,
               "net": 100
           },
-          "warehouse": "V2FyZWhvdXNlOmZiMWNkYzNmLWVhYmYtNDQxNC1iZTFhLTFkNWEwZTA5YzA2OA==",
+          "warehouse": "V2FyZWhvdXNlOjllZjQ1MDgwLTJkMmItNDgxMi04MDVkLThmYzgyODg2MWI5Mw==",
           "taxRate": 0.2,
           "taxClassId": "VGF4Q2xhc3M6MQ==",
           "taxClassName": "Line Tax Class Name",
@@ -317,12 +329,12 @@ mutation OrderBulkCreate(
       ],
       "fulfillments": [
         {
-          "trackingCode": "abc-123",
+          "trackingCode": "tracking-id-123",
           "lines": [
             {
-              "variantId": "UHJvZHVjdFZhcmlhbnQ6NDAz",
+              "variantId": "UHJvZHVjdFZhcmlhbnQ6MzQx",
               "quantity": 5,
-              "warehouse": "V2FyZWhvdXNlOmZiMWNkYzNmLWVhYmYtNDQxNC1iZTFhLTFkNWEwZTA5YzA2OA==",
+              "warehouse": "V2FyZWhvdXNlOjllZjQ1MDgwLTJkMmItNDgxMi04MDVkLThmYzgyODg2MWI5Mw==",
               "orderLineIndex": 0
             }
           ]
@@ -330,19 +342,19 @@ mutation OrderBulkCreate(
       ],
       "transactions": [
         {
-          "status": "Authorized for 10$",
-          "reference": "PSP reference - 123",
+          "name": "Payment XYZ",
+          "message": "Success",
+          "pspReference": "PSP reference - 123",
           "availableActions": [
-            "REFUND",
-            "CANCEL"
+            "REFUND"
           ],
           "amountAuthorized": {
-              "amount": 120,
-              "currency": "PLN"
+              "amount": 240,
+              "currency": "USD"
           },
           "amountCharged": {
-              "amount": 120,
-              "currency": "PLN"
+              "amount": 240,
+              "currency": "USD"
           },
           "metadata": [
             {
@@ -387,7 +399,6 @@ mutation OrderBulkCreate(
       "giftCards": ["Gift_card_1"],
       "voucherCode": "FREESHIPPING",
       "weight": "10.15",
-      "trackingClientId": "tracking-id-123",
       "metadata": [
         {
           "key": "md key",
@@ -415,10 +426,11 @@ mutation OrderBulkCreate(
       "results": [
         {
           "order": {
-            "id": "T3JkZXI6NDQxYzhlYzItNDA0ZC00NmEwLWEwMDMtNmY2MjgzMTRmNTNi",
+            "id": "T3JkZXI6Njg3OWJlMzMtNTYzYi00NjhkLWI3ZjItZmUwYzc1ODhmOWMx",
+            "number": "36",
             "user": {
-              "id": "VXNlcjoxODEyMzc4ODk1",
-              "email": "alec.thornton@example.com"
+              "id": "VXNlcjoxMg==",
+              "email": "austin.sparks@example.com"
             },
             "metadata": [
               {
@@ -434,43 +446,43 @@ mutation OrderBulkCreate(
             ],
             "lines": [
               {
-                "id": "T3JkZXJMaW5lOmQyYzdhODk1LTgxZTctNGIxOC04MjZjLThkMWUyMDVlMDI1YQ==",
+                "id": "T3JkZXJMaW5lOjRhYTJlOWJlLWIxNTgtNDNiOS1iMmM2LTg2NjYyNGQwNDY0ZQ==",
                 "variant": {
-                  "id": "UHJvZHVjdFZhcmlhbnQ6NDAz"
+                  "id": "UHJvZHVjdFZhcmlhbnQ6MzQx"
                 },
                 "productName": "Product Name",
                 "variantName": "Variant Name",
                 "translatedVariantName": "Nazwa Wariantu",
                 "translatedProductName": "Nazwa Produktu",
-                "productVariantId": "UHJvZHVjdFZhcmlhbnQ6NDAz",
+                "productVariantId": "UHJvZHVjdFZhcmlhbnQ6MzQx",
                 "isShippingRequired": true,
                 "quantity": 5,
                 "quantityFulfilled": 5,
                 "unitPrice": {
                   "gross": {
-                    "amount": 24.0
+                    "amount": 24
                   },
                   "net": {
-                    "amount": 20.0
+                    "amount": 20
                   }
                 },
                 "unitDiscount": {
-                  "amount": 0.0
+                  "amount": 0
                 },
                 "totalPrice": {
                   "gross": {
-                    "amount": 120.0
+                    "amount": 120
                   },
                   "net": {
-                    "amount": 100.0
+                    "amount": 100
                   }
                 },
                 "undiscountedUnitPrice": {
                   "gross": {
-                    "amount": 24.0
+                    "amount": 24
                   },
                   "net": {
-                    "amount": 20.0
+                    "amount": 20
                   }
                 },
                 "metadata": [],
@@ -497,10 +509,12 @@ mutation OrderBulkCreate(
             "billingAddress": {
               "postalCode": "53-601"
             },
-            "shippingAddress": null,
+            "shippingAddress": {
+              "postalCode": "53-601"
+            },
             "shippingMethodName": "DHL",
             "shippingTaxClass": null,
-            "shippingTaxClassName": "No Taxes",
+            "shippingTaxClassName": null,
             "shippingTaxClassMetadata": [
               {
                 "key": "md key",
@@ -515,26 +529,26 @@ mutation OrderBulkCreate(
             ],
             "shippingPrice": {
               "gross": {
-                "amount": 120.0
+                "amount": 120
               },
               "net": {
-                "amount": 100.0
+                "amount": 100
               }
             },
             "total": {
               "gross": {
-                "amount": 120.0
+                "amount": 240
               },
               "net": {
-                "amount": 100.0
+                "amount": 200
               }
             },
             "undiscountedTotal": {
               "gross": {
-                "amount": 120.0
+                "amount": 240
               },
               "net": {
-                "amount": 100.0
+                "amount": 200
               }
             },
             "events": [],
@@ -542,14 +556,13 @@ mutation OrderBulkCreate(
               "value": 10.15
             },
             "externalReference": null,
-            "trackingClientId": "tracking-id-123",
-            "displayGrossPrices": true,
+            "trackingClientId": "",
+            "displayGrossPrices": false,
             "channel": {
               "slug": "default-channel"
             },
-            "status": "DRAFT",
+            "status": "FULFILLED",
             "created": "2022-07-13T17:30:15+05:30",
-            "languageCode": "pl",
             "collectionPointName": null,
             "redirectUrl": null,
             "origin": "BULK_CREATE",
@@ -559,47 +572,47 @@ mutation OrderBulkCreate(
                   {
                     "quantity": 5,
                     "orderLine": {
-                      "id": "T3JkZXJMaW5lOmQyYzdhODk1LTgxZTctNGIxOC04MjZjLThkMWUyMDVlMDI1YQ=="
+                      "id": "T3JkZXJMaW5lOjRhYTJlOWJlLWIxNTgtNDNiOS1iMmM2LTg2NjYyNGQwNDY0ZQ=="
                     }
                   }
                 ],
-                "trackingNumber": "abc-123",
+                "trackingNumber": "tracking-id-123",
                 "fulfillmentOrder": 1,
                 "status": "FULFILLED"
               }
             ],
             "transactions": [
               {
-                "id": "VHJhbnNhY3Rpb25JdGVtOjI3MTYwYWRlLTA4ZWYtNDhiNC05OWE1LTFkNWExOWYzZDhkNA==",
-                "reference": "PSP reference - 123",
-                "type": "",
-                "status": "Authorized for 10$",
+                "id": "VHJhbnNhY3Rpb25JdGVtOmI3ZTM0ODQwLWYyYWQtNDMzNS1hNzk2LTU4Yjg5YTdkNjc5MA==",
+                "name": "Payment XYZ",
+                "pspReference": "PSP reference - 123",
+                "message": "Success",
                 "authorizedAmount": {
-                  "amount": 120.0,
-                  "currency": "PLN"
+                  "amount": 240,
+                  "currency": "USD"
                 },
                 "canceledAmount": {
-                  "currency": "PLN",
-                  "amount": 0.0
+                  "currency": "USD",
+                  "amount": 0
                 },
                 "chargedAmount": {
-                  "currency": "PLN",
-                  "amount": 120.0
+                  "currency": "USD",
+                  "amount": 240
                 },
                 "refundedAmount": {
-                  "currency": "PLN",
-                  "amount": 0.0
+                  "currency": "USD",
+                  "amount": 0
                 },
                 "events": [
                   {
                     "amount": {
-                      "amount": 120.0
+                      "amount": 240
                     },
                     "type": "CHARGE_SUCCESS"
                   },
                   {
                     "amount": {
-                      "amount": 120.0
+                      "amount": 240
                     },
                     "type": "AUTHORIZATION_SUCCESS"
                   }
@@ -615,7 +628,7 @@ mutation OrderBulkCreate(
             "discounts": [
               {
                 "valueType": "FIXED",
-                "value": 10.0,
+                "value": 10,
                 "reason": "Black Friday"
               }
             ]

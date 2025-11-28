@@ -23,6 +23,7 @@ export const buildingApps = [
   "developer/extending/apps/local-app-development",
   "developer/extending/apps/extending-dashboard-with-apps",
   "developer/extending/apps/developing-apps/troubleshooting",
+  "developer/extending/apps/developing-apps/app-error-codes",
   "developer/extending/apps/developing-apps/macaw-ui",
 
   title("App SDK"),
@@ -39,8 +40,8 @@ export const buildingApps = [
 
   title("Starter kits"),
   "developer/extending/apps/developing-apps/app-template",
-  "developer/extending/apps/developing-apps/running-saleor-apps-locally",
   "developer/extending/apps/developing-apps/app-examples",
+  "developer/extending/apps/developing-apps/running-saleor-apps-locally",
 
   title("Guides"),
   "developer/extending/apps/updating-app-webhooks",
