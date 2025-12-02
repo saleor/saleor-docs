@@ -1,11 +1,11 @@
 const { chapterTitle, hr } = require("./utils");
 
 export const cloudSidebar = [
-	chapterTitle("cloud/overview", "Cloud overview", "cloud"),
-	hr(),
-	"cloud/saas-self-host",
-	"cloud/regions",
-	"cloud/environment",
-	"cloud/restricting-api-access",
-	"cloud/configuration",
+  chapterTitle("cloud/overview", "Cloud overview", "cloud"),
+  hr(),
+  "cloud/saas-self-host",
+  "cloud/regions",
+  "cloud/environment",
+  "cloud/restricting-api-access",
+  "cloud/configuration",
 ];
