@@ -677,6 +677,13 @@ This occurs when the total of `authorizedAmount`, `chargedAmount`, `authorizePen
 from all transactions connected to the `Checkout` covers the [`checkout.totalPrice`](/api-reference/checkout/objects/checkout#checkoutsubtotalpricetaxedmoney---).
 
 
+:::note
+**Added in Saleor 3.20:** Basic automatic completion with boolean flag `automaticallyCompleteFullyPaidCheckouts`
+
+**Enhanced in Saleor 3.22:** Added `automaticCompletion` input with `delay` and `cutOffDate` configuration options. The old boolean flag is deprecated but still functional.
+See the [3.21 to 3.22 upgrade guide](/upgrade-guides/core/3-21-to-3-22#automatic-checkout-completion-behavior-change-for-checkouts-with-total-being-0) for more details.
+:::
+
 :::caution
 This feature isn't compatible with [legacy Payments API](/developer/extending/plugins/payment-gateways.mdx) that uses [plugins](/developer/extending/plugins/overview.mdx) (instead of apps). For example this setting won't work with [Stripe plugin](/developer/app-store/legacy-plugins/stripe).
 
@@ -701,7 +708,10 @@ The `automaticCompletion` field in `CheckoutSettingsInput` provides the followin
 - **`delay`**: An optional integer value (in minutes) that specifies the delay from last update before a checkout is automatically completed. If not provided, the default delay is 30 minutes.
 - **`cutOffDate`**: An optional ISO 8601 timestamp that defines the earliest checkout creation time eligible for automatic completion. Checkouts created before this date will not be automatically completed. If not provided, the current time is used as the default.
 
-To enable automatic checkout completion, update the channel checkout settings using the configuration example below. You can specify a `delay` and a `cutOffDate` to fine-tune the behavior:
+#### Configuring automatic checkout completion
+
+Use the `automaticCompletion` field to configure when checkouts should be automatically completed. The `cutOffDate` parameter allows you to safely enable this feature for new checkouts only, without affecting existing ones.
+
 <Tabs>
 <TabItem value="Mutation">
 ```graphql
@@ -710,7 +720,6 @@ mutation UpdateChannel($id: ID!,$input: ChannelUpdateInput!){
     channel{
       id
       checkoutSettings {
-        automaticallyCompleteFullyPaidCheckouts
         automaticCompletionDelay
         automaticCompletionCutOffDate
       }
@@ -743,35 +752,32 @@ mutation UpdateChannel($id: ID!,$input: ChannelUpdateInput!){
 </TabItem>
 </Tabs>
 
-
-
-:::warning
-If any issues occur during checkout validation, the checkout will not be completed. Validation issues include:
-
-- Unavailable items
-  - one of the checkout line has missing product or variant channel listing or the price is not set;
-  - one of the product is not available for purchase;
-  - one of the product is set as not visible to the customers;
-- Missing billing address.
-- Invalid voucher or gift card.
-- Invalid shipping method.
-- Inactive channel.
-
-Use the `Checkout.problems` query to identify specific issues. For more details, refer to the [Checkout Problems page](/developer/checkout/problems).
+:::tip Safe rollout
+Use `cutOffDate` set to the current date/time when first enabling this feature. This ensures only newly created checkouts will be automatically completed, allowing you to verify your storefront handles the flow correctly before applying it to all checkouts.
 :::
 
-:::danger
-**Once this setting is enabled, you should verify if your connected services, including storefront, can handle this flow.**
 
-Please remember, that if setting is enabled:
-- `Checkout` will be deleted after checkout completion which means that any query or mutation relying on it will no longer work after that
-- Running `checkoutComplete` on a `Checkout` that was already completed, will return previously created `Order` object
-:::
 
-:::warning
-Checkout will be automatically completed even if some Transactions are still pending and waiting for confirmation from payment provider. Checkouts are considered "covered" as long as the total amount is covered (see when `authorizeStatus` is set to `FULL` in [payment lifecycle docs](/developer/payments/lifecycle.mdx#authorize-status)).
+#### Important behavior notes
 
-Keep in mind that a pending Transaction might be rejected later, which will result in an unpaid order. To clear orders that remain unpaid you can use [Order Expiration feature](/developer/order/order-expiration.mdx)
+**Checkout validation:** Checkouts will not be automatically completed if validation issues occur. Use the `Checkout.problems` query to identify issues. Common validation problems include:
+- Unavailable items (missing product/variant listings, unavailable products, hidden products)
+- Missing billing address
+- Invalid voucher or gift card
+- Invalid shipping method
+- Inactive channel
+
+See the [Checkout Problems page](/developer/checkout/problems) for details.
+
+**Checkout lifecycle:** Once a checkout is automatically completed:
+- The `Checkout` object is deleted and queries/mutations on it will no longer work
+- Running `checkoutComplete` on an already completed checkout returns the previously created `Order`
+- Ensure your storefront handles this flow correctly before enabling
+
+**Pending transactions:** Checkouts are automatically completed when `authorizeStatus` reaches `FULL`, even if some transactions are still pending confirmation from the payment provider. A pending transaction might be rejected later, resulting in an unpaid order. Use [Order Expiration](/developer/order/order-expiration.mdx) to handle unpaid orders.
+
+:::info
+When testing this feature, use the `cutOffDate` parameter to limit automatic completion to new checkouts only. This allows you to verify your integration works correctly before enabling it for all checkouts.
 :::
 
 :::caution
