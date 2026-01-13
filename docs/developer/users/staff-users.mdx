@@ -81,25 +81,27 @@ Staff users can reset their passwords using the Saleor Dashboard or the GraphQL 
 
 Resetting a password is a two-step process:
 
-1. Trigger a password reset - Saleor sends an email with a secure link to set a new password.
-The [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx) mutation generates a unique token and includes it in the email link (`redirectUrl`).
+- Click password reset in Saleor Dashboard. Saleor emails the staff user a secure link for setting new password.
+- The staff user opens the email, clicks the link, and enters a new password in the Saleor dashboard or a custom backoffice.
 
-2. Set New Password: open link from received email, and enter a new password in the Saleor dashboard.  
-The dashboard calls the [`setPassword`](/api-reference/users/mutations/set-password.mdx) mutation, 
-passing the user’s email, new password and the token from the link to securely update the password.
+**Behind the scenes:**
+- Saleor Dashboard runs [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx), which creates a unique token and embeds it in the link (`redirectUrl`).
+- Then, when the user opens link form the email and enters a new password, Dashboard calls [`setPassword`](/api-reference/users/mutations/set-password.mdx) with the user's email address, token, and new password to securely update the account.
 
 ### Troubleshooting
 
 #### Token Invalidation by Login
 
-If a staff user is already logged in via Single Sign-On (SSO) or another session when they attempt to use a password reset link, the token may become invalid. 
-This happens because the token hash is partially based on the user's last login state—if the user logs in (updating their `last_login` timestamp) after the reset token was generated, the token becomes invalid.
+If a staff user is already logged in (for example, via Single Sign-On) and then tries to use a password reset link, the reset token may be considered invalid. 
 
+This is because the token is partially derived from the user’s last login state - if the user logs in after the token was generated (which updates the `last_login` timestamp), the token no longer matches and is therefore rejected.
+
+:::tip
 **Solution:** Ensure the user is logged out before using the reset link, or open the reset link in an Incognito/Private tab.
-
+:::
 #### Token Expiration
 
-Saleor uses the standard Django PasswordResetTokenGenerator. Tokens are valid for 3 days (259,200 seconds) by default.
+Saleor uses the standard Django `PasswordResetTokenGenerator`. Tokens are valid for 3 days (259,200 seconds) by default.
 
 A token remains valid until it either expires or the user's state changes. State changes include:
 - The user changes their password
