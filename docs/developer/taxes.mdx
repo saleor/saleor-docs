@@ -1,57 +1,211 @@
 ---
 title: Taxes
+description: How taxes work in Saleor and how to configure them for your store. 
+
 ---
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-Saleor offers two ways of calculating taxes: flat rates and dynamic taxes.
 
-Flat rates allow you to configure static tax rates per country and channel, and assign them to products via tax classes. Dynamic taxes, on the other hand, enable you to delegate tax calculations to 3rd-party tax providers like Avalara, TaxJar, or entirely custom tax apps.
+Saleor offers two ways of calculating taxes: 
+- **flat rates** (simple, static rates) 
+- **dynamic taxes** (real-time calculations from external providers).
 
-You can configure the tax calculation method per channel and override the configuration for different countries.
+You can configure the tax calculation method per sales channel and override it for specific countries.
 
 ## Tax Configuration
 
-The tax configuration object defines various configuration options for a channel. This includes the tax calculation method, whether to charge taxes in the channel, or whether the entered prices include the tax. The configuration object is created automatically for each sales channel. In the API, it is represented by the [`TaxConfiguration`](api-reference/taxes/objects/tax-configuration.mdx) object.
+Tax configuration controls how taxes are calculated and displayed in your store. 
+Each sales channel has its own tax configuration that determines:
 
-The tax configuration object has several properties, including:
+- Whether taxes are charged in a channel
+- Which calculation method to use (flat rates or tax app)
+- Whether prices include taxes
+- How prices are displayed in your storefront
 
-- `chargeTaxes` - Determines whether taxes are charged in the channel. If enabled, taxes are calculated and customers pay the gross prices. If disabled, taxes are still calculated and available for display, but customers pay the net prices.
-- `taxCalculationStrategy` - The strategy for tax calculation in the channel. There are two strategies available:
-  - flat rates - the default strategy
-  - dynamic taxes (tax apps)
-- `useWeightedTaxForShipping` - Determines whether to use weighted tax for shipping. When set to true, the tax rate for shipping will be calculated based on the weighted average of tax rates from the order or checkout lines. Default value is `false`. Can be used only with `taxCalculationStrategy` set to `FLAT_RATES`. Available from 3.21.
-- `displayGrossPrices` - Determines whether prices displayed in a storefront should include taxes. Note that this setting doesn’t affect internal calculations in Saleor, and it’s only meant for the storefront to decide if it should display `TaxedMoney.net` or `TaxedMoney.gross` price (see [TaxedMoney API reference](api-reference/miscellaneous/objects/taxed-money.mdx)). For storefront queries, this property can be fetched at two levels:
-  - product level in the [ProductPricingInfo.displayGrossPrices](api-reference/products/objects/product-pricing-info.mdx) field - use it when rendering product listings or product details pages
-  - checkout level in the [Checkout.displayGrossPrices](api-reference/checkout/objects/checkout.mdx) field - use it when rendering the cart or checkout pages
-- `pricesEnteredWithTax` - Determine whether product prices are entered with tax included (typical for B2C in EU) or not (typical for US and B2B).
-- `taxAppId` - Specify which Tax App should be responsible for tax calculation when tax apps are used as a calculation strategy.
+### Where to Configure Taxes
 
-  You can query all the available tax apps with:
+You can configure taxes in two ways:
 
-  ```graphql
-  query GetShop {
-    shop {
-      availableTaxApps {
-        id
-        name
-        identifier
+**In Saleor Dashboard:**
+1. Go to **Configuration → Taxes**
+2. Select the channel you want to configure
+3. Adjust the tax settings for that channel
+
+**Via API:**
+Use the [`taxConfigurationUpdate`](api-reference/taxes/mutations/tax-configuration-update.mdx) mutation to update tax settings programmatically.
+
+### Key Configuration Settings
+
+- **Charge taxes** - When enabled, customers pay prices including tax. When disabled, taxes are still calculated and available for display, but customers pay the net prices.
+- **Tax calculation method** - Choose between flat rates (default) or dynamic taxes (tax apps).
+- **Display gross prices** - Controls whether your storefront shows prices with tax included. This only affects display, not calculations.
+- **Prices entered with tax** - Indicates whether your product prices include tax (common in EU B2C) or exclude tax (common in US and B2B).
+- **Use weighted tax for shipping** - When enabled, shipping tax is calculated as a weighted average of product tax rates. Available only when using the `FLAT_RATES` tax calculation strategy (from Saleor 3.21).
+
+### Tax classes
+The Tax Class is the most critical configuration setting for accurate tax calculation. They allow you to:
+    - For **Flat Rates**: Override default country rates for specific items (e.g., reduced rates for books).
+    - For **Dynamic Taxes**: Map products or shipping methods to specific provider tax codes (e.g., AvaTax Tax Codes).
+#### How to create tax classes:
+
+**In Dashboard:**
+1. Go to **Configuration → Taxes**
+2. Click on **Tax Classes** tab
+3. Click **Add tax class** or edit an existing one
+4. Enter a name for the tax class (e.g., "Healthcare products")
+5. Add tax rates for each country where you sell
+6. Save the tax class
+7. Assign the tax class to products, product types or shipping method:
+   - For individual products: Go to **Catalog → Products**, select a product, and assign the tax class
+   - For product types: Go to **Configuration → Product Types**, select a product type, and assign the tax class
+   - Fro shipping methods: Go to **Configuration -> Shipping Methods**, select shipping zone, select rate, and assign the tax class
+
+**Via API:**
+
+Create a tax class:
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation TaxClassCreate($input: TaxClassCreateInput!) {
+  taxClassCreate(input: $input) {
+    errors {
+      field
+      message
+    }
+    taxClass {
+      id
+      name
+      countries {
+        rate
       }
     }
   }
-  ```
+}
+```
+</TabItem>
+<TabItem value="Variables">
+```json
+{
+  "input": {
+    "name": "Healthcare products",
+    "createCountryRates": [
+      {
+        "countryCode": "PL",
+        "rate": 8
+      }
+    ]
+  }
+}
+```
+</TabItem>
+</Tabs>
 
-  where `identifier` is the value you should use to set the `taxAppId` in the `taxConfigurationUpdate` mutation.
+Assign the tax class to a product:
 
-  Besides tax apps, you can assign plugins to `taxAppId`. To assign a plugin, you need to provide the value in the following format: `plugin:PLUGIN_ID`. Please note that plugins will be deprecated.
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ProductUpdate($id: ID, $input: ProductInput!) {
+  productUpdate(id: $id, input: $input) {
+    errors {
+      field
+      message
+    }
+    product {
+      taxClass {
+        name
+      }
+    }
+  }
+}
+```
+</TabItem>
+<TabItem value="Variables">
+```json
+{
+  "id": "UHJvZHVjdDox",
+  "input": {
+    "taxClass": "VGF4Q2xhc3M6Mg=="
+  }
+}
+```
+</TabItem>
+</Tabs>
 
-Additionally, the following properties can be overridden for specific countries within the channel: `chargeTaxes`, `taxCalculationStrategy`, `displayGrossPrices` and `taxAppId`. This allows for handling various situations where a store operates in different countries with different tax rules.
+Assign the tax class to a product type:
 
-### Fetching tax configurations
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ProductTypeUpdate($id: ID!, $input: ProductTypeInput!) {
+  productTypeUpdate(id: $id, input: $input) {
+    errors {
+      field
+      message
+    }
+    productType {
+      taxClass {
+        name
+      }
+    }
+  }
+}
+```
+</TabItem>
+<TabItem value="Variables">
+```json
+{
+  "id": "UHJvZHVjdFR5cGU6MQ==",
+  "input": {
+    "taxClass": "VGF4Q2xhc3M6Mg=="
+  }
+}
+```
+</TabItem>
+</Tabs>
 
-Below are some common API examples of retrieving and managing the tax configuration. To fetch the list of tax configurations with their properties, use the following query:
+Assign the tax class to a shipping method:
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation UpdateShippingRate($id: ID!, $input: ShippingPriceInput!) {
+  shippingPriceUpdate(id: $id, input: $input) {
+    errors {
+      field
+      code
+      message
+    }
+    shippingMethod {
+      taxClass{
+        name
+      }
+    }
+  }
+}
+```
+</TabItem>
+<TabItem value="Variables">
+```json
+{
+  "id": "U2hpcHBpbmdNZXRob2RUeXBlOjM=",
+  "input": {
+    "taxClass": "VGF4Q2xhc3M6Mg=="
+  }
+}
+```
+</TabItem>
+</Tabs>
 
+
+### Fetching Tax Configurations
+
+To view your current tax configuration use query:
+
+<Tabs>
+<TabItem value="Query">
 ```graphql
 query TaxConfigurations {
   taxConfigurations(first: 10) {
@@ -71,99 +225,67 @@ query TaxConfigurations {
   }
 }
 ```
-
-To query a specific tax configuration by ID, use the query below (in this case, we’re only asking for the `taxCalculationStrategy` field):
-
-```graphql
-query TaxConfiguration {
-  taxConfiguration(id: "VGF4Q29uZmlndXJhdGlvbjox") {
-    taxCalculationStrategy
-  }
-}
-```
-
-### Updating the tax configuration
-
-The `taxConfigurationUpdate` mutation allows you to update the specific tax configuration. The example below shows how to set the tax calculation strategy to dynamic taxes (in API represented as the `TAX_APP` option):
-
-<Tabs>
-<TabItem value="Mutation">
-```graphql
-mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
-  taxConfigurationUpdate(id: $id, input: $input) {
-    errors {
-      field
-      message
-    }
-    taxConfiguration {
-      taxCalculationStrategy
-    }
-  }
-}
-```
-</TabItem>
-<TabItem value={"Variables"}>
-```json
-{
-  "id": "VGF4Q29uZmlndXJhdGlvbjox",
-  "input": {
-    "taxCalculationStrategy": "TAX_APP"
-  }
-}
-```
-</TabItem>
-</Tabs>
-
-### Overriding tax configuration per country
-
-Tax configurations specific to a channel can be modified for different countries. For example, a single sales channel may use flat rates for EU countries but use the tax app for the US. To represent this scenario in Saleor, you would set flat rates as the channel's default tax calculation strategy and override the configuration for the US to use dynamic taxes.
-
-<Tabs>
-<TabItem value="Mutation">
-```graphql
-mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
-  taxConfigurationUpdate(id: $id, input: $input) {
-    errors {
-      field
-      message
-    }
-    taxConfiguration {
-      taxCalculationStrategy
-      countries {
-        country {
-          code
-        }
-        chargeTaxes
-        taxCalculationStrategy
-        displayGrossPrices
-      }
-    }
-  }
-}
-```
-</TabItem>
-<TabItem value={"Variables"} default>
-```json
-{
-  "id": "VGF4Q29uZmlndXJhdGlvbjox",
-  "input": {
-    "taxCalculationStrategy": "FLAT_RATES",
-    "updateCountriesConfiguration": [
-      {
-        "countryCode": "US",
-        "taxCalculationStrategy": "TAX_APP",
-        "displayGrossPrices": false,
-        "chargeTaxes": true
-      }
-    ]
-  }
-}
-```
 </TabItem>
 </Tabs>
 
 
-To remove the country-specific configuration, use the `removeCountriesConfiguration` field and provide the country code for which to remove the configuration:
+## Which Address is Used for Tax Calculation?
+
+Saleor determines which address to use for tax calculation in this order of priority:
+
+1. **Shipping address** (if available)
+2. **Billing address** (if shipping address is not available)
+3. **Channel's default country** (if neither address is available)
+
+This means:
+- For shippable products, taxes are calculated based on where the product is being shipped
+- For digital products, taxes are calculated based on the billing address
+- If no address is provided, taxes use the channel's default country
+
+**Example scenarios:**
+
+*sShippable products:**
+- Customer adds items to cart → No address yet → Uses channel default country
+- Customer enters billing address → Uses billing address for tax calculation
+- Customer enters shipping address → Now uses shipping address for tax calculation
+
+**Digital products:**
+- Customer adds digital items → No address yet → Uses channel default country
+- Customer enters billing address → Uses billing address for tax calculation
+
+**Click and collect:**
+- Customer adds items to cart → No address yet → Uses channel default country
+- Customer enters billing address → Uses billing address for tax calculation
+- Customer enters shipping address → Now uses shipping address for tax calculation
+- Customer selects a collection point, the warehouse address becomes the shipping address and is used for tax calculation
+
+## Flat Rates
+
+Flat rates are the default tax calculation method in Saleor. 
+They use static, manually configured tax rates that you set up for each country. This method is ideal for stores that:
+
+- Operate in a limited number of countries
+- Have straightforward tax requirements
+- Want full control over tax rates
+- Don't need real-time tax rate updates
+
+### Business Use Cases
+
+Flat rates work well for:
+- **Stores with simple tax structures** (e.g., single VAT rate per country)
+- **Stores operating in regions** with stable tax rates
+
+### How to Configure Flat Rates
+
+#### Step 1: Enable Flat Rates for Your Channel
+
+**In Dashboard:**
+1. Go to **Configuration → Taxes**
+2. Select your **channel**
+3. Set **Method of tax calculation** to "Use flat tax rate"
+4. Save
+
+**Via API:**
 
 <Tabs>
 <TabItem value="Mutation">
@@ -181,45 +303,7 @@ mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) 
 }
 ```
 </TabItem>
-<TabItem value={"Variables"} default>
-```json
-{
-  "id": "VGF4Q29uZmlndXJhdGlvbjox",
-  "input": {
-    "removeCountriesConfiguration": [
-      "US"
-    ]
-  }
-}
-```
-</TabItem>
-</Tabs>
-
-## Flat rates
-
-Flat rates are the default tax calculation strategy that is enabled for any new sales channel. With this method, you can configure static tax rates and associate them with products, product types, or shipping methods. Tax rates can be defined as default country rates or overridden for specific products with tax classes.
-
-### Enabling flat rates for a channel
-
-To enable flat rates, use the following mutation:
-
-<Tabs>
-<TabItem value="Mutation">
-```graphql
-mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
-  taxConfigurationUpdate(id: $id, input: $input) {
-    errors {
-      field
-      message
-    }
-    taxConfiguration {
-      taxCalculationStrategy
-    }
-  }
-}
-```
-</TabItem>
-<TabItem value={"Variables"} default>
+<TabItem value="Variables">
 ```json
 {
   "id": "VGF4Q29uZmlndXJhdGlvbjox",
@@ -231,12 +315,20 @@ mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) 
 </TabItem>
 </Tabs>
 
-`VGF4Q29uZmlndXJhdGlvbjox` is the ID of the tax configuration object related to the channel. See [Fetching tax configurations](developer/taxes.mdx#fetching-tax-configurations) to learn how to get the ID.
+#### Step 2: Set Default Country Rates
 
-### Creating a default country rate
+Set default tax rates for each country where you sell. These rates apply to all products that don't have a specific tax class.
 
-The default country rate is used for products and shipping methods when there is no other tax class assigned to them. To provide a default tax rate for a country, use the following mutation:
+**In Dashboard:**
+1. Go to **Configuration → Taxes**
+2. Select **Countries** tab
+3. Click Add country or edit an existing one
+4. Enter the tax rate percentage (e.g., 23 for 23%)
+5. Save
 
+**Via API:**
+
+Use the `taxCountryConfigurationUpdate` mutation to set default country rates:
 
 <Tabs>
 <TabItem value="Mutation">
@@ -262,7 +354,7 @@ mutation TaxCountryConfigurationUpdate($countryCode: CountryCode!, $updateTaxCla
 }
 ```
 </TabItem>
-<TabItem value={"Variables"}>
+<TabItem value="Variables">
 ```json
 {
   "countryCode": "PL",
@@ -276,143 +368,49 @@ mutation TaxCountryConfigurationUpdate($countryCode: CountryCode!, $updateTaxCla
 </TabItem>
 </Tabs>
 
-In this example, we’re setting the default tax rate for Poland to 23%.
+This example sets a 23% default tax rate for Poland.
 
-### Assigning a specific tax rate to a product
+#### Step 3: Create Tax Classes (Optional)
+Create and assign tax classes to products, product type or shipping method if the country you sell to has different VAT rates.
+See [Tax class configuration](#tax-classes).
 
-To create a tax rate that would be used only for specific products, you must create a tax class and assign it to the product. In the example below, we’re creating a tax class “Healthcare products” with an 8% tax rate for Poland:
+### Example Calculations
 
-<Tabs>
-<TabItem value="Mutation">
-```graphql
-mutation TaxClassCreate($input: TaxClassCreateInput!) {
-  taxClassCreate(input: $input) {
-    errors {
-      field
-      message
-    }
-    taxClass {
-      id
-      countries {
-        rate
-      }
-    }
-  }
-}
-```
-</TabItem>
-<TabItem value={"Variables"}>
-```json
-{
-  "input": {
-    "name": "Healthcare products",
-    "createCountryRates": [
-      {
-        "countryCode": "PL",
-        "rate": 8
-      }
-    ]
-  }
-}
-```
-</TabItem>
-</Tabs>
+Here are practical examples of how flat rates calculate taxes:
 
+**Example 1: Simple product with default rate**
 
-To assign the tax class to a product, use the following mutation:
+- Product price: $100.00
+- Default country rate (Poland): 23%
+- **Tax amount:** $100 × 0.23 = $23.00
+- **Total price:** $123.00
 
-<Tabs>
-<TabItem value="Mutation">
-```graphql
-mutation ProductUpdate($id: ID, $input: ProductInput!) {
-  productUpdate(id: $id, input: $input) {
-    errors {
-      field
-      message
-    }
-    product {
-      taxClass {
-        name
-      }
-    }
-  }
-}
-```
-</TabItem>
-<TabItem value={"Variables"}>
-```json
-{
-  "id": "UHJvZHVjdDox",
-  "input": {
-    "taxClass": "VGF4Q2xhc3M6Mg=="
-  }
-}
-```
-</TabItem>
-</Tabs>
+**Example 2: Product with tax class**
 
-When the product is added to checkout, Saleor will use the 8% tax rate.
+- Product price: $100.00
+- Tax class rate (Healthcare, Poland): 8%
+- **Tax amount:** $100 × 0.08 = $8.00
+- **Total price:** $108.00
 
-:::tip
-You can assign tax classes to products directly, or you can assign them to product types using the `productTypeUpdate` mutation. When a product type has a tax class assigned, all products of this type will use it, as long as they don’t have their own tax rates assigned.
-:::
+**Example 3: Multiple products with different rates**
 
-### Shipping tax rate
+- Product A (standard): $100.00 at 23% = $23.00 tax
+- Product B (healthcare): $50.00 at 8% = $4.00 tax
+- **Total tax:** $27.00
+- **Total price:** $177.00
 
-Saleor supports two different methods for calculating tax rates:
-- Static tax rates using tax classes – You can assign a tax class to a shipping method to apply a fixed tax rate.
-- Weighted tax rates based on order lines – Starting from Saleor 3.21, it's also possible to calculate the shipping tax as a weighted average of the tax rates from the lines in the checkout/order.
+### Shipping Tax Rates
 
+You can configure shipping tax rates in two ways:
 
-#### Using tax class to get tax rate to a shipping method
+1. **Static rate** - Assign a tax class to the shipping method
+2. **Weighted rate** - Calculate shipping tax as a weighted average of product tax rates (available from Saleor 3.21 and **only** when using the `FLAT_RATES` tax calculation strategy)
 
-To calculate taxes on shipping, you can either configure [the default tax rate for a country](developer/taxes.mdx#creating-a-default-country-rate) or create a custom tax class and assign it to the shipping method. Here is an example:
+### Enabling Weighted Shipping Tax (API)
 
-<Tabs>
-<TabItem value="Mutation">
-```graphql
-mutation ShippingPriceUpdate($id: ID!, $input: ShippingPriceInput!) {
-  shippingPriceUpdate(id: $id, input: $input) {
-    errors {
-      field
-      message
-    }
-    shippingMethod {
-      taxClass {
-        name
-      }
-    }
-  }
-}
-```
-</TabItem>
-<TabItem value={"Variables"}>
-```json
-{
-  "id": "U2hpcHBpbmdNZXRob2RUeXBlOjE=",
-  "input": {
-    "taxClass": "VGF4Q2xhc3M6Mg=="
-  }
-}
-```
-</TabItem>
-</Tabs>
+#### Enable for the Whole Channel
 
-#### Using weighted shipping tax rate
-
-In some countries, when shipping products with different tax rates, the tax on shipping must be calculated as a **weighted average** based on the net values and tax rates of the order lines.
-
-Saleor supports this behavior through a configuration option.
-
-:::note
-This feature is only available when using the `FLAT_RATES` tax calculation strategy.
-If enabled with any other strategy, the mutation will raise an exception.
-:::
-
-
-##### Enabling weighted shipping tax rate
-
-To enable weighted tax calculation for shipping, use the following mutation:
+Use `taxConfigurationUpdate` to enable weighted shipping tax for a channel:
 
 <Tabs>
 <TabItem value="Mutation">
@@ -421,6 +419,7 @@ mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) 
   taxConfigurationUpdate(id: $id, input: $input) {
     taxConfiguration {
       useWeightedTaxForShipping
+      taxCalculationStrategy
     }
     errors {
       field
@@ -430,22 +429,22 @@ mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) 
 }
 ```
 </TabItem>
-<TabItem value={"Variables"}>
+<TabItem value="Variables">
 ```json
 {
   "id": "VGF4Q29uZmlndXJhdGlvbjox",
   "input": {
-    "useWeightedTaxForShipping": true,
-    "taxCalculationStrategy": "FLAT_RATES"
+    "taxCalculationStrategy": "FLAT_RATES",
+    "useWeightedTaxForShipping": true
   }
 }
 ```
 </TabItem>
 </Tabs>
 
-##### Enabling for a specific country
+#### Enable for a Specific Country
 
-You can also configure the weighted shipping tax rate for specific countries:
+You can also enable weighted shipping tax only for selected countries within a channel:
 
 <Tabs>
 <TabItem value="Mutation">
@@ -453,12 +452,12 @@ You can also configure the weighted shipping tax rate for specific countries:
 mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
   taxConfigurationUpdate(id: $id, input: $input) {
     taxConfiguration {
-      useWeightedTaxForShipping
       countries {
         country {
           code
         }
         useWeightedTaxForShipping
+        taxCalculationStrategy
       }
     }
     errors {
@@ -469,7 +468,7 @@ mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) 
 }
 ```
 </TabItem>
-<TabItem value={"Variables"} default>
+<TabItem value="Variables">
 ```json
 {
   "id": "VGF4Q29uZmlndXJhdGlvbjox",
@@ -489,128 +488,100 @@ mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) 
 </TabItem>
 </Tabs>
 
-This mutation enables weighted tax calculation for orders shipped to `Canada`.
+For weighted shipping tax, Saleor calculates:
 
-
-##### How weighted tax for shipping is calculated
-
-###### Case 1: all products with the same VAT rate
-
-| Products (net) | VAT rate | Resulting shipping VAT rate |
-| -------------- | -------- | --------------------------- |
-| 100            | 23%      | 23%                         |
-| 100            | 8%       | 8%                          |
-
-When all products share the same tax rate, the shipping inherits that rate.
-
-
-
-#### Case 2: products with different VAT rates
-
-In this case, the shipping tax is calculated as a **weighted average**:
-
-```text
-Weighted rate = 
-(Σ line_net_price × line_tax_rate) / (Σ line_net_price)
+```
+Weighted rate = (Σ line_net_price × line_tax_rate) / (Σ line_net_price)
 ```
 
-####### Example 1
+**Example:**
+- Product 1: $100 at 23% tax
+- Product 2: $100 at 8% tax
+- Shipping: $20
+- **Weighted shipping tax rate:** (100×0.23 + 100×0.08) / (100 + 100) = 15.5%
+- **Shipping tax:** $20 × 0.155 = $3.10
 
-| Products (net) | VAT rate |
-| -------------- | -------- |
-| 100            | 23%      |
-| 100            | 8%       |
+## Dynamic Taxes
 
-```text
-Weighted shipping VAT = (100×0.23 + 100×0.08) / (100 + 100) = 15.5%
-```
-
-**Result:** shipping taxed at **15.5%**
-
----
-
-####### Example 2
-
-| Products (net) | VAT rate |
-| -------------- | -------- |
-| 20             | 23%      |
-| 80             | 8%       |
-
-```text
-Weighted shipping VAT = (20×0.23 + 80×0.08) / (20 + 80) = 11%
-```
-
-**Result:** shipping taxed at **11%**
+Dynamic taxes delegate tax calculations to external tax providers like AvaTax, TaxJar, or custom tax apps. 
+Instead of manually setting static rates, these providers calculate taxes in real-time based on current tax rules, product types, customer locations, and other factors.
 
 
-### Querying products with taxed prices for a specific country
+### Business Use Cases
 
-When using flat rates, the API can list products with prices that include tax rates for different countries. To do this, pass the country code for which you have flat rate configurations available. If the `country` argument is not specified, the default country for the channel is assumed. (See [Channel.defaultCountry](api-reference/channels/objects/channel.mdx).)
+Dynamic taxes are ideal for:
+- **Stores with complex tax requirements** (city, county, state taxes)
+- **Stores requiring tax compliance features** (reporting, filing)
+- **Stores selling to businesses** that need tax exemption handling
 
-In this example, we are fetching a product list with prices for Poland.
+### What Needs to Be Configured
 
-<Tabs>
-<TabItem value="Query">
-```graphql
-query Products($first: Int, $channel: String, $address: AddressInput) {
-  products(first: $first, channel: $channel) {
-    edges {
-      node {
-        id
-        name
-        pricing(address: $address) {
-          priceRange {
-            start {
-              currency
-              gross {
-                amount
-              }
-              net {
-                amount
-              }
-            }
-          }
+To use dynamic taxes, you need to:
+
+1. **Install a tax app** - Install a tax provider app from the Saleor App Store (e.g., AvaTax)
+2. **Configure the tax app** - Set up credentials and settings in the app
+3. **Enable dynamic taxes for channels** - Switch your channel's tax calculation method to use the tax app:
+
+    **In Dashboard:**
+    1. Go to **Configuration → Taxes**
+    2. Select your **channel**
+    3. Set **Method of tax calculation** to "Use app **Tax app name**"
+    4. Save
+
+    **Via API:**
+
+    <Tabs>
+    <TabItem value="Mutation">
+    ```graphql
+    mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) {
+      taxConfigurationUpdate(id: $id, input: $input) {
+        errors {
+          field
+          message
+        }
+        taxConfiguration {
+          taxCalculationStrategy
+          taxAppId
         }
       }
+    }
+    ```
+    </TabItem>
+    <TabItem value={"Variables"}>
+    ```json
+    {
+      "id": "VGF4Q29uZmlndXJhdGlvbjox",
+      "input": {
+        "taxCalculationStrategy": "TAX_APP",
+        "taxAppId": "saleor.tax"
+      }
+    }
+    ```
+    </TabItem>
+    </Tabs>
+
+4. **Create and assign tax classes to products, map tax classes in Tax App into tax provider codes** - Every product must have a tax class that maps to the provider's tax codes
+
+For detailed AvaTax configuration instructions, see the [AvaTax App Configuration guide](/developer/app-store/apps/avatax/configuration.mdx).
+
+
+To see available tax apps, use query:
+
+```graphql
+query GetShop {
+  shop {
+    availableTaxApps {
+      id
+      name
+      identifier
     }
   }
 }
 ```
-</TabItem>
-<TabItem value={"Variables"}>
-```json
-{
-  "first": 20,
-  "channel": "default-channel",
-  "address": {
-    "country": "PL"
-  }
-}
-```
-</TabItem>
-</Tabs>
 
-### Rounding
+### Country-Specific Configuration
 
-The following rounding rule is applied to the tax calculation:
-
-`If the discarded fraction is >= 0.5, round up; if the discarded fraction is < 0.5, then round down`
-
-Examples:
-
-`$9.945 => $9.95`
-
-`$9.94499 => $9.94`
-
-Precision for most currencies is calculated up to 2 decimal places.
-
-## Dynamic taxes
-
-Dynamic taxes let you delegate the tax calculation to external apps, including 3rd-party tax providers like Avalara, TaxJar, or custom tax apps. This means that your store can use real-time tax rates from external sources instead of setting up static tax rates. This method is useful when your store operates in multiple countries or regions with complex tax rules or when you want to automate the tax calculation process.
-
-To learn more about configuring dynamic taxes, navigate to the [Tax Webhooks](developer/extending/webhooks/synchronous-events/tax.mdx) page.
-
-To enable dynamic taxes in a channel use:
+You can use different tax calculation methods for different countries within the same channel. For example, use flat rates for EU countries and dynamic taxes for the US:
 
 <Tabs>
 <TabItem value="Mutation">
@@ -623,37 +594,52 @@ mutation TaxConfigurationUpdate($id: ID!, $input: TaxConfigurationUpdateInput!) 
     }
     taxConfiguration {
       taxCalculationStrategy
-      taxAppId
+      countries {
+        country {
+          code
+        }
+        taxCalculationStrategy
+      }
     }
   }
 }
 ```
 </TabItem>
-<TabItem value={"Variables"}>
+<TabItem value="Variables">
 ```json
 {
   "id": "VGF4Q29uZmlndXJhdGlvbjox",
   "input": {
-    "taxCalculationStrategy": "TAX_APP",
-    "taxAppId": "saleor.tax"
+    "taxCalculationStrategy": "FLAT_RATES",
+    "updateCountriesConfiguration": [
+      {
+        "countryCode": "US",
+        "taxCalculationStrategy": "TAX_APP",
+        "taxAppId": "saleor.tax"
+      }
+    ]
   }
 }
 ```
 </TabItem>
 </Tabs>
 
-If you decide to set `taxAppId` [checkoutComplete](api-reference/checkout/mutations/checkout-complete.mdx) and [draftOrderComplete](api-reference/orders/mutations/draft-order-complete.mdx) mutations will fail if your Tax App doesn't respond or provide invalid data.
-From Saleor 4.0 forward `taxAppId` will become mandatory when `TAX_APP` is set as `taxCalculationStrategy`.
+## Rounding Rules
 
-If you use the `TAX_APP` calculation strategy and decide not to set `taxAppId` then Saleor will try to iterate through all installed Apps and return the first result.
-In case when any app doesn't respond, [checkoutComplete](api-reference/checkout/mutations/checkout-complete.mdx) and [draftOrderComplete](api-reference/orders/mutations/draft-order-complete.mdx) mutations will proceed without errors.
+Saleor uses standard rounding rules for tax calculations:
 
-## Tax exemption
+- If the discarded fraction is >= 0.5, round up
+- If the discarded fraction is < 0.5, round down
 
-The [Tax Exemption API](api-reference/taxes/mutations/tax-exemption-manage.mdx) allows you to exempt checkouts or orders from taxes, regardless of any channel or country-specific configuration. Note that this API is restricted to users with the `MANAGE_TAXES` permission.
+**Examples:**
+- $9.945 → $9.95
+- $9.94499 → $9.94
 
-To exempt a checkout from taxes, use the following mutation:
+Most currencies are calculated to 2 decimal places.
 
+## Tax Exemption
+
+You can exempt specific checkouts or orders from taxes using the [Tax Exemption API](api-reference/taxes/mutations/tax-exemption-manage.mdx). This is useful for tax-exempt customers or special cases.
 
 <Tabs>
 <TabItem value="Mutation">
@@ -673,7 +659,7 @@ mutation TaxExemptionManage($id: ID!, $taxExemption: Boolean!) {
 }
 ```
 </TabItem>
-<TabItem value={"Variables"}>
+<TabItem value="Variables">
 ```json
 {
   "id": "Q2hlY2tvdXQ6ZTZiMzAzYmMtMzc2Zi00YThkLTkxYzAtNmU3MjYyNDU1OWU3",
@@ -683,43 +669,6 @@ mutation TaxExemptionManage($id: ID!, $taxExemption: Boolean!) {
 </TabItem>
 </Tabs>
 
-For orders, pass the order ID as an argument and adjust the query to fetch the order data in the `taxableObject` field. To re-enable tax charging, pass `taxExemption: false`.
-
-## Address for tax calculation
-
-The process of determining the country code follows this sequence:
-
-1. Shipping address
-2. Billing address
-3. The channel's default country
-
 :::note
-The table provides examples to help understand how tax calculation is determined based on the address.
+Tax exemption requires the `MANAGE_TAXES` permission.
 :::
-
-|             | Store Address | Shipping Address | Billing Address | Warehouse Address |
-| ----------- | ------------- | ---------------- | --------------- | ----------------- |
-| Country     | US            | US               | US              | US                |
-| CountryArea | LA            | VA               | TX              | VT                |
-
-### Example for shipable products
-
-- Create a checkout with channel and lines. Since the shipping and billing addresses are empty, taxes are calculated based on the store address (Country US, state LA)
-- Update the billing address. The shipping address is still empty, but since the billing address is now available, taxes are calculated based on it (Country US, state TX)
-- Update the shipping address. Taxes are now calculated based on the shipping address (Country US, state VA).
-
-### Example for digital products
-
-- Create a checkout with channel and non-shippable lines. Since the shipping and billing addresses are empty, taxes are calculated based on the store address (Country US, state LA)
-- Update the billing address. Taxes are calculated based on it (Country US, state TX)
-
-:::warning
-It's possible to set shipping address in the checkoutCreate mutation. In this case, the shipping address will be used for tax calculation since we always prioritize shipping address over billing address.
-:::
-
-### Example for click and collect shipping
-
-- Create a checkout with channel and lines. Since the shipping address is empty, taxes are calculated based on the store address (Country US, state LA)
-- Update the billing address. Taxes are calculated based on the billing address (Country US, state TX)
-- Update the shipping address. Taxes are calculated based on the shipping address (Country US, state VA).
-- Update the delivery method with the ID of availableCollectionPoint. The shipping address has been changed to the warehouse address. Taxes are now calculated based on the warehouse address. (Country US, state VT)
