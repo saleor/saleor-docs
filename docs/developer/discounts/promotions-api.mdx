@@ -1,0 +1,290 @@
+---
+title: Promotions API
+sidebar_label: API & Integrations
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+This guide covers how to create and manage promotions programmatically, including webhooks and common integration patterns.
+
+## Creating a Promotion
+
+Use [`promotionCreate`](/api-reference/discounts/mutations/promotion-create.mdx) to create a promotion.
+
+<Tabs>
+<TabItem value="Mutation">
+
+```graphql
+mutation promotionCreate($input: PromotionCreateInput!) {
+  promotionCreate(input: $input) {
+    promotion {
+      id
+      name
+      type
+      startDate
+      endDate
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="Variables">
+
+```json
+{
+  "input": {
+    "name": "Summer Sale",
+    "type": "CATALOGUE",
+    "startDate": "2024-06-01T00:00:00.00+00:00",
+    "endDate": "2024-08-31T23:59:59.00+00:00"
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Creating Promotion Rules
+
+Use [`promotionRuleCreate`](/api-reference/discounts/mutations/promotion-rule-create.mdx) to add rules to a promotion.
+
+### Catalogue Promotion Rule
+
+<Tabs>
+<TabItem value="Mutation">
+
+```graphql
+mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
+  promotionRuleCreate(input: $input) {
+    promotionRule {
+      id
+      name
+      rewardValueType
+      rewardValue
+      cataloguePredicate
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="Variables">
+
+```json
+{
+  "input": {
+    "name": "50% off summer collection",
+    "promotion": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA==",
+    "channels": ["Q2hhbm5lbDoy"],
+    "rewardValueType": "PERCENTAGE",
+    "rewardValue": "50",
+    "cataloguePredicate": {
+      "OR": [
+        {
+          "categoryPredicate": {
+            "ids": ["Q2F0ZWdvcnk6MQ=="]
+          }
+        },
+        {
+          "collectionPredicate": {
+            "ids": ["Q29sbGVjdGlvbjo1"]
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Order Promotion Rule (Subtotal Discount)
+
+<Tabs>
+<TabItem value="Mutation">
+
+```graphql
+mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
+  promotionRuleCreate(input: $input) {
+    promotionRule {
+      id
+      name
+      rewardValueType
+      rewardValue
+      rewardType
+      orderPredicate
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="Variables">
+
+```json
+{
+  "input": {
+    "name": "10% off orders over $50",
+    "promotion": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA==",
+    "channels": ["Q2hhbm5lbDoy"],
+    "rewardValueType": "PERCENTAGE",
+    "rewardValue": "10",
+    "rewardType": "SUBTOTAL_DISCOUNT",
+    "orderPredicate": {
+      "discountedObjectPredicate": {
+        "baseSubtotalPrice": {
+          "range": { "gte": 50 }
+        }
+      }
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Order Promotion Rule (Gift)
+
+<Tabs>
+<TabItem value="Variables">
+
+```json
+{
+  "input": {
+    "name": "Free gift on orders over $100",
+    "promotion": "UHJvbW90aW9uOjEyMzA0YmM4LTA2ZTMtNDg1Mi05ODU1LWM4ZDkyMDgzNTYwZA==",
+    "channels": ["Q2hhbm5lbDoy"],
+    "rewardType": "GIFT",
+    "orderPredicate": {
+      "discountedObjectPredicate": {
+        "baseSubtotalPrice": {
+          "range": { "gte": 100 }
+        }
+      }
+    },
+    "gifts": ["UHJvZHVjdFZhcmlhbnQ6MzQ4", "UHJvZHVjdFZhcmlhbnQ6NDAw"]
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Channel Availability
+
+Rules require channel assignments to apply. When using `FIXED` reward value type, all assigned channels must share the same currency.
+
+## Promotion Events
+
+Track promotion changes through the events API:
+
+```graphql
+query Promotion($id: ID!) {
+  promotion(id: $id) {
+    events {
+      ... on PromotionEventInterface {
+        type
+        date
+        createdBy {
+          ... on User {
+            id
+          }
+        }
+      }
+      ... on PromotionRuleEventInterface {
+        ruleId
+      }
+    }
+  }
+}
+```
+
+Event types include:
+
+- `PROMOTION_CREATED`
+- `PROMOTION_UPDATED`
+- `PROMOTION_STARTED`
+- `PROMOTION_ENDED`
+- `RULE_CREATED`
+- `RULE_UPDATED`
+- `RULE_DELETED`
+
+See [PromotionEventsEnum](/api-reference/discounts/enums/promotion-events-enum) for the full list.
+
+## Webhooks
+
+Subscribe to promotion-related webhooks to sync promotions with external systems:
+
+| Webhook | Trigger |
+|---------|---------|
+| `PROMOTION_CREATED` | New promotion created |
+| `PROMOTION_UPDATED` | Promotion details changed |
+| `PROMOTION_DELETED` | Promotion removed |
+| `PROMOTION_STARTED` | Promotion became active (start date reached) |
+| `PROMOTION_ENDED` | Promotion expired (end date reached) |
+| `PROMOTION_RULE_CREATED` | New rule added |
+| `PROMOTION_RULE_UPDATED` | Rule modified |
+| `PROMOTION_RULE_DELETED` | Rule removed |
+
+## Common Integration Patterns
+
+### Promotion Duration Display
+
+Build an app to show remaining promotion time to customers:
+
+```graphql
+query PromotionDuration($id: ID!) {
+  promotion(id: $id) {
+    name
+    startDate
+    endDate
+  }
+}
+```
+
+Calculate and display countdown timers based on `endDate`.
+
+### Sync with Marketing Platforms
+
+Use webhooks to sync promotion data with email marketing or advertising platforms:
+
+1. Subscribe to `PROMOTION_STARTED` and `PROMOTION_ENDED`
+2. When a promotion starts, trigger marketing campaigns
+3. When it ends, pause or update campaigns
+
+### Inventory-Based Promotions
+
+Build automation to:
+
+1. Monitor inventory levels
+2. Create promotions for overstocked items
+3. End promotions when inventory normalizes
+
+## Price Recalculation
+
+Catalogue promotion prices are calculated asynchronously. After creating or modifying a catalogue promotion:
+
+- Prices won't update immediately
+- A background task processes the changes
+- Subscribe to relevant webhooks to know when recalculation completes
+
+### Expired Promotions in checkout
+To Do: VERIFY 
+When a promotion expires while products are in a customer's checkout:
+1. **Catalogue promotions**: The discounted price remains unchanged for 1 hour (default setting for `CHECKOUT_PRICES_TTL`) the the next checkout refresh or mutation that affect discounted line.
+2. **Order promotions**: The discount is removed when the checkout is updated.
+
+
+## Permissions
+
+All promotion operations require `MANAGE_DISCOUNTS` permission.
+
+## Related
+
+- [Promotions Overview](/developer/discounts/promotions-overview.mdx)
+- [Catalogue Promotions](/developer/discounts/catalog-promotions.mdx)
+- [Order Promotions](/developer/discounts/order-promotions.mdx)
