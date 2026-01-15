@@ -73,7 +73,18 @@ export const coreConcepts = [
 
   title("Discounts"),
   "developer/discounts/overview",
-  "developer/discounts/promotions",
+
+  {
+    type: "category",
+    label: "Promotions",
+    collapsible: false,
+    items: [
+      "developer/discounts/promotions-overview",
+      "developer/discounts/catalog-promotions",
+      "developer/discounts/order-promotions",
+      "developer/discounts/promotions-api",
+    ],
+  },
   {
     type: "category",
     label: "Vouchers",
