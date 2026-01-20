@@ -160,7 +160,12 @@ Before publishing, verify:
 
 ### AI Integration
 
-The following files contain versioned URLs to the Saleor GraphQL schema. When a new Saleor version is released, update the schema URLs to point to the latest stable version:
+The following files help AI agents discover and use Saleor documentation:
 
 - [static/llms.txt](static/llms.txt)
 - [docs/developer/ai.mdx](docs/developer/ai.mdx)
+
+When maintaining these files:
+
+- **New Saleor version released**: Update the GraphQL schema URLs to point to the latest stable version.
+- **Adding or removing pages**: Update `llms.txt` to reflect the current documentation structure for AI agent discoverability.
