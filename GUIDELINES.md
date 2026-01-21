@@ -155,3 +155,17 @@ Before publishing, verify:
 - [ ] Headings follow a logical Markdown hierarchy
 - [ ] The tone is active, direct, and uses second person ("you")
 - [ ] The document starts with a short overview paragraph
+
+## Maintenance
+
+### AI Integration
+
+The following files help AI agents discover and use Saleor documentation:
+
+- [static/llms.txt](static/llms.txt)
+- [docs/developer/ai.mdx](docs/developer/ai.mdx)
+
+When maintaining these files:
+
+- **New Saleor version released**: Update the GraphQL schema URLs to point to the latest stable version.
+- **Adding or removing pages**: Update `llms.txt` to reflect the current documentation structure for AI agent discoverability.
