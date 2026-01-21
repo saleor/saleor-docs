@@ -224,6 +224,7 @@ module.exports = {
         "http",
         "tsx",
         "typescript",
+        "hcl",
       ],
     },
   },
