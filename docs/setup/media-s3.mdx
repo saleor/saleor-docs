@@ -4,7 +4,7 @@ title: Storing Files on Amazon S3
 
 If you use containers for deployment, you should not store files within the container’s filesystem.
 
-This integration allows you to delegate storing such files to [Amazon’s S3 service](https://aws.amazon.com/s3/).
+This integration allows you to delegate storing such files to [Amazon’s S3 service](https://aws.amazon.com/s3/), or S3 compatible services like Cloudflare R2, Backblaze B2, etc.
 
 ## Environment variables
 
@@ -27,6 +27,47 @@ This integration allows you to delegate storing such files to [Amazon’s S3 ser
 If you want to use S3 to store and serve media files, you need to configure at least the bucket name (see table above).
 A custom domain will allow you to use your CloudFront distribution or the public domain of your S3 bucket's static hosting.
 If you are experiencing problems accessing uploaded files, ensure that permissions are correctly configured (AWS_DEFAULT_ACL environment variable).
+
+### Best Practices
+
+- Put a Content Delivery Network (CDN) such as AWS Cloudfront or Cloudflare in front of the storage bucket. This reduces hosting costs, and decreases latency (thus improving user experience).
+- Return the HTTP header `Content-Disposition: attachment` for all assets, for example using a AWS CloudFront response headers policy, if you use terraform, then you can do the following:
+
+  ```hcl
+  resource "aws_cloudfront_response_headers_policy" "media" {
+    name    = "saleor-media-files"
+
+    custom_headers_config { # Create this
+      items {
+        header   = "Content-Disposition"
+        value    = "attachment"
+        override = false
+      }
+    }
+  }
+
+  resource "aws_cloudfront_distribution" "s3_distribution" {
+    # [...] fill me
+
+    default_cache_behavior {
+      # [...] fill me
+    }
+
+    ordered_cache_behavior {
+      path_pattern = "/media/*"
+
+      allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+      cached_methods   = ["GET", "HEAD"]
+      target_origin_id = "saleor-media-s3-origin"
+      compress         = true
+
+      viewer_protocol_policy     = "redirect-to-https"
+      response_headers_policy_id = aws_cloudfront_response_headers_policy.media.id # <--- pass this
+    }
+
+    # [...]
+  }
+  ```
 
 ## Serving static files from an S3 bucket
 

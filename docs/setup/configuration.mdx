@@ -280,6 +280,156 @@ For example: `"checkout_calculate_taxes, shipping_list_methods_for_checkout"`.
 Sets the circuit breaker to dry run mode, in which events will be monitored but no blockage of webhooks will occur when the failure threshold is exceeded.
 Breaker events will still be logged, which is useful for testing the breaker without affecting the webhooks behavior.
 
+### `UPLOAD_ADDITIONAL_ALLOWED_MIME_TYPES`
+
+Can be used if you are uploading other file formats than the [file types supported by default]. It takes a JSON input with the following format:
+
+```yaml
+{
+  # <mime-type>: [<file extension>, ...]
+  "image/png": [".png"],
+}
+```
+
+For example, if you want to allow zip files, then do:
+
+```shell
+export UPLOAD_ADDITIONAL_ALLOWED_MIME_TYPES='{"application/zip": [".zip"]}'
+```
+
+Learn more in the ["Restricted File Uploads" page].
+
+
+:::note[Important note about existing MIME types]
+
+If a MIME type is **[already defined in the source code][file types supported by default]**, you must provide the complete list of file extensions for that MIME type.
+The provided list will **replace** the existing one (it will not be merged automatically.)
+
+For example, `image/jpeg` is defined internally as:
+
+```python
+{
+    "image/jpeg": [".jpg", ".jpeg", ".jpe", ".jfif"]
+}
+```
+
+If you want to add another extension for `image/jpeg`, you must include **all existing extensions**, plus the new one:
+
+```shell
+export UPLOAD_ADDITIONAL_ALLOWED_MIME_TYPES='{
+  "image/jpeg": [".jpg", ".jpeg", ".jpe", ".jfif", ".newext"]
+}'
+```
+
+Failing to include the full list will cause previously supported extensions to be rejected.
+:::
+
+[file types supported by default]: https://github.com/saleor/saleor/blob/6af65ae16636437fece574304871705387d22f0d/saleor/settings.py#L1155-L1191
+["Restricted File Uploads" page]: ../security/index.mdx#restricted-file-uploads
+
+## EditorJS & HTML Cleaning
+
+If you use custom HTML or custom URL schemes inside EditorJS (product descriptions, collections, categories, etc.), then, the following settings may need to be tweaked:
+
+### `EDITOR_JS_ALLOWED_ATTRIBUTES`
+
+A list of HTML attributes to allow for given HTML elements only relevant if you use custom HTML attributes, like `<div is="something">`, it takes a JSON input like so:
+
+```yaml
+# {<html-element>: [<attribute-to-allow, ...]}
+# Example: allows <a my-attr-to-allow="something">:
+{
+  "a": ["my-attr-to-allow"]
+}
+```
+
+### `EDITOR_JS_ALLOWED_ATTRIBUTE_VALUES`
+
+The same as above except it takes a list of **values** allowed inside a given attribute within a given HTML element. This is useful if you want to be stricter or if the attribute you need to allow may contain dangerous values that we need to prevent malicious users from using.
+
+:::info
+- If you use this setting, you don't need to allow the attribute in `EDITOR_JS_ALLOWED_ATTRIBUTES`, that's redundant and could (potentially) cause issues.
+- The allowed attribute values must **match exactly**, for example if you allow `my-value` but your HTML is `<a my-attr="foo my-value">` then it will not work (instead, you would need to allow `foo my-value`).
+:::
+
+```yaml
+# Example, if we want to allow the following:
+#   - <a my-attr="my-value">
+#   - <a my-attr="a value with spaces">
+# Then:
+{
+  "a": {
+    "my-attr": ["my-value", "a value with spaces"]
+  }
+}
+```
+
+### `EDITOR_JS_LINK_REL`
+
+Controls which values to put in the `rel` attribute for links (`<a href=... rel="XXX">`).
+
+Default value:
+- Saleor `< 3.23.0` - `ref` is by default blank (for backward compatibility).
+- Saleor `>= 3.23.0` - `ref` is set to `noopener noreferrer`.
+
+We recommended setting the following:
+
+```shell
+export EDITOR_JS_ALLOWED_ATTRIBUTES='noopener noreferrer'
+```
+
+Possible values:
+
+- [noopener]: This prevents a particular type of XSS attack, and should usually be turned on for untrusted HTML.
+- [noreferrer]: This prevents the browser from sending the source URL to the website that is linked to.
+- [nofollow]: This prevents search engines from using this link for ranking, which disincentivizes spammers.
+
+Learn more: https://nh3.readthedocs.io/en/latest/#nh3.Cleaner
+
+[noopener]: https://html.spec.whatwg.org/multipage/links.html#link-type-noopener
+[noreferrer]: https://html.spec.whatwg.org/multipage/links.html#link-type-noreferrer
+[nofollow]: https://html.spec.whatwg.org/multipage/links.html#link-type-nofollow
+
+### `UNSAFE_EDITOR_JS_ALLOWED_URL_SCHEMES`
+
+Takes a list of allowed URL schemes. By default we allow only `http(s)://`, `tel:`, and `mailto:` - if you use other URL schemes (e.g., `intent://`), then you must add it to `UNSAFE_EDITOR_JS_ALLOWED_URL_SCHEMES`.
+
+Example:
+
+```shell
+# Allows 'intent://' and 'ftp://'
+# Note: http(s), tel, and mailto are still allowed, you do not need to pass them here.
+export UNSAFE_EDITOR_JS_ALLOWED_URL_SCHEMES='intent,ftp'
+```
+
+:::danger
+This environment variable is deprecated and is dangerous to use, this should only be used for backward compatibility.
+
+By setting this environment variable you may be exposing yourself to XSS attacks, if you really need to set it, consider using client-side cleaners like [DOMPurify] or [isomorphic-dompurify].
+
+This will be removed in Saleor 3.23, please open a feature request (https://github.com/saleor/saleor/issues) so we can add support out of the box for the protocols that you need.
+:::
+
+[DOMPurify]: https://github.com/cure53/DOMPurify
+[isomorphic-dompurify]: https://github.com/kkomelin/isomorphic-dompurify
+
+### `EDITOR_JS_LISTS_MAX_DEPTH`
+
+Limits the list depth for nested list (new list format from EditorJS) - defaults to 10, meaning you can have indentation 10 levels in lists (typically a person only uses max 3 levels).
+
+For example this list has 3 levels:
+
+- Level 1
+  - Level 2
+    - Level 3
+
+You likely do not need to increase this value, but if you do need to, then the syntax is the following:
+
+```shell
+# Allowing 20 levels
+export EDITOR_JS_LISTS_MAX_DEPTH=20
+```
+
 ## Currency exchange
 
 Saleor can automatically convert amounts between currencies. To use this feature, you will need an [Open Exchange Rates account](https://openexchangerates.org/).
