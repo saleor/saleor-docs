@@ -67,6 +67,45 @@ For in-depth details, refer to:
 [Security Policy]: https://github.com/saleor/.github/blob/-/SECURITY.md
 [Saleor Core]: https://github.com/saleor/saleor/
 
+## Restricted File Uploads
+
+Out of the box Saleor restricts the type of files that can be uploaded in mutations like `fileUpload()` and `digitalContentCreate()` (list may not be exhaustive).
+
+This is done in order to limit the risks of misuse from staff users who could upload malicious files like `.html`, `.svg`, or even `.exe`. By default Saleor only allows popular file formats but if needed you can relax it using the [`UPLOAD_ADDITIONAL_ALLOWED_MIME_TYPES`] environment variable.
+
+:::note
+You shouldn't allow dangerous file formats (e.g., HTML or SVG), instead prefer using zip files to reduce the risks of the browser rendering them.
+:::
+
+Saleor's behavior is as follows:
+- Saleor checks the file extensions to determine whether the file extension is allowed.
+- AND Saleor checks whether the file's MIME matches the file extension, e.g., if `image.png` but has the MIME `text/html` then it's rejected.
+
+We highly recommend that you also return `Content-Disposion: attachment` in HTTP responses for the media files to further reduce risks, for example, if you use AWS Cloudfront you can follow our [AWS Best Practices].
+
+[`UPLOAD_ADDITIONAL_ALLOWED_MIME_TYPES`]: ../setup/configuration.mdx#upload_additional_allowed_mime_types
+[AWS Best Practices]: ../setup/media-s3.mdx#best-practices
+
+## EditorJS & HTML Cleaning
+
+Saleor accepts HTML in rich text fields (such as product descriptions, pages, collections, etc.), under the hood it cleans the untrusted HTML inputs using [nh3] and [Ammonia]. These libraries rely on strict allow-lists for HTML elements, attributes, and attribute values to mitigate the risks of XSS attacks.
+
+Our cleaner can be configured through the following settings:
+
+- [`EDITOR_JS_ALLOWED_ATTRIBUTES` (docs)] - a list of HTML attributes to allow for given HTML elements. For example, if you want to allow users to pass `my-attr` for all `<a>` elements, then you this is the correct environment variable to modify.
+- [`EDITOR_JS_ALLOWED_ATTRIBUTE_VALUES` (docs)] - a list of **values** allowed inside given attributes within a given element, this a stricter version of the previous setting: instead of allowing **all** values, it only allows the given values.
+- [`EDITOR_JS_LINK_REL` (docs)] - controls which values to put in the [`rel`] attribute for links (`<a href=... rel="XXX">`). We recommend setting both _noopener_ and _noreferrer_, at minimum _noopener_.
+- [`UNSAFE_EDITOR_JS_ALLOWED_URL_SCHEMES` (docs)] - a list of allowed URL schemes. By default we allow only HTTP(S) links, telephone numbers and mailto addresses.
+- [`EDITOR_JS_LISTS_MAX_DEPTH` (docs)] - limits the list depth for nested list from EditorJS - defaults to 10, meaning you can have indentation 10 levels in lists (typically a person only uses max 3 levels).
+
+[Ammonia]: https://github.com/rust-ammonia/ammonia
+[nh3]: https://github.com/messense/nh3
+[`rel`]: https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/rel
+[`EDITOR_JS_ALLOWED_ATTRIBUTES` (docs)]: ../setup/configuration.mdx#editor_js_allowed_attributes
+[`EDITOR_JS_ALLOWED_ATTRIBUTE_VALUES` (docs)]: ../setup/configuration.mdx#editor_js_allowed_attribute_values
+[`EDITOR_JS_LINK_REL` (docs)]: ../setup/configuration.mdx#editor_js_link_rel
+[`UNSAFE_EDITOR_JS_ALLOWED_URL_SCHEMES` (docs)]: ../setup/configuration.mdx#unsafe_editor_js_allowed_url_schemes
+[`EDITOR_JS_LISTS_MAX_DEPTH` (docs)]: ../setup/configuration.mdx#editor_js_lists_max_depth
 
 ## PCI DSS
 
