@@ -58,6 +58,46 @@ In general, discounts can take two forms:
 * **fixed** - fixed amount, that is deducted from the original price
 * **percentage** - percentage value of the original price
 
+
+## Combining Discounts
+### Order of Applying Discounts 
+
+When multiple promotions apply to the same product or order:
+
+- **Multiple catalogue promotions on one product**: Only the discount providing maximum savings applies (discounts don't stack)
+- **Catalogue + order promotions**: Both can apply; order discounts calculate from the already-discounted catalogue price
+- **Order promotions + vouchers**: Cannot be combined; voucher code takes precedence
+
+```mermaid
+graph TD
+    A(Undiscounted price) --> B[Apply catalogue discounts]
+    B --> Z{Voucher code added?}
+    Z --> |No| K[Apply order discount]
+    K --> E
+    Z --> |Yes| C[Apply lines vouchers - ONCE_PER_ORDER, SPECIFIC_PRODUCT]
+    C --> D[Apply ENTIRE_ORDER voucher]
+    D --> E[Apply taxes]
+```
+
+
+### Combining Discounts Table
+
+| Combination | Works Together | Notes |
+|------------|----------------|-------|
+| Multiple Catalogue Promotions (same product) | ❌ No | Only the discount providing maximum savings applies. Discounts don't stack. |
+| Multiple Vouchers | ❌ No | Only one voucher can be applied per order. |
+| Multiple Order Promotion | ❌ No | Only the discount providing maximum savings applies. |
+| Catalogue Promotion + Order Promotion | ✅ Yes | Catalogue promotion reduces product price first. Order promotion applies to the already-discounted subtotal. |
+| Catalogue Promotion + Voucher (ENTIRE_ORDER) | ✅ Yes | Catalogue promotion reduces product price first. Order-level voucher discount applies to the already-discounted subtotal. |
+| Catalogue Promotion + Voucher (SPECIFIC_PRODUCT) | ✅ Yes | **Both line-level discounts stack.** Catalogue promotion applies first, then SPECIFIC_PRODUCT voucher applies to the already-discounted price. |
+| Order Promotion + Voucher | ❌ No | Voucher code takes precedence. Order promotion is automatically removed when voucher is applied. |
+| Order Promotion + Manual Order Total Discount | ❌ No | Manual discount takes precedence. Order promotion is automatically removed when manual discount is applied. |
+| Catalogue Promotion + Manual Order Total Discount | ✅ Yes | Both can apply. Catalogue discount applies at line level, manual discount at order level. |
+| Catalogue Promotion + Manual Order Line Discount | ❌ No | Manual line discount overrides catalogue promotion. Only one line-level discount can apply per line. |
+| Voucher ENTIRE_ORDER + Manual Order Total Discount | ❌ No | Manual order-level discount takes precedence. Order-level voucher discount is removed when manual order discount exists. |
+| Voucher ENTIRE_ORDER + Manual Order Line Discount | ✅ Yes | Order-level voucher can work with manual line-level discount (different scopes). |
+
+
 ## Difference Between Vouchers and Gift Cards
 While both vouchers and gift cards are applied and removed using the same mutations (`checkoutAddPromoCode` / `checkoutRemovePromoCode`), they work differently:
 - **Vouchers** reduce the **subtotal**, product **unit price**, or **shipping price** depending on voucher type and conditions.
