@@ -14,7 +14,7 @@ Order promotions evaluate checkout/draft order amount and apply rewards when con
 2. Compares potential savings from each qualifying rule
 3. Applies only the rule providing maximum savings
 
-Order discounts calculate from **base prices** (prices after catalogue promotions).
+Order discounts are calculated from prices after catalogue promotions
 
 ## Reward Types
 
@@ -22,77 +22,58 @@ Order promotions support two reward types:
 
 ### Subtotal Discount
 
-Reduces the subtotal price by a fixed amount or percentage.
+Reduces the total cost of the order by a fixed amount (e.g., $10 off) or a percentage (e.g., 10% off).
 
-
-:::warning
-Promotions with `SUBTOTAL_DISCOUNT` do not work with the `TAX_APP` strategy.
-To Do: VERIFY 
+:::info
+For a promotion with multiple price-based rules, all assigned channels must use the same currency.
 :::
 
 ### Gift Reward
 
-Adds a free product to the order. You define which variants can be given as gifts, and the system selects the one with the highest discounted price.
+Automatically adds a free item ($0.00) to the cart when promotion criteria are met.
 
-Gift details:
+- **Gift Selection:** You can list up to 500 gift options. Saleor automatically picks the highest-priced item available. If it’s out of stock, it moves to the next available option.
+- **One Per Order:** Only one free gift is allowed per checkout / draft order.
+- **Clear Tracking:** Gifts are tagged as isGift in your records to distinguish them from paid items.
 
-- Created as a new line with unit and total price of 0
-- Only one gift per checkout/draft order
-- Limited to 500 gift variants per promotion rule
-- Marked with `isGift: true` on the line
+## Predicate
+Predicate define the spending threshold required to trigger the reward.
+- **Subtotal Price:**	The sum of all items in the cart.	"Spend over $100"
+- **Total Price:** The subtotal PLUS shipping costs.	"Total exceeds $120"
 
 ## Creating Order Promotion
-**In Dashboard**
-To Do: 
 
-### Defining Order Predicates
+Follow these steps to set up an order-wide discount or gift in the Saleor Dashboard.
 
-Order predicates define conditions based on checkout/order attributes:
+**1. Start a New Promotion**
 
-- `baseSubtotalPrice`: Sum of line prices (after catalogue discounts)
-- `baseTotalPrice`: Subtotal plus shipping
+    - In the left sidebar, go to **Discounts > Promotions**
+    - Click **Create Discount** in the top right corner
 
-:::info
-Price-based predicates require all assigned channels to have the same currency.
-:::
+**2. General Information**
 
-### Examples
+    - **Name**: Enter a descriptive name (e.g., "New Year Sale")
+    - **Type**: Select **Order** to apply the discount to the checkout subtotal
+    - **Description** (Optional): Add details about the promotion for your team
+    - **Dates**: Set a **Start Date** and optional **End Date**
 
-**10% off when subtotal exceeds $20:**
+**3. Define Promotion Rules**
 
-```json
-{
-  "orderPredicate": {
-    "discountedObjectPredicate": {
-      "baseSubtotalPrice": {
-        "range": { "gte": 20 }
-      }
-    }
-  },
-  "rewardValueType": "PERCENTAGE",
-  "rewardValue": 10,
-  "rewardType": "SUBTOTAL_DISCOUNT"
-}
-```
+    Rules determine who gets a reward and what that reward is.
+    - **Rule Name**: Give this specific rule a name (e.g., "10% off in Main Store")
+    - **Channels**: Select which sales channels this rule applies to (e.g., "Main Store", "Mobile App")
+    - **Predicate**: Set the trigger for the reward e.g., "Subtotal price is greater than $100"
+    - **Reward**: Choose between:
+      - **Subtotal Discount**: Select **Percentage** (e.g., 10%) or **Fixed Amount** (e.g., $15)
+      - **Gift**: Select the product variants to be given away.
 
-**$5 off when total exceeds $50:**
+**4. Save rule and promotion**
 
-```json
-{
-  "orderPredicate": {
-    "discountedObjectPredicate": {
-      "baseTotalPrice": {
-        "range": { "gte": 50 }
-      }
-    }
-  },
-  "rewardValueType": "FIXED",
-  "rewardValue": 5,
-  "rewardType": "SUBTOTAL_DISCOUNT"
-}
-```
+The promotion will automatically apply to checkout that meet the conditions when checkout will be updated.
 
-## Gift vs Subtotal Discount Selection
+See [Promotion API guide](#order-promotion-rule-subtotal-discount) to learn how to create promotions via API.
+
+## Applying the Order Promotion Chart
 
 When both gift and subtotal discount rules qualify, Saleor compares savings:
 
@@ -111,125 +92,8 @@ graph TD
     G -->|Yes| H[Create a gift line with 0 unit and total price]
 ```
 
-## Order Promotions in Checkout
-
-When an order promotion applies, the discount appears on:
-
-- `checkout.discount.amount`: The order promotion discount value
-- `checkout.discountName`: The promotion rule name
-- Line prices: Reduced proportionally
-
-### Example Checkout with Order Discount
-
-```json
-{
-  "checkout": {
-    "discount": { "amount": 5.0 },
-    "discountName": "Example order promo: order rule",
-    "subtotalPrice": { "gross": { "amount": 35.0 } },
-    "lines": [
-      {
-        "undiscountedTotalPrice": { "amount": 40.0 },
-        "totalPrice": { "gross": { "amount": 35.0 } },
-        "unitPrice": { "gross": { "amount": 17.5 } },
-        "undiscountedUnitPrice": { "amount": 20.0 }
-      }
-    ]
-  }
-}
-```
-
-### Completed Order with Order Discount
-
-```json
-{
-  "order": {
-    "total": { "gross": { "amount": 42.5 } },
-    "undiscountedTotal": { "gross": { "amount": 47.5 } },
-    "discounts": [
-      {
-        "name": "Example order promo: order rule",
-        "type": "ORDER_PROMOTION",
-        "valueType": "FIXED",
-        "amount": { "amount": 5.0 }
-      }
-    ]
-  }
-}
-```
-
-### Example Checkout with Gift
-
-```json
-{
-  "checkout": {
-    "discount": { "amount": 0.0 },
-    "lines": [
-      {
-        "isGift": false,
-        "totalPrice": { "gross": { "amount": 40.0 } }
-      },
-      {
-        "isGift": true,
-        "totalPrice": { "gross": { "amount": 0.0 } },
-        "undiscountedUnitPrice": { "amount": 50.0 }
-      }
-    ]
-  }
-}
-```
-
-## Combining with Catalogue Promotions
-
-Order and catalogue promotions can apply together:
-
-1. Catalogue promotion reduces the product price
-2. Order promotion applies to the already-discounted subtotal
-
-The total discount is the sum of both:
-
-```json
-{
-  "checkout": {
-    "discount": { "amount": 5.0 },
-    "lines": [
-      {
-        "undiscountedTotalPrice": { "amount": 40.0 },
-        "totalPrice": { "gross": { "amount": 23.0 } },
-        "variant": {
-          "pricing": {
-            "onSale": true,
-            "discount": { "gross": { "amount": 6.0 } }
-          }
-        }
-      }
-    ]
-  }
-}
-```
-
-In this example: **$6** catalogue discount × 2 items + **$5** order discount = **$17** total savings.
-
-## Order Promotions and Vouchers
-
-Order promotions **cannot** combine with vouchers. When a voucher code is added:
-
-- The order promotion discount is removed
-- Only the voucher discount applies
-
-## Limits
-
-- Maximum 100 promotion rules with `ORDER` predicate type
-- Maximum 500 gift variants per promotion rule
-
-## Business Use Cases
-
-- **Spend thresholds**: "Get 10% off orders over $100"
-- **Free shipping equivalent**: "$10 off when you spend $75"
-- **Gift with purchase**: "Free sample when you spend $50"
-- **Basket builders**: Encourage larger orders with tiered discounts
-
 ## Related
 
 - [Promotions Overview](/developer/discounts/promotions-overview.mdx)
-- [Promotions API](/developer/discounts/promotions-api.mdx) - Create order promotions via API
+- [Catalogue Promotions](/developer/discounts/catalog-promotions.mdx)
+- [API Guide](/developer/discounts/promotions-api.mdx) - Create order promotions via API, checkout examples, building integrations.
