@@ -58,6 +58,7 @@ App supports following notification events from Adyen:
   - [`CaptureFailed`](https://docs.adyen.com/api-explorer/Webhooks/1/post/CAPTURE_FAILED)
   - [`Expire`](https://docs.adyen.com/api-explorer/Webhooks/1/post/EXPIRE)
   - [`OrderClosed`](https://docs.adyen.com/api-explorer/Webhooks/1/post/ORDER_CLOSED)
+  - [`OfferClosed`](https://docs.adyen.com/api-explorer/Webhooks/1/post/OFFER_CLOSED)
   - [`Refund`](https://docs.adyen.com/api-explorer/Webhooks/1/post/REFUND)
   - [`RefundFailed`](https://docs.adyen.com/api-explorer/Webhooks/1/post/REFUND_FAILED)
   - [`RefundedReversed`](https://docs.adyen.com/api-explorer/Webhooks/1/post/REFUNDED_REVERSED)
@@ -77,6 +78,9 @@ Following events will be mapped to `INFO` event in Saleor, it will not change am
   - [`RequestForInformation`](https://docs.adyen.com/api-explorer/Webhooks/1/post/REQUEST_FOR_INFORMATION)
   - [`ManualReviewAccept`](https://docs.adyen.com/api-explorer/Webhooks/1/post/MANUAL_REVIEW_ACCEPT)
   - [`ManualReviewReject`](https://docs.adyen.com/api-explorer/Webhooks/1/post/MANUAL_REVIEW_REJECT)
+
+These events are currently ignored by the app, left for future implementation:
+- [`RecurringContract`](https://docs.adyen.com/api-explorer/Webhooks/1/post/RECURRING_CONTRACT)
 
 ## Assumptions
 
@@ -100,6 +104,8 @@ Following events will be mapped to `INFO` event in Saleor, it will not change am
 - [Webhook settings > Delayed Capture](#duplicated-chargedamount-in-saleor) is disabled in Adyen Dashboard
 - Webhook in Adyen was created with all options (additional settings) described in [Saleor docs](./configuration.mdx#webhook-configuration)
 - Before [user cancels a payment](./storefront.mdx#onordercancel), App will update `TransactionItem` in Saleor, so that it has either `REFUND_REQUEST` or `CANCEL_REQUEST` event. If update in Saleor fails, user won't be able to cancel payment. This prevents fraudulent orders from being created.
+- `TransactionItem.paymentMethodDetails` are sent to Saleor if "Additional data" is properly configured in Adyen dashboard. [See configuration docs](./configuration.mdx#prerequisites)
+- Refunds and cancels are done using `pspReference` provided by Adyen, not by `merchantReference` set by app. App will ignore refunds done externally via Adyen API that used `/cancels` with `paymentReference` parameter since it triggers `TECHNICAL_CANCEL` webhook which is not supported. [See more docs in Adyen](https://docs.adyen.com/online-payments/cancel#technical-cancel-webhook)
 
 ## Limitations & troubleshooting
 
