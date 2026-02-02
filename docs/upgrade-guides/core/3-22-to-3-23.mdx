@@ -40,3 +40,24 @@ Since 3.22, Dashboard extension manifests are validated on the frontend. Install
 - Fields on type `AppExtension` and `AppExtensionManifest`: `mount`, `target`, and `options` have been removed. Use the fields `mountName`, `targetName`, and `settings` instead, which directly replace the old ones.
 - New fields are intended to be used by Dashboard only. Modifying them requires caution and may require frontend adjustments.
 - New fields are no longer strictly validated, which means installing an app extension *without* Dashboard can cause unexpected Dashboard behavior.
+
+## GraphQL Federation
+
+**This only relevant if you use GraphQL Federation.** If you do not know what this is, then you likely aren't impacted.
+
+The type for GraphQL field `representations` in `{ _entities(representations: [_Any!]!) { ... } }` was changed from `[_Any]` to `[_Any!]!`
+
+Make sure to adapt your GraphQL queries if you use the `_entities` query, for example the following query would need to adapted as follows:
+
+```diff
+- query GetProductInFederation($representations: [_Any]) {
++ query GetProductInFederation($representations: [_Any!]!) {
+    _entities(representations: $representations) {
+      __typename
+      ... on Product {
+        id
+        name
+      }
+    }
+  }
+```
