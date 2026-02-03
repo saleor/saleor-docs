@@ -47,6 +47,7 @@ export const buildingApps = [
   "developer/extending/apps/updating-app-webhooks",
   "developer/extending/apps/developing-apps/apps-patterns/handling-external-webhooks",
   "developer/extending/apps/developing-apps/apps-patterns/persistence-with-metadata-manager",
+  "developer/extending/apps/developing-apps/apps-patterns/reporting-problems",
   "developer/extending/apps/building-payment-app",
   "developer/extending/apps/installation-protection",
   "developer/extending/apps/developing-apps/generating-types-for-sync-webhooks",
