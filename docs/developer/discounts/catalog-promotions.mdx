@@ -1,0 +1,186 @@
+---
+title: Catalogue Promotions
+sidebar_label: Catalogue Promotions
+---
+
+Catalogue promotions automatically reduce product prices based on conditions you define. Customers see discounted prices on product pages before adding items to their cart.
+
+## Business Use Cases
+
+- **Seasonal sales**: Discount entire categories for holiday promotions
+- **Collection spotlight**: Reduce prices on featured collections
+- **Clearance**: Mark down specific products to clear inventory
+- **Category-wide discounts**: Apply percentage off to all items in a category
+
+
+## How Catalogue Promotions Work
+
+When you create a catalogue promotion, Saleor:
+
+1. Evaluates all products against the promotion rules
+2. Calculates discounted prices asynchronously
+3. Updates `ProductVariant.pricing` with the new prices
+
+The discount appears in two pricing fields:
+
+- `priceUndiscounted`: Original price before promotion
+- `price`: Price after applying the promotion discount
+
+:::warning
+Catalogue discounts are recalculated by a background task. The discounted price won't appear immediately after promotion creation.
+:::
+
+## Discount Stacking Rules
+
+When multiple catalogue promotions apply to the same product:
+
+- Only the discount providing **maximum savings** is applied
+- Discounts from different rules within the same promotion don't stack
+- The system automatically selects the best discount for the customer
+
+
+## Creating Catalog Promotion
+**In Dashboard**
+To Do: 
+
+## Defining Catalogue Predicates
+
+Catalogue predicates define which products receive the discount. You can target:
+
+- **Products** by ID
+- **Product variants** by ID
+- **Categories** by ID
+- **Collections** by ID
+
+Combine conditions using `AND` and `OR` operators for complex rules. See [filtering documentation](/api-usage/filtering.mdx#general-approach) for predicate syntax.
+
+### Examples
+
+**10% discount on a specific collection:**
+
+```json
+{
+  "cataloguePredicate": {
+    "collectionPredicate": {
+      "ids": ["Q29sbGVjdGlvbjox"]
+    }
+  },
+  "rewardValueType": "PERCENTAGE",
+  "rewardValue": 10
+}
+```
+
+**10% discount on a specific category:**
+
+```json
+{
+  "cataloguePredicate": {
+    "categoryPredicate": {
+      "ids": ["Q2F0ZWdvcnk6MQ=="]
+    }
+  },
+  "rewardValueType": "PERCENTAGE",
+  "rewardValue": 10
+}
+```
+
+**$10 discount on products from multiple sources:**
+
+```json
+{
+  "cataloguePredicate": {
+    "OR": [
+      {
+        "collectionPredicate": {
+          "ids": ["Q29sbGVjdGlvbjox"]
+        }
+      },
+      {
+        "categoryPredicate": {
+          "ids": ["Q2F0ZWdvcnk6OA=="]
+        }
+      },
+      {
+        "productPredicate": {
+          "ids": ["UHJvZHVjdDox"]
+        }
+      }
+    ]
+  },
+  "rewardValueType": "FIXED",
+  "rewardValue": 10
+}
+```
+
+## Pricing After Discount
+
+After a catalogue promotion applies, the variant pricing reflects the discount:
+
+```json
+{
+  "productVariant": {
+    "pricing": {
+      "onSale": true,
+      "priceUndiscounted": {
+        "gross": { "amount": 90.0 }
+      },
+      "price": {
+        "gross": { "amount": 45.0 }
+      },
+      "discount": {
+        "gross": { "amount": 45.0 }
+      }
+    }
+  }
+}
+```
+
+## Catalogue Promotions in Checkout
+
+When a customer adds a discounted product to checkout:
+
+- The line price reflects the discounted price
+- The subtotal is calculated from discounted line prices
+- The original price remains visible in `undiscountedUnitPrice`
+
+### Completing Checkout
+
+After completing a checkout with catalogue-discounted items:
+
+```json
+{
+  "order": {
+    "total": { "gross": { "amount": 30.0 } },
+    "undiscountedTotal": { "gross": { "amount": 40.0 } },
+    "discounts": [],
+    "lines": [
+      {
+        "quantity": 2,
+        "unitPrice": { "gross": { "amount": 15.0 } },
+        "undiscountedUnitPrice": { "gross": { "amount": 20.0 } },
+        "unitDiscount": { "amount": 5.0 }
+      }
+    ]
+  }
+}
+```
+
+Note that `order.discounts` is empty for catalogue promotions. The discount is visible in:
+
+- The difference between `total` and `undiscountedTotal`
+- Each line's `unitDiscount` field
+- The difference between `unitPrice` and `undiscountedUnitPrice`
+
+:::info
+The promotion discount is not visible on `checkout.discount.amount` for catalogue promotions.
+:::
+
+## Combining with Vouchers
+
+Catalogue promotions and vouchers can be combined. When both apply:
+
+1. Catalogue promotion discount applies first
+2. Voucher discount applies to the already-discounted price
+
+See [Combining Promotions and Vouchers](/developer/discounts/apply-vouchers.mdx#combining-promotions-and-vouchers) for examples.
+
