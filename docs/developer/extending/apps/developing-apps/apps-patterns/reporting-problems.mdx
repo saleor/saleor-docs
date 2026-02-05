@@ -1,0 +1,461 @@
+---
+title: Reporting Problems from Apps
+sidebar_label: Reporting Problems
+---
+
+Apps can self-report operational problems visible in the Saleor Dashboard. This lets you surface issues — such as misconfiguration, missing credentials, or degraded external services — directly to store administrators without requiring them to inspect logs or external monitoring.
+
+:::info
+
+This feature is available in Saleor 3.22+.
+
+:::
+
+## Overview
+
+The Problems API provides two mutations:
+
+- **`appProblemCreate`** — report a problem with a key and message.
+- **`appProblemDismiss`** — dismiss problems by IDs or keys.
+
+Problems are visible on the `App` type via the `problems` field and are displayed in the Dashboard on the app detail page.
+
+Key behaviors:
+
+- Problems with the same `key` are **aggregated** within a configurable time window (default: 60 minutes).
+- A `criticalThreshold` can mark a problem as critical once occurrences reach a given count.
+- Each app can have up to **100 problems**. When the limit is reached, the oldest problem is evicted automatically.
+- Problems are **cascade-deleted** when the app is removed.
+
+## Creating problems
+
+Use `appProblemCreate` to report a problem. This mutation is only available to authenticated apps — staff users cannot call it.
+
+```graphql
+mutation {
+  appProblemCreate(
+    input: {
+      message: "Cannot connect to payment gateway: connection timeout"
+      key: "payment-gateway-health"
+    }
+  ) {
+    app {
+      id
+      problems {
+        id
+        message
+        key
+        count
+        isCritical
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+### Input fields
+
+| Field                | Type     | Required | Default | Description                                                                                              |
+| -------------------- | -------- | -------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| `message`            | `String` | Yes      | —       | Human-readable description of the problem.                                                               |
+| `key`                | `String` | Yes      | —       | Identifier for the type of problem. Used for aggregation and dismissal by key.                           |
+| `aggregationPeriod`  | `Int`    | No       | `60`    | Time window in minutes for aggregating problems with the same key. Set to `0` to disable aggregation.    |
+| `criticalThreshold`  | `Int`    | No       | —       | When set, the problem is marked as `isCritical: true` once its `count` reaches this value.               |
+
+### Choosing a key
+
+The `key` field identifies the category of problem. Use a descriptive, stable identifier that represents the type of issue rather than a specific occurrence. The same key is used for:
+
+- **Aggregation** — repeated calls with the same key within the aggregation window are merged into a single problem with an incrementing `count`.
+- **Dismissal by key** — you can dismiss all problems matching a key in one call.
+
+Good key examples:
+- `payment-gateway-health`
+- `warehouse-api-auth`
+- `shipping-provider-timeout`
+- `tax-service-config-missing`
+
+## Aggregation
+
+When you report a problem with the same `key` as an existing non-dismissed problem, the system checks if the last event (`updatedAt`) is within the `aggregationPeriod`. If it is, the problems are **merged**:
+
+- `count` is incremented.
+- `message` is updated to the new message.
+- `updatedAt` is reset — **restarting the aggregation window**.
+
+This is a **sliding window** measured from the last event, not from the first. As long as events keep arriving within the window, they aggregate into a single problem.
+
+```
+T+0min   appProblemCreate(key: "api-err") → new problem (count=1)
+T+30min  appProblemCreate(key: "api-err") → merged   (count=2, window resets)
+T+80min  appProblemCreate(key: "api-err") → merged   (count=3, 50 min since last — still within 60 min)
+T+200min appProblemCreate(key: "api-err") → new problem (count=1, 120 min since last — exceeded window)
+```
+
+Setting `aggregationPeriod: 0` disables aggregation — every call creates a new problem.
+
+:::note
+
+Dismissed problems are excluded from aggregation. If a problem with a given key was dismissed, a new report with the same key creates a fresh problem.
+
+:::
+
+## Critical thresholds
+
+Use `criticalThreshold` to control when a problem is marked as critical. The problem's `isCritical` field becomes `true` once `count >= criticalThreshold`.
+
+### Immediate critical
+
+Set `criticalThreshold: 1` to mark a problem as critical from the first report:
+
+```graphql
+mutation {
+  appProblemCreate(
+    input: {
+      message: "Payment provider certificate expired"
+      key: "payment-cert-expired"
+      criticalThreshold: 1
+    }
+  ) {
+    app {
+      problems {
+        key
+        count
+        isCritical
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+Result: `count: 1`, `isCritical: true`.
+
+### Gradual escalation
+
+Set a higher threshold to escalate only after repeated occurrences:
+
+```graphql
+mutation {
+  appProblemCreate(
+    input: {
+      message: "Warehouse API returns 401"
+      key: "warehouse-api-health"
+      aggregationPeriod: 60
+      criticalThreshold: 5
+    }
+  ) {
+    app {
+      problems {
+        key
+        count
+        isCritical
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+After 4 calls: `count: 4`, `isCritical: false`.
+After the 5th call: `count: 5`, `isCritical: true`.
+
+## Dismissing problems
+
+Both apps and staff users can dismiss problems.
+
+### Dismiss by IDs
+
+```graphql
+mutation {
+  appProblemDismiss(ids: ["QXBwUHJvYmxlbTox"]) {
+    app {
+      id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+### Dismiss by keys
+
+Dismiss all problems matching the given keys:
+
+```graphql
+mutation {
+  appProblemDismiss(keys: ["warehouse-api-health"]) {
+    app {
+      id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+:::caution
+
+`ids` and `keys` cannot be used together in a single call. Exactly one of them is required.
+
+:::
+
+### App vs. staff callers
+
+| Caller | `ids`                           | `keys`                                        | `app` argument  |
+| ------ | ------------------------------- | --------------------------------------------- | --------------- |
+| App    | Dismiss own problems by ID      | Dismiss own problems by key                   | Not allowed     |
+| Staff  | Dismiss by ID (app is inferred) | Dismiss by key (requires `app` argument)      | Required for `keys` |
+
+Staff users need the `MANAGE_APPS` permission and can only dismiss problems for apps within their permission scope.
+
+Staff dismissal by keys example:
+
+```graphql
+mutation {
+  appProblemDismiss(keys: ["warehouse-api-health"], app: "QXBwOjE=") {
+    app {
+      id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+## Querying problems
+
+Problems are available on the `App` type. You can query them through any query that returns an `App`:
+
+```graphql
+query {
+  app(id: "QXBwOjE=") {
+    id
+    name
+    problems {
+      id
+      message
+      key
+      createdAt
+      updatedAt
+      count
+      isCritical
+      dismissed
+      dismissedBy {
+        ... on App {
+          id
+          name
+        }
+        ... on User {
+          id
+          email
+        }
+      }
+    }
+  }
+}
+```
+
+Problems are ordered by `createdAt` descending (newest first).
+
+### AppProblem fields
+
+| Field          | Type        | Description                                                        |
+| -------------- | ----------- | ------------------------------------------------------------------ |
+| `id`           | `ID!`       | Unique identifier.                                                 |
+| `message`      | `String!`   | Human-readable problem description. Updated on aggregation.        |
+| `key`          | `String!`   | Identifier for the type of problem.                                |
+| `count`        | `Int!`      | Number of occurrences (incremented on aggregation).                |
+| `isCritical`   | `Boolean!`  | Whether the problem reached the critical threshold.                |
+| `dismissed`    | `Boolean!`  | Whether the problem was dismissed.                                 |
+| `dismissedBy`  | `UserOrApp` | The app or staff user who dismissed the problem, or `null`.        |
+| `createdAt`    | `DateTime!` | When the problem was first created.                                |
+| `updatedAt`    | `DateTime!` | When the problem was last updated (reset on each aggregation).     |
+
+## Clearing problems on recovery
+
+When the underlying issue is resolved, your app should dismiss the related problems so the Dashboard reflects the current state. Use `appProblemDismiss` with the `keys` argument to clear all problems of a given type:
+
+```graphql
+mutation {
+  appProblemDismiss(keys: ["payment-gateway-health"]) {
+    app {
+      id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+This pattern works well with health-check loops: report a problem on failure, dismiss it once the service recovers.
+
+## Business examples
+
+### Payment app: gateway connectivity
+
+A payment app monitors the health of its gateway connection. On each failed health check, it reports a problem. After 5 consecutive failures within the aggregation window, the problem becomes critical.
+
+```graphql
+# On each failed health check:
+mutation {
+  appProblemCreate(
+    input: {
+      message: "Payment gateway unreachable: connection timeout after 5s"
+      key: "payment-gateway-connectivity"
+      aggregationPeriod: 30
+      criticalThreshold: 5
+    }
+  ) {
+    app {
+      problems {
+        key
+        count
+        isCritical
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+
+# When the gateway recovers:
+mutation {
+  appProblemDismiss(keys: ["payment-gateway-connectivity"]) {
+    app {
+      id
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+### Fulfillment app: missing API credentials
+
+A fulfillment app detects that the warehouse API key is missing or invalid during startup. This is a configuration issue that requires immediate attention.
+
+```graphql
+mutation {
+  appProblemCreate(
+    input: {
+      message: "Warehouse API key is missing. Configure it in the app settings."
+      key: "warehouse-api-credentials"
+      criticalThreshold: 1
+    }
+  ) {
+    app {
+      problems {
+        key
+        count
+        isCritical
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+Result: `isCritical: true` immediately, prompting the store administrator to act.
+
+### Tax app: degraded external service
+
+A tax calculation app gets intermittent errors from the tax provider. It reports each failure but only escalates to critical after 10 occurrences, since occasional failures are expected.
+
+```graphql
+mutation {
+  appProblemCreate(
+    input: {
+      message: "Tax provider returned HTTP 503: service temporarily unavailable"
+      key: "tax-provider-availability"
+      aggregationPeriod: 120
+      criticalThreshold: 10
+    }
+  ) {
+    app {
+      problems {
+        key
+        count
+        isCritical
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+With `aggregationPeriod: 120`, failures within a 2-hour sliding window accumulate. If the provider returns 10 errors in that window, the problem becomes critical.
+
+### Shipping app: rate-limit exceeded
+
+A shipping rate app detects that it has been rate-limited by the carrier API. It reports the problem and clears it once the rate limit resets.
+
+```graphql
+# When rate-limited:
+mutation {
+  appProblemCreate(
+    input: {
+      message: "Carrier API rate limit exceeded. Shipping rates may be unavailable until the limit resets."
+      key: "carrier-rate-limit"
+      criticalThreshold: 1
+      aggregationPeriod: 0
+    }
+  ) {
+    app {
+      problems {
+        key
+        count
+        isCritical
+      }
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+With `aggregationPeriod: 0`, each rate-limit event creates a separate problem record — useful when you want a log of individual incidents.
+
+## Limits and eviction
+
+Each app can store up to **100 problems**. When the limit is reached, creating a new problem automatically evicts the oldest one. This means you do not need to worry about cleanup — old problems are removed to make room for new ones.
+
+If you want finer control, dismiss problems proactively using `appProblemDismiss` when the underlying issue is resolved.
+
+## Permissions
+
+| Operation           | Required permission   | Notes                                                             |
+| ------------------- | --------------------- | ----------------------------------------------------------------- |
+| `appProblemCreate`  | `AUTHENTICATED_APP`   | Only the app itself can create its own problems.                  |
+| `appProblemDismiss` | `AUTHENTICATED_APP` or `MANAGE_APPS` | Apps dismiss their own. Staff can dismiss for managed apps. |
+| Querying `problems` | Standard `App` query permissions | Available wherever the `App` type is returned.          |
