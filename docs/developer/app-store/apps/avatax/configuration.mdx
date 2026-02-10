@@ -33,7 +33,7 @@ Fields that affect the created transactions:
 - Autocommit - a flag that indicates whether the instance should [automatically commit the transactions](https://developer.avalara.com/communications/dev-guide_rest_v2/commit-uncommit/).
 - Shipping tax code - the [tax code](https://taxcode.avatax.avalara.com) for shipping.
 - [Document recording](#document-recording) - a flag that indicates whether the instance should [record the transactions](https://developer.avalara.com/ecommerce-integration-guide/sales-tax-badge/designing/disable-document-recording/).
-- [Tax exemption status metadata](#tax-exemption-status-metadata) - a flag that indicates whether the app should write information about applied tax exemption to checkout public metadata.
+- [Tax exemption status metadata](#tax-exemption-status-metadata) - a flag that indicates whether the app should write information about applied tax exemption to checkout and order public metadata.
 
 #### Document recording
 
@@ -50,7 +50,7 @@ The AvaTax configuration form in the AvaTax App contains _Document recording_ to
 
 #### Tax exemption status metadata
 
-When enabled, the AvaTax App will write information about tax exemption applied by AvaTax to the checkout **public metadata**, under the `avataxExemptionStatus` key.
+When enabled, the AvaTax App will write information about tax exemption applied by AvaTax to the checkout and order **public metadata**, under the `avataxExemptionStatus` key.
 
 This metadata is intended to be consumed by storefronts or other clients to display additional UI (for example, a "tax exempt" badge).
 
@@ -225,10 +225,10 @@ Use **private metadata** for this field. Private metadata is not exposed in the 
 ### Tax exemption status
 
 **Metadata key: `avataxExemptionStatus`**  
-**Object: `Checkout`**  
+**Objects: `Checkout`, `Order`**  
 **Storage: public metadata**
 
-When the *Tax exemption status metadata* option is enabled in the AvaTax App configuration, the app will update the checkout public metadata entry with key `avataxExemptionStatus`.
+When the *Tax exemption status metadata* option is enabled in the AvaTax App configuration, the app will update the checkout and order public metadata entry with key `avataxExemptionStatus`.
 
 The metadata value is a JSON string with the following fields:
 
@@ -245,11 +245,20 @@ Example metadata entry:
 }
 ```
 
-To read it from Saleor, you can query the checkout `metafield`:
+To read it from Saleor, you can query the checkout or order `metafield`:
 
 ```graphql
 query CheckoutExemptionStatus($id: ID!) {
   checkout(id: $id) {
+    id
+    avataxExemptionStatus: metafield(key: "avataxExemptionStatus")
+  }
+}
+```
+
+```graphql
+query OrderExemptionStatus($id: ID!) {
+  order(id: $id) {
     id
     avataxExemptionStatus: metafield(key: "avataxExemptionStatus")
   }
