@@ -13,7 +13,7 @@ Apps can be installed in three ways:
 The first option can be helpful during App development and can only be used if you have access to the server CLI.
 The second option is a default flow used during installation from Saleor Marketplace.
 The third uses the same GraphQL mutations as the previous one but can be done using the UI.
-No matter which way of installing you choose, your App has to expose the registration endpoint. Saleor Core will contact such endpoint during registration and send tokens for App auth. If your application returns an HTTP status 200, installation is marked as successful, and staff users will be able to interact with it.
+No matter which way of installing you choose, if your App provides a `tokenTargetUrl` in its manifest, it must expose the registration endpoint. Saleor Core will contact this endpoint during installation and send the auth token. If your application returns an HTTP status 200, installation is marked as successful, and staff users will be able to interact with it. If `tokenTargetUrl` is not set, Saleor skips the token exchange step and the app is installed without receiving an auth token.
 
 ## Permissions
 
@@ -161,10 +161,18 @@ sequenceDiagram
   Saleor ->> Saleor: Validate manifest
   Saleor ->>+ DB: Create App
   DB -->>- Saleor: App object
-  Saleor ->> Saleor: Generate new auth token for app
-  Saleor ->>+ App: POST /token/target/url/<br>{"auth_token": "new-app-token"}
-  App -->>- Saleor: HTTP 200 OK
+  opt tokenTargetUrl is set in manifest
+    Saleor ->> Saleor: Generate new auth token for app
+    Saleor ->>+ App: POST /token/target/url/<br>{"auth_token": "new-app-token"}
+    App -->>- Saleor: HTTP 200 OK
+  end
 ```
+
+:::info
+The token exchange step (POST to `tokenTargetUrl`) is only performed when `tokenTargetUrl` 
+is provided in the app manifest. If omitted, Saleor completes the installation 
+without sending an auth token to the app.
+:::
 
 ### Retrieving ongoing installations
 
