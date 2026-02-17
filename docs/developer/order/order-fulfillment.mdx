@@ -11,10 +11,10 @@ In Saleor, fulfillments represent the shipping and logistics stage of an order.
 ### When can fulfillment be created?
 
 Fulfillments can be created after an order is confirmed (reaches the `UNFULFILLED` status). This can happen in two ways:
-- Automatically after checkout completion (if [`channel.orderSettings.automaticallyConfirmAllNewOrders`](api-reference/miscellaneous/objects/order-settings.mdx#ordersettingsautomaticallyconfirmallnewordersboolean---) is enabled)
+- Automatically after checkout completion (if [`channel.orderSettings.automaticallyConfirmAllNewOrders`](/api-reference/miscellaneous/objects/order-settings.mdx#automaticallyconfirmallnewordersboolean) is enabled)
 - Manually through the [`orderConfirm`](/api-reference/orders/mutations/order-confirm) mutation
 
-For more details about order statuses and their transitions, see the [Order Status lifecycle](order-status.mdx).
+For more details about order statuses and their transitions, see the [Order Status lifecycle](./order-status.mdx).
 
 ### Order-Fulfillment Relationship
 
@@ -52,7 +52,7 @@ stateDiagram-v2
 - **WAITING_FOR_APPROVAL** → The fulfillment is created but awaits approval before being processed. 
 Approval can be done by a staff user or an app. 
 You can enable this flow by updating the 
-[`shop.fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#shopfulfillmentautoapproveboolean---). 
+[`shop.fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#fulfillmentautoapproveboolean). 
 When set to false, fulfillments will remain in WAITING_FOR_APPROVAL until approved by an authorized entity.
 
 ### Status Transitions
@@ -72,8 +72,8 @@ When set to false, fulfillments will remain in WAITING_FOR_APPROVAL until approv
 ### Order Line Fulfillment Status
 
 Each order line maintains its own fulfillment state through two key fields:
-- [`OrderLine.quantityFulfilled`](/api-reference/orders/objects/order-line#orderlinequantityfulfilledint---) - The number of items that have been fulfilled
-- [`OrderLine.quantityToFulfill`](/api-reference/orders/objects/order-line#orderlinequantitytofulfillint---) - The number of items still pending fulfillment
+- [`OrderLine.quantityFulfilled`](/api-reference/orders/objects/order-line#quantityfulfilledint) - The number of items that have been fulfilled
+- [`OrderLine.quantityToFulfill`](/api-reference/orders/objects/order-line#quantitytofulfillint) - The number of items still pending fulfillment
 
 This status tracking allows you to:
 - Monitor partial fulfillments
@@ -99,7 +99,7 @@ Example of order line fulfillment status in a response:
 
 ### Stock Impact
 
-The impact of fulfillments on stock depends on whether inventory tracking is enabled for the product variant ([`ProductVariant.trackInventory`](/api-reference/products/objects/product-variant#productvarianttrackinventoryboolean---)).
+The impact of fulfillments on stock depends on whether inventory tracking is enabled for the product variant ([`ProductVariant.trackInventory`](/api-reference/products/objects/product-variant#trackinventoryboolean)).
 
 - When `trackInventory` is enabled:
   - Creating a fulfillment reduces stock in the specified warehouse and releases the stock allocation
@@ -117,7 +117,7 @@ The impact of fulfillments on stock depends on whether inventory tracking is ena
 
 :::info
 
-Fulfillment operations require the [`MANAGE_ORDERS`](developer/permissions.mdx#available-permissions) permission.
+Fulfillment operations require the [`MANAGE_ORDERS`](/developer/permissions.mdx#available-permissions) permission.
 
 :::
 ## API
@@ -887,18 +887,18 @@ Some settings in Saleor can affect how fulfillments are created and processed. T
 
 ### Shop Settings
 
-[`Shop.fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#shopfulfillmentautoapproveboolean---)
+[`Shop.fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#fulfillmentautoapproveboolean)
   - Controls whether new fulfillments require approval
   - When enabled, fulfillments are automatically approved
   - When disabled, fulfillments remain in `WAITING_FOR_APPROVAL` status until approved
 
-[`Shop.fulfillmentAllowUnpaid`](/api-reference/miscellaneous/objects/shop#shopfulfillmentallowunpaidboolean---)
+[`Shop.fulfillmentAllowUnpaid`](/api-reference/miscellaneous/objects/shop#fulfillmentallowunpaidboolean)
   - When enabled, allows creating fulfillments for unpaid orders
   - Useful for certain business models or special cases
   - Should be used with caution as it bypasses payment verification
 
 ### Channel Settings
-[`OrderSettings.automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#ordersettingsautomaticallyfulfillnonshippablegiftcardboolean---)
+[`OrderSettings.automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#automaticallyfulfillnonshippablegiftcardboolean)
   - When enabled, gift card orders are automatically fulfilled
   - Default value is `true`
   - Applies only to non-shippable gift cards
@@ -918,7 +918,7 @@ Understanding these interactions will help you implement the right fulfillment f
 
 ### Gift Card Fulfillment with Payment Settings
 
-The following explains the interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#ordersettingsautomaticallyfulfillnonshippablegiftcardboolean---) and [`fulfillmentAllowUnpaid`](/api-reference/miscellaneous/objects/shop#shopfulfillmentallowunpaidboolean---) when:
+The following explains the interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#automaticallyfulfillnonshippablegiftcardboolean) and [`fulfillmentAllowUnpaid`](/api-reference/miscellaneous/objects/shop#fulfillmentallowunpaidboolean) when:
 
 #### Both settings enabled
 - `automaticallyFulfillNonShippableGiftCard: true` and `fulfillmentAllowUnpaid: true`
@@ -939,7 +939,7 @@ The following explains the interaction between [`automaticallyFulfillNonShippabl
 
 ### Gift Card Fulfillment with Approval Settings
 
-The interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#ordersettingsautomaticallyfulfillnonshippablegiftcardboolean---) and [`fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#shopfulfillmentautoapproveboolean---) determines whether gift card fulfillments require manual approval:
+The interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#automaticallyfulfillnonshippablegiftcardboolean) and [`fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#fulfillmentautoapproveboolean) determines whether gift card fulfillments require manual approval:
 
 #### Auto-fulfill enabled, auto-approve disabled
 - `automaticallyFulfillNonShippableGiftCard: true` and `fulfillmentAutoApprove: false`
