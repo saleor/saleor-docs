@@ -39,19 +39,17 @@ mutation {
       key: "payment-gateway-health"
     }
   ) {
-    app {
+    appProblem {
       id
-      problems {
-        id
-        message
-        key
-        count
-        isCritical
-      }
+      message
+      key
+      count
+      isCritical
     }
     errors {
       field
       message
+      code
     }
   }
 }
@@ -59,12 +57,12 @@ mutation {
 
 ### Input fields
 
-| Field                | Type     | Required | Default | Description                                                                                              |
-| -------------------- | -------- | -------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| `message`            | `String` | Yes      | —       | Human-readable description of the problem.                                                               |
-| `key`                | `String` | Yes      | —       | Identifier for the type of problem. Used for aggregation and dismissal by key.                           |
-| `aggregationPeriod`  | `Int`    | No       | `60`    | Time window in minutes for aggregating problems with the same key. Set to `0` to disable aggregation.    |
-| `criticalThreshold`  | `Int`    | No       | —       | When set, the problem is marked as `isCritical: true` once its `count` reaches this value.               |
+| Field               | Type          | Required | Default | Description                                                                                                                   |
+| ------------------- | ------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `message`           | `String!`     | Yes      | —       | Human-readable description of the problem. Must be at least 3 characters. Messages longer than 2048 characters are truncated. |
+| `key`               | `String!`     | Yes      | —       | Identifier for the type of problem. Must be between 3 and 128 characters. Used for aggregation and dismissal by key.          |
+| `aggregationPeriod` | `Minute`      | No       | `60`    | Time window in minutes for aggregating problems with the same key. Set to `0` to disable aggregation.                         |
+| `criticalThreshold` | `PositiveInt` | No       | —       | When set, the problem is marked as `isCritical: true` once its `count` reaches this value.                                    |
 
 ### Choosing a key
 
@@ -74,6 +72,7 @@ The `key` field identifies the category of problem. Use a descriptive, stable id
 - **Dismissal by key** — you can dismiss all problems matching a key in one call.
 
 Good key examples:
+
 - `payment-gateway-health`
 - `warehouse-api-auth`
 - `shipping-provider-timeout`
@@ -121,16 +120,15 @@ mutation {
       criticalThreshold: 1
     }
   ) {
-    app {
-      problems {
-        key
-        count
-        isCritical
-      }
+    appProblem {
+      key
+      count
+      isCritical
     }
     errors {
       field
       message
+      code
     }
   }
 }
@@ -152,16 +150,15 @@ mutation {
       criticalThreshold: 5
     }
   ) {
-    app {
-      problems {
-        key
-        count
-        isCritical
-      }
+    appProblem {
+      key
+      count
+      isCritical
     }
     errors {
       field
       message
+      code
     }
   }
 }
@@ -170,39 +167,56 @@ mutation {
 After 4 calls: `count: 4`, `isCritical: false`.
 After the 5th call: `count: 5`, `isCritical: true`.
 
+### De-escalation
+
+If a subsequent call sends a higher `criticalThreshold` than the current `count`, the problem is de-escalated back to non-critical:
+
+- After 5 calls with `criticalThreshold: 5`: `count: 5`, `isCritical: true`
+- 6th call with `criticalThreshold: 10`: `count: 6`, `isCritical: false` — threshold raised above current count
+
 ## Dismissing problems
 
-Both apps and staff users can dismiss problems.
+Both apps and staff users can dismiss problems. The `appProblemDismiss` mutation uses a structured input — exactly one of `byApp`, `byStaffWithIds`, or `byStaffWithKeys` must be provided.
 
-### Dismiss by IDs
+### As an app
+
+App callers use the `byApp` input to dismiss their own problems. Exactly one of `ids` or `keys` must be provided inside `byApp`.
+
+**Dismiss by IDs:**
 
 ```graphql
 mutation {
-  appProblemDismiss(ids: ["QXBwUHJvYmxlbTox"]) {
-    app {
-      id
+  appProblemDismiss(
+    input: {
+      byApp: {
+        ids: ["QXBwUHJvYmxlbTox"]
+      }
     }
+  ) {
     errors {
       field
       message
+      code
     }
   }
 }
 ```
 
-### Dismiss by keys
-
-Dismiss all problems matching the given keys:
+**Dismiss by keys** — dismiss all problems matching the given keys:
 
 ```graphql
 mutation {
-  appProblemDismiss(keys: ["warehouse-api-health"]) {
-    app {
-      id
+  appProblemDismiss(
+    input: {
+      byApp: {
+        keys: ["warehouse-api-health"]
+      }
     }
+  ) {
     errors {
       field
       message
+      code
     }
   }
 }
@@ -210,45 +224,75 @@ mutation {
 
 :::caution
 
-`ids` and `keys` cannot be used together in a single call. Exactly one of them is required.
+Inside `byApp`, `ids` and `keys` cannot be used together. Exactly one of them is required.
 
 :::
 
-### App vs. staff callers
+### As a staff user
 
-| Caller | `ids`                           | `keys`                                        | `app` argument  |
-| ------ | ------------------------------- | --------------------------------------------- | --------------- |
-| App    | Dismiss own problems by ID      | Dismiss own problems by key                   | Not allowed     |
-| Staff  | Dismiss by ID (app is inferred) | Dismiss by key (requires `app` argument)      | Required for `keys` |
+Staff users with `MANAGE_APPS` permission can dismiss problems using `byStaffWithIds` or `byStaffWithKeys`.
 
-Staff users need the `MANAGE_APPS` permission and can only dismiss problems for apps within their permission scope.
-
-Staff dismissal by keys example:
+**Dismiss by IDs** (app is inferred from the problem IDs):
 
 ```graphql
 mutation {
-  appProblemDismiss(keys: ["warehouse-api-health"], app: "QXBwOjE=") {
-    app {
-      id
+  appProblemDismiss(
+    input: {
+      byStaffWithIds: {
+        ids: ["QXBwUHJvYmxlbTox"]
+      }
     }
+  ) {
     errors {
       field
       message
+      code
     }
   }
 }
 ```
 
+**Dismiss by keys** (requires `app` argument to identify the target app):
+
+```graphql
+mutation {
+  appProblemDismiss(
+    input: {
+      byStaffWithKeys: {
+        keys: ["warehouse-api-health"]
+        app: "QXBwOjE="
+      }
+    }
+  ) {
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+### Caller restrictions
+
+| Input              | Who can use it | `ids`                           | `keys`                          | `app` field        |
+| ------------------ | -------------- | ------------------------------- | ------------------------------- | ------------------ |
+| `byApp`            | App only       | Dismiss own problems by ID      | Dismiss own problems by key     | Not applicable     |
+| `byStaffWithIds`   | Staff only     | Dismiss by ID (app is inferred) | —                               | Not applicable     |
+| `byStaffWithKeys`  | Staff only     | —                               | Dismiss by key for a given app  | Required           |
+
+Staff users need the `MANAGE_APPS` permission and can only dismiss problems for apps within their permission scope. Each list (`ids` or `keys`) is limited to 100 items per call.
+
 ## Querying problems
 
-Problems are available on the `App` type. You can query them through any query that returns an `App`:
+Problems are available on the `App` type. You can query them through any query that returns an `App`. An optional `limit` parameter restricts the number of returned problems (must be between 1 and 100):
 
 ```graphql
 query {
   app(id: "QXBwOjE=") {
     id
     name
-    problems {
+    problems(limit: 10) {
       id
       message
       key
@@ -256,16 +300,13 @@ query {
       updatedAt
       count
       isCritical
-      dismissed
-      dismissedBy {
-        ... on App {
-          id
-          name
-        }
-        ... on User {
+      dismissed {
+        by
+        user {
           id
           email
         }
+        userEmail
       }
     }
   }
@@ -276,31 +317,44 @@ Problems are ordered by `createdAt` descending (newest first).
 
 ### AppProblem fields
 
-| Field          | Type        | Description                                                        |
-| -------------- | ----------- | ------------------------------------------------------------------ |
-| `id`           | `ID!`       | Unique identifier.                                                 |
-| `message`      | `String!`   | Human-readable problem description. Updated on aggregation.        |
-| `key`          | `String!`   | Identifier for the type of problem.                                |
-| `count`        | `Int!`      | Number of occurrences (incremented on aggregation).                |
-| `isCritical`   | `Boolean!`  | Whether the problem reached the critical threshold.                |
-| `dismissed`    | `Boolean!`  | Whether the problem was dismissed.                                 |
-| `dismissedBy`  | `UserOrApp` | The app or staff user who dismissed the problem, or `null`.        |
-| `createdAt`    | `DateTime!` | When the problem was first created.                                |
-| `updatedAt`    | `DateTime!` | When the problem was last updated (reset on each aggregation).     |
+| Field        | Type                    | Description                                                                           |
+| ------------ | ----------------------- | ------------------------------------------------------------------------------------- |
+| `id`         | `ID!`                   | Unique identifier.                                                                    |
+| `message`    | `String!`               | Human-readable problem description. Updated on aggregation.                           |
+| `key`        | `String!`               | Identifier for the type of problem.                                                   |
+| `count`      | `Int!`                  | Number of occurrences (incremented on aggregation).                                   |
+| `isCritical` | `Boolean!`              | Whether the problem reached the critical threshold.                                   |
+| `dismissed`  | `AppProblemDismissed`   | Dismissal information. `null` if the problem has not been dismissed.                  |
+| `createdAt`  | `DateTime!`             | When the problem was first created.                                                   |
+| `updatedAt`  | `DateTime!`             | When the problem was last updated (reset on each aggregation).                        |
+
+### AppProblemDismissed fields
+
+The `dismissed` field returns an object with dismissal details when the problem has been dismissed, or `null` otherwise.
+
+| Field       | Type                         | Description                                                                                    |
+| ----------- | ---------------------------- | ---------------------------------------------------------------------------------------------- |
+| `by`        | `AppProblemDismissedByEnum!` | Whether dismissed by `APP` or `USER`.                                                          |
+| `user`      | `User`                       | The user who dismissed the problem. `null` if dismissed by an app or if the user was deleted. Requires `MANAGE_STAFF` permission. |
+| `userEmail` | `String`                     | Email of the user who dismissed the problem. Preserved even if the user is deleted. Requires `AUTHENTICATED_STAFF_USER`. |
 
 ## Clearing problems on recovery
 
-When the underlying issue is resolved, your app should dismiss the related problems so the Dashboard reflects the current state. Use `appProblemDismiss` with the `keys` argument to clear all problems of a given type:
+When the underlying issue is resolved, your app should dismiss the related problems so the Dashboard reflects the current state. Use `appProblemDismiss` with the `byApp` input and `keys` argument to clear all problems of a given type:
 
 ```graphql
 mutation {
-  appProblemDismiss(keys: ["payment-gateway-health"]) {
-    app {
-      id
+  appProblemDismiss(
+    input: {
+      byApp: {
+        keys: ["payment-gateway-health"]
+      }
     }
+  ) {
     errors {
       field
       message
+      code
     }
   }
 }
@@ -325,29 +379,32 @@ mutation {
       criticalThreshold: 5
     }
   ) {
-    app {
-      problems {
-        key
-        count
-        isCritical
-      }
+    appProblem {
+      key
+      count
+      isCritical
     }
     errors {
       field
       message
+      code
     }
   }
 }
 
 # When the gateway recovers:
 mutation {
-  appProblemDismiss(keys: ["payment-gateway-connectivity"]) {
-    app {
-      id
+  appProblemDismiss(
+    input: {
+      byApp: {
+        keys: ["payment-gateway-connectivity"]
+      }
     }
+  ) {
     errors {
       field
       message
+      code
     }
   }
 }
@@ -366,16 +423,15 @@ mutation {
       criticalThreshold: 1
     }
   ) {
-    app {
-      problems {
-        key
-        count
-        isCritical
-      }
+    appProblem {
+      key
+      count
+      isCritical
     }
     errors {
       field
       message
+      code
     }
   }
 }
@@ -397,16 +453,15 @@ mutation {
       criticalThreshold: 10
     }
   ) {
-    app {
-      problems {
-        key
-        count
-        isCritical
-      }
+    appProblem {
+      key
+      count
+      isCritical
     }
     errors {
       field
       message
+      code
     }
   }
 }
@@ -429,16 +484,15 @@ mutation {
       aggregationPeriod: 0
     }
   ) {
-    app {
-      problems {
-        key
-        count
-        isCritical
-      }
+    appProblem {
+      key
+      count
+      isCritical
     }
     errors {
       field
       message
+      code
     }
   }
 }
@@ -454,8 +508,10 @@ If you want finer control, dismiss problems proactively using `appProblemDismiss
 
 ## Permissions
 
-| Operation           | Required permission   | Notes                                                             |
-| ------------------- | --------------------- | ----------------------------------------------------------------- |
-| `appProblemCreate`  | `AUTHENTICATED_APP`   | Only the app itself can create its own problems.                  |
-| `appProblemDismiss` | `AUTHENTICATED_APP` or `MANAGE_APPS` | Apps dismiss their own. Staff can dismiss for managed apps. |
-| Querying `problems` | Standard `App` query permissions | Available wherever the `App` type is returned.          |
+| Operation           | Required permission                        | Notes                                                                  |
+| ------------------- | ------------------------------------------ | ---------------------------------------------------------------------- |
+| `appProblemCreate`  | `AUTHENTICATED_APP`                        | Only the app itself can create its own problems.                       |
+| `appProblemDismiss` | `AUTHENTICATED_APP` or `MANAGE_APPS`       | Apps dismiss their own. Staff can dismiss for managed apps.            |
+| Querying `problems` | `AUTHENTICATED_APP` or `MANAGE_APPS`       | Available on the `App` type with appropriate permissions.              |
+| `dismissed.user`    | `MANAGE_STAFF`                             | Viewing which user dismissed a problem requires staff permission.      |
+| `dismissed.userEmail` | `AUTHENTICATED_STAFF_USER`               | Only accessible to authenticated staff users; apps receive a permission error. |
