@@ -108,6 +108,23 @@ mutation OrderGrantRefundCreate($id: ID!, $input: OrderGrantRefundCreateInput!) 
   orderGrantRefundCreate(id: $id, input: $input) {
     grantedRefund {
       id
+      reason
+      reasonReference {
+        id
+        title
+      }
+      lines {
+        id
+        reason
+        reasonReference {
+          id
+          title
+        }
+        orderLine {
+          id
+        }
+        quantity
+      }
     }
     order {
       id
@@ -138,7 +155,8 @@ mutation OrderGrantRefundCreate($id: ID!, $input: OrderGrantRefundCreateInput!) 
       {
         "id": "T3JkZXJMaW5lOjdlNzg5NzY0LTUyZWMtNDU3Mi05NWNkLTM5ZjQ0OTJmZDk4ZA==",
         "quantity": 5,
-        "reason": "Line reason"
+        "reason": "Line reason",
+        "reasonReference": "UGFnZToy"
       },
       {
         "id": "T3JkZXJMaW5lOjdlNzg5NzY0LTUyZWMtNDU3Mi05NWNkLTM5ZjQ0OTJmZDk4Z1==",
@@ -148,7 +166,7 @@ mutation OrderGrantRefundCreate($id: ID!, $input: OrderGrantRefundCreateInput!) 
     "grantRefundForShipping": true,
     "amount": 10,
     "reason": "Returned by customer",
-    "reasonReference": "UGFnZTox" # ID of a Page
+    "reasonReference": "UGFnZTox"
   }
 }
 ```
@@ -159,14 +177,18 @@ The mutation accepts below arguments:
 
 - `id` - ID of the `Order` to which granted refund should be assigned.
 - `input`:
-- `lines` - List of lines related to the planned refund action:
-- `id` - ID of the `OrderLine`.
-- `quantity` - The quantity of the specific lines planned to refund.
-- `reason` - Reason of the refund related to the specific line.
-- `reasonReference` - ID of the `Page` representing the reason for the refund. See [configuration](#refund-reasons-configuration) to learn more.
-- `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
-- `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
-- `transactionId` - ID of `TransactionItem` that will be used to process the refund. If `amount` is provided in the input, the `transaction.chargedAmount` needs to be equal to or greater than the provided `amount`. If `amount` is not provided in the input and calculated automatically by Saleor, the `min(calculatedAmount, transaction.chargedAmount)` will be used. This field was added in Saleor 3.20, and it will be a mandatory input field starting from Saleor 3.21.
+  - `lines` - List of lines related to the planned refund action:
+    - `id` - ID of the `OrderLine`.
+    - `quantity` - The quantity of the specific lines planned to refund.
+    - `reason` - Reason of the refund related to the specific line.
+    - `reasonReference` - Optional. ID of the `Page` representing the reason for the refund **for this specific line**. When provided, the Page must match the `PageType` set in refund settings. See [configuration](#refund-reasons-configuration) to learn more. Added in Saleor 3.23.
+  - `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
+  - `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
+  - `reason` - Order-level reason text for the granted refund.
+  - `reasonReference` - Order-level `Page` ID representing the reason for the refund. Required for staff when `refundReasonReferenceType` is configured. See [configuration](#refund-reasons-configuration) to learn more.
+  - `transactionId` - ID of `TransactionItem` that will be used to process the refund. If `amount` is provided in the input, the `transaction.chargedAmount` needs to be equal to or greater than the provided `amount`. If `amount` is not provided in the input and calculated automatically by Saleor, the `min(calculatedAmount, transaction.chargedAmount)` will be used. This field was added in Saleor 3.20, and it will be a mandatory input field starting from Saleor 3.21.
+
+The order-level `reasonReference` is required for staff users when the `refundReasonReferenceType` is configured, and always optional for apps. Per-line `reasonReference` is always optional for both staff and apps — lines without it are stored with `null`. There is no inheritance from order-level to line-level. When a per-line `reasonReference` is provided, it must match the configured `PageType`.
 
 The below example shows how to update the existing granted refund
 
@@ -177,6 +199,23 @@ mutation OrderGrantRefundUpdate($id: ID!, $input: OrderGrantRefundUpdateInput!) 
   orderGrantRefundUpdate(id: $id, input: $input) {
     grantedRefund {
       id
+      reason
+      reasonReference {
+        id
+        title
+      }
+      lines {
+        id
+        reason
+        reasonReference {
+          id
+          title
+        }
+        orderLine {
+          id
+        }
+        quantity
+      }
     }
     errors {
       addLines {
@@ -201,7 +240,9 @@ mutation OrderGrantRefundUpdate($id: ID!, $input: OrderGrantRefundUpdateInput!) 
     "addLines": [
       {
         "id": "T3JkZXJMaW5lOjgzYmZmZWI3LTVkNjEtNDMzZS1iOGFkLTFhMTE1NWI2ZTgwNg==",
-        "quantity": 3
+        "quantity": 3,
+        "reason": "Damaged item",
+        "reasonReference": "UGFnZToy"
       }
     ],
     "removeLines": [],
@@ -220,15 +261,17 @@ The mutation accepts below arguments:
 
 - `id` - ID of the `OrderGrantedRefund` which should be updated
 - `input`:
-- `addLines`: Lines that should be added to `OrderGrantedRefund`
-- `id` - ID of the `OrderLine`.
-- `quantity` - The quantity of the specific lines planned to refund.
-- `reason` - Reason for the planned refund related to the specific line.
-- `reasonReference` - ID of the `Page` representing the reason for the refund. See [configuration](#refund-reasons-configuration) to learn more.
-- `removeLines` - List of `OrderGrantedRefundLine`'s IDs that should be removed from `OrderGrantedRefund`.
-- `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
-- `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
-- `transactionId` - ID of `TransactionItem` that will be used to process the refund. If `amount` is provided in the input, the `transaction.chargedAmount` needs to be equal to or greater than the provided `amount`. If `amount` is not provided in the input and calculated automatically by Saleor, the `min(calculatedAmount, transaction.chargedAmount)` will be used. This field was added in Saleor 3.20, and it will be a mandatory input field starting from Saleor 3.21.
+  - `addLines` - Lines that should be added to `OrderGrantedRefund`:
+    - `id` - ID of the `OrderLine`.
+    - `quantity` - The quantity of the specific lines planned to refund.
+    - `reason` - Reason for the planned refund related to the specific line.
+    - `reasonReference` - Optional. ID of the `Page` representing the reason for the refund **for this specific line**. When provided, must match the configured `PageType`. See [configuration](#refund-reasons-configuration) to learn more. Added in Saleor 3.23.
+  - `removeLines` - List of `OrderGrantedRefundLine`'s IDs that should be removed from `OrderGrantedRefund`.
+  - `grantRefundForShipping` - Determines if the shipping costs will be also included in the refund.
+  - `amount` - Amount of the granted refund. If not provided, the amount will be calculated automatically based on provided `lines` and `grantRefundForShipping`.
+  - `reason` - Order-level reason text for the granted refund.
+  - `reasonReference` - Order-level `Page` ID representing the reason for the refund. Required for staff when `refundReasonReferenceType` is configured. See [configuration](#refund-reasons-configuration) to learn more.
+  - `transactionId` - ID of `TransactionItem` that will be used to process the refund. If `amount` is provided in the input, the `transaction.chargedAmount` needs to be equal to or greater than the provided `amount`. If `amount` is not provided in the input and calculated automatically by Saleor, the `min(calculatedAmount, transaction.chargedAmount)` will be used. This field was added in Saleor 3.20, and it will be a mandatory input field starting from Saleor 3.21.
 
 :::info
 
@@ -349,10 +392,168 @@ Below is an example order with multiple transactions and `totalRemainingGrant` a
   :::
 
 
-## Refund reasons configuration
+## Return and replace reasons
 
 :::note
 Available from 3.22
+:::
+
+The [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products) mutation supports attaching reasons to returns and replacements. Reasons can be provided at two levels:
+
+- **Global** - a single `reason` (free text) and `reasonReference` (`Page` ID) that applies to the entire return request. These are stored on the resulting `Fulfillment` object.
+- **Per fulfillment line** - a `reason` and `reasonReference` on each `OrderReturnFulfillmentLineInput`. These are stored on the individual `FulfillmentLine` objects, allowing different reasons for different items in the same return.
+
+### Input schema
+
+```graphql
+input OrderReturnProductsInput {
+  orderLines: [OrderReturnLineInput!]
+  fulfillmentLines: [OrderReturnFulfillmentLineInput!]
+  amountToRefund: PositiveDecimal
+  includeShippingCosts: Boolean
+  refund: Boolean
+  reason: String            # NEW in 3.22 - global return reason text
+  reasonReference: ID       # NEW in 3.22 - global Page reference
+}
+
+input OrderReturnFulfillmentLineInput {
+  fulfillmentLineId: ID!
+  quantity: Int!
+  replace: Boolean
+  reason: String            # NEW in 3.22 - per-line return reason text
+  reasonReference: ID       # NEW in 3.22 - per-line Page reference
+}
+```
+
+### Output types
+
+The reason data is persisted and available on the resulting fulfillment objects:
+
+```graphql
+type Fulfillment {
+  # ... existing fields ...
+  reason: String            # NEW in 3.22
+  reasonReference: Page     # NEW in 3.22
+}
+
+type FulfillmentLine {
+  # ... existing fields ...
+  reason: String            # NEW in 3.22
+  reasonReference: Page     # NEW in 3.22
+}
+```
+
+### Example: Return with reasons
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation OrderFulfillmentReturnProducts($orderId: ID!, $input: OrderReturnProductsInput!) {
+  orderFulfillmentReturnProducts(order: $orderId, input: $input) {
+    returnFulfillment {
+      id
+      status
+      reason
+      reasonReference {
+        id
+        title
+      }
+      lines {
+        id
+        quantity
+        reason
+        reasonReference {
+          id
+          title
+        }
+      }
+    }
+    replaceFulfillment {
+      id
+      status
+      reason
+      reasonReference {
+        id
+        title
+      }
+      lines {
+        id
+        quantity
+        reason
+        reasonReference {
+          id
+          title
+        }
+      }
+    }
+    replaceOrder {
+      id
+    }
+    order {
+      status
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "orderId": "T3JkZXI6NjAzYWI5OWMtY2EzZC00NzQwLWIxMDMtMjRhYzMyYmM0MjE2",
+  "input": {
+    "fulfillmentLines": [
+      {
+        "fulfillmentLineId": "RnVsZmlsbG1lbnRMaW5lOjI1MQ==",
+        "quantity": 1,
+        "replace": true,
+        "reason": "Item arrived damaged",
+        "reasonReference": "UGFnZToz"
+      },
+      {
+        "fulfillmentLineId": "RnVsZmlsbG1lbnRMaW5lOjI1Mg==",
+        "quantity": 1,
+        "replace": false,
+        "reason": "Wrong size",
+        "reasonReference": "UGFnZTo0"
+      }
+    ],
+    "orderLines": [],
+    "includeShippingCosts": false,
+    "refund": false,
+    "reason": "Customer return request #1234",
+    "reasonReference": "UGFnZTox"
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+The mutation accepts the following reason-related arguments:
+
+- `input`:
+  - `reason` - Global free-text reason for the return. Stored on the resulting `Fulfillment`.
+  - `reasonReference` - Global `Page` ID representing the reason for the return. Must match the `PageType` set in refund settings. Stored on the resulting `Fulfillment`. See [configuration](#refund-reasons-configuration) to learn more.
+  - `fulfillmentLines[].reason` - Per-line free-text reason for the return.
+  - `fulfillmentLines[].reasonReference` - Per-line `Page` ID. Overrides the global `reasonReference` for this specific line. Stored on the resulting `FulfillmentLine`.
+
+### Validation rules
+
+- When `refundReasonReferenceType` is configured and the caller is a **staff user**, the **global** `reasonReference` is required.
+- **Per-line `reasonReference` is always optional** — for both staff and apps. Lines without it are stored with `null`. There is no inheritance from the global level.
+- **Apps** can omit `reasonReference` at any level, even when configuration requires it.
+- When `reasonReference` is provided (global or per-line), the referenced `Page` must belong to the `PageType` set in the `refundReasonReferenceType` setting. Otherwise, a `ValidationError` is raised.
+- The `refund` flag does **not** affect reason validation. Whether `refund` is `true` or `false`, the same validation rules apply. The return reason (why items are being sent back) is independent of the refund reason (tracked on `OrderGrantedRefund`).
+
+## Refund reasons configuration
+
+:::note
+Available from 3.22. Per-line reason references for grant refund mutations and return/replace reasons added in 3.23.
 :::
 
 Staff users with `MANAGE_SETTINGS` permission can access additional refunds configuration available in Dashboard and via API.
@@ -391,11 +592,23 @@ Once you have a `PageType` ID, you can set it in the `refundSettingsUpdate` muta
     </TabItem>
 </Tabs>
 
-Now, every time a *staff user* tries to create a refund via `transactionActionRequest` or `orderGrantRefundCreate`/`orderGrantRefundUpdate` mutations (or via Dashboard), they will be required to provide a reason reference. The existing "reason" field will still be available, but it will be optional.
+Now, every time a *staff user* tries to create a refund or return, they will be required to provide a reason reference. The existing free-text "reason" field will still be available, but it will be optional.
 
-Note that permitted `App` will be able to omit this setting. For the *staff user*, the ValidationError will be raised if the reason reference is not provided. App can omit this field for more powerful workflows.
+Note that permitted `App` will be able to omit this setting. For the *staff user*, the `ValidationError` will be raised if the reason reference is not provided. Apps can omit this field for more powerful workflows.
 
-Apart from that, the `refundReason` provided in refund mutations must be a valid `Page` ID of the type set in the `refundReasonReferenceType` setting. If not, a ValidationError will be raised as well. 
+Apart from that, the `reasonReference` provided in mutations must be a valid `Page` ID of the type set in the `refundReasonReferenceType` setting. If not, a `ValidationError` will be raised as well.
+
+### Supported mutations
+
+The following mutations support `reasonReference` when the refund reason type is configured:
+
+| Mutation | Order-level | Per-line | Since |
+|----------|:-----------:|:--------:|:-----:|
+| `transactionRequestAction` | `refundReasonReference` | - | 3.22 |
+| `orderGrantRefundCreate` | `reasonReference` | `lines[].reasonReference` | 3.22 (order-level), 3.23 (per-line) |
+| `orderGrantRefundUpdate` | `reasonReference` | `addLines[].reasonReference` | 3.22 (order-level), 3.23 (per-line) |
+| `orderFulfillmentReturnProducts` | `reasonReference` | `fulfillmentLines[].reasonReference` | 3.23 |
+
 
 ### Disabling refund reason type requirement
 
