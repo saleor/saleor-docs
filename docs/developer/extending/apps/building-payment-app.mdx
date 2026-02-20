@@ -29,7 +29,7 @@ We will build a _Dummy Gateway_ that will simulate a typical 3D secure flow:
 3. Charge the payment on the 3D Secure page.
 4. Redirect the user to the result (success or failure) page.
 
-Transaction API can be used both in Checkout and Order. In this tutorial, we will cover only payment steps for [existing checkout](developer/checkout/overview.mdx).
+Transaction API can be used both in Checkout and Order. In this tutorial, we will cover only payment steps for [existing checkout](/developer/checkout/overview.mdx).
 
 ### Event Flow
 
@@ -53,27 +53,27 @@ sequenceDiagram
 
 #### Flow Breakdown
 
-1. Storefront will initiate the payment intent by calling the [`transactionInitialize`](/developer/payments/payment-apps.mdx#initialize-transaction) mutation, triggering the -> [`TRANSACTION_INITIALIZE_SESSION`](/developer/extending/webhooks/synchronous-events/transaction#initialize-transaction-session) webhook. The app will return [`CHARGE_ACTION_REQUIRED`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_action_required) as `action_type` to signal the storefront that 3D secure confirmation is required.
+1. Storefront will initiate the payment intent by calling the [`transactionInitialize`](/developer/payments/payment-apps.mdx#initialize-transaction) mutation, triggering the -> [`TRANSACTION_INITIALIZE_SESSION`](/developer/extending/webhooks/synchronous-events/transaction#initialize-transaction-session) webhook. The app will return [`CHARGE_ACTION_REQUIRED`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge_action_required) as `action_type` to signal the storefront that 3D secure confirmation is required.
 
 2. Storefront will pass 3D secure confirmation data to the [`transactionProcess`](/developer/payments/payment-apps.mdx#process-transaction) mutation which will trigger [`TRANSACTION_PROCESS_SESSION`](/developer/extending/webhooks/synchronous-events/transaction#process-transaction-session) webhook.
-   In this step we simulate the attempt of charging payment gateway by returning [`CHARGE_SUCCESS`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_success) or [`CHARGE_FAILURE`](api-reference/payments/enums/transaction-event-type-enum.mdx#transactioneventtypeenumcharge_failure) back from the app.
+   In this step we simulate the attempt of charging payment gateway by returning [`CHARGE_SUCCESS`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge_success) or [`CHARGE_FAILURE`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge_failure) back from the app.
 
 :::warning
-[Transaction Flow Strategy](api-reference/payments/enums/transaction-flow-strategy-enum.mdx) setting can alter the behavior of `transactionProcess` mutation. When set to `CHARGE` strategy, payments will be charged immediately, when it set `AUTHORIZATION` additional authorization step would be necessary. You can decide on the strategy on per channel basis in the _Configuration_ → _Channels_ → your channel page. For this tutorial, we will assume the `CHARGE` strategy is used.
+[Transaction Flow Strategy](/api-reference/payments/enums/transaction-flow-strategy-enum.mdx) setting can alter the behavior of `transactionProcess` mutation. When set to `CHARGE` strategy, payments will be charged immediately, when it set `AUTHORIZATION` additional authorization step would be necessary. You can decide on the strategy on per channel basis in the _Configuration_ → _Channels_ → your channel page. For this tutorial, we will assume the `CHARGE` strategy is used.
 :::
 
 ## Building Saleor App from Template
 
 #### Install Dependencies
 
-- Basic understanding of [Saleor Apps](developer/extending/apps/overview.mdx)
+- Basic understanding of [Saleor Apps](/developer/extending/apps/overview.mdx)
 - Familiarity with [Next.js](https://nextjs.org/)
 - `node >=18.17.0 <=20`
 - `pnpm >=9`
 
 #### Getting Started
 
-Any app with server-side capabilities can be considered a Saleor App if it matches the requirements described in the [App Requirements](developer/extending/apps/architecture/app-requirements.mdx) document. Thanks to the [App Template](developer/extending/apps/developing-apps/app-template.mdx), we won't have to check all the boxes manually.
+Any app with server-side capabilities can be considered a Saleor App if it matches the requirements described in the [App Requirements](/developer/extending/apps/architecture/app-requirements.mdx) document. Thanks to the [App Template](/developer/extending/apps/developing-apps/app-template.mdx), we won't have to check all the boxes manually.
 
 [`saleor-app-template`](https://github.com/saleor/saleor-app-template) is your Next.js starting point for building a Saleor App. It comes with all the necessary scaffolding to get you started. We will explore its features in the following sections of the tutorial.
 
@@ -97,7 +97,7 @@ pnpm dev
 
 ## Installing the App
 
-To verify that the app is running correctly, we must install it in Saleor. To do that, we need to expose our local development environment to the internet via a tunneling service. If you don't have experience with tunneling or app installation, you can follow the [Tunneling Apps](developer/extending/apps/developing-with-tunnels.mdx) guide.
+To verify that the app is running correctly, we must install it in Saleor. To do that, we need to expose our local development environment to the internet via a tunneling service. If you don't have experience with tunneling or app installation, you can follow the [Tunneling Apps](/developer/extending/apps/developing-with-tunnels.mdx) guide.
 
 The easiest way to proceed is to install a CLI tunneling tool like [`ngrok`](https://ngrok.com/), and then expose the app on the default port `3000`:
 
@@ -119,7 +119,7 @@ Our first step will be visiting the `src/pages/api/manifest.ts` directory, where
 
 :::info
 
-[App Manifest](developer/extending/apps/architecture/manifest.mdx) is the source of information about the app, including its webhooks. Saleor calls the `/manifest` API route during the app installation to retrieve all the necessary information about the app.
+[App Manifest](/developer/extending/apps/architecture/manifest.mdx) is the source of information about the app, including its webhooks. Saleor calls the `/manifest` API route during the app installation to retrieve all the necessary information about the app.
 
 :::
 
@@ -128,7 +128,7 @@ Two fields in the App Manifest require our attention:
 - `permissions` - The list of permissions the app requires to communicate with Saleor correctly (through webhooks and queries).
 - `webhooks` - The list of webhooks the app wants to register in Saleor.
 
-As we can read in the [Transaction Events](developer/extending/webhooks/synchronous-events/transaction.mdx#key-concepts) documentation, a Payment App needs [`HANDLE_PAYMENTS`](api-reference/users/enums/permission-enum.mdx#permissionenumhandle_payments) permission to receive transaction webhooks:
+As we can read in the [Transaction Events](/developer/extending/webhooks/synchronous-events/transaction.mdx#key-concepts) documentation, a Payment App needs [`HANDLE_PAYMENTS`](/api-reference/users/enums/permission-enum.mdx#handle_payments) permission to receive transaction webhooks:
 
 ```ts
 import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
@@ -149,7 +149,7 @@ export default createManifestHandler({
 
 Once we have built our first webhook, we will also add it to the `webhooks` array in the App Manifest.
 
-Luckily, we won't need to provide webhook details manually. [Saleor App SDK](developer/extending/apps/developing-apps/app-sdk/overview.mdx), a package included in the template, already provides helper classes for generating the webhooks: `SaleorSyncWebhook` and `SaleorAsyncWebhook`. Webhook instances created from these classes have the `getWebhookManifest` method, which we can use to generate the webhook manifest.
+Luckily, we won't need to provide webhook details manually. [Saleor App SDK](/developer/extending/apps/developing-apps/app-sdk/overview.mdx), a package included in the template, already provides helper classes for generating the webhooks: `SaleorSyncWebhook` and `SaleorAsyncWebhook`. Webhook instances created from these classes have the `getWebhookManifest` method, which we can use to generate the webhook manifest.
 
 ### Declaring `SaleorSyncWebhook` Instance
 
@@ -178,15 +178,15 @@ Here are the required constructor parameters of the `SaleorSyncWebhook` class:
 
 - `name` - The name of the webhook. It will be used during the webhook registration process.
 - `webhookPath` - The path to the webhook.
-- `event` - The [synchronous webhook event](api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#values) that the handler will be listening to.
-- `apl` - The reference to the app's [APL](developer/extending/apps/developing-apps/app-sdk/apl.mdx). Saleor App Template exports it from `src/saleor-app.ts`.
-- `query` - The query needed to generate the [subscription webhook payload](developer/extending/webhooks/subscription-webhook-payloads.mdx). It is currently empty because we still need to declare our subscription query.
+- `event` - The [synchronous webhook event](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#values) that the handler will be listening to.
+- `apl` - The reference to the app's [APL](/developer/extending/apps/developing-apps/app-sdk/apl.mdx). Saleor App Template exports it from `src/saleor-app.ts`.
+- `query` - The query needed to generate the [subscription webhook payload](/developer/extending/webhooks/subscription-webhook-payloads.mdx). It is currently empty because we still need to declare our subscription query.
 
 Also, we have the `unknown` generic attribute. It represents the type of webhook payload the app will receive. Since we don't have the subscription query yet, it is `unknown`.
 
 ### Defining the Subscription Query
 
-With [subscription webhook payloads](developer/extending/webhooks/subscription-webhook-payloads.mdx), you can define the shape of the payload the webhook will receive. [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) and the Saleor App SDK ensure the payload is correctly typed. We will fill the `query` attribute with that subscription query.
+With [subscription webhook payloads](/developer/extending/webhooks/subscription-webhook-payloads.mdx), you can define the shape of the payload the webhook will receive. [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) and the Saleor App SDK ensure the payload is correctly typed. We will fill the `query` attribute with that subscription query.
 
 Let's define a subscription query for the `TRANSACTION_INITIALIZE_SESSION` handler:
 
@@ -248,7 +248,7 @@ export const transactionInitializeSessionWebhook =
 
 #### `data` Field
 
-There is one more field we want to add to the `TransactionInitializeSessionPayload` fragment: [`data`](api-reference/payments/objects/transaction-initialize.mdx#transactioninitializedatajson--).
+There is one more field we want to add to the `TransactionInitializeSessionPayload` fragment: [`data`](/api-reference/payments/objects/transaction-initialize.mdx#datajson).
 
 `data` is a field you can use to pass custom information to the webhook. There are no requirements for the content of the `data` field as long as it is a valid JSON object. You will notice the presence of the `data` field across other payment-related webhooks.
 
@@ -301,7 +301,7 @@ export default createManifestHandler({
 
 :::warning
 
-Beware that modifying a subscription query for a registered webhook or adding a new webhook requires manual webhook update in Saleor API. The easiest way to do it is to reinstall the app. You can read more about this behavior in [How to Update App Webhooks](developer/extending/apps/updating-app-webhooks.mdx).
+Beware that modifying a subscription query for a registered webhook or adding a new webhook requires manual webhook update in Saleor API. The easiest way to do it is to reinstall the app. You can read more about this behavior in [How to Update App Webhooks](/developer/extending/apps/updating-app-webhooks.mdx).
 
 :::
 
@@ -333,9 +333,9 @@ While the first two are the standard Next.js request and response objects, the t
 - `payload` - Type-safe subscription webhook payload.
 - `event` - Name of the event that triggered the webhook.
 - `baseUrl` - The base URL of the app. If you need to register the app or a webhook in an external service, you can use this URL.
-- `authData` - The [authentication data](developer/extending/apps/developing-apps/app-sdk/apl.mdx#authdata) passed from Saleor to the app. Among other things, it contains the `token` you can use to query Saleor API. We won't need it in this tutorial.
+- `authData` - The [authentication data](/developer/extending/apps/developing-apps/app-sdk/apl.mdx#authdata) passed from Saleor to the app. Among other things, it contains the `token` you can use to query Saleor API. We won't need it in this tutorial.
 
-Since we are implementing the Dummy Payment Gateway, our handler logic will be basic. We will just log the payload and return the `CHARGE_ACTION_REQUIRED` event status. The only thing we need to remember is that the webhook response must adhere to the [webhook response format](developer/extending/webhooks/synchronous-events/transaction.mdx#response-4):
+Since we are implementing the Dummy Payment Gateway, our handler logic will be basic. We will just log the payload and return the `CHARGE_ACTION_REQUIRED` event status. The only thing we need to remember is that the webhook response must adhere to the [webhook response format](/developer/extending/webhooks/synchronous-events/transaction.mdx#response-4):
 
 :::info
 
@@ -445,7 +445,7 @@ export const config = {
 
 ### Calling the `transactionInitialize` Mutation
 
-Assuming you installed the app in Saleor, we can finally try out our webhook handler. We can trigger the `TRANSACTION_INITIALIZE_SESSION` event by calling the `transactionInitialize` mutation from [GraphQL Playground](docs/api-usage/developer-tools.mdx#playground).
+Assuming you installed the app in Saleor, we can finally try out our webhook handler. We can trigger the `TRANSACTION_INITIALIZE_SESSION` event by calling the `transactionInitialize` mutation from [GraphQL Playground](/api-usage/developer-tools.mdx#playground).
 
 Here is what the mutation looks like:
 
@@ -772,7 +772,7 @@ In response, we should receive the processed transaction and the corresponding t
 
 And that concludes the implementation of the Dummy Payment Gateway. With just two webhooks, we managed to model a 3D Secure payment flow.
 
-For most checkouts, placing payment will be the last step. That means you could now [complete the checkout](api-reference/checkout/mutations/checkout-complete.mdx) and place the order 🎉.
+For most checkouts, placing payment will be the last step. That means you could now [complete the checkout](/api-reference/checkout/mutations/checkout-complete.mdx) and place the order 🎉.
 
 ## Next steps
 
@@ -781,8 +781,8 @@ Congratulations on building your first Saleor Payment App!
 Its scope doesn't have to end here. You can further extend the app with additional features:
 
 - If your payment provider requires additional operation before the payment is even initialized (for example, to render the drop-in), you might be interested in reading about the [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](/developer/payments/payment-apps.mdx#initialize-payment-gateway) webhook.
-- To allow users to save their payment methods for future use, you should implement the [Stored Payment Methods API](developer/payments/stored-payments.mdx).
-- If your payment provider needs to report the transaction status to Saleor asynchronously, you can use the [`transactionEventReport` mutation](developer/payments/transactions.mdx#reporting-actions-for-transactions).
+- To allow users to save their payment methods for future use, you should implement the [Stored Payment Methods API](/developer/payments/stored-payments.mdx).
+- If your payment provider needs to report the transaction status to Saleor asynchronously, you can use the [`transactionEventReport` mutation](/developer/payments/transactions.mdx#reporting-actions-for-transactions).
 
 ## Related Resources
 

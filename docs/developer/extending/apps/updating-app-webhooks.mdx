@@ -4,7 +4,7 @@ title: How to Update App Webhooks
 
 ## Problem
 
-Imagine you have an app that notifies an external service whenever a new order is created. The app registers the `ORDER_CREATED` webhook based on the [subscription webhook payload](developer/extending/webhooks/subscription-webhook-payloads.mdx) from the `OrderCreatedSubscription.graphql` file:
+Imagine you have an app that notifies an external service whenever a new order is created. The app registers the `ORDER_CREATED` webhook based on the [subscription webhook payload](/developer/extending/webhooks/subscription-webhook-payloads.mdx) from the `OrderCreatedSubscription.graphql` file:
 
 ```graphql
 # OrderCreatedSubscription.graphql
@@ -76,7 +76,7 @@ Although you did modify both the `OrderCreatedSubscription.graphql` file, and th
 
 :::caution
 
-Whenever your app starts using a new field from the subscription, you must update the app's [webhook `query` field](../../../api-reference/webhooks/inputs/webhook-update-input#webhookupdateinputquerystring--).
+Whenever your app starts using a new field from the subscription, you must update the app's [webhook `query` field](/api-reference/webhooks/inputs/webhook-update-input#querystring).
 :::
 
 If your app hasn't yet been released or does not require zero downtime, the easiest solution would be to simply reinstall it. The query used in the subscription will be regenerated during the installation.
@@ -87,15 +87,15 @@ However, if your app has to stay functional at all times, you have to programmat
 
 To update webhooks without disrupting service you could use a webhook migration script. Those scripts should, ideally, execute before your app deployment (e.g., in CI). This way, you can ensure the app has all the required subscription fields without downtime.
 
-If you are using [`@saleor/app-sdk`](developer/extending/apps/developing-apps/app-sdk/overview.mdx) for app development, you can use some of its helpers in your migration script.
+If you are using [`@saleor/app-sdk`](/developer/extending/apps/developing-apps/app-sdk/overview.mdx) for app development, you can use some of its helpers in your migration script.
 
 Here is what a webhook migration script may look like:
 
 ### 1. Authenticate app
 
-To authenticate app-related API calls, you need to get the app token from its [`authData`](developer/extending/apps/developing-apps/app-sdk/apl.mdx#authdata).
+To authenticate app-related API calls, you need to get the app token from its [`authData`](/developer/extending/apps/developing-apps/app-sdk/apl.mdx#authdata).
 
-Where you get `authData` will depend on your [APL](developer/extending/apps/developing-apps/app-sdk/apl.mdx) implementation.
+Where you get `authData` will depend on your [APL](/developer/extending/apps/developing-apps/app-sdk/apl.mdx) implementation.
 
 Let's assume you are using the [`UpstashAPL`](https://github.com/saleor/app-sdk/blob/6527b0e308cc66fce11956be827464f2ff12d185/src/APL/upstash-apl.ts) provided in app-sdk:
 
@@ -117,9 +117,9 @@ export const getAppAuthData = async () => {
 
 ### 2. Get a webhook manifest
 
-We will update our webhook with [`webhookUpdate`](../../../api-reference/webhooks/mutations/webhook-update) mutation. As its input, we only want to pass the new value of the `query` field.
+We will update our webhook with [`webhookUpdate`](/api-reference/webhooks/mutations/webhook-update.mdx) mutation. As its input, we only want to pass the new value of the `query` field.
 
-We can get a stringified `query` field from the webhook manifest. Webhook manifest is the result of executing `getWebhookManifest` method on the instance of `SaleorAsyncWebhook` or `SaleorSyncWebhook` classes. These classes are provided by the [`@saleor/app-sdk`](developer/extending/apps/developing-apps/app-sdk/overview.mdx) to help you build your webhooks for the [app manifest](developer/extending/apps/extending-dashboard-with-apps.mdx#manifest).
+We can get a stringified `query` field from the webhook manifest. Webhook manifest is the result of executing `getWebhookManifest` method on the instance of `SaleorAsyncWebhook` or `SaleorSyncWebhook` classes. These classes are provided by the [`@saleor/app-sdk`](./developing-apps/app-sdk/overview.mdx) to help you build your webhooks for the [app manifest](./extending-dashboard-with-apps.mdx#manifest).
 
 Here is what webhook handler may look like for an `ORDER_CREATED` webhook:
 
@@ -184,8 +184,8 @@ In the next code example, we will assume the existence of:
 
 - `createGraphQLClient` - a function that returns a GraphQL client
 - `AppWebhookManager` - a class that takes in the GraphQL client and makes calls to the Saleor API. It has the following methods:
-  - `updateWebhookQuery` - runs [`webhookUpdate`](../../../api-reference/webhooks/mutations/webhook-update) mutation with `query` input
-  - `getWebhookByName` - runs [`app`](../../../api-reference/apps/queries/app) query and returns one of the `webhooks` by its `name`
+  - `updateWebhookQuery` - runs [`webhookUpdate`](/api-reference/webhooks/mutations/webhook-update.mdx) mutation with `query` input
+  - `getWebhookByName` - runs [`app`](/api-reference/apps/queries/app.mdx) query and returns one of the `webhooks` by its `name`
 
 :::
 
@@ -224,7 +224,7 @@ const runMigration = async () => {
 For most cases, the above script should be enough to update the webhook. However, if you can't afford to have any downtime, you should consider a more complex migration process that factors in:
 
 - **Rollback** - If the migration fails, you should be able to roll back to the previous state. This can be achieved by deactivating the old webhook, creating a new webhook, testing it, and only then removing the old one.
-- **Queued events** - [Saleor puts events in a queue](developer/extending/apps/architecture/communication-between-app-and-saleor.mdx#task-queue) and processes them asynchronously. This means that even if you update the webhook, the events that were put in the queue before will still be sent with the old query. Your app should be able to work with both old and new queries until the migration is complete.
+- **Queued events** - [Saleor puts events in a queue](/developer/extending/apps/architecture/communication-between-app-and-saleor.mdx#task-queue) and processes them asynchronously. This means that even if you update the webhook, the events that were put in the queue before will still be sent with the old query. Your app should be able to work with both old and new queries until the migration is complete.
 - **Safe query modification** - If you add a new field to the query, you should ensure that the app can handle the absence of this field in the old events. If you remove a field, you should ensure that the app can handle the presence of this field in the old events.
 
 If you need the full-picture view of migration scripts, feel free to peak into [saleor/apps repository](https://github.com/saleor/apps/tree/main/apps/avatax/scripts/migrations).
