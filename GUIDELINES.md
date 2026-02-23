@@ -162,8 +162,8 @@ Before publishing, verify:
 
 The following files help AI agents discover and use Saleor documentation:
 
-- [static/llms.txt](static/llms.txt)
-- [docs/developer/ai.mdx](docs/developer/ai.mdx)
+- [static/llms.txt](/static/llms.txt)
+- [docs/developer/ai.mdx](/developer/ai.mdx)
 
 When maintaining these files:
 

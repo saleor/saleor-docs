@@ -18,7 +18,7 @@ const Permissions = ({ permissions = "", text = "" }) => {
       </>
     ) : (
       <>
-        {"Requires "}
+        {"Requires the "}
         {permissionList.map((permission, idx) => (
           <span key={idx} className="badge badge--danger margin-right--sm">
             {permission}
