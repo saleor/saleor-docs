@@ -48,9 +48,20 @@ mutation promotionCreate($input: PromotionCreateInput!) {
 
 ## Creating Promotion Rules
 
-Use [`promotionRuleCreate`](/api-reference/discounts/mutations/promotion-rule-create.mdx) to add rules to a promotion.
+Use [`promotionRuleCreate`](/api-reference/discounts/mutations/promotion-rule-create.mdx) 
+to add rules to a promotion.
 
-### Catalogue Promotion Rule
+### Catalog Promotion Rule
+
+Catalogue predicates define which products receive the discount. You can target:
+
+- **Products** by ID
+- **Product variants** by ID
+- **Categories** by ID
+- **Collections** by ID
+
+Combine conditions using `AND` and `OR` operators for complex rules. See [filtering documentation](/api-usage/filtering.mdx#general-approach) for predicate syntax.
+
 
 <Tabs>
 <TabItem value="Mutation">
@@ -70,7 +81,7 @@ mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
 ```
 
 </TabItem>
-<TabItem value="Variables">
+<TabItem value="Variables" default>
 
 ```json
 {
@@ -122,7 +133,7 @@ mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
 ```
 
 </TabItem>
-<TabItem value="Variables">
+<TabItem value="Variables" default>
 
 ```json
 {
@@ -177,6 +188,21 @@ mutation promotionRuleCreate($input: PromotionRuleCreateInput!) {
 ## Channel Availability
 
 Rules require channel assignments to apply. When using `FIXED` reward value type, all assigned channels must share the same currency.
+
+## Price Recalculation
+
+Catalogue promotion prices are calculated asynchronously. After creating or modifying a catalogue promotion:
+
+- Prices won't update immediately
+- A background task processes the changes
+- Subscribe to relevant webhooks to know when recalculation completes
+
+### Expired Promotions in checkout
+To Do: VERIFY 
+When a promotion expires while products are in a customer's checkout:
+1. **Catalogue promotions**: The discounted price remains unchanged for 1 hour (default setting for `CHECKOUT_PRICES_TTL`) the the next checkout refresh or mutation that affect discounted line.
+2. **Order promotions**: The discount is removed when the checkout is updated.
+
 
 ## Promotion Events
 
@@ -263,21 +289,6 @@ Build automation to:
 1. Monitor inventory levels
 2. Create promotions for overstocked items
 3. End promotions when inventory normalizes
-
-## Price Recalculation
-
-Catalogue promotion prices are calculated asynchronously. After creating or modifying a catalogue promotion:
-
-- Prices won't update immediately
-- A background task processes the changes
-- Subscribe to relevant webhooks to know when recalculation completes
-
-### Expired Promotions in checkout
-To Do: VERIFY 
-When a promotion expires while products are in a customer's checkout:
-1. **Catalogue promotions**: The discounted price remains unchanged for 1 hour (default setting for `CHECKOUT_PRICES_TTL`) the the next checkout refresh or mutation that affect discounted line.
-2. **Order promotions**: The discount is removed when the checkout is updated.
-
 
 ## Permissions
 
