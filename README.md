@@ -44,7 +44,6 @@
 
 <br>
 
-
 # Saleor Documentation
 
 - Documentation: [https://docs.saleor.io](https://docs.saleor.io)
@@ -69,6 +68,7 @@
 ## Using DevContainers for VSCode (Recommended)
 
 > [!NOTE]
+>
 > - This requires docker or equivalent software to be installed and running on the machine.
 > - Other editors than VSCode are supported: see the [official documentation](https://containers.dev/supporting)
 
@@ -166,7 +166,7 @@ query {
 
 Use full path to the file to avoid linking to wrong page.
 
-- :white_check_mark: Example of good link: `[Attributes](/docs/developer/attributes.mdx)`
+- :white_check_mark: Example of good link: `[Attributes](/developer/attributes.mdx)`
 - :stop_sign: Avoid: `[Attributes](/attributes)`
 
 ### Using custom React components

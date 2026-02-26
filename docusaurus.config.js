@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const { themes } = require("prism-react-renderer");
 const path = require("node:path");
+const { deprecate } = require("node:util");
 
 const gtmContainerId = process.env.GTM_CONTAINER_ID;
 
@@ -78,12 +79,12 @@ module.exports = {
   plugins: [
     [
       "@graphql-markdown/docusaurus",
+      /** @type {import('@graphql-markdown/types').ConfigOptions} */
       {
         schema: "./schema.graphql",
         rootPath: "./docs", // docs will be generated under rootPath/baseURL
         baseURL: "api-reference",
         homepage: "./template/api-reference.mdx",
-        linkRoot: "../../../",
         loaders: {
           GraphQLFileLoader: "@graphql-tools/graphql-file-loader",
         },
@@ -98,8 +99,13 @@ module.exports = {
           },
         },
         printTypeOptions: {
+          deprecated: "group",
           hierarchy: "entity",
+          parentTypePrefix: false,
+          typeBadges: false,
         },
+        mdxParser: require.resolve("./template/hooks.js"),
+        pretty: true,
       },
     ],
     // Disabling due to known bug which causes slowdowns in the build process
