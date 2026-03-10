@@ -3,6 +3,9 @@ title: Authentication and Authorization
 sidebar_label: Authentication
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 This document describes different ways in which clients can authenticate with the API.
 
 :::info Authentication vs. authorization
@@ -469,6 +472,94 @@ will be extended after every 10 attempts. The maximum time for a user's IP can b
 
 To prevent abuse of the password reset functionality, Saleor uses password reset throttling. You can only request single password reset link per user per 15 minutes.
 If you self-host Saleor, you can modify this limit by setting the `RESET_PASSWORD_LOCK_TIME` environment variable.
+
+## Password Login Mode
+
+Saleor allows administrators to control whether password-based authentication is available. This is useful for organizations transitioning staff to OIDC/SSO — you can gradually restrict password login for staff while optionally keeping it available for customers.
+
+The `passwordLoginMode` setting on `Shop` supports three modes:
+
+### Modes
+
+| Mode | Customers | Staff |
+| --- | --- | --- |
+| `ENABLED` (default) | Normal login | Normal login |
+| `CUSTOMERS_ONLY` | Normal login | Staff can still log in, but they get no permissions |
+| `DISABLED` | Blocked | Blocked |
+
+:::info
+`ENABLED` is the default. Existing deployments are unaffected unless explicitly changed.
+:::
+
+
+### Configuring the Mode
+
+Use the [`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update.mdx) mutation to change the mode:
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ShopSettingsUpdate($input: ShopSettingsInput!) {
+  shopSettingsUpdate(input: $input) {
+    shop {
+      passwordLoginMode
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value="Variables">
+```json
+{
+  "input": {
+    "passwordLoginMode": "CUSTOMERS_ONLY"
+  }
+}
+```
+</TabItem>
+
+<TabItem value="Result">
+```json
+{
+  "data": {
+    "shopSettingsUpdate": {
+      "shop": {
+        "passwordLoginMode": "CUSTOMERS_ONLY"
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+:::caution
+Password-authenticated admins **cannot** set the mode to `CUSTOMERS_ONLY` or `DISABLED`.
+Only OIDC-authenticated admins can restrict password login.
+Attempting otherwise returns a `PASSWORD_AUTH_RESTRICTION` error.
+:::
+
+### Affected Mutations
+
+- [`tokenCreate`](/api-reference/authentication/mutations/token-create.mdx) — returns an error when `DISABLED`; in `CUSTOMERS_ONLY`, staff can still log in, but the token has no staff permissions
+- [`tokenRefresh`](/api-reference/authentication/mutations/token-refresh.mdx) — in `CUSTOMERS_ONLY`, refreshing a token continues to return a token without staff permissions
+- [`passwordChange`](/api-reference/users/mutations/password-change.mdx) — blocked when `DISABLED`
+- [`setPassword`](/api-reference/users/mutations/set-password.mdx) — blocked when `DISABLED`
+- [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx) — blocked when `DISABLED`
+
+### Error Codes
+
+| Code | Type | Returned when |
+| --- | --- | --- |
+| `DISABLED_AUTHENTICATION_METHOD` | `AccountErrorCode` | A password mutation is called when mode is `DISABLED` |
+| `PASSWORD_AUTH_RESTRICTION` | `ShopErrorCode` | A password-authenticated admin tries to restrict the mode |
 
 ## User authentication using OpenID Connect
 
