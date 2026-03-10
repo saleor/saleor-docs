@@ -53,10 +53,10 @@ sequenceDiagram
 
 #### Flow Breakdown
 
-1. Storefront will initiate the payment intent by calling the [`transactionInitialize`](/developer/payments/payment-apps.mdx#initialize-transaction) mutation, triggering the -> [`TRANSACTION_INITIALIZE_SESSION`](/developer/extending/webhooks/synchronous-events/transaction#initialize-transaction-session) webhook. The app will return [`CHARGE_ACTION_REQUIRED`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge_action_required) as `action_type` to signal the storefront that 3D secure confirmation is required.
+1. Storefront will initiate the payment intent by calling the [`transactionInitialize`](/developer/payments/payment-apps.mdx#initialize-transaction) mutation, triggering the -> [`TRANSACTION_INITIALIZE_SESSION`](/developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session) webhook. The app will return [`CHARGE_ACTION_REQUIRED`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge-action-required) as `action_type` to signal the storefront that 3D secure confirmation is required.
 
-2. Storefront will pass 3D secure confirmation data to the [`transactionProcess`](/developer/payments/payment-apps.mdx#process-transaction) mutation which will trigger [`TRANSACTION_PROCESS_SESSION`](/developer/extending/webhooks/synchronous-events/transaction#process-transaction-session) webhook.
-   In this step we simulate the attempt of charging payment gateway by returning [`CHARGE_SUCCESS`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge_success) or [`CHARGE_FAILURE`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge_failure) back from the app.
+2. Storefront will pass 3D secure confirmation data to the [`transactionProcess`](/developer/payments/payment-apps.mdx#process-transaction) mutation which will trigger [`TRANSACTION_PROCESS_SESSION`](/developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session) webhook.
+   In this step we simulate the attempt of charging payment gateway by returning [`CHARGE_SUCCESS`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge-success) or [`CHARGE_FAILURE`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge-failure) back from the app.
 
 :::warning
 [Transaction Flow Strategy](/api-reference/payments/enums/transaction-flow-strategy-enum.mdx) setting can alter the behavior of `transactionProcess` mutation. When set to `CHARGE` strategy, payments will be charged immediately, when it set `AUTHORIZATION` additional authorization step would be necessary. You can decide on the strategy on per channel basis in the _Configuration_ → _Channels_ → your channel page. For this tutorial, we will assume the `CHARGE` strategy is used.
@@ -128,7 +128,7 @@ Two fields in the App Manifest require our attention:
 - `permissions` - The list of permissions the app requires to communicate with Saleor correctly (through webhooks and queries).
 - `webhooks` - The list of webhooks the app wants to register in Saleor.
 
-As we can read in the [Transaction Events](/developer/extending/webhooks/synchronous-events/transaction.mdx#key-concepts) documentation, a Payment App needs [`HANDLE_PAYMENTS`](/api-reference/users/enums/permission-enum.mdx#handle_payments) permission to receive transaction webhooks:
+As we can read in the [Transaction Events](/developer/extending/webhooks/synchronous-events/transaction.mdx#key-concepts) documentation, a Payment App needs [`HANDLE_PAYMENTS`](/api-reference/users/enums/permission-enum.mdx#handle-payments) permission to receive transaction webhooks:
 
 ```ts
 import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
@@ -248,7 +248,7 @@ export const transactionInitializeSessionWebhook =
 
 #### `data` Field
 
-There is one more field we want to add to the `TransactionInitializeSessionPayload` fragment: [`data`](/api-reference/payments/objects/transaction-initialize.mdx#datajson).
+There is one more field we want to add to the `TransactionInitializeSessionPayload` fragment: [`data`](/api-reference/payments/objects/transaction-initialize.mdx#data).
 
 `data` is a field you can use to pass custom information to the webhook. There are no requirements for the content of the `data` field as long as it is a valid JSON object. You will notice the presence of the `data` field across other payment-related webhooks.
 
@@ -786,6 +786,6 @@ Its scope doesn't have to end here. You can further extend the app with addition
 
 ## Related Resources
 
-- [Using Payment Apps](/developer/payments/payment-apps)
-- [Transactions API](/developer/payments/transactions)
-- [Transactions Webhooks](/developer/extending/webhooks/synchronous-events/transaction)
+- [Using Payment Apps](/developer/payments/payment-apps.mdx)
+- [Transactions API](/developer/payments/transactions.mdx)
+- [Transactions Webhooks](/developer/extending/webhooks/synchronous-events/transaction.mdx)

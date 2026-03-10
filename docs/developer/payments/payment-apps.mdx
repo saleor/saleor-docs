@@ -64,15 +64,15 @@ Payment Apps support two distinct ways of processing checkouts:
 - first payments, then order
 - first order, then payments
 
-The first approach is used by default. It means that the order can be only created after the checkout is fully paid. See [`allowUnpaidOrders`](/api-reference/miscellaneous/objects/order-settings.mdx#allowunpaidordersboolean) setting for more details.
+The first approach is used by default. It means that the order can be only created after the checkout is fully paid. See [`allowUnpaidOrders`](/api-reference/miscellaneous/objects/order-settings.mdx#allow-unpaid-orders) setting for more details.
 
 In both cases, the order is created by calling the [`checkoutComplete`](/api-reference/checkout/mutations/checkout-complete.mdx) mutation.
 
 ### Initialize Payment Gateway
 
 To initialize the payment app, call the [`paymentGatewayInitialize`](/api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation.
-The [`data`](/api-reference/payments/inputs/payment-gateway-to-initialize.mdx#datajson) provided in the
-[`paymentGateways`](/api-reference/payments/inputs/payment-gateway-to-initialize.mdx) will be sent to the payment app. Saleor will then return the [`data`](/api-reference/payments/objects/payment-gateway-initialize.mdx#gatewayconfigspaymentgatewayconfig) received from each app as a response.
+The [`data`](/api-reference/payments/inputs/payment-gateway-to-initialize.mdx#data) provided in the
+[`paymentGateways`](/api-reference/payments/inputs/payment-gateway-to-initialize.mdx) will be sent to the payment app. Saleor will then return the [`data`](/api-reference/payments/objects/payment-gateway-initialize.mdx#gateway-configs) received from each app as a response.
 
 This step is useful when information needs to be obtained from the Payment App even before initializing the payment process. Typically used for getting the available payment methods for a specific checkout, or for fetching the payment form configuration to be rendered on the frontend. Multiple Payment Apps can be initialized with a single mutation call.
 
@@ -80,7 +80,7 @@ The [`paymentGatewayInitialize`](/api-reference/payments/mutations/payment-gatew
 
 - `id` - ID of the `Checkout` or `Order`
 - `amount` - The amount requested for initializing the payment gateway. The amount is rounded based on the given currency precision. If not provided, the difference between `checkout.total` and transactions that are already processed will be sent to the apps.
-- `paymentGateways` - A list of Payment Apps to initialize. If not provided, all apps subscribed to the webhook [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment_gateway_initialize_session) will be used.
+- `paymentGateways` - A list of Payment Apps to initialize. If not provided, all apps subscribed to the webhook [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-gateway-initialize-session) will be used.
 - `paymentGateways.id` - The identifier of the Payment App to initialize.
 - `paymentGateways.data` - The data to be passed to the Payment App.
 
@@ -163,15 +163,15 @@ mutation PaymentGatewayInitialize($id: ID!, $amount: PositiveDecimal, $paymentGa
 </TabItem>
 </Tabs>
 
-The mutation will trigger the [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment_gateway_initialize_session) webhook.
+The mutation will trigger the [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-gateway-initialize-session) webhook.
 For more details about this webhook, please refer to the [Transaction events guide](/developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-payment-gateway-session).
 
 ### Initialize Transaction
 
 To initiate payment processing, call the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize.mdx) mutation.
-The [`data`](/api-reference/payments/inputs/payment-gateway-to-initialize.mdx#datajson) provided in the
+The [`data`](/api-reference/payments/inputs/payment-gateway-to-initialize.mdx#data) provided in the
 [`paymentGateways`](/api-reference/payments/inputs/payment-gateway-to-initialize.mdx) field will be sent to the payment app, and Saleor will return the
-[`data`](/api-reference/payments/objects/transaction-initialize.mdx#datajson) received from the app as a response.
+[`data`](/api-reference/payments/objects/transaction-initialize.mdx#data) received from the app as a response.
 Based on the Payment App's response, Saleor will create or update the transaction with the appropriate status and balance.
 
 Depending on the implementation of the Payment App, the `transactionInitialize` may charge or authorize the customer.
@@ -220,7 +220,7 @@ The [`transactionInitialize`](/api-reference/payments/mutations/transaction-init
 - `data` - The data returned by the app.
 - `errors` - Errors related to the mutation call.
 
-The mutation will trigger the [`TRANSACTION_INITIALIZE_SESSION`](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#transaction_initialize_session) webhook.
+The mutation will trigger the [`TRANSACTION_INITIALIZE_SESSION`](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#transaction-initialize-session) webhook.
 For more details about this webhook, please refer to the [Transaction events guide](/developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session).
 
 The following example demonstrates how to use the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize.mdx) mutation to initiate payment processing:
@@ -302,8 +302,8 @@ Depending on the implementation, the Payment App may report the final status of 
 ### Process Transaction
 
 If [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize.mdx) or [`transactionProcess`](/api-reference/payments/mutations/transaction-process.mdx)
-returns `transactionEvent.type` equal to [`AUTHORIZATION_ACTION_REQUIRED`](/api-reference/payments/enums/transaction-event-type-enum.mdx#authorization_action_required)
-or [`CHARGE_ACTION_REQUIRED`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge_action_required), additional steps from the customer are required. After completing those steps, pass the results to the [`transactionProcess`](/api-reference/payments/mutations/transaction-process.mdx) mutation.
+returns `transactionEvent.type` equal to [`AUTHORIZATION_ACTION_REQUIRED`](/api-reference/payments/enums/transaction-event-type-enum.mdx#authorization-action-required)
+or [`CHARGE_ACTION_REQUIRED`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge-action-required), additional steps from the customer are required. After completing those steps, pass the results to the [`transactionProcess`](/api-reference/payments/mutations/transaction-process.mdx) mutation.
 
 The [`transactionProcess`](/api-reference/payments/mutations/transaction-process.mdx) mutation accepts the following arguments:
 
@@ -318,7 +318,7 @@ The [`transactionProcess`](/api-reference/payments/mutations/transaction-process
 - `data` - The data returned by the app.
 - `errors` - Errors related to the mutation call.
 
-The mutation triggers the [`TRANSACTION_PROCESS_SESSION`](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#transaction_process_session) webhook.
+The mutation triggers the [`TRANSACTION_PROCESS_SESSION`](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#transaction-process-session) webhook.
 For more details about this webhook, refer to the [Transaction events guide](/developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session).
 
 The following example demonstrates how to use the [`transactionProcess`](/api-reference/payments/mutations/transaction-process.mdx) mutation to process the payment:
