@@ -600,32 +600,149 @@ fragment AddressFragment on Address {
 
 ## Update Delivery Method
 
-Use [`checkoutDeliveryMethodUpdate`](/api-reference/checkout/mutations/checkout-delivery-method-update.mdx) to pass the delivery method returned by the `checkout` query.
+Checkout supports two types of delivery: shipping methods and click & collect points. Use `checkout.delivery` to read the currently assigned delivery method.
 
-The return type in `checkout.deliveryMethod` can be either `Warehouse` or `ShippingMethod`, so a union type must be used.
+### Shipping Methods
 
-Learn more about [delivery methods](/developer/checkout/address.mdx#selecting-the-delivery-method) and [how Saleor return shipping methods](/developer/shipping/shipping-methods-in-orders#how-saleor-selects-shipping-methods).
+Call [`deliveryOptionsCalculate`](/api-reference/shipping/mutations/delivery-options-calculate.mdx) to get an up-to-date list of available shipping methods. This explicitly triggers the `SHIPPING_LIST_METHODS_FOR_CHECKOUT` and `CHECKOUT_FILTER_SHIPPING_METHODS` webhooks. Use the `id` from each `deliveries` entry as `deliveryMethodId` in the next step.
 
-See the GraphQL documentation to [learn more about unions](https://graphql.org/learn/schema/#union-types).
+Learn more about [delivery methods](/developer/checkout/address.mdx#selecting-the-delivery-method), [delivery method problems](/developer/checkout/problems.mdx#checkoutproblemdeliverymethodstale), and [how Saleor returns shipping methods](/developer/shipping/shipping-methods-in-orders#how-saleor-selects-shipping-methods).
+
+<Tabs>
+<TabItem value={"Mutation"}>
+```graphql
+mutation DeliveryOptionsCalculate($id: ID!) {
+  deliveryOptionsCalculate(id: $id) {
+    deliveries {
+      id
+      shippingMethod {
+        name
+        active
+        price {
+          amount
+        }
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "deliveryOptionsCalculate": {
+      "deliveries": [
+        {
+          "id": "Q2hlY2tvdXREZWxpdmVyeTozODgwOGU5ZC0wMDVlLTQ1YjQtOTU1MC1mZjAyM2YzZGZlMDM=",
+          "shippingMethod": {
+            "name": "Registered priority",
+            "active": true,
+            "price": {
+              "amount": 42.89
+            }
+          }
+        },
+        {
+          "id": "Q2hlY2tvdXREZWxpdmVyeToxMzc0NTU3Mi0xMGMxLTRiNmItYTY5MC04Y2ZjZTNhYzk0NTQ=",
+          "shippingMethod": {
+            "name": "[EXTERNAL] Provider - Economy",
+            "active": true,
+            "price": {
+              "amount": 10
+            }
+          }
+        }
+      ],
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+### Click & Collect Points
+
+For click & collect, query `checkout.availableCollectionPoints` to list available warehouses. Use the warehouse `id` as `deliveryMethodId` in the next step.
+
+<Tabs>
+<TabItem value={"Query"}>
+```graphql
+query Checkout($id: ID!) {
+  checkout(id: $id) {
+    availableCollectionPoints {
+      id
+      name
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "checkout": {
+      "availableCollectionPoints": [
+        {
+          "id": "V2FyZWhvdXNlOjE1Zjk1Y2JhLTA1YjktNDM4Yi04MTM2LTkwZGQ2MWUzZjk1MA==",
+          "name": "Europe"
+        },
+        {
+          "id": "V2FyZWhvdXNlOjVlNGMwZjM3LWRmMzktNDJhMC05YTc4LTRmYTJiODBlM2ZkZA==",
+          "name": "Asia"
+        }
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+### Assign Delivery Method
+
+Below example shows the mutation call to assign the delivery method:
 
 <Tabs>
 <TabItem value={"Mutation"}>
 ```graphql
 mutation CheckoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
   checkoutDeliveryMethodUpdate(
-    id: $id, deliveryMethodId: $deliveryMethodId) 
+    id: $id, deliveryMethodId: $deliveryMethodId)
   {
     errors {
       message
       field
     }
     checkout {
-      deliveryMethod {
-        ... on Warehouse {
-          id
-          name
-        }
-        ... on ShippingMethod {
+      delivery {
+        id
+        shippingMethod {
           id
           name
         }
@@ -653,9 +770,12 @@ mutation CheckoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
     "checkoutDeliveryMethodUpdate": {
       "errors": [],
       "checkout": {
-        "deliveryMethod": {
-          "id": "U2hpcHBpbmdNZXRob2Q6MTU=",
-          "name": "FedEx"
+        "delivery": {
+          "id": "RGVsaXZlcnk6ZmVkZXg=",
+          "shippingMethod": {
+            "id": "U2hpcHBpbmdNZXRob2Q6MTU=",
+            "name": "FedEx"
+          }
         }
       },
       "__typename": "CheckoutDeliveryMethodUpdate"

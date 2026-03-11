@@ -109,28 +109,97 @@ To change your default address during checkout:
 
 This process ensures that the address you want to use is both set as your account default and applied to the ongoing checkout. 
 
-### Listing Available Shipping Methods
+### Listing Available Delivery Methods
 
-After choosing the shipping address, API can be queried for available delivery methods in the user area:
+#### Shipping Methods
+
+After choosing the shipping address, use the [`deliveryOptionsCalculate`](/api-reference/shipping/mutations/delivery-options-calculate.mdx) mutation to explicitly fetch available delivery methods.
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation DeliveryOptionsCalculate($id: ID!) {
+  deliveryOptionsCalculate(id: $id) {
+    deliveries {
+      id
+      shippingMethod {
+        name
+        active
+        price {
+          amount
+        }
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "deliveryOptionsCalculate": {
+      "deliveries": [
+        {
+          "id": "Q2hlY2tvdXREZWxpdmVyeTozODgwOGU5ZC0wMDVlLTQ1YjQtOTU1MC1mZjAyM2YzZGZlMDM=",
+          "shippingMethod": {
+            "name": "Registered priority",
+            "active": true,
+            "price": {
+              "amount": 42.89
+            }
+          }
+        },
+        {
+          "id": "Q2hlY2tvdXREZWxpdmVyeToxMzc0NTU3Mi0xMGMxLTRiNmItYTY5MC04Y2ZjZTNhYzk0NTQ=",
+          "shippingMethod": {
+            "name": "[EXTERNAL] Provider - Economy",
+            "active": true,
+            "price": {
+              "amount": 10
+            }
+          }
+        },
+      ],
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+Shipping methods can be internal (defined in the Saleor Dashboard) or [external](/developer/extending/webhooks/synchronous-events/shipping.mdx) (coming from a third party).
+
+See [delivery method problems](/developer/checkout/problems.mdx#checkoutproblemdeliverymethodstale) for how to handle stale or invalid delivery states.
+
+#### Click And Collect Points
+
+Collection points are [warehouses](/api-reference/products/objects/warehouse.mdx) that allow picking up orders, e.g., for a click & collect flow.
+After choosing the shipping address, use the `checkout.availableCollectionPoints` to fetch available click and collect points.
 
 <Tabs>
 <TabItem value="Query">
 ```graphql
-query GetCheckout($id: ID) {
+query Checkout($id: ID!) {
   checkout(id: $id) {
-    shippingMethods {
-      id
-      name
-      active
-      price {
-        currency
-        amount
-      }
-    }
     availableCollectionPoints {
       id
       name
-      clickAndCollectOption
     }
   }
 }
@@ -150,38 +219,22 @@ query GetCheckout($id: ID) {
 {
   "data": {
     "checkout": {
-      "shippingMethods": [
-        {
-          "id": "U2hpcHBpbmdNZXRob2Q6MTY1Nw==",
-          "name": "DHL",
-          "price": {
-            "currency": "USD",
-            "amount": 10.0
-          },
-          "active": true,
-          "message": ""
-        },
-        {
-          "id": "U2hpcHBpbmdNZXRob2Q6MTM=",
-          "name": "UPS",
-          "price": {
-            "currency": "USD",
-            "amount": 8.0
-          },
-          "active": false,
-          "message": "Not available."
-        }
-      ],
       "availableCollectionPoints": [
         {
-          "id": "V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OQ==",
-          "name": "Local Store",
-          "clickAndCollectOption": "LOCAL"
+          "id": "V2FyZWhvdXNlOjE1Zjk1Y2JhLTA1YjktNDM4Yi04MTM2LTkwZGQ2MWUzZjk1MA==",
+          "name": "Store1"
         },
         {
-          "id": "V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OA==",
-          "name": "Company HQ",
-          "clickAndCollectOption": "ALL"
+          "id": "V2FyZWhvdXNlOjVlNGMwZjM3LWRmMzktNDJhMC05YTc4LTRmYTJiODBlM2ZkZA==",
+          "name": "Store2"
+        },
+        {
+          "id": "V2FyZWhvdXNlOmMwNzU1YmNmLTU5ZjgtNDE5OS05NjY4LTA4NTM3NzI2ZGZlMg==",
+          "name": "Store3"
+        },
+        {
+          "id": "V2FyZWhvdXNlOmNlYThiZjUxLTM4YTgtNDgwOC04N2QyLWQ1YmQwNWJkZWY2ZQ==",
+          "name": "Default"
         }
       ]
     }
@@ -191,7 +244,6 @@ query GetCheckout($id: ID) {
 </TabItem>
 </Tabs>
 
-Shipping methods can be internal (defined in the Saleor Dashboard) or [external](/developer/extending/webhooks/synchronous-events/shipping.mdx) (coming from the 3-rd party). Collection points are [warehouses](/api-reference/products/objects/warehouse.mdx) that allow picking-up orders e.g. for click & collect flow.
 
 ### Selecting the Delivery Method
 
@@ -200,11 +252,12 @@ Use the [`checkoutDeliveryMethodUpdate`](/api-reference/checkout/mutations/check
 This operation requires the following input:
 
 - `id`: the checkout ID (the `id` field of the [`Checkout`](/api-reference/checkout/objects/checkout.mdx) object).
-- `deliveryMethodId`: the shipping method ID or Warehouse ID (from the `shippingMethods` or `availableCollectionPoints` field of the [`Checkout`](/api-reference/checkout/objects/checkout.mdx) object).
+- `deliveryMethodId`: the shipping method ID or Warehouse ID (`delivery` from the `deliveryOptionsCalculate` mutation or `availableCollectionPoints` field of the [`Checkout`](/api-reference/checkout/objects/checkout.mdx) object).
 
-In the following mutation, we assign a delivery method to the checkout using IDs from the previous example. Note that for the checkout object, we want to get back the update `totalPrice` including shipping costs:
+In the following mutation, we assign a delivery method to the checkout using IDs from the previous example. Note that for the checkout object, we want to get back the updated `totalPrice` including shipping costs:
 
-Please note, that selecting `collectionPoint` or `shippingMethod` is mandatory for the checkout flow. In other words, setting `deliveryMethod` is mandatory.
+Please note that selecting `collectionPoint` or `shippingMethod` is mandatory for the checkout flow. In other words, setting `delivery` is mandatory.
+
 
 <Tabs>
 <TabItem value="Mutation">
@@ -213,12 +266,10 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
   checkoutDeliveryMethodUpdate(id: $id, deliveryMethodId: $deliveryMethodId) {
     checkout {
       id
-      deliveryMethod {
-        __typename
-        ... on Warehouse {
-          name
-        }
-        ... on ShippingMethod {
+      delivery {
+        id
+        shippingMethod {
+          id
           name
         }
       }
@@ -241,8 +292,8 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
 <TabItem value={"Variables"}>
 ```json
 {
-  "id": "Q2hlY2tvdXQ6NmFkODZhOTgtZDA1Yi00YTA5LTllMTEtZjRmMmVkY2I1ZDk1",
-  "deliveryMethodId": "U2hpcHBpbmdNZXRob2Q6MzE="
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+  "deliveryMethodId": "Q2hlY2tvdXREZWxpdmVyeToxMzc0NTU3Mi0xMGMxLTRiNmItYTY5MC04Y2ZjZTNhYzk0NTQ="
 }
 ```
 </TabItem>
@@ -254,13 +305,16 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
     "checkoutDeliveryMethodUpdate": {
       "checkout": {
         "id": "Q2hlY2tvdXQ6NmFkODZhOTgtZDA1Yi00YTA5LTllMTEtZjRmMmVkY2I1ZDk1",
-        "deliveryMethod": {
-          "__typename": "ShippingMethod",
-          "name": "ups"
+        "delivery": {
+          "id": "RGVsaXZlcnk6dXBz",
+          "shippingMethod": {
+            "id": "U2hpcHBpbmdNZXRob2Q6MzE=",
+            "name": "ups"
+          }
         },
         "totalPrice": {
           "gross": {
-            "amount": 190,
+            "amount": 19.90,
             "currency": "USD"
           }
         }
@@ -291,7 +345,9 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
         ... on Warehouse {
           name
         }
-        ... on ShippingMethod {
+      }
+      delivery{
+        shippingMethod{
           name
         }
       }
@@ -325,11 +381,12 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
   "data": {
     "checkoutDeliveryMethodUpdate": {
       "checkout": {
-        "id": "Q2hlY2tvdXQ6NmFkODZhOTgtZDA1Yi00YTA5LTllMTEtZjRmMmVkY2I1ZDk1",
+        "id": "Q2hlY2tvdXQ6Mjg5NjQyZWUtNzM3Ny00ZjQzLWFlMWMtZTlhNmI4ZjRiZTUz",
         "deliveryMethod": null,
+        "delivery": null,
         "totalPrice": {
           "gross": {
-            "amount": 180,
+            "amount": 9.93,
             "currency": "USD"
           }
         }
