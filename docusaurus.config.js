@@ -97,6 +97,7 @@ module.exports = {
           frontMatter: {
             api_reference: true,
           },
+          sectionHeaderId: true,
         },
         printTypeOptions: {
           deprecated: "group",
