@@ -11,10 +11,10 @@ In Saleor, fulfillments represent the shipping and logistics stage of an order.
 ### When can fulfillment be created?
 
 Fulfillments can be created after an order is confirmed (reaches the `UNFULFILLED` status). This can happen in two ways:
-- Automatically after checkout completion (if [`channel.orderSettings.automaticallyConfirmAllNewOrders`](api-reference/miscellaneous/objects/order-settings.mdx#ordersettingsautomaticallyconfirmallnewordersboolean---) is enabled)
-- Manually through the [`orderConfirm`](/api-reference/orders/mutations/order-confirm) mutation
+- Automatically after checkout completion (if [`channel.orderSettings.automaticallyConfirmAllNewOrders`](/api-reference/miscellaneous/objects/order-settings.mdx#automatically-confirm-all-new-orders) is enabled)
+- Manually through the [`orderConfirm`](/api-reference/orders/mutations/order-confirm.mdx) mutation
 
-For more details about order statuses and their transitions, see the [Order Status lifecycle](order-status.mdx).
+For more details about order statuses and their transitions, see the [Order Status lifecycle](./order-status.mdx).
 
 ### Order-Fulfillment Relationship
 
@@ -30,7 +30,7 @@ Each fulfillment affects the order's status:
 - Returning items can move the order to `PARTIALLY_RETURNED` or `RETURNED` status
 
 ## Fulfillment Lifecycle
-[`FulfillmentStatus Enum`](/api-reference/orders/enums/fulfillment-status) represents all the possible states fulfillment can be in.
+[`FulfillmentStatus Enum`](/api-reference/orders/enums/fulfillment-status.mdx) represents all the possible states fulfillment can be in.
 ```mermaid
 stateDiagram-v2
     direction LR
@@ -52,28 +52,28 @@ stateDiagram-v2
 - **WAITING_FOR_APPROVAL** → The fulfillment is created but awaits approval before being processed. 
 Approval can be done by a staff user or an app. 
 You can enable this flow by updating the 
-[`shop.fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#shopfulfillmentautoapproveboolean---). 
+[`shop.fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop.mdx#fulfillment-auto-approve). 
 When set to false, fulfillments will remain in WAITING_FOR_APPROVAL until approved by an authorized entity.
 
 ### Status Transitions
 **If fulfillment is in WAITING_FOR_APPROVAL**:
-   - Running [`orderFulfillmentApprove`](/api-reference/orders/mutations/order-fulfillment-approve) changes status to **FULFILLED**.
-   - Running [`orderFulfillmentCancel`](/api-reference/orders/mutations/order-fulfillment-cancel) **removes the fulfillment**.
+   - Running [`orderFulfillmentApprove`](/api-reference/orders/mutations/order-fulfillment-approve.mdx) changes status to **FULFILLED**.
+   - Running [`orderFulfillmentCancel`](/api-reference/orders/mutations/order-fulfillment-cancel.mdx) **removes the fulfillment**.
 
 **If fulfillment is in FULFILLED**:
-   - Running [`orderFulfillmentCancel`](/api-reference/orders/mutations/order-fulfillment-cancel) changes status to **CANCELED**.
-   - Running [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products) changes status based on the request:
+   - Running [`orderFulfillmentCancel`](/api-reference/orders/mutations/order-fulfillment-cancel.mdx) changes status to **CANCELED**.
+   - Running [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products.mdx) changes status based on the request:
      - **RETURNED** → If only a return was requested.
      - **REPLACED** → If a replacement was requested.
-   - Running [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products) changes status based on the request:
+   - Running [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products.mdx) changes status based on the request:
      - **REFUNDED** → If only a refund was requested.
      - **REFUNDED_AND_RETURNED** → If both return and refund were requested.
 
 ### Order Line Fulfillment Status
 
 Each order line maintains its own fulfillment state through two key fields:
-- [`OrderLine.quantityFulfilled`](/api-reference/orders/objects/order-line#orderlinequantityfulfilledint---) - The number of items that have been fulfilled
-- [`OrderLine.quantityToFulfill`](/api-reference/orders/objects/order-line#orderlinequantitytofulfillint---) - The number of items still pending fulfillment
+- [`OrderLine.quantityFulfilled`](/api-reference/orders/objects/order-line.mdx#quantity-fulfilled) - The number of items that have been fulfilled
+- [`OrderLine.quantityToFulfill`](/api-reference/orders/objects/order-line.mdx#quantity-to-fulfill) - The number of items still pending fulfillment
 
 This status tracking allows you to:
 - Monitor partial fulfillments
@@ -99,7 +99,7 @@ Example of order line fulfillment status in a response:
 
 ### Stock Impact
 
-The impact of fulfillments on stock depends on whether inventory tracking is enabled for the product variant ([`ProductVariant.trackInventory`](/api-reference/products/objects/product-variant#productvarianttrackinventoryboolean---)).
+The impact of fulfillments on stock depends on whether inventory tracking is enabled for the product variant ([`ProductVariant.trackInventory`](/api-reference/products/objects/product-variant.mdx#track-inventory)).
 
 - When `trackInventory` is enabled:
   - Creating a fulfillment reduces stock in the specified warehouse and releases the stock allocation
@@ -113,17 +113,17 @@ The impact of fulfillments on stock depends on whether inventory tracking is ena
 - You can manually select warehouses when creating fulfillments
 
 #### Stock Level Overrides
-- The `allowStockToBeExceeded` parameter in the [`orderFulfill`](/api-reference/orders/mutations/order-fulfill) mutation allows creating fulfillments even when stock is insufficient
+- The `allowStockToBeExceeded` parameter in the [`orderFulfill`](/api-reference/orders/mutations/order-fulfill.mdx) mutation allows creating fulfillments even when stock is insufficient
 
 :::info
 
-Fulfillment operations require the [`MANAGE_ORDERS`](developer/permissions.mdx#available-permissions) permission.
+Fulfillment operations require the [`MANAGE_ORDERS`](/developer/permissions.mdx#available-permissions) permission.
 
 :::
 ## API
 ### Create Fulfillment
 
-Fulfillments are created using the GraphQL mutation [`orderFulfill`](/api-reference/orders/mutations/order-fulfill). This operation allows you to process and ship items from your warehouses to customers.
+Fulfillments are created using the GraphQL mutation [`orderFulfill`](/api-reference/orders/mutations/order-fulfill.mdx). This operation allows you to process and ship items from your warehouses to customers.
 
 **Required Fields**
 
@@ -144,7 +144,7 @@ You can enhance the fulfillment process with these additional options:
   - We recommend testing this behavior with both track inventory enabled and disabled
 - `trackingNumber` - The shipping tracking number
   - Can be provided during fulfillment creation
-  - Can be updated later using the [`orderFulfillmentUpdateTracking`](/api-reference/orders/mutations/order-fulfillment-update-tracking) mutation
+  - Can be updated later using the [`orderFulfillmentUpdateTracking`](/api-reference/orders/mutations/order-fulfillment-update-tracking.mdx) mutation
 
 
 Here's an example of creating a fulfillment:
@@ -282,7 +282,7 @@ mutation FulfillOrder($id: ID, $input: OrderFulfillInput!) {
 
 ### Cancel Fulfillment
 
-Fulfillments can be canceled using the [`orderFulfillmentCancel`](/api-reference/orders/mutations/order-fulfillment-cancel) mutation. This operation is useful for handling shipping errors, customer cancellations, or when items need to be restocked.
+Fulfillments can be canceled using the [`orderFulfillmentCancel`](/api-reference/orders/mutations/order-fulfillment-cancel.mdx) mutation. This operation is useful for handling shipping errors, customer cancellations, or when items need to be restocked.
 
 **Required Fields**
 
@@ -395,7 +395,7 @@ mutation OrderFulfillmentCancel($id: ID!, $input: FulfillmentCancelInput) {
 
 ### Approve Fulfillment
 
-Fulfillments can be approved using the [`orderFulfillmentApprove`](/api-reference/orders/mutations/order-fulfillment-approve) mutation. This operation is used when approval is required before processing a fulfillment.
+Fulfillments can be approved using the [`orderFulfillmentApprove`](/api-reference/orders/mutations/order-fulfillment-approve.mdx) mutation. This operation is used when approval is required before processing a fulfillment.
 
 **Required Fields**
 
@@ -516,7 +516,7 @@ mutation OrderFulfillmentApprove($id: ID!, $notifyCustomer: Boolean!, $allowStoc
 
 ### Update Tracking Number
 
-The [`orderFulfillmentUpdateTracking`](/api-reference/orders/mutations/order-fulfillment-update-tracking) mutation allows you to update or add a tracking number to an existing fulfillment. This is useful when:
+The [`orderFulfillmentUpdateTracking`](/api-reference/orders/mutations/order-fulfillment-update-tracking.mdx) mutation allows you to update or add a tracking number to an existing fulfillment. This is useful when:
 - The tracking number becomes available after the initial fulfillment creation
 - You need to update an incorrect tracking number
 - You're using a shipping provider that assigns tracking numbers after shipment
@@ -622,7 +622,7 @@ replacements, and refunds while maintaining proper inventory and order status tr
 
 ### Return Products
 
-The [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products) 
+The [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products.mdx) 
 mutation provides a way to handle various return scenarios, including items returns, replacements, and refunds.
 
 **Available Actions:**
@@ -777,11 +777,11 @@ mutation OrderFulfillmentReturnProducts($orderId: ID!, $input: OrderReturnProduc
 :::warning
 This functionality is only supported when using a payment plugin.
 
-For more details on how to handle refunds for payment created with apps, refer to the [Refunds documentation](/developer/payments/refunds).
+For more details on how to handle refunds for payment created with apps, refer to the [Refunds documentation](/developer/payments/refunds.mdx).
 :::
    - Case: Processing return and refund simultaneously
    - Process:
-     - Set `refund: true` in [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products) to trigger automatic refund
+     - Set `refund: true` in [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products.mdx) to trigger automatic refund
      - Optionally set `includeShippingCosts: true` to refund shipping costs
    - Result: 
      - New fulfillment is created in `REFUNDED_AND_RETURNED` status
@@ -799,9 +799,9 @@ Refunds can be processed in various scenarios after fulfillment.
 Saleor provides different mutations to handle these cases, each suited for specific situations.
 
 :::warning
-For orders paid via apps or custom integrations, follow the [Refunds documentation](/developer/payments/refunds).
+For orders paid via apps or custom integrations, follow the [Refunds documentation](/developer/payments/refunds.mdx).
 
-For orders paid using payment plugins, use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products) or [`orderRefund`](/api-reference/orders/mutations/order-refund).
+For orders paid using payment plugins, use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products.mdx) or [`orderRefund`](/api-reference/orders/mutations/order-refund.mdx).
 :::
 
 **Example Cases:**
@@ -809,17 +809,17 @@ For orders paid using payment plugins, use [`orderFulfillmentRefundProducts`](/a
 1. **Refund only** 
    - When: Items are damaged during shipment and won't be returned
    - Fulfillment: Already shipped
-   - Plugin-based: Use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products) to refund specific fulfilled lines
+   - Plugin-based: Use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products.mdx) to refund specific fulfilled lines
 
 2. **Miscellaneous Refund** 
    - When: The order was delivered, but the customer is due a partial refund (e.g. expedited shipping was late)
    - Fulfillment: Already shipped
-   - Plugin-based: Use [`orderRefund`](/api-reference/orders/mutations/order-refund) to refund a custom amount (e.g., shipping costs)
+   - Plugin-based: Use [`orderRefund`](/api-reference/orders/mutations/order-refund.mdx) to refund a custom amount (e.g., shipping costs)
 
 3. **Cancel** 
    - When: The customer cancels part of the order before it ships
    - Fulfillment: Not shipped
-   - Plugin-based: Use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products) for unfulfilled lines
+   - Plugin-based: Use [`orderFulfillmentRefundProducts`](/api-reference/orders/mutations/order-fulfillment-refund-products.mdx) for unfulfilled lines
 
 :::note
 The `ORDER_REFUNDED` webhook event is triggered when a partial refund is processed.
@@ -887,18 +887,18 @@ Some settings in Saleor can affect how fulfillments are created and processed. T
 
 ### Shop Settings
 
-[`Shop.fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#shopfulfillmentautoapproveboolean---)
+[`Shop.fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop.mdx#fulfillment-auto-approve)
   - Controls whether new fulfillments require approval
   - When enabled, fulfillments are automatically approved
   - When disabled, fulfillments remain in `WAITING_FOR_APPROVAL` status until approved
 
-[`Shop.fulfillmentAllowUnpaid`](/api-reference/miscellaneous/objects/shop#shopfulfillmentallowunpaidboolean---)
+[`Shop.fulfillmentAllowUnpaid`](/api-reference/miscellaneous/objects/shop.mdx#fulfillment-allow-unpaid)
   - When enabled, allows creating fulfillments for unpaid orders
   - Useful for certain business models or special cases
   - Should be used with caution as it bypasses payment verification
 
 ### Channel Settings
-[`OrderSettings.automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#ordersettingsautomaticallyfulfillnonshippablegiftcardboolean---)
+[`OrderSettings.automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings.mdx#automatically-fulfill-non-shippable-gift-card)
   - When enabled, gift card orders are automatically fulfilled
   - Default value is `true`
   - Applies only to non-shippable gift cards
@@ -918,7 +918,7 @@ Understanding these interactions will help you implement the right fulfillment f
 
 ### Gift Card Fulfillment with Payment Settings
 
-The following explains the interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#ordersettingsautomaticallyfulfillnonshippablegiftcardboolean---) and [`fulfillmentAllowUnpaid`](/api-reference/miscellaneous/objects/shop#shopfulfillmentallowunpaidboolean---) when:
+The following explains the interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings.mdx#automatically-fulfill-non-shippable-gift-card) and [`fulfillmentAllowUnpaid`](/api-reference/miscellaneous/objects/shop.mdx#fulfillment-allow-unpaid) when:
 
 #### Both settings enabled
 - `automaticallyFulfillNonShippableGiftCard: true` and `fulfillmentAllowUnpaid: true`
@@ -939,7 +939,7 @@ The following explains the interaction between [`automaticallyFulfillNonShippabl
 
 ### Gift Card Fulfillment with Approval Settings
 
-The interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings#ordersettingsautomaticallyfulfillnonshippablegiftcardboolean---) and [`fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop#shopfulfillmentautoapproveboolean---) determines whether gift card fulfillments require manual approval:
+The interaction between [`automaticallyFulfillNonShippableGiftCard`](/api-reference/miscellaneous/objects/order-settings.mdx#automatically-fulfill-non-shippable-gift-card) and [`fulfillmentAutoApprove`](/api-reference/miscellaneous/objects/shop.mdx#fulfillment-auto-approve) determines whether gift card fulfillments require manual approval:
 
 #### Auto-fulfill enabled, auto-approve disabled
 - `automaticallyFulfillNonShippableGiftCard: true` and `fulfillmentAutoApprove: false`

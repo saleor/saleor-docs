@@ -1,0 +1,34 @@
+---
+sidebar_label: Dashboard Problems
+sidebar_position: 7
+title: Stripe App Dashboard Problems
+---
+
+The Stripe App uses
+the [App Problems API](/developer/extending/apps/developing-apps/apps-patterns/reporting-problems.mdx) to report
+operational issues directly to the Saleor Dashboard. When the app detects a configuration or integration problem, it
+creates a problem entry visible to store administrators — no log inspection or external monitoring needed.
+
+:::info
+
+This feature requires Saleor 3.22.36, for older versions this feature is disabled
+
+:::
+
+## How it works
+
+The app monitors all webhook interactions — both from Saleor (charge, cancel, refund, initialize, process) and from
+Stripe — and reports problems when it encounters actionable errors.
+
+In certain cases, app clears problems automatically (e.g. a problem related to specific config is dismissed once such
+config is removed). In other cases staff user can dismiss them manually.
+
+## Reported problems
+
+| Problem                 | Trigger                                          | Dashboard message                                                                 |
+|-------------------------|--------------------------------------------------|-----------------------------------------------------------------------------------|
+| Auth failure            | Stripe restricted key is invalid or expired      | Prompts user to update the restricted key                                         |
+| Permission error        | Stripe restricted key lacks required permissions | Prompts user to verify key permissions                                            |
+| Webhook secret mismatch | Stripe webhook signature verification fails      | Prompts user to recreate the configuration                                        |
+| Configuration missing   | Stripe sends events for a deleted configuration  | Prompts user to remove the orphaned webhook in Stripe Dashboard                   |
+| Invalid payment method  | Storefront uses an unsupported payment method    | Prompts user to verify app docs and disable unsupported payment methods in Stripe |

@@ -9,6 +9,7 @@ export const graphqlSidebar = [
     "api-usage/error-handling",
     "api-usage/external-references",
     "api-usage/filtering",
+    "api-usage/search",
     "api-usage/i18n",
     "api-usage/metadata",
     "api-usage/pagination",
