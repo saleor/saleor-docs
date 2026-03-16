@@ -47,6 +47,24 @@ query checkout($id: ID) {
           id
         }
       }
+      ... on CheckoutProblemDeliveryMethodStale {
+      delivery {
+        id
+        shippingMethod {
+          id
+          name
+        }
+      }
+    }
+    ... on CheckoutProblemDeliveryMethodInvalid {
+      delivery {
+        id
+        shippingMethod {
+          id
+          name
+        }
+      }
+    }
     }
   }
 }
@@ -186,6 +204,36 @@ query checkout($id: ID) {
   }
 }
 ```
+
+### CheckoutProblemDeliveryMethodStale
+
+**Added in Saleor 3.23.**
+
+[CheckoutProblemDeliveryMethodStale](/api-reference/checkout/objects/checkout-problem-delivery-method-stale.mdx) - indicates that the assigned delivery method's pricing or availability may be outdated. This happens after changes that affect shipping (e.g. voucher applied, shipping address updated, line quantity changed). The method is still assigned but has not been re-validated.
+
+To solve, call [`deliveryOptionsCalculate`](/api-reference/shipping/mutations/delivery-options-calculate.mdx). If the method is still valid, the problem clears. 
+If the method is no longer available, the problem becomes `CheckoutProblemDeliveryMethodInvalid`.
+
+:::info
+
+This problem does not block checkout completion but when `CheckoutProblemDeliveryMethodStale` is present while calling `checkoutComplete` mutation, Saleor will implicitly validate the delivery. 
+If assigned delivery is invalid, checkout complete will return an error.
+
+:::
+
+
+### CheckoutProblemDeliveryMethodInvalid
+
+**Added in Saleor 3.23.**
+
+[CheckoutProblemDeliveryMethodInvalid](/api-reference/checkout/objects/checkout-problem-delivery-method-invalid.mdx) - indicates that the assigned delivery method is no longer applicable (e.g. it was deleted, or it no longer ships to the checkout address).
+
+To solve, call [`deliveryOptionsCalculate`](/api-reference/shipping/mutations/delivery-options-calculate.mdx) to get a list of available methods, then call [`checkoutDeliveryMethodUpdate`](/api-reference/checkout/mutations/checkout-delivery-method-update.mdx) with a valid method ID.
+
+:::info
+This problem blocks checkout completion. [`checkoutComplete`](/api-reference/checkout/mutations/checkout-complete.mdx) will return an error until a valid delivery method is selected.
+:::
+
 
 ## Control error flow
 

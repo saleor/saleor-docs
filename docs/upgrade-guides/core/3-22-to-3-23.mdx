@@ -40,3 +40,162 @@ Since 3.22, Dashboard extension manifests are validated on the frontend. Install
 - Fields on type `AppExtension` and `AppExtensionManifest`: `mount`, `target`, and `options` have been removed. Use the fields `mountName`, `targetName`, and `settings` instead, which directly replace the old ones.
 - New fields are intended to be used by Dashboard only. Modifying them requires caution and may require frontend adjustments.
 - New fields are no longer strictly validated, which means installing an app extension *without* Dashboard can cause unexpected Dashboard behavior.
+
+## Explicit Delivery Options Calculation
+
+In previous versions, querying delivery-related fields on `Checkout` like `shippingMethods`, `availableShippingMethods`, `deliveryMethod` and `shippingMethod` could implicitly trigger sync webhooks (`SHIPPING_LIST_METHODS_FOR_CHECKOUT`, `CHECKOUT_FILTER_SHIPPING_METHODS`).
+Additionally, checkout mutations would silently invalidate the shipping cache, resulting in additional webhook calls.
+
+
+### What's New
+
+Saleor 3.23 makes delivery options calculation explicit by introducing:
+
+
+- New mutation: [`deliveryOptionsCalculate`](/api-reference/shipping/mutations/delivery-options-calculate.mdx). 
+Returns a list of available deliveries for the checkout. Calling this mutation explicitly fires 
+`SHIPPING_LIST_METHODS_FOR_CHECKOUT` and `CHECKOUT_FILTER_SHIPPING_METHODS` webhooks.
+The mutation replaces the deprecated fields: `checkout.shippingMethods` and `checkout.availableShippingMethods`.
+
+- New field: [`Checkout.delivery`](/api-reference/checkout/objects/checkout.mdx#delivery). 
+It represents the currently assigned delivery method. The field replaces the deprecated `checkout.deliveryMethod` 
+and `checkout.shippingMethod`.
+
+- New checkout problems:
+  - [`CheckoutProblemDeliveryMethodStale`](/api-reference/checkout/objects/checkout-problem-delivery-method-stale.mdx) - the assigned delivery method needs recalculation (e.g. after a voucher change, address update, or line quantity change). Call `deliveryOptionsCalculate` to resolve.
+  - [`CheckoutProblemDeliveryMethodInvalid`](/api-reference/checkout/objects/checkout-problem-delivery-method-invalid.mdx) - the assigned delivery method is no longer valid. The customer must re-select a delivery method.
+
+See [delivery method problems](/developer/checkout/problems.mdx#checkoutproblemdeliverymethodstale) for full handling guidance.
+
+- Deprecations introduced in 3.23:
+  - `checkout.shippingMethods` - use `deliveryOptionsCalculate` mutation
+  - `checkout.availableShippingMethods` - use `deliveryOptionsCalculate` mutation
+  - `checkout.deliveryMethod` - use `checkout.delivery`
+  - `checkout.shippingMethod` - use `checkout.delivery`
+
+:::warning
+Querying the deprecated fields (`shippingMethods`, `availableShippingMethods`, `deliveryMethod`, `shippingMethod`) 
+still works in 3.23, but these fields will be removed in a future release. Requesting these fields can implicitly 
+trigger the `SHIPPING_LIST_METHODS_FOR_CHECKOUT`, `CHECKOUT_FILTER_SHIPPING_METHODS` webhooks.
+:::
+
+### What Has Changed
+
+- In previous releases, fetching available shipping methods was implicitly done by requesting the shipping-related fields:
+```graphql
+query GetCheckout($id: ID) {
+  checkout(id: $id) {
+    availableShippingMethods{
+      id
+    }
+    shippingMethods {
+      id
+      name
+      active
+      price {
+        amount
+        currency
+      }
+    }
+  }
+}
+```
+Starting from 3.23, there is a dedicated mutation `deliveryOptionsCalculate`, to fetch deliveries:
+
+```graphql
+mutation DeliveryOptionsCalculate($id: ID!) {
+  deliveryOptionsCalculate(id: $id) {
+    deliveries {
+      id
+      shippingMethod {
+        name
+        active
+        price {
+          amount
+        }
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+#### Validating the Delivery Assigned to the Checkout
+
+In previous versions, Saleor was making the validation after each change on Checkout, 
+causing multiple webhooks called implicitly. This slows down the checkout process, by increasing the network traffic and costs. 
+Starting from 3.23, [Checkout.problems](/api-reference/checkout/objects/checkout.mdx#problems) can contain 
+the problem: [CheckoutProblemDeliveryMethodStale](/api-reference/checkout/objects/checkout-problem-delivery-method-stale.mdx).
+```graphql
+query Checkout($id: ID!) {
+  checkout(id: $id) {
+    problems {
+      ... on CheckoutProblemDeliveryMethodStale {
+        __typename
+      }
+    }
+  }
+}
+```
+The problem provides the information that mutation call: `deliveryOptionsCalculate` is needed to confirm that stale 
+delivery method is still valid for the checkout. The storefront decides when to call `deliveryOptionsCalculate`.
+
+:::info
+
+Calling `checkoutComplete` with existing `CheckoutProblemDeliveryMethodStale` will implicitly refresh the delivery method.
+
+:::
+
+
+#### Handling Invalid Delivery Assigned to the Checkout
+
+In previous versions, Saleor was implicitly removing the delivery method that was not valid anymore. 
+In such case, the delivery-related fields were returning `null`.
+Starting from 3.23, the invalid delivery is represented by the new problem. The `checkout.delivery` field 
+returns the invalid delivery assigned by customer:
+
+```graphql
+query Checkout($id: ID!) {
+  checkout(id: $id) {
+    delivery {
+      id
+    }
+    problems {
+      ... on CheckoutProblemDeliveryMethodInvalid {
+        __typename
+      }
+    }
+  }
+}
+```
+Saleor won't unassign it implicitly anymore. The storefront decides when to change the invalid delivery method.
+
+:::info
+
+Calling `checkoutComplete` with existing `CheckoutProblemDeliveryMethodInvalid` will return error.
+
+:::
+
+
+### Migration steps
+
+- Replace fetching shipping methods:
+    - Instead of `checkout.shippingMethods`, `checkout.availableShippingMethods`, use the explicit mutation: `deliveryOptionsCalculate(id: <checkoutID>)`
+- Handling new checkout problems
+    - When `CheckoutProblemDeliveryMethodStale` appears in `checkout.problems`:
+        - The assigned shipping method is considered stale.
+        - To verify its applicability, call `deliveryOptionsCalculate`. Based on the response:
+            - If `CheckoutProblemDeliveryMethodStale` is removed from `checkout.problems`, the shipping method is still applicable.
+            - If `CheckoutProblemDeliveryMethodStale` is replaced with `CheckoutProblemDeliveryMethodInvalid`, the shipping method is no longer valid.
+    - When `CheckoutProblemDeliveryMethodInvalid` appears in `checkout.problems`:
+        - The assigned shipping method is not applicable.
+        - A new shipping method must be selected by calling `deliveryOptionsCalculate` to retrieve valid options.
+        - `checkoutDeliveryMethodUpdate` needs to be called to replace non-applicable shipping method.
+- Updating shipping method checks
+    - Replace usage of `checkout.deliveryMethod` or `checkout.shippingMethod` with `checkout.delivery`
+    - Replace conditions like `checkout.deliveryMethod == null` or `checkout.shippingMethod == null` with:
+        - Shipping is not applicable anymore: `checkout.problems` contains `CheckoutProblemDeliveryMethodInvalid`.
+        - Shipping has not been set: `checkout.delivery == null`.
