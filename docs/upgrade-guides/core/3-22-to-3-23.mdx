@@ -254,6 +254,42 @@ If you were using the old digital content API:
 [`EDITOR_JS_LINK_REL`]: ../../setup/configuration.mdx#editor_js_link_rel
 [`UNSAFE_EDITOR_JS_ALLOWED_URL_SCHEMES`]: ../../setup/configuration.mdx#unsafe_editor_js_allowed_url_schemes
 
+## Asynchronous Image Fetching for Product Media
+
+Previously, `productMediaCreate` and `productBulkCreate` mutations blocked until external images (provided via `mediaUrl`) were fully downloaded and processed. Starting with version 3.23, images from external URLs are fetched **asynchronously** in the background.
+
+### What Has Changed
+
+- When creating product media with an external image URL, the mutation now returns immediately without waiting for the image to be downloaded.
+- The image is fetched in the background by a Celery task with automatic retries (up to 5 attempts with exponential backoff).
+- While the image is being fetched:
+  - The `url` field on `ProductMedia` returns a **proxy URL** that responds with **HTTP 503** (`"Image has not been fetched yet, try later."`) until the image is downloaded and stored.
+  - Thumbnail requests for pending images also return **HTTP 503** with the same message.
+- If the image fetch fails permanently (after all retries), the `ProductMedia` entry is deleted.
+
+### Required client changes
+
+1. **Handle HTTP 503 responses** when requesting thumbnails or media URLs. This status code indicates the image is still being processed. Implement a retry mechanism with appropriate backoff.
+
+2. **Do not assume images are available immediately** after `productMediaCreate` or `productBulkCreate` returns. The media object will exist, but the image may not be ready yet.
+
+3. **`ProductMedia.url` no longer returns `null` for missing images**: Previously, when a `ProductMedia` had no stored image, the `url` field returned `null`. Now it returns a proxy URL instead. If your client code checks for `null` on `ProductMedia.url` to detect missing images, you need to update that logic — the URL will always be returned, but it may respond with HTTP 503 if the image is still being fetched.
+
+### Affected mutations
+
+- [`productMediaCreate`](/api-reference/products/mutations/product-media-create.mdx) — when using the `mediaUrl` input field with an image URL.
+- [`productBulkCreate`](/api-reference/products/mutations/product-bulk-create.mdx) — when providing media with `mediaUrl` in the product input.
+
+:::info
+This change only affects media created via external image URLs (`mediaUrl`). Direct file uploads and video/oEmbed URLs are not affected.
+:::
+
+### New `/image/` endpoint
+
+A new URL endpoint has been added: `/image/<instance_id>/`. While the image is being fetched, this endpoint returns HTTP 503. Once the image is stored, it redirects to the image file.
+
+If your CDN or reverse proxy is configured to allowlist specific Saleor URL patterns (e.g., `/thumbnail/`, `/media/`), you will need to add `/image/` to the allowed paths.
+
 ## Password Login Mode
 
 A new `passwordLoginMode` setting has been added to `Shop` / `SiteSettings`, allowing administrators to control password-based authentication. This is especially useful for organizations transitioning staff to OIDC/SSO.
