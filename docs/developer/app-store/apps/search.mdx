@@ -56,7 +56,7 @@ The application provides integration with [Algolia](https://www.algolia.com/) se
 - `MANAGE_PRODUCTS`
 - `MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES`
 - `MANAGE_PAGES`
-- `MANAGE_CATEGORIES`
+
 
 ## Application flow
 
@@ -100,7 +100,7 @@ sequenceDiagram
 ## Pre-requisites
 
 - [Algolia](https://www.algolia.com/) account. The free account will be sufficient, but has additional limitations, like maximum record size.
-- Saleor user with `MANAGE_APPS`, `MANAGE_PRODUCTS`, `MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES`, `MANAGE_CATEGORIES` and `MANAGE_PAGES` permissions.
+- Saleor user with `MANAGE_APPS`, `MANAGE_PRODUCTS`, `MANAGE_PRODUCT_TYPES_AND_ATTRIBUTES` and `MANAGE_PAGES` permissions.
 
 If you have installed the app before indexing pages and categories have been introduced, you need to reinstall the app to grant new permissions
 
@@ -155,15 +155,17 @@ Values for the price and availability in the product index are chosen according 
 
 ### Product record fields
 
+- `objectID`: Unique ID of the record, used by Algolia. It's a concatenation of the `productId` and `variantId` fields, separated by `-`
 - `productId`: Product ID
 - `variantId`: Product Variant ID
 - `productTypeId`: Product Type ID. The field is used for faceting
 - `categoryId`: Category ID. The field is used for faceting
 - `categorySlug`: Category slug. The field is used for search and faceting
-- `name`: Joined product and variant name. The field is used for the search
+- `name`: Joined product and variant name (format: `Product Name - Variant Name`). The field is used for the search
 - `productName`: Product name. The field is used for the search
 - `variantName`: Variant name. The field is used for the search
-- `attributes`: List of product and variant attributes with their values. The field is used for search and faceting.
+- `sku`: Variant SKU
+- `attributes`: List of product and variant attributes with their values. The field is used for search and faceting
 - `media`: List of product media
   - `url`: URL of the media file
   - `type`: Type of the media file. Possible values: `IMAGE`, `VIDEO`
@@ -172,30 +174,38 @@ Values for the price and availability in the product index are chosen according 
 - `slug`: Product slug
 - `thumbnail`: URL for the Product thumbnail
 - `grossPrice`: Base price of the product in the channel's currency. The field is used for faceting
+- `pricing`: Detailed pricing object with the following nested fields, all used for faceting:
+  - `pricing.price.net`, `pricing.price.gross`: Current price
+  - `pricing.discount.net`, `pricing.discount.gross`: Discount amount
+  - `pricing.priceUndiscounted.net`, `pricing.priceUndiscounted.gross`: Price before discount
+  - `pricing.onSale`: Boolean indicating if the variant is on sale
 - `inStock`: Boolean value indicating if the product is in stock. The field is used for faceting
 - `categories`: Hierarchical list of product categories, formatted according to the [Algolia guidelines](https://www.algolia.com/doc/guides/managing-results/refine-results/faceting/#hierarchical-facets). The field is used for faceting
 - `collections`: List of collection names the product belongs to. The field is used for faceting
 - `metadata`: Key-value pairs of product metadata
 - `variantMetadata`: Key-value pairs of variant metadata
 - `otherVariants`: List of other variant IDs of the product
-- `objectID`: Unique ID of the record, used by Algolia. It's a concatenation of the `productId` and `variantId` fields, separated by `_`
+- `_type`: Always `"product"`. Useful for distinguishing record types in unified search results
 
 ### Category record fields
 
 Categories are stored in a dedicated index with the following fields:
 
+- `objectID`: Category ID, used by Algolia
 - `name`: Category name. The field is used for search
 - `slug`: Category slug. The field is used for search
 - `level`: Depth in the category tree. The field is used for faceting
-- `ancestors`: Flat array of parent categories, each containing `id`, `name`, and `slug` — useful for breadcrumb rendering. The field is used for faceting
+- `ancestors`: Flat array of parent categories, each containing `id`, `name`, and `slug` — useful for breadcrumb rendering. The field is used for search and faceting
 - `metadata`: Key-value pairs of category metadata. The field is used for faceting
-- `objectID`: Category ID, used by Algolia
+- `_type`: Always `"category"`. Useful for distinguishing record types in unified search results
 
 ### Page records
 
 Pages are stored in a dedicated index. You choose which **page types** to sync in the App configuration — only pages of the selected types will be indexed.
 
 Larger attributes can be marked to skip syncing, which is useful for pages with heavy content blocks that would bloat the index without adding search value. The exact set of indexed fields depends on your configuration.
+
+Every page record includes a `_type` field set to `"page"` and a `pageTypeId` field (used for faceting), so you can distinguish page results and filter by page type in your storefront.
 
 ## Making queries
 
@@ -224,11 +234,16 @@ Running the example above will return the following results:
 ```json
 [
   {
+    "objectID": "UHJvZHVjdDoxNTU=-UHJvZHVjdFZhcmlhbnQ6Mzg3",
     "productId": "UHJvZHVjdDoxNTU=",
     "variantId": "UHJvZHVjdFZhcmlhbnQ6Mzg3",
-    "name": "Carrot Juice",
+    "productTypeId": "UHJvZHVjdFR5cGU6OQ==",
+    "categoryId": "Q2F0ZWdvcnk6MTQ=",
+    "categorySlug": "juices",
+    "name": "Carrot Juice - UHJvZHVjdFZhcmlhbnQ6Mzg3",
     "productName": "Carrot Juice",
     "variantName": "UHJvZHVjdFZhcmlhbnQ6Mzg3",
+    "sku": "CJ-001",
     "attributes": {
       "Flavor": "Carrot"
     },
@@ -255,6 +270,12 @@ Running the example above will return the following results:
     "slug": "carrot-juice",
     "thumbnail": "https://example.saleor.cloud/media/thumbnails/products/saleor-carrot-drink_thumbnail_256.png",
     "grossPrice": 1.99,
+    "pricing": {
+      "price": { "net": 1.99, "gross": 2.45 },
+      "discount": { "net": 0, "gross": 0 },
+      "priceUndiscounted": { "net": 1.99, "gross": 2.45 },
+      "onSale": false
+    },
     "inStock": true,
     "categories": {
       "lvl0": "Groceries",
@@ -264,7 +285,7 @@ Running the example above will return the following results:
     "metadata": {},
     "variantMetadata": {},
     "otherVariants": [],
-    "objectID": "UHJvZHVjdDoxNTU=_UHJvZHVjdFZhcmlhbnQ6Mzg3",
+    "_type": "product",
 
     "_highlightResult": {
       "name": {
