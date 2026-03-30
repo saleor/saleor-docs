@@ -377,53 +377,37 @@ If you call app installation mutations, ensure you always provide both `appName`
 The EditorJS parser no longer accepts unknown or extra fields in content blocks. Previously, unexpected fields were silently ignored.
 Audit any EditorJS content that may include custom or non-standard fields. Remove unrecognized fields from stored content before upgrading, or they will cause parsing errors.
 
-## Deprecation of `hasVariants` on `ProductType`
-
-The `hasVariants` field on `ProductType` is deprecated. It was a legacy artifact that is no longer necessary.
-Stop relying on `hasVariants` in your queries. Instead, check whether a product has variants by querying the `variants` field directly.
-
-## Deprecation of Export Mutations
-
-The mutations `exportProducts`, `exportGiftCards`, and `exportVoucherCodes` are now deprecated.
-
-To export these entities, use standard GraphQL queries.
-
-## Deprecation of `voucher` Input on Draft Orders
-
-The `voucher` field on `DraftOrderInput` and `DraftOrderCreateInput` is deprecated.
-Use the `voucherCode` field instead when creating or updating draft orders.
-
-
 ## Gift Card Payment Support via Transaction API
 
-Gift cards are now supported as a payment method within the Transaction API.
+Gift cards can now be used as a payment method through the Transaction API using a built-in payment gateway (`saleor.io.gift-card-payment-gateway`). This allows applying gift card balances during checkout via `transactionInitialize`.
 
-## Transactions Query Enhancements
-
-The `transactions` query now supports sorting by `CREATED_AT` and `MODIFIED_AT`, as well as filtering by date ranges and event types.
-To use sorting, pass `sortBy: { field: CREATED_AT, direction: DESC }` to the `transactions` query. For filtering, use the new `filter` argument with `createdAt`, `modifiedAt`, or `type` fields.
-
-## Advanced Search Capabilities
-
-Pages, users, and checkouts now have significantly improved search. The search engine supports prefix matching, Boolean operators (`AND`, `OR`, `-` for exclusion), exact phrase matching with quotes, accent-insensitive search, and relevance-based ranking.
-To leverage relevance-based ordering, use the new `RANK` sort field (e.g., `sortBy: { field: RANK }`) when performing search queries on pages, users, or checkouts.
-
-## OpenTelemetry GraphQL Field Usage Metric
-
-A new `saleor.graphql.field.usage` OpenTelemetry metric has been added, tracking field resolver calls for deprecated and monitored fields.
-If you have an OpenTelemetry collector configured, this metric is emitted automatically. Use it to identify which deprecated fields are still being queried, helping you plan migrations before fields are removed.
-
-## Tokenless App Installation
-
-Apps can now be installed without a `tokenTargetUrl` in the manifest.
-If you are building a Saleor App that does not need to receive an auth token (e.g., it only uses webhooks), you can omit `tokenTargetUrl` from your app manifest.
+If your storefront supports gift cards, you can integrate them as a native payment option without a third-party payment app. See the [Gift Cards as payment method](/developer/gift-cards#gift-cards-as-payment-method) guide for setup details including mutation examples and gateway configuration.
 
 ## OIDC Password Invalidation
 
 When an existing user account is claimed by an OIDC provider, the user's password is now automatically invalidated.
 If your users authenticate via both password and OIDC, be aware that once an OIDC provider claims their account, password login will no longer work. Users must use the OIDC provider going forward, or reset their password if password login is still enabled.
 
-## Google OAuth Fix
 
-Fixed an `invalid_scope` error when authenticating with Google OAuth by using `access_type=offline` instead of the incorrect `offline_access` scope.
-If you previously had workarounds for Google OAuth failures, you can remove them after upgrading.
+
+## Deprecations 
+
+Deprecated fields will be removed in next versions. To make future upgrades easier, we recommend to remove deprecated fields as soon as possible.
+
+
+### Deprecation of `hasVariants` on `ProductType`
+
+The `hasVariants` field on `ProductType` is deprecated. It was a legacy artifact that is no longer necessary.
+Stop relying on `hasVariants` in your queries. Instead, check whether a product has variants by querying the `variants` field directly.
+
+### Deprecation of Export Mutations
+
+The mutations `exportProducts`, `exportGiftCards`, and `exportVoucherCodes` are now deprecated.
+
+To export these entities, use standard GraphQL queries.
+
+### Deprecation of `voucher` Input on Draft Orders
+
+The `voucher` field on `DraftOrderInput` and `DraftOrderCreateInput` is deprecated.
+Use the `voucherCode` field instead when creating or updating draft orders.
+
