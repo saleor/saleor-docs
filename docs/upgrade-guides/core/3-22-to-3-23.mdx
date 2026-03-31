@@ -46,6 +46,10 @@ Since 3.22, Dashboard extension manifests are validated on the frontend. Install
 In previous versions, querying delivery-related fields on `Checkout` like `shippingMethods`, `availableShippingMethods`, `deliveryMethod` and `shippingMethod` could implicitly trigger sync webhooks (`SHIPPING_LIST_METHODS_FOR_CHECKOUT`, `CHECKOUT_FILTER_SHIPPING_METHODS`).
 Additionally, checkout mutations would silently invalidate the shipping cache, resulting in additional webhook calls.
 
+### Deprecation of ShippingMethod ID in `checkoutDeliveryMethodUpdate`
+
+Using a `ShippingMethod` ID as `deliveryMethodId` in `checkoutDeliveryMethodUpdate` is deprecated.
+Use the `CheckoutDelivery` ID (returned by `deliveryOptionsCalculate`) instead.
 
 ### What's New
 
@@ -254,6 +258,22 @@ If you were using the old digital content API:
 [`EDITOR_JS_LINK_REL`]: ../../setup/configuration.mdx#editor_js_link_rel
 [`UNSAFE_EDITOR_JS_ALLOWED_URL_SCHEMES`]: ../../setup/configuration.mdx#unsafe_editor_js_allowed_url_schemes
 
+### EditorJS Parser Strictness
+
+The EditorJS parser no longer accepts unknown or extra fields in content blocks. Previously, unexpected fields were accepted.
+If you only use Saleor Dashboard to edit rich-text descriptions, then nothing needs to be done. Only the following EditorJS extensions are supported:
+
+- [`@editorjs/header`](https://www.npmjs.com/package/@editorjs/header)
+- [`@editorjs/list`](https://www.npmjs.com/package/@editorjs/list)
+- [`@editorjs/paragraph`](https://www.npmjs.com/package/@editorjs/paragraph)
+- [`@editorjs/quote`](https://www.npmjs.com/package/@editorjs/quote)
+- [`@editor-js/embed`](https://www.npmjs.com/package/@editorjs/embed)
+- [`@editor-js/image`](https://www.npmjs.com/package/@editorjs/image)
+
+Any other extension is unsupported and will lead to parsing errors when running mutations such as `productUpdate()`. If you need support for additional extensions, open a request: https://github.com/saleor/saleor/issues
+
+
+
 ## Asynchronous Image Fetching for Product Media
 
 Previously, `productMediaCreate` and `productBulkCreate` mutations blocked until external images (provided via `mediaUrl`) were fully downloaded and processed. Starting with version 3.23, images from external URLs are fetched **asynchronously** in the background.
@@ -301,3 +321,105 @@ Three modes are available:
 - **`DISABLED`** — all password-based mutations (`tokenCreate`, `passwordChange`, `setPassword`, `requestPasswordReset`) are blocked for all users.
 
 For full details, including configuration examples and migration steps, see the [Password Login Mode documentation](/api-usage/authentication.mdx#password-login-mode).
+
+## Removal of Adyen Plugin
+
+The legacy Adyen payment gateway plugin has been removed from Saleor core.
+If you were using the Adyen plugin, switch to the [Adyen App](/developer/app-store/apps/adyen/overview) before upgrading. Remove any plugin configuration referencing `mirumee.payments.adyen` from your environment.
+
+## Removal of NP Atobarai Plugin
+
+The legacy NP Atobarai payment gateway plugin has been removed from Saleor core.
+If you were using this plugin, switch to the [NP Atobarai App](/developer/app-store/apps/np-atobarai/overview). See the [migration from plugin guide](/developer/app-store/apps/np-atobarai/migration-from-plugin) for detailed steps. Remove any plugin configuration referencing the NP Atobarai plugin ID from your environment.
+
+## Removal of `Payment.partial` Field
+
+The `partial` field has been removed from the `Payment` GraphQL type. It was only used by the removed Adyen integration, so likely you haven't used it if you haven't used the Adyen plugin.
+If your queries or client code references `Payment.partial`, remove it from your GraphQL selections. This field is no longer available in the schema.
+
+## `staffDelete` Behavior Change
+
+The `staffDelete` mutation now fully deletes staff users from the database, regardless of whether they have associated order history. Previously, staff users with orders were only deactivated instead of deleted.
+Review any workflows that rely on deactivated staff accounts remaining in the system. If you need to preserve staff user data, export it before deletion.
+
+## Removal of `JWT_EXPIRE` Setting
+
+The `JWT_EXPIRE` configuration option, which allowed ignoring JWT token expiration, has been removed.
+If you had `JWT_EXPIRE` set in your environment, remove it. All JWT tokens are now subject to standard expiration rules. Ensure your clients handle token refresh correctly.
+
+## `Attribute` Fields Are Now Non-Nullable
+
+The fields `name`, `slug`, and `type` on the `Attribute` GraphQL type are now non-nullable — they always return a value.
+If your client code has null-checks or optional chaining for `Attribute.name`, `Attribute.slug`, or `Attribute.type`, those checks are no longer necessary. Update your types or codegen accordingly.
+
+## `RefundSettingsUpdate` Mutation Change
+
+The `refundSettings` field in the `RefundSettingsUpdate` mutation response is now nullable, correctly reflecting `null` when errors occur.
+If your client code assumes `refundSettings` is always present in the response, add a null-check to handle error cases.
+
+## Shipping Method Metadata Denormalization
+
+Shipping method metadata is now copied to dedicated order fields during checkout-to-order conversion. After an order is created, updates to the original shipping method's metadata are no longer reflected in the order's `shippingMethod.metadata`.
+If your integration reads shipping method metadata from orders and expects it to stay in sync with the shipping method object, update your logic. To update metadata on existing orders, modify the order's shipping method metadata directly.
+
+## GraphQL Federation Type Change
+
+The `representations` field type in the `_entities` query has changed from `[_Any]` to `[_Any!]!` (non-nullable list of non-nullable items).
+If you use Apollo Federation or a custom gateway that interacts with Saleor's `_entities` query, ensure your gateway is compatible with the stricter type. Update any federation tooling that may break on the non-nullable constraint.
+
+## New `NonNegativeInt` Scalar and Stricter Time Unit Scalars
+
+A new `NonNegativeInt` GraphQL scalar type has been added that rejects negative integers at the schema level. The existing `Minute`, `Hour`, and `Day` scalars now inherit from `NonNegativeInt` instead of `Int`, enforcing non-negative values directly in the GraphQL layer.
+
+This is a **breaking change**: `channelCreate` and `channelUpdate` mutations now raise GraphQL type errors when negative time values are provided (e.g., negative `orderMarkAsPaidStrategyTimeout`). Previously, they returned an `INVALID` business error code.
+
+### Migration steps
+
+- If you have error handling that checks for `INVALID` codes from channel mutations when passing time values, update it to handle GraphQL-level type errors instead.
+- **Update your codegen**: If you use a GraphQL code generator (e.g., `graphql-codegen`), add the new `NonNegativeInt` scalar to your scalar type mappings. For example, in your codegen config:
+  ```yaml
+  scalars:
+    NonNegativeInt: number
+  ```
+  Re-run your code generator to pick up the new scalar and the updated `Minute`, `Hour`, and `Day` types.
+
+## `AppInstallInput` Now Requires `appName` and `manifestUrl`
+
+The `AppInstallInput` type now requires both `appName` and `manifestUrl` fields in the schema.
+If you call app installation mutations, ensure you always provide both `appName` and `manifestUrl`. Requests missing either field will now fail with a schema validation error.
+
+
+## Gift Card Payment Support via Transaction API
+
+Gift cards can now be used as a payment method through the Transaction API using a built-in payment gateway (`saleor.io.gift-card-payment-gateway`). This allows applying gift card balances during checkout via `transactionInitialize`.
+
+If your storefront supports gift cards, you can integrate them as a native payment option without a third-party payment app. See the [Gift Cards as payment method](/developer/gift-cards#gift-cards-as-payment-method) guide for setup details including mutation examples and gateway configuration.
+
+## OIDC Password Invalidation
+
+When an existing user account is claimed by an OIDC provider, the user's password is now automatically invalidated.
+If your users authenticate via both password and OIDC, be aware that once an OIDC provider claims their account, password login will no longer work. Users must use the OIDC provider going forward, or reset their password if password login is still enabled.
+
+
+
+## Deprecations 
+
+Deprecated fields will be removed in next versions. To make future upgrades easier, we recommend to remove deprecated fields as soon as possible.
+
+
+### Deprecation of `hasVariants` on `ProductType`
+
+The `hasVariants` field on `ProductType` is deprecated. It was a legacy artifact that is no longer necessary.
+Stop relying on `hasVariants` in your queries. Instead, check whether a product has variants by querying the `variants` field directly.
+
+### Deprecation of Export Mutations
+
+The mutations `exportProducts`, `exportGiftCards`, and `exportVoucherCodes` are now deprecated.
+
+To export these entities, use standard GraphQL queries.
+
+### Deprecation of `voucher` Input on Draft Orders
+
+The `voucher` field on `DraftOrderInput` and `DraftOrderCreateInput` is deprecated.
+Use the `voucherCode` field instead when creating or updating draft orders.
+
