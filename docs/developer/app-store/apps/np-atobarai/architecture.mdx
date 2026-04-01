@@ -90,13 +90,18 @@ sequenceDiagram
 
     Staff User->>Saleor: Fulfill order with tracking number <br/> update fulfilment tracking number
     Saleor->>NP Atobarai App: Async Webhook: FULFILLMENT_TRACKING_NUMBER_UPDATED
-    NP Atobarai App ->> NP Atobarai API: Report Fulfillment
-    alt NP Atobarai API fails
-        NP Atobarai API->>NP Atobarai App: Fail to report fulfillment
-        NP Atobarai App ->> Saleor: Respond with FAILURE and add order note with error
-    else NP Atobarai successfully reports fulfillment
-        NP Atobarai API->>NP Atobarai App: Success
-        NP Atobarai App ->> Saleor: Respond with SUCCESS and add order note with success
+    NP Atobarai App->>NP Atobarai App: Filter transactions by status <br/> (CHARGE_SUCCESS or AUTHORIZATION_SUCCESS)
+    alt No completed transactions or multiple completed transactions
+        NP Atobarai App ->> Saleor: Skip fulfillment reporting <br/> and add order note with reason
+    else Exactly one completed transaction
+        NP Atobarai App ->> NP Atobarai API: Report Fulfillment
+        alt NP Atobarai API fails
+            NP Atobarai API->>NP Atobarai App: Fail to report fulfillment
+            NP Atobarai App ->> Saleor: Respond with FAILURE and add order note with error
+        else NP Atobarai successfully reports fulfillment
+            NP Atobarai API->>NP Atobarai App: Success
+            NP Atobarai App ->> Saleor: Respond with SUCCESS and add order note with success
+        end
     end
 ```
 
