@@ -404,12 +404,14 @@ If your users authenticate via both password and OIDC, be aware that once an OID
 
 ## Simplified Stock Availability Mode
 
-A new setting, [`useLegacyShippingZoneStockAvailability`](/api-reference/miscellaneous/objects/shop.mdx#use-legacy-shipping-zone-stock-availability), has been added to `Shop` / `SiteSettings`. It controls whether shipping zones and the customer's destination address are used to determine stock availability.
+Stock availability is no longer determined by shipping zones. Instead, it is based solely on the direct warehouse-channel link — if a warehouse is assigned to a channel, its stock counts toward product availability in that channel.
 
-- **Existing instances** default to `true` (legacy behavior preserved).
-- **New instances** default to `false` (simplified mode).
+The previous behavior, where stock was filtered by shipping zones and the customer's destination address, is now deprecated. It is controlled by the [`useLegacyShippingZoneStockAvailability`](/api-reference/miscellaneous/objects/shop.mdx#use-legacy-shipping-zone-stock-availability) setting on `Shop` / `SiteSettings`:
 
-You can change this setting via the [`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update.mdx) mutation:
+- **Existing instances** have this set to `true` to preserve backwards compatibility.
+- **New instances** default to `false`.
+
+We recommend disabling legacy shipping zone filtering as soon as possible. It will be removed in a future version.
 
 ```graphql
 mutation {
@@ -427,10 +429,9 @@ mutation {
 }
 ```
 
-### What changes when disabled
+### What changes
 
-When `useLegacyShippingZoneStockAvailability` is set to `false`, stock availability is determined solely by the direct warehouse-channel link.
-Shipping zones and the customer's address are no longer used to filter warehouses for stock calculations. This affects:
+With the new default behavior, shipping zones and the customer's address are no longer used to filter warehouses for stock calculations. This affects:
 
 - **Stock validation and availability**: `Product.isAvailable`, `ProductVariant.quantityAvailable`, and stock filters (`IN_STOCK`/`OUT_OF_STOCK`) consider all warehouses assigned to the channel.
 - **Stock allocation**: Stocks are allocated from any warehouse in the channel, not just those matching the order's country via shipping zones.
@@ -440,13 +441,13 @@ Shipping zones and the customer's address are no longer used to filter warehouse
 
 ### Deprecated arguments
 
-The `address` argument on the following fields is deprecated. When the simplified mode is active, the argument is ignored:
+The `address` argument on the following fields is deprecated and ignored:
 
 - `Product.isAvailable(address:)`
 - `ProductVariant.quantityAvailable(address:)`
 - `ProductVariant.stocks(address:)`
 
-For full details, see [Stock availability mode](/developer/stock/overview.mdx).
+For full details, see [Stock Overview](/developer/stock/overview.mdx).
 
 ## Deprecations 
 
