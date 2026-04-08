@@ -22,6 +22,12 @@ Crucially, a warehouse must be assigned to a channel. One warehouse can be assig
 - **Shipping Zones:** Shipping Zones define the geographical areas for which specific 
 shipping methods and rates apply. When configuring a shipping zone, you select the warehouse 
 from which products will be shipped.
+
+:::info
+The role of shipping zones in stock availability depends on the 
+[`useLegacyShippingZoneStockAvailability`](/api-reference/miscellaneous/objects/shop.mdx#use-legacy-shipping-zone-stock-availability) 
+setting. See [Stock availability mode](#stock-availability-mode) for details.
+:::
 - **Checkout**, **Order** & **Taxes:** Importantly, the **address of a warehouse** can be used 
 for shipping address and tax calculation in specific scenarios. 
 When a customer chooses a "click and collect" delivery method, Saleor use the warehouse's address to 
@@ -216,6 +222,13 @@ mutation channelUpdate($id: ID!, $input: ChannelUpdateInput!) {
 </Tabs>
 
 #### Assign Warehouses to the Shipping Zone
+
+:::info
+This step is only required when [`useLegacyShippingZoneStockAvailability`](/api-reference/miscellaneous/objects/shop.mdx#use-legacy-shipping-zone-stock-availability) 
+is enabled. When disabled, stock availability is determined by the warehouse-channel link alone, 
+and shipping zone assignment is not needed for stock purposes.
+:::
+
 Once a warehouse is linked to at least one channel, it becomes eligible 
 to be selected when configuring shipping zones. When setting up a shipping zone, 
 you will choose the warehouse(s) from which orders within that zone will be fulfilled. 
@@ -243,6 +256,44 @@ A warehouse is available as a collection point for an order if:
 - There is available stock for the product.
 - The warehouse is assigned to the channel where the order was placed.
 
+
+## Stock Availability Mode
+
+:::info
+Added in Saleor 3.23.
+:::
+
+Saleor supports two modes for determining which warehouses contribute to stock availability, controlled by the 
+[`useLegacyShippingZoneStockAvailability`](/api-reference/miscellaneous/objects/shop.mdx#use-legacy-shipping-zone-stock-availability) 
+setting on `Shop`. You can change this setting via the 
+[`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update.mdx) mutation.
+
+### Legacy mode (enabled by default for existing instances)
+
+When `useLegacyShippingZoneStockAvailability` is `true`, stock availability is filtered by **shipping zones** 
+and the customer's **destination address**. A warehouse's stock counts toward availability only if:
+
+- The warehouse is assigned to the sales channel.
+- The warehouse belongs to a shipping zone that covers the customer's country.
+- That shipping zone is available in the same channel.
+
+### Simplified mode (default for new instances)
+
+When `useLegacyShippingZoneStockAvailability` is `false`, stock availability is determined solely by the 
+**direct warehouse-channel link**. Shipping zones and the customer's destination address are ignored 
+when calculating stock. A warehouse's stock counts toward availability if:
+
+- The warehouse is assigned to the sales channel.
+
+This simplifies the stock setup — you no longer need to configure shipping zones to make stock available in a channel.
+
+#### Deprecated arguments
+
+When simplified mode is active, the `address` argument on the following fields is ignored and deprecated:
+
+- [`Product.isAvailable`](/api-reference/products/objects/product.mdx#is-available)
+- [`ProductVariant.quantityAvailable`](/api-reference/products/objects/product-variant.mdx#quantity-available)
+- [`ProductVariant.stocks`](/api-reference/products/objects/product-variant.mdx#stocks)
 
 ## Stocks
 Stocks in Saleor represent the inventory levels of specific product variants 

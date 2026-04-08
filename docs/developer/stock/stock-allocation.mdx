@@ -7,7 +7,16 @@ This guide explains how the allocations are handled in Saleor.
 ## Glossary
 
 The warehouses, shipping zones, and channels must be linked
-to provide the expected allocation. Below you can find the explanation of the terms that will be required to understand this guide properly:
+to provide the expected allocation.
+
+:::info
+The allocation conditions described below apply when 
+[`useLegacyShippingZoneStockAvailability`](/api-reference/miscellaneous/objects/shop.mdx#use-legacy-shipping-zone-stock-availability) 
+is enabled (legacy mode). When disabled, shipping zones are not considered — stocks are allocated 
+from any warehouse assigned to the channel. See [Stock availability mode](/developer/stock/overview.mdx#stock-availability-mode) for details.
+:::
+
+Below you can find the explanation of the terms that will be required to understand this guide properly:
 
 - channel - allows configuring your shop differently for different currencies. See the [channel documentation](/developer/channels/overview.mdx) for details.
 - shipping zone - allows for defining the cost of shipping in different areas of the world
@@ -57,10 +66,14 @@ Insufficient quantity in all product stocks raises the `InsufficientStock` error
 The line can be allocated only in the stocks that fulfill the following conditions:
 
 - the stock's warehouse is available in the channel in which the order is created
-- the stock's warehouse has a shipping zone that includes the shipping address
+- **Legacy mode only:** the stock's warehouse has a shipping zone that includes the shipping address
   (or billing address if the shipping address is not set) country code
   and this shipping zone is available in the channel in which the order is created
 - the stock has available quantities
+
+When [`useLegacyShippingZoneStockAvailability`](/api-reference/miscellaneous/objects/shop.mdx#use-legacy-shipping-zone-stock-availability) 
+is disabled, the shipping zone condition is skipped — allocation considers all warehouses 
+assigned to the channel regardless of the customer's address.
 
 ### Allocation strategies
 

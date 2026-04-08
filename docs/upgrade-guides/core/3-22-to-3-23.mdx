@@ -402,6 +402,52 @@ If your users authenticate via both password and OIDC, be aware that once an OID
 
 
 
+## Simplified Stock Availability Mode
+
+A new setting, [`useLegacyShippingZoneStockAvailability`](/api-reference/miscellaneous/objects/shop.mdx#use-legacy-shipping-zone-stock-availability), has been added to `Shop` / `SiteSettings`. It controls whether shipping zones and the customer's destination address are used to determine stock availability.
+
+- **Existing instances** default to `true` (legacy behavior preserved).
+- **New instances** default to `false` (simplified mode).
+
+You can change this setting via the [`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update.mdx) mutation:
+
+```graphql
+mutation {
+  shopSettingsUpdate(
+    input: { useLegacyShippingZoneStockAvailability: false }
+  ) {
+    shop {
+      useLegacyShippingZoneStockAvailability
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+### What changes when disabled
+
+When `useLegacyShippingZoneStockAvailability` is set to `false`, stock availability is determined solely by the direct warehouse-channel link.
+Shipping zones and the customer's address are no longer used to filter warehouses for stock calculations. This affects:
+
+- **Stock validation and availability**: `Product.isAvailable`, `ProductVariant.quantityAvailable`, and stock filters (`IN_STOCK`/`OUT_OF_STOCK`) consider all warehouses assigned to the channel.
+- **Stock allocation**: Stocks are allocated from any warehouse in the channel, not just those matching the order's country via shipping zones.
+- **Stock reservation**: Reservations are made from all channel warehouses regardless of country.
+- **Order fulfillment**: Fulfillment lines are created from stock in all channel warehouses.
+- **Webhook payloads**: Checkout and fulfillment webhook payloads resolve the warehouse address from the channel directly.
+
+### Deprecated arguments
+
+The `address` argument on the following fields is deprecated. When the simplified mode is active, the argument is ignored:
+
+- `Product.isAvailable(address:)`
+- `ProductVariant.quantityAvailable(address:)`
+- `ProductVariant.stocks(address:)`
+
+For full details, see [Stock availability mode](/developer/stock/overview.mdx#stock-availability-mode).
+
 ## Deprecations 
 
 Deprecated fields will be removed in next versions. To make future upgrades easier, we recommend to remove deprecated fields as soon as possible.
