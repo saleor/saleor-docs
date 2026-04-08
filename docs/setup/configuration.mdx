@@ -192,6 +192,64 @@ Controls maximum allowed complexity (cost) of a GraphQL query. If the query's co
 
 Set `0` to remove this limit.
 
+### `GRAPHQL_ALIAS_COUNT_LIMIT`
+
+Sets the maximum number of aliases that can be provided within a single GraphQL request.
+
+**Defaults to `100`.**
+
+Example query using aliases (uses **three** aliases):
+
+```graphql
+query myQuery {
+  products(first: 10) {
+    alias1: id
+    alias2: id
+    alias3: id
+  }
+}
+```
+
+### `GRAPHQL_BATCH_MAX_COUNT`
+
+Sets the maximum number of queries that can be sent at once within one GraphQL request.
+
+**Defaults to `1`** (meaning batch queries are effectively disabled).
+
+A batch query is a JSON array such as this one (sends **two** queries within a batch):
+
+```shell
+$ json_data='[
+    {"query": "{ products(first: 1) { __typename } }"},
+    {"query": "{ categories(first: 1) { __typename } }"}
+  ]'
+$ curl --json "$json_data" https://example.com/graphql/
+```
+
+### `GRAPHQL_MUTATION_COUNT_LIMIT`
+
+Sets the maximum number of mutations that can be sent at once within one GraphQL request.
+
+**Defaults to `1`** - meaning sending multiple mutations in a single request isn't allowed.
+
+For example, the following GraphQL sends **two** mutations within a single request:
+
+```graphql
+mutation {
+  productUpdate(input: {name: "my-product"}, id: "UHJvZHVjdDox") {
+    product {
+      id
+    }
+  }
+
+  collectionUpdate(input: {name: "my-collection"}, id: "Q29sbGVjdGlvbjoy") {
+    collection {
+      id
+    }
+  }
+}
+```
+
 ### `INTERNAL_IPS`
 
 Controls [Django's internal IPs setting](https://docs.djangoproject.com/en/3.0/ref/settings/#s-internal-ips). Defaults to `127.0.0.1`.
