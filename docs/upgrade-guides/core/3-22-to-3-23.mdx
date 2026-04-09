@@ -402,7 +402,7 @@ If your users authenticate via both password and OIDC, be aware that once an OID
 
 
 
-## Simplified Stock Availability Mode
+## Simplified Stock Availability
 
 Stock availability is no longer determined by shipping zones. Instead, it is based solely on the direct warehouse-channel link — if a warehouse is assigned to a channel, its stock counts toward product availability in that channel.
 
@@ -412,22 +412,6 @@ The previous behavior, where stock was filtered by shipping zones and the custom
 - **New instances** default to `false`.
 
 We recommend disabling legacy shipping zone filtering as soon as possible. It will be removed in a future version.
-
-```graphql
-mutation {
-  shopSettingsUpdate(
-    input: { useLegacyShippingZoneStockAvailability: false }
-  ) {
-    shop {
-      useLegacyShippingZoneStockAvailability
-    }
-    errors {
-      field
-      message
-    }
-  }
-}
-```
 
 ### What changes
 
@@ -439,13 +423,30 @@ With the new default behavior, shipping zones and the customer's address are no 
 - **Order fulfillment**: Fulfillment lines are created from stock in all channel warehouses.
 - **Webhook payloads**: Checkout and fulfillment webhook payloads resolve the warehouse address from the channel directly.
 
-### Deprecated arguments
+### Migration steps
 
-The `address` argument on the following fields is deprecated and ignored:
+1. **Remove `address` argument from stock availability queries.** The `address` argument on the following fields 
+   is deprecated and ignored:
+   - `Product.isAvailable(address:)`
+   - `ProductVariant.quantityAvailable(address:)`
+   - `ProductVariant.stocks(address:)`
 
-- `Product.isAvailable(address:)`
-- `ProductVariant.quantityAvailable(address:)`
-- `ProductVariant.stocks(address:)`
+2. **Disable legacy shipping zone filtering.** Once the above steps are complete, switch to the new behavior:
+   ```graphql
+   mutation {
+     shopSettingsUpdate(
+       input: { useLegacyShippingZoneStockAvailability: false }
+     ) {
+       shop {
+         useLegacyShippingZoneStockAvailability
+       }
+       errors {
+         field
+         message
+       }
+     }
+   }
+   ```
 
 For full details, see [Stock Overview](/developer/stock/overview.mdx).
 
