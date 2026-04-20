@@ -521,6 +521,23 @@ Saleor provides several webhooks to help you monitor and react to stock-related 
 - `WAREHOUSE_DELETED`: Triggered when a warehouse is removed, enabling cleanup of related data in external systems.
 - `WAREHOUSE_METADATA_UPDATED`: Triggered when warehouse metadata is changed, useful for tracking warehouse-specific customizations.
 
+### Channel-aware stock events
+
+:::note
+These webhooks are only triggered when the [`useLegacyShippingZoneStockAvailability`](/api-reference/miscellaneous/objects/shop.mdx#use-legacy-shipping-zone-stock-availability) shop setting is disabled.
+:::
+
+- `PRODUCT_VARIANT_OUT_OF_STOCK_IN_CHANNEL`: Triggered when a product variant becomes out of stock across all non click-and-collect warehouses in a channel (`Warehouse.clickAndCollectOption` is `DISABLED`).
+- `PRODUCT_VARIANT_OUT_OF_STOCK_FOR_CLICK_AND_COLLECT`: Triggered when a product variant becomes out of stock across all click-and-collect warehouses in a channel (`Warehouse.clickAndCollectOption` is `LOCAL_STOCK` or `ALL_WAREHOUSES`).
+- `PRODUCT_VARIANT_BACK_IN_STOCK_IN_CHANNEL`: Triggered when a product variant becomes available again across non click-and-collect warehouses in a channel (`Warehouse.clickAndCollectOption` is `DISABLED`).
+- `PRODUCT_VARIANT_BACK_IN_STOCK_FOR_CLICK_AND_COLLECT`: Triggered when a product variant becomes available again across click-and-collect warehouses in a channel (`Warehouse.clickAndCollectOption` is `LOCAL_STOCK` or `ALL_WAREHOUSES`).
+
+Any operation that changes the stock quantity available in a channel can fire these events, including:
+
+- [`productVariantStocksCreate`](/api-reference/products/mutations/product-variant-stocks-create.mdx), [`productVariantStocksUpdate`](/api-reference/products/mutations/product-variant-stocks-update.mdx), and [`productVariantStocksDelete`](/api-reference/products/mutations/product-variant-stocks-delete.mdx) mutations.
+- Stock allocation and deallocation driven by order lifecycle changes — e.g. order creation, cancellation, refund, or fulfillment return.
+- [`warehouseDelete`](/api-reference/products/mutations/delete-warehouse.mdx), which removes the warehouse's stocks from the channels it was assigned to.
+
 For more information on setting up webhooks, refer to the [webhook chapter](/developer/extending/webhooks/overview.mdx).
 
 ## Legacy Stock Availability
