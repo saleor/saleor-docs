@@ -446,6 +446,53 @@ With the new default behavior, shipping zones and the customer's address are no 
    }
    ```
 
+3. **Subscribe to channel-aware stock webhooks.** With `useLegacyShippingZoneStockAvailability` disabled, four new async events become available:
+
+   - `PRODUCT_VARIANT_OUT_OF_STOCK_IN_CHANNEL`
+   - `PRODUCT_VARIANT_BACK_IN_STOCK_IN_CHANNEL`
+   - `PRODUCT_VARIANT_OUT_OF_STOCK_FOR_CLICK_AND_COLLECT`
+   - `PRODUCT_VARIANT_BACK_IN_STOCK_FOR_CLICK_AND_COLLECT`
+
+   Unlike `PRODUCT_VARIANT_OUT_OF_STOCK` / `PRODUCT_VARIANT_BACK_IN_STOCK`, these fire per channel and can be filtered to a subset of channels via the `channels:` argument on the subscription field.
+   Register a webhook for each event and list the channel slugs you want to follow:
+
+   ```graphql
+   mutation {
+     webhookCreate(
+       input: {
+         name: "Variant out of stock – UK, US"
+         targetUrl: "https://example.com/webhooks/out-of-stock"
+         asyncEvents: [PRODUCT_VARIANT_OUT_OF_STOCK_IN_CHANNEL]
+         query: """
+           subscription {
+             productVariantOutOfStockInChannel(channels: ["uk", "us"]) {
+               productVariant {
+                 id
+                 sku
+               }
+               channel {
+                 slug
+               }
+             }
+           }
+         """
+         isActive: true
+       }
+     ) {
+       webhook {
+         id
+       }
+       errors {
+         field
+         code
+         message
+       }
+     }
+   }
+   ```
+
+   Omit `channels:` to receive events from every channel. Only one filterable subscription field is allowed per webhook, so create a separate webhook for each of the four events.
+
 For full details, see [Stock Overview](/developer/stock/overview.mdx).
 
 ## Apps can edit Staff User metadata
