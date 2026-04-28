@@ -16,3 +16,20 @@ Before upgrading to 3.24, stop using the Authorize.net plugin. After the upgrade
 1. **Stop using the plugin before upgrading.** Disable Authorize.net as an active payment method in all channels that reference it, and confirm no in-flight checkouts depend on it.
 2. **Migrate to another payment gateway.** Saleor recommends integrating a Payment App instead — see the [Payment Apps overview](/developer/payments/payment-apps) and [How to Build a Payment App](/developer/extending/apps/building-payment-app) for guidance. Existing options include the [Stripe App](/developer/app-store/apps/stripe/overview) or any third-party Payment App from the App Store.
 
+
+## Prohibited `MANAGE_APPS` permission for Apps 
+
+Prior to Saleor 3.24, `MANAGE_APPS` permission was technically allowed for Apps, but it shouldn't be. That was not a significant issue because Saleor was not allowing Apps to consume this permission in any way.
+
+However, `MANAGE_APPS` is reserved for a staff user. Saleor 3.24 locks possibility to create/install app with this permission. Now all installations will be rejected. 
+
+During the upgrade, all apps with `MANAGE_APPS` permission will be updated and the permission will be removed.
+
+All apps that somehow remained with `MANAGE_APPS` (e.g. migration not yet over, or a bug) will reject to issue a token.
+
+### Migration steps
+
+If none of your apps have `MANAGE_APPS` permission, you can skip this step. Otherwise:
+
+1. Ensure your apps (manifests) don't have `MANAGE_APPS` permission. 
+2. Recommended: manually update apps (`appUpdate` mutation) to remove `MANAGE_APPS` permission and test if they work while still on 3.23. This way you can make sure everything works as expected, otherwise Saleor will do that automatically.
