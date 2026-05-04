@@ -19,7 +19,6 @@ The application provides integration with [Algolia](https://www.algolia.com/) se
 - Synchronize products, categories, and pages with Algolia
 - Update Algolia indices on product, category, and page changes
 - Selective page indexing — choose which page types to sync
-- Skip large attributes on pages to keep the index lean
 
 ## Assumptions & limitations
 
@@ -29,7 +28,7 @@ The application provides integration with [Algolia](https://www.algolia.com/) se
 - Each of the channels is indexed separately
 - At this moment translations are not supported
 - The exact state of the product quantity is not indexed, only the boolean value (in stock / out of stock)
-- Page indexing is selective — you choose which page types to sync. Large attributes can be excluded to keep records within the size limit.
+- Page indexing is selective — you choose which page types to sync. You can disable specific page fields globally to keep records within the size limit.
 - The app will synchronize data on the following [events](../../../developer/extending/webhooks/asynchronous-events):
   - `PRODUCT_CREATED`
   - `PRODUCT_UPDATED`
@@ -132,7 +131,7 @@ The application should now be configured and synchronized. You can start making 
 
 Not every page belongs in search results. In the App configuration, you can select which **page types** should be indexed. Only pages of the selected types will be synced to Algolia.
 
-Additionally, you can mark larger attributes to skip syncing — useful for pages with heavy content blocks that would bloat the index without adding search value.
+To keep records lean, you can disable the `attributes`, `metadata`, `seoDescription`, or `contentPlaintext` fields globally for page records in the `Algolia fields filtering` section.
 
 ### Fields configuration
 
@@ -155,7 +154,7 @@ Values for the price and availability in the product index are chosen according 
 
 ### Product record fields
 
-- `objectID`: Unique ID of the record, used by Algolia. It's a concatenation of the `productId` and `variantId` fields, separated by `-`
+- `objectID`: Unique ID of the record, used by Algolia. It's a concatenation of the `productId` and `variantId` fields, separated by `_`
 - `productId`: Product ID
 - `variantId`: Product Variant ID
 - `productTypeId`: Product Type ID. The field is used for faceting
@@ -185,7 +184,6 @@ Values for the price and availability in the product index are chosen according 
 - `metadata`: Key-value pairs of product metadata
 - `variantMetadata`: Key-value pairs of variant metadata
 - `otherVariants`: List of other variant IDs of the product
-- `_type`: Always `"product"`. Useful for distinguishing record types in unified search results
 
 ### Category record fields
 
@@ -203,7 +201,7 @@ Categories are stored in a dedicated index with the following fields:
 
 Pages are stored in a dedicated index. You choose which **page types** to sync in the App configuration — only pages of the selected types will be indexed.
 
-Larger attributes can be marked to skip syncing, which is useful for pages with heavy content blocks that would bloat the index without adding search value. The exact set of indexed fields depends on your configuration.
+To keep records within the Algolia size limit, you can disable the `attributes`, `metadata`, `seoDescription`, or `contentPlaintext` fields globally for page records in the `Algolia fields filtering` section. The exact set of indexed fields depends on your configuration.
 
 Every page record includes a `_type` field set to `"page"` and a `pageTypeId` field (used for faceting), so you can distinguish page results and filter by page type in your storefront.
 
@@ -234,7 +232,7 @@ Running the example above will return the following results:
 ```json
 [
   {
-    "objectID": "UHJvZHVjdDoxNTU=-UHJvZHVjdFZhcmlhbnQ6Mzg3",
+    "objectID": "UHJvZHVjdDoxNTU=_UHJvZHVjdFZhcmlhbnQ6Mzg3",
     "productId": "UHJvZHVjdDoxNTU=",
     "variantId": "UHJvZHVjdFZhcmlhbnQ6Mzg3",
     "productTypeId": "UHJvZHVjdFR5cGU6OQ==",
@@ -285,7 +283,6 @@ Running the example above will return the following results:
     "metadata": {},
     "variantMetadata": {},
     "otherVariants": [],
-    "_type": "product",
 
     "_highlightResult": {
       "name": {
@@ -348,7 +345,7 @@ Current size: 15000 bytes, limit: 10000 bytes.
 - `metadata` / `variantMetadata` - can contain large amounts of custom data
 - `media` - if you don't need media URLs in search results
 
-For pages, you can mark larger attributes to skip syncing in the page type configuration.
+For pages, you can disable the `attributes`, `metadata`, `seoDescription`, or `contentPlaintext` fields globally in the same `Algolia fields filtering` section.
 
 **Alternative**: If you still need a searchable description, create a shorter product attribute (e.g., `algoliaDescription`) with a condensed version of your description. Product attributes are automatically synced to Algolia and can be used for search.
 
