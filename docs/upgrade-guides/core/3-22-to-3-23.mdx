@@ -501,6 +501,14 @@ Historically apps were not able to perform any mutation on Staff Users due to se
 
 Mutations: `deleteMetadata`, `updateMetadata`, `deletePrivateMetadata`, and `updatePrivateMetadata` are now allowed for apps with `MANAGE_STAFF` permission. This unifies permissions with human user.
 
+## Apps Reliably Receive Their Own Lifecycle Webhooks
+
+The `APP_INSTALLED`, `APP_UPDATED`, `APP_STATUS_CHANGED`, and `APP_DELETED` events are now reliably delivered to the app they relate to. Previously, these events were silently dropped if the receiving app did not hold the `MANAGE_APPS` permission, or if the app was already deactivated or soft-deleted at dispatch time. As a result, apps could not observe their own deactivation or uninstallation.
+
+Apps no longer need `MANAGE_APPS` to subscribe to their own lifecycle events. The most useful pattern enabled by this change is letting an app **clean up after itself** when it is uninstalled — for example, removing tenant rows from its own database, revoking external credentials, or cancelling scheduled jobs — by subscribing to `APP_DELETED`.
+
+See the new guide: [Subscribing to App Lifecycle Webhooks](/developer/extending/apps/developing-apps/apps-patterns/app-lifecycle-webhooks.mdx).
+
 
 ## Deprecations 
 

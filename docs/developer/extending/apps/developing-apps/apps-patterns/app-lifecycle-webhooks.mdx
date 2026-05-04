@@ -1,0 +1,83 @@
+---
+title: Subscribing to App Lifecycle Webhooks
+sidebar_label: App Lifecycle Webhooks
+---
+
+Apps can subscribe to webhooks describing their own lifecycle. This allows the app to react to its own installation, deactivation, or uninstallation — for example, to provision tenant data on install or to clean up after itself when removed.
+
+:::info
+
+Available in Saleor 3.23+.
+
+:::
+
+## Available events
+
+The following [asynchronous webhook events](/developer/extending/webhooks/asynchronous-events.mdx) describe the app lifecycle:
+
+| Event                 | Triggered when                                                                                                  |
+| --------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `APP_INSTALLED`       | A new app finishes installation.                                                                                |
+| `APP_UPDATED`         | An app is updated (for example, its permissions or webhooks change).                                            |
+| `APP_STATUS_CHANGED`  | An app is activated or deactivated via [`appActivate`](/api-reference/apps/mutations/app-activate.mdx) or [`appDeactivate`](/api-reference/apps/mutations/app-deactivate.mdx). |
+| `APP_DELETED`         | An app is removed via [`appDelete`](/api-reference/apps/mutations/app-delete.mdx).                              |
+
+The corresponding GraphQL subscription payloads are [`AppInstalled`](/api-reference/apps/objects/app-installed.mdx), [`AppUpdated`](/api-reference/apps/objects/app-updated.mdx), [`AppStatusChanged`](/api-reference/apps/objects/app-status-changed.mdx), and [`AppDeleted`](/api-reference/apps/objects/app-deleted.mdx). Each payload exposes both the `app` the event relates to and the `recipient` — the app receiving the webhook.
+
+## Subscribing from a manifest
+
+Declare the webhook in your [app manifest](/developer/extending/apps/architecture/manifest.mdx) just like any other async webhook:
+
+```json
+{
+  "webhooks": [
+    {
+      "name": "App deleted",
+      "asyncEvents": ["APP_DELETED"],
+      "query": "subscription { event { ... on AppDeleted { app { id } recipient { id } } } }",
+      "targetUrl": "https://my-app.example.com/api/webhooks/app-deleted"
+    }
+  ]
+}
+```
+
+No extra permissions are required. Saleor delivers an app's own lifecycle events to that app even if the app does not hold `MANAGE_APPS`.
+
+## Cleaning up after uninstallation
+
+The most common use case for `APP_DELETED` is letting the app clean up state it keeps in **external services** when the merchant removes it.
+
+There is no need to clean up data inside Saleor: the `App` object is removed, its `privateMetadata` is dropped along with it, and the app's auth token is invalidated — calls back to Saleor would fail anyway. `APP_DELETED` is purely a signal to clean up things Saleor cannot reach.
+
+Typical cleanup actions include:
+
+- Removing tenant rows from the app's own database (configuration, mappings, cached resources).
+- Revoking credentials issued to third-party services on behalf of the merchant.
+- Cancelling subscriptions or scheduled jobs scoped to the tenant.
+- Deleting object storage entries (uploaded files, generated reports) tied to the installation.
+
+### Identifying the tenant
+
+The webhook body is signed and includes the standard `saleor-api-url` header, so the app can match the event to a specific Saleor installation in its own storage. Combined with the `recipient.id` field in the subscription payload, this is enough to locate and remove the right records.
+
+```graphql
+subscription {
+  event {
+    ... on AppDeleted {
+      recipient {
+        id
+      }
+    }
+  }
+}
+```
+
+### Reacting to deactivation
+
+`APP_STATUS_CHANGED` fires on both activation and deactivation. Treat deactivation as a *pause* rather than a removal — the app installation still exists and can be re-activated, so prefer disabling background work over deleting tenant data. Use `APP_DELETED` for destructive cleanup.
+
+## Related
+
+- [Asynchronous Events](/developer/extending/webhooks/asynchronous-events.mdx)
+- [App Manifest](/developer/extending/apps/architecture/manifest.mdx)
+- [How to Store App Data](/developer/extending/apps/developing-apps/apps-patterns/persistence-with-metadata-manager.mdx)
