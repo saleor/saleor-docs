@@ -219,13 +219,17 @@ On the Webhook settings page make sure to uncheck "Delayed Capture" setting:
 
 ### Transactions rejected due to fraud
 
-Adyen app sends [`customerIpAddress`](/api-reference/payments/objects/transaction-initialize-session.mdx#customer-ip-address) it receives from Saleor `TRANSACTION_INITIALIZE_SESSION` and `TRANSACTION_PROCESS_SESSION` to Adyen as [`shopperIP` field](https://docs.adyen.com/api-explorer/Checkout/71/post/sessions#request-shopperIP).
+When the **"Use customer IP address"** setting is enabled in the [Adyen configuration](./configuration.mdx#use-customer-ip-address), the app forwards the [`customerIpAddress`](/api-reference/payments/objects/transaction-initialize-session.mdx#customer-ip-address) it receives from Saleor `TRANSACTION_INITIALIZE_SESSION` and `TRANSACTION_PROCESS_SESSION` to Adyen as the [`shopperIP` field](https://docs.adyen.com/api-explorer/Checkout/71/post/sessions#request-shopperIP). This is useful for fraud detection — Adyen can use the customer's IP to evaluate risk.
 
-If Adyen detects that IP address is suspicious, it might reject the payment. In such case, you should investigate the IP address and make sure that it's not included in your Adyen's ["Block list"](https://docs.adyen.com/risk-management/configure-manual-risk/referral-rules/#referral-shopper).
+If Adyen detects that an IP address is suspicious, it might reject the payment. In such case, you should investigate the IP address and make sure that it's not included in your Adyen's ["Block list"](https://docs.adyen.com/risk-management/configure-manual-risk/referral-rules/#referral-shopper).
+
+:::caution
+If you use a server-side proxy to make requests to Saleor on behalf of your customers, Adyen may receive the same IP address for unrelated sessions. This can break fraud detection. Either ensure your proxy forwards the actual customer IP or call the mutation directly from the storefront.
+:::
 
 #### Using proxy
 
-Keep in mind that if you use proxy for making request to Saleor on your customers behalf, you need to specify `customerIpAddress` field on your own in the `transactionInitialize` and `transactionProcess` mutation input:
+If you use a proxy for making requests to Saleor on your customers' behalf, you need to specify the `customerIpAddress` field on your own in the `transactionInitialize` and `transactionProcess` mutation input:
 
 
 `transactionInitialize` mutation:
