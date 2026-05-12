@@ -3,7 +3,7 @@ title: Lifecycle
 sidebar_label: Lifecycle
 ---
 
-## Payment status on Order
+## Payment Status on Order
 
 :::caution
 `paymentStatus` is a legacy field inherited from the old Payments API (payment plugins) 
@@ -68,7 +68,7 @@ Creating the refund will change the status to:
 `Checkout` doesn't have a `paymentStatus` field.
 :::
 
-## Authorize status
+## Authorize Status
 
 ```mermaid
 stateDiagram-v2
@@ -83,7 +83,7 @@ stateDiagram-v2
 
 ```
 
-### Authorization status calculation for Checkout
+### Authorization Status Calculation for Checkout
 
 [`Checkout.authorizeStatus`](/api-reference/checkout/objects/checkout.mdx#authorize-status) depends on:
 - sum of charged transactions (`TransactionItem.chargedAmount`)
@@ -123,12 +123,12 @@ Transaction that is pending will be confirmed later by the payment app (it will 
 This means user can create an Order that may remain unpaid if the pending amounts eventually fail.
 :::
 
-#### Available transitions
+#### Available Transitions
 
 - Status is updated when Checkout's `totalAmount` is changed.
 - Status is updated when Checkout's `TransactionItem`'s amounts are updated.
 
-### Authorization status calculation for Order
+### Authorization Status Calculation for Order
 
 [`Order.authorizeStatus`](/api-reference/orders/objects/order.mdx#authorize-status) status depends on:
 
@@ -163,13 +163,13 @@ Based on that calculation `Order.authorizeStatus` can have the following values:
 - **`PARTIAL`**: Some funds were authorized, but they do not cover required amount (`AmountToCover > CoveredAmount`)
 - **`FULL`**: The authorized funds fully cover the required amount. (`AmountToCover <= CoveredAmount`)
 
-#### Available transitions
+#### Available Transitions
 
 - Status is updated when Order's `totalAmount` is changed.
 - Status is updated when Order's `TransactionItem`'s amounts are updated.
 - Status is updated when `Order.grantedRefunds` are updated.
 
-## Charge status
+## Charge Status
 
 ```mermaid
 stateDiagram-v2
@@ -192,7 +192,7 @@ stateDiagram-v2
   FULL --> NONE
 ```
 
-### Charge status calculations for Order
+### Charge Status Calculations for Order
 
 [`Order.chargeStatus`](/api-reference/orders/objects/order.mdx#charge-status) depends on:
 
@@ -220,14 +220,14 @@ Based on that calculation `Order.chargeStatus` can have following values:
 - **FULL**: Charged funds fully cover the required amount. (`AmountToCover == CoveredAmount`)
 - **OVERCHARGED**: Charged funds exceed the required amount. (`CoveredAmount > AmountToCover`)
 
-#### Available transitions
+#### Available Transitions
 
 - Status is updated when Order's `totalAmount` is changed.
 - Status is updated when Order's `TransactionItem`'s amounts are updated.
 - Status is updated when new `TransactionItem` is created on Order.
 - Status is updated when `Order.grantedRefunds` are updated.
 
-### Charge status calculations for Checkout
+### Charge Status Calculations for Checkout
 
 [`Checkout.chargeStatus`](/api-reference/checkout/objects/checkout.mdx#charge-status) depends on:
 - sum of **charged** transactions (`TransactionItem.chargedAmount`)
@@ -264,21 +264,21 @@ by the payment application. This means that even though the order is created,
 it may still remain unpaid if the pending amounts fail to process.
 :::
 
-#### Available transitions
+#### Available Transitions
 
 - Status is updated when Checkout's `totalAmount` is changed.
 - Status is updated when Checkout's `TransactionItem`'s amounts are updated.
 
 
-## Transactions recalculation of amounts
+## Transactions Recalculation of Amounts
 
-### Mental model
+### Mental Model
 
 Each `TransactionItem` has a ledger of events. This way we can calculate current transaction state based on the events history. You can think about it as a bank account: you start with some balance, then you add or subtract amounts based on the events that happen.
 
 History cannot be modified, just like in a bank account. In order to reverse an event you must create a new one.
 
-### Order of events
+### Order of Events
 
 New events can be reported to Saleor in non-subsequent order. This means that some old event might arrive later than a new one. For example:
 - on 10 AM Saleor receives `CHARGE_SUCCESS` event from payment app that was processed at 9:50 AM by payment provider
@@ -288,9 +288,9 @@ This will result in a following list of events:
 - `AUTHORIZATION_SUCCESS` with `date: 9:30 AM`
 - `CHARGE_SUCCESS` with `date: 9:50 AM`
 
-### Reporting new events
+### Reporting New Events
 
-#### Automatic events
+#### Automatic Events
 
 Events are created automatically by Saleor when calling `transactionInitialize` mutation. It creates either:
 - `AUTHORIZATION_REQUEST` when `action` in mutation input or `channel.transactionFlowStrategy` is `AUTHORIZATION`
@@ -306,7 +306,7 @@ Saleor also creates automatically `_FAILURE` events when an exception happens:
 
 Such events don't have `pspReference` and include a `message` that explains the error.
 
-#### App events
+#### App Events
 
 Events are also created by a payment app that processes the payment:
 
@@ -338,7 +338,7 @@ Note that this will result in events order as follows:
 Events can be de-duplicated, when that happens new one won't be created. Read more in [Event deduplication section](#events-deduplication).
 :::
 
-### Rules of calculating amounts
+### Rules of Calculating Amounts
 
 Each event impacts different amount on `TransactionItem`:
 
@@ -369,7 +369,7 @@ To learn more about each event type, see [Transaction event types](#transaction-
 
 To learn more about amount calculations see [Price calculations](/developer/payments/price-calculations.mdx) page.
 
-#### Events deduplication
+#### Events Deduplication
 
 Each event in `TransactionItem` is identified by `pspReference`. This field is used to de-duplicate events in case there were reported multiple times by the payment app. Deduplication is done within single `TransactionItem`.
 
@@ -383,7 +383,7 @@ When reporting such events in `transactionEventReport` mutation it returns event
 
 You can learn more about this mutation and event deduplication in [Reporting actions for transactions](/developer/payments/transactions.mdx#reporting-actions-for-transactions) docs.
 
-### State machine
+### State Machine
 
 Saleor Transaction model **is not a state machine**. This allows great flexibility when integrating with many payment providers, even those that might implement some unconventional flows.
 However this also means that we do not forbid changes on Transactions that might be seen as invalid by your business use-case, such validation is on the Payment App side.
@@ -392,7 +392,7 @@ For example:
 - Available `actions` on `TransactionItem` (list of `REFUND`, `CHARGE`, `CANCEL`) are honored by Saleor Dashboard, but are not rejected once `transactionRequestAction` is requested via API - such request is sent to payment app
 - Transaction might receive `CANCEL_SUCCESS` event even though it had `CHARGE_SUCCESS` reported (in such case to lower `chargedAmount` app would need to report `REFUND_SUCCESS` event).
 
-#### Existing validation
+#### Existing Validation
 
 With that in mind, Saleor prohibits following changes, that would otherwise cause incorrect internal calculations:
 - Multiple `AUTHORIZATION_SUCCESS` events with different either `pspReference` or `amount`
@@ -524,9 +524,9 @@ and its amount is added to `transaction.chargedAmount`. Finally, the amount of t
 
 ---
 
-## Transaction event types
+## Transaction Event Types
 
-### Authorization events
+### Authorization Events
 
 #### `AUTHORIZATION_SUCCESS`
 
@@ -559,7 +559,7 @@ Indicates that additional action is required from the customer to finalize the p
 Does not affect any amounts in the `transactionItem`.
 Multiple events of this type might be present.
 
-### Charge events
+### Charge Events
 
 #### `CHARGE_SUCCESS`
 
@@ -591,7 +591,7 @@ Indicates that additional action is required from the customer to finalize the p
 Does not affect any amounts in the `transactionItem`.
 Multiple events of this type might be present.
 
-### Refund events
+### Refund Events
 
 :::warning
 Refund events should only be triggered if the transaction has been previously charged.
@@ -650,7 +650,7 @@ If an `CANCEL_FAILURE` event is related to an `CANCEL_REQUEST` event by `pspRefe
 will be reduced by the amount reported in the `CANCEL_FAILURE` event. If there is no related `CANCEL_REQUEST`, the failure event will only
 be used to provide the history of `transactionItem` actions.
 
-### Other events
+### Other Events
 
 #### `INFO`
 
@@ -658,7 +658,7 @@ Represents an informational event that provides context or updates without direc
 Does not affect any amounts in the `transactionItem`.
 Multiple events of this type might be present.
 
-## Transaction event flow
+## Transaction Event Flow
 
 Transaction events modify the amount fields, which define the state of the transaction.
 We do not require any specific order of incoming events, the transaction amounts will be calculated
