@@ -3,7 +3,15 @@ title: Lifecycle
 sidebar_label: Lifecycle
 ---
 
-## Payment status on Order 
+## Payment status on Order
+
+:::caution
+`paymentStatus` is a legacy field inherited from the old Payments API (payment plugins) 
+It attempts to map `TransactionItem` state into a single combined field. 
+It works correctly in most cases, but certain edge cases fall outside what a single field can accurately represent.
+
+For a precise view of payment state, use [`authorizeStatus`](#authorize-status) and [`chargeStatus`](#charge-status) instead — they are calculated directly from `TransactionItem` amounts.
+:::
 
 ```mermaid
 stateDiagram-v2
@@ -36,10 +44,10 @@ stateDiagram-v2
  PARTIALLY_REFUNDED --> FULLY_REFUNDED
 ```
 
-[`Order.paymentStatus`](/api-reference/orders/objects/order.mdx#payment-status) represents the combined payment and refund status of the order. It's calculated based on:
+[`Order.paymentStatus`](/api-reference/orders/objects/order.mdx#payment-status) attempts to consolidate both payment and refund state into a single field. It is calculated based on:
 
 - `order.total` value
-- status of the payments
+- status of legacy `Payment` objects assigned to the order
 - refunds granted for the order
 
 When [no refunds](/developer/payments/refunds.mdx) are created, the status is one of the following:
@@ -57,7 +65,7 @@ Creating the refund will change the status to:
 - `FULLY_REFUNDED`: refunded funds fully cover the order total
 
 :::note
-`Checkout` doesn't have `paymentStatus` field.
+`Checkout` doesn't have a `paymentStatus` field.
 :::
 
 ## Authorize status
