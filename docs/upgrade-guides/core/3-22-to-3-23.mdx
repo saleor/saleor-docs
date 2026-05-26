@@ -69,6 +69,16 @@ and `checkout.shippingMethod`.
   - [`CheckoutProblemDeliveryMethodStale`](/api-reference/checkout/objects/checkout-problem-delivery-method-stale.mdx) - the assigned delivery method needs recalculation (e.g. after a voucher change, address update, or line quantity change). Call `deliveryOptionsCalculate` to resolve.
   - [`CheckoutProblemDeliveryMethodInvalid`](/api-reference/checkout/objects/checkout-problem-delivery-method-invalid.mdx) - the assigned delivery method is no longer valid. The customer must re-select a delivery method.
 
+:::warning
+When reading `problem`, just like other interface implementations, you should rely on additional `__typename` field check, because new implementations shape may differ.
+
+For example, `CheckoutProblemDeliveryMethodInvalid` and `CheckoutProblemDeliveryMethodStale` do not provide `line` field. Code from `3.22`: `problem.line` will always work, but in 3.23 it may break.
+
+Change `if(problem.line)` to `if(problem.__typename === "CheckoutLineProblemVariantNotAvailable" && problem.line)` to ensure it's safe before an upgrade.
+
+:::
+
+
 See [delivery method problems](/developer/checkout/problems.mdx#checkoutproblemdeliverymethodstale) for full handling guidance.
 
 - Deprecations introduced in 3.23:
