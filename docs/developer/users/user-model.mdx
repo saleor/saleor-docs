@@ -48,6 +48,35 @@ If `staffCreate` is called with an email that already belongs to a customer, the
 
 There is no public mutation to demote a staff user back to a customer. To revoke staff access, use [`staffDelete`](/api-reference/users/mutations/staff-delete.mdx) or remove the user from all permission groups via [`staffUpdate`](/api-reference/users/mutations/staff-update.mdx).
 
+#### End-to-end lifecycle: self-registration, then staff invite
+
+A common flow that causes confusion: a shopper signs up through the storefront, then is later invited by an administrator to become staff. Because both roles share the same `User`, the order history, addresses, and metadata gathered as a customer carry over after the promotion.
+
+The table below lists, for each mutation in this flow, the asynchronous events emitted and how the corresponding email is delivered. The split is important:
+
+- **Staff emails** (invite / set password / password reset for staff) are sent by the **core admin email plugin** when it is configured. No external app is required.
+- **Customer emails** (account confirmation, set password, password reset for customers) are **not** sent by Saleor core. An external app must subscribe to the corresponding webhook and deliver the email itself — typically using the [SMTP App](https://github.com/saleor/apps/tree/main/apps/smtp) or any other app you build or install.
+
+| # | Mutation | Async events emitted | Email |
+| --- | --- | --- | --- |
+| 1 | [`accountRegister`](/api-reference/users/mutations/account-register.mdx) | `CUSTOMER_CREATED`; additionally `ACCOUNT_CONFIRMATION_REQUESTED` if [`enableAccountConfirmationByEmail`](/api-reference/miscellaneous/objects/shop.mdx#enable-account-confirmation-by-email) is `true` | Customer confirmation email. **Not sent by core** — requires an external app (e.g. SMTP App) subscribed to `ACCOUNT_CONFIRMATION_REQUESTED`. |
+| 2 | [`confirmAccount`](/api-reference/users/mutations/confirm-account.mdx) | `ACCOUNT_CONFIRMED` | No email required for the confirmation step itself. If you want a "welcome" email, subscribe an external app to `ACCOUNT_CONFIRMED`. |
+| 3 | [`accountUpdate`](/api-reference/users/mutations/account-update.mdx) (customer edits own profile) | `CUSTOMER_UPDATED`; `CUSTOMER_METADATA_UPDATED` if metadata changed | None by default. |
+| 4 | [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx) (while still a customer) | `ACCOUNT_SET_PASSWORD_REQUESTED` | Customer password reset email. **Not sent by core** — requires an external app subscribed to `ACCOUNT_SET_PASSWORD_REQUESTED`. |
+| 5 | [`setPassword`](/api-reference/users/mutations/set-password.mdx) | No webhook event is emitted by this mutation itself. | No email. |
+| 6 | [`staffCreate`](/api-reference/users/mutations/staff-create.mdx) called with the existing customer's email | `STAFF_CREATED` (the same `User.id` is reused; `isStaff` becomes `true`). Additionally `STAFF_SET_PASSWORD_REQUESTED` if `redirectUrl` is provided. | Staff invite / set password email. **Sent by the core admin email plugin** when configured. The customer-facing `ACCOUNT_SET_PASSWORD_REQUESTED` event is **not** emitted in this case, so an external customer-email app does not receive a duplicate. |
+| 7 | [`staffUpdate`](/api-reference/users/mutations/staff-update.mdx) | `STAFF_UPDATED` | None by default. |
+| 8 | [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx) (now as a staff user) | `STAFF_SET_PASSWORD_REQUESTED` | Staff password reset email. **Sent by the core admin email plugin** when configured. |
+| 9 | [`setPassword`](/api-reference/users/mutations/set-password.mdx) | No webhook event is emitted by this mutation itself. | No email. |
+
+:::info Customer emails require an external app
+Saleor core ships an "admin email" plugin that covers **staff** notifications (staff invite, staff password reset, etc.) out of the box. It does **not** send emails to customers. To deliver account confirmation, customer password reset, order confirmation, and other customer-facing emails, install an app such as the [SMTP App](https://github.com/saleor/apps/tree/main/apps/smtp) and subscribe it to the relevant `ACCOUNT_*` and `CUSTOMER_*` webhook events.
+:::
+
+:::note Which event fires depends on `isStaff` at the time of the request
+`requestPasswordReset` branches on the user's current role: it emits `ACCOUNT_SET_PASSWORD_REQUESTED` for customers and `STAFF_SET_PASSWORD_REQUESTED` for staff. Once a user has been promoted via `staffCreate`, all subsequent password-related notifications go through the staff event and the admin email plugin.
+:::
+
 ## Choosing an update or delete mutation
 
 Update and delete mutations are split along the same lines as creation:
