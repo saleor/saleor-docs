@@ -201,3 +201,60 @@ handleRedirect();
 | `UpdateRouting`               | `newRoute` - current path of App to be set in URL                                                                                                                       |                                                                                                                                                                                                               |
 | `RequestPermissions` (>=3.15) | `permissions` - array of Permissions you want to add, `redirectPath` - value of query param app will receive in `?redirectUrl=` after user approves/rejects permissions | Ask Dashboard to give more permissions to the app. Dashboard will unmount app. After user approves or denies, Dashboard will redirect to `redirectPath`. If operation fails, `?error=REASON` will be appended |
 | `PopupClose` (>=3.22.31)      |                                                                                                                                                                         | Ask Dashboard to close the popup. If the app is running in a popup, Dashboard will close it. If the app is not in a popup, this action does nothing and responds with `ok: true`.                             |
+
+## Sizing sidebar widgets
+
+Detail-page widgets (`PRODUCT_DETAILS_WIDGETS`, `ORDER_DETAILS_WIDGETS`, and other `*_DETAILS_WIDGETS` mounts) render in the entity sidebar. By default, each widget iframe keeps a fixed height, which can clip content or leave empty space when your UI is shorter or taller than that box.
+
+When you report your widget's content height, the Dashboard resizes the iframe to match. Staff see the full widget without scrolling inside a tiny frame, and multiple app widgets stack naturally in the sidebar without internal scrollbars.
+
+:::info
+Requires `@saleor/app-sdk` 1.9 or newer and Saleor Dashboard 3.23.7 or newer. Both sides must be updated — height reporting has no effect on older Dashboard builds.
+:::
+
+Reporting height is opt-in. Apps that do not use the helpers below keep the previous fixed height.
+
+### React apps
+
+Wrap your widget UI in an element with a `ref`, then call `useWidgetAutoResize`. The hook measures that element and notifies the Dashboard when the layout changes (including after App Bridge becomes ready).
+
+```tsx
+import { useRef } from "react";
+import { useWidgetAutoResize } from "@saleor/app-sdk/app-bridge";
+
+export default function ProductWidget() {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useWidgetAutoResize(rootRef);
+
+  return (
+    <div ref={rootRef}>
+      {/* Your widget content */}
+    </div>
+  );
+}
+```
+
+Use this on routes served for `target: "WIDGET"` extensions on `*_DETAILS_WIDGETS` mounts. See [Extending Dashboard with Apps](../../extending-dashboard-with-apps.mdx) for manifest setup.
+
+### Without the hook
+
+If you are not using React, or you need to report height after a one-off layout change (for example, when async data finishes loading), use the lower-level helpers:
+
+| Helper | Use when |
+| :----- | :------- |
+| `postWidgetHeight(root)` | You have a root element; measure it and report in one call |
+| `reportWidgetHeight(height)` | You already know the height in pixels |
+| `measureWidgetHeight(root)` | You need the height without posting yet |
+
+:::warning
+Pass an element that wraps only your widget UI to `postWidgetHeight` or `measureWidgetHeight`. Do not measure `document.body` or `document.documentElement` — they match the iframe size, not your content, so reported heights stay too small and widgets stay clipped. The same applies if you pass a height to `reportWidgetHeight` that you calculated from those nodes.
+:::
+
+All helpers no-op during SSR and when the app is not embedded in the Dashboard iframe.
+
+### Protocol
+
+The Dashboard listens for `postMessage` payloads with `type: "saleor:widget:resize"` and a positive `height` in pixels. App SDK exports the constant as `WIDGET_RESIZE_MESSAGE`. This is separate from App Bridge actions — you do not call `appBridge.dispatch()` for sizing.
+
+Until the first report, the iframe uses a 200px default height. Reported heights are capped at 5000px.
