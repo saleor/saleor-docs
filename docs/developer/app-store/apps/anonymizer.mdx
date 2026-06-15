@@ -1,0 +1,123 @@
+---
+sidebar_label: Anonymizer
+title: Anonymizer App
+sidebar_position: 7
+description: Anonymizer App
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.jsx";
+
+<AppMetadata
+  minSaleorVersion="3.22"
+  githubUrl="https://github.com/saleor/apps/tree/main/apps/anonymizer"
+/>
+
+The Anonymizer App removes personal data from customers and their orders directly from the Saleor Dashboard. It is built for two recurring needs:
+
+- **Fulfilling a GDPR / "right to be forgotten" request** — erase a single customer's personal data and delete their account, while keeping the order records (numbers, line items, totals) intact for accounting and reporting.
+- **Sanitizing a production snapshot** — when you copy a production database into a staging or development environment, bulk-anonymize every order and delete every customer so that developers never work with real personal data.
+
+The app runs **entirely in the browser** inside the Dashboard iframe. It has no backend, no database, and stores no data or tokens. Every action uses the standard Saleor GraphQL API with the token the Dashboard provides, so all changes go through the same mutations (`orderUpdate`, `customerDelete`) you could call yourself.
+
+## Features
+
+- **Anonymize a single customer by email** — look up a customer and all their orders, scramble personal data on each order, and delete the customer account. The classic GDPR removal flow.
+- **Bulk anonymization** — scan the whole store, then anonymize every order and delete every (non-staff) customer in one pass. Intended for cleaning up production snapshots.
+
+## How anonymization works
+
+Anonymizing an order does **not** delete it. The order keeps its number, line items, and totals; only the personal data attached to it is overwritten:
+
+| Field                                           | What happens                                                                                                                                |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| First name / last name (on order and addresses) | Cleared (set to an empty value).                                                                                                            |
+| Phone                                            | Cleared. Saleor accepts an empty phone and skips validation, whereas a fake number would fail validation and would not be truly anonymous.   |
+| Email (order's `userEmail`)                      | Replaced with a random `UUID`-based address under a configurable domain, e.g. `f47ac10b-...@example.com`. It stays unique but unusable.      |
+| Street address (line 1)                         | Replaced with the constant placeholder `Anonymized`.                                                                                         |
+| Street address line 2, company name, district (city area) | Cleared. These are free-text fields that can hold personal data, so they are explicitly wiped.                                     |
+| City, postal code, country area, country        | **Kept intact**, so the address stays geographically meaningful and valid.                                                                   |
+
+Both the **billing** and **shipping** addresses on each order are processed the same way.
+
+:::note
+Saleor treats omitted address fields as "no change", so the app sends the cleared free-text fields explicitly to make sure they are wiped. The non-identifying fields (city, postal code, country, country area) are kept so the address remains valid and analytics that rely on region still work.
+:::
+
+After all of a customer's orders are anonymized, the **customer account itself is deleted** (`customerDelete`). A registered customer with no orders can still be deleted; guest-checkout orders have no linked account, so there is nothing to delete in that case.
+
+:::warning
+Anonymization is **irreversible**. Scrambled personal data cannot be recovered, and deleted customer accounts cannot be restored. Both flows ask for explicit confirmation before running.
+:::
+
+## Anonymize a single customer (GDPR removal)
+
+This is the flow for an individual "right to be forgotten" request.
+
+1. Enter the customer's email and click **Fetch User and Orders**.
+2. The app loads the customer and **all** of their orders, paginating through every page so customers with more than 100 orders are fully covered. Orders are matched by the order's email, which also covers guest-checkout orders placed with that email but no registered account.
+3. Review the list of orders that will be affected.
+4. Confirm. The app scrambles every order, then deletes the customer account.
+
+If a customer has no orders, you can still delete just the account. If only orders exist (guest checkout, no account), the orders are anonymized and there is nothing to delete.
+
+## Bulk anonymization (sanitizing a snapshot)
+
+The bulk section processes the **entire store**. The typical use case is a fresh copy of production data in a non-production environment that must be cleaned before developers use it.
+
+1. **Scan** — the app walks every order and every customer and reports how many records will be processed. The scanned payloads are kept in memory, so the actions below run without re-fetching.
+2. **Anonymize orders** — scrambles every order that has not already been anonymized (see the idempotency note below). Each order is flagged after a successful scramble.
+3. **Delete customers** — deletes every **non-staff** customer account. Staff accounts are never counted or deleted, even if they have placed orders.
+
+A progress bar shows how many records have been processed. Records that fail to process do **not** abort the run — they are collected and listed afterwards as links that open the order or customer in a new Dashboard tab so you can inspect them.
+
+### Idempotency and retries
+
+When a bulk order anonymization succeeds, the app writes a public metadata flag to the order:
+
+```
+saleor-anonymized: true
+```
+
+The scan skips any order that already carries this flag. This makes bulk runs **safe to repeat**:
+
+- Already-anonymized orders are not touched again.
+- The flag is written **only after** a successful scramble, so an order that failed mid-run stays unflagged and is retried on the next run.
+
+After an **Anonymize orders** run finishes, the app automatically re-scans so the counts and in-memory lists reflect the new state and any failures can be retried.
+
+:::note
+Saleor cannot filter orders by the _absence_ of a metadata key, so the scan reads every order and skips the already-flagged ones client-side. On large stores this means the scan walks the full order list. Orders are scanned sorted by order number (which is immutable), so the pagination cursor stays stable even while records are being updated mid-run.
+:::
+
+### Concurrency
+
+Bulk operations process records in batches. The batch size — i.e. how many orders or customers are processed concurrently — is controlled by the `NEXT_PUBLIC_BULK_CONCURRENCY` environment variable (default: `5`).
+
+## Assumptions & limitations
+
+- The app runs **only in the browser**. The Dashboard page **must stay open** for the duration of any operation; closing it stops the run.
+- There is no backend, no database, and no persisted state. The app stores no tokens and registers no webhooks.
+- Anonymization is **irreversible** — there is no undo and no audit log of the original values.
+- Orders are **anonymized, not deleted**. Order numbers, line items, and totals are preserved; only personal data is scrambled.
+- The non-identifying parts of an address (city, postal code, country, country area) are intentionally preserved.
+- Bulk **delete customers** never deletes staff accounts.
+- Anonymized emails use a single configurable domain, so all anonymized orders share that domain but remain individually unique (random UUID local part).
+
+## Permissions required by the app
+
+- `MANAGE_ORDERS` — to read and update (scramble) orders.
+- `MANAGE_USERS` — to read and delete customer accounts.
+
+## Configuration
+
+The app exposes a small set of environment variables:
+
+| Variable                              | Default       | Description                                                                                                |
+| ------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_CUSTOMER_SCRAMBLE_DOMAIN` | `example.com` | Domain used to build anonymized emails (e.g. `<uuid>@example.com`). Exposed to the browser.                |
+| `NEXT_PUBLIC_BULK_CONCURRENCY`         | `5`           | How many orders/customers the bulk operations process concurrently. Exposed to the browser.                |
+| `ALLOWED_DOMAIN_PATTERN`               | —             | Regex tested against the Saleor API URL, controlling which Saleor instances the app may be installed on.   |
+
+## Development
+
+To run the application locally, follow the [_Running Saleor Apps locally_ article](/developer/extending/apps/developing-apps/running-saleor-apps-locally).
