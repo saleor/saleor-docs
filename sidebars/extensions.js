@@ -32,6 +32,7 @@ export const extensions = [
   "developer/app-store/apps/product-feed",
   "developer/app-store/apps/search",
   "developer/app-store/apps/instant-checkout",
+  "developer/app-store/apps/anonymizer",
   {
     type: "category",
     label: "SMTP",
