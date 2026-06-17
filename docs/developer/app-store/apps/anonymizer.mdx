@@ -12,17 +12,23 @@ import { AppMetadata } from "/components/AppMetadata/AppMetadata.jsx";
   githubUrl="https://github.com/saleor/apps/tree/main/apps/anonymizer"
 />
 
-The Anonymizer App removes personal data from customers and their orders directly from the Saleor Dashboard. It is built for two recurring needs:
+The Anonymizer App removes personal data from customers and their orders, checkouts, and gift cards directly from the Saleor Dashboard. It is built for two recurring needs:
 
-- **Fulfilling a GDPR / "right to be forgotten" request** — erase a single customer's personal data and delete their account, while keeping the order records (numbers, line items, totals) intact for accounting and reporting.
-- **Sanitizing a production snapshot** — when you copy a production database into a staging or development environment, bulk-anonymize every order and delete every customer so that developers never work with real personal data.
+- **Fulfilling a GDPR / "right to be forgotten" request** — erase a single customer's personal data across their orders, checkouts, and gift cards, then delete their account, while keeping the order records (numbers, line items, totals) intact for accounting and reporting.
+- **Sanitizing a production snapshot** — when you copy a production database into a staging or development environment, bulk-anonymize every order and delete every customer, checkout, and gift card so that developers never work with real personal data.
 
-The app runs **entirely in the browser** inside the Dashboard iframe. It has no backend, no database, and stores no data or tokens. Every action uses the standard Saleor GraphQL API with the token the Dashboard provides, so all changes go through the same mutations (`orderUpdate`, `customerDelete`) you could call yourself.
+The app runs **entirely in the browser** inside the Dashboard iframe. It has no backend, no database, and stores no data or tokens. Every action uses the standard Saleor GraphQL API with the token the Dashboard provides, so all changes go through the same mutations (`orderUpdate`, `customerDelete`, `checkoutDelete`, `giftCardBulkDelete`) you could call yourself.
+
+:::info Scope
+The app only erases data exposed through the standard orders, customers, addresses, checkouts, and gift cards APIs. It does **not** inspect or erase custom PII stored elsewhere — metadata, plugins/extensions, external systems, exports, or third-party integrations such as payment providers.
+:::
 
 ## Features
 
-- **Anonymize a single customer by email** — look up a customer and all their orders, scramble personal data on each order, and delete the customer account. The classic GDPR removal flow.
-- **Bulk anonymization** — scan the whole store, then anonymize every order and delete every (non-staff) customer in one pass. Intended for cleaning up production snapshots.
+- **Anonymize a single customer by email** — look up a customer and all their orders, scramble personal data on each order, delete the customer's checkouts and gift cards, then delete the customer account. The classic GDPR removal flow.
+- **Delete gift cards by email** — delete the gift cards that hold a customer's email, for erasure requests.
+- **Bulk anonymization** — scan the whole store, then anonymize every order and delete every (non-staff) customer and every checkout in one pass. Intended for cleaning up production snapshots.
+- **Delete all gift cards** — wipe every gift card in the store when sanitizing a copied database.
 
 ## How anonymization works
 
@@ -43,22 +49,48 @@ Both the **billing** and **shipping** addresses on each order are processed the 
 Saleor treats omitted address fields as "no change", so the app sends the cleared free-text fields explicitly to make sure they are wiped. The non-identifying fields (city, postal code, country, country area) are kept so the address remains valid and analytics that rely on region still work.
 :::
 
-After all of a customer's orders are anonymized, the **customer account itself is deleted** (`customerDelete`). A registered customer with no orders can still be deleted; guest-checkout orders have no linked account, so there is nothing to delete in that case.
+After all of a customer's orders are anonymized and their checkouts deleted, the **customer account itself is deleted** (`customerDelete`). A registered customer with no orders can still be deleted; guest-checkout orders have no linked account, so there is nothing to delete in that case.
 
 :::warning
-Anonymization is **irreversible**. Scrambled personal data cannot be recovered, and deleted customer accounts cannot be restored. Both flows ask for explicit confirmation before running.
+Anonymization is **irreversible**. Scrambled personal data cannot be recovered, and deleted customer accounts, checkouts, and gift cards cannot be restored. Deleting a gift card also permanently destroys its remaining balance. Every flow asks for explicit confirmation before running.
 :::
+
+### Checkouts
+
+Abandoned carts (checkouts) hold personal data too — email, billing and shipping addresses, a linked user, and metadata. Deleting a customer does **not** cascade to guest checkouts, so the app removes checkouts explicitly with `checkoutDelete`.
+
+- A checkout is deleted whole; there is no in-place scramble.
+- Saleor refuses to delete a checkout that has **attached payment transactions**. Those are reported as failures (not retried automatically) rather than aborting the run.
+
+:::note Requires Saleor 3.23+
+`checkoutDelete` was added in Saleor **3.23**. The app reads the connected store's version at runtime and only enables checkout deletion on 3.23+ — on older stores the step is skipped and the UI shows a note. (The rest of the app works on 3.22, which is why the manifest still only requires 3.22 rather than bumping the minimum for everyone.)
+:::
+
+### Gift cards
+
+A gift card's personal data — `createdByEmail`, `usedByEmail`, the linked users, and the gift card events (which can hold a "send to customer" recipient email) — is **read-only** in Saleor and cannot be scrubbed in place. Removing it therefore means **deleting the card**, which also permanently destroys its remaining balance.
+
+Because of that, gift card deletion is never bundled into the customer/order flow above — it is exposed as **separate, explicitly triggered, confirmation-gated actions**. Before deleting, the app shows the **balance at risk**, aggregated per currency (e.g. `1250.00 USD, 300.00 EUR`), so you can see how much redeemable value the deletion will destroy.
 
 ## Anonymize a single customer (GDPR removal)
 
 This is the flow for an individual "right to be forgotten" request.
 
 1. Enter the customer's email and click **Fetch User and Orders**.
-2. The app loads the customer and **all** of their orders, paginating through every page so customers with more than 100 orders are fully covered. Orders are matched by the order's email, which also covers guest-checkout orders placed with that email but no registered account.
-3. Review the list of orders that will be affected.
-4. Confirm. The app scrambles every order, then deletes the customer account.
+2. The app loads the customer, **all** of their orders, and (on Saleor 3.23+) **all** of their checkouts, paginating through every page so customers with more than 100 records are fully covered. Orders are matched by the order's email; checkouts are matched on the checkout's own `email` field (case-insensitive), which catches both registered and guest checkouts.
+3. Review the records that will be affected.
+4. Confirm. The app scrambles every order, deletes the matched checkouts, then deletes the customer account.
 
-If a customer has no orders, you can still delete just the account. If only orders exist (guest checkout, no account), the orders are anonymized and there is nothing to delete.
+If a customer has no orders, you can still delete just the account (and any checkouts/gift cards). If only orders or checkouts exist (guest, no account), those are processed and there is nothing to delete.
+
+### Deleting a customer's gift cards
+
+Gift card deletion is a separate action so its destructive effect on balances stays explicit:
+
+1. Enter the customer's email in the **Gift cards** section and fetch the matching cards.
+2. The app scans every gift card and matches on `createdByEmail` **or** `usedByEmail` **or** a recipient email stored on a gift card event — so it covers cards the customer bought, redeemed, or was sent. (Saleor has no server-side filter for `usedByEmail`, hence the client-side scan.)
+3. Review the per-currency balance at risk.
+4. Confirm to delete the matched cards.
 
 ## Bulk anonymization (sanitizing a snapshot)
 
@@ -67,8 +99,11 @@ The bulk section processes the **entire store**. The typical use case is a fresh
 1. **Scan** — the app walks every order and every customer and reports how many records will be processed. The scanned payloads are kept in memory, so the actions below run without re-fetching.
 2. **Anonymize orders** — scrambles every order that has not already been anonymized (see the idempotency note below). Each order is flagged after a successful scramble.
 3. **Delete customers** — deletes every **non-staff** customer account. Staff accounts are never counted or deleted, even if they have placed orders.
+4. **Delete checkouts** — deletes every checkout in the store, removing all of its PII. Requires Saleor 3.23+ (disabled with a note otherwise). Checkouts with attached payment transactions cannot be deleted and are reported as failures.
 
-A progress bar shows how many records have been processed. Records that fail to process do **not** abort the run — they are collected and listed afterwards as links that open the order or customer in a new Dashboard tab so you can inspect them.
+To wipe gift cards in a snapshot, use **Delete all gift cards** in the [Gift cards section](#delete-all-gift-cards) below.
+
+A progress bar shows how many records have been processed. Records that fail to process do **not** abort the run — they are collected and listed afterwards. Orders and customers are shown as links that open the record in a new Dashboard tab; checkouts have no Dashboard detail page, so they are listed as plain text.
 
 ### Idempotency and retries
 
@@ -91,14 +126,25 @@ Saleor cannot filter orders by the _absence_ of a metadata key, so the scan read
 
 ### Concurrency
 
-Bulk operations process records in batches. The batch size — i.e. how many orders or customers are processed concurrently — is controlled by the `NEXT_PUBLIC_BULK_CONCURRENCY` environment variable (default: `5`).
+Bulk operations process records in batches. The batch size — i.e. how many orders, customers, or checkouts are processed concurrently — is controlled by the `NEXT_PUBLIC_BULK_CONCURRENCY` environment variable (default: `5`).
+
+### Delete all gift cards
+
+For sanitizing a copied database, the **Gift cards** section offers a **Delete ALL gift cards** action that removes every gift card in the store via `giftCardBulkDelete`. The per-currency balance at risk is shown first, and the action is confirmation-gated.
+
+:::danger
+This deletes **every** gift card in the store and destroys all their balances. It is intended for non-production environments only. Use at your own risk.
+:::
 
 ## Assumptions & limitations
 
 - The app runs **only in the browser**. The Dashboard page **must stay open** for the duration of any operation; closing it stops the run.
 - There is no backend, no database, and no persisted state. The app stores no tokens and registers no webhooks.
-- Anonymization is **irreversible** — there is no undo and no audit log of the original values.
+- The app only touches data exposed by the standard orders, customers, addresses, checkouts, and gift cards APIs. It does **not** erase custom PII in metadata, plugins/extensions, external systems, exports, or third-party integrations (e.g. payment providers).
+- Anonymization and deletion are **irreversible** — there is no undo and no audit log of the original values.
 - Orders are **anonymized, not deleted**. Order numbers, line items, and totals are preserved; only personal data is scrambled.
+- Checkouts and gift cards are **deleted, not scrambled** (their PII is read-only and cannot be edited in place). Deleting a gift card destroys its remaining balance.
+- Checkout deletion requires **Saleor 3.23+** and is disabled with a note on older stores. Checkouts with attached payment transactions cannot be deleted.
 - The non-identifying parts of an address (city, postal code, country, country area) are intentionally preserved.
 - Bulk **delete customers** never deletes staff accounts.
 - Anonymized emails use a single configurable domain, so all anonymized orders share that domain but remain individually unique (random UUID local part).
@@ -107,6 +153,8 @@ Bulk operations process records in batches. The batch size — i.e. how many ord
 
 - `MANAGE_ORDERS` — to read and update (scramble) orders.
 - `MANAGE_USERS` — to read and delete customer accounts.
+- `MANAGE_CHECKOUTS` — to read and delete checkouts.
+- `MANAGE_GIFT_CARD` — to read and delete gift cards.
 
 ## Configuration
 
