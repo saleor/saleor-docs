@@ -327,6 +327,12 @@ A decoded token has the following structure:
 `csrf_token` field is deprecated and is not used in the current authentication flow.
 :::
 
+#### Customer vs. staff tokens
+
+`tokenCreate` returns the same token shape for both customers and staff users. The decoded token includes an `is_staff` claim that reflects the role of the underlying [`User`](/developer/users/user-model.mdx), but **permissions themselves are not embedded in the token** — they are resolved server-side on each request from the user's permission groups and direct permissions.
+
+Treat `is_staff` as informational only. Do not use it on the client to make authorization decisions; rely on the response of the actual operation and on the [`me`](#fetching-information-about-the-currently-authenticated-user) query (which exposes `userPermissions` and `permissionGroups`) when you need to drive UI by role.
+
 #### Fetching information about the currently authenticated user
 
 You can use the [`me`](/api-reference/users/queries/me.mdx) query to retrieve information about the currently authenticated user:
@@ -481,11 +487,11 @@ The `passwordLoginMode` setting on `Shop` supports three modes:
 
 ### Modes
 
-| Mode | Customers | Staff |
-| --- | --- | --- |
-| `ENABLED` (default) | Normal login | Normal login |
-| `CUSTOMERS_ONLY` | Normal login | Staff can still log in, but they get no permissions |
-| `DISABLED` | Blocked | Blocked |
+| Mode | Customers | Staff | API-observable behavior |
+| --- | --- | --- | --- |
+| `ENABLED` (default) | Normal login | Normal login | `tokenCreate` issues tokens for both roles as usual |
+| `CUSTOMERS_ONLY` | Normal login | Staff can still log in, but they get no permissions | `tokenCreate` succeeds for staff, but the issued token resolves no staff permissions — operations requiring `MANAGE_*` permissions will fail as if the caller were a customer |
+| `DISABLED` | Blocked | Blocked | `tokenCreate` and `tokenRefresh` return `DISABLED_AUTHENTICATION_METHOD`; password-related mutations are blocked |
 
 :::info
 `ENABLED` is the default. Existing deployments are unaffected unless explicitly changed.
