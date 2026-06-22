@@ -63,7 +63,7 @@ The mutation accepts below arguments:
 - `refundReasonReference` - The ID of a `Page` representing the reason for the refund. This is useful for tracking and reporting purposes, like aggregating refunds by specific type. See [configuration](#refund-reasons-configuration) to learn more.
 
 
-## Grant refunds
+## Granted refunds
 
 A granted refund refers to the process where a customer receives their money back after a refund request has been approved.
 Once a refund is granted, the customer is reimbursed for the purchase.
@@ -538,22 +538,26 @@ The mutation accepts the following reason-related arguments:
 
 - `input`:
   - `reason` - Global free-text reason for the return. Stored on the resulting `Fulfillment`.
-  - `reasonReference` - Global `Page` ID representing the reason for the return. Must match the `PageType` set in refund settings. Stored on the resulting `Fulfillment`. See [configuration](#refund-reasons-configuration) to learn more.
+  - `reasonReference` - Global `Page` ID representing the reason for the return. Must match the `PageType` set in the `returnReasonReferenceType` return setting. Stored on the resulting `Fulfillment`. See [return reasons configuration](#return-reasons-configuration) to learn more.
   - `fulfillmentLines[].reason` - Per-line free-text reason for the return.
   - `fulfillmentLines[].reasonReference` - Per-line `Page` ID. Overrides the global `reasonReference` for this specific line. Stored on the resulting `FulfillmentLine`.
 
 ### Validation rules
 
-- When `refundReasonReferenceType` is configured and the caller is a **staff user**, the **global** `reasonReference` is required.
+- When `returnReasonReferenceType` is configured and the caller is a **staff user**, the **global** `reasonReference` is required.
 - **Per-line `reasonReference` is always optional** — for both staff and apps. Lines without it are stored with `null`. There is no inheritance from the global level.
 - **Apps** can omit `reasonReference` at any level, even when configuration requires it.
-- When `reasonReference` is provided (global or per-line), the referenced `Page` must belong to the `PageType` set in the `refundReasonReferenceType` setting. Otherwise, a `ValidationError` is raised.
+- When `reasonReference` is provided (global or per-line), the referenced `Page` must belong to the `PageType` set in the `returnReasonReferenceType` setting. Otherwise, a `ValidationError` is raised.
 - The `refund` flag does **not** affect reason validation. Whether `refund` is `true` or `false`, the same validation rules apply. The return reason (why items are being sent back) is independent of the refund reason (tracked on `OrderGrantedRefund`).
+
+:::note
+Returns are gated by a **dedicated** setting, `returnReasonReferenceType`, which is independent of the `refundReasonReferenceType` used by the refund mutations. Configuring one does not configure the other. See [return reasons configuration](#return-reasons-configuration).
+:::
 
 ## Refund reasons configuration
 
 :::note
-Available from 3.22. Per-line reason references for grant refund mutations and return/replace reasons added in 3.23.
+Available from 3.22. Per-line reason references for grant refund mutations added in 3.23. Return/replace reasons use a separate setting — see [return reasons configuration](#return-reasons-configuration).
 :::
 
 Staff users with `MANAGE_SETTINGS` permission can access additional refunds configuration available in Dashboard and via API.
@@ -592,7 +596,9 @@ Once you have a `PageType` ID, you can set it in the `refundSettingsUpdate` muta
     </TabItem>
 </Tabs>
 
-Now, every time a *staff user* tries to create a refund or return, they will be required to provide a reason reference. The existing free-text "reason" field will still be available, but it will be optional.
+Now, every time a *staff user* tries to create or update a refund (`transactionRequestAction`, `orderGrantRefundCreate`, `orderGrantRefundUpdate`), they will be required to provide a reason reference. The existing free-text "reason" field will still be available, but it will be optional.
+
+Returns (`orderFulfillmentReturnProducts`) are governed by a separate `returnReasonReferenceType` setting, documented in [return reasons configuration](#return-reasons-configuration).
 
 Note that permitted `App` will be able to omit this setting. For the *staff user*, the `ValidationError` will be raised if the reason reference is not provided. Apps can omit this field for more powerful workflows.
 
@@ -600,13 +606,18 @@ Apart from that, the `reasonReference` provided in mutations must be a valid `Pa
 
 ### Supported mutations
 
-The following mutations support `reasonReference` when the refund reason type is configured:
+These mutations require `reasonReference` (for staff) when the **refund** reason type (`refundReasonReferenceType`) is configured:
 
 | Mutation | Order-level | Per-line | Since |
 |----------|:-----------:|:--------:|:-----:|
 | `transactionRequestAction` | `refundReasonReference` | - | 3.22 |
 | `orderGrantRefundCreate` | `reasonReference` | `lines[].reasonReference` | 3.22 (order-level), 3.23 (per-line) |
 | `orderGrantRefundUpdate` | `reasonReference` | `addLines[].reasonReference` | 3.22 (order-level), 3.23 (per-line) |
+
+This mutation requires `reasonReference` (for staff) when the **return** reason type (`returnReasonReferenceType`) is configured:
+
+| Mutation | Order-level | Per-line | Since |
+|----------|:-----------:|:--------:|:-----:|
 | `orderFulfillmentReturnProducts` | `reasonReference` | `fulfillmentLines[].reasonReference` | 3.23 |
 
 
@@ -617,6 +628,75 @@ To opt-out from this strict policy, staff user can disable it in the Dashboard o
 ```graphql
 mutation DisableRefundTypeRequired {
   refundReasonReferenceClear {
+    errors {
+      message
+    }
+  }
+}
+```
+
+## Return reasons configuration
+
+:::note
+Available from 3.23
+:::
+
+Returns use a configuration that is **separate** from refunds. The `ReturnSettings` type controls whether a `reasonReference` is required when products are returned via [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products). Like refund settings, it is global and reflected on every channel, and requires the `MANAGE_SETTINGS` permission.
+
+You can read the current setting with the `returnSettings` query:
+
+```graphql
+query {
+  returnSettings {
+    reasonReferenceType {
+      id
+      name
+    }
+  }
+}
+```
+
+### Setting Return Reason Type Requirement
+
+As with refunds, you first create a dedicated `Model` (Page) type (in the Dashboard or via `pageTypeCreate`), then set its ID with the `returnSettingsUpdate` mutation:
+
+<Tabs>
+    <TabItem value="Mutation">
+    ```graphql
+    mutation SetReturnTypeRequired($pageTypeId: ID!) {
+      returnSettingsUpdate(input: {
+        returnReasonReferenceType: $pageTypeId
+      }) {
+        returnSettings {
+          reasonReferenceType { id }
+        }
+        errors {
+          field
+          message
+          code
+        }
+      }
+    }
+    ```
+    </TabItem>
+    <TabItem value="Variables">
+    ```json
+    {
+      "pageTypeId": "your-id"
+    }
+    ```
+    </TabItem>
+</Tabs>
+
+Once configured, a *staff user* calling `orderFulfillmentReturnProducts` must provide a global `reasonReference` whose `Page` belongs to the configured type; otherwise a `ValidationError` is raised. Per-line `reasonReference` remains optional. Apps may always omit it. This is independent of the `refund` flag.
+
+### Disabling return reason type requirement
+
+To opt out, run the `returnReasonReferenceClear` mutation (or use the Dashboard):
+
+```graphql
+mutation DisableReturnTypeRequired {
+  returnReasonReferenceClear {
     errors {
       message
     }
