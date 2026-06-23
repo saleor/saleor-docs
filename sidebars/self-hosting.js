@@ -9,6 +9,7 @@ export const selfHosting = [
   "setup/configuration",
   "setup/read-replicas",
   "setup/windows",
+  "setup/usage-telemetry",
 
   title("Development"),
 

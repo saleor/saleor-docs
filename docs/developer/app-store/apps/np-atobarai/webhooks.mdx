@@ -71,4 +71,12 @@ In both cases if all operations succeeds app will report `REFUND_SUCCESS` event 
 
 ### `FulfilmentTrackingNumberUpdated`
 
-This asynchronous webhook is execturd when a staff user updated tracking number of the fulfillment. App will report fulfillment to NP Atobarai with tracking number provided in the webhook payload. Based on NP Atobarai API response (success or failure) app will add order note with operation result.
+This asynchronous webhook is executed when a staff user updates the tracking number of the fulfillment.
+
+Before reporting fulfillment, the app filters the order's transactions to find completed ones — those with `CHARGE_SUCCESS` or `AUTHORIZATION_SUCCESS` events. This filtering ensures that "ghost" transactions (e.g. failed or incomplete payment attempts) don't block fulfillment reporting.
+
+The app then validates that exactly one completed transaction exists:
+
+- **No completed transactions** — the app skips fulfillment reporting and adds an order note: _"NP Atobarai skipped fulfillment reporting: No completed transactions found for the order"_.
+- **Multiple completed transactions** — the app skips fulfillment reporting and adds an order note: _"NP Atobarai skipped fulfillment reporting: Multiple completed transactions found for the order"_.
+- **Exactly one completed transaction** — the app proceeds to report fulfillment to NP Atobarai with the tracking number provided in the webhook payload. Based on NP Atobarai API response (success or failure), the app adds an order note with the operation result.

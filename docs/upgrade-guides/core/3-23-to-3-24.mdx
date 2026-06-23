@@ -1,0 +1,52 @@
+---
+title: Upgrading From 3.23 To 3.24
+sidebar_position: 0
+---
+
+## Removal of Authorize.net Plugin
+
+The legacy Authorize.net payment gateway plugin has been removed from Saleor core in 3.24 (see [saleor/saleor#19142](https://github.com/saleor/saleor/pull/19142)).
+
+:::warning
+Before upgrading to 3.24, stop using the Authorize.net plugin. After the upgrade, any checkout or order flow still relying on it will fail because the gateway is no longer registered.
+:::
+
+### Migration steps
+
+1. **Stop using the plugin before upgrading.** Disable Authorize.net as an active payment method in all channels that reference it, and confirm no in-flight checkouts depend on it.
+2. **Migrate to another payment gateway.** Saleor recommends integrating a Payment App instead — see the [Payment Apps overview](/developer/payments/payment-apps) and [How to Build a Payment App](/developer/extending/apps/building-payment-app) for guidance. Existing options include the [Stripe App](/developer/app-store/apps/stripe/overview) or any third-party Payment App from the App Store.
+
+
+## Limits on bulk delete mutations
+
+Saleor 3.24 introduces a limit on the number of items that can be deleted in a single bulk delete mutation (see [saleor/saleor#19252](https://github.com/saleor/saleor/pull/19252)).
+
+The number of `ids` (or `skus` for variant deletions) per call is now limited to **100 by default**. The limit is configurable via the `BULK_DELETE_LIMIT` environment variable. Exceeding the limit returns an `INVALID` error on the `ids` (or `skus`) field, with a message such as `The maximum number of items in ids is 100.`
+
+This applies to all bulk delete mutations:
+
+`productBulkDelete`, `productVariantBulkDelete`, `categoryBulkDelete`, `collectionBulkDelete`, `productTypeBulkDelete`, `productMediaBulkDelete`, `attributeBulkDelete`, `attributeValueBulkDelete`, `customerBulkDelete`, `staffBulkDelete`, `pageBulkDelete`, `pageTypeBulkDelete`, `menuBulkDelete`, `menuItemBulkDelete`, `giftCardBulkDelete`, `saleBulkDelete`, `voucherBulkDelete`, `promotionBulkDelete`, `shippingPriceBulkDelete`, `shippingZoneBulkDelete`, `draftOrderBulkDelete`, and `draftOrderLinesBulkDelete`.
+
+:::warning
+If any of your integrations delete more than 100 objects in a single bulk delete call, update them to send batches of at most `BULK_DELETE_LIMIT` items (100 by default), or raise the limit via the `BULK_DELETE_LIMIT` environment variable.
+:::
+
+
+## Prohibited `MANAGE_APPS` permission for Apps 
+
+Prior to Saleor 3.24, `MANAGE_APPS` permission was technically allowed for Apps, but it shouldn't be. That was not a significant issue because Saleor was not allowing Apps to consume this permission in any way.
+
+However, `MANAGE_APPS` is reserved for a staff user. Saleor 3.24 locks possibility to create/install app with this permission. Now all installations will be rejected. 
+
+During the upgrade, all apps with `MANAGE_APPS` permission will be updated and the permission will be removed.
+
+All apps that somehow remained with `MANAGE_APPS` (e.g. migration not yet over, or a bug) will reject to issue a token.
+
+### Migration steps
+
+If none of your apps have `MANAGE_APPS` permission, you can skip this step. Otherwise, Saleor during the upgrade will automatically remove `MANAGE_APPS` permission from all the apps.
+
+If you want to test if everything works as expected, you can manually remove this permission before the upgrade and prepare your apps for 3.24:
+
+1. Ensure your apps (manifests) don't have `MANAGE_APPS` permission. Such installation will be rejected after the upgrade.
+2. Manually update apps (`appUpdate` mutation) to remove `MANAGE_APPS` permission and test if they work while still on 3.23.

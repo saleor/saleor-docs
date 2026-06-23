@@ -7,7 +7,7 @@ import TabItem from "@theme/TabItem";
 
 ## Shipping
 
-This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To signify whether shipping is required, use the `isShippingRequired` field in the [`Checkout`](api-reference/checkout/objects/checkout.mdx) object.
+This step is only used if purchased items require shipping (if they are physical products). The user must select a specific shipping method to create shipping for this checkout. To signify whether shipping is required, use the `isShippingRequired` field in the [`Checkout`](/api-reference/checkout/objects/checkout.mdx) object.
 
 ```mermaid
 sequenceDiagram
@@ -30,7 +30,7 @@ sequenceDiagram
 
 ### Adding Address Data
 
-Address can be assigned using the [`checkoutShippingAddressUpdate`](api-reference/checkout/mutations/checkout-shipping-address-update.mdx) mutation:
+Address can be assigned using the [`checkoutShippingAddressUpdate`](/api-reference/checkout/mutations/checkout-shipping-address-update.mdx) mutation:
 
 <Tabs>
 <TabItem value="Mutation">
@@ -93,11 +93,11 @@ mutation checkoutShippingAddressUpdate($id: ID, $address: AddressInput!) {
 </TabItem>
 </Tabs>
 
-More information about address validation can be found on the [address validation](developer/address.mdx) page.
+More information about address validation can be found on the [address validation](/developer/address.mdx) page.
 
 ### Default Address
 
-Customers with accounts can set up default addresses, which will be attached automatically during the checkout creation. More information on API reference page for [accountSetDefaultAddress](api-reference/users/mutations/account-set-default-address.mdx).
+Customers with accounts can set up default addresses, which will be attached automatically during the checkout creation. More information on API reference page for [accountSetDefaultAddress](/api-reference/users/mutations/account-set-default-address.mdx).
 
 #### Changing the Default Address During Checkout
 
@@ -109,28 +109,97 @@ To change your default address during checkout:
 
 This process ensures that the address you want to use is both set as your account default and applied to the ongoing checkout. 
 
-### Listing Available Shipping Methods
+### Listing Available Delivery Methods
 
-After choosing the shipping address, API can be queried for available delivery methods in the user area:
+#### Shipping Methods
+
+After choosing the shipping address, use the [`deliveryOptionsCalculate`](/api-reference/shipping/mutations/delivery-options-calculate.mdx) mutation to explicitly fetch available delivery methods.
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation DeliveryOptionsCalculate($id: ID!) {
+  deliveryOptionsCalculate(id: $id) {
+    deliveries {
+      id
+      shippingMethod {
+        name
+        active
+        price {
+          amount
+        }
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw"
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "deliveryOptionsCalculate": {
+      "deliveries": [
+        {
+          "id": "Q2hlY2tvdXREZWxpdmVyeTozODgwOGU5ZC0wMDVlLTQ1YjQtOTU1MC1mZjAyM2YzZGZlMDM=",
+          "shippingMethod": {
+            "name": "Registered priority",
+            "active": true,
+            "price": {
+              "amount": 42.89
+            }
+          }
+        },
+        {
+          "id": "Q2hlY2tvdXREZWxpdmVyeToxMzc0NTU3Mi0xMGMxLTRiNmItYTY5MC04Y2ZjZTNhYzk0NTQ=",
+          "shippingMethod": {
+            "name": "[EXTERNAL] Provider - Economy",
+            "active": true,
+            "price": {
+              "amount": 10
+            }
+          }
+        },
+      ],
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+Shipping methods can be internal (defined in the Saleor Dashboard) or [external](/developer/extending/webhooks/synchronous-events/shipping.mdx) (coming from a third party).
+
+See [delivery method problems](/developer/checkout/problems.mdx#checkoutproblemdeliverymethodstale) for how to handle stale or invalid delivery states.
+
+#### Click And Collect Points
+
+Collection points are [warehouses](/api-reference/products/objects/warehouse.mdx) that allow picking up orders, e.g., for a click & collect flow.
+After choosing the shipping address, use the `checkout.availableCollectionPoints` to fetch available click and collect points.
 
 <Tabs>
 <TabItem value="Query">
 ```graphql
-query GetCheckout($id: ID) {
+query Checkout($id: ID!) {
   checkout(id: $id) {
-    shippingMethods {
-      id
-      name
-      active
-      price {
-        currency
-        amount
-      }
-    }
     availableCollectionPoints {
       id
       name
-      clickAndCollectOption
     }
   }
 }
@@ -150,38 +219,22 @@ query GetCheckout($id: ID) {
 {
   "data": {
     "checkout": {
-      "shippingMethods": [
-        {
-          "id": "U2hpcHBpbmdNZXRob2Q6MTY1Nw==",
-          "name": "DHL",
-          "price": {
-            "currency": "USD",
-            "amount": 10.0
-          },
-          "active": true,
-          "message": ""
-        },
-        {
-          "id": "U2hpcHBpbmdNZXRob2Q6MTM=",
-          "name": "UPS",
-          "price": {
-            "currency": "USD",
-            "amount": 8.0
-          },
-          "active": false,
-          "message": "Not available."
-        }
-      ],
       "availableCollectionPoints": [
         {
-          "id": "V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OQ==",
-          "name": "Local Store",
-          "clickAndCollectOption": "LOCAL"
+          "id": "V2FyZWhvdXNlOjE1Zjk1Y2JhLTA1YjktNDM4Yi04MTM2LTkwZGQ2MWUzZjk1MA==",
+          "name": "Store1"
         },
         {
-          "id": "V2FyZWhvdXNlOjU0NjliNWQ3LThmOGUtNGVmOS1iMGQxLWNhYWZmYTg4MjI1OA==",
-          "name": "Company HQ",
-          "clickAndCollectOption": "ALL"
+          "id": "V2FyZWhvdXNlOjVlNGMwZjM3LWRmMzktNDJhMC05YTc4LTRmYTJiODBlM2ZkZA==",
+          "name": "Store2"
+        },
+        {
+          "id": "V2FyZWhvdXNlOmMwNzU1YmNmLTU5ZjgtNDE5OS05NjY4LTA4NTM3NzI2ZGZlMg==",
+          "name": "Store3"
+        },
+        {
+          "id": "V2FyZWhvdXNlOmNlYThiZjUxLTM4YTgtNDgwOC04N2QyLWQ1YmQwNWJkZWY2ZQ==",
+          "name": "Default"
         }
       ]
     }
@@ -191,20 +244,20 @@ query GetCheckout($id: ID) {
 </TabItem>
 </Tabs>
 
-Shipping methods can be internal (defined in the Saleor Dashboard) or [external](developer/extending/webhooks/synchronous-events/shipping.mdx) (coming from the 3-rd party). Collection points are [warehouses](api-reference/products/objects/warehouse.mdx) that allow picking-up orders e.g. for click & collect flow.
 
 ### Selecting the Delivery Method
 
-Use the [`checkoutDeliveryMethodUpdate`](api-reference/checkout/mutations/checkout-delivery-method-update.mdx) mutation to effectively pair the specific [`Checkout`](api-reference/checkout/objects/checkout.mdx) object with the specified delivery method selected by the user.
+Use the [`checkoutDeliveryMethodUpdate`](/api-reference/checkout/mutations/checkout-delivery-method-update.mdx) mutation to effectively pair the specific [`Checkout`](/api-reference/checkout/objects/checkout.mdx) object with the specified delivery method selected by the user.
 
 This operation requires the following input:
 
-- `id`: the checkout ID (the `id` field of the [`Checkout`](api-reference/checkout/objects/checkout.mdx) object).
-- `deliveryMethodId`: the shipping method ID or Warehouse ID (from the `shippingMethods` or `availableCollectionPoints` field of the [`Checkout`](api-reference/checkout/objects/checkout.mdx) object).
+- `id`: the checkout ID (the `id` field of the [`Checkout`](/api-reference/checkout/objects/checkout.mdx) object).
+- `deliveryMethodId`: the shipping method ID or Warehouse ID (`delivery` from the `deliveryOptionsCalculate` mutation or `availableCollectionPoints` field of the [`Checkout`](/api-reference/checkout/objects/checkout.mdx) object).
 
-In the following mutation, we assign a delivery method to the checkout using IDs from the previous example. Note that for the checkout object, we want to get back the update `totalPrice` including shipping costs:
+In the following mutation, we assign a delivery method to the checkout using IDs from the previous example. Note that for the checkout object, we want to get back the updated `totalPrice` including shipping costs:
 
-Please note, that selecting `collectionPoint` or `shippingMethod` is mandatory for the checkout flow. In other words, setting `deliveryMethod` is mandatory.
+Please note that selecting `collectionPoint` or `shippingMethod` is mandatory for the checkout flow. In other words, setting `delivery` is mandatory.
+
 
 <Tabs>
 <TabItem value="Mutation">
@@ -213,12 +266,10 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
   checkoutDeliveryMethodUpdate(id: $id, deliveryMethodId: $deliveryMethodId) {
     checkout {
       id
-      deliveryMethod {
-        __typename
-        ... on Warehouse {
-          name
-        }
-        ... on ShippingMethod {
+      delivery {
+        id
+        shippingMethod {
+          id
           name
         }
       }
@@ -241,8 +292,8 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
 <TabItem value={"Variables"}>
 ```json
 {
-  "id": "Q2hlY2tvdXQ6NmFkODZhOTgtZDA1Yi00YTA5LTllMTEtZjRmMmVkY2I1ZDk1",
-  "deliveryMethodId": "U2hpcHBpbmdNZXRob2Q6MzE="
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+  "deliveryMethodId": "Q2hlY2tvdXREZWxpdmVyeToxMzc0NTU3Mi0xMGMxLTRiNmItYTY5MC04Y2ZjZTNhYzk0NTQ="
 }
 ```
 </TabItem>
@@ -254,13 +305,16 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
     "checkoutDeliveryMethodUpdate": {
       "checkout": {
         "id": "Q2hlY2tvdXQ6NmFkODZhOTgtZDA1Yi00YTA5LTllMTEtZjRmMmVkY2I1ZDk1",
-        "deliveryMethod": {
-          "__typename": "ShippingMethod",
-          "name": "ups"
+        "delivery": {
+          "id": "RGVsaXZlcnk6dXBz",
+          "shippingMethod": {
+            "id": "U2hpcHBpbmdNZXRob2Q6MzE=",
+            "name": "ups"
+          }
         },
         "totalPrice": {
           "gross": {
-            "amount": 190,
+            "amount": 19.90,
             "currency": "USD"
           }
         }
@@ -277,7 +331,7 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
 
 After choosing the click & collect option on a checkout, going back to a standard delivery method will require the shipping address to be changed.
 
-1. First use [`checkoutDeliveryMethodUpdate`](api-reference/checkout/mutations/checkout-delivery-method-update.mdx) (just with `id` or `token` provided). This will remove the collection point from checkout and also remove the shipping address.
+1. First use [`checkoutDeliveryMethodUpdate`](/api-reference/checkout/mutations/checkout-delivery-method-update.mdx) (just with `id` or `token` provided). This will remove the collection point from checkout and also remove the shipping address.
 
 <Tabs>
 <TabItem value="Mutation">
@@ -291,7 +345,9 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
         ... on Warehouse {
           name
         }
-        ... on ShippingMethod {
+      }
+      delivery{
+        shippingMethod{
           name
         }
       }
@@ -325,11 +381,12 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
   "data": {
     "checkoutDeliveryMethodUpdate": {
       "checkout": {
-        "id": "Q2hlY2tvdXQ6NmFkODZhOTgtZDA1Yi00YTA5LTllMTEtZjRmMmVkY2I1ZDk1",
+        "id": "Q2hlY2tvdXQ6Mjg5NjQyZWUtNzM3Ny00ZjQzLWFlMWMtZTlhNmI4ZjRiZTUz",
         "deliveryMethod": null,
+        "delivery": null,
         "totalPrice": {
           "gross": {
-            "amount": 180,
+            "amount": 9.93,
             "currency": "USD"
           }
         }
@@ -342,14 +399,14 @@ mutation checkoutDeliveryMethodUpdate($id: ID, $deliveryMethodId: ID) {
 </TabItem>
 </Tabs>
 
-2. Now [`checkoutShippingAddressUpdate`](api-reference/checkout/mutations/checkout-shipping-address-update.mdx) can be used to set the new shipping address for checkout.
-3. Finally, use [`checkoutDeliveryMethodUpdate`](api-reference/checkout/mutations/checkout-delivery-method-update.mdx) with `deliveryMethodId` to set the standard delivery method.
+2. Now [`checkoutShippingAddressUpdate`](/api-reference/checkout/mutations/checkout-shipping-address-update.mdx) can be used to set the new shipping address for checkout.
+3. Finally, use [`checkoutDeliveryMethodUpdate`](/api-reference/checkout/mutations/checkout-delivery-method-update.mdx) with `deliveryMethodId` to set the standard delivery method.
 
 ## Address Validation
 
 The checkout's mutations that accept an address as an input have a field that can turn off the address validation. It allows assigning a partial or not fully valid address to the checkout. Providing country code is mandatory for all addresses regardless of the rules provided in this input.
 
-The address [validation](api-reference/checkout/inputs/checkout-address-validation-rules.mdx) input has two boolean fields:
+The address [validation](/api-reference/checkout/inputs/checkout-address-validation-rules.mdx) input has two boolean fields:
 
 - `checkRequiredFields` - signals Saleor to raise an error when the provided address doesn't have all the required fields. Set to `true` by default.
 - `checkFieldsFormat` - signals Saleor to raise an error when the provided address doesn't match the expected format. Set to `true` by default.
@@ -357,9 +414,9 @@ The address [validation](api-reference/checkout/inputs/checkout-address-validati
 
 #### CheckoutCreate
 
-The [`checkoutCreate`](api-reference/checkout/mutations/checkout-create.mdx) mutation has an optional input for providing shipping and billing addresses. If you want to provide only a part of the address, you can disable the address validation.
+The [`checkoutCreate`](/api-reference/checkout/mutations/checkout-create.mdx) mutation has an optional input for providing shipping and billing addresses. If you want to provide only a part of the address, you can disable the address validation.
 
-The mutation accepts [validationRules](api-reference/checkout/inputs/checkout-validation-rules.mdx) as an [input](api-reference/checkout/inputs/checkout-create-input.mdx) field.
+The mutation accepts [validationRules](/api-reference/checkout/inputs/checkout-validation-rules.mdx) as an [input](/api-reference/checkout/inputs/checkout-create-input.mdx) field.
 
 <Tabs>
 <TabItem value="Mutation">
@@ -429,7 +486,7 @@ mutation checkoutCreate($input: CheckoutCreateInput!) {
 
 #### CheckoutShippingAddressUpdate
 
-The [`checkoutShippingAddressUpdate`](api-reference/checkout/mutations/checkout-shipping-address-update.mdx) mutation has an optional field for controlling the shipping address validation: [validationRules](api-reference/checkout/inputs/checkout-address-validation-rules.mdx).
+The [`checkoutShippingAddressUpdate`](/api-reference/checkout/mutations/checkout-shipping-address-update.mdx) mutation has an optional field for controlling the shipping address validation: [validationRules](/api-reference/checkout/inputs/checkout-address-validation-rules.mdx).
 
 
 <Tabs>
@@ -505,7 +562,7 @@ mutation checkoutShippingAddressUpdate($id: ID, $address: AddressInput!, $valida
 
 #### CheckoutBillingAddressUpdate
 
-The [`checkoutBillingAddressUpdate`](api-reference/checkout/mutations/checkout-billing-address-update.mdx) mutation has an optional field for controlling the billing address validation: [validationRules](api-reference/checkout/inputs/checkout-address-validation-rules.mdx).
+The [`checkoutBillingAddressUpdate`](/api-reference/checkout/mutations/checkout-billing-address-update.mdx) mutation has an optional field for controlling the billing address validation: [validationRules](/api-reference/checkout/inputs/checkout-address-validation-rules.mdx).
 
 <Tabs>
 <TabItem value="Mutation">
@@ -576,15 +633,15 @@ mutation checkoutBillingAddressUpdate($id: ID, $address: AddressInput!, $validat
 </Tabs>
 
 :::note
-The information about address validation can be found on the [address validation](developer/address.mdx) page.
+The information about address validation can be found on the [address validation](/developer/address.mdx) page.
 :::
 
 :::note
-The shipping and billing addresses need to be valid when finalizing checkout by calling [checkoutComplete](api-reference/checkout/mutations/checkout-complete.mdx) mutation.
+The shipping and billing addresses need to be valid when finalizing checkout by calling [checkoutComplete](/api-reference/checkout/mutations/checkout-complete.mdx) mutation.
 :::
 
 :::note
-The fields for shipping and billing addresses will be normalized (if needed) on completing the checkout by calling [checkoutComplete](api-reference/checkout/mutations/checkout-complete.mdx) mutation.
+The fields for shipping and billing addresses will be normalized (if needed) on completing the checkout by calling [checkoutComplete](/api-reference/checkout/mutations/checkout-complete.mdx) mutation.
 :::
 
 ## Customer Address Saving Strategies

@@ -44,7 +44,6 @@
 
 <br>
 
-
 # Saleor Documentation
 
 - Documentation: [https://docs.saleor.io](https://docs.saleor.io)
@@ -58,7 +57,7 @@
 - Installation
   - [Using DevContainers for VSCode (Recommended)](#using-devcontainers-for-vscode-recommended)
   - [Using Docker](#using-docker)
-  - [Using Node & NPM](#using-node--npm)
+  - [Using Node & pnpm](#using-node--pnpm)
 - [Directory Structure](#directory-structure)
 - [Editing Content](#editing-content)
 - [Adding Content](#adding-content)
@@ -69,6 +68,7 @@
 ## Using DevContainers for VSCode (Recommended)
 
 > [!NOTE]
+>
 > - This requires docker or equivalent software to be installed and running on the machine.
 > - Other editors than VSCode are supported: see the [official documentation](https://containers.dev/supporting)
 
@@ -94,7 +94,7 @@ Steps:
 3. Visit `http://127.0.0.1:5000/` (may take up to a minute to load when opened for the first time)
 4. Any changes made to the files will reflect at `http://127.0.0.1:5000/` (may take a few seconds)
 
-## Using Node & NPM
+## Using Node & pnpm
 
 1. Make sure you are using Node in version 20+:
 
@@ -102,16 +102,22 @@ Steps:
 node --version
 ```
 
-2. Install project dependencies:
+2. Enable [pnpm](https://pnpm.io/) via corepack (if you don't have it already):
 
 ```sh
-npm install
+corepack enable
 ```
 
-3. Run your dev server:
+3. Install project dependencies:
 
 ```sh
-npm start
+pnpm install
+```
+
+4. Run your dev server:
+
+```sh
+pnpm start
 ```
 
 # Production Build
@@ -119,13 +125,13 @@ npm start
 1. Build project:
 
 ```sh
-npm run build
+pnpm build
 ```
 
 2. Testing build local:
 
 ```sh
-npm run serve
+pnpm serve
 ```
 
 # Editing Content
@@ -166,7 +172,7 @@ query {
 
 Use full path to the file to avoid linking to wrong page.
 
-- :white_check_mark: Example of good link: `[Attributes](/docs/developer/attributes.mdx)`
+- :white_check_mark: Example of good link: `[Attributes](/developer/attributes.mdx)`
 - :stop_sign: Avoid: `[Attributes](/attributes)`
 
 ### Using custom React components
@@ -297,7 +303,7 @@ To update the API reference:
 
 1. Get `schema.graphql` locally into the root of the saleor-docs repository by running
    `curl -O https://raw.githubusercontent.com/saleor/saleor/refs/heads/main/saleor/graphql/schema.graphql`
-1. Run `npm run update-api-reference`
+1. Run `pnpm update-api-reference`
 
 The script behind the scenes does several steps:
 
@@ -386,7 +392,7 @@ The main branch is automatically released to [docs.saleor.io](https://docs.saleo
 
 # Linting
 
-Run `npm run lint` to check for any linting errors on staged (modified) files.
+Run `pnpm lint` to check for any linting errors on staged (modified) files.
 Note that capitalization rules don't work well with front matter so you can ignore error messages located in the top `---` section.
 
 # Debugging
