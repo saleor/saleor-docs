@@ -202,6 +202,29 @@ handleRedirect();
 | `RequestPermissions` (>=3.15) | `permissions` - array of Permissions you want to add, `redirectPath` - value of query param app will receive in `?redirectUrl=` after user approves/rejects permissions | Ask Dashboard to give more permissions to the app. Dashboard will unmount app. After user approves or denies, Dashboard will redirect to `redirectPath`. If operation fails, `?error=REASON` will be appended |
 | `PopupClose` (>=3.22.31)      |                                                                                                                                                                         | Ask Dashboard to close the popup. If the app is running in a popup, Dashboard will close it. If the app is not in a popup, this action does nothing and responds with `ok: true`.                             |
 | `WidgetResize`                | `height` - widget content height in pixels (positive, finite)                                                                                                           | Ask Dashboard to resize the widget iframe to match the app's content height. Only affects `*_DETAILS_WIDGETS` extensions. See [Sizing sidebar widgets](#sizing-sidebar-widgets) for the recommended helpers. |
+| `RefreshEntity` (>=3.23.9)      |                                                                                                                                                                         | Ask Dashboard to refresh the entity active in the current context (e.g. the currently open Order or Product), without a full page reload. Requires `@saleor/app-sdk` 1.11 or newer and Saleor Dashboard 3.23.9 or newer. |
+
+## Refreshing the active entity
+
+When an app mutates data that the Dashboard is currently displaying — for example, an order widget that adds a note or changes fulfillment — the Dashboard's view can become stale until the user manually reloads. Dispatch `actions.RefreshEntity()` to ask the Dashboard to re-fetch the entity active in the current context.
+
+```ts
+import { actions, useAppBridge } from "@saleor/app-sdk/app-bridge";
+
+const { appBridge } = useAppBridge();
+
+const handleSaved = async () => {
+  // ...perform the mutation that changes the open Order/Product...
+
+  await appBridge.dispatch(actions.RefreshEntity());
+};
+```
+
+The action takes no arguments: the Dashboard already knows which entity is open in the current context (the mount where your app is rendered, such as `ORDER_DETAILS_WIDGETS` or `PRODUCT_DETAILS_WIDGETS`).
+
+:::info
+Requires `@saleor/app-sdk` 1.11 or newer. Dashboard support for handling this action was added in [Saleor Dashboard 3.23.9](https://github.com/saleor/saleor-dashboard/releases/tag/3.23.9) — coordinate SDK and Dashboard upgrades.
+:::
 
 ## Sizing sidebar widgets
 
