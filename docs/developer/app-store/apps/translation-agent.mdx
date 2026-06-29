@@ -1,0 +1,88 @@
+---
+title: Translation Agent App
+sidebar_label: Translation Agent
+description: AI product-catalog translation for Saleor, powered by OpenRouter models.
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.jsx";
+import S from "@site/components/Steps/";
+
+<AppMetadata minSaleorVersion="3.22" />
+
+Translation Agent translates your Saleor product catalog into the languages you sell in. It sends each product to a large language model through [OpenRouter](https://openrouter.ai), along with the product's full context (category path, product type, and attribute values). The model sees the whole picture, so it translates in context instead of guessing at words one at a time.
+
+## Features
+
+- **Bulk translation** of a whole catalog into a target language, with live progress and a summary.
+- **Incremental by default.** Products that already have a translation are skipped. A force option re-translates them.
+- **Glossary** for store-specific terms such as brand names and domain words.
+- **Brand context** that sets voice, formality, and do-not-translate terms for every product.
+- **Approval workflow** to hold translations as drafts and review them before they go live.
+- **Rich-text safe.** If a formatted description comes back malformed, the app keeps the source text instead of publishing broken markup.
+
+## Requirements
+
+- An OpenRouter account and API key.
+- A Saleor store running the required version shown above.
+
+:::note Bring your own key
+The app runs on your own OpenRouter API key, and OpenRouter bills usage to you directly. You choose the model from the many that OpenRouter offers, including Claude, GPT, Gemini, and Llama.
+:::
+
+## Setup
+
+<S>
+  <S.Step>
+    <S.Details>
+      ### Install the app
+      In your Saleor Dashboard, open the Apps section, find Translation Agent, and install it. Once installed, open it from the Translations menu.
+    </S.Details>
+  </S.Step>
+  <S.Step>
+    <S.Details>
+      ### Add your API key and model
+      On the LLM config page, paste your OpenRouter API key and choose a model. Use the Verify button to confirm the key and model work together before you save.
+    </S.Details>
+  </S.Step>
+  <S.Step>
+    <S.Details>
+      ### Choose languages
+      On the Languages page, pick your source language and the target languages. Both come from the languages your shop already has, so there are no codes to type.
+    </S.Details>
+  </S.Step>
+  <S.Step>
+    <S.Details>
+      ### Tune the output (optional)
+      On the Translation settings page, set a brand context, add glossary entries, and turn on the per-language approval workflow if you want to review translations before they publish.
+    </S.Details>
+  </S.Step>
+</S>
+
+## Running a translation
+
+Open the Translate page, pick a target language, and start the run. The app works through the catalog in batches, driven from the page in your browser, and shows progress as each batch finishes. Use the force option to re-translate products that already have a translation.
+
+:::caution Keep this tab open
+A run is driven from the app page in your browser. Closing the tab or navigating away stops it before it completes. Reopen the app and start again to finish what is left.
+:::
+
+## Approval workflow
+
+When you enable approval for a language, a run saves translations as drafts instead of publishing them. Review the drafts on the Approvals page: filter by language, edit a translation inline in a rich-text editor, then approve or reject. Approved drafts publish to the catalog.
+
+## Limitations
+
+- **OpenRouter is the only supported provider.** The app does not connect to other model vendors directly. Any model you use must be available through OpenRouter.
+- **Products only.** Version 1 translates the product name, description, SEO title, and SEO description. Variants, categories, and collections are not translated yet.
+- **One translation per language.** Saleor stores a single translation per language, so the app does not translate per channel.
+- **Runs are browser-driven.** Translation happens while the app page is open, as described above.
+
+## Data processing
+
+To translate a product, the app sends its translatable fields and the context it assembles (category path, product type, and attribute values) to OpenRouter. Your glossary and brand context are included in the prompt when you set them. The app stores its configuration in Saleor app metadata, with the OpenRouter API key encrypted at rest, and keeps no datastore of its own.
+
+## Troubleshooting
+
+- **The Verify button fails.** Confirm the OpenRouter API key is correct and the chosen model is available on your account.
+- **A run translates nothing.** Incremental runs skip products that already have a translation in the target language. Use the force option to re-translate them.
+- **A translated description reverts to the source.** The app checks the structure of formatted descriptions and falls back to the source when a translation does not match, which keeps broken markup off the storefront.
