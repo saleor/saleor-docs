@@ -1,0 +1,41 @@
+---
+title: Translation Agent App Overview
+sidebar_label: Overview
+sidebar_position: 1
+description: AI product-catalog translation for Saleor, powered by OpenRouter models.
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.jsx";
+
+<AppMetadata minSaleorVersion="3.22" />
+
+Translation Agent translates your Saleor product catalog into the languages you sell in. It sends each product to a large language model through [OpenRouter](https://openrouter.ai), along with the product's full context (its category path, product type, and attribute values), so the result fits the product instead of translating words in isolation.
+
+You bring your own OpenRouter API key and choose the model. OpenRouter exposes models from many providers, including Claude, GPT, Gemini, Llama, and Mistral.
+
+## Features
+
+- **Bulk translation.** Translate a whole catalog into a target language, with a progress bar and a summary when the run finishes.
+- **Incremental by default.** Products that are already translated are skipped, so a re-run only processes what is new or missing. A force option re-translates everything.
+- **Glossary.** Keep store-specific terms such as brand names and domain words consistent across every translation.
+- **Brand context.** Set a company voice, formality, and do-not-translate terms that apply to every product.
+- **Approval workflow.** Optionally hold translations as drafts per language and review them before they go live.
+- **Rich-text safe.** Formatted descriptions keep their structure. If a translation comes back malformed, the app falls back to the source text rather than publishing broken markup.
+
+## Assumptions and limitations
+
+- Translations are global per language. Saleor stores one translation per language, so the app does not translate per channel.
+- Version 1 covers products only: name, description, SEO title, and SEO description. Variants, categories, and collections are not translated yet.
+- You need your own OpenRouter account and API key. OpenRouter bills translation usage to you directly.
+- The app runs inside the Saleor Dashboard, and a bulk run progresses while its page stays open.
+
+## Permissions required by the app
+
+- `MANAGE_TRANSLATIONS`
+- `MANAGE_PRODUCTS`
+
+## Data processing
+
+To translate a product, the app sends its data to OpenRouter. For each product this is the translatable fields (name, description, SEO title, and SEO description) plus the context the app assembles to improve accuracy: the category path, product type, and attribute values. Your glossary and brand context are added to the prompt when you set them.
+
+The app stores its configuration in Saleor app metadata, not in any external database. The OpenRouter API key is encrypted at rest. Glossary entries, brand context, and pending translation drafts live in metadata as well. The app keeps no datastore of its own beyond what Saleor holds.
