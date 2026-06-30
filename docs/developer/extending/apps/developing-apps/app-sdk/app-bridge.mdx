@@ -203,6 +203,7 @@ handleRedirect();
 | `PopupClose` (>=3.22.31)      |                                                                                                                                                                         | Ask Dashboard to close the popup. If the app is running in a popup, Dashboard will close it. If the app is not in a popup, this action does nothing and responds with `ok: true`.                             |
 | `WidgetResize`                | `height` - widget content height in pixels (positive, finite)                                                                                                           | Ask Dashboard to resize the widget iframe to match the app's content height. Only affects `*_DETAILS_WIDGETS` extensions. See [Sizing sidebar widgets](#sizing-sidebar-widgets) for the recommended helpers. |
 | `RefreshEntity` (>=3.23.9)      |                                                                                                                                                                         | Ask Dashboard to refresh the entity active in the current context (e.g. the currently open Order or Product), without a full page reload. Requires `@saleor/app-sdk` 1.11 or newer and Saleor Dashboard 3.23.9 or newer. |
+| `OpenPopup` (>=3.23)          | `extensionIdentifier` (string) - app-defined `identifier` of the target `POPUP` extension to open. `params` (optional, JSON-serializable) - arbitrary payload forwarded to the opened popup                              | Ask Dashboard to open one of the **same app's** `POPUP` extensions in full (modal) mode. Intended to be dispatched from a `WIDGET` extension to open a co-located `POPUP`. Requires `@saleor/app-sdk` 1.12 or newer and Saleor 3.23 or newer. See [Opening a popup extension](#opening-a-popup-extension). |
 
 ## Refreshing the active entity
 
@@ -224,6 +225,85 @@ The action takes no arguments: the Dashboard already knows which entity is open 
 
 :::info
 Requires `@saleor/app-sdk` 1.11 or newer. Dashboard support for handling this action was added in [Saleor Dashboard 3.23.9](https://github.com/saleor/saleor-dashboard/releases/tag/3.23.9) — coordinate SDK and Dashboard upgrades.
+:::
+
+## Opening a popup extension
+
+A sidebar [`WIDGET`](../../extending-dashboard-with-apps.mdx#widget-target-from-322) is small by design, so complex flows don't fit well inside it. Instead of cramming everything into the widget, you can dispatch `actions.OpenPopup()` to ask the Dashboard to open one of your app's [`POPUP`](../../extending-dashboard-with-apps.mdx#popup-target) extensions in full (modal) mode — a "compact widget that expands into a full view" pattern.
+
+The Dashboard resolves the target popup by its `identifier` and renders it in a modal dialog as a regular app iframe.
+
+### Declaring the popup extension
+
+The target `POPUP` must belong to the **same app** and declare a stable `identifier` in the manifest. The `identifier` is what you pass to the action as `extensionIdentifier`:
+
+```json
+{
+  "extensions": [
+    {
+      "label": "Order tools",
+      "mount": "ORDER_DETAILS_WIDGETS",
+      "target": "WIDGET",
+      "permissions": ["MANAGE_ORDERS"],
+      "url": "/widgets/order"
+    },
+    {
+      "label": "Order tools (full view)",
+      "identifier": "order-tools-popup",
+      "mount": "ORDER_DETAILS_MORE_ACTIONS",
+      "target": "POPUP",
+      "permissions": ["MANAGE_ORDERS"],
+      "url": "/popups/order-tools"
+    }
+  ]
+}
+```
+
+The `identifier` must be unique within a single app (an app cannot reuse the same `identifier` for two of its extensions), but the same value may be used by different apps. See [extension `identifier`](../../extending-dashboard-with-apps.mdx#extension-identifier).
+
+### Dispatching the action
+
+Dispatch `actions.OpenPopup()` from the widget, referencing the popup's `identifier`:
+
+```ts
+import { actions, useAppBridge } from "@saleor/app-sdk/app-bridge";
+
+const { appBridge } = useAppBridge();
+
+const handleExpand = async () => {
+  await appBridge.dispatch(
+    actions.OpenPopup({
+      extensionIdentifier: "order-tools-popup",
+      // Optional: forward arbitrary, JSON-serializable data to the popup
+      params: { mode: "full", focusLineId: "T3JkZXJMaW5lOjE=" },
+    }),
+  );
+};
+```
+
+`extensionIdentifier` is required and must be a non-empty string — the SDK throws synchronously otherwise. `params` is optional.
+
+### Passing data to the popup
+
+The optional `params` payload is forwarded to the opened popup. The Dashboard `JSON.stringify`s it and appends it to the popup iframe URL as a single `appParams` query parameter; the popup reads it back and parses it:
+
+```ts
+// Inside the POPUP extension page
+const url = new URL(window.location.href);
+const raw = url.searchParams.get("appParams");
+const params = raw ? JSON.parse(raw) : undefined;
+```
+
+Because `params` travels in the URL, it must be JSON-serializable and is size-limited (the serialized string is capped at ~2 KB). Use it for small references (IDs, a mode flag), not for bulk data — fetch larger data from your backend using those references.
+
+### Constraints
+
+- **Widget-only.** The action is only honored when dispatched from a `WIDGET` extension. Requests from other targets are rejected.
+- **Same app.** A widget can only open a `POPUP` that belongs to the same app — you cannot open another app's extension.
+- **Co-located.** The target popup must be one of the app's extensions registered on the current page. If no matching `POPUP` with the given `identifier` is found, the action fails (resolves with `ok: false`).
+
+:::info
+Requires `@saleor/app-sdk` 1.12 or newer and Saleor 3.23 or newer (the manifest `identifier` field is available from Saleor 3.23). The Dashboard must also handle the `openPopup` action — older Dashboard versions ignore it. Coordinate SDK, Core, and Dashboard upgrades.
 :::
 
 ## Sizing sidebar widgets
