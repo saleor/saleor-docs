@@ -6,6 +6,7 @@ export const recipesSidebar = [
   "recipes/multi-region",
   "recipes/digital-products",
   "recipes/custom-shipping",
+  "recipes/custom-pricing",
   "recipes/click-and-collect",
   "recipes/extending-dashboard",
   "recipes/marketplace",
