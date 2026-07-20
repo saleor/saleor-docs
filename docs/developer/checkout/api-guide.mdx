@@ -469,6 +469,103 @@ mutation CheckoutLinesAdd($id: ID, $lines: [CheckoutLineInput!]!) {
 
 </Tabs>
 
+#### Explaining the Override with a Reason
+
+**Added in Saleor 3.23.**
+
+An app can attach an optional `priceOverrideReason` to a custom price to record **why**
+the variant price was overridden (for debugging and auditing). Like `price`, the field is
+**only available for apps** with `HANDLE_CHECKOUTS` permission and is accepted on
+[`CheckoutLineInput`](/api-reference/checkout/inputs/checkout-line-input.mdx) and
+[`CheckoutLineUpdateInput`](/api-reference/checkout/inputs/checkout-line-update-input.mdx)
+in `checkoutCreate`, `checkoutLinesAdd`, and `checkoutLinesUpdate`.
+
+The reason must be backed by a price override. It can be set only together with a `price`,
+or on a line that already has an override (a reason-only update in `checkoutLinesUpdate`).
+Providing a reason without a current or incoming override fails with the
+[`CheckoutErrorCode.PRICE_OVERRIDE_REASON_WITHOUT_OVERRIDE`](/api-reference/checkout/enums/checkout-error-code.mdx)
+error.
+
+The reason is tied to the price-setting operation:
+
+- Setting a new `price` **without** a reason clears any previously stored reason.
+- Clearing the `price` clears the reason as well.
+- Blank or whitespace-only values are stored as no reason (`null`).
+
+The stored reason is exposed on the
+[`CheckoutLine.priceOverrideReason`](/api-reference/checkout/objects/checkout-line.mdx)
+field (readable with `MANAGE_CHECKOUTS` or `HANDLE_CHECKOUTS`). When the checkout is
+completed, the reason is copied onto the resulting
+[`OrderLine.priceOverrideReason`](/api-reference/orders/objects/order-line.mdx)
+field (readable with `MANAGE_ORDERS`).
+
+<Tabs>
+<TabItem value={"GraphQL"}>
+```graphql
+mutation CheckoutLinesAdd($id: ID, $lines: [CheckoutLineInput!]!) {
+  checkoutLinesAdd(id: $id, lines: $lines) {
+    checkout {
+      id
+      lines {
+        variant {
+          id
+        }
+        quantity
+        priceOverrideReason
+      }
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+  "lines": [
+    {
+      "quantity": 1,
+      "variantId": "UHJvZHVjdFZhcmlhbnQ6MzA2",
+      "price": 16.22,
+      "priceOverrideReason": "Loyalty program price match"
+    }
+  ]
+}
+```
+</TabItem>
+
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "checkoutLinesAdd": {
+      "checkout": {
+        "id": "Q2hlY2tvdXQ6ZTEzZDFjOTItOWJkNi00ODViLTgyMDctZTNhM2I5NjVkZTQw",
+        "lines": [
+          {
+            "variant": {
+              "id": "UHJvZHVjdFZhcmlhbnQ6MzA2"
+            },
+            "quantity": 1,
+            "priceOverrideReason": "Loyalty program price match"
+          }
+        ]
+      },
+      "errors": []
+    }
+  }
+}
+```
+</TabItem>
+
+</Tabs>
+
 ## Update Shipping and Billing Address
 
 Use [`checkoutShippingAddressUpdate`](/api-reference/checkout/mutations/checkout-shipping-address-update.mdx) and [`checkoutBillingAddressUpdate`](/api-reference/checkout/mutations/checkout-billing-address-update.mdx) mutations to set the destination address.
