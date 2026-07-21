@@ -418,6 +418,108 @@ mutation giftCardUpdate($id: ID!, $input: GiftCardUpdateInput!) {
 </TabItem>
 </Tabs>
 
+#### Adjusting the Balance
+
+Added in Saleor 3.23.
+
+Use the [`giftCardBalanceAdjust`](/api-reference/gift-cards/mutations/gift-card-balance-adjust) mutation to change a card's current balance by an `amount` instead of overwriting it. A positive amount tops the card up, and a negative amount deducts from it.
+
+Unlike `giftCardUpdate` (which sets `balanceAmount` to an absolute value and records a `BALANCE_RESET` event), the adjustment is applied atomically at the database level. This makes it safe to run while a card is being charged in a concurrent checkout, so no update is silently lost. Each adjustment records a `BALANCE_ADJUSTED` event.
+
+The mutation applies two clamping rules:
+
+- A deduction that would take the balance below zero clamps the current balance to zero.
+- A top-up above the current initial balance raises the initial balance to the new current balance.
+
+The `amount` cannot be zero and must match the currency precision of the card. The staff member or app needs the `MANAGE_GIFT_CARD` permission.
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation giftCardBalanceAdjust($id: ID!, $amount: Decimal!) {
+  giftCardBalanceAdjust(id: $id, amount: $amount) {
+    giftCard {
+      id
+      initialBalance {
+        currency
+        amount
+      }
+      currentBalance {
+        currency
+        amount
+      }
+      events {
+        type
+        balance {
+          currentBalance {
+            amount
+            currency
+          }
+          oldCurrentBalance {
+            amount
+            currency
+          }
+        }
+      }
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "R2lmdENhcmQ6MjUw",
+  "amount": -20
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "giftCardBalanceAdjust": {
+      "giftCard": {
+        "id": "R2lmdENhcmQ6MjUw",
+        "initialBalance": {
+          "currency": "USD",
+          "amount": 70
+        },
+        "currentBalance": {
+          "currency": "USD",
+          "amount": 50
+        },
+        "events": [
+          {
+            "type": "BALANCE_ADJUSTED",
+            "balance": {
+              "currentBalance": {
+                "amount": 50,
+                "currency": "USD"
+              },
+              "oldCurrentBalance": {
+                "amount": 70,
+                "currency": "USD"
+              }
+            }
+          }
+        ],
+        "errors": []
+      }
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
 #### Activating and Deactivating Gift Cards
 Cards can be activated and deactivated at any time, either individually or in bulk.
 
@@ -484,6 +586,146 @@ mutation giftCardDeactivate($id: ID!) {
 
 
 For bulk operations, use [`giftCardBulkActivate`](/api-reference/gift-cards/mutations/gift-card-bulk-activate.mdx) and [`giftCardBulkDeactivate`](/api-reference/gift-cards/mutations/gift-card-bulk-deactivate.mdx) mutations.
+
+## Restricting Gift Cards to a Customer
+
+Added in Saleor 3.23.
+
+By default, a gift card is a **bearer instrument**: whoever holds the code can redeem it, including in guest checkout. Customer assignment is an **opt-in restriction** layered on top of this default. Once a card is restricted to a customer, only that customer's account can use it, and the card can no longer be redeemed in guest checkout.
+
+Assignment is distinct from `usedBy`:
+
+- `assignedTo` is forward-looking — the customer who is **allowed** to spend the card. It is a restriction that staff set on purpose.
+- `usedBy` is historical — the last customer who **spent** the card. It is an audit record and is deprecated.
+
+:::note
+Assignment is manual only. Saleor never auto-assigns a card to whoever pays with it. A card stays unrestricted until staff explicitly assign it.
+:::
+
+### Assigning a Customer
+
+You can restrict a card to a customer at creation time by passing `assignedTo` (a customer's user ID) to [`giftCardCreate`](/api-reference/gift-cards/mutations/gift-card-create), or afterwards with the [`giftCardAssignUser`](/api-reference/gift-cards/mutations/gift-card-assign-user) mutation. Both require the `MANAGE_GIFT_CARD` permission and trigger the `GIFT_CARD_UPDATED` webhook.
+
+Assigning a customer records an `ASSIGNED_TO_USER` event and stores the customer's email on the card.
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation giftCardAssignUser($id: ID!, $userId: ID!) {
+  giftCardAssignUser(id: $id, userId: $userId) {
+    giftCard {
+      id
+      assignedTo {
+        id
+        email
+      }
+      assignedToEmail
+      events {
+        type
+        assignedTo {
+          oldAssignedToEmail
+          currentAssignedToEmail
+        }
+      }
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Variables"}>
+```json
+{
+  "id": "R2lmdENhcmQ6MjUw",
+  "userId": "VXNlcjoyMg=="
+}
+```
+</TabItem>
+
+<TabItem value={"Result"}>
+```json
+{
+  "data": {
+    "giftCardAssignUser": {
+      "giftCard": {
+        "id": "R2lmdENhcmQ6MjUw",
+        "assignedTo": {
+          "id": "VXNlcjoyMg==",
+          "email": "customer@example.com"
+        },
+        "assignedToEmail": "customer@example.com",
+        "events": [
+          {
+            "type": "ASSIGNED_TO_USER",
+            "assignedTo": {
+              "oldAssignedToEmail": null,
+              "currentAssignedToEmail": "customer@example.com"
+            }
+          }
+        ],
+        "errors": []
+      }
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+A card cannot be assigned when it has already been used in an order, or when it is attached to a checkout that has payments. In those cases the mutation returns a `CANNOT_ASSIGN` error. If the card is attached to a checkout that has no payments, the card is detached from that checkout as part of the assignment.
+
+:::note
+The `assignedTo` field on `GiftCard` requires the `MANAGE_USERS` permission (or the card's owner), while `assignedToEmail` requires `MANAGE_GIFT_CARD` (or being the owner of that gift card). Enforcement at checkout is intentionally generic: a restricted card that does not match the customer is rejected with the same error as any unusable code, so it never reveals whether a card is assigned or to whom.
+:::
+
+### Unassigning a Customer
+
+Use the [`giftCardUnassignUser`](/api-reference/gift-cards/mutations/gift-card-unassign-user) mutation to remove the restriction and return the card to bearer behavior. It requires the `MANAGE_GIFT_CARD` permission, triggers the `GIFT_CARD_UPDATED` webhook, and records an `UNASSIGNED_FROM_USER` event.
+
+```graphql
+mutation giftCardUnassignUser($id: ID!) {
+  giftCardUnassignUser(id: $id) {
+    giftCard {
+      id
+      assignedTo {
+        id
+      }
+      assignedToEmail
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+:::tip
+Deleting the customer a card is assigned to does **not** lift the restriction. Saleor keeps the assignment trace so the card stays locked rather than silently becoming spendable by anyone again. To make the card usable, reassign it to another customer or unassign it explicitly.
+:::
+
+### Filtering by Assigned Customer
+
+The `giftCards` query accepts an `assignedTo` filter that returns the cards restricted to the given customers. This replaces the deprecated `usedBy` filter.
+
+```graphql
+query {
+  giftCards(first: 10, filter: { assignedTo: ["VXNlcjoyMg=="] }) {
+    edges {
+      node {
+        id
+        assignedToEmail
+      }
+    }
+  }
+}
+```
 
 ## Setting Up Gift Cards as Products
 
