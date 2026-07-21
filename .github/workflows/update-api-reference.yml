@@ -29,7 +29,7 @@ jobs:
       # Rolling cache: restore-keys picks up the most recent previous cache,
       # and we save a fresh one each run keyed by run_id (cache keys are immutable).
       - name: Restore last scanned release
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .last-release
           key: saleor-release-${{ github.run_id }}
@@ -63,9 +63,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
-          # Always regenerate against the default branch so the bot branch only
-          # ever carries doc changes — GITHUB_TOKEN can't push workflow files.
+          # Always regenerate against the default branch so the bot branch is
+          # based on main, not on whatever ref dispatched the run.
           ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
 
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
 
@@ -88,9 +89,22 @@ jobs:
       - name: Lint changes
         run: pnpm run lint
 
+      # Resolve a Saleor Bot (GitHub App) token so the PR is opened as the bot
+      # and the push is allowed to touch workflow files.
+      - name: Generate GitHub access token
+        id: generate-token
+        env:
+          VAULT_URL: ${{ secrets.VAULT_URL }}
+          VAULT_JWT: ${{ secrets.VAULT_JWT }}
+        run: |
+          token=$(curl -s --request GET --url "$VAULT_URL" --header "Authorization: JWT $VAULT_JWT" | jq -r .token)
+          echo "::add-mask::$token"
+          echo "token=$token" >> "$GITHUB_OUTPUT"
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@4e1beaa7521e8b457b572c090b25bd3db56bf1c5 # v5.0.3
         with:
+          token: ${{ steps.generate-token.outputs.token }}
           base: ${{ github.event.repository.default_branch }}
           branch: bot-update-api-reference
           commit-message: "Update API reference to the ${{ env.TAG }} Saleor release"
@@ -104,7 +118,7 @@ jobs:
       # Record the scanned tag only after a successful run so a failure retries next night.
       - name: Save last scanned release
         run: echo "$TAG" > .last-release
-      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .last-release
           key: saleor-release-${{ github.run_id }}
