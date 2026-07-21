@@ -49,22 +49,18 @@ jobs:
             echo "new=true" >> "$GITHUB_OUTPUT"
           fi
 
-  update_api_reference:
-    name: Update API reference and open PR
+  build:
+    name: Regenerate API reference
     needs: check_saleor_release
     if: needs.check_saleor_release.outputs.new == 'true'
     runs-on: ubuntu-22.04
-    permissions:
-      contents: write # push the bot branch
-      pull-requests: write # open the PR
     env:
       TAG: ${{ needs.check_saleor_release.outputs.tag }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
-          # Always regenerate against the default branch so the bot branch is
-          # based on main, not on whatever ref dispatched the run.
+          # Regenerate against the default branch, not whatever ref dispatched the run.
           ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
 
@@ -89,22 +85,50 @@ jobs:
       - name: Lint changes
         run: pnpm run lint
 
-      # Resolve a Saleor Bot (GitHub App) token so the PR is opened as the bot
-      # and the push is allowed to touch workflow files.
-      - name: Generate GitHub access token
-        id: generate-token
-        env:
-          VAULT_URL: ${{ secrets.VAULT_URL }}
-          VAULT_JWT: ${{ secrets.VAULT_JWT }}
-        run: |
-          token=$(curl -s --request GET --url "$VAULT_URL" --header "Authorization: JWT $VAULT_JWT" | jq -r .token)
-          echo "::add-mask::$token"
-          echo "token=$token" >> "$GITHUB_OUTPUT"
+      # Hand the generated docs to the PR job so the bot token never sits in a
+      # job that runs npm dependencies.
+      - name: Upload generated API reference
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: api-reference
+          path: docs/api-reference
+          include-hidden-files: true
+
+  open_pr:
+    name: Open PR as Saleor Bot
+    needs: [check_saleor_release, build]
+    runs-on: ubuntu-22.04
+    environment: update-api-reference # scopes VAULT_URL / VAULT_JWT to this job only
+    env:
+      TAG: ${{ needs.check_saleor_release.outputs.tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      # Replace the whole dir so docs removed in the new schema are dropped too.
+      - name: Apply generated API reference
+        run: rm -rf docs/api-reference
+
+      - name: Download generated API reference
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: api-reference
+          path: docs/api-reference
+
+      - name: Get Saleor Bot token
+        id: get-token
+        uses: saleor/saleor-internal-actions/request-vault-token@d7b612674c6d2c0c04c9e946e5decfc483e2795a # v1.12.0
+        with:
+          vault-url: ${{ secrets.VAULT_URL }}
+          vault-jwt: ${{ secrets.VAULT_JWT }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@4e1beaa7521e8b457b572c090b25bd3db56bf1c5 # v5.0.3
         with:
-          token: ${{ steps.generate-token.outputs.token }}
+          token: ${{ steps.get-token.outputs.token }}
           base: ${{ github.event.repository.default_branch }}
           branch: bot-update-api-reference
           commit-message: "Update API reference to the ${{ env.TAG }} Saleor release"
