@@ -37,13 +37,15 @@ jobs:
 
       - name: Check for new release
         id: check
+        env:
+          TAG: ${{ steps.release.outputs.tag }} # via env: tag is untrusted input, never inline in the script
         run: |
           last=$(cat .last-release 2>/dev/null || echo "")
-          if [[ "$last" == "${{ steps.release.outputs.tag }}" ]]; then
+          if [[ "$last" == "$TAG" ]]; then
             echo "No new Saleor release since $last, skipping."
             echo "new=false" >> "$GITHUB_OUTPUT"
           else
-            echo "New release: ${{ steps.release.outputs.tag }} (was: ${last:-none})"
+            echo "New release: $TAG (was: ${last:-none})"
             echo "new=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -60,6 +62,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          # Always regenerate against the default branch so the bot branch only
+          # ever carries doc changes — GITHUB_TOKEN can't push workflow files.
+          ref: ${{ github.event.repository.default_branch }}
 
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
 
@@ -85,6 +91,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@4e1beaa7521e8b457b572c090b25bd3db56bf1c5 # v5.0.3
         with:
+          base: ${{ github.event.repository.default_branch }}
           branch: bot-update-api-reference
           commit-message: "Update API reference to the ${{ env.TAG }} Saleor release"
           title: "Update API reference to the ${{ env.TAG }} Saleor release"
