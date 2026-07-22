@@ -285,16 +285,20 @@ const handleExpand = async () => {
 
 ### Passing data to the popup
 
-The optional `params` payload is forwarded to the opened popup. The Dashboard `JSON.stringify`s it and appends it to the popup iframe URL as a single `appParams` query parameter; the popup reads it back and parses it:
+The optional `params` payload is forwarded to the opened popup. The Dashboard serializes it into the popup iframe URL, and the SDK decodes it on load and exposes it on the App Bridge state as `appParams`. Read it via `useAppBridge()` — no URL parsing required:
 
-```ts
-// Inside the POPUP extension page
-const url = new URL(window.location.href);
-const raw = url.searchParams.get("appParams");
-const params = raw ? JSON.parse(raw) : undefined;
+```tsx
+import { useAppBridge } from "@saleor/app-sdk/app-bridge";
+
+const OrderToolsPopup = () => {
+  const { appBridgeState } = useAppBridge();
+  const params = appBridgeState?.appParams; // { mode: "full", focusLineId: "..." } | undefined
+
+  // ...render based on params
+};
 ```
 
-Because `params` travels in the URL, it must be JSON-serializable and is size-limited (the serialized string is capped at ~2 KB). Use it for small references (IDs, a mode flag), not for bulk data — fetch larger data from your backend using those references.
+`appParams` is `undefined` when the app wasn't opened via `OpenPopup`. Because `params` travels in the URL, it must be JSON-serializable and is size-limited (the serialized JSON is capped at ~2 KB). Use it for small references (IDs, a mode flag), not for bulk data — fetch larger data from your backend using those references.
 
 ### Constraints
 
