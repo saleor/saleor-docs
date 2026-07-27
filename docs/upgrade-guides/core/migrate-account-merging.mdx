@@ -1,0 +1,75 @@
+---
+title: Upgrading to 3.23.22, 3.22.63, 3.21.67
+sidebar_position: 0
+---
+
+# Migrating Account Confirmation
+
+Saleor versions 3.23.20, 3.22.61, and 3.21.65 disable account merging by default
+for existing environments.
+
+Account merging is the process of associating orders and gift cards created by an
+unauthenticated customer with an account later created using the same email address.
+
+For all **new** Saleor Cloud environments, `REQUIRE_PASSWORD` is already set by default.
+
+## Migration steps
+
+### 1. Update the storefront
+
+Update the account-confirmation flow so the user enters their password (e.g., add a
+`<input type="password">` field). Then, pass the password to the `confirmAccount()`
+mutation together with the email address and confirmation token.
+
+For example:
+
+```graphql
+mutation ConfirmAccount($email: String!, $password: String!, $token: String!) {
+  confirmAccount(email: $email, password: $password, token: $token) {
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+Variables:
+
+```json
+{
+  "email": "customer@example.com",
+  "password": "customer-password",
+  "token": "confirmation-token"
+}
+```
+
+Note: while the environment uses `MERGE_DISABLED`, account confirmation continues
+to work, but existing orders and gift cards are not merged. Any password provided
+to `confirmAccount` is accepted but ignored. This allows the storefront to be
+updated without any downtime.
+
+### 2. Re-enable account merging
+
+After all storefronts and other clients using `confirmAccount` have been updated,
+call the `shopSettingsUpdate()` mutation with:
+
+```json
+{
+  "input": {
+    "accountConfirmMergeMode": "REQUIRE_PASSWORD"
+  }
+}
+```
+
+Once enabled, Saleor will start verifying the password in the `confirmAccount()`
+mutation before associating existing orders and gift cards with the account.
+
+## Saleor 3.24
+
+Starting with Saleor 3.24.0, `REQUIRE_PASSWORD` becomes the default and the **only**
+supported mode.
+
+The `MERGE_DISABLED` mode will no longer be available, so storefronts must support
+the password field before upgrading to Saleor 3.24.

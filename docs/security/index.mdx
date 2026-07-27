@@ -107,6 +107,79 @@ Our cleaner can be configured through the following settings:
 [`UNSAFE_EDITOR_JS_ALLOWED_URL_SCHEMES` (docs)]: ../setup/configuration.mdx#unsafe_editor_js_allowed_url_schemes
 [`EDITOR_JS_LISTS_MAX_DEPTH` (docs)]: ../setup/configuration.mdx#editor_js_lists_max_depth
 
+## Automatic Account Association of Anonymous Orders
+
+When a customer places orders or uses gift cards without signing in, Saleor can later
+associate those objects with an account created using the same email address.
+
+A legitimate flow may look as follows:
+1. `guest@example.com` places several orders as a guest
+2. The customer creates an account using `guest@example.com`
+3. Saleor sends an account-confirmation link to that email address
+4. The customer opens the link and confirms the account.
+5. Saleor associates the customer's previous orders and gift cards with the newly
+   confirmed account.
+
+This allows customers to access their previous order history and other objects after
+creating an account, improving the overall shopping experience.
+
+### Account Pre-Hijacking Risk
+
+This behavior could create an [account pre-hijacking] risk when possession of the
+confirmation link is treated as sufficient proof that the person confirming the
+account also created and controls it.
+
+An attacker could perform the following flow:
+
+1. Create an account using the victim’s email address and a password chosen by the
+   attacker.
+2. Saleor sends a legitimate account-confirmation email to the victim.
+3. Attacker tricks or persuades the victim into opening the confirmation link, or the
+   victim simply clicks it out of curiosity.
+4. Attacker signs-in using their attacker-chosen password after the account has been
+   confirmed.
+5. Attacker can now access orders, gift cards, addresses, and other data that Saleor
+   associated with the account.
+
+[
+  ![Overview of account pre-hijacking risk in commerce](./assets/account-pre-hijacking.svg)
+](./assets/account-pre-hijacking.svg)
+
+**How Saleor mitigates against this:**
+
+To prevent this attack, Saleor requires a proof that the person opening the confirmation
+link **also knows the password** assigned to that account.
+
+Saleor therefore requires the user to provide the account password when calling the
+`confirmAccount()` mutation:
+
+```graphql
+mutation ($email: String!, $password: String!, $token: String!) {
+  confirmAccount(email: $email, password: $password, token: $token) {
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+A victim who did not create the account will not know the attacker-chosen password
+and therefore cannot complete the confirmation flow. Instead, the victim must
+initiate a password reset which invalidates the attacker's control of the password
+before associating the existing objects.
+
+This ensures that access to the email account alone does not activate an account
+whose credentials remain under an attacker's control.
+
+:::warning
+For users coming from versions earlier than 3.24.0, you must follow the
+[migration guide](../upgrade-guides/core/migrate-account-merging.mdx) to fully
+benefit from the mitigations.
+:::
+
+[account pre-hijacking]: https://arxiv.org/abs/2205.10174
+
 ## PCI DSS
 
 Diagrams representing payment-related data flow:
