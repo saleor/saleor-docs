@@ -567,6 +567,92 @@ Attempting otherwise returns a `PASSWORD_AUTH_RESTRICTION` error.
 | `DISABLED_AUTHENTICATION_METHOD` | `AccountErrorCode` | A password mutation is called when mode is `DISABLED` |
 | `PASSWORD_AUTH_RESTRICTION` | `ShopErrorCode` | A password-authenticated admin tries to restrict the mode |
 
+## Blocking Storefront Traffic
+
+**Added in Saleor 3.23.**
+
+By default the GraphQL API is public — anonymous clients and logged-in customers can call it directly. Setting `Shop.allowStorefrontTraffic` to `false` turns that off: only **apps** (app tokens) and **staff users** can reach the API.
+
+This is meant for deployments that put a proxy or a backend-for-frontend in front of the whole API, where that layer holds app or staff credentials and is the only client talking to Saleor directly.
+
+### Example Use Case
+
+Advanced, non-standard setups where customer flows must be controlled by your own backend logic. Some operations can be proxied to Saleor as-is, while others need enrichment or extra protection to keep business rules valid.
+
+For example, a multi-tenant storefront where each customer may only shop in certain sub-shops. Saleor alone cannot express that constraint, so the backend must resolve which channels a given customer is entitled to and rewrite or reject the request accordingly. If customers could also call the API directly, they would be able to bypass that logic and order from a sub-shop they have no access to. Blocking storefront traffic makes the backend the only way in, so the rule always applies.
+
+| Caller | `allowStorefrontTraffic: true` (default) | `allowStorefrontTraffic: false` |
+| --- | --- | --- |
+| App token | allowed | allowed |
+| Staff user | allowed | allowed |
+| Customer (non-staff) | allowed | **HTTP 401** |
+| Anonymous or invalid token | allowed | **HTTP 401** |
+
+Rejected requests are never executed. The response is:
+
+```json title="HTTP 401"
+{
+  "errors": [
+    {
+      "message": "Storefront traffic is not allowed.",
+      "extensions": { "code": "STOREFRONT_TRAFFIC_NOT_ALLOWED" }
+    }
+  ]
+}
+```
+
+A [batched request](/api-usage/usage-limits.mdx) is rejected as a whole, with a single 401.
+
+### Configuring the Setting
+
+Use the [`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update.mdx) mutation. It requires the `MANAGE_SETTINGS` permission:
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ShopSettingsUpdate($input: ShopSettingsInput!) {
+  shopSettingsUpdate(input: $input) {
+    shop {
+      allowStorefrontTraffic
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value="Variables">
+```json
+{
+  "input": {
+    "allowStorefrontTraffic": false
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+:::caution
+The setting is cached, so a change takes up to **5 minutes** to reach every API worker.
+:::
+
+### What Else Gets Blocked
+
+The check runs before the GraphQL document is inspected, so it rejects *every* non-privileged request regardless of the operation. That includes:
+
+- **Authentication mutations** — [`tokenCreate`](/api-reference/authentication/mutations/token-create.mdx), [`tokenRefresh`](/api-reference/authentication/mutations/token-refresh.mdx), [`externalObtainAccessTokens`](/api-reference/authentication/mutations/external-obtain-access-tokens.mdx), [`setPassword`](/api-reference/users/mutations/set-password.mdx), [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx). A customer cannot log in at all, and therefore can never become privileged enough to pass the check.
+- **Introspection** — the schema is not readable without app or staff credentials. The [Playground](#authentication-with-playground) page still loads, but its introspection query fails until you set a staff or app token in the headers.
+
+This is by design: exempting operations would require classifying the document before the check and maintaining an allowlist. Do not enable this setting if you need public login or public introspection.
+
+:::warning
+This is an access-control switch, not a DoS protection. Requests are rejected only after the body has been parsed and validated, so blocked traffic still consumes worker resources. Use a WAF or a rate limiter in front of Saleor to shed hostile load.
+:::
+
 ## User authentication using OpenID Connect
 
 OpenID Connect (OIDC) is an [OAuth 2.0](https://oauth.net/2/) extension allowing the transfer of identity information between the client and the authorization server.
