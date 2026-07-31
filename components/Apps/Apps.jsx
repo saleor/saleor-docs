@@ -7,6 +7,7 @@ import ProductFeed from "../../static/img/apps/app-products-feed.svg";
 import Avatax from "../../static/img/apps/avatax.svg";
 import CMS from "../../static/img/apps/cms-hub.svg";
 import Notification from "../../static/img/apps/notification-hub.svg";
+import Pulse from "../../static/img/apps/pulse.svg";
 import Search from "../../static/img/apps/search-hub.svg";
 import Segment from "../../static/img/apps/segment.svg";
 import s from "./apps.module.css";
@@ -60,6 +61,13 @@ const Apps = () => {
           href={"developer/app-store/apps/product-feed"}
         >
           <ProductFeed />
+        </Shell>
+        <Shell
+          color={"rgb(37, 99, 235)"}
+          title={"Pulse"}
+          href={"developer/app-store/apps/pulse/overview"}
+        >
+          <Pulse />
         </Shell>
         <Shell
           color={"rgb(199, 58, 63)"}
