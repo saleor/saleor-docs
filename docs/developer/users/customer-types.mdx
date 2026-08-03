@@ -1,0 +1,201 @@
+---
+title: Customer Types and Attributes
+description: Group customers with customer types and attach structured attribute data to them.
+---
+
+**Added in Saleor 3.23.**
+
+Customer types let you segment customers and attach structured data to their accounts. A customer type is a named collection of attributes — the same [attribute system](/developer/attributes/overview.mdx) used by product and page types — so you can model concepts like loyalty tiers, company details for B2B accounts, or onboarding metadata, and have them validated and queryable through the GraphQL API.
+
+Every customer belongs to exactly one customer type. The type determines which attributes can be set on the customer and which attribute values are visible when reading the customer.
+
+:::note
+Customer types apply to all users, including staff. The mutations for setting attribute values described below operate on customers, but the type itself is assigned to any newly created user.
+:::
+
+## Permissions
+
+- `MANAGE_CUSTOMER_TYPES_AND_ATTRIBUTES` — create, update, and delete customer types, manage which attributes are assigned to them, and create, update, and delete the `CUSTOMER_TYPE` attributes themselves.
+- `MANAGE_USERS` — set attribute values on customers and read all of a customer's assigned attributes.
+- Reading customer types via the `customerType` and `customerTypes` queries is available to any authenticated staff user or app, or to holders of either permission above.
+- Customers can read their own `customerType` and assigned attributes without any permission, but only attributes marked as visible in the storefront (`visibleInStorefront`) are included. Customers cannot set attribute values themselves — the `account*` mutations do not accept attributes.
+
+## The Default Customer Type
+
+Exactly one customer type is always marked as the default (`isDefault: true`). It is created automatically and:
+
+- is assigned to every newly created user that does not specify a customer type explicitly,
+- cannot be deleted.
+
+To make a different type the default, pass `isDefault: true` to [`customerTypeCreate`](/api-reference/users/mutations/customer-type-create) or [`customerTypeUpdate`](/api-reference/users/mutations/customer-type-update). The flag is cleared on the previous default automatically — exactly one default always exists.
+
+## Managing Customer Types
+
+Create a customer type with [`customerTypeCreate`](/api-reference/users/mutations/customer-type-create):
+
+```graphql
+mutation {
+  customerTypeCreate(input: { name: "B2B" }) {
+    customerType {
+      id
+      name
+      slug
+      isDefault
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+The `slug` is generated from the name when not provided. Use [`customerTypeUpdate`](/api-reference/users/mutations/customer-type-update) to rename a type and [`customerTypeDelete`](/api-reference/users/mutations/customer-type-delete) to remove one. Deleting a customer type reassigns its users to the default customer type.
+
+List types with the [`customerTypes`](/api-reference/users/queries/customer-types) query, which supports `where` filtering, `search` (by name or slug), and sorting by name or slug. Fetch a single one with [`customerType`](/api-reference/users/queries/customer-type). Customer types also support public and private [metadata](/api-usage/metadata.mdx).
+
+Customer type changes trigger the `CUSTOMER_TYPE_CREATED`, `CUSTOMER_TYPE_UPDATED`, and `CUSTOMER_TYPE_DELETED` webhook events.
+
+## Customer Attributes
+
+Customer attributes are regular attributes created with the `CUSTOMER_TYPE` attribute type. Creating, updating, and deleting them requires the `MANAGE_CUSTOMER_TYPES_AND_ATTRIBUTES` permission:
+
+```graphql
+mutation {
+  attributeCreate(
+    input: {
+      name: "Loyalty level"
+      type: CUSTOMER_TYPE
+      inputType: DROPDOWN
+      values: [{ name: "Silver" }, { name: "Gold" }]
+    }
+  ) {
+    attribute {
+      id
+      slug
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+Assign attributes to a customer type with [`customerTypeAssignAttributes`](/api-reference/users/mutations/customer-type-assign-attributes):
+
+```graphql
+mutation {
+  customerTypeAssignAttributes(
+    customerTypeId: "Q3VzdG9tZXJUeXBlOjE="
+    attributeIds: ["QXR0cmlidXRlOjQ3"]
+  ) {
+    customerType {
+      attributes {
+        id
+        slug
+      }
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+An attribute can be assigned to multiple customer types. Use [`customerTypeUnassignAttributes`](/api-reference/users/mutations/customer-type-unassign-attributes) to remove attributes from a type and [`customerTypeReorderAttributes`](/api-reference/users/mutations/customer-type-reorder-attributes) to change their order. The `CustomerType.availableAttributes` field lists customer attributes not yet assigned to the type.
+
+## Setting Attribute Values on Customers
+
+Set values through [`customerCreate`](/api-reference/users/mutations/customer-create) and [`customerUpdate`](/api-reference/users/mutations/customer-update) using the `attributes` field:
+
+```graphql
+mutation {
+  customerUpdate(
+    id: "VXNlcjoyMw=="
+    input: {
+      customerType: "Q3VzdG9tZXJUeXBlOjE="
+      attributes: [
+        { id: "QXR0cmlidXRlOjQ3", dropdown: { value: "Gold" } }
+      ]
+    }
+  ) {
+    user {
+      id
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+The attributes you pass must be assigned to the customer type the user ends up with — the type set in the same mutation, or the user's current type when `customerType` is not provided. Passing an attribute outside that type returns a `NOT_FOUND` error.
+
+[`customerBulkUpdate`](/api-reference/users/mutations/customer-bulk-update) accepts the same `customerType` and `attributes` fields, with the same validation applied per customer.
+
+Changing a customer's attribute values triggers the `CUSTOMER_UPDATED` webhook event.
+
+## Reading Attribute Values
+
+Read a customer's type and attribute values through the `User` type:
+
+```graphql
+query {
+  user(id: "VXNlcjoyMw==") {
+    customerType {
+      name
+    }
+    assignedAttributes {
+      attribute {
+        slug
+      }
+    }
+    assignedAttribute(slug: "loyalty-level") {
+      attribute {
+        slug
+      }
+    }
+  }
+}
+```
+
+`assignedAttributes` returns the attributes of the user's current customer type together with their values. Staff with `MANAGE_USERS` see all of them, while the account owner sees only attributes visible in the storefront.
+
+## Filtering Customers
+
+The [`customers`](/api-reference/users/queries/customers) query supports filtering by customer type and by attribute values:
+
+```graphql
+query {
+  customers(
+    first: 10
+    where: {
+      customerType: { eq: "Q3VzdG9tZXJUeXBlOjE=" }
+      attributes: [{ slug: "loyalty-level", value: { slug: { eq: "gold" } } }]
+    }
+  ) {
+    edges {
+      node {
+        email
+      }
+    }
+  }
+}
+```
+
+Filtering by the default customer type also matches users that were never explicitly assigned a type.
+
+## Attribute Value Lifecycle
+
+Attribute values are stored independently of the customer type they were written under. Visibility is evaluated at read time against the user's current type:
+
+- **Unassigning an attribute from a customer type** hides its values on users of that type, but the values stay in the database. Assigning the attribute back makes them visible again.
+- **Switching a user to a different customer type** hides values of attributes the new type doesn't have. If the new type shares an attribute with the old one, its values remain visible. Switching back restores the previously hidden values.
+- **Deleting a user** deletes their per-user attribute values — values of the file, reference, rich text, plain text, numeric, date, and date time input types, which may contain personal data. Shared choices of dropdown, multiselect, and swatch attributes belong to the attribute and are not affected.
