@@ -107,6 +107,24 @@ When enabled:
 
 Demoting a production environment converts it back to a sandbox. A demoted environment must not be used for live commerce.
 
+### Duplicate an Environment
+
+You can duplicate an existing environment to create a new sandbox. 
+Use duplication when you need a staging or development environment with the same volume of Saleor data and the same database configuration as the source environment.
+
+To duplicate an environment:
+
+1. In the Saleor Cloud Console, open the project and select the environment that you want to copy.
+2. Click **Duplicate Environment**.
+3. Enter a name and domain for the new environment.
+4. Select the Saleor version for the new environment.
+5. Click **Duplicate** and wait for the new sandbox to become available.
+6. Open the new environment and verify its extensions and external integrations before using it.
+
+Duplication creates a new sandbox and restores a snapshot of the source environment into it. 
+It copies the [database content described below](#what-a-snapshot-includes), including products, orders, customers, tax configuration, and models. 
+It does not copy Cloud-level settings such as the source domain, environment type, plan, or infrastructure configuration.
+
 ## Data Management
 Saleor Cloud Console lets you manage environment data in a few ways: you can load a sample database, create and restore snapshots, or clear the database.
 
@@ -114,7 +132,8 @@ You can find all data management actions in the **Danger Zone** at the bottom of
 
 ### Snapshots
 
-Database snapshots let you capture and replicate the state of any sandbox or production environment. They are especially useful for creating staging environments
+Database snapshots capture the Saleor database of a sandbox or production environment at a point in time. 
+You can restore a snapshot to the source environment or use it to populate another environment in the same project.
 
 :::info
 Production environments automatically create daily snapshots, which are retained for 7 days.
@@ -126,13 +145,56 @@ This feature enables productive workflows for development and testing, for examp
 - Running integration tests from a consistent starting point.
 - Developing migration scripts step by step, saving each successful stage and reverting if needed.
 
-Follow the quickstart guide to learn [how to use snapshots](/quickstart/cloud.mdx).
+#### What a Snapshot Includes
+
+| Data or configuration | Result |
+| --- | --- |
+| Catalog data | Included: products, variants, categories, collections, attributes, and product media references. |
+| Transactional data | Included: orders, checkouts, payments, transactions, invoices, vouchers, and gift cards. |
+| People and addresses | Included: customers, staff users, addresses, and permissions. This can include personal data. |
+| Commerce configuration | Included: channels, warehouses, shipping configuration, tax configuration, menus, site settings, and models and metadata stored in Saleor. |
+| Extensions | App installations, webhooks, plugins, and their database configuration are included. When restored to a different domain, they are disabled and must be reviewed before they are enabled again. |
+| Cloud environment settings | Not included. The domain, environment type, plan, region, and other Cloud infrastructure settings belong to the destination environment. |
+| External data and configuration | Not included: app-owned databases, external service configuration, secrets stored outside Saleor, data held by payment providers, exports, and other third-party data. |
+
+:::warning Snapshot data
+A snapshot of a production environment contains personal data.
+After restoring a production snapshot to a non-production environment, use the 
+[Anonymizer App](https://apps.saleor.io/apps/anonymizer) to remove personal data. 
+
+See the [Anonymizer App documentation](/developer/app-store/apps/anonymizer.mdx#bulk-anonymization-sanitizing-a-snapshot).
+:::
+
+#### Create a Snapshot
+
+1. In the Saleor Cloud Console, open the project and select the environment that you want to capture.
+2. Click **Create Snapshot** on the environment page.
+3. Enter a descriptive snapshot name that identifies the environment and purpose.
+4. Confirm the action and wait for the snapshot to become available.
+
+
+#### Restore a Snapshot to an Existing Environment
+
+Restoring replaces the destination environment's database with the snapshot data.
+
+1. Open the destination environment in the Saleor Cloud Console.
+2. In **Danger Zone**, select **Restore from snapshot**.
+3. Select the snapshot that you want to restore.
+4. Review the source and destination, then confirm the restore.
+5. Wait for the environment to become available.
+
+#### Create a Sandbox from a Snapshot
+
+1. Open the project in the Saleor Cloud Console and click **New Sandbox**.
+2. Enter a name and domain and select the Saleor version.
+3. In the database section, select **Use snapshot**.
+4. Select the snapshot and create the sandbox.
+5. When the sandbox is ready, review its extensions and external integrations.
 
 :::info
-All extensions (apps, webhooks, and plugins) are going to be disabled when the snapshot is restored in another environment (with a different domain)
-e.g. during environment duplication or replicating production data to staging.
-
-After restoring, log in to the Saleor Dashboard to re-enable or reconfigure them if needed. 
+Saleor disables all apps, webhooks, and plugins when a snapshot is restored to an environment with a different domain. 
+This prevents the copied environment from sending events or requests through production integrations. 
+Reconfigure and enable only the extensions that the destination needs.
 :::
 
 ### Clear database
