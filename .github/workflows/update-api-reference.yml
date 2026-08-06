@@ -2,19 +2,67 @@ name: Update 3.x docs to the latest Saleor release
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: "0 20 * * 1-5" # workdays at 20:00
+  schedule:
+    - cron: "0 2 * * *" # every night at 02:00 UTC
 
 env:
   HUSKY: 0
 
+permissions:
+  contents: read
+
 jobs:
   check_saleor_release:
-    name: Update API reference based on the latest Saleor release
+    name: Check for a new Saleor release
     runs-on: ubuntu-22.04
+    outputs:
+      new: ${{ steps.check.outputs.new }}
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - name: Get latest release info
+        id: release
+        run: |
+          tag=$(curl -s https://api.github.com/repos/saleor/saleor/releases/latest | jq -r '.tag_name')
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Latest Saleor release: $tag"
+
+      # Rolling cache: restore-keys picks up the most recent previous cache,
+      # and we save a fresh one each run keyed by run_id (cache keys are immutable).
+      - name: Restore last scanned release
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .last-release
+          key: saleor-release-${{ github.run_id }}
+          restore-keys: saleor-release-
+
+      - name: Check for new release
+        id: check
+        env:
+          TAG: ${{ steps.release.outputs.tag }} # via env: tag is untrusted input, never inline in the script
+        run: |
+          last=$(cat .last-release 2>/dev/null || echo "")
+          if [[ "$last" == "$TAG" ]]; then
+            echo "No new Saleor release since $last, skipping."
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "New release: $TAG (was: ${last:-none})"
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Regenerate API reference
+    needs: check_saleor_release
+    if: needs.check_saleor_release.outputs.new == 'true'
+    runs-on: ubuntu-22.04
+    env:
+      TAG: ${{ needs.check_saleor_release.outputs.tag }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          # Regenerate against the default branch, not whatever ref dispatched the run.
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
 
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
 
@@ -23,24 +71,11 @@ jobs:
           node-version-file: ".nvmrc"
           package-manager-cache: false
 
-      - name: Get latest release info
-        id: release
-        run: |
-          echo "Fetching latest release info..."
-          latest_release=$(curl -s https://api.github.com/repos/saleor/saleor/releases/latest)
-          echo "tag=$(echo $latest_release | jq -r '.tag_name')" >> "$GITHUB_OUTPUT"
-          echo "has_schema=$(echo $latest_release | jq -e '.assets[] | select(.name == "schema.graphql") | length > 0')" >> "$GITHUB_OUTPUT"
-
       - name: Download schema.graphql
         run: |
-          if [[ "${{ steps.release.outputs.has_schema }}" == "true" ]]; then
-            echo "schema.graphql is attached to the ${{ steps.release.outputs.tag }} release, updating API reference..."
-            echo "browser_download_url=$(curl -s https://api.github.com/repos/saleor/saleor/releases/164599978 | jq -e '.assets[] | select(.name == "schema.graphql") | .browser_download_url'
-            curl -L -o schema-test.graphql -H "Accept: application/octet-stream" $ASSET_URL
-          else
-            echo "schema.graphql is not attached to the ${{ steps.release.outputs.tag }} release, exiting..."
-            exit 1
-          fi
+          echo "Fetching schema.graphql from saleor@$TAG..."
+          curl -fL -o schema.graphql \
+            "https://raw.githubusercontent.com/saleor/saleor/$TAG/saleor/graphql/schema.graphql"
 
       - run: pnpm install --frozen-lockfile
 
@@ -50,16 +85,64 @@ jobs:
       - name: Lint changes
         run: pnpm run lint
 
-      - name: Show changed files
-        run: git status
+      # Hand the generated docs to the PR job so the bot token never sits in a
+      # job that runs npm dependencies.
+      - name: Upload generated API reference
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: api-reference
+          path: docs/api-reference
+          include-hidden-files: true
+
+  open_pr:
+    name: Open PR as Saleor Bot
+    needs: [check_saleor_release, build]
+    runs-on: ubuntu-22.04
+    environment: update-api-reference # scopes VAULT_URL / VAULT_JWT to this job only
+    env:
+      TAG: ${{ needs.check_saleor_release.outputs.tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      # Replace the whole dir so docs removed in the new schema are dropped too.
+      - name: Apply generated API reference
+        run: rm -rf docs/api-reference
+
+      - name: Download generated API reference
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: api-reference
+          path: docs/api-reference
+
+      - name: Get Saleor Bot token
+        id: get-token
+        uses: saleor/saleor-internal-actions/request-vault-token@d7b612674c6d2c0c04c9e946e5decfc483e2795a # v1.12.0
+        with:
+          vault-url: ${{ secrets.VAULT_URL }}
+          vault-jwt: ${{ secrets.VAULT_JWT }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@4e1beaa7521e8b457b572c090b25bd3db56bf1c5 # v5.0.3
         with:
+          token: ${{ steps.get-token.outputs.token }}
+          base: ${{ github.event.repository.default_branch }}
           branch: bot-update-api-reference
-          commit-message: "Update API reference to the ${{ steps.release.outputs.tag }} Saleor release"
-          title: "Update API reference to the ${{ steps.release.outputs.tag }} Saleor release"
+          commit-message: "Update API reference to the ${{ env.TAG }} Saleor release"
+          title: "Update API reference to the ${{ env.TAG }} Saleor release"
           body: |
-            Pull request auto-generated by bot
+            Pull request auto-generated by bot for Saleor release ${{ env.TAG }}.
           labels: |
             :robot: bot
+          team-reviewers: engineering
+
+      # Record the scanned tag only after a successful run so a failure retries next night.
+      - name: Save last scanned release
+        run: echo "$TAG" > .last-release
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .last-release
+          key: saleor-release-${{ github.run_id }}
