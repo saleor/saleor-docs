@@ -7,7 +7,7 @@ description: Group customers with customer types and attach structured attribute
 
 Customer types let you segment customers and attach structured data to their accounts. A customer type is a named collection of attributes — the same [attribute system](/developer/attributes/overview.mdx) used by product and page types — so you can model concepts like loyalty tiers, company details for B2B accounts, or onboarding metadata, and have them validated and queryable through the GraphQL API.
 
-Every customer belongs to exactly one customer type. The type determines which attributes can be set on the customer and which attribute values are visible when reading the customer.
+Every customer belongs to exactly one customer type. The type determines which attributes can be set on the customer and which attribute values are returned when querying the customer.
 
 :::note
 Customer types apply to all users, including staff. The mutations for setting attribute values described below operate on customers, but the type itself is assigned to any newly created user.
@@ -170,7 +170,7 @@ query {
 }
 ```
 
-`assignedAttributes` returns the attributes of the user's current customer type together with their values. Staff with `MANAGE_USERS` see all of them, while the account owner sees only attributes visible in the storefront.
+`assignedAttributes` returns the attributes of the user's current customer type together with their values. Staff or apps with `MANAGE_USERS` see all of them, while the account owner sees only attributes visible in the storefront.
 
 ## Filtering Customers
 
@@ -198,7 +198,7 @@ Filtering by the default customer type also matches users that were never explic
 
 ## Attribute Value Lifecycle
 
-Attribute values are stored independently of the customer type they were written under. Visibility is evaluated at read time against the user's current type:
+Attribute values are stored independently of the customer type they were written under. Visibility is evaluated at read and filter time against the user's current type:
 
 - **Unassigning an attribute from a customer type** hides its values on users of that type, but the values stay in the database. Assigning the attribute back makes them visible again.
 - **Switching a user to a different customer type** hides values of attributes the new type doesn't have. If the new type shares an attribute with the old one, its values remain visible. Switching back restores the previously hidden values.
