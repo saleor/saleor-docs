@@ -17,8 +17,8 @@ Customer types apply to all users, including staff. The mutations for setting at
 
 - `MANAGE_CUSTOMER_TYPES_AND_ATTRIBUTES` — create, update, and delete customer types, manage which attributes are assigned to them, and create, update, and delete the `CUSTOMER_TYPE` attributes themselves.
 - `MANAGE_USERS` — set attribute values on customers and read all of a customer's assigned attributes.
-- Reading customer types via the `customerType` and `customerTypes` queries is available to any authenticated staff user or app, or to holders of either permission above.
-- Customers can read their own `customerType` and assigned attributes without any permission, but only attributes marked as visible in the storefront (`visibleInStorefront`) are included. Customers cannot set attribute values themselves — the `account*` mutations do not accept attributes.
+- Reading customer types via the `customerType` and `customerTypes` queries is available to any authenticated staff user or app, or to holders of either permission above. The fields inside are more restricted: `CustomerType.attributes` omits attributes that are not visible in the storefront unless the requestor holds `MANAGE_USERS` or `MANAGE_CUSTOMER_TYPES_AND_ATTRIBUTES`, and `CustomerType.availableAttributes` requires one of those two permissions outright.
+- Customers can read their own `customerType` and assigned attributes as the account owner, without any additional permission, but only attributes marked as visible in the storefront (`visibleInStorefront`) are included. Customers cannot set attribute values themselves — the `account*` mutations do not accept attributes.
 
 ## The Default Customer Type
 
@@ -28,6 +28,8 @@ Exactly one customer type is always marked as the default (`isDefault: true`). I
 - cannot be deleted.
 
 To make a different type the default, pass `isDefault: true` to [`customerTypeCreate`](/api-reference/users/mutations/customer-type-create) or [`customerTypeUpdate`](/api-reference/users/mutations/customer-type-update). The flag is cleared on the previous default automatically — exactly one default always exists.
+
+The default flag cannot be unset directly: passing `isDefault: false` for the current default returns a `CANNOT_UNSET_DEFAULT` error. Mark another customer type as the default instead.
 
 ## Managing Customer Types
 
@@ -108,6 +110,8 @@ mutation {
 ```
 
 An attribute can be assigned to multiple customer types. Use [`customerTypeUnassignAttributes`](/api-reference/users/mutations/customer-type-unassign-attributes) to remove attributes from a type and [`customerTypeReorderAttributes`](/api-reference/users/mutations/customer-type-reorder-attributes) to change their order. The `CustomerType.availableAttributes` field lists customer attributes not yet assigned to the type.
+
+`customerTypeAssignAttributes` and `customerTypeUnassignAttributes` accept at most 100 attribute IDs per call; exceeding the limit returns an `INVALID` error. All three attribute mutations trigger the `CUSTOMER_TYPE_UPDATED` webhook event.
 
 ## Setting Attribute Values on Customers
 
@@ -198,4 +202,4 @@ Attribute values are stored independently of the customer type they were written
 
 - **Unassigning an attribute from a customer type** hides its values on users of that type, but the values stay in the database. Assigning the attribute back makes them visible again.
 - **Switching a user to a different customer type** hides values of attributes the new type doesn't have. If the new type shares an attribute with the old one, its values remain visible. Switching back restores the previously hidden values.
-- **Deleting a user** deletes their per-user attribute values — values of the file, reference, rich text, plain text, numeric, date, and date time input types, which may contain personal data. Shared choices of dropdown, multiselect, and swatch attributes belong to the attribute and are not affected.
+- **Deleting a user** deletes their per-user attribute values — values of the file, reference, single reference, rich text, plain text, numeric, date, and date time input types, which may contain personal data. Shared choices of dropdown, multiselect, and swatch attributes belong to the attribute and are not affected.
