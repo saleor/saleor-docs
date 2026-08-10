@@ -56,7 +56,7 @@ type Shop implements ObjectWithMetadata {
   availablePaymentGateways(
     currency: String
     channel: String
-  ): [PaymentGateway!]!
+  ): [PaymentGateway!]! @deprecated
   availableExternalAuthentications: [ExternalAuthentication!]!
   availableShippingMethods(
     channel: String!
@@ -80,6 +80,7 @@ type Shop implements ObjectWithMetadata {
   fulfillmentAutoApprove: Boolean!
   fulfillmentAllowUnpaid: Boolean!
   trackInventoryByDefault: Boolean
+  allowStorefrontTraffic: Boolean!
   defaultWeightUnit: WeightUnitsEnum
   translation(languageCode: LanguageCodeEnum!): ShopTranslation
   reserveStockDurationAnonymousUser: Int
@@ -91,6 +92,7 @@ type Shop implements ObjectWithMetadata {
   enableAccountConfirmationByEmail: Boolean
   allowLoginWithoutConfirmation: Boolean
   limits: LimitInfo! @deprecated
+  announcements: [Announcement!]!
   version: String!
   schemaVersion: String!
   availableTaxApps: [App!]!
@@ -100,6 +102,7 @@ type Shop implements ObjectWithMetadata {
   displayGrossPrices: Boolean! @deprecated
   chargeTaxesOnShipping: Boolean! @deprecated
   useLegacyShippingZoneStockAvailability: Boolean!
+  accountConfirmMergeMode: AccountConfirmModeEnum!
   useLegacyUpdateWebhookEmission: Boolean @deprecated
 }
 ```
@@ -145,24 +148,6 @@ Public metadata. Use `keys` to control which fields you want to include. The def
 #### [<code>id</code>](#id)<Bullet />[<code>ID!</code>](/api-reference/miscellaneous/scalars/id.mdx) \{#id\}
 
 ID of the shop.
-
-#### [<code>availablePaymentGateways</code>](#available-payment-gateways)<Bullet />[<code>[PaymentGateway!]!</code>](/api-reference/payments/objects/payment-gateway.mdx) \{#available-payment-gateways\}
-
-List of available payment gateways.
-
-##### [<code>currency</code>](#shop-available-payment-gateways-currency)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#shop-available-payment-gateways-currency\}
-
-:::warning[DEPRECATED]
-
-Use `channel` argument instead.
-
-:::
-
-A currency for which gateways will be returned.
-
-##### [<code>channel</code>](#shop-available-payment-gateways-channel)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#shop-available-payment-gateways-channel\}
-
-Slug of a channel for which the data should be returned.
 
 #### [<code>availableExternalAuthentications</code>](#available-external-authentications)<Bullet />[<code>[ExternalAuthentication!]!</code>](/api-reference/authentication/objects/external-authentication.mdx) \{#available-external-authentications\}
 
@@ -269,6 +254,15 @@ Allow to approve fulfillments which are unpaid.
 
 This field is used as a default value for `ProductVariant.trackInventory`.
 
+#### [<code>allowStorefrontTraffic</code>](#allow-storefront-traffic)<Bullet />[<code>Boolean!</code>](/api-reference/miscellaneous/scalars/boolean.mdx) \{#allow-storefront-traffic\}
+
+Determines whether the GraphQL API accepts storefront requests (anonymous requests and authenticated non-staff customers). When disabled, only apps and staff users may call the API directly; all other requests are rejected with an HTTP 401 and the `STOREFRONT_TRAFFIC_NOT_ALLOWED` error code.
+
+<Badge
+  text="Added in Saleor 3.23"
+  class="badge badge--secondary margin-bottom--sm"
+/>
+
 #### [<code>defaultWeightUnit</code>](#default-weight-unit)<Bullet />[<code>WeightUnitsEnum</code>](/api-reference/miscellaneous/enums/weight-units-enum.mdx) \{#default-weight-unit\}
 
 Default weight unit.
@@ -343,6 +337,15 @@ Determines if user can login without confirmation when `enableAccountConfirmatio
   text={"Requires one of the following permissions"}
 />
 
+#### [<code>announcements</code>](#announcements)<Bullet />[<code>[Announcement!]!</code>](/api-reference/miscellaneous/objects/announcement.mdx) \{#announcements\}
+
+List of announcements for this shop.
+
+<Permissions
+  permissions={"AUTHENTICATED_STAFF_USER"}
+  text={"Requires one of the following permissions"}
+/>
+
 #### [<code>version</code>](#version)<Bullet />[<code>String!</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#version\}
 
 Saleor API version.
@@ -402,11 +405,39 @@ When enabled, stock availability is filtered by shipping zones and the destinati
   class="badge badge--secondary margin-bottom--sm"
 />
 
+#### [<code>accountConfirmMergeMode</code>](#account-confirm-merge-mode)<Bullet />[<code>AccountConfirmModeEnum!</code>](/api-reference/authentication/enums/account-confirm-mode-enum.mdx) \{#account-confirm-merge-mode\}
+
+Controls the method used for merging existing orders and giftcards when password-based authentication is used. Learn more at https://docs.saleor.io/upgrade-guides/core/migrate-account-merging
+
 <details class="graphql-markdown-details">
 <summary>
 <span class="graphql-markdown-details-label-closed">Show deprecated</span>
 <span class="graphql-markdown-details-label-open">Hide deprecated</span>
 </summary>
+
+#### [<code>availablePaymentGateways</code>](#available-payment-gateways)<Bullet />[<code>[PaymentGateway!]!</code>](/api-reference/payments/objects/payment-gateway.mdx) \{#available-payment-gateways\}
+
+:::warning[DEPRECATED]
+
+The legacy Payments API is deprecated and will be removed. Use the Transactions API instead.
+
+:::
+
+List of available payment gateways.
+
+##### [<code>currency</code>](#shop-available-payment-gateways-currency)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#shop-available-payment-gateways-currency\}
+
+:::warning[DEPRECATED]
+
+Use `channel` argument instead.
+
+:::
+
+A currency for which gateways will be returned.
+
+##### [<code>channel</code>](#shop-available-payment-gateways-channel)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#shop-available-payment-gateways-channel\}
+
+Slug of a channel for which the data should be returned.
 
 #### [<code>limits</code>](#limits)<Bullet />[<code>LimitInfo!</code>](/api-reference/miscellaneous/objects/limit-info.mdx) \{#limits\}
 
