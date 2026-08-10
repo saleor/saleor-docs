@@ -45,7 +45,7 @@ import Permissions from "@site/components/Permissions";
 Represents user data.
 
 ```graphql
-type User implements Node, ObjectWithMetadata {
+type User implements Node, ObjectWithMetadata, ObjectWithAttributes {
   id: ID!
   privateMetadata: [MetadataItem!]!
   privateMetafield(
@@ -61,6 +61,12 @@ type User implements Node, ObjectWithMetadata {
   metafields(
     keys: [String!]
   ): Metadata
+  assignedAttribute(
+    slug: String!
+  ): AssignedAttribute
+  assignedAttributes(
+    limit: PositiveInt = 100
+  ): [AssignedAttribute!]!
   email: String!
   firstName: String!
   lastName: String!
@@ -113,6 +119,7 @@ type User implements Node, ObjectWithMetadata {
   defaultShippingAddress: Address
   defaultBillingAddress: Address
   externalReference: String
+  customerType: CustomerType
   lastLogin: DateTime
   dateJoined: DateTime!
   updatedAt: DateTime!
@@ -163,6 +170,44 @@ Tip: Use GraphQL aliases to fetch multiple keys.
 Public metadata. Use `keys` to control which fields you want to include. The default is to include everything.
 
 ##### [<code>keys</code>](#user-metafields-keys)<Bullet />[<code>[String!]</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-metafields-keys\}
+
+#### [<code>assignedAttribute</code>](#assigned-attribute)<Bullet />[<code>AssignedAttribute</code>](/api-reference/attributes/interfaces/assigned-attribute.mdx) \{#assigned-attribute\}
+
+Get a single attribute assigned to the user by attribute slug. The attribute is looked up among the attributes of the user's customer type.
+
+<Permissions
+  permissions={"MANAGE_USERS,OWNER"}
+  text={"Requires one of the following permissions"}
+/>
+The owner can access only attributes that are visible in the storefront.
+
+<Badge
+  text="Added in Saleor 3.23"
+  class="badge badge--secondary margin-bottom--sm"
+/>
+
+##### [<code>slug</code>](#user-assigned-attribute-slug)<Bullet />[<code>String!</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-assigned-attribute-slug\}
+
+Slug of the attribute
+
+#### [<code>assignedAttributes</code>](#assigned-attributes)<Bullet />[<code>[AssignedAttribute!]!</code>](/api-reference/attributes/interfaces/assigned-attribute.mdx) \{#assigned-attributes\}
+
+List of attributes assigned to the user through the user's customer type.
+
+<Permissions
+  permissions={"MANAGE_USERS,OWNER"}
+  text={"Requires one of the following permissions"}
+/>
+The owner can access only attributes that are visible in the storefront.
+
+<Badge
+  text="Added in Saleor 3.23"
+  class="badge badge--secondary margin-bottom--sm"
+/>
+
+##### [<code>limit</code>](#user-assigned-attributes-limit)<Bullet />[<code>PositiveInt</code>](/api-reference/miscellaneous/scalars/positive-int.mdx) \{#user-assigned-attributes-limit\}
+
+Maximum number of attributes to return. Default is 100.
 
 #### [<code>email</code>](#email)<Bullet />[<code>String!</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#email\}
 
@@ -344,6 +389,20 @@ The default billing address of the user.
 
 External ID of this user.
 
+#### [<code>customerType</code>](#customer-type)<Bullet />[<code>CustomerType</code>](/api-reference/users/objects/customer-type.mdx) \{#customer-type\}
+
+The customer type assigned to the user.
+
+<Permissions
+  permissions={"MANAGE_USERS,OWNER"}
+  text={"Requires one of the following permissions"}
+/>
+
+<Badge
+  text="Added in Saleor 3.23"
+  class="badge badge--secondary margin-bottom--sm"
+/>
+
 #### [<code>lastLogin</code>](#last-login)<Bullet />[<code>DateTime</code>](/api-reference/miscellaneous/scalars/date-time.mdx) \{#last-login\}
 
 The date when the user last time log in to the system.
@@ -417,6 +476,15 @@ Slug of a channel for which the data should be returned.
 An object with an ID
 
 #### [<code>ObjectWithMetadata</code>](/api-reference/miscellaneous/interfaces/object-with-metadata.mdx)
+
+#### [<code>ObjectWithAttributes</code>](/api-reference/attributes/interfaces/object-with-attributes.mdx)
+
+An object with attributes.
+
+<Badge
+  text="Added in Saleor 3.22"
+  class="badge badge--secondary margin-bottom--sm"
+/>
 
 ### Returned By
 
