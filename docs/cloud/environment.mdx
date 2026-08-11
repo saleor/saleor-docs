@@ -27,15 +27,15 @@ The limits imposed on sandboxes are displayed in the Cloud Console.
 | **Permitted use** | Not permitted for production commerce | Supported for real transactions |
 | **Rate limits** | **Free plan:** 120 requests per minute <br/> **Paid plan:** 2,000 requests per minute | No enforced request limit |
 | **Upgrades** | **Free-plan sandboxes:** automatically upgrade to the latest minor version <br/> **Paid-plan sandboxes:** you control minor-version upgrades | You control minor-version upgrades |
-| **Snapshots and backups** | Cloud users create snapshots on demand | Saleor automatically creates daily snapshots |
+| **Snapshots/backups** | Cloud users create snapshots on demand | Saleor automatically creates daily snapshots |
 | **Support** | Limited | Depends on your [plan](https://saleor.io/pricing) |
 | **SLA** | No SLA | See the [SLA terms](https://saleor.io/legal/sla) |
 | **Promote action** | Converts the sandbox to production. Expect about five minutes of downtime during the database restore. | Not applicable |
 | **Selling products** | **Not allowed under the [Terms of Service](https://saleor.io/legal/terms)** — sandboxes are for testing only | Supported for commerce |
 
-### Promote a Sandbox
+### Promoting a Sandbox
 
-Clicking **Promote** converts your sandbox environment to production. The promotion typically causes about five minutes of downtime while Saleor restores the database.
+Clicking **Promote** converts your sandbox environment to production. The promotion typically causes about five minutes of downtime while Saleor migrates the database.
 
 After promotion, the environment receives production benefits, including SLAs, backups, higher limits, and permission to process real orders.
 
@@ -61,7 +61,6 @@ To learn more, see the [GraphQL API overview](/api-usage/overview.mdx).
 
 You can upgrade Saleor versions on demand through the Cloud Console.
 
-- **Sequential upgrades** from one minor version to the next do not require downtime.
 - You manage the version of each environment independently, so you can test new features before applying them to production.
 
 Saleor version numbers, such as `3.21.1`, follow the `major.minor.patch` pattern:
@@ -122,7 +121,6 @@ To duplicate an environment:
 
 Duplication creates a new sandbox and restores a snapshot of the source environment into it.
 It copies the [database content described below](#what-a-snapshot-includes), including products, orders, customers, tax configuration, and models.
-It does not copy Cloud-level settings such as the source domain, environment type, plan, or infrastructure configuration.
 
 ## Data Management
 
@@ -132,7 +130,7 @@ You can find all data management actions in the **Danger Zone** at the bottom of
 
 ### Snapshots
 
-Database snapshots capture the Saleor database of a sandbox or production environment at a point in time.
+Snapshots copy the entire Saleor database of a sandbox or production environment.
 You can restore a snapshot to the source environment or use it to populate another environment in the same project.
 
 :::info
@@ -149,11 +147,11 @@ Snapshots support development and testing workflows, such as:
 
 | Data or configuration | Result |
 | --- | --- |
-| Catalog data | Included: products, variants, categories, collections, attributes, and product media references. |
-| Transactional data | Included: orders, checkouts, payments, transactions, invoices, vouchers, and gift cards. |
-| People and addresses | Included: customers, staff users, addresses, and permissions. This can include personal data. |
-| Commerce configuration | Included: channels, warehouses, shipping configuration, tax configuration, menus, site settings, models, and metadata stored in Saleor. |
-| Extensions | Included: app installations, webhooks, plugins, and their database configuration. Saleor disables them when restoring the snapshot to a different domain. Review them before enabling them again. |
+| Catalog data | Including: products, variants, categories, collections, attributes, and product media references. |
+| Transactional data | Including: orders, checkouts, payments, transactions, invoices, vouchers, and gift cards. |
+| People and addresses | Including: customers, staff users, addresses, and permissions. This can include personal data. |
+| Commerce configuration | Including: channels, warehouses, shipping configuration, tax configuration, menus, site settings, models, and metadata stored in Saleor. |
+| Extensions | Including: app installations, webhooks, plugins, and their database configuration. Saleor disables them when restoring the snapshot to a different domain. Review them before enabling them again. |
 | Cloud environment settings | Not included. The domain, environment type, plan, region, and other Cloud infrastructure settings belong to the destination environment. |
 | External data and configuration | Not included: app-owned databases, external service configuration, secrets stored outside Saleor, data held by payment providers, exports, and other third-party data. |
 
@@ -197,7 +195,7 @@ Reconfigure and enable only the extensions that the destination needs.
 
 ### Clear the Database
 
-The **Clear database** action removes all business-related records, including orders, products, categories, customer accounts, vouchers, and gift cards. You cannot undo this action.
+The **Clear database** action removes all business-related records, including orders, products, categories, customer accounts, vouchers, and gift cards. You cannot undo this action unless you create a Snapshot prior to performing this action.
 
 Use **Clear database** in a sandbox environment when you want to start from a clean slate.
 
@@ -239,27 +237,26 @@ This operation is irreversible. Create a snapshot before proceeding if you may n
 
 To confirm the action, type the environment name in the confirmation dialog.
 
-### Replace the Database with a Sample
+### Replace the Database with Sample Data
 
 This action erases all existing business-related records and environment configuration, such as staff members and permissions, and loads a sample dataset.
 This is useful for demos and quick evaluations.
 
 ## Removing an Environment
 
-### Delete an Environment
+### Deleting an Environment
 
 You can delete an environment from the Cloud Console.
 
 ::::warning
-Deletion is permanent. You cannot restore the environment after deleting it.
+Deletion is permanent.
 Before deletion, Saleor automatically creates a final snapshot.
 You can create a new environment later and restore data from this snapshot. See [Restoring Deleted Environments](#restoring-deleted-environments).
 ::::
 
 ### Restoring Deleted Environments
 
-If your environment is automatically deleted because of inactivity, Saleor creates a final snapshot before deletion.
-You can restore the data without contacting support by following [Create a Sandbox from a Snapshot](#create-a-sandbox-from-a-snapshot).
+When an environment is deleted, Saleor creates a final snapshot which you can restore the data by following [Create a Sandbox from a Snapshot](#create-a-sandbox-from-a-snapshot).
 You can reuse the deleted sandbox's domain for the new sandbox.
 
 When selecting a snapshot, choose the one with `final` in its name.
