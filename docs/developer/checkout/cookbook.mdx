@@ -128,7 +128,6 @@ mutation orderCreateFromCheckout($id: ID!, $removeCheckout: Boolean) {
 </TabItem>
 </Tabs>
 
-
 ## Partial/Split payments
 
 Common use cases of splitting payments on a single order are:
@@ -139,20 +138,24 @@ Common use cases of splitting payments on a single order are:
 - Authorize part of the basket as a pre-order payment (without charging) and change it immediately before fulfillment.
 
 #### Possible Approach
+
 Prepare two transactions, one that is only authorized and one that is charged immediately.
 
 1. **Initialize transactions:**
 
 For the authorized-only transaction:
+
 - Checkout passes `amount` to the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize.mdx) mutation, and desired action such as `AUTHORIZE`.
 - In the `TRANSACTION_INITIALIZE_SESSION` webhook the payment app validates the split (e.g. if it is allowed) and includes `AUTHORIZE` in [allowed actions](/developer/extending/webhooks/synchronous-events/transaction#response-4).
 
 Remaining amount:
+
 - Checkout passes the remaining `amount` to the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize.mdx) mutation and desired action such as `CHARGE`.
 - In the `TRANSACTION_INITIALIZE_SESSION` webhook, the payment app validates the split (e.g., if it is allowed) and includes `CHARGE` in [allowed actions](/developer/extending/webhooks/synchronous-events/transaction#response-4).
 
 2. **Process transactions:**
- - Calling [`transactionProcess`](/api-reference/payments/mutations/transaction-process.mdx) with `action` set to `AUTHORIZE` for the first transaction and `CHARGE` for the second transaction.
+
+- Calling [`transactionProcess`](/api-reference/payments/mutations/transaction-process.mdx) with `action` set to `AUTHORIZE` for the first transaction and `CHARGE` for the second transaction.
 
 :::note
 While it is possible to call `transactionInitialize` and `transactionProcess` directly from the storefront (client-side), it is recommended that these operations be executed from the backend (server-side), which would be more resilient and maintainable.
@@ -170,6 +173,7 @@ Common use cases of product personalization are:
 The personalization can be achieved by adding additional [`metadfields`](/api-reference/checkout/objects/checkout-line.mdx#metafields) fields to the [`CheckoutLine`](/api-reference/checkout/objects/checkout-line.mdx) object.
 
 With the following mutations:
+
 - [`checkoutLinesAdd`](/api-reference/checkout/mutations/checkout-lines-add.mdx)
 - [`checkoutLinesUpdate`](/api-reference/checkout/mutations/checkout-lines-update.mdx)
 
@@ -187,7 +191,6 @@ Additional steps might be required to process such fields in the fulfillment pro
 To set prices on checkout lines dynamically you can use the [`checkoutLinesUpdate`](/api-reference/checkout/inputs/checkout-line-update-input.mdx#price) mutation.
 See example [repository](https://github.com/saleor/saleor-app-checkout-prices) for creating custom pricing middleware.
 
-
 ## Using phone number instead as identity
 
 You can use a phone number instead of an email address to identify customers. While Saleor always requires email to create orders, you can use the `email` field as a phone number or other semantic meaning. For example: `123456789@noreply.yourcompany.com`. Make sure always to use **domain names you own**, to avoid leaking user data.
@@ -198,10 +201,10 @@ The checkout can be automatically completed once full payment is received when u
 
 For more details, read [here](/developer/payments/transactions.mdx#automatic-checkout-completion).
 
-
 ## Order approvals and quotes
 
 Example order approval flow:
+
 1. Customer places an order without payment
 2. Admin reviews the order and provides a final price in the form of a discount
 3. Customer pays the final price
@@ -213,7 +216,6 @@ To require manual approval of orders in the dashboard, set the [`automaticallyCo
 (can be set via the dashboard _Configuration -> Channel_).
 
 To arrange communication between flow between admin see Order related [`webhooks`](/api-reference/webhooks/enums/webhook-sample-event-type-enum.mdx).
-
 
 ## Subscriptions
 

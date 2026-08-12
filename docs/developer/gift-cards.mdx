@@ -23,6 +23,7 @@ Staff users with the `MANAGE_GIFT_CARD` permission can create gift cards directl
 ### Creating Gift Cards
 
 #### Single Gift Card Creation
+
 The following example shows how to create a single gift card. Once you provide the `userEmail` and configure the email plugin for the given channel, the gift card is sent to the customer, and the `SENT_TO_CUSTOMER` event is created. In this example, providing the `expiryDate` value will set the expiry date. If you want to create a non-expiring card, do not provide the `expiryDate` value.
 
 <Tabs>
@@ -102,8 +103,8 @@ mutation giftCardCreate($input: GiftCardCreateInput!) {
 </TabItem>
 </Tabs>
 
-
 #### Bulk Gift Card Creation
+
 Creating gift cards in bulk is similar, but you need to specify the number of gift cards to create and the tag value which will be assigned to all created gift cards.
 
 <Tabs>
@@ -176,13 +177,14 @@ mutation giftCardBulkCreate($input: GiftCardBulkCreateInput!) {
 </TabItem>
 </Tabs>
 
-
 After creation, you can export the gift card codes to CSV. Read more about [exporting gift cards](export/export-gift-cards).
 
 ### Managing Gift Cards
 
 #### Resending Gift Cards
+
 You can resend the gift card to the customer at any time after creation. If the `userEmail` is not provided, the card is sent to the customer who already used the card. If the card hasn't been used yet, it is sent to the customer who created it.
+
 <Tabs>
 <TabItem value="Mutation">
 ```graphql
@@ -204,7 +206,7 @@ mutation giftCardResend($input: GiftCardResendInput!) {
   }
 }
 
-```
+````
 </TabItem>
 
 <TabItem value={"Variables"}>
@@ -216,7 +218,8 @@ mutation giftCardResend($input: GiftCardResendInput!) {
     "email": "saleor@example.com"
   }
 }
-```
+````
+
 </TabItem>
 
 <TabItem value={"Result"}>
@@ -251,6 +254,7 @@ mutation giftCardResend($input: GiftCardResendInput!) {
 </Tabs>
 
 #### Updating Gift Cards
+
 After creation, the tag, expiry date, and balance amount can be updated.
 
 :::note
@@ -521,6 +525,7 @@ mutation giftCardBalanceAdjust($id: ID!, $amount: Decimal!) {
 </Tabs>
 
 #### Activating and Deactivating Gift Cards
+
 Cards can be activated and deactivated at any time, either individually or in bulk.
 
 <Tabs>
@@ -583,7 +588,6 @@ mutation giftCardDeactivate($id: ID!) {
 ```
 </TabItem>
 </Tabs>
-
 
 For bulk operations, use [`giftCardBulkActivate`](/api-reference/gift-cards/mutations/gift-card-bulk-activate.mdx) and [`giftCardBulkDeactivate`](/api-reference/gift-cards/mutations/gift-card-bulk-deactivate.mdx) mutations.
 
@@ -742,12 +746,14 @@ If you want to have an unlimited number of gift cards in your shop, you should c
 ### Gift Card Fulfillment Settings
 
 The `automaticallyFulfillNonShippableGiftCard` order setting controls when bought gift cards will be created:
+
 - If set to `True`: Gift card is created during checkout completion
 - If set to `False`: Gift card is created during order fulfillment
 
 ### Gift Card Expiry Settings
 
 Gift card settings can be configured to:
+
 - Never expire
 - Expire after a specific period
 
@@ -802,7 +808,6 @@ mutation giftCardSettingsUpdate($input: GiftCardSettingsUpdateInput!) {
 </TabItem>
 </Tabs>
 
-
 ## Gift Cards as payment method
 
 [Transaction API](/developer/payments/overview) allows you to use built-in payment gateway dedicated for consuming gift cards created in Saleor.
@@ -811,6 +816,7 @@ mutation giftCardSettingsUpdate($input: GiftCardSettingsUpdateInput!) {
 
 To use a gift card in a checkout, run the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize) mutation.
 Following payment gateway details must be included in mutation variables:
+
 ```json
 "paymentGateway": {
   "id": "saleor.io.gift-card-payment-gateway",
@@ -821,10 +827,11 @@ Following payment gateway details must be included in mutation variables:
 ```
 
 :::important
+
 - The channel currency must match the gift card currency.
 - The card can be used multiple times until the balance is depleted.
 - The card can be attached to only a single checkout at the time. Attaching gift card to another checkout will detach it from a previous checkout.
-:::
+  :::
 
 Example of using gift card to in a checkout. Notice `id` of payment gateway being set to `saleor.io.gift-card-payment-gateway`.
 
@@ -909,28 +916,36 @@ You can disable legacy use of Gift Cards in Checkout by unsetting `allowLegacyGi
 :::
 
 ### Applying Gift Cards
+
 To use a gift card in checkout, run the [`checkoutAddPromoCode`](/api-reference/checkout/mutations/checkout-add-promo-code) mutation with the gift card code.
 
 :::important
+
 - The channel currency must match the gift card currency
 - The card can be used multiple times until the balance is depleted
-:::
+  :::
 
 ### Tax Handling
+
 Gift cards are applied to the checkout total after tax calculation:
+
 1. First, Saleor calculates all taxes for the order
 2. Then, the gift card amount is subtracted from the gross total price
 3. The net amount and tax amount are adjusted proportionally
 
 ### Multiple Gift Cards
+
 When multiple gift cards are used:
+
 - Saleor will always try to use the full amount from each gift card
 - The system processes gift cards in the order they were added to the checkout
 - If the checkout total is less than the gift card amount, only the necessary portion will be used
 - The remaining balance stays on the gift card for future use
 
 ## Balance Changes
+
 Gift card balances are only updated after the order is completed:
+
 - Adding card to the checkout does not modify the card balance
 - Used amount will be deducted during checkout completion
 - If an order is cancelled, the gift card balance is not restored
@@ -938,11 +953,13 @@ Gift card balances are only updated after the order is completed:
   - If you used Transaction API for applying gift card you can also [refund](#refunding-charge-transactions) gift card transactions
 
 ## Returns and Refunds
+
 :::important
 Fulfilled gift cards cannot be returned or refunded. Once a gift card is fulfilled and sent to the customer, it cannot be reversed. This is because:
+
 - Gift cards are considered digital products
 - They can be used immediately after fulfillment
-:::
+  :::
 
 If a customer requests a return for a gift card product (i.e., the gift card code has not yet been used), you can handle the process manually:
 

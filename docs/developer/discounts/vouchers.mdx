@@ -1,7 +1,7 @@
 ---
 title: Vouchers
 sidebar_label: Vouchers
-description: Learn about voucher types, settings, usage limits, and how to create and manage vouchers in Saleor. 
+description: Learn about voucher types, settings, usage limits, and how to create and manage vouchers in Saleor.
 ---
 
 import Tabs from "@theme/Tabs";
@@ -32,12 +32,14 @@ Vouchers also have two value types:
 :::note
 **Vouchers vs Gift Cards**
 
-Vouchers discount the subtotal, unit price, or shipping based on their type and are scoped to channels. 
+Vouchers discount the subtotal, unit price, or shipping based on their type and are scoped to channels.
 Gift cards reduce the total price and are currency-based, usable across channels with the same currency.
 :::
 
 ## Voucher Settings
+
 ### Apply Once Per Order
+
 When the `Voucher.applyOncePerOrder` setting is enabled, the discount is applied only once per order, targeting the cheapest item.
 The discount affects a single unit, not the entire order line.
 
@@ -45,6 +47,7 @@ The discount affects a single unit, not the entire order line.
 - For **entire order vouchers**: applies to the cheapest item overall.
 
 ### Minimal Order Value
+
 Specifies the minimum checkout subtotal required for the voucher to be applicable.
 The value is defined per sales channel via `VoucherChannelListing.minSpent`.
 
@@ -53,38 +56,42 @@ If the subtotal does not meet this threshold, the voucher will not be applied.
 **Example:** If `minSpent` is set to 100.00, and the subtotal is 95.96 with 10.00 shipping (total 105.96), the voucher will not be applied.
 
 ### Minimal Items Quantity
-`Voucher.minCheckoutItemsQuantity` specifies the minimum number of products in the cart required to redeem the voucher. 
+
+`Voucher.minCheckoutItemsQuantity` specifies the minimum number of products in the cart required to redeem the voucher.
 This is based on the total quantity of items, not unique products.
 
 ### Limit Shipping Vouchers to Specific Countries
 
 `Voucher.countries` defines a list of countries where the shipping voucher can be applied.
+
 - If set, the voucher will only be valid for orders shipping to the specified countries.
 - If left empty, the voucher will be valid for all countries.
 
 **Example:**
+
 ```json
 {
   "countries": ["US", "CA", "GB"]
 }
 ```
+
 In this example, the voucher is only valid for shipments to the United States, Canada, and the United Kingdom.
 
-
 ## Usage Limits
-This section explains how to control how many times and by whom a voucher can be redeemed. 
-By default, vouchers have no usage limits and can be applied indefinitely. 
+
+This section explains how to control how many times and by whom a voucher can be redeemed.
+By default, vouchers have no usage limits and can be applied indefinitely.
 
 ### When Usage Is Counted
 
-Voucher usage is **deducted at the order level**, not when a code is applied in checkout.  
+Voucher usage is **deducted at the order level**, not when a code is applied in checkout.
 
-- Customers can apply vouchers to multiple checkouts or draft orders.  
-- The usage count is only increased once an order is successfully completed.  
-- For draft orders, you can decide whether they should be included in voucher usage tracking. See [Draft Order Usage](#draft-order-usage) for details.  
+- Customers can apply vouchers to multiple checkouts or draft orders.
+- The usage count is only increased once an order is successfully completed.
+- For draft orders, you can decide whether they should be included in voucher usage tracking. See [Draft Order Usage](#draft-order-usage) for details.
 - If a voucher has reached its usage limit:
-  - Checkouts or draft orders that already have the voucher applied will fail at **order completion**.  
-  - Attempts to apply the voucher to a new checkout or draft order will be rejected immediately.  
+  - Checkouts or draft orders that already have the voucher applied will fail at **order completion**.
+  - Attempts to apply the voucher to a new checkout or draft order will be rejected immediately.
 
 This ensures that incomplete or abandoned checkouts do not block other customers from redeeming the voucher, while preventing over-usage once the limit is reached.
 
@@ -95,7 +102,7 @@ Set **limit number of times this discount can be used in total** (`usageLimit`) 
 - Once this number is reached, the voucher can no longer be applied.
 - If the voucher includes multiple codes, the limit applies to the total combined usage of all codes.
 - The number of times the voucher has been used is shown in the `Voucher.used` field.
-- `Voucher.used` only counts usage if a limit was set. 
+- `Voucher.used` only counts usage if a limit was set.
 
 ### Limit to Use Once
 
@@ -108,6 +115,7 @@ Voucher `usageLimit` and `singleUse` must be set before the voucher is used. Onc
 :::
 
 ### Limit Per Customer
+
 Enable **limit to one use per customer** (`applyOncePerCustomer`) to allow each customer to use the voucher only once, even if the total usage limit hasn’t been reached.
 
 If the same customer tries to use the voucher again, it will be rejected — either when applying the code to a new checkout or at order completion.
@@ -119,7 +127,7 @@ Enable **limit to staff only** (`onlyForStaff`) to restrict voucher usage to int
 These vouchers will be rejected if applied by non-staff customers, even if all other conditions are met.
 
 :::warning
-You can enable or disable `applyOncePerCustomer` or `onlyForStaff` at any time. 
+You can enable or disable `applyOncePerCustomer` or `onlyForStaff` at any time.
 However, these settings do not apply retroactively - for example, if a customer used the voucher before `applyOncePerCustomer` was enabled, they may still be able to use it again.
 :::
 
@@ -130,6 +138,7 @@ You can combine different usage limits to control exactly how, how often, and by
 #### Total Usage Limit + Limit Per Customer
 
 **Setup:**
+
 - One voucher code
 - Total usage limit: 50
 - Limit to one use per customer: Enabled
@@ -141,6 +150,7 @@ The voucher can be used by up to 50 different customers, with each customer allo
 #### Total Usage Limit + Single-Use Codes
 
 **Setup:**
+
 - Generated 10 unique codes
 - Total usage limit: 10
 - Enable single use setting
@@ -152,6 +162,7 @@ The voucher campaign supports 10 redemptions total, each tied to a unique code. 
 #### Single-Use Codes + Staff-Only Voucher
 
 **Setup:**
+
 - Generate 20 unique codes
 - Enable single use setting
 - Enable Only for staff setting
@@ -162,11 +173,12 @@ Each code can be used once, and only by staff users. If a non-staff customer att
 
 ### Draft Order Usage
 
-By default, vouchers applied to draft orders do not count toward voucher usage limits. 
+By default, vouchers applied to draft orders do not count toward voucher usage limits.
 
 If you want draft orders to be included in voucher usage tracking, you can enable this behavior in the channel settings by setting the `includeDraftOrderInVoucherUsage` flag to `true` using the [`channelUpdate`](/api-reference/channels/mutations/channel-update.mdx) mutation.
 
 #### Changing the Flag
+
 When you toggle the `includeDraftOrderInVoucherUsage` setting, Saleor adjusts how vouchers are counted and linked to draft orders.
 
 **False → True**
@@ -179,8 +191,7 @@ All vouchers are disconnected from existing draft orders. This ensures a clean r
 - Single-use voucher codes: Become active again (`VoucherCode.isActive = true`).
 - Per-customer limits (`applyOncePerCustomer`): The usage will be dissociated from users.
 
-
-:::note 
+:::note
 When importing draft orders with [`bulkOrderCreate`](/developer/bulks/bulk-orders.mdx), vouchers aren't validated and usage isn't counted.
 :::
 
@@ -189,7 +200,6 @@ When importing draft orders with [`bulkOrderCreate`](/developer/bulks/bulk-order
 - Canceling an order: Does not release voucher code usage.
 - Order expiration: Releases voucher code usage.
 - Deleting a draft order: Releases voucher code usage when draft orders are included in usage tracking.
-
 
 ## Permissions
 
@@ -306,13 +316,13 @@ mutation voucherCreate($input: VoucherInput!) {
   }
 }
 ```
+
 </TabItem>
 </Tabs>
 
 :::info
 When a voucher contains multiple codes, `voucher.code` returns the first code.
 :::
-
 
 ### Updating a Voucher
 
@@ -427,6 +437,7 @@ mutation voucherUpdate($input: VoucherInput!) {
 To make a voucher applicable to specific products, you need to define which items should be eligible for the discount. This can be done by adding or removing products, categories, collections, or variants from the voucher's catalog. The catalog defines the scope of items that the voucher can be applied to.
 
 The `CatalogueInput` type is used to specify which items should be added to or removed from the voucher's catalog. It accepts the following fields:
+
 - `products`: List of product IDs to add/remove
 - `categories`: List of category IDs to add/remove
 - `collections`: List of collection IDs to add/remove
@@ -435,7 +446,8 @@ The `CatalogueInput` type is used to specify which items should be added to or r
 You can provide any combination of these fields in the input. When adding items, the voucher will apply to all specified items. When removing items, the voucher will no longer apply to the specified items.
 
 #### Add Products
-To add products, categories, collections, or variants to a voucher, use the [`voucherCataloguesAdd`](/api-reference/discounts/mutations/voucher-catalogues-add.mdx) mutation. 
+
+To add products, categories, collections, or variants to a voucher, use the [`voucherCataloguesAdd`](/api-reference/discounts/mutations/voucher-catalogues-add.mdx) mutation.
 This mutation allows you to specify which items the voucher should apply to.
 
 Here's an example of how to use the mutation:
@@ -507,8 +519,8 @@ mutation VoucherCataloguesAdd($id: ID!, $input: CatalogueInput!) {
 </Tabs>
 
 #### Remove Products
-To remove products, categories, collections, or variants from a voucher, use the [`voucherCataloguesRemove`](/api-reference/discounts/mutations/voucher-catalogues-remove.mdx) mutation. This mutation allows you to remove specific items from the voucher's catalog.
 
+To remove products, categories, collections, or variants from a voucher, use the [`voucherCataloguesRemove`](/api-reference/discounts/mutations/voucher-catalogues-remove.mdx) mutation. This mutation allows you to remove specific items from the voucher's catalog.
 
 Here's an example of how to use the mutation:
 

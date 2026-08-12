@@ -8,7 +8,6 @@ To follow a zero-downtime upgrade strategy to 3.23, **we recommend first migrati
 Otherwise, you will need to schedule downtime to ensure data migrations complete correctly.
 :::
 
-
 ## Changes in Webhook Emission for Instance Updates
 
 A new setting, `useLegacyUpdateWebhookEmission`, has been introduced in shop settings to control the behavior of update webhook emissions.
@@ -28,7 +27,6 @@ Disabling this setting prevents sending update webhooks when only metadata chang
 
 This setting applies to all mutations capable of triggering both `<object>Updated` and `<object>MetadataUpdated` webhooks.
 
-
 ## Dashboard extensions
 
 Since 3.22, Dashboard extension manifests are validated on the frontend. Installing apps directly via GraphQL is discouraged, as such apps may not work properly.
@@ -36,10 +34,11 @@ Since 3.22, Dashboard extension manifests are validated on the frontend. Install
 **For Cloud users:** You should not be affected by these changes.
 
 **For self-hosted:**
+
 - Ensure you use the latest matching Dashboard versions. Early Dashboard v3.22.x releases are not compatible with later Core 3.22 versions. Dashboard v3.23.x and Core v3.23.x are fully compatible.
 - Fields on type `AppExtension` and `AppExtensionManifest`: `mount`, `target`, and `options` have been removed. Use the fields `mountName`, `targetName`, and `settings` instead, which directly replace the old ones.
 - New fields are intended to be used by Dashboard only. Modifying them requires caution and may require frontend adjustments.
-- New fields are no longer strictly validated, which means installing an app extension *without* Dashboard can cause unexpected Dashboard behavior.
+- New fields are no longer strictly validated, which means installing an app extension _without_ Dashboard can cause unexpected Dashboard behavior.
 
 ## Explicit Delivery Options Calculation
 
@@ -55,15 +54,14 @@ Use the `CheckoutDelivery` ID (returned by `deliveryOptionsCalculate`) instead.
 
 Saleor 3.23 makes delivery options calculation explicit by introducing:
 
+- New mutation: [`deliveryOptionsCalculate`](/api-reference/shipping/mutations/delivery-options-calculate.mdx).
+  Returns a list of available deliveries for the checkout. Calling this mutation explicitly fires
+  `SHIPPING_LIST_METHODS_FOR_CHECKOUT` and `CHECKOUT_FILTER_SHIPPING_METHODS` webhooks.
+  The mutation replaces the deprecated fields: `checkout.shippingMethods` and `checkout.availableShippingMethods`.
 
-- New mutation: [`deliveryOptionsCalculate`](/api-reference/shipping/mutations/delivery-options-calculate.mdx). 
-Returns a list of available deliveries for the checkout. Calling this mutation explicitly fires 
-`SHIPPING_LIST_METHODS_FOR_CHECKOUT` and `CHECKOUT_FILTER_SHIPPING_METHODS` webhooks.
-The mutation replaces the deprecated fields: `checkout.shippingMethods` and `checkout.availableShippingMethods`.
-
-- New field: [`Checkout.delivery`](/api-reference/checkout/objects/checkout.mdx#delivery). 
-It represents the currently assigned delivery method. The field replaces the deprecated `checkout.deliveryMethod` 
-and `checkout.shippingMethod`.
+- New field: [`Checkout.delivery`](/api-reference/checkout/objects/checkout.mdx#delivery).
+  It represents the currently assigned delivery method. The field replaces the deprecated `checkout.deliveryMethod`
+  and `checkout.shippingMethod`.
 
 - New checkout problems:
   - [`CheckoutProblemDeliveryMethodStale`](/api-reference/checkout/objects/checkout-problem-delivery-method-stale.mdx) - the assigned delivery method needs recalculation (e.g. after a voucher change, address update, or line quantity change). Call `deliveryOptionsCalculate` to resolve.
@@ -78,7 +76,6 @@ Change `if(problem.line)` to `if(problem.__typename === "CheckoutLineProblemVari
 
 :::
 
-
 See [delivery method problems](/developer/checkout/problems.mdx#checkoutproblemdeliverymethodstale) for full handling guidance.
 
 - Deprecations introduced in 3.23:
@@ -88,18 +85,19 @@ See [delivery method problems](/developer/checkout/problems.mdx#checkoutproblemd
   - `checkout.shippingMethod` - use `checkout.delivery`
 
 :::warning
-Querying the deprecated fields (`shippingMethods`, `availableShippingMethods`, `deliveryMethod`, `shippingMethod`) 
-still works in 3.23, but these fields will be removed in a future release. Requesting these fields can implicitly 
+Querying the deprecated fields (`shippingMethods`, `availableShippingMethods`, `deliveryMethod`, `shippingMethod`)
+still works in 3.23, but these fields will be removed in a future release. Requesting these fields can implicitly
 trigger the `SHIPPING_LIST_METHODS_FOR_CHECKOUT`, `CHECKOUT_FILTER_SHIPPING_METHODS` webhooks.
 :::
 
 ### What Has Changed
 
 - In previous releases, fetching available shipping methods was implicitly done by requesting the shipping-related fields:
+
 ```graphql
 query GetCheckout($id: ID) {
   checkout(id: $id) {
-    availableShippingMethods{
+    availableShippingMethods {
       id
     }
     shippingMethods {
@@ -114,6 +112,7 @@ query GetCheckout($id: ID) {
   }
 }
 ```
+
 Starting from 3.23, there is a dedicated mutation `deliveryOptionsCalculate`, to fetch deliveries:
 
 ```graphql
@@ -137,12 +136,14 @@ mutation DeliveryOptionsCalculate($id: ID!) {
   }
 }
 ```
+
 #### Validating the Delivery Assigned to the Checkout
 
-In previous versions, Saleor was making the validation after each change on Checkout, 
-causing multiple webhooks called implicitly. This slows down the checkout process, by increasing the network traffic and costs. 
-Starting from 3.23, [Checkout.problems](/api-reference/checkout/objects/checkout.mdx#problems) can contain 
+In previous versions, Saleor was making the validation after each change on Checkout,
+causing multiple webhooks called implicitly. This slows down the checkout process, by increasing the network traffic and costs.
+Starting from 3.23, [Checkout.problems](/api-reference/checkout/objects/checkout.mdx#problems) can contain
 the problem: [CheckoutProblemDeliveryMethodStale](/api-reference/checkout/objects/checkout-problem-delivery-method-stale.mdx).
+
 ```graphql
 query Checkout($id: ID!) {
   checkout(id: $id) {
@@ -154,7 +155,8 @@ query Checkout($id: ID!) {
   }
 }
 ```
-The problem provides the information that mutation call: `deliveryOptionsCalculate` is needed to confirm that stale 
+
+The problem provides the information that mutation call: `deliveryOptionsCalculate` is needed to confirm that stale
 delivery method is still valid for the checkout. The storefront decides when to call `deliveryOptionsCalculate`.
 
 :::info
@@ -163,12 +165,11 @@ Calling `checkoutComplete` with existing `CheckoutProblemDeliveryMethodStale` wi
 
 :::
 
-
 #### Handling Invalid Delivery Assigned to the Checkout
 
-In previous versions, Saleor was implicitly removing the delivery method that was not valid anymore. 
+In previous versions, Saleor was implicitly removing the delivery method that was not valid anymore.
 In such case, the delivery-related fields were returning `null`.
-Starting from 3.23, the invalid delivery is represented by the new problem. The `checkout.delivery` field 
+Starting from 3.23, the invalid delivery is represented by the new problem. The `checkout.delivery` field
 returns the invalid delivery assigned by customer:
 
 ```graphql
@@ -185,6 +186,7 @@ query Checkout($id: ID!) {
   }
 }
 ```
+
 Saleor won't unassign it implicitly anymore. The storefront decides when to change the invalid delivery method.
 
 :::info
@@ -193,26 +195,25 @@ Calling `checkoutComplete` with existing `CheckoutProblemDeliveryMethodInvalid` 
 
 :::
 
-
 ### Migration steps
 
 - Replace fetching shipping methods:
-    - Instead of `checkout.shippingMethods`, `checkout.availableShippingMethods`, use the explicit mutation: `deliveryOptionsCalculate(id: <checkoutID>)`
+  - Instead of `checkout.shippingMethods`, `checkout.availableShippingMethods`, use the explicit mutation: `deliveryOptionsCalculate(id: <checkoutID>)`
 - Handling new checkout problems
-    - When `CheckoutProblemDeliveryMethodStale` appears in `checkout.problems`:
-        - The assigned shipping method is considered stale.
-        - To verify its applicability, call `deliveryOptionsCalculate`. Based on the response:
-            - If `CheckoutProblemDeliveryMethodStale` is removed from `checkout.problems`, the shipping method is still applicable.
-            - If `CheckoutProblemDeliveryMethodStale` is replaced with `CheckoutProblemDeliveryMethodInvalid`, the shipping method is no longer valid.
-    - When `CheckoutProblemDeliveryMethodInvalid` appears in `checkout.problems`:
-        - The assigned shipping method is not applicable.
-        - A new shipping method must be selected by calling `deliveryOptionsCalculate` to retrieve valid options.
-        - `checkoutDeliveryMethodUpdate` needs to be called to replace non-applicable shipping method.
+  - When `CheckoutProblemDeliveryMethodStale` appears in `checkout.problems`:
+    - The assigned shipping method is considered stale.
+    - To verify its applicability, call `deliveryOptionsCalculate`. Based on the response:
+      - If `CheckoutProblemDeliveryMethodStale` is removed from `checkout.problems`, the shipping method is still applicable.
+      - If `CheckoutProblemDeliveryMethodStale` is replaced with `CheckoutProblemDeliveryMethodInvalid`, the shipping method is no longer valid.
+  - When `CheckoutProblemDeliveryMethodInvalid` appears in `checkout.problems`:
+    - The assigned shipping method is not applicable.
+    - A new shipping method must be selected by calling `deliveryOptionsCalculate` to retrieve valid options.
+    - `checkoutDeliveryMethodUpdate` needs to be called to replace non-applicable shipping method.
 - Updating shipping method checks
-    - Replace usage of `checkout.deliveryMethod` or `checkout.shippingMethod` with `checkout.delivery`
-    - Replace conditions like `checkout.deliveryMethod == null` or `checkout.shippingMethod == null` with:
-        - Shipping is not applicable anymore: `checkout.problems` contains `CheckoutProblemDeliveryMethodInvalid`.
-        - Shipping has not been set: `checkout.delivery == null`.
+  - Replace usage of `checkout.deliveryMethod` or `checkout.shippingMethod` with `checkout.delivery`
+  - Replace conditions like `checkout.deliveryMethod == null` or `checkout.shippingMethod == null` with:
+    - Shipping is not applicable anymore: `checkout.problems` contains `CheckoutProblemDeliveryMethodInvalid`.
+    - Shipping has not been set: `checkout.delivery == null`.
 
 ## Removal of Legacy Digital Products Flow
 
@@ -232,9 +233,9 @@ If you were using the old digital content API:
    The following fields are deprecated and will be removed in v3.24.0:
 
    - `productTypes(filter: { productType: DIGITAL })` - instead, use metadata or
-      attributes to represent and filter digital product types.
+     attributes to represent and filter digital product types.
    - `productTypes(sortBy: { field: DIGITAL })` - instead, use
-      `sortBy: { field: SHIPPING_REQUIRED }`.
+     `sortBy: { field: SHIPPING_REQUIRED }`.
 
 3. Migrate to the official supported solution by [following the official guide](/recipes/digital-products)
 
@@ -256,7 +257,7 @@ If you were using the old digital content API:
 
   1. (Recommended) Do nothing and accept the new default (`noopener noreferrer`)
   2. Or, set the environment variable `EDITOR_JS_LINK_REL` to an empty value
-    (e.g., `export EDITOR_JS_LINK_REL=`) to retain the previous behavior
+     (e.g., `export EDITOR_JS_LINK_REL=`) to retain the previous behavior
 
 - **[`UNSAFE_EDITOR_JS_ALLOWED_URL_SCHEMES`]**: this setting has been removed. It is
   no longer possible to extend the list of allowed URL schemes via configuration.
@@ -281,8 +282,6 @@ If you only use Saleor Dashboard to edit rich-text descriptions, then nothing ne
 - [`@editor-js/image`](https://www.npmjs.com/package/@editorjs/image)
 
 Any other extension is unsupported and will lead to parsing errors when running mutations such as `productUpdate()`. If you need support for additional extensions, open a request: https://github.com/saleor/saleor/issues
-
-
 
 ## Asynchronous Image Fetching for Product Media
 
@@ -398,7 +397,6 @@ This is a **breaking change**: `channelCreate` and `channelUpdate` mutations now
 The `AppInstallInput` type now requires both `appName` and `manifestUrl` fields in the schema.
 If you call app installation mutations, ensure you always provide both `appName` and `manifestUrl`. Requests missing either field will now fail with a schema validation error.
 
-
 ## Gift Card Payment Support via Transaction API
 
 Gift cards can now be used as a payment method through the Transaction API using a built-in payment gateway (`saleor.io.gift-card-payment-gateway`). This allows applying gift card balances during checkout via `transactionInitialize`.
@@ -433,13 +431,14 @@ With the new default behavior, shipping zones and the customer's address are no 
 
 ### Migration steps
 
-1. **Remove `address` argument from stock availability queries.** The `address` argument on the following fields 
+1. **Remove `address` argument from stock availability queries.** The `address` argument on the following fields
    is deprecated and ignored:
    - `Product.isAvailable(address:)`
    - `ProductVariant.quantityAvailable(address:)`
    - `ProductVariant.stocks(address:)`
 
 2. **Disable legacy shipping zone filtering.** Once the above steps are complete, switch to the new behavior:
+
    ```graphql
    mutation {
      shopSettingsUpdate(
@@ -474,17 +473,17 @@ With the new default behavior, shipping zones and the customer's address are no 
          targetUrl: "https://example.com/webhooks/out-of-stock"
          asyncEvents: [PRODUCT_VARIANT_OUT_OF_STOCK_IN_CHANNEL]
          query: """
-           subscription {
-             productVariantOutOfStockInChannel(channels: ["uk", "us"]) {
-               productVariant {
-                 id
-                 sku
-               }
-               channel {
-                 slug
-               }
+         subscription {
+           productVariantOutOfStockInChannel(channels: ["uk", "us"]) {
+             productVariant {
+               id
+               sku
+             }
+             channel {
+               slug
              }
            }
+         }
          """
          isActive: true
        }
@@ -519,11 +518,9 @@ Apps no longer need `MANAGE_APPS` to subscribe to their own lifecycle events. Th
 
 See the new guide: [Subscribing to App Lifecycle Webhooks](/developer/extending/apps/developing-apps/apps-patterns/app-lifecycle-webhooks.mdx).
 
-
-## Deprecations 
+## Deprecations
 
 Deprecated fields will be removed in next versions. To make future upgrades easier, we recommend to remove deprecated fields as soon as possible.
-
 
 ### Deprecation of `hasVariants` on `ProductType`
 
@@ -540,4 +537,3 @@ To export these entities, use standard GraphQL queries.
 
 The `voucher` field on `DraftOrderInput` and `DraftOrderCreateInput` is deprecated.
 Use the `voucherCode` field instead when creating or updating draft orders.
-

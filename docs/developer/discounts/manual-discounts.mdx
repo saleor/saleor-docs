@@ -7,24 +7,27 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
 ## Introduction
+
 Manual discounts can be applied by staff users to orders with `DRAFT` or `UNCONFIRMED` status.
-The discount can be applied to the order to decrease its subtotal and shipping price (manual order discount), 
-or to the order line to reduce its unit price (manual line discount). 
+The discount can be applied to the order to decrease its subtotal and shipping price (manual order discount),
+or to the order line to reduce its unit price (manual line discount).
 These discounts are not combined with other discounts associated with the same object (order or line).
 Manual discount takes precedence and overrides any existing ones.
 
 ### Manual line discount
+
 The manual line discount can be applied with [`orderLineDiscountUpdate`](/api-reference/orders/mutations/order-line-discount-update.mdx) mutation.
-This discount reduces the unit price of the order line. The calculation is based on the undiscounted unit price, 
+This discount reduces the unit price of the order line. The calculation is based on the undiscounted unit price,
 which means that any other unit price reductions, such as catalogue promotions or specific product vouchers, will be overridden.
 If the discount exceeds undiscounted unit price, it is set to 0 and don't have an impact on other lines.
 
 #### Example
 
 We have draft order with total price of **$150**, of which:
-* **line 1** with quantity **2**, unit price **$50** and total **$100**
-* **line 2** with quantity **1**, unit price **$30** and total **$30**
-* shipping price **$20**
+
+- **line 1** with quantity **2**, unit price **$50** and total **$100**
+- **line 2** with quantity **1**, unit price **$30** and total **$30**
+- shipping price **$20**
 
 Let's apply **20%** manual line discount to the **line 1**:
 
@@ -184,19 +187,20 @@ As a result, the discount reduced line 1 unit price from 50$ to 40$.
 For more complex cases, please check [Examples](/developer/discounts/examples.mdx) section.
 
 ### Manual order discount
+
 The manual order discount can be applied with [`orderDiscountAdd`](/api-reference/orders/mutations/order-discount-add.mdx) mutation.
 It impacts both the subtotal and shipping price. If the fixed value is provided, Saleor proportionally computes the subtotal and shipping portion.
-When the order qualifies for an order promotion or has an entire order voucher applied, 
-the manual order discount takes precedence and overrides them. It's important to note that the discount is calculated based on [base subtotal](/developer/price-calculation.mdx#discount-application) 
-and [base shipping](/developer/price-calculation.mdx#discount-application) prices, meaning [line-level](/developer/discounts/overview.mdx#level) discounts are not overridden. 
-
+When the order qualifies for an order promotion or has an entire order voucher applied,
+the manual order discount takes precedence and overrides them. It's important to note that the discount is calculated based on [base subtotal](/developer/price-calculation.mdx#discount-application)
+and [base shipping](/developer/price-calculation.mdx#discount-application) prices, meaning [line-level](/developer/discounts/overview.mdx#level) discounts are not overridden.
 
 #### Example
 
 We have draft order with total price of **$150**, of which:
-* **line 1** with quantity **2**, unit price **$50** and total **$100**
-* **line 2** with quantity **1**, unit price **$30** and total **$30**
-* shipping price **$20**
+
+- **line 1** with quantity **2**, unit price **$50** and total **$100**
+- **line 2** with quantity **1**, unit price **$30** and total **$30**
+- shipping price **$20**
 
 Let's apply **$15** manual order discount to the order:
 
@@ -361,18 +365,15 @@ mutation OrderDiscountAdd($id: ID!, $input: OrderDiscountCommonInput!) {
 </TabItem>
 </Tabs>
 
-
-
-As a result the order's total was reduced by **$15**. Since base shipping price accounts for 13.33% ($20 / $150) of base total, the shipping price was reduced by *$2* (20 / 150 * 15).
+As a result the order's total was reduced by **$15**. Since base shipping price accounts for 13.33% ($20 / $150) of base total, the shipping price was reduced by _$2_ (20 / 150 _ 15).
 The rest of the discount, **$13** was applied to the subtotal and next propagated to the line prices. Since the first line accounts for 77% ($100 / $130) of subtotal,
-its price was discounted by $10 (100 / 130 * 13).
+its price was discounted by $10 (100 / 130 _ 13).
 
 For more complex cases, please check [Examples](/developer/discounts/examples.mdx) section.
-
 
 ### Manual discounts with vouchers
 
 Manual discounts take precedence over vouchers, overriding them when applied. However, this does not entirely dissociate the voucher from the order.
-For example, if the manual discount is removed, the system will reevaluate the voucher and attempt to reapply it based on the latest conditions. 
+For example, if the manual discount is removed, the system will reevaluate the voucher and attempt to reapply it based on the latest conditions.
 If the voucher has been deleted in the meantime, it will not be applied.
 Note that if the voucher has a [usage limit](/developer/discounts/vouchers.mdx#usage-limits) and is overridden by a manual discount, the usage count for the voucher remains unaffected.

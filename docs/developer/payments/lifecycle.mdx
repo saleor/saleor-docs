@@ -3,7 +3,7 @@ title: Lifecycle
 sidebar_label: Lifecycle
 ---
 
-## Payment status on Order 
+## Payment status on Order
 
 ```mermaid
 stateDiagram-v2
@@ -78,6 +78,7 @@ stateDiagram-v2
 ### Authorization status calculation for Checkout
 
 [`Checkout.authorizeStatus`](/api-reference/checkout/objects/checkout.mdx#authorize-status) depends on:
+
 - sum of charged transactions (`TransactionItem.chargedAmount`)
 - sum of transactions with pending charge (`TransactionItem.chargePendingAmount`)
 - sum of a authorized transactions (`TransactionItem.authorizedAmount`)
@@ -144,6 +145,7 @@ AuthorizationStatus = Charged + Authorized
 The status is calculated based on summing up all transactions assigned to the `Order` (`authorizedAmount` and `chargedAmount` on each `TransactionItem`) and by comparing it with the difference between [`total`](/api-reference/orders/objects/order.mdx#total) and [`totalGrantedRefund`](/api-reference/orders/objects/order.mdx#total-granted-refund).
 
 It uses a formula:
+
 ```
 AmountToCover = order.total - order.totalGrantedRefund
 CoveredAmount = sum(order.transactions.chargedAmount) + sum(order.transactions.authorizedAmount)
@@ -222,6 +224,7 @@ Based on that calculation `Order.chargeStatus` can have following values:
 ### Charge status calculations for Checkout
 
 [`Checkout.chargeStatus`](/api-reference/checkout/objects/checkout.mdx#charge-status) depends on:
+
 - sum of **charged** transactions (`TransactionItem.chargedAmount`)
 - sum of transactions with **pending charge** (`TransactionItem.chargePendingAmount`)
 - `checkout.totalPrice` value
@@ -241,12 +244,12 @@ Based on that calculation `Checkout.chargeStatus` can have the following values:
 - **PARTIAL**: The charged funds do not fully cover the checkout's total amount (`AmountToCover > CoveredAmount`).
 - **FULL**: The charged funds fully cover the checkout's total. (`AmountToCover == CoveredAmount`)
   - At this point,
-the `CHECKOUT_FULLY_PAID` webhook event is sent, and `checkoutComplete` can be called
-to convert the checkout into an order.
+    the `CHECKOUT_FULLY_PAID` webhook event is sent, and `checkoutComplete` can be called
+    to convert the checkout into an order.
 - **OVERCHARGED**: The charged funds exceed the checkout's total. (`CoveredAmount > AmountToCover`)
   - In this case,
-the `CHECKOUT_FULLY_PAID` webhook event is sent as well, and `checkoutComplete`
-can still be called to convert the checkout into an order.
+    the `CHECKOUT_FULLY_PAID` webhook event is sent as well, and `checkoutComplete`
+    can still be called to convert the checkout into an order.
 
 :::caution
 When the checkout `chargeStatus` is either `FULL` or `OVERCHARGED`, the `authorizeStatus`
@@ -261,7 +264,6 @@ it may still remain unpaid if the pending amounts fail to process.
 - Status is updated when Checkout's `totalAmount` is changed.
 - Status is updated when Checkout's `TransactionItem`'s amounts are updated.
 
-
 ## Transactions recalculation of amounts
 
 ### Mental model
@@ -273,10 +275,12 @@ History cannot be modified, just like in a bank account. In order to reverse an 
 ### Order of events
 
 New events can be reported to Saleor in non-subsequent order. This means that some old event might arrive later than a new one. For example:
+
 - on 10 AM Saleor receives `CHARGE_SUCCESS` event from payment app that was processed at 9:50 AM by payment provider
 - on 10:20 AM Saleor receives `AUTHORIZATION_SUCCESS` event, that was process at 9:30 AM by payment provider.
 
 This will result in a following list of events:
+
 - `AUTHORIZATION_SUCCESS` with `date: 9:30 AM`
 - `CHARGE_SUCCESS` with `date: 9:50 AM`
 
@@ -285,6 +289,7 @@ This will result in a following list of events:
 #### Automatic events
 
 Events are created automatically by Saleor when calling `transactionInitialize` mutation. It creates either:
+
 - `AUTHORIZATION_REQUEST` when `action` in mutation input or `channel.transactionFlowStrategy` is `AUTHORIZATION`
 - or `CHARGE_REQUEST` when `action` in mutation input or `channel.transactionFlowStrategy` is `CHARGE`
 
@@ -293,6 +298,7 @@ Events are also created when requesting action in Saleor (refund, charge, cancel
 Such events don't have initially any `pspReference`, it's filled in once Saleor receives a response from payment app.
 
 Saleor also creates automatically `_FAILURE` events when an exception happens:
+
 - when handling `transactionEventReport` mutation
 - when handling incorrect response from [sync webhook sent to payment app](/developer/extending/webhooks/synchronous-events/transaction.mdx) (e.g. app didn't respond in 20s, returned JSON is invalid, etc.)
 
@@ -306,6 +312,7 @@ Events are also created by a payment app that processes the payment:
 
 :::info
 Instead of creating new event, Saleor will update existing event's missing `pspReference` field when:
+
 - Event without `pspReference` already exists, because it was automatically created by Saleor after calling `transactionInitialize` or `transactionProcess` mutation
 - Response from `TRANSACTION_INITIALIZE_SESSION` or `TRANSACTION_PROCESS_SESSION` has the same `type` as that initial event
 
@@ -314,6 +321,7 @@ When updating event `createdAt` field won't be changed.
 
 :::note
 It can look like this:
+
 1. User requests payment by calling `transactionInitialize` mutation - Saleor immediately created new `CHARGE_REQUESTED` event
 2. App sends response from `TRANSACTION_INITIALIZE_SESSION` webhook with `type`: `CHARGE_ACTION_REQUIRED`
 3. User completes the action and calls `transactionProcess`
@@ -321,9 +329,11 @@ It can look like this:
 5. Saleor instead of creating new event, updates existing event `CHARGE_REQUESTED` with received `pspReference`
 
 Note that this will result in events order as follows:
+
 1. `CHARGE_REQUESTED` with updated `pspReference` (updated events don't get their `createdAt` field modified)
 2. `CHARGE_ACTION_REQUIRED`
-:::
+   :::
+
 - When [`transactionEventReport` mutation is called](/developer/payments/transactions.mdx#reporting-actions-for-transactions) (usually happens when payment provider sends asynchronous webhook)
 
 :::tip
@@ -351,7 +361,6 @@ Each event can be excluded from calculation if it has matching `*_FAILURE` event
 - `refundPendingAmount` - sum of `REFUND_REQUEST` event amounts
 - `canceledAmount` - sum of `CANCEL_SUCCESS` event amounts
 - `cancelPendingAmount` - sum of `CANCEL_REQUEST` event amounts
-
 
 :::note
 `AUTHORIZATION_ACTION_REQUIRED`, `CHARGE_ACTION_REQUIRED`, and `INFO` event types are not included in amount calculations.
@@ -381,12 +390,14 @@ Saleor Transaction model **is not a state machine**. This allows great flexibili
 However this also means that we do not forbid changes on Transactions that might be seen as invalid by your business use-case, such validation is on the Payment App side.
 
 For example:
+
 - Available `actions` on `TransactionItem` (list of `REFUND`, `CHARGE`, `CANCEL`) are honored by Saleor Dashboard, but are not rejected once `transactionRequestAction` is requested via API - such request is sent to payment app
 - Transaction might receive `CANCEL_SUCCESS` event even though it had `CHARGE_SUCCESS` reported (in such case to lower `chargedAmount` app would need to report `REFUND_SUCCESS` event).
 
 #### Existing validation
 
 With that in mind, Saleor prohibits following changes, that would otherwise cause incorrect internal calculations:
+
 - Multiple `AUTHORIZATION_SUCCESS` events with different either `pspReference` or `amount`
   - Saleor will throw an exception: "Event with `AUTHORIZATION_SUCCESS` already reported for the transaction. Use `AUTHORIZATION_ADJUSTMENT` to change the authorization amount."
 
@@ -410,7 +421,6 @@ If there was a new payment made (e.g. outside of Saleor flow), instead of report
 :::tip
 **Fix**: Previous event must be invalidated via `_FAILURE` event, then report `_SUCCESS` event again, new `_SUCCESS` event must have **different pspReference**.
 :::
-
 
 ### Examples
 
@@ -576,7 +586,6 @@ be used to provide the history of `transactionItem` actions.
 The provided `amount` will be used to reduce `transaction.chargedAmount`
 (`transaction.chargedAmount -= amount`).
 
-
 #### `CHARGE_ACTION_REQUIRED`
 
 Indicates that additional action is required from the customer to finalize the payment.
@@ -660,6 +669,7 @@ The chart below illustrates the possible sequence of events that can follow one 
 Failure to adhere to these guidelines may result in negative values and data inconsistencies.
 
 - Transaction flow strategy: `Authorization`
+
 ```mermaid
 stateDiagram-v2
  direction LR
@@ -675,6 +685,7 @@ stateDiagram-v2
 ```
 
 - Transaction flow strategy: `Charge`
+
 ```mermaid
 stateDiagram-v2
  direction LR

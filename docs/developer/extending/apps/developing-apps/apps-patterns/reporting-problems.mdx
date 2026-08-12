@@ -186,13 +186,7 @@ App callers use the `byApp` input to dismiss their own problems. Exactly one of 
 
 ```graphql
 mutation {
-  appProblemDismiss(
-    input: {
-      byApp: {
-        ids: ["QXBwUHJvYmxlbTox"]
-      }
-    }
-  ) {
+  appProblemDismiss(input: { byApp: { ids: ["QXBwUHJvYmxlbTox"] } }) {
     errors {
       field
       message
@@ -206,13 +200,7 @@ mutation {
 
 ```graphql
 mutation {
-  appProblemDismiss(
-    input: {
-      byApp: {
-        keys: ["warehouse-api-health"]
-      }
-    }
-  ) {
+  appProblemDismiss(input: { byApp: { keys: ["warehouse-api-health"] } }) {
     errors {
       field
       message
@@ -236,13 +224,7 @@ Staff users with `MANAGE_APPS` permission can dismiss problems using `byStaffWit
 
 ```graphql
 mutation {
-  appProblemDismiss(
-    input: {
-      byStaffWithIds: {
-        ids: ["QXBwUHJvYmxlbTox"]
-      }
-    }
-  ) {
+  appProblemDismiss(input: { byStaffWithIds: { ids: ["QXBwUHJvYmxlbTox"] } }) {
     errors {
       field
       message
@@ -258,10 +240,7 @@ mutation {
 mutation {
   appProblemDismiss(
     input: {
-      byStaffWithKeys: {
-        keys: ["warehouse-api-health"]
-        app: "QXBwOjE="
-      }
+      byStaffWithKeys: { keys: ["warehouse-api-health"], app: "QXBwOjE=" }
     }
   ) {
     errors {
@@ -275,11 +254,11 @@ mutation {
 
 ### Caller restrictions
 
-| Input              | Who can use it | `ids`                           | `keys`                          | `app` field        |
-| ------------------ | -------------- | ------------------------------- | ------------------------------- | ------------------ |
-| `byApp`            | App only       | Dismiss own problems by ID      | Dismiss own problems by key     | Not applicable     |
-| `byStaffWithIds`   | Staff only     | Dismiss by ID (app is inferred) | —                               | Not applicable     |
-| `byStaffWithKeys`  | Staff only     | —                               | Dismiss by key for a given app  | Required           |
+| Input             | Who can use it | `ids`                           | `keys`                         | `app` field    |
+| ----------------- | -------------- | ------------------------------- | ------------------------------ | -------------- |
+| `byApp`           | App only       | Dismiss own problems by ID      | Dismiss own problems by key    | Not applicable |
+| `byStaffWithIds`  | Staff only     | Dismiss by ID (app is inferred) | —                              | Not applicable |
+| `byStaffWithKeys` | Staff only     | —                               | Dismiss by key for a given app | Required       |
 
 Staff users need the `MANAGE_APPS` permission and can only dismiss problems for apps within their permission scope. Each list (`ids` or `keys`) is limited to 100 items per call.
 
@@ -317,26 +296,26 @@ Problems are ordered by `createdAt` descending (newest first).
 
 ### AppProblem fields
 
-| Field        | Type                    | Description                                                                           |
-| ------------ | ----------------------- | ------------------------------------------------------------------------------------- |
-| `id`         | `ID!`                   | Unique identifier.                                                                    |
-| `message`    | `String!`               | Human-readable problem description. Updated on aggregation.                           |
-| `key`        | `String!`               | Identifier for the type of problem.                                                   |
-| `count`      | `Int!`                  | Number of occurrences (incremented on aggregation).                                   |
-| `isCritical` | `Boolean!`              | Whether the problem reached the critical threshold.                                   |
-| `dismissed`  | `AppProblemDismissed`   | Dismissal information. `null` if the problem has not been dismissed.                  |
-| `createdAt`  | `DateTime!`             | When the problem was first created.                                                   |
-| `updatedAt`  | `DateTime!`             | When the problem was last updated (reset on each aggregation).                        |
+| Field        | Type                  | Description                                                          |
+| ------------ | --------------------- | -------------------------------------------------------------------- |
+| `id`         | `ID!`                 | Unique identifier.                                                   |
+| `message`    | `String!`             | Human-readable problem description. Updated on aggregation.          |
+| `key`        | `String!`             | Identifier for the type of problem.                                  |
+| `count`      | `Int!`                | Number of occurrences (incremented on aggregation).                  |
+| `isCritical` | `Boolean!`            | Whether the problem reached the critical threshold.                  |
+| `dismissed`  | `AppProblemDismissed` | Dismissal information. `null` if the problem has not been dismissed. |
+| `createdAt`  | `DateTime!`           | When the problem was first created.                                  |
+| `updatedAt`  | `DateTime!`           | When the problem was last updated (reset on each aggregation).       |
 
 ### AppProblemDismissed fields
 
 The `dismissed` field returns an object with dismissal details when the problem has been dismissed, or `null` otherwise.
 
-| Field       | Type                         | Description                                                                                    |
-| ----------- | ---------------------------- | ---------------------------------------------------------------------------------------------- |
-| `by`        | `AppProblemDismissedByEnum!` | Whether dismissed by `APP` or `USER`.                                                          |
+| Field       | Type                         | Description                                                                                                                       |
+| ----------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `by`        | `AppProblemDismissedByEnum!` | Whether dismissed by `APP` or `USER`.                                                                                             |
 | `user`      | `User`                       | The user who dismissed the problem. `null` if dismissed by an app or if the user was deleted. Requires `MANAGE_STAFF` permission. |
-| `userEmail` | `String`                     | Email of the user who dismissed the problem. Preserved even if the user is deleted. Requires `AUTHENTICATED_STAFF_USER`. |
+| `userEmail` | `String`                     | Email of the user who dismissed the problem. Preserved even if the user is deleted. Requires `AUTHENTICATED_STAFF_USER`.          |
 
 ## Clearing problems on recovery
 
@@ -344,13 +323,7 @@ When the underlying issue is resolved, your app should dismiss the related probl
 
 ```graphql
 mutation {
-  appProblemDismiss(
-    input: {
-      byApp: {
-        keys: ["payment-gateway-health"]
-      }
-    }
-  ) {
+  appProblemDismiss(input: { byApp: { keys: ["payment-gateway-health"] } }) {
     errors {
       field
       message
@@ -395,11 +368,7 @@ mutation {
 # When the gateway recovers:
 mutation {
   appProblemDismiss(
-    input: {
-      byApp: {
-        keys: ["payment-gateway-connectivity"]
-      }
-    }
+    input: { byApp: { keys: ["payment-gateway-connectivity"] } }
   ) {
     errors {
       field
@@ -508,10 +477,10 @@ If you want finer control, dismiss problems proactively using `appProblemDismiss
 
 ## Permissions
 
-| Operation           | Required permission                        | Notes                                                                  |
-| ------------------- | ------------------------------------------ | ---------------------------------------------------------------------- |
-| `appProblemCreate`  | `AUTHENTICATED_APP`                        | Only the app itself can create its own problems.                       |
-| `appProblemDismiss` | `AUTHENTICATED_APP` or `MANAGE_APPS`       | Apps dismiss their own. Staff can dismiss for managed apps.            |
-| Querying `problems` | `AUTHENTICATED_APP` or `MANAGE_APPS`       | Available on the `App` type with appropriate permissions.              |
-| `dismissed.user`    | `MANAGE_STAFF`                             | Viewing which user dismissed a problem requires staff permission.      |
-| `dismissed.userEmail` | `AUTHENTICATED_STAFF_USER`               | Only accessible to authenticated staff users; apps receive a permission error. |
+| Operation             | Required permission                  | Notes                                                                          |
+| --------------------- | ------------------------------------ | ------------------------------------------------------------------------------ |
+| `appProblemCreate`    | `AUTHENTICATED_APP`                  | Only the app itself can create its own problems.                               |
+| `appProblemDismiss`   | `AUTHENTICATED_APP` or `MANAGE_APPS` | Apps dismiss their own. Staff can dismiss for managed apps.                    |
+| Querying `problems`   | `AUTHENTICATED_APP` or `MANAGE_APPS` | Available on the `App` type with appropriate permissions.                      |
+| `dismissed.user`      | `MANAGE_STAFF`                       | Viewing which user dismissed a problem requires staff permission.              |
+| `dismissed.userEmail` | `AUTHENTICATED_STAFF_USER`           | Only accessible to authenticated staff users; apps receive a permission error. |

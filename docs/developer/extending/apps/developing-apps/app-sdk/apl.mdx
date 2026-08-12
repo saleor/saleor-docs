@@ -45,7 +45,6 @@ export interface AuthData {
 
 - `isConfigured?: () => Promise<AplConfiguredResult>` - Optional: Check if the persistence layer behind APL is configured. For example, when an env variable is required by the database connection.
 
-
 ## AplReadyResult & AplConfiguredResult
 
 Responses from `isReady()` and `isConfigured()` should match following:
@@ -105,7 +104,7 @@ const redisAPL: APL = {
   set: async (authData: AuthData) => {
     await client.set(
       prepareAuthDataKey(authData.saleorApiUrl),
-      JSON.stringify(authData)
+      JSON.stringify(authData),
     );
   },
   delete: async (saleorApiUrl: string) => {
@@ -280,7 +279,6 @@ Keep in mind that:
 - If you promote the environment, you need to update `saleorApiUrl`
 - If you reinstall the app, you need to repeat the process to receive a new token and ID
 
-
 ### VercelKvApl
 
 > Introduced in app-sdk 0.51.0
@@ -298,7 +296,7 @@ todo
 ```typescript
 import { VercelKvApl } from "@saleor/app-sdk/APL/vercel-kv";
 
-export const apl = new VercelKvApl()
+export const apl = new VercelKvApl();
 ```
 
 3: Set environment variables
@@ -321,14 +319,13 @@ RedisAPL requires `redis` client to be installed.
 Similar to VercelKV (which is Redis too), all data is stored in the hash collection. You can provide a custom key for the collection in the constructor
 
 ```typescript
-import { createClient } from 'redis';
-import { RedisAPL } from '@saleor/app-sdk/APL/redis';
+import { createClient } from "redis";
+import { RedisAPL } from "@saleor/app-sdk/APL/redis";
 
 const apl = new RedisAPL({
   client: createClient(),
-  hashCollectionKey: 'my-key', // optional, by default "saleor_app_auth"
+  hashCollectionKey: "my-key", // optional, by default "saleor_app_auth"
 });
-
 ```
 
 See Redis documentation for more details on how to set up the client.
@@ -353,17 +350,18 @@ And create an instance:
 
 ```typescript
 export const apk = DynamoAPL.create({
-      // Standard AWS SDK env variables, but you can provide your own mapping
-      env: {
-        APL_TABLE_NAME: process.env.DYNAMODB_MAIN_TABLE_NAME,
-        AWS_REGION: process.env.AWS_REGION,
-        AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-        AWS_SECRET_ACCESS_KEY: processenv.AWS_SECRET_ACCESS_KEY,
-      },
-      // DynamoDB-Toolbox Table instance.
-      table: dynamoMainTable,
-    });
+  // Standard AWS SDK env variables, but you can provide your own mapping
+  env: {
+    APL_TABLE_NAME: process.env.DYNAMODB_MAIN_TABLE_NAME,
+    AWS_REGION: process.env.AWS_REGION,
+    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY: processenv.AWS_SECRET_ACCESS_KEY,
+  },
+  // DynamoDB-Toolbox Table instance.
+  table: dynamoMainTable,
+});
 ```
+
 You must ensure the Table contains `PK` and `SK` attributes of type string
 
 ```typescript
@@ -373,17 +371,16 @@ type PartitionKey = { name: "PK"; type: "string" };
 type SortKey = { name: "SK"; type: "string" };
 
 const table = new Table<PartitionKey, SortKey>({
-      partitionKey: { name: "PK", type: "string" },
-      sortKey: {
-        name: "SK",
-        type: "string",
-      },
-      // ... rest of attributes required by Table
-})
+  partitionKey: { name: "PK", type: "string" },
+  sortKey: {
+    name: "SK",
+    type: "string",
+  },
+  // ... rest of attributes required by Table
+});
 ```
 
 Note that this APL exposes `create` factory method, that is easier to use, providing only envs and table instance. There is also `constructor` but it requires more low-level setup, which is not recommended.
-
 
 ### SaleorCloudAPL (private & deprecated)
 

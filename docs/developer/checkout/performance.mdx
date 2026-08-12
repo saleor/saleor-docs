@@ -12,13 +12,13 @@ the app is called every time taxes [need to be recalculated](/developer/extendin
 
 :::warning
 Since **Saleor 3.21**, the following queries will return prices stored in the database:
- - `checkouts(...)`
- - `me.checkouts(...)`
- - `checkoutLines(...)`
+
+- `checkouts(...)`
+- `me.checkouts(...)`
+- `checkoutLines(...)`
 
 These queries **will not** make external API calls for tax recalculation.
 :::
-
 
 You may see mutations like `checkoutLineAdd` or `checkoutShippingMethodUpdate` being slow,
 just like the queries that require prices affected by taxes (see [TaxedMoney](/api-reference/miscellaneous/objects/taxed-money)).
@@ -26,6 +26,7 @@ just like the queries that require prices affected by taxes (see [TaxedMoney](/a
 To improve checkout (or order - it can be used in the same way) performance, you can optimize your storefront to avoid recalculating taxes when possible.
 
 Example patterns:
+
 - When calling `checkoutLineAdd` do not require entire checkout in the response. Check for `errors` and assume mutation succeeds if there are none.
 - If storefront doesn't show gross prices (they are calculated after shipping is provided), do not require gross price. Use net prices or catalog prices instead.
 
@@ -76,6 +77,7 @@ sequenceDiagram
 #### Eager mutations
 
 Following Order mutations are eager:
+
 - [draftOrderComplete](/api-reference/orders/mutations/draft-order-complete.mdx)
 - [orderDiscountAdd](/api-reference/orders/mutations/order-discount-add.mdx)
 - [orderDiscountUpdate](/api-reference/orders/mutations/order-discount-update.mdx)
@@ -93,12 +95,14 @@ It takes at least one field to trigger recalculation.
 These fields are:
 
 **For Checkout**
+
 - `totalPrice`, `subtotalPrice`
 - `shippingPrice`
 - lines `totalPrice`
 - lines `unitPrice`
 
 **For Order in Draft or Unconfirmed status**
+
 - `total`, `subtotal` & `undiscountedTotal`
 - `undiscountedShippingPrice`, `shippingPrice` & `shippingTaxRate`
 - `discounts`

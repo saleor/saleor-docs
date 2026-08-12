@@ -19,42 +19,52 @@ The following fields are calculated based on transaction events and their types:
 
 ### Calculation process
 
-When the transaction amounts are recalculated, firstly all values are set to zero, 
+When the transaction amounts are recalculated, firstly all values are set to zero,
 then the calculations are applied in the following order:
-  1. recalculate amounts based on events without PSP reference
-  2. recalculate amounts based on `AUTHORIZATION` events
-  3. recalculate amounts based on `CHARGE` events
-  4. recalculate amounts based on `REFUND` events
-  5. recalculate amounts based on `CANCEL` events
-At each step, the amounts are incrementally adjusted by adding or subtracting values
-calculated in the current step to the totals from the previous step.
+
+1. recalculate amounts based on events without PSP reference
+2. recalculate amounts based on `AUTHORIZATION` events
+3. recalculate amounts based on `CHARGE` events
+4. recalculate amounts based on `REFUND` events
+5. recalculate amounts based on `CANCEL` events
+   At each step, the amounts are incrementally adjusted by adding or subtracting values
+   calculated in the current step to the totals from the previous step.
 
 ### Assumptions
 
 #### 1. Event Grouping:
-  - Events are grouped based on their PSP reference and type of action (e.g., authorization, charge).
-  - Grouping ensures that events of the same type and PSP reference are properly matched to calculate amounts accurately.
+
+- Events are grouped based on their PSP reference and type of action (e.g., authorization, charge).
+- Grouping ensures that events of the same type and PSP reference are properly matched to calculate amounts accurately.
+
 #### 2. Pending Amounts:
-  - Pending amounts (`authorizePendingAmount`, `chargePendingAmount`, `refundPendingAmount`, `cancelPendingAmount`) are increased only if a `REQUEST` event exists for the corresponding PSP reference.
-  - If a success or failure event is also associated with the same PSP reference, the system assumes the requested amount has already been processed, and the pending amount will not be increased.
+
+- Pending amounts (`authorizePendingAmount`, `chargePendingAmount`, `refundPendingAmount`, `cancelPendingAmount`) are increased only if a `REQUEST` event exists for the corresponding PSP reference.
+- If a success or failure event is also associated with the same PSP reference, the system assumes the requested amount has already been processed, and the pending amount will not be increased.
+
 #### 3. `SUCCESS` and `FAILURE` Events:
-  - The transaction amount (e.g., `authorizedAmount`, `chargedAmount`) is increased only when a `SUCCESS` event exists.
-  - If both a `SUCCESS` and `FAILURE` event are present for the same PSP reference, the system compares their creation timestamps:
-    - If the `FAILURE` event is newer, the `SUCCESS` event is ignored.
-    - If the `SUCCESS` event is newer, it is used for the calculations.
+
+- The transaction amount (e.g., `authorizedAmount`, `chargedAmount`) is increased only when a `SUCCESS` event exists.
+- If both a `SUCCESS` and `FAILURE` event are present for the same PSP reference, the system compares their creation timestamps:
+  - If the `FAILURE` event is newer, the `SUCCESS` event is ignored.
+  - If the `SUCCESS` event is newer, it is used for the calculations.
+
 #### 4. Events Without PSP References Resulting from `TransactionCreate` and `TransactionUpdate`:
-  - Events without PSP references can result from using the [`TransactionCreate`](/api-reference/payments/mutations/transaction-create.mdx)
+
+- Events without PSP references can result from using the [`TransactionCreate`](/api-reference/payments/mutations/transaction-create.mdx)
   or [`TransactionUpdate`](/api-reference/payments/mutations/transaction-update.mdx) mutations. These events are automatically created to ensure accurate transaction amount calculations.
   The following events might lack a PSP reference:
-    - `AUTHORIZATION_SUCCESS`
-    - `AUTHORIZATION_ADJUSTMENT`
-    - `CHARGE_SUCCESS`
-    - `CHARGE_BACK`
-    - `REFUND_SUCCESS`
-    - `REFUND_REVERSE`
-    - `CANCEL_SUCCESS`
+  - `AUTHORIZATION_SUCCESS`
+  - `AUTHORIZATION_ADJUSTMENT`
+  - `CHARGE_SUCCESS`
+  - `CHARGE_BACK`
+  - `REFUND_SUCCESS`
+  - `REFUND_REVERSE`
+  - `CANCEL_SUCCESS`
+
 #### 5. Adjustment Events:
-  - The `AUTHORIZATION_ADJUSTMENT`, overrides previous amount from previous `AUTHORIZATION` events, this means that if an adjustment is present,
+
+- The `AUTHORIZATION_ADJUSTMENT`, overrides previous amount from previous `AUTHORIZATION` events, this means that if an adjustment is present,
   older authorization events are ignored, and the adjusted amount becomes the new authorized value.
 
 This logic ensures that transaction amounts reflect the current state of the transaction based on its event history while accounting for both processed and pending actions.
@@ -64,13 +74,14 @@ This logic ensures that transaction amounts reflect the current state of the tra
 #### For events without `pspReference`
 
 The events that lacks the `pspReference` resulting from `TransactionCreate` and `TransactionUpdate` mutations are influence the transaction amounts as follow:
-  - `AUTHORIZATION_SUCCESS` increases `authorizedAmount` by the event amount
-  - `AUTHORIZATION_ADJUSTMENT` overrides the existing `authorizedAmount` by the even amount
-  - `CHARGE_SUCCESS` increases `chargedAmount` by the event amount
-  - `CHARGE_BACK` reduces `chargedAmount` by the event amount
-  - `REFUND_SUCCESS` increases `refundedAmount` by the event amount
-  - `REFUND_REVERSE` increases `chargedAmount` by the event amount
-  - `CANCEL_SUCCESS` increases `canceledAmount` by the event amount
+
+- `AUTHORIZATION_SUCCESS` increases `authorizedAmount` by the event amount
+- `AUTHORIZATION_ADJUSTMENT` overrides the existing `authorizedAmount` by the even amount
+- `CHARGE_SUCCESS` increases `chargedAmount` by the event amount
+- `CHARGE_BACK` reduces `chargedAmount` by the event amount
+- `REFUND_SUCCESS` increases `refundedAmount` by the event amount
+- `REFUND_REVERSE` increases `chargedAmount` by the event amount
+- `CANCEL_SUCCESS` increases `canceledAmount` by the event amount
 
 #### For events with `pspReference`
 
@@ -82,78 +93,83 @@ For example, an `AUTHORIZATION_REQUEST` event will not affect the calculations u
 The following calculation rules apply to events that share the same `pspReference`.
 
 #### Authorized Value ([`transactionItem.authorizedAmount`](/api-reference/payments/objects/transaction-item#authorized-amount))
-  - **GIVEN** there is an `AUTHORIZATION_SUCCESS` event
-    - **WHEN** there is no `AUTHORIZATION_FAILURE`
-    - **OR WHEN** the `AUTHORIZATION_FAILURE` event is older than `AUTHORIZATION_SUCCESS`
-      - **THEN** value increases by the `AUTHORIZATION_SUCCESS` event's amount.
-  - **GIVEN** an `AUTHORIZATION_ADJUSTMENT` event  
-    - **WHEN** it's the latest event of this type  
-      - **THEN** value is overwritten by the `AUTHORIZATION_ADJUSTMENT` event amount.  
-  - **GIVEN** there is a `CHARGE_REQUEST` or `CHARGE_SUCCESS` event:
-    - **THEN** value is reduced by the event's amount. 
-  - **GIVEN** there is a `CANCEL_REQUEST` or `CANCEL_SUCCESS` event:
-    - **THEN** value is reduced by the event's amount.
-  - **GIVEN** all calculations were performed and we have result `authorizationAmount`
-    - **WHEN** calculated `authorizationAmount` is below `0`
-  	  - **THEN** `authorizationAmount` is set to `0` (it cannot be lower than 0)
+
+- **GIVEN** there is an `AUTHORIZATION_SUCCESS` event
+  - **WHEN** there is no `AUTHORIZATION_FAILURE`
+  - **OR WHEN** the `AUTHORIZATION_FAILURE` event is older than `AUTHORIZATION_SUCCESS`
+    - **THEN** value increases by the `AUTHORIZATION_SUCCESS` event's amount.
+- **GIVEN** an `AUTHORIZATION_ADJUSTMENT` event
+  - **WHEN** it's the latest event of this type
+    - **THEN** value is overwritten by the `AUTHORIZATION_ADJUSTMENT` event amount.
+- **GIVEN** there is a `CHARGE_REQUEST` or `CHARGE_SUCCESS` event:
+  - **THEN** value is reduced by the event's amount.
+- **GIVEN** there is a `CANCEL_REQUEST` or `CANCEL_SUCCESS` event:
+  - **THEN** value is reduced by the event's amount.
+- **GIVEN** all calculations were performed and we have result `authorizationAmount`
+  - **WHEN** calculated `authorizationAmount` is below `0`
+    - **THEN** `authorizationAmount` is set to `0` (it cannot be lower than 0)
 
 #### Authorization Pending Value ([`transactionItem.authorizePendingAmount`](/api-reference/payments/objects/transaction-item#authorize-pending-amount))
-  - **GIVEN** there is an `AUTHORIZATION_REQUEST` event:
-    - **WHEN** there is no `AUTHORIZATION_FAILURE` or `AUTHORIZATION_SUCCESS`
-      - **THEN** value increases by the `AUTHORIZATION_REQUEST` event's amount
+
+- **GIVEN** there is an `AUTHORIZATION_REQUEST` event:
+  - **WHEN** there is no `AUTHORIZATION_FAILURE` or `AUTHORIZATION_SUCCESS`
+    - **THEN** value increases by the `AUTHORIZATION_REQUEST` event's amount
 
 #### Charge Value ([`transactionItem.chargedAmount`](/api-reference/payments/objects/transaction-item#charged-amount))
-  - **GIVEN** there is a `CHARGE_SUCCESS` event
-    - **WHEN** there is no `CHARGE_FAILURE`
-    - **OR WHEN** the `CHARGE_FAILURE` event is older than `CHARGE_SUCCESS`
-      - **THEN** value increases by the `CHARGE_SUCCESS` event's amount.
-  - **GIVEN** there is a `CHARGE_BACK` event
-    - **THEN**value is reduced by the event's amount
-  - **GIVEN** there is a `REFUND_REQUEST` or `REFUND_SUCCESS` event:  
-    - **THEN** value is reduced by the event's amount. 
-  - **GIVEN** there is a `REFUND_REVERSE`event:  
-    - **THEN** value is increased by the event's amount. 
-  - This value can be negative.
 
-  :::note
-  Please note that chargedAmount is not affected by `CANCEL` events, as these are solely used for matching with `AUTHORIZATION` events.
-  :::
+- **GIVEN** there is a `CHARGE_SUCCESS` event
+  - **WHEN** there is no `CHARGE_FAILURE`
+  - **OR WHEN** the `CHARGE_FAILURE` event is older than `CHARGE_SUCCESS`
+    - **THEN** value increases by the `CHARGE_SUCCESS` event's amount.
+- **GIVEN** there is a `CHARGE_BACK` event
+  - **THEN**value is reduced by the event's amount
+- **GIVEN** there is a `REFUND_REQUEST` or `REFUND_SUCCESS` event:
+  - **THEN** value is reduced by the event's amount.
+- **GIVEN** there is a `REFUND_REVERSE`event:
+  - **THEN** value is increased by the event's amount.
+- This value can be negative.
+
+:::note
+Please note that chargedAmount is not affected by `CANCEL` events, as these are solely used for matching with `AUTHORIZATION` events.
+:::
 
 #### Charge Pending Value ([`transactionItem.chargePendingAmount`](/api-reference/payments/objects/transaction-item#charge-pending-amount))
-  - **GIVEN** there is a `CHARGE_REQUEST` event:
-    - **WHEN** there is no `CHARGE_FAILURE` or `CHARGE_SUCCESS`
-      - **THEN** value increases by the `CHARGE_REQUEST` event's amount
 
+- **GIVEN** there is a `CHARGE_REQUEST` event:
+  - **WHEN** there is no `CHARGE_FAILURE` or `CHARGE_SUCCESS`
+    - **THEN** value increases by the `CHARGE_REQUEST` event's amount
 
 #### Refunded Value ([`transactionItem.refundedAmount`](/api-reference/payments/objects/transaction-item#refunded-amount))
-  - **GIVEN** there is a `REFUND_SUCCESS` event
-    - **WHEN** there is no `REFUND_FAILURE`
-    - **OR WHEN** the `REFUND_FAILURE` event is older than `REFUND_SUCCESS`
-      - **THEN** value increases by the `REFUND_SUCCESS` event's amount.
-  - **GIVEN** there is a `REFUND_REVERSE` event:  
-    - **THEN** value is reduced by the event's amount. 
+
+- **GIVEN** there is a `REFUND_SUCCESS` event
+  - **WHEN** there is no `REFUND_FAILURE`
+  - **OR WHEN** the `REFUND_FAILURE` event is older than `REFUND_SUCCESS`
+    - **THEN** value increases by the `REFUND_SUCCESS` event's amount.
+- **GIVEN** there is a `REFUND_REVERSE` event:
+  - **THEN** value is reduced by the event's amount.
 
 :::note
 `CHARGE_BACK` events, which behave similarly to refunds by reducing the `chargedAmount`, are not included in `refundedAmount`. This is because they are initiated by the issuing bank, not the merchant.
 :::
 
 #### Refund Pending Value ([`transactionItem.refundPendingAmount`](/api-reference/payments/objects/transaction-item#refund-pending-amount))
-  - **GIVEN** there is a `REFUND_REQUEST` event:
-    - **WHEN** there is no `REFUND_FAILURE` or `REFUND_SUCCESS`
-      - **THEN** value increases by the `REFUND_REQUEST` event's amount
 
+- **GIVEN** there is a `REFUND_REQUEST` event:
+  - **WHEN** there is no `REFUND_FAILURE` or `REFUND_SUCCESS`
+    - **THEN** value increases by the `REFUND_REQUEST` event's amount
 
 #### Canceled Value ([`transactionItem.canceledAmount`](/api-reference/payments/objects/transaction-item#canceled-amount) )
-  - **GIVEN** there is a `CANCEL_SUCCESS` event
-    - **WHEN** there is no `CANCEL_FAILURE`
-    - **OR WHEN** the `CANCEL_FAILURE` event is older than `CANCEL_SUCCESS`
-      - **THEN** value increases by the `CANCEL_SUCCESS` event's amount.
+
+- **GIVEN** there is a `CANCEL_SUCCESS` event
+  - **WHEN** there is no `CANCEL_FAILURE`
+  - **OR WHEN** the `CANCEL_FAILURE` event is older than `CANCEL_SUCCESS`
+    - **THEN** value increases by the `CANCEL_SUCCESS` event's amount.
 
 #### Cancel Pending Value ([`transactionItem.cancelPendingAmount`](/api-reference/payments/objects/transaction-item#cancel-pending-amount))
-  - **GIVEN** there is a `CANCEL_REQUEST` event:
-    - **WHEN** there is no `CANCEL_FAILURE` or `CANCEL_REQUEST`
-      - **THEN** value increases by the `CANCEL_REQUEST` event's amount
 
+- **GIVEN** there is a `CANCEL_REQUEST` event:
+  - **WHEN** there is no `CANCEL_FAILURE` or `CANCEL_REQUEST`
+    - **THEN** value increases by the `CANCEL_REQUEST` event's amount
 
 ## Total Balance Calculation
 
@@ -173,6 +189,7 @@ totalBalance = totalCharged - checkout.totalPrice
 ```
 
 where:
+
 ```
 totalCharged = (
     sum(transaction.chargedAmount for transaction in transactions)
@@ -190,6 +207,7 @@ totalBalance = totalCharged - (order.totalPrice - totalGrantedRefund)
 ```
 
 where `totalCharged` is sum of all successful and pending charges across associated transactions:
+
 ```
 totalCharged = (
     sum(transaction.amountCharged for transaction in transactions)
@@ -198,6 +216,7 @@ totalCharged = (
 ```
 
 and `totalGrantedRefund` is a total of all refunds issued to the customer:
+
 ```
 totalGrantedRefund = sum(grantedRefund.amount for grantedRefund in grantedRefunds)
 ```
