@@ -24,22 +24,22 @@ App tokens are long-lived and are used to access resources related to the app, s
 See [permissions](/developer/permissions.mdx) for more information on permissions.
 
 ## Choosing the Authentication Method
+
 When integrating with Saleor, one of the first decisions is which authentication mechanism to use.
 
 - **Public access (no token)**: Some GraphQL operations are public and require no authentication at all.
-This is the appropriate choice when your integration needs no permissions, such as retrieving public product data for a simple storefront.
+  This is the appropriate choice when your integration needs no permissions, such as retrieving public product data for a simple storefront.
 
 - **User-based authentication**: When a user is present (e.g., a storefront with customer login or dashboard staff user session), you typically use:
 
   - [OIDC](#user-authentication-using-openid-connect) – the recommended method for user login
   - [tokenCreate](#email-and-password) – based on JWT credentials
 
-- **App-based authentication**: If you are building machine-to-machine integrations, you use App Tokens, issued to a [Saleor App](#app-authentication). 
+- **App-based authentication**: If you are building machine-to-machine integrations, you use App Tokens, issued to a [Saleor App](#app-authentication).
 
   However, apps cannot install or manage other Apps. Those actions require a human user.
 
 - **Dashboard extension authentication**: Dashboard extensions receive a special dashboard extension JWT passed automatically via the [App SDK](/developer/extending/apps/developing-apps/app-sdk/overview.mdx).
-
 
 ```mermaid
 flowchart TD
@@ -92,7 +92,7 @@ Logging in can be implemented via Server Actions:
         email: formData.get("email").toString(),
         password: formData.get("password").toString(),
       },
-      { cache: "no-store" }
+      { cache: "no-store" },
     );
   }}
 >
@@ -243,10 +243,10 @@ Follow a complete [video tutorial](https://www.youtube.com/watch?v=t6nxBk7JHCw) 
 This is the most common way of authenticating users. It is used in the Saleor Storefront and Dashboard.
 
 :::caution
-If you are using a Single Sign-On provider, you will not be able to log in using email and password, 
-as no password exists in the environment's database for SSO users. 
+If you are using a Single Sign-On provider, you will not be able to log in using email and password,
+as no password exists in the environment's database for SSO users.
 
-However, if your account was first created by Saleor or you set a password using the "forgot password" feature, 
+However, if your account was first created by Saleor or you set a password using the "forgot password" feature,
 both SSO and email/password logins may be available.
 :::
 
@@ -368,7 +368,7 @@ const token = `<token>`;
 import * as jose from "jose";
 
 const JWKS = jose.createRemoteJWKSet(
-  new URL("https://<your-saleor-domain>/.well-known/jwks.json")
+  new URL("https://<your-saleor-domain>/.well-known/jwks.json"),
 );
 
 const result = await jose.jwtVerify(token, JWKS);
@@ -487,16 +487,15 @@ The `passwordLoginMode` setting on `Shop` supports three modes:
 
 ### Modes
 
-| Mode | Customers | Staff | API-observable behavior |
-| --- | --- | --- | --- |
-| `ENABLED` (default) | Normal login | Normal login | `tokenCreate` issues tokens for both roles as usual |
-| `CUSTOMERS_ONLY` | Normal login | Staff can still log in, but they get no permissions | `tokenCreate` succeeds for staff, but the issued token resolves no staff permissions — operations requiring `MANAGE_*` permissions will fail as if the caller were a customer |
-| `DISABLED` | Blocked | Blocked | `tokenCreate` and `tokenRefresh` return `DISABLED_AUTHENTICATION_METHOD`; password-related mutations are blocked |
+| Mode                | Customers    | Staff                                               | API-observable behavior                                                                                                                                                       |
+| ------------------- | ------------ | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ENABLED` (default) | Normal login | Normal login                                        | `tokenCreate` issues tokens for both roles as usual                                                                                                                           |
+| `CUSTOMERS_ONLY`    | Normal login | Staff can still log in, but they get no permissions | `tokenCreate` succeeds for staff, but the issued token resolves no staff permissions — operations requiring `MANAGE_*` permissions will fail as if the caller were a customer |
+| `DISABLED`          | Blocked      | Blocked                                             | `tokenCreate` and `tokenRefresh` return `DISABLED_AUTHENTICATION_METHOD`; password-related mutations are blocked                                                              |
 
 :::info
 `ENABLED` is the default. Existing deployments are unaffected unless explicitly changed.
 :::
-
 
 ### Configuring the Mode
 
@@ -562,10 +561,10 @@ Attempting otherwise returns a `PASSWORD_AUTH_RESTRICTION` error.
 
 ### Error Codes
 
-| Code | Type | Returned when |
-| --- | --- | --- |
-| `DISABLED_AUTHENTICATION_METHOD` | `AccountErrorCode` | A password mutation is called when mode is `DISABLED` |
-| `PASSWORD_AUTH_RESTRICTION` | `ShopErrorCode` | A password-authenticated admin tries to restrict the mode |
+| Code                             | Type               | Returned when                                             |
+| -------------------------------- | ------------------ | --------------------------------------------------------- |
+| `DISABLED_AUTHENTICATION_METHOD` | `AccountErrorCode` | A password mutation is called when mode is `DISABLED`     |
+| `PASSWORD_AUTH_RESTRICTION`      | `ShopErrorCode`    | A password-authenticated admin tries to restrict the mode |
 
 ## Blocking storefront traffic
 
@@ -910,8 +909,8 @@ Next, redirect the user to the identity provider's logout page.
 Saleor Apps are a primary method for extending Saleor's core functionalities.
 
 Unlike regular users, Saleor Apps have long-living tokens they can use to communicate with the API.  
-These tokens are generated when an app is installed or created and must be stored securely. 
-To obtain an auth token, you must either [install a third-party app](/developer/extending/apps/installing-apps.mdx) 
+These tokens are generated when an app is installed or created and must be stored securely.
+To obtain an auth token, you must either [install a third-party app](/developer/extending/apps/installing-apps.mdx)
 or [create a local app](/developer/extending/webhooks/creating.mdx#app-creation).
 
 The authorization header for Apps is similar to the one used for users:
