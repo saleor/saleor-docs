@@ -471,14 +471,19 @@ sequenceDiagram
 
 Both [TransactionItem](/api-reference/payments/objects/transaction-item)
 and [TransactionEvent](/api-reference/payments/objects/transaction-event)
-contain a `pspReference` field, which refers to the payment service provider reference. - The `pspReference` on `TransactionItem` identifies the overall payment. - The `pspReference` on `TransactionEvent` identifies specific actions that occurred within the `Transaction`.
+contain a `pspReference` field, which refers to the payment service provider reference.
+
+- The `pspReference` on `TransactionItem` identifies the overall payment.
+- The `pspReference` on `TransactionEvent` identifies specific actions that occurred within the `Transaction`.
 
 **Key Assumptions:**
 
 - For a specific `TransactionItem`, only one `TransactionEvent` of a given `type` and `pspReference` may exist, except for the following types:
+
   - [`AUTHORIZATION_ACTION_REQUIRED`](/developer/payments/lifecycle#authorization_action_required)
   - [`CHARGE_ACTION_REQUIRED`](/developer/payments/lifecycle#charge_action_required)
   - [`INFO`](/developer/payments/lifecycle#info)
+
 - Only one `TransactionEvent` of type `AUTHORIZATION_SUCCESS` is allowed to exist.
   If an update is needed, the existing `AUTHORIZATION_SUCCESS` event can be modified using
   the [`AUTHORIZATION_ADJUSTMENT`](/developer/payments/lifecycle#authorization_adjustment) event.
@@ -490,8 +495,9 @@ during the `TransactionCreate` mutation or as a result of the `TransactionInitia
 
 The `transactionItem.pspReference` is updated during payment processing and reflects the `pspReference` from the most recent event received from the payment application.
 For example:
-• If a transaction is successful, the `pspReference` will be set based on the last `SUCCESS` event from the payment provider.
-• If the event sequence changes or multiple events are received, the `pspReference` always represents the value from the latest processed event.
+
+- If a transaction is successful, the `pspReference` will be set based on the last `SUCCESS` event from the payment provider.
+- If the event sequence changes or multiple events are received, the `pspReference` always represents the value from the latest processed event.
 
 The `pspReference` can be updated through the `transactionUpdate` mutation if necessary.
 
@@ -502,8 +508,18 @@ For more details, see [Events Not Requiring pspReference](#events-not-requiring-
 
 #### Handling TransactionEvent Reports for Existing Types
 
-When a `TransactionEvent` is reported: 1. **Event Type Check:** If the event type is `AUTHORIZATION_ACTION_REQUIRED`, `CHARGE_ACTION_REQUIRED`, or `INFO`, a new event is always created. 2. **Existing Event Check:** For other types, the system searches for an existing event with the same `type` and `pspReference` assigned to the `TransactionItem` requested in the input. - **Amount Match:** If an existing event is found, the system compares its amount to the reported event’s amount. - If the amounts match, the existing event is reused, and the `transactionEvent.alreadyProcessed` value is set to `True`.
-For more information about this field, refer to the [Reporting actions for transactions](#reporting-actions-for-transactions). - If they do not match, an error is raised. - **No Existing Event:** If no matching event is found, a new one is created, except for `AUTHORIZATION_SUCCESS`, which must be unique, attempting to create a duplicate raises an error.
+When a `TransactionEvent` is reported:
+
+1. **Event Type Check:** If the event type is `AUTHORIZATION_ACTION_REQUIRED`, `CHARGE_ACTION_REQUIRED`, or `INFO`, a new event is always created.
+2. **Existing Event Check:** For other types, the system searches for an existing event with the same `type` and `pspReference` assigned to the `TransactionItem` requested in the input.
+
+   - **Amount Match:** If an existing event is found, the system compares its amount to the reported event’s amount.
+
+     - If the amounts match, the existing event is reused, and the `transactionEvent.alreadyProcessed` value is set to `True`.
+       For more information about this field, refer to the [Reporting actions for transactions](#reporting-actions-for-transactions).
+     - If they do not match, an error is raised.
+
+   - **No Existing Event:** If no matching event is found, a new one is created, except for `AUTHORIZATION_SUCCESS`, which must be unique, attempting to create a duplicate raises an error.
 
 ```mermaid
 flowchart TD
