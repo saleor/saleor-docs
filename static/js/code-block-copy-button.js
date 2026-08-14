@@ -38,7 +38,7 @@ window.addEventListener("load", function () {
           ? codeElement.textContent
           : [...codeLines].reduce(
               (carry, codeLine) => `${carry + codeLine.textContent}\n`,
-              ""
+              "",
             );
 
       return code.replace(/^\$\s/gm, "").trim();
@@ -48,7 +48,7 @@ window.addEventListener("load", function () {
   clipboard.on("success", function (event) {
     event.clearSelection();
     const copyButtonTextElement = event.trigger.querySelector(
-      ".copyCodeButtonText"
+      ".copyCodeButtonText",
     );
 
     copyButtonTextElement.textContent = COPY_BUTTON_SUCCESS_TEXT_LABEL;

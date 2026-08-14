@@ -4,7 +4,7 @@ import styles from "./styles.module.css";
 
 const Guide = ({ children }) => {
   const childrenWithProps = Children.map(children, (child, index) =>
-    React.cloneElement(child, { number: index + 1 })
+    React.cloneElement(child, { number: index + 1 }),
   );
 
   return <div className={styles.root}>{childrenWithProps}</div>;
