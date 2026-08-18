@@ -15,9 +15,11 @@ const CompactCard = ({ name, description, technology, link, icon }) => (
         <h3 className={styles.compactCardTitle}>{name}</h3>
       </div>
       <p className={styles.compactCardDescription}>{description}</p>
-      {technology &&<div className={styles.compactCardFooter}>
-        <span className={styles.technologyTag}>{technology}</span>
-      </div>}
+      {technology && (
+        <div className={styles.compactCardFooter}>
+          <span className={styles.technologyTag}>{technology}</span>
+        </div>
+      )}
     </div>
   </a>
 );

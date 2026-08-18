@@ -12,14 +12,14 @@ export default function DocRootLayoutMain({
     <main
       className={clsx(
         styles.docMainContainer,
-        (hiddenSidebarContainer || !sidebar) && styles.docMainContainerEnhanced
+        (hiddenSidebarContainer || !sidebar) && styles.docMainContainerEnhanced,
       )}
     >
       <div
         className={clsx(
           "container padding-top--md padding-bottom--lg",
           styles.docItemWrapper,
-          hiddenSidebarContainer && styles.docItemWrapperEnhanced
+          hiddenSidebarContainer && styles.docItemWrapperEnhanced,
         )}
       >
         {children}

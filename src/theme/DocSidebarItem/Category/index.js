@@ -64,7 +64,7 @@ function CollapseButton({ collapsed, categoryLabel, onClick }) {
                 message: "Expand sidebar category '{label}'",
                 description: "The ARIA label to expand the sidebar category",
               },
-              { label: categoryLabel }
+              { label: categoryLabel },
             )
           : translate(
               {
@@ -72,7 +72,7 @@ function CollapseButton({ collapsed, categoryLabel, onClick }) {
                 message: "Collapse sidebar category '{label}'",
                 description: "The ARIA label to collapse the sidebar category",
               },
-              { label: categoryLabel }
+              { label: categoryLabel },
             )
       }
       aria-expanded={!collapsed}
@@ -143,7 +143,7 @@ export default function DocSidebarItemCategory({
         {
           "menu__list-item--collapsed": collapsed,
         },
-        className
+        className,
       )}
     >
       <div
@@ -175,7 +175,9 @@ export default function DocSidebarItemCategory({
           aria-current={isCurrentPage ? "page" : undefined}
           role={collapsible && !href ? "button" : undefined}
           aria-expanded={collapsible && !href ? !collapsed : undefined}
-          href={collapsible ? hrefWithSSRFallback ?? "#" : hrefWithSSRFallback}
+          href={
+            collapsible ? (hrefWithSSRFallback ?? "#") : hrefWithSSRFallback
+          }
           {...props}
         >
           {icon}
