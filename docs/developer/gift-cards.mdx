@@ -677,10 +677,14 @@ mutation giftCardAssignUser($id: ID!, $userId: ID!) {
 </TabItem>
 </Tabs>
 
-A card cannot be assigned when it has already been used in an order, or when it is attached to a checkout that has payments. In those cases the mutation returns a `CANNOT_ASSIGN` error. If the card is attached to a checkout that has no payments, the card is detached from that checkout as part of the assignment.
+A card cannot be assigned when it has already been used in an order, when it is attached to a checkout that has payments, or when it has been used by a [gift card payment transaction](#gift-cards-as-payment-method). In those cases the mutation returns a `CANNOT_ASSIGN` error. If the card is attached to a checkout that has no payments, the card is detached from that checkout as part of the assignment.
 
 :::note
-The `assignedTo` field on `GiftCard` requires the `MANAGE_USERS` permission (or the card's owner), while `assignedToEmail` requires `MANAGE_GIFT_CARD` (or being the owner of that gift card). Enforcement at checkout is intentionally generic: a restricted card that does not match the customer is rejected with the same error as any unusable code, so it never reveals whether a card is assigned or to whom.
+The link between a gift card and a payment transaction is permanent: cancelling the authorization does **not** release the card for assignment. The link is the record that the card was used.
+:::
+
+:::note
+The `assignedTo` field on `GiftCard` requires the `MANAGE_USERS` permission (or the card's owner), while `assignedToEmail` requires `MANAGE_GIFT_CARD` (or being the owner of that gift card). Enforcement at checkout is intentionally generic: a restricted card that does not match the customer is rejected with the same error as any unusable code, so it never reveals whether a card is assigned or to whom. This applies to both the [`transactionInitialize`](#gift-cards-as-payment-method) and the [legacy `checkoutAddPromoCode`](#legacy-using-gift-cards-in-checkout) flows.
 :::
 
 ### Unassigning a Customer
@@ -824,7 +828,10 @@ Following payment gateway details must be included in mutation variables:
 - The channel currency must match the gift card currency.
 - The card can be used multiple times until the balance is depleted.
 - The card can be attached to only a single checkout at the time. Attaching gift card to another checkout will detach it from a previous checkout.
+- A card [restricted to a customer](#restricting-gift-cards-to-a-customer) can only be used by that customer, signed in. A guest checkout never matches, and a matching checkout email is not enough.
 :::
+
+Restricted cards are rejected with the generic `Gift card code is not valid.` message, the same one returned for a code that does not exist, so the response never reveals whether a card exists or whom it belongs to. The check runs before the balance check, so a caller who is not the assignee never learns the card's remaining balance.
 
 Example of using gift card to in a checkout. Notice `id` of payment gateway being set to `saleor.io.gift-card-payment-gateway`.
 
