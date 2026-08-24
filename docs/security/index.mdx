@@ -8,7 +8,7 @@ This section is currently not exhaustive.
 
 This document describes the different security measures and deployment settings provided by Saleor.
 
-*Looking to report a security issue instead? See our [Security Policy].*
+_Looking to report a security issue instead? See our [Security Policy]._
 
 ## External Connectivity
 
@@ -30,31 +30,32 @@ This behavior prevents malicious staff users from accessing inward-facing resour
 
 For in-depth details, refer to:
 
-* [CWE-918: Server-Side Request Forgery (SSRF)](https://cwe.mitre.org/data/definitions/918.html)
-* [The OWASP community page about SSRF attacks](https://owasp.org/www-community/attacks/Server_Side_Request_Forgery)
+- [CWE-918: Server-Side Request Forgery (SSRF)](https://cwe.mitre.org/data/definitions/918.html)
+- [The OWASP community page about SSRF attacks](https://owasp.org/www-community/attacks/Server_Side_Request_Forgery)
 
 **Implementation Details:**
 
-* **IP Addresses are Pinned:**  the resolved IP address for each outgoing HTTP(S) request is pinned, meaning that a malicious actor cannot set-up round-robin DNS responses or use race-condition attacks ([Time-of-Check](https://cwe.mitre.org/data/definitions/367.html)) to trick Saleor into connecting to a different IP address after validation.
-* **IP Address Validation for Each Request:**  validation is ran before sending each and every HTTP(S) request. This prevents a malicious actor from changing the DNS records after adding a non-malicious URL inside the database.
+- **IP Addresses are Pinned:** the resolved IP address for each outgoing HTTP(S) request is pinned, meaning that a malicious actor cannot set-up round-robin DNS responses or use race-condition attacks ([Time-of-Check](https://cwe.mitre.org/data/definitions/367.html)) to trick Saleor into connecting to a different IP address after validation.
+- **IP Address Validation for Each Request:** validation is ran before sending each and every HTTP(S) request. This prevents a malicious actor from changing the DNS records after adding a non-malicious URL inside the database.
 
 **Settings:**
 
-* [`HTTP_IP_FILTER_ENABLED`](https://docs.saleor.io/setup/configuration#http_ip_filter_enabled) - controls whether the IP filtering feature should be enabled. **IP Filtering is enabled by default.**
-* [`HTTP_IP_FILTER_ALLOW_LOOPBACK_IPS`](https://docs.saleor.io/setup/configuration#http_ip_filter_allow_loopback_ips) - whether to allow outgoing traffic to loopback addresses. **Loopback addresses are** **disallowed** **by default.**
+- [`HTTP_IP_FILTER_ENABLED`](https://docs.saleor.io/setup/configuration#http_ip_filter_enabled) - controls whether the IP filtering feature should be enabled. **IP Filtering is enabled by default.**
+- [`HTTP_IP_FILTER_ALLOW_LOOPBACK_IPS`](https://docs.saleor.io/setup/configuration#http_ip_filter_allow_loopback_ips) - whether to allow outgoing traffic to loopback addresses. **Loopback addresses are** **disallowed** **by default.**
 
 **Caveats:**
 
-* **Allow-Lists:**  it is not currently possible to put given IP addresses into an allow-list (or block-list). It currently only supports: "block-all" or "allow-all".
+- **Allow-Lists:** it is not currently possible to put given IP addresses into an allow-list (or block-list). It currently only supports: "block-all" or "allow-all".
 
 **Additional Capabilities:**
 
-* **Proxies:**  SOCKS and HTTP proxies can be used in combination with the IP Filtering.
+- **Proxies:** SOCKS and HTTP proxies can be used in combination with the IP Filtering.
 
-  * The IP address used to establish the proxy tunnel itself is not restricted. However, any HTTP requests sent through the proxy will be filtered based on their destination IP address.
+  - The IP address used to establish the proxy tunnel itself is not restricted. However, any HTTP requests sent through the proxy will be filtered based on their destination IP address.
 
     For example, setting `HTTPS_PROXY=socks5://10.0.0.1:8888` is allowed, but attempting to access `https://10.0.0.2` **through** the tunnel will be blocked.
-  * Can be configured through environment variables, such as:
+
+  - Can be configured through environment variables, such as:
 
     ```bash
     $ export HTTP_PROXY="http://10.10.1.10:3128"
@@ -62,7 +63,8 @@ For in-depth details, refer to:
     # Alternatively:
     $ export ALL_PROXY="http://10.10.1.10:1080"
     ```
-* **HTTP redirects:**  each redirection is checked whether it points to a private or loopback IP address range.
+
+- **HTTP redirects:** each redirection is checked whether it points to a private or loopback IP address range.
 
 [Security Policy]: https://github.com/saleor/.github/blob/-/SECURITY.md
 [Saleor Core]: https://github.com/saleor/saleor/
@@ -84,6 +86,7 @@ You shouldn't allow dangerous file formats (e.g., HTML or SVG), instead prefer u
 :::
 
 Saleor's behavior is as follows:
+
 - Saleor checks the file extensions to determine whether the file extension is allowed.
 - AND Saleor checks whether the file's MIME matches the file extension, e.g., if `image.png` but has the MIME `text/html` then it's rejected.
 
@@ -119,6 +122,7 @@ When a customer places orders or uses gift cards without signing in, Saleor can 
 associate those objects with an account created using the same email address.
 
 A legitimate flow may look as follows:
+
 1. `guest@example.com` places several orders as a guest
 2. The customer creates an account using `guest@example.com`
 3. Saleor sends an account-confirmation link to that email address
@@ -148,7 +152,7 @@ An attacker could perform the following flow:
    associated with the account.
 
 [
-  ![Overview of account pre-hijacking risk in commerce](./assets/account-pre-hijacking.svg)
+![Overview of account pre-hijacking risk in commerce](./assets/account-pre-hijacking.svg)
 ](./assets/account-pre-hijacking.svg)
 
 **How Saleor mitigates against this:**
@@ -189,4 +193,5 @@ benefit from the mitigations.
 ## PCI DSS
 
 Diagrams representing payment-related data flow:
+
 - [Stripe App](../developer/app-store/apps/stripe/pci-dss.mdx)
