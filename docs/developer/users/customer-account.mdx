@@ -14,6 +14,26 @@ Creating a new account requires specifying a channel. It is needed because you c
 
 User accounts are not restricted to a single channel. So, for example, a user registered in the `europe` channel can still log in and place an order through the `usa` channel.
 
+## Account management tokens
+
+Several flows on this page email the customer a single-use `token`: account confirmation, password reset and set password, and account deletion. These are not JWTs — they are short-lived tokens derived from the user's current state, and they are invalidated when the user's password changes.
+
+**From Saleor 3.23.18, each flow uses its own token scope.** A token is only accepted by the mutation it was issued for:
+
+| Token issued by                                                                                                                                                                                 | Accepted by                                                                        |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [`accountRegister`](/api-reference/users/mutations/account-register.mdx), [`sendConfirmationEmail`](/api-reference/users/mutations/send-confirmation-email.mdx)                        | [`confirmAccount`](/api-reference/users/mutations/confirm-account.mdx)             |
+| [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx), `setPassword` notifications                                                                                 | [`setPassword`](/api-reference/users/mutations/set-password.mdx)                   |
+| [`accountRequestDeletion`](/api-reference/users/mutations/account-request-deletion.mdx)                                                                                                         | [`accountDelete`](/api-reference/users/mutations/account-delete.mdx)               |
+
+Before 3.23.18 all three shared one scope, so a password reset token could be replayed against `confirmAccount` and vice versa. Passing a token to the wrong mutation now fails with the `INVALID` error code on the `token` field, the same response as an expired or malformed token.
+
+:::note
+Tokens issued before the upgrade keep working. Saleor validates against the new scope first and falls back to the pre-3.23.18 one, so links already sitting in customers' inboxes are not invalidated.
+:::
+
+Changing the email address is unaffected — [`requestEmailChange`](/api-reference/users/mutations/request-email-change.mdx) issues a JWT, not a scoped token, and it carries its own expiry via [`JWT_TTL_REQUEST_EMAIL_CHANGE`](/setup/configuration.mdx#jwt_ttl_request_email_change).
+
 ## Creating a new customer account
 
 Depending on the configuration of your Saleor backend instance, registering a new customer account may be a single-step operation, or it may require email confirmation when the flag

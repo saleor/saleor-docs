@@ -62,7 +62,8 @@ Submitting the `Create Webhook` form triggers the [`webhookCreate`](/api-referen
 
 Let's assume that we want to extend the order processing app. The App should receive notifications whenever new orders are created in Saleor. To do so, we'll create a new webhook using the [`webhookCreate`](/api-reference/webhooks/mutations/webhook-create.mdx) mutation. The mutation takes the following input:
 
-- `name`: the name of the webhook.
+- `name`: the name of the webhook. This is a display label — it is not stable and should not be used to reference the webhook. See [Webhook identifier](#webhook-identifier).
+- `identifier`: an optional, app-defined stable identifier, added in Saleor 3.23.23. See [Webhook identifier](#webhook-identifier).
 - `targetUrl`: the URL of a service that will receive webhooks requests.
 - `asyncEvents`: a list of the asynchronous events to subscribe to.
 - `syncEvents`: a list of the synchronous events to subscribe to.
@@ -113,6 +114,57 @@ If there are no errors in the response, the webhook is successfully created. Fro
 
 After installation, the App can create a webhook subscription. To manage its own webhooks, no additional permissions are needed. If requests contain the app token in the `Authentication` header, the `app` argument will be automatically populated with the corresponding App.
 
+### Webhook identifier
+
+**Added in Saleor 3.23.23.**
+
+A webhook's `name` is a display label: it can be changed by a staff user in the Dashboard, and two webhooks of the same app may share it. An app that looks its webhooks up by `name` will therefore eventually fail to find them.
+
+Instead, declare an `identifier` — a stable, app-defined string that the app controls:
+
+- It must be **unique per app** (an app cannot reuse the same `identifier` for two of its webhooks), but the same value may be used by different apps.
+- Maximum length is 256 characters. Blank and whitespace-only values are treated as not set.
+- It is exposed on the [`Webhook`](/api-reference/webhooks/objects/webhook.mdx) type via the `identifier` field.
+
+Set it in `webhookCreate`, in `webhookUpdate` (pass a blank value to clear it), or declare it upfront in the [app manifest](/developer/extending/apps/architecture/manifest.mdx) so the webhook is created with it at install time:
+
+```json {5}
+{
+  "webhooks": [
+    {
+      "name": "Order created",
+      "identifier": "order-created",
+      "asyncEvents": ["ORDER_CREATED"],
+      "query": "subscription { event { ... on OrderCreated { order { id }}}}",
+      "targetUrl": "https://example.com/api/webhooks/order-created"
+    }
+  ]
+}
+```
+
+Duplicate identifiers within one manifest fail the installation with the `DUPLICATED_WEBHOOK_IDENTIFIER` [app error code](/api-reference/apps/enums/app-error-code.mdx).
+
+Once set, the app can pass `identifier` instead of `id` to [`webhookUpdate`](/api-reference/webhooks/mutations/webhook-update.mdx) and [`webhookDelete`](/api-reference/webhooks/mutations/webhook-delete.mdx) (available from Saleor 3.23.27). This removes the need to resolve a webhook ID first — see [How to update app webhooks](/developer/extending/apps/updating-app-webhooks.mdx).
+
+:::note
+Identifiers are unique per app only, so the `identifier` argument is available **exclusively to an app referencing its own webhook**. Staff users must use `id`; a non-app request passing `identifier` is rejected with the `INVALID` webhook error code.
+
+There is no `webhook(identifier: ...)` query. To read a webhook by its identifier, query the app's own webhooks:
+
+```graphql
+query {
+  app {
+    webhooks {
+      id
+      identifier
+      targetUrl
+    }
+  }
+}
+```
+
+:::
+
 ### Custom payloads
 
 You can define webhook payloads in Saleor with GraphQL subscriptions. Subscription queries allow you to subscribe to different events and determine what fields should be returned in the payload. For details check [Subscription Webhook Payloads](subscription-webhook-payloads) page.
@@ -141,6 +193,22 @@ mutation {
 }
 ```
 
+From Saleor 3.23.27, an app can point at its own webhook with `identifier` instead of `id`. The two arguments are mutually exclusive:
+
+```graphql {2}
+mutation {
+  webhookUpdate(identifier: "order-created", input: { isActive: false }) {
+    webhook {
+      isActive
+    }
+    webhookErrors {
+      field
+      code
+    }
+  }
+}
+```
+
 <!-- TODO describe how it works in CLI
 
 ```bash
@@ -154,6 +222,19 @@ To fully remove a webhook, use the `webhookDelete` mutation:
 ```graphql {2}
 mutation {
   webhookDelete(id: "V2ViaG9vazox") {
+    webhookErrors {
+      field
+      code
+    }
+  }
+}
+```
+
+As with `webhookUpdate`, from Saleor 3.23.27 an app may reference its own webhook by `identifier` instead of `id`:
+
+```graphql {2}
+mutation {
+  webhookDelete(identifier: "order-created") {
     webhookErrors {
       field
       code

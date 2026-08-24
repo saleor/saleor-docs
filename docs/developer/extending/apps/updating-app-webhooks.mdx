@@ -141,26 +141,43 @@ export const orderCreatedWebhook =
     apl: saleorApp.apl,
     query: OrderCreatedDocument, // OrderCreatedDocument will be converted into a string query
   });
+
+// Stable, app-defined identifier used to reference this webhook in the migration script
+export const ORDER_CREATED_WEBHOOK_IDENTIFIER = "order-created";
 ```
 
 You can see `getWebhookManifest` being used in the `webhooks` field of your `manifest.ts`, where the app manifest is created. Saleor registers the app based on this manifest.
 
-```ts
+Add an [`identifier`](/developer/extending/webhooks/creating.mdx#webhook-identifier) to the manifest entry so Saleor stores it when the app is installed. `getWebhookManifest` does not set one, so spread its result and add the field:
+
+```ts {12}
 // pages/api/manifest.ts
 import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
 import { AppManifest } from "@saleor/app-sdk/types";
-import { orderCreatedWebhook } from "./webhooks/order-created";
+import {
+  orderCreatedWebhook,
+  ORDER_CREATED_WEBHOOK_IDENTIFIER,
+} from "./webhooks/order-created";
 
 export default createManifestHandler({
   async manifestFactory({ appBaseUrl }) {
     const manifest = {
       // ...
-      webhooks: [orderCreatedWebhook.getWebhookManifest(appBaseUrl)],
+      webhooks: [
+        {
+          ...orderCreatedWebhook.getWebhookManifest(appBaseUrl),
+          identifier: ORDER_CREATED_WEBHOOK_IDENTIFIER,
+        },
+      ],
     };
     return manifest;
   },
 });
 ```
+
+:::note
+Requires Saleor 3.23.23 or newer for the manifest and `Webhook.identifier` field, and `@saleor/app-sdk` with `identifier` on the `WebhookManifest` type. On older Saleor versions the field is ignored, and the migration script has to fall back to matching by `name` — see [Apps installed before identifiers](#apps-installed-before-identifiers).
+:::
 
 We will repeat the same logic in our migration script to get the current state of our webhook:
 
@@ -179,19 +196,42 @@ const runMigration = async () => {
 
 ### 3. Update the webhook
 
+Because the webhook declares an `identifier`, the script can address it directly — [`webhookUpdate`](/api-reference/webhooks/mutations/webhook-update.mdx) accepts `identifier` in place of `id` from Saleor 3.23.27, so there is no lookup step:
+
+```graphql
+mutation UpdateWebhookQuery($identifier: String!, $query: String!) {
+  webhookUpdate(identifier: $identifier, input: { query: $query }) {
+    webhook {
+      id
+      identifier
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
 :::note
 In the next code example, we will assume the existence of:
 
 - `createGraphQLClient` - a function that returns a GraphQL client
 - `AppWebhookManager` - a class that takes in the GraphQL client and makes calls to the Saleor API. It has the following methods:
-  - `updateWebhookQuery` - runs [`webhookUpdate`](/api-reference/webhooks/mutations/webhook-update.mdx) mutation with `query` input
-  - `getWebhookByName` - runs [`app`](/api-reference/apps/queries/app.mdx) query and returns one of the `webhooks` by its `name`
+  - `updateWebhookQuery` - runs the [`webhookUpdate`](/api-reference/webhooks/mutations/webhook-update.mdx) mutation above, addressing the webhook by `identifier`
+  - `getOwnWebhooks` - runs the [`app`](/api-reference/apps/queries/app.mdx) query and returns the app's own `webhooks`
+  - `setWebhookIdentifier` - runs `webhookUpdate` by `id`, writing the `identifier` input
+
+Neither is provided by Saleor or `@saleor/app-sdk` — they stand in for whatever GraphQL client and wrapper your app already uses.
 
 :::
 
 Once we have the up-to-date manifest, we can retrieve the stringified `query` from it and update the webhook:
 
 ```ts
+import { ORDER_CREATED_WEBHOOK_IDENTIFIER } from "./pages/api/webhooks/order-created";
+
 const runMigration = async () => {
   // ...
 
@@ -206,18 +246,76 @@ const runMigration = async () => {
     client,
   });
 
-  // Get existing webhook we want to update
-  const webhookToUpdate = await appWebhookManager.getWebhookByName({
-    name: webhookManifest.name,
-  });
-
-  // Update webhook with new query
-  const webhooks = await appWebhookManager.updateWebhookQuery({
-    id: webhookToUpdate.id,
+  // Update webhook with new query, addressing it by its stable identifier
+  await appWebhookManager.updateWebhookQuery({
+    identifier: ORDER_CREATED_WEBHOOK_IDENTIFIER,
     query: webhookManifest.query, // update webhook with fields from the new manifest
   });
 };
 ```
+
+The `identifier` argument is available exclusively to an app referencing its own webhook — the app token in the `Authorization` header is what scopes the lookup. If no webhook of that app matches, the mutation returns a `NOT_FOUND` error on the `identifier` field.
+
+### Apps installed before identifiers
+
+`identifier` is only stored at install time, so webhooks of apps installed before the identifier was added to the manifest have none. Those apps need a one-time backfill: list the app's own webhooks, match them by whatever you used previously (usually `name`), and write the identifier once.
+
+The app's own webhooks are read through the [`app`](/api-reference/apps/queries/app.mdx) query — with an app token in the `Authorization` header it resolves to the calling app, so no ID is needed:
+
+```graphql
+query AppWebhooks {
+  app {
+    webhooks {
+      id
+      name
+      identifier
+    }
+  }
+}
+```
+
+Writing the identifier is a normal `webhookUpdate` addressed by `id`, since there is no identifier to address it by yet:
+
+```graphql
+mutation SetWebhookIdentifier($id: ID!, $identifier: String!) {
+  webhookUpdate(id: $id, input: { identifier: $identifier }) {
+    webhook {
+      id
+      identifier
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+Using the same `appWebhookManager` as in [step 3](#3-update-the-webhook):
+
+```ts
+const backfillIdentifier = async () => {
+  const webhooks = await appWebhookManager.getOwnWebhooks();
+
+  const webhook = webhooks.find(
+    (w) => !w.identifier && w.name === webhookManifest.name
+  );
+
+  if (webhook) {
+    await appWebhookManager.setWebhookIdentifier({
+      id: webhook.id,
+      identifier: ORDER_CREATED_WEBHOOK_IDENTIFIER,
+    });
+  }
+};
+```
+
+Run this before the first identifier-based migration. Afterwards the `name` match is no longer needed, and renaming the webhook in the Dashboard stops breaking your migrations.
+
+:::caution
+Matching on `name` is exactly the fragile step `identifier` removes: `name` is a display label that a staff user can change in the Dashboard, and nothing stops two webhooks of the same app from sharing it. Treat the backfill as a one-off, not as a permanent fallback.
+:::
 
 ## Next steps
 
