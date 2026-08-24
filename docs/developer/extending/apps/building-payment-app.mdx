@@ -1,471 +1,344 @@
 ---
 title: How to Build a Payment App
-description: How to Build a Payment App
+description: How to build a Saleor Payment App that covers checkout payments, refunds, provider webhooks, and stored payment methods.
 ---
 
 ## Overview
 
-This tutorial will demonstrate how to build a [Payment App](/developer/payments/payment-apps.mdx) using dummy payment (without a real payment provider) as an example.
+This tutorial shows how to build a dummy Saleor Payment App that covers the main integration paths for a real gateway: gateway initialization, transactions, follow-up actions, refunds, provider webhooks, and stored payment methods.
 
-For simplicity, this tutorial will not cover the entire API as a real-world implementation would, where some gateways might require multiple webhooks to capture the payment process.
+The dummy provider does not charge money. Use it as a reference for the integration shape, then replace provider calls with your gateway API.
 
-If you need a reference point for integrating with real payment providers, you can check out the following examples:
+:::tip Building a payment app with an AI agent?
 
-- [Example Stripe App](https://github.com/saleor/saleor-app-payment-stripe)
-- [Example Authorize.net App](https://github.com/saleor/saleor-app-payment-authorize.net)
-- [Example Klarna App](https://github.com/saleor/saleor-app-payment-klarna)
+Install the [Saleor App Agent Skill](https://github.com/saleor/agent-skills) to give your agent Saleor-specific guidance for building apps, including manifests, webhooks, and permissions.
+
+:::
+
+:::info
+
+The `@example/payment-provider-sdk` import is fictional. It mocks the integration surface of a typical payment provider SDK.
+
+:::
+
+If you want to compare the tutorial with production examples, see:
+
+- [Stripe App](https://github.com/saleor/apps/tree/main/apps/stripe)
+- [Authorize.net App](https://github.com/saleor/examples)
+
+You can test the storefront side by forking [Saleor Payment Apps test client](https://github.com/saleor/saleor-payment-apps-testclient) or [Saleor Storefront](https://github.com/saleor/storefront).
 
 ### Prerequisites
 
-- Understanding of [Payment Apps Usage](/developer/payments/payment-apps)
-- Understanding of [Transactions](/developer/payments/transactions.mdx)
+- Basic understanding of [Saleor Apps](./overview.mdx)
+- Familiarity with [Next.js](https://nextjs.org/), especially API routes
 
-### What Will We Build
+## Integration Surface
 
-We will build a _Dummy Gateway_ that will simulate a typical 3D secure flow:
+You will build a dummy payment app that covers the main integration paths for a real gateway. The dummy app keeps the provider logic behind the fictional `paymentProvider` client, but the Saleor routes, webhooks, and response shapes match the paths a real gateway must implement.
 
-1. A Drop-in payment UI will create a token when the user initiates the payment.
-2. Ask for payment confirmation (e.g., redirect the user to the 3D Secure page).
-3. Charge the payment on the 3D Secure page.
-4. Redirect the user to the result (success or failure) page.
+The table below is the tutorial scope. It lists the app responsibilities first, then shows the Saleor mutation or query and app webhook at the end for reference.
 
-Transaction API can be used both in Checkout and Order. In this tutorial, we will cover only payment steps for [existing checkout](/developer/checkout/overview.mdx).
+| Stage | Operation | Dummy behavior | Real gateway behavior | Saleor mutation or query | App webhook or endpoint |
+| --- | --- | --- | --- | --- | --- |
+| [Basic Payment](#stage-1-basic-payment) | Prepare checkout payment UI | Return browser-safe config and enabled methods. | Return a client secret, publishable key, SDK config, available methods, or provider account data. | `paymentGatewayInitialize` | `PAYMENT_GATEWAY_INITIALIZE_SESSION` |
+| [Basic Payment](#stage-1-basic-payment) | Start a one-time payment | Return `CHARGE_SUCCESS` or `CHARGE_FAILURE`. | Create a payment intent, authorization, charge, or session. | `transactionInitialize` | `TRANSACTION_INITIALIZE_SESSION` |
+| [Follow-Up Actions](#stage-2-follow-up-actions) | Request a follow-up action | Return `CHARGE_ACTION_REQUIRED` or `AUTHORIZATION_ACTION_REQUIRED`. | Ask the customer to complete 3D Secure, a redirect, mobile approval, or another provider step. | `transactionInitialize` | `TRANSACTION_INITIALIZE_SESSION` |
+| [Follow-Up Actions](#stage-2-follow-up-actions) | Complete a follow-up action | Accept confirmation data and return the final event. | Confirm 3D Secure, redirect, mobile approval, or another provider step. | `transactionProcess` | `TRANSACTION_PROCESS_SESSION` |
+| [Post-Purchase Actions](#stage-3-post-purchase-actions) | Request charge, cancel, or refund | Return a dummy action PSP reference. | Capture, cancel, or refund through the provider. | `transactionRequestAction` | `TRANSACTION_CHARGE_REQUESTED`, `TRANSACTION_CANCELATION_REQUESTED`, or `TRANSACTION_REFUND_REQUESTED` |
+| [Post-Purchase Actions](#stage-3-post-purchase-actions) | Refund a granted refund | Return a dummy refund result. | Refund with line-level context from Saleor. | `transactionRequestRefundForGrantedRefund` | `TRANSACTION_REFUND_REQUESTED` |
+| [Post-Purchase Actions](#stage-3-post-purchase-actions) | Report provider status later | Accept a signed dummy event and report it to Saleor. | Verify provider webhook signature, map provider status, and call Saleor. | `transactionEventReport` | App-owned provider webhook endpoint |
+| [Stored Payment Methods](#stage-4-stored-payment-methods) | Initialize stored-method tokenization UI | Return browser-safe tokenization config. | Return setup intent, customer session, or SDK config. | `paymentGatewayInitializeTokenization` | `PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION` |
+| [Stored Payment Methods](#stage-4-stored-payment-methods) | Create a stored payment method | Return `SUCCESSFULLY_TOKENIZED` or `ADDITIONAL_ACTION_REQUIRED`. | Create a provider customer, setup intent, mandate, card, or payment method. | `paymentMethodInitializeTokenization` | `PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION` |
+| [Stored Payment Methods](#stage-4-stored-payment-methods) | Complete stored-method action | Finalize the dummy method. | Confirm setup intent, mandate, redirect, or 3D Secure. | `paymentMethodProcessTokenization` | `PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION` |
+| [Stored Payment Methods](#stage-4-stored-payment-methods) | List saved methods | Return stored dummy cards. | List provider vault entries for the Saleor user. | `checkout.storedPaymentMethods` or `User.storedPaymentMethods` | `LIST_STORED_PAYMENT_METHODS` |
+| [Stored Payment Methods](#stage-4-stored-payment-methods) | Delete saved method | Return `SUCCESSFULLY_DELETED`. | Disable or detach the provider payment method. | `storedPaymentMethodRequestDelete` | `STORED_PAYMENT_METHOD_DELETE_REQUESTED` |
 
-### Event Flow
+This tutorial focuses on Payment Apps and the Transaction API. Legacy payment plugin mutations such as `paymentInitialize`, `paymentCapture`, `paymentRefund`, and `paymentVoid` are outside this guide.
 
-Here is the complete webhooks and their corresponding mutations:
+## Stage 1: Basic Payment
+
+Start with the smallest complete checkout payment. The storefront initializes the gateway, collects provider payment details, calls `transactionInitialize`, and receives an immediate success or failure.
+
+### Payment Flow
+
+The main checkout flow uses Saleor as the source of truth for checkout, order, amount, currency, and transaction state. The payment provider owns payment tokens, payment references, payment method details, and asynchronous status updates.
 
 ```mermaid
 sequenceDiagram
- participant Storefront
- participant Saleor
- participant Dummy Payment App
- Storefront->>Saleor: mutation: transactionInitialize
- Saleor->>Dummy Payment App: webhook: TRANSACTION_INITIALIZE_SESSION
- Dummy Payment App-->>Saleor: { result: CHARGE_ACTION_REQUIRED }
- Saleor->>Storefront: { type: CHARGE_ACTION_REQUIRED, ... }
- Storefront->>Saleor: mutation: transactionProcess
- Saleor->>Dummy Payment App: webhook TRANSACTION_PROCESS_SESSION
- Dummy Payment App-->>Saleor: {result: CHARGE_SUCCESS / CHARGE_FAILURE }
- Saleor->>Storefront: { type: CHARGE_SUCCESS / CHARGE_FAILURE, ... }
- Note over Dummy Payment App: This process is modeled after a 3D Secure flow.
+  participant Storefront
+  participant Saleor
+  participant App as Payment App
+  participant Provider as Payment Provider
+
+  Storefront->>Saleor: paymentGatewayInitialize
+  Saleor->>App: PAYMENT_GATEWAY_INITIALIZE_SESSION
+  App-->>Saleor: Browser-safe gateway config
+  Saleor-->>Storefront: Gateway config
+  Storefront->>Provider: Tokenize payment details
+  Provider-->>Storefront: Provider token
+  Storefront->>Saleor: transactionInitialize with provider token
+  Saleor->>App: TRANSACTION_INITIALIZE_SESSION
+  App->>Provider: Create payment or authorization
+  App-->>Saleor: CHARGE_SUCCESS or CHARGE_FAILURE
+  Saleor-->>Storefront: Transaction result
+  Storefront->>Saleor: checkoutComplete after successful payment
 ```
 
-#### Flow Breakdown
+### Build the App
 
-1. Storefront will initiate the payment intent by calling the [`transactionInitialize`](/developer/payments/payment-apps.mdx#initialize-transaction) mutation, triggering the -> [`TRANSACTION_INITIALIZE_SESSION`](/developer/extending/webhooks/synchronous-events/transaction.mdx#initialize-transaction-session) webhook. The app will return [`CHARGE_ACTION_REQUIRED`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge-action-required) as `action_type` to signal the storefront that 3D secure confirmation is required.
-
-2. Storefront will pass 3D secure confirmation data to the [`transactionProcess`](/developer/payments/payment-apps.mdx#process-transaction) mutation which will trigger [`TRANSACTION_PROCESS_SESSION`](/developer/extending/webhooks/synchronous-events/transaction.mdx#process-transaction-session) webhook.
-   In this step we simulate the attempt of charging payment gateway by returning [`CHARGE_SUCCESS`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge-success) or [`CHARGE_FAILURE`](/api-reference/payments/enums/transaction-event-type-enum.mdx#charge-failure) back from the app.
-
-:::warning
-[Transaction Flow Strategy](/api-reference/payments/enums/transaction-flow-strategy-enum.mdx) setting can alter the behavior of `transactionProcess` mutation. When set to `CHARGE` strategy, payments will be charged immediately, when it set `AUTHORIZATION` additional authorization step would be necessary. You can decide on the strategy on per channel basis in the _Configuration_ → _Channels_ → your channel page. For this tutorial, we will assume the `CHARGE` strategy is used.
-:::
-
-## Building Saleor App from Template
-
-#### Install Dependencies
-
-- Basic understanding of [Saleor Apps](/developer/extending/apps/overview.mdx)
-- Familiarity with [Next.js](https://nextjs.org/)
-- `node >=18.17.0 <=20`
-- `pnpm >=9`
-
-#### Getting Started
-
-Any app with server-side capabilities can be considered a Saleor App if it matches the requirements described in the [App Requirements](/developer/extending/apps/architecture/app-requirements.mdx) document. Thanks to the [App Template](/developer/extending/apps/developing-apps/app-template.mdx), we won't have to check all the boxes manually.
-
-[`saleor-app-template`](https://github.com/saleor/saleor-app-template) is your Next.js starting point for building a Saleor App. It comes with all the necessary scaffolding to get you started. We will explore its features in the following sections of the tutorial.
-
-For now, let's clone the template and boot up our app:
+Start from the [Saleor App Template](./developing-apps/app-template.mdx):
 
 ```bash
 git clone https://github.com/saleor/saleor-app-template.git
-```
-
-Then, navigate to the app directory and install the dependencies:
-
-```bash
+cd saleor-app-template
 pnpm install
-```
-
-Finally, start the app:
-
-```bash
 pnpm dev
 ```
 
-## Installing the App
-
-To verify that the app is running correctly, we must install it in Saleor. To do that, we need to expose our local development environment to the internet via a tunneling service. If you don't have experience with tunneling or app installation, you can follow the [Tunneling Apps](/developer/extending/apps/developing-with-tunnels.mdx) guide.
-
-The easiest way to proceed is to install a CLI tunneling tool like [`ngrok`](https://ngrok.com/), and then expose the app on the default port `3000`:
+Install the app in Saleor by exposing the local app through a tunnel. See [Developing with Tunnels](./developing-with-tunnels.mdx) if you have not installed a local app before.
 
 ```bash
 ngrok http 3000
 ```
 
-This command will return a public URL that you can use to install the app in Saleor.
+Then open Saleor Dashboard, go to _Apps_ -> _Install external app_, and paste the tunnel URL with the `/api/manifest` suffix.
 
-To do that, go to _Saleor Dashboard_ → _Apps_ → _Install external app_ and paste the URL with the `/api/manifest` suffix.
+### Define the Manifest
 
-After the installation, you should see the app on the _Apps_ list. If you click on it, you will see the App Template's default page.
+A payment app starts as a regular Saleor App. The first payment-specific requirement is the `HANDLE_PAYMENTS` permission. Without it, Saleor will not call your payment webhooks.
 
-## Implementing Transaction Initialize Session
-
-### Updating the App Permissions in the Manifest
-
-Our first step will be visiting the `src/pages/api/manifest.ts` directory, where the App Manifest lives.
-
-:::info
-
-[App Manifest](/developer/extending/apps/architecture/manifest.mdx) is the source of information about the app, including its webhooks. Saleor calls the `/manifest` API route during the app installation to retrieve all the necessary information about the app.
-
-:::
-
-Two fields in the App Manifest require our attention:
-
-- `permissions` - The list of permissions the app requires to communicate with Saleor correctly (through webhooks and queries).
-- `webhooks` - The list of webhooks the app wants to register in Saleor.
-
-As we can read in the [Transaction Events](/developer/extending/webhooks/synchronous-events/transaction.mdx#key-concepts) documentation, a Payment App needs [`HANDLE_PAYMENTS`](/api-reference/users/enums/permission-enum.mdx#handle-payments) permission to receive transaction webhooks:
+Start with the app identity, registration endpoint, and permission. In the Saleor App Template, the manifest handler usually lives at `src/pages/api/manifest.ts`. If your app uses a different Next.js structure, keep the same manifest fields and adapt the file path.
 
 ```ts
+// src/pages/api/manifest.ts
+
 import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
-import { AppManifest } from "@saleor/app-sdk/types";
+import { type AppManifest } from "@saleor/app-sdk/types";
 
 export default createManifestHandler({
-  async manifestFactory({ appBaseUrl, request }) {
-    // ...
+  async manifestFactory({ appBaseUrl }) {
     const manifest: AppManifest = {
       name: "Dummy Payment App",
+      id: "app.saleor.dummy-payment",
+      appUrl: appBaseUrl,
+      tokenTargetUrl: `${appBaseUrl}/api/register`,
       // highlight-next-line
       permissions: ["HANDLE_PAYMENTS"],
-      // ...
+      webhooks: [],
     };
+
+    return manifest;
   },
 });
 ```
 
-Once we have built our first webhook, we will also add it to the `webhooks` array in the App Manifest.
-
-Luckily, we won't need to provide webhook details manually. [Saleor App SDK](/developer/extending/apps/developing-apps/app-sdk/overview.mdx), a package included in the template, already provides helper classes for generating the webhooks: `SaleorSyncWebhook` and `SaleorAsyncWebhook`. Webhook instances created from these classes have the `getWebhookManifest` method, which we can use to generate the webhook manifest.
-
-### Declaring `SaleorSyncWebhook` Instance
-
-It's time to start implementing a handler for our first webhook: `TRANSACTION_INITIALIZE_SESSION`.
-
-Let's create a new file in the `src/pages/api/webhooks` directory, called `transaction-initialize-session.ts`.
-
-Then, initialize the `SaleorSyncWebhook` (since `TRANSACTION_INITIALIZE_SESSION` is a _synchronous_ webhook) instance in that file:
-
-```ts
-// src/pages/api/webhooks/transaction-initialize-session.ts
-import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
-import { saleorApp } from "../../../saleor-app";
-
-export const transactionInitializeSessionWebhook =
-  new SaleorSyncWebhook<unknown /* TODO: Add the payload type */>({
-    name: "Transaction Initialize Session",
-    webhookPath: "/api/webhooks/transaction-initialize-session",
-    event: "TRANSACTION_INITIALIZE_SESSION",
-    apl: saleorApp.apl,
-    query: "", // TODO: Add the subscription query
-  });
-```
-
-Here are the required constructor parameters of the `SaleorSyncWebhook` class:
-
-- `name` - The name of the webhook. It will be used during the webhook registration process.
-- `webhookPath` - The path to the webhook.
-- `event` - The [synchronous webhook event](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#values) that the handler will be listening to.
-- `apl` - The reference to the app's [APL](/developer/extending/apps/developing-apps/app-sdk/apl.mdx). Saleor App Template exports it from `src/saleor-app.ts`.
-- `query` - The query needed to generate the [subscription webhook payload](/developer/extending/webhooks/subscription-webhook-payloads.mdx). It is currently empty because we still need to declare our subscription query.
-
-Also, we have the `unknown` generic attribute. It represents the type of webhook payload the app will receive. Since we don't have the subscription query yet, it is `unknown`.
-
-### Defining the Subscription Query
-
-With [subscription webhook payloads](/developer/extending/webhooks/subscription-webhook-payloads.mdx), you can define the shape of the payload the webhook will receive. [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) and the Saleor App SDK ensure the payload is correctly typed. We will fill the `query` attribute with that subscription query.
-
-Let's define a subscription query for the `TRANSACTION_INITIALIZE_SESSION` handler:
+The empty `webhooks` array is intentional at this point. Add each webhook to the manifest only after you create the route that handles it. When you add or change a webhook subscription query, reinstall the app or update the webhook in Saleor.
 
 :::info
 
-In the Saleor App Template, we use [urql](https://formidable.com/open-source/urql/) to write GraphQL queries. If you prefer a different client, you still should be able to follow along.
+The [App SDK](./developing-apps/app-sdk/overview.mdx) uses the [APL](./developing-apps/app-sdk/apl.mdx) to store app installation auth data. A single-tenant app can usually read one installation record and one set of provider credentials. A multi-tenant app must resolve provider configuration by Saleor installation, channel, or merchant account before it calls the provider.
 
 :::
 
+### Manage Gateway Configuration
+
+Keep provider configuration separate from payment flow code. A real app usually stores:
+
+- server-only credentials, such as access tokens or secret keys,
+- browser-safe values, such as publishable keys or account IDs,
+- environment selection, such as sandbox or production,
+- feature flags, such as card, saved card, wallet, or gift card support.
+
+For this tutorial, the dummy provider can use static config:
+
 ```ts
-import { gql } from "urql";
+// src/lib/dummy-gateway-config.ts
 
-// 💡 We suggest keeping the payload in a fragment. It is easier to retrieve individual fields from the subscription this way.
-const TransactionInitializeSessionPayload = gql`
-  fragment TransactionInitializeSessionPayload on TransactionInitializeSession {
-    action {
-      amount
-      currency
-      actionType
-    }
-  }
-`;
-
-const TransactionInitializeSessionSubscription = gql`
-  # Payload fragment must be included in the root query
-  ${TransactionInitializeSessionPayload}
-  subscription TransactionInitializeSession {
-    event {
-      ...TransactionInitializeSessionPayload
-    }
-  }
-`;
+export const dummyGatewayConfig = {
+  publishableKey: "pk_dummy_123",
+  environment: "sandbox",
+  methods: {
+    card: true,
+    storedCard: true,
+  },
+};
 ```
 
-Then, let's regenerate the types (the app initially generated them during the dependencies installation):
+In production, store secrets in encrypted app private metadata or another secret store. Never expose provider secret keys, access tokens, webhook signing secrets, or app tokens to the browser.
+
+### Initialize the Payment Gateway
+
+Use `paymentGatewayInitialize` when the storefront needs data before it can render the payment form. A real provider might return a client secret, a publishable key, an available methods list, or SDK options.
+
+```mermaid
+sequenceDiagram
+  participant Storefront
+  participant Saleor
+  participant App as Payment App
+
+  Storefront->>Saleor: paymentGatewayInitialize
+  Saleor->>App: PAYMENT_GATEWAY_INITIALIZE_SESSION
+  App-->>Saleor: Browser-safe gateway data
+  Saleor-->>Storefront: gatewayConfigs
+  Storefront->>Storefront: Render provider payment form
+```
+
+The storefront calls `paymentGatewayInitialize` before it renders the provider UI:
+
+```graphql
+mutation PaymentGatewayInitialize(
+  $id: ID!
+  $amount: PositiveDecimal
+  $paymentGateways: [PaymentGatewayToInitialize!]
+) {
+  paymentGatewayInitialize(
+    id: $id
+    amount: $amount
+    paymentGateways: $paymentGateways
+  ) {
+    gatewayConfigs {
+      id
+      data
+      errors {
+        field
+        message
+        code
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+Saleor then sends `PAYMENT_GATEWAY_INITIALIZE_SESSION` to your app. Create `src/pages/api/webhooks/payment-gateway-initialize-session.ts` and define the subscription query and webhook:
+
+```ts
+// src/pages/api/webhooks/payment-gateway-initialize-session.ts
+
+import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
+import { saleorApp } from "../../../saleor-app";
+
+const subscription = `
+  subscription PaymentGatewayInitializeSession {
+    event {
+      ... on PaymentGatewayInitializeSession {
+        issuedAt
+        amount
+        data
+        sourceObject {
+          __typename
+          ... on Checkout {
+            id
+          }
+          ... on Order {
+            id
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const paymentGatewayInitializeSessionWebhook = new SaleorSyncWebhook({
+  name: "Dummy Payment Gateway Initialize Session",
+  webhookPath: "/api/webhooks/payment-gateway-initialize-session",
+  event: "PAYMENT_GATEWAY_INITIALIZE_SESSION",
+  apl: saleorApp.apl,
+  query: subscription,
+});
+```
+
+After you add or change a subscription query in the Saleor App Template, regenerate GraphQL types:
 
 ```bash
 pnpm generate
 ```
 
-When the command finishes, you should be able to import the type for the declared subscription query. With those two pieces, you can now update the `SaleorSyncWebhook` instance:
+This tutorial keeps handler snippets compact, but production code should type `ctx.payload` with the generated subscription payload.
+
+Then return the browser-safe gateway data from the handler:
 
 ```ts
-import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
-import { saleorApp } from "../../../saleor-app";
-import { TransactionInitializeSessionPayloadFragment } from "../../../../generated/graphql";
+// src/pages/api/webhooks/payment-gateway-initialize-session.ts
 
-export const transactionInitializeSessionWebhook =
-  new SaleorSyncWebhook<TransactionInitializeSessionPayloadFragment /* 💾 Updated with the payload type */>(
-    {
-      name: "Transaction Initialize Session",
-      webhookPath: "/api/webhooks/transaction-initialize-session",
-      event: "TRANSACTION_INITIALIZE_SESSION",
-      apl: saleorApp.apl,
-      query: TransactionInitializeSessionSubscription, // 💾 Updated with the subscription query
-    }
-  );
+export default paymentGatewayInitializeSessionWebhook.createHandler((_req, res) => {
+  return res.status(200).json({
+    data: {
+      publishableKey: "pk_dummy_123",
+      environment: "sandbox",
+      methods: {
+        card: true,
+        storedCard: true,
+      },
+    },
+  });
+});
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 ```
 
-#### `data` Field
-
-There is one more field we want to add to the `TransactionInitializeSessionPayload` fragment: [`data`](/api-reference/payments/objects/transaction-initialize.mdx#data).
-
-`data` is a field you can use to pass custom information to the webhook. There are no requirements for the content of the `data` field as long as it is a valid JSON object. You will notice the presence of the `data` field across other payment-related webhooks.
-
-We will use it to pass [the token received from the drop-in](#event-flow).
-
-In the [Calling the `transactionInitialize` Mutation](#calling-the-transactioninitialize-mutation) section, we will provide the token as a part of the mutation input. In the app, we receive the token in the `data` field of the payload.
-
-```ts
-const TransactionInitializeSessionPayload = gql`
-  fragment TransactionInitializeSessionPayload on TransactionInitializeSession {
-    action {
-      amount
-      currency
-      actionType
-    }
-    // highlight-next-line
-    data
-  }
-`;
-```
-
-Make sure to regenerate the types (by calling `pnpm generate`) after adding the `data` field to the payload fragment.
-
-#### Updating the App Webhooks in the Manifest
-
-Moving to populate the `webhooks` array in the App Manifest with the `transactionInitializeSessionWebhook`:
+After creating the route, import `paymentGatewayInitializeSessionWebhook` in the manifest and add its `getWebhookManifest(appBaseUrl)` result to the `webhooks` array:
 
 ```ts
 // src/pages/api/manifest.ts
-import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
-import { AppManifest } from "@saleor/app-sdk/types";
-// highlight-next-line
-import { transactionInitializeSessionWebhook } from "./webhooks/transaction-initialize-session"; // 👈 This is our webhook instance
 
-export default createManifestHandler({
-  async manifestFactory({ appBaseUrl }) {
-    // ...
-    const manifest: AppManifest = {
-      name: "Dummy Payment App",
-      permissions: ["HANDLE_PAYMENTS"],
-      webhooks: [
-        // highlight-next-line
-        transactionInitializeSessionWebhook.getWebhookManifest(appBaseUrl), // 👈 Call `getWebhookManifest`
-      ],
-      // ...
-    };
-  },
-});
-```
-
-:::warning
-
-Beware that modifying a subscription query for a registered webhook or adding a new webhook requires manual webhook update in Saleor API. The easiest way to do it is to reinstall the app. You can read more about this behavior in [How to Update App Webhooks](/developer/extending/apps/updating-app-webhooks.mdx).
-
-:::
-
-### Creating the Webhook Handler
-
-The handler is a function that will be called when the webhook is triggered. `saleor-app-sdk` handler is a decorated Next.js API ([pages](https://nextjs.org/docs/pages)) route handler.
-
-Let's go back to the `src/pages/api/webhooks/transaction-initialize-session.ts` file and extend it with the handler:
-
-```ts
-// src/pages/api/webhooks/transaction-initialize-session.ts
+import { paymentGatewayInitializeSessionWebhook } from "./webhooks/payment-gateway-initialize-session";
 
 // ...
-export default transactionInitializeSessionWebhook.createHandler(
-  (req, res, ctx) => {
-    const { payload, event, baseUrl, authData } = ctx;
 
-    // TODO: Implement the logic
-
-    return res.status(200).end();
-  }
-);
+webhooks: [
+  paymentGatewayInitializeSessionWebhook.getWebhookManifest(appBaseUrl),
+],
 ```
 
-As you can see, we are using the `createHandler` method of the `transactionInitializeSessionWebhook` instance. This method takes a handler function as an argument. The handler function receives three arguments: `req`, `res`, and `ctx`.
+:::caution
 
-While the first two are the standard Next.js request and response objects, the third one is the Saleor context. It contains the following properties:
-
-- `payload` - Type-safe subscription webhook payload.
-- `event` - Name of the event that triggered the webhook.
-- `baseUrl` - The base URL of the app. If you need to register the app or a webhook in an external service, you can use this URL.
-- `authData` - The [authentication data](/developer/extending/apps/developing-apps/app-sdk/apl.mdx#authdata) passed from Saleor to the app. Among other things, it contains the `token` you can use to query Saleor API. We won't need it in this tutorial.
-
-Since we are implementing the Dummy Payment Gateway, our handler logic will be basic. We will just log the payload and return the `CHARGE_ACTION_REQUIRED` event status. The only thing we need to remember is that the webhook response must adhere to the [webhook response format](/developer/extending/webhooks/synchronous-events/transaction.mdx#response-4):
-
-:::info
-
-A real-world `TRANSACTION_INITIALIZE_SESSION` webhook handler might:
-
-- Retrieve some kind of token from the `payload.data` to identify the payment.
-- Transform the payload into a format expected by the payment provider.
-- Call the payment provider API (to, for example, create a payment intent).
-- Process the response from the payment provider and return it.
+When you add a new webhook or modify a subscription query for a registered webhook, Saleor does not update the installed webhook automatically. The easiest way to apply the change during development is to reinstall the app. For production update flows, see [How to Update App Webhooks](./updating-app-webhooks.mdx).
 
 :::
 
-```ts
-export default transactionInitializeSessionWebhook.createHandler(
-  (req, res, ctx) => {
-    const { payload, event, baseUrl, authData } = ctx;
+### Initialize a Transaction
 
-    console.log("Transaction Initialize Session payload:", payload);
+Use `transactionInitialize` to create the first payment action for a checkout or order. The storefront should pass only provider client output and app-level routing fields in `paymentGateway.data`.
 
-    // validatePayment(payload.data.token); // This function could validate the token
-
-    const randomPspReference = crypto.randomUUID(); // Generate a random PSP reference
-
-    return res.status(200).json({
-      result: "CHARGE_ACTION_REQUIRED",
-      amount: payload.action.amount, // `payload` is typed thanks to the generated types
-      pspReference: randomPspReference,
-    });
-  }
-);
+```json
+{
+  "version": "dummy.v1",
+  "method": "card",
+  "token": "provider-token-from-frontend"
+}
 ```
 
-By returning the `CHARGE_ACTION_REQUIRED` event status, we inform Saleor that the payment requires additional action. We will perform this action in the next webhook handler.
-
-Besides the `result` field, we also return the `amount` and `pspReference` fields. The `amount` is the transaction amount, and the `pspReference` is a unique identifier of the payment in the payment provider system. Since we are not integrating with an actual payment provider, we generate a random `pspReference`.
-
-The last thing we must add to the bottom of the handler is the `config` object with `bodyParser` set to `false`. This is necessary for App-SDK to verify the Saleor webhook signature:
-
-```ts
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-```
-
-Here is the full content of the `transaction-initialize-session.ts` file:
-
-```ts
-import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
-import { saleorApp } from "../../../saleor-app";
-import { TransactionInitializeSessionPayloadFragment } from "../../../../generated/graphql";
-import { gql } from "urql";
-
-const TransactionInitializeSessionPayload = gql`
-  fragment TransactionInitializeSessionPayload on TransactionInitializeSession {
-    action {
-      amount
-      currency
-      actionType
-    }
-    data
-  }
-`;
-
-const TransactionInitializeSessionSubscription = gql`
-  # Payload fragment must be included in the root query
-  ${TransactionInitializeSessionPayload}
-  subscription TransactionInitializeSession {
-    event {
-      ...TransactionInitializeSessionPayload
-    }
-  }
-`;
-
-export const transactionInitializeSessionWebhook =
-  new SaleorSyncWebhook<TransactionInitializeSessionPayloadFragment>({
-    name: "Transaction Initialize Session",
-    webhookPath: "/api/webhooks/transaction-initialize-session",
-    event: "TRANSACTION_INITIALIZE_SESSION",
-    apl: saleorApp.apl,
-    query: TransactionInitializeSessionSubscription,
-  });
-
-export default transactionInitializeSessionWebhook.createHandler(
-  (req, res, ctx) => {
-    const { payload, event, baseUrl, authData } = ctx;
-
-    console.log("Transaction Initialize Session payload:", payload);
-
-    const randomPspReference = crypto.randomUUID();
-
-    return res.status(200).json({
-      result: "CHARGE_ACTION_REQUIRED",
-      amount: payload.action.amount,
-      pspReference: randomPspReference,
-    });
-  }
-);
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-```
-
-### Calling the `transactionInitialize` Mutation
-
-Assuming you installed the app in Saleor, we can finally try out our webhook handler. We can trigger the `TRANSACTION_INITIALIZE_SESSION` event by calling the `transactionInitialize` mutation from [GraphQL Playground](/api-usage/developer-tools.mdx#playground).
-
-Here is what the mutation looks like:
+The storefront passes that object through `paymentGateway.data`:
 
 ```graphql
 mutation TransactionInitialize(
-  $checkoutId: ID!
-  $data: JSON!
-  $paymentGatewayId: String!
+  $id: ID!
+  $paymentGateway: PaymentGatewayToInitialize!
+  $idempotencyKey: String
 ) {
   transactionInitialize(
-    id: $checkoutId
-    paymentGateway: { id: $paymentGatewayId, data: $data }
+    id: $id
+    paymentGateway: $paymentGateway
+    idempotencyKey: $idempotencyKey
   ) {
     transaction {
       id
     }
     transactionEvent {
-      id
       type
+      pspReference
     }
+    data
     errors {
       field
       message
@@ -475,272 +348,237 @@ mutation TransactionInitialize(
 }
 ```
 
-The mutation requires `checkoutId`, `data` and `paymentGatewayId`.
+Do not trust amount, currency, checkout ID, order ID, customer ID, provider account ID, or final payment state from `paymentGateway.data`. Saleor sends amount and currency in the webhook payload. The provider API returns provider references and status.
 
-- `checkoutId` is the ID of the checkout we want to pay for.
-
-- `data` is that JSON object for additional information [we mentioned earlier](#data-field). In our case, it will contain the token received from the fictional drop-in.
-
-- `paymentGatewayId` is the ID of the payment gateway that we want to use. We can see what payment gateways are available for the checkout by requesting the `availablePaymentGateways` field on the `checkout` query:
-
-```graphql
-query GetCheckout($id: ID!) {
-  checkout(id: $id) {
-    availablePaymentGateways {
-      id
-      name
-    }
-  }
-}
-```
-
-If we installed the app correctly, we should see the "Dummy Payment Gateway" in the list of available payment gateways. The `id` will be drawn from the App Manifest's `id` field (in the App Template, the default id is `saleor.app`).
-
-With `checkoutId`, `data` and `paymentGatewayId`, we can now call the `transactionInitialize` mutation:
-
-```json
-{
-  "checkoutId": "Q2hlY2tvdXQ6ZjVhMTkzMjUtMjY3My00MTU0LThjM2QtYjE1OThlYzVlZjc3",
-  "data": {
-    "token": "dummy-drop-in-token"
-  },
-  "paymentGatewayId": "saleor.app"
-}
-```
-
-In the response, we should see the created transaction and the transaction event with the `CHARGE_ACTION_REQUIRED` type:
-
-```json
-{
-  "data": {
-    "transactionInitialize": {
-      "transaction": {
-        "id": "VHJhbnNhY3Rpb25JdGVtOjhiZDY0NTA2LTRlYWYtNGZmYS05ZmRjLTY1MTY5MTc3ZTg2MA=="
-      },
-      "transactionEvent": {
-        "id": "VHJhbnNhY3Rpb25FdmVudDo0MDkx",
-        "type": "CHARGE_ACTION_REQUIRED"
-      },
-      "errors": []
-    }
-  }
-}
-```
-
-The app's console should also log the payload received from the webhook:
-
-```json
-{
-  "action": {
-    "amount": 100,
-    "currency": "USD",
-    "actionType": "CHARGE"
-  },
-  "data": {
-    "token": "dummy-drop-in-token"
-  }
-}
-```
-
-## Implementing Transaction Process Session
-
-### Creating the Webhook Handler
-
-:::warning
-
-The `transactionProcess` mutation will only reach the app if the previous call to `TRANSACTION_INITIALIZE_SESSION` returned either `CHARGE_ACTION_REQUIRED` or `AUTHORIZE_ACTION_REQUIRED` event status.
-
-:::
-
-After our first webhook handler returns the `CHARGE_ACTION_REQUIRED` status, we need to implement the `TRANSACTION_PROCESS_SESSION` webhook handler to update the status to either `CHARGE_SUCCESS` or `CHARGE_FAILURE`.
-
-We will start by repeating the steps from the previous section. Let's create a new file in the `src/pages/api/webhooks` directory, called `transaction-process-session.ts`.
-
-Then, declare the subscription query for the `TRANSACTION_PROCESS_SESSION` webhook:
+Create `src/pages/api/webhooks/transaction-initialize-session.ts`:
 
 ```ts
-import { TransactionProcessSessionPayloadFragment } from "../../../../generated/graphql"; // Import the generated payload type
-import { gql } from "urql";
+// src/pages/api/webhooks/transaction-initialize-session.ts
 
-// 💡 Remember to regenerate the types after adding the new subscription query
-const TransactionProcessSessionPayload = gql`
-  fragment TransactionProcessSessionPayload on TransactionProcessSession {
-    action {
-      amount
-      currency
-      actionType
-    }
-  }
-`;
-
-const TransactionProcessSessionSubscription = gql`
-  ${TransactionProcessSessionPayload}
-  subscription TransactionProcessSession {
-    event {
-      ...TransactionProcessSessionPayload
-    }
-  }
-`;
-```
-
-And then, create the `SaleorSyncWebhook` instance, as well as the webhook handler:
-
-```ts
-import { TransactionProcessSessionPayloadFragment } from "../../../../generated/graphql"; // Import the generated payload type
-import { gql } from "urql";
-// highlight-start
 import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
+import { paymentProvider } from "@example/payment-provider-sdk";
 import { saleorApp } from "../../../saleor-app";
-// highlight-end
 
-// 💡 Remember to regenerate the types after adding the new subscription query
-const TransactionProcessSessionPayload = gql`
-  fragment TransactionProcessSessionPayload on TransactionProcessSession {
-    action {
-      amount
-      currency
-      actionType
-    }
-  }
-`;
-
-const TransactionProcessSessionSubscription = gql`
-  ${TransactionProcessSessionPayload}
-  subscription TransactionProcessSession {
+const subscription = `
+  subscription TransactionInitializeSession {
     event {
-      ...TransactionProcessSessionPayload
+      ... on TransactionInitializeSession {
+        issuedAt
+        idempotencyKey
+        data
+        action {
+          amount
+          currency
+          actionType
+        }
+        transaction {
+          id
+        }
+        sourceObject {
+          __typename
+          ... on Checkout {
+            id
+          }
+          ... on Order {
+            id
+          }
+        }
+      }
     }
   }
 `;
 
-// highlight-start
-export const transactionProcessSessionWebhook =
-  new SaleorSyncWebhook<TransactionProcessSessionPayloadFragment>({
-    name: "Transaction Process Session",
-    webhookPath: "/api/webhooks/transaction-process-session",
-    event: "TRANSACTION_PROCESS_SESSION",
-    apl: saleorApp.apl,
-    query: TransactionProcessSessionSubscription,
+export const transactionInitializeSessionWebhook = new SaleorSyncWebhook({
+  name: "Dummy Transaction Initialize Session",
+  webhookPath: "/api/webhooks/transaction-initialize-session",
+  event: "TRANSACTION_INITIALIZE_SESSION",
+  apl: saleorApp.apl,
+  query: subscription,
+});
+
+export default transactionInitializeSessionWebhook.createHandler(async (_req, res, ctx) => {
+  const { payload } = ctx;
+  const payment = await paymentProvider.payments.create({
+    amount: payload.action.amount,
+    currency: payload.action.currency,
+    paymentToken: payload.data?.token,
+    idempotencyKey: payload.idempotencyKey,
+    sourceObjectId: payload.sourceObject.id,
   });
 
-export default transactionProcessSessionWebhook.createHandler(
-  (req, res, ctx) => {
-    const { payload, event, baseUrl, authData } = ctx;
-
-    console.log("Transaction Process Session payload:", payload);
-
-    return res.status(200).json({
-      result: "CHARGE_SUCCESS",
-      amount: payload.action.amount,
-      pspReference: crypto.randomUUID(),
-    });
-  }
-);
+  return res.status(200).json({
+    result: "CHARGE_SUCCESS",
+    amount: payload.action.amount,
+    pspReference: payment.id,
+  });
+});
 
 export const config = {
   api: {
     bodyParser: false,
   },
 };
-// highlight-end
 ```
 
-Once again, our handler is simple. We only log the payload and return the `CHARGE_SUCCESS` event status, no questions asked.
+A real provider might create a payment intent, authorize funds, charge the card, or create a hosted session. Use the Saleor `idempotencyKey` for the provider request, or derive a provider-safe key from it if the provider has length or character limits.
 
-:::info
+## Stage 2: Follow-Up Actions
 
-A real-world `TRANSACTION_PROCESS_SESSION` webhook handler might:
+Some providers cannot finish the payment in the first `transactionInitialize` call. They may require 3D Secure, a redirect, mobile approval, or a provider-hosted confirmation screen.
 
-- Call the payment provider API to confirm the payment status.
-- Return either `CHARGE_SUCCESS`, `CHARGE_FAILURE` or `CHARGE_ACTION_REQUIRED` (if there are multiple checks required).
+When `transactionInitialize` returns `CHARGE_ACTION_REQUIRED` or `AUTHORIZATION_ACTION_REQUIRED`, the storefront must complete the provider action and then call `transactionProcess`.
 
-:::
+The payment app returns action instructions in the webhook response `data` field. Saleor does not interpret this object. It returns the same object in the `transactionInitialize` or `transactionProcess` mutation response so the storefront can decide what to render next.
 
-#### Error Handling
-
-If the handler performs a logic that could fail, we should try to catch the error and, in that case, return the `CHARGE_FAILURE` event status:
+Support this path by returning `CHARGE_ACTION_REQUIRED` from `transactionInitialize` when the provider says the customer must complete another step. Add this branch before the success response in the `transactionInitialize` handler:
 
 ```ts
-export default transactionProcessSessionWebhook.createHandler(
-  (req, res, ctx) => {
-    const { payload, event, baseUrl, authData } = ctx;
+// src/pages/api/webhooks/transaction-initialize-session.ts
 
-    console.log("Transaction Process Session payload:", payload);
-
-    try {
-      doSomethingThatCanFail(); // This function can throw an error
-
-      return res.status(200).json({
-        result: "CHARGE_SUCCESS",
-        amount: payload.action.amount,
-        pspReference: crypto.randomUUID(),
-      });
-    } catch (error) {
-      return res.status(200).json({
-        result: "CHARGE_FAILURE",
-        amount: payload.action.amount,
-        pspReference: crypto.randomUUID(),
-      });
-    }
-  }
-);
+if (payment.status === "requires_action") {
+  return res.status(200).json({
+    result: "CHARGE_ACTION_REQUIRED",
+    amount: payload.action.amount,
+    pspReference: payment.id,
+    data: payment.nextAction,
+  });
+}
 ```
 
-#### Updating the App Manifest
+### Process the Follow-Up Action
 
-The last step is to update the App Manifest with the new webhook:
+```mermaid
+sequenceDiagram
+  participant Storefront
+  participant Saleor
+  participant App as Payment App
+  participant Provider as Payment Provider
 
-```ts
-// src/pages/api/manifest.ts
-import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
-import { AppManifest } from "@saleor/app-sdk/types";
-import { transactionInitializeSessionWebhook } from "./webhooks/transaction-initialize-session";
-// highlight-next-line
-import { transactionProcessSessionWebhook } from "./webhooks/transaction-process-session";
-
-export default createManifestHandler({
-  async manifestFactory({ appBaseUrl }) {
-    // ...
-    const manifest: AppManifest = {
-      name: "Dummy Payment App",
-      webhooks: [
-        transactionInitializeSessionWebhook.getWebhookManifest(appBaseUrl),
-        // highlight-next-line
-        transactionProcessSessionWebhook.getWebhookManifest(appBaseUrl),
-      ],
-      // ...
-    };
-  },
-});
+  Storefront->>Provider: Complete action from transactionInitialize data
+  Provider-->>Storefront: Confirmation result
+  Storefront->>Saleor: transactionProcess
+  Saleor->>App: TRANSACTION_PROCESS_SESSION
+  App->>Provider: Confirm or fetch provider payment
+  App-->>Saleor: CHARGE_SUCCESS or CHARGE_FAILURE
+  Saleor-->>Storefront: Transaction result
 ```
 
-Once again, **remember to update the app's webhooks or reinstall the app in Saleor**. Otherwise, the new webhook handler won't be called on `transactionProcess`.
-
-:::warning
-
-When installing the app back, you may get "**App with the same identifier is already installed**" error.
-
-Saleor throws this error because the process of fully uninstalling the app is handled by an asynchronous Saleor worker. This means it can take some time before you can install the app with the same identifier again.
-
-If you encounter this error, you can temporarily change the app's `id` in the App Manifest.
-
-:::
-
-### Calling the `transactionProcess` Mutation
-
-To test the `TRANSACTION_PROCESS_SESSION` webhook, we need to call the `transactionProcess` mutation. The mutation requires the `transactionId` variable, which is the ID of the transaction we want to process. That will be the `id` field from the `transaction` object returned by the `transactionInitialize` mutation.
-
-Here is what the mutation looks like:
+The storefront calls `transactionProcess` with the provider confirmation data:
 
 ```graphql
-mutation TransactionProcess($transactionId: ID!) {
-  transactionProcess(id: $transactionId) {
+mutation TransactionProcess($id: ID!, $data: JSON) {
+  transactionProcess(id: $id, data: $data) {
     transaction {
       id
     }
     transactionEvent {
-      id
       type
+      pspReference
+    }
+    data
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+Create `src/pages/api/webhooks/transaction-process-session.ts`:
+
+```ts
+// src/pages/api/webhooks/transaction-process-session.ts
+
+import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
+import { paymentProvider } from "@example/payment-provider-sdk";
+import { saleorApp } from "../../../saleor-app";
+
+const subscription = `
+  subscription TransactionProcessSession {
+    event {
+      ... on TransactionProcessSession {
+        issuedAt
+        data
+        action {
+          amount
+          currency
+          actionType
+        }
+        transaction {
+          id
+          pspReference
+        }
+      }
+    }
+  }
+`;
+
+export const transactionProcessSessionWebhook = new SaleorSyncWebhook({
+  name: "Dummy Transaction Process Session",
+  webhookPath: "/api/webhooks/transaction-process-session",
+  event: "TRANSACTION_PROCESS_SESSION",
+  apl: saleorApp.apl,
+  query: subscription,
+});
+
+export default transactionProcessSessionWebhook.createHandler(async (_req, res, ctx) => {
+  const { payload } = ctx;
+
+  const payment = await paymentProvider.payments.confirm({
+    paymentId: payload.transaction.pspReference,
+    confirmationData: payload.data,
+  });
+
+  return res.status(200).json({
+    result: "CHARGE_SUCCESS",
+    amount: payload.action.amount,
+    pspReference: payment.id,
+  });
+});
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+```
+
+Some providers require more than one follow-up step. In that case, the app can return another `CHARGE_ACTION_REQUIRED` or `AUTHORIZATION_ACTION_REQUIRED` response until the provider reaches a final state.
+
+## Stage 3: Post-Purchase Actions
+
+After the checkout payment works, handle the transaction lifecycle that happens after the first charge or authorization. This includes refunds, delayed charge or cancel requests, and provider webhooks that report final status later.
+
+### Handle Refunds and Transaction Actions
+
+Saleor can request transaction actions after the original payment. For a payment app, the most common action is a refund.
+
+There are two request mutations:
+
+- [`transactionRequestAction`](../../../api-reference/payments/mutations/transaction-request-action.mdx) can request charge, cancel, or refund actions for a transaction.
+- [`transactionRequestRefundForGrantedRefund`](../../../api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) requests a refund based on an `OrderGrantedRefund`.
+
+Both paths can trigger `TRANSACTION_REFUND_REQUESTED`. If you support delayed capture or cancellation, you can also implement `TRANSACTION_CHARGE_REQUESTED` and `TRANSACTION_CANCELATION_REQUESTED`.
+
+Use `transactionRequestAction` when you want to request a charge, cancel, or refund action for a transaction:
+
+```graphql
+mutation TransactionRequestAction(
+  $id: ID!
+  $actionType: TransactionActionEnum!
+  $amount: PositiveDecimal
+) {
+  transactionRequestAction(id: $id, actionType: $actionType, amount: $amount) {
+    transaction {
+      id
+      pspReference
+      actions
+      events {
+        id
+        type
+        pspReference
+      }
     }
     errors {
       field
@@ -751,41 +589,440 @@ mutation TransactionProcess($transactionId: ID!) {
 }
 ```
 
-In response, we should receive the processed transaction and the corresponding transaction event with the `CHARGE_SUCCESS` type:
+Use `transactionRequestRefundForGrantedRefund` when Saleor has already created a granted refund and the provider needs that refund context:
 
-```json
-{
-  "data": {
-    "transactionProcess": {
-      "transaction": {
-        "id": "UHJvamVjdFRy"
-      },
-      "transactionEvent": {
-        "id": "VHJhbnNhY3Rpb25FdmVudDoz",
-        "type": "CHARGE_SUCCESS"
-      },
-      "errors": []
+```graphql
+mutation TransactionRequestRefundForGrantedRefund(
+  $transactionId: ID!
+  $grantedRefundId: ID!
+) {
+  transactionRequestRefundForGrantedRefund(
+    id: $transactionId
+    grantedRefundId: $grantedRefundId
+  ) {
+    transaction {
+      id
+      pspReference
+      actions
+      events {
+        id
+        type
+        pspReference
+      }
+    }
+    errors {
+      field
+      message
+      code
     }
   }
 }
 ```
 
-And that concludes the implementation of the Dummy Payment Gateway. With just two webhooks, we managed to model a 3D Secure payment flow.
+```mermaid
+sequenceDiagram
+  participant Staff
+  participant Saleor
+  participant App as Payment App
+  participant Provider as Payment Provider
 
-For most checkouts, placing payment will be the last step. That means you could now [complete the checkout](/api-reference/checkout/mutations/checkout-complete.mdx) and place the order 🎉.
+  Staff->>Saleor: transactionRequestAction or transactionRequestRefundForGrantedRefund
+  Saleor->>Saleor: Create REQUEST transaction event
+  Saleor->>App: TRANSACTION_REFUND_REQUESTED
+  App->>Provider: Create refund
+  alt Provider returns final result
+    App-->>Saleor: REFUND_SUCCESS or REFUND_FAILURE
+  else Provider returns pending result
+    App-->>Saleor: REFUND_REQUEST with PSP reference
+    Provider-->>App: Provider refund webhook later
+    App->>Saleor: transactionEventReport
+  end
+```
 
-## Next steps
+Create `src/pages/api/webhooks/transaction-refund-requested.ts`:
 
-Congratulations on building your first Saleor Payment App!
+```ts
+// src/pages/api/webhooks/transaction-refund-requested.ts
 
-Its scope doesn't have to end here. You can further extend the app with additional features:
+import { SaleorSyncWebhook } from "@saleor/app-sdk/handlers/next";
+import { paymentProvider } from "@example/payment-provider-sdk";
+import { saleorApp } from "../../../saleor-app";
 
-- If your payment provider requires additional operation before the payment is even initialized (for example, to render the drop-in), you might be interested in reading about the [`PAYMENT_GATEWAY_INITIALIZE_SESSION`](/developer/payments/payment-apps.mdx#initialize-payment-gateway) webhook.
-- To allow users to save their payment methods for future use, you should implement the [Stored Payment Methods API](/developer/payments/stored-payments.mdx).
-- If your payment provider needs to report the transaction status to Saleor asynchronously, you can use the [`transactionEventReport` mutation](/developer/payments/transactions.mdx#reporting-actions-for-transactions).
+const subscription = `
+  subscription TransactionRefundRequested {
+    event {
+      ... on TransactionRefundRequested {
+        issuedAt
+        action {
+          amount
+          currency
+          actionType
+        }
+        transaction {
+          id
+          pspReference
+        }
+        grantedRefund {
+          id
+          reason
+        }
+      }
+    }
+  }
+`;
+
+export const transactionRefundRequestedWebhook = new SaleorSyncWebhook({
+  name: "Dummy Transaction Refund Requested",
+  webhookPath: "/api/webhooks/transaction-refund-requested",
+  event: "TRANSACTION_REFUND_REQUESTED",
+  apl: saleorApp.apl,
+  query: subscription,
+});
+
+export default transactionRefundRequestedWebhook.createHandler(async (_req, res, ctx) => {
+  const { payload } = ctx;
+
+  const refund = await paymentProvider.refunds.create({
+    paymentId: payload.transaction.pspReference,
+    amount: payload.action.amount,
+    currency: payload.action.currency,
+    idempotencyKey: payload.grantedRefund?.id,
+  });
+
+  return res.status(200).json({
+    result: "REFUND_SUCCESS",
+    amount: payload.action.amount,
+    pspReference: refund.id,
+  });
+});
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+```
+
+For a real provider, use the transaction `pspReference` to identify the original provider payment. Use a stable idempotency key for the refund request, especially when retrying after a timeout.
+
+### Report Provider Webhooks to Saleor
+
+Many providers send final status through their own webhooks. Provider webhooks are not Saleor manifest webhooks. They are app-owned routes that receive provider events, verify provider signatures, and report the result to Saleor with `transactionEventReport`.
+
+```mermaid
+sequenceDiagram
+  participant Provider as Payment Provider
+  participant App as Payment App
+  participant Saleor
+
+  Provider->>App: payment.updated or refund.updated
+  App->>App: Verify provider signature
+  App->>App: Parse provider event
+  App->>Saleor: transactionEventReport
+  Saleor-->>App: Transaction event
+  App-->>Provider: 200 OK
+```
+
+The app reports provider status back to Saleor with `transactionEventReport`:
+
+```graphql
+mutation TransactionEventReport(
+  $id: ID!
+  $type: TransactionEventTypeEnum!
+  $amount: PositiveDecimal
+  $pspReference: String!
+  $message: String
+) {
+  transactionEventReport(
+    id: $id
+    type: $type
+    amount: $amount
+    pspReference: $pspReference
+    message: $message
+  ) {
+    transactionEvent {
+      id
+      type
+      pspReference
+    }
+    alreadyProcessed
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+Keep the provider adapter separate from the Saleor reporting helper. The provider adapter should verify the provider signature, parse the provider event, and map it to the `transactionEventReport` variables.
+
+Create a provider webhook route such as `src/pages/api/provider-webhook.ts`:
+
+```ts
+// src/pages/api/provider-webhook.ts
+
+import { type NextApiHandler, type NextApiRequest } from "next";
+import { paymentProvider } from "@example/payment-provider-sdk";
+
+import { reportTransactionEvent } from "../../lib/report-transaction-event";
+
+type ProviderEvent = {
+  transactionId: string;
+  pspReference: string;
+  amount: number;
+  type: "CHARGE_SUCCESS" | "CHARGE_FAILURE" | "REFUND_SUCCESS" | "REFUND_FAILURE";
+};
+
+const readRawBody = async (req: NextApiRequest) => {
+  const chunks: Buffer[] = [];
+
+  for await (const chunk of req) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+
+  return Buffer.concat(chunks).toString("utf8");
+};
+
+const mapProviderEventToReportInput = (event: ProviderEvent) => {
+  return {
+    id: event.transactionId,
+    type: event.type,
+    amount: event.amount,
+    pspReference: event.pspReference,
+  };
+};
+
+const handler: NextApiHandler = async (req, res) => {
+  const rawBody = await readRawBody(req);
+  const signature = req.headers["dummy-signature"];
+  const signatureValue = Array.isArray(signature) ? signature[0] : signature;
+  const event = paymentProvider.webhooks.parseEvent(rawBody, signatureValue);
+  const reportInput = mapProviderEventToReportInput(event);
+
+  await reportTransactionEvent(reportInput);
+
+  return res.status(200).json({
+    result: "received",
+    pspReference: reportInput.pspReference,
+  });
+};
+
+export default handler;
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+```
+
+The `reportTransactionEvent` helper should execute the mutation above with an app token from the APL. In a single-tenant app, that usually means reading the app's installation auth data and creating a Saleor GraphQL client for that Saleor domain.
+
+A real provider webhook route should:
+
+- verify the provider signature before parsing business fields,
+- reject invalid payloads,
+- map only known provider statuses,
+- report unknown statuses as operational errors,
+- avoid logging raw provider tokens or secrets,
+- return `200` only when the event was accepted or intentionally ignored.
+
+## Stage 4: Stored Payment Methods
+
+Stored payment methods let a signed-in customer save a payment method and use it again later. A common example is a card saved during checkout.
+
+The payment provider still owns the sensitive payment details. Your app connects the provider's stored method to the Saleor user and gives Saleor a safe description to display, such as the card brand, last four digits, and expiry date. The storefront refers to the method by an opaque ID. It never receives the full card number or a provider secret.
+
+Saving a method usually has two parts:
+
+1. **Get the provider configuration.** The storefront asks for the browser-safe values it needs to start the provider SDK, such as a publishable key or setup session.
+2. **Save the method.** After the provider collects the payment details, the storefront sends the resulting provider token to Saleor. Your app exchanges that token for a reusable provider payment method and returns its ID.
+
+Saleor uses longer API names for these two parts:
+
+| What the customer is doing | Storefront mutation | Webhook handled by the app |
+| --- | --- | --- |
+| Starting the "save payment method" form | `paymentGatewayInitializeTokenization` | `PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION` |
+| Saving the collected payment method | `paymentMethodInitializeTokenization` | `PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION` |
+
+```mermaid
+sequenceDiagram
+  participant Storefront
+  participant Saleor
+  participant App as Payment App
+  participant Provider as Payment Provider
+
+  Storefront->>Saleor: Prepare to save a payment method
+  Saleor->>App: Initialize tokenization webhook
+  App-->>Saleor: Browser-safe provider config
+  Saleor-->>Storefront: Browser-safe provider config
+  Storefront->>Provider: Collect payment details
+  Provider-->>Storefront: One-time setup token
+  Storefront->>Saleor: Save the payment method
+  Saleor->>App: Initialize payment method webhook
+  App->>Provider: Create reusable payment method
+  Provider-->>App: Provider payment method ID
+  App-->>Saleor: Safe display data and opaque ID
+  Saleor-->>Storefront: Safe display data and opaque ID
+```
+
+The examples below walk through these two parts. Define both webhook routes with `SaleorSyncWebhook`, a subscription query, `saleorApp.apl`, and `bodyParser: false`, as shown in the checkout payment webhooks. Run `pnpm generate` and type `ctx.payload` with the generated subscription payload.
+
+### Get the Provider Configuration
+
+The storefront starts with `paymentGatewayInitializeTokenization`. This does not save anything yet. It asks your app for the browser-safe values needed to render the provider's form or SDK.
+
+```graphql
+mutation PaymentGatewayInitializeTokenization(
+  $id: String!
+  $channel: String!
+  $data: JSON
+) {
+  paymentGatewayInitializeTokenization(id: $id, channel: $channel, data: $data) {
+    result
+    data
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+Saleor triggers `PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION`. The app gets its provider configuration and returns only the values that are safe to expose in the browser:
+
+```ts
+// src/lib/stored-payment-methods.ts
+
+const buildGatewayTokenizationResponse = () => {
+  return {
+    result: "SUCCESSFULLY_INITIALIZED",
+    data: {
+      publishableKey: "pk_dummy_123",
+      setupSessionId: "dummy-setup-session-123",
+    },
+  };
+};
+```
+
+The storefront uses this response to initialize the provider SDK. The provider then collects the payment details directly and returns a short-lived setup token. Do not send raw card details through Saleor or your app.
+
+### Save the Payment Method
+
+After collecting the provider token, the storefront calls `paymentMethodInitializeTokenization`. The `data` field carries provider-specific input, not trusted Saleor data:
+
+```graphql
+mutation PaymentMethodInitializeTokenization(
+  $id: String!
+  $channel: String!
+  $paymentFlowToSupport: TokenizedPaymentFlowEnum!
+  $data: JSON
+) {
+  paymentMethodInitializeTokenization(
+    id: $id
+    channel: $channel
+    paymentFlowToSupport: $paymentFlowToSupport
+    data: $data
+  ) {
+    result
+    id
+    data
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+Saleor triggers `PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION`. The app should:
+
+1. Read the Saleor user and channel from the webhook payload.
+2. Pass the short-lived setup token to the provider.
+3. Create or attach the reusable payment method to the correct provider customer.
+4. Return an opaque method ID and safe display details.
+
+For the dummy provider, the response can look like this:
+
+```ts
+// src/lib/stored-payment-methods.ts
+
+const buildPaymentMethodInitializeResponse = () => {
+  return {
+    result: "SUCCESSFULLY_TOKENIZED",
+    id: "dummy-method-123",
+    data: {
+      brand: "visa",
+      lastDigits: "4242",
+    },
+  };
+};
+```
+
+The ID is the handle used for later operations. It must not contain sensitive payment data. Before using it, the app must verify that the method belongs to the Saleor user from the webhook payload.
+
+### The Remaining Operations
+
+The same pattern covers the rest of the stored-method lifecycle. The storefront calls Saleor, Saleor calls the app, and the app performs the operation with the provider.
+
+| Customer action | Saleor API | What the app does |
+| --- | --- | --- |
+| Complete an extra verification step | `paymentMethodProcessTokenization` / `PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION` | Confirm a setup flow that returned `ADDITIONAL_ACTION_REQUIRED`, such as 3D Secure or a redirect. |
+| View saved methods | `checkout.storedPaymentMethods` or `User.storedPaymentMethods` / `LIST_STORED_PAYMENT_METHODS` | List the user's provider methods and return only their IDs and safe display details. |
+| Delete a saved method | `storedPaymentMethodRequestDelete` / `STORED_PAYMENT_METHOD_DELETE_REQUESTED` | Detach or disable the method at the provider and return `SUCCESSFULLY_DELETED`. |
+| Pay with a saved method | `transactionInitialize` / `TRANSACTION_INITIALIZE_SESSION` | Resolve the supplied method ID, verify ownership, and create a payment with the provider. |
+
+These operations do not need separate implementations in this tutorial. They use the same webhook structure and provider boundary as the two methods above. See [Stored Payment Methods](../../payments/stored-payments.mdx) for every request and response shape.
+
+## Best Practices
+
+The examples above keep the provider logic simple. A production payment app needs a stronger contract:
+
+1. **Follow the Saleor action exactly.** Use its action type, amount, currency, and refund identity. Do not replace them with checkout totals or storefront data. The storefront may send an opaque provider token, but it does not decide financial facts. Do not store or log short-lived payment tokens, and never expose server credentials to the browser.
+
+2. **Give every attempt one stable reference.** Create an app-owned reference before calling the provider. Keep it across retries, return it as Saleor's `pspReference`, and send it to the provider as a merchant reference when possible. Webhooks should use this same reference to find the attempt.
+
+3. **Keep identities separate.** The app's attempt reference, the provider's payment or refund ID, and the provider account that owns it are different things. A local configuration ID is not a payment identity.
+
+4. **Unknown does not mean failed.** A timeout only means the app did not receive an answer. The payment or refund may still have happened. Keep the transaction pending and reconcile it later instead of inviting another attempt.
+
+5. **Verify what the provider did.** Before reporting success, check the provider status, amount, currency, object ID, and its relationship to the original payment. An HTTP success response alone does not prove that the requested financial operation completed.
+
+6. **Use provider webhooks to reconcile existing attempts.** Verify the signature against the raw body. Expect events to arrive early, late, more than once, or out of order. Do not let an old event move a completed transaction backwards. Return `2xx` only after processing the event or storing it durably. If the matching Saleor transaction does not exist yet and nothing stored the event, return a retriable error such as `503`.
+
+7. **Refund the original provider payment.** Saleor decides the refund amount. The stored provider payment ID identifies what to refund. Use credentials for the provider account that owns that payment, not an old local configuration ID or whichever configuration is currently assigned to the channel.
+
+8. **Make each Saleor transaction atomic.** In plain English, one transaction should do one financial thing against one funding source: one charge, authorization, refund, capture, or cancellation. It should not quietly create another payment, switch payment methods, or combine several funding sources. For example, a gift card and a credit card should be two separate Saleor transactions.
+
+9. **Design for interruption.** Any provider call can time out halfway through. Before making it, the app should already have a stable reference, a pending state, and a way to reconcile the result later.
+
+Keep shopper-facing errors short and safe. Put detailed diagnostics in server logs or app configuration screens without logging payment tokens or secrets.
+
+## Frontend Testing
+
+You can test the frontend side with:
+
+- [Saleor Payment Apps test client](https://github.com/saleor/saleor-payment-apps-testclient), which is designed for payment app checkout testing.
+- [Saleor Storefront](https://github.com/saleor/storefront), which is a production-style storefront baseline.
+
+For a one-time payment, the frontend should:
+
+1. Query the checkout and available payment gateways.
+2. Call `paymentGatewayInitialize` if the provider needs browser setup.
+3. Render the provider payment UI.
+4. Collect a provider token or complete the provider-hosted step.
+5. Call `transactionInitialize` with a stable `idempotencyKey`.
+6. If the app returns follow-up action data, complete the action and call `transactionProcess`.
+7. Call `checkoutComplete` only after Saleor reports a successful charge or authorization state.
 
 ## Related Resources
 
-- [Using Payment Apps](/developer/payments/payment-apps.mdx)
-- [Transactions API](/developer/payments/transactions.mdx)
-- [Transactions Webhooks](/developer/extending/webhooks/synchronous-events/transaction.mdx)
+- [Using Payment Apps](../../payments/payment-apps.mdx)
+- [Transactions API](../../payments/transactions.mdx)
+- [Stored Payment Methods](../../payments/stored-payments.mdx)
+- [Transaction Webhooks](../webhooks/synchronous-events/transaction.mdx)
+- [Stored Payment Method Webhooks](../webhooks/synchronous-events/stored-payment-method.mdx)
+- [Subscription Webhook Payloads](../webhooks/subscription-webhook-payloads.mdx)
