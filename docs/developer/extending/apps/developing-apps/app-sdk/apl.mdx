@@ -280,6 +280,23 @@ Keep in mind that:
 - If you promote the environment, you need to update `saleorApiUrl`
 - If you reinstall the app, you need to repeat the process to receive a new token and ID
 
+#### JWKS caching
+
+Values in `EnvAPL` are read-only, but JWKS is used by the SDK to verify JWT tokens, so from `@saleor/app-sdk` 1.8 `EnvAPL` caches it in memory instead of fetching it on every verification. Other APLs store JWKS in `AuthData` for the same reason.
+
+The TTL defaults to 5 minutes and can be changed with `cacheTtlMs`:
+
+```typescript
+const apl = new EnvAPL({
+  env: {
+    /* ... */
+  },
+  cacheTtlMs: 60_000,
+});
+```
+
+On a long-running server the cache lives for the full TTL. In serverless environments it behaves like a cold cache whenever a new instance is spawned.
+
 
 ### VercelKvApl
 
@@ -384,12 +401,6 @@ const table = new Table<PartitionKey, SortKey>({
 
 Note that this APL exposes `create` factory method, that is easier to use, providing only envs and table instance. There is also `constructor` but it requires more low-level setup, which is not recommended.
 
-
-### SaleorCloudAPL (private & deprecated)
-
-You may see that there is a `SaleorCloudAPL` exported as well. This APL is specific implementation that Saleor Cloud uses when hosting apps on the cloud platform.
-
-It's not available to use and will not be bundled by your app if not imported.
 
 ## Community APL implementations
 
