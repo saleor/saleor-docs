@@ -16,6 +16,7 @@ App will be installed with Manifest ID `saleor.app.payment.np-atobarai`. This ID
 ### Prerequisites
 
 To initialize the payment, you should have implemented flow that will:
+
 - Create a checkout with supported shipping method
 - Set required fields, like address and shipping method
 - Have a final amount to pay calculated
@@ -55,7 +56,6 @@ mutation PaymentGatewayInitalize(
     }
   }
 }
-
 ```
 
 If the app is properly configured and has valid checkout data, you should receive a response like this:
@@ -73,7 +73,7 @@ If the app is properly configured and has valid checkout data, you should receiv
       ],
       "errors": []
     }
-  },
+  }
 }
 ```
 
@@ -82,10 +82,7 @@ If the app is properly configured and has valid checkout data, you should receiv
 The next step is to submit payment to NP Atobarai app so it can register transaction. You can do this by using `initalizeTransaction` mutation:
 
 ```graphql
-mutation TransactionInitialize(
-  $checkoutId: ID!
-  $amount: PositiveDecimal!
-) {
+mutation TransactionInitialize($checkoutId: ID!, $amount: PositiveDecimal!) {
   transactionInitialize(
     id: $checkoutId
     paymentGateway: { id: "saleor.app.payment.np-atobarai" }
@@ -126,7 +123,7 @@ You should get this response from Saleor:
       "data": null,
       "errors": []
     }
-  },
+  }
 }
 ```
 
@@ -184,12 +181,11 @@ Both Saleor support idempotency to ensure that the same request (from the busine
 
 Saleor will automatically generate the Idempotency Key. If you want to control the Key usage, like setting your own, you can pass it to [the mutation](/api-reference/payments/mutations/transaction-initialize.mdx)
 
-## Fulfilling the order  
+## Fulfilling the order
 
 To proceed with the delivery, you need to create a first fulfillment using `fulfillmentCreate` mutation. You need to pass the `trackingNumber` to the mutation, or run a separate `fulfillmentUpdateTrackingNumber` mutation to set the tracking number later. App will report shipment to NP Atobarai using `trackingNumber` and NP Atobarai transaction id. App will also add order note with result of reporting shipment to NP Atobarai.
 
 These operations can be performed within the Dashboard or using `orderFulfill` mutation.
-
 
 ### Supporting multiple shipping carriers
 
