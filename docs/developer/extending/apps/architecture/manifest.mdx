@@ -40,6 +40,7 @@ Example of a manifest:
   "extensions": [
     {
       "label": "Create with Sample app",
+      "identifier": "product-create-popup",
       "mount": "PRODUCT_OVERVIEW_CREATE",
       "target": "POPUP",
       "permissions": ["MANAGE_PRODUCTS"],
@@ -47,6 +48,7 @@ Example of a manifest:
     },
     {
       "label": "Create with App and redirect",
+      "identifier": "product-create-redirect",
       "mount": "PRODUCT_OVERVIEW_CREATE",
       "target": "APP_PAGE",
       "permissions": ["MANAGE_PRODUCTS"],
@@ -56,6 +58,7 @@ Example of a manifest:
   "webhooks": [
     {
       "name": "Order created",
+      "identifier": "order-created",
       "asyncEvents": ["ORDER_CREATED"],
       "query": "subscription { event { ... on OrderCreated { order { id }}}}",
       "targetUrl": "https://example.com/api/webhooks/order-created",
@@ -63,6 +66,7 @@ Example of a manifest:
     },
     {
       "name": "Multiple order's events",
+      "identifier": "order-events",
       "asyncEvents": ["ORDER_CREATED", "ORDER_FULLY_PAID"],
       "query": "subscription { event { ... on OrderCreated { order { id }} ... on OrderFullyPaid { order { id }}}}",
       "targetUrl": "https://example.com/api/webhooks/order-event",
@@ -71,6 +75,17 @@ Example of a manifest:
   ]
 }
 ```
+
+:::tip
+`extensions[].identifier` (Saleor 3.23.19 and newer) and `webhooks[].identifier` (3.23.23 and newer) give each entry a stable, app-defined name. Both are optional, but **declaring them is recommended for every extension and webhook** — they are the only handle your app fully controls. The alternatives are the Saleor-assigned ID, which is not known until install time, and `label` / `name`, which are display strings that a staff user can change in the Dashboard.
+
+Some operations work only on entries that declare one:
+
+- The App Bridge [`OpenPopup`](/developer/extending/apps/developing-apps/app-sdk/app-bridge.mdx#opening-a-popup-extension) action addresses the target `POPUP` extension by its `identifier`, so a widget cannot open a popup that has none.
+- [`webhookUpdate`](/api-reference/webhooks/mutations/webhook-update.mdx) and [`webhookDelete`](/api-reference/webhooks/mutations/webhook-delete.mdx) accept `identifier` in place of `id` (3.23.27 and newer), which is what lets a [migration script](/developer/extending/apps/updating-app-webhooks.mdx) address a webhook without looking its ID up first.
+
+Identifiers must be unique per app and are limited to 256 characters. See [Extension identifier](/developer/extending/apps/extending-dashboard-with-apps.mdx#extension-identifier) and [Webhook identifier](/developer/extending/webhooks/creating.mdx#webhook-identifier).
+:::
 
 :::info
 From Saleor 3.23.23, each webhook can declare an optional `identifier` — an app-defined string (max 256 characters, unique per app) that lets the app reference one of its webhooks without storing its Saleor ID. It is exposed on the [`Webhook`](/api-reference/webhooks/objects/webhook.mdx) type and typed in `@saleor/app-sdk` 1.13+ as `WebhookManifest.identifier`.
