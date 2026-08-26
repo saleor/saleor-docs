@@ -157,6 +157,47 @@ The `HOMEPAGE_WIDGETS` mount lets apps render widgets directly on the Dashboard 
 Requires Dashboard 3.23.12+ and `@saleor/app-sdk` 1.10+.
 
 
+## Command palette actions (from 3.23.21)
+
+The `SEARCH_ACTION` mount surfaces an app action in the Dashboard command palette (`Cmd+K` / `Ctrl+K`), so users can run it by typing instead of hunting for a button.
+
+It supports the `POPUP`, `APP_PAGE` and `NEW_TAB` targets (not `WIDGET`). When the action is run from an entity page, the app receives that entity's context — the same context the entity's "more actions" extensions get.
+
+```json
+{
+  "label": "Recalculate taxes",
+  "mount": "SEARCH_ACTION",
+  "target": "POPUP",
+  "permissions": ["MANAGE_ORDERS"],
+  "url": "/actions/recalculate-taxes",
+  "options": {
+    "views": ["ORDER_DETAILS", "ORDER_LIST"],
+    "aliases": ["taxes", "avatax"]
+  }
+}
+```
+
+### `options.views`
+
+Scopes the action to specific Dashboard views. When omitted, the action is available everywhere. When provided, the list must contain at least one view.
+
+Detail views resolve a single entity id as context; list views are surfaced without an id.
+
+Available views: `PRODUCT_LIST`, `PRODUCT_DETAILS`, `ORDER_LIST`, `ORDER_DETAILS`, `DRAFT_ORDER_LIST`, `DRAFT_ORDER_DETAILS`, `CUSTOMER_LIST`, `CUSTOMER_DETAILS`, `COLLECTION_LIST`, `COLLECTION_DETAILS`, `CATEGORY_LIST`, `CATEGORY_DETAILS`, `GIFT_CARD_LIST`, `GIFT_CARD_DETAILS`, `VOUCHER_LIST`, `VOUCHER_DETAILS`, `DISCOUNT_LIST`, `DISCOUNT_DETAILS`, `PAGE_LIST`, `PAGE_DETAILS`, `PAGE_TYPE_LIST`, `PAGE_TYPE_DETAILS`, `MENU_LIST`, `MENU_DETAILS`, `CHANNEL_DETAILS`.
+
+`CHANNEL_DETAILS` requires Dashboard 3.23.28+; the extension is then opened with `channelId` holding the channel's global id.
+
+### `options.aliases`
+
+Extra terms the command palette matches the action against, for example `["taxes", "avatax"]`. They are searchable but never displayed, which lets users find an action by the vendor or domain name instead of its exact label.
+
+Requires Dashboard 3.23.28+.
+
+:::info
+Manifest typings for `SEARCH_ACTION` are available in `@saleor/app-sdk` 1.13+ (`options.aliases` in 1.14+, `CHANNEL_DETAILS` in 1.15+).
+:::
+
+
 ## Context
 
 Context fields are specific to the mount extension is being attached to. For example, on `CATEGORY_DETAILS_MORE_ACTIONS`, the context field will be `categoryId`.
@@ -207,6 +248,7 @@ Saleor requires extensions to define a mounting place. The table below explains 
 | Mount                             | Description                                             | Supported targets                         | Available from |
 |-----------------------------------|---------------------------------------------------------|-------------------------------------------|----------------|
 | HOMEPAGE_WIDGETS                   | A widget on the Dashboard home page.                    | `WIDGET`                                  | 3.23           |
+| SEARCH_ACTION                     | Dashboard command palette (`Cmd+K`). See [Command palette actions](#command-palette-actions-from-32321). | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.23.21        |
 | CATEGORY_OVERVIEW_CREATE          | Category's list page under the create button.           | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
 | CATEGORY_OVERVIEW_MORE_ACTIONS    | Category's list page under the more action button.      | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |
 | CATEGORY_DETAILS_MORE_ACTIONS     | Category's detail page under the more action button.    | `POPUP`, `APP_PAGE`, `NEW_TAB`            | 3.22           |

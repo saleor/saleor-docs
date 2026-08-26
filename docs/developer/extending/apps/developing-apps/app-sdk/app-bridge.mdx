@@ -16,11 +16,15 @@ Options object is the following:
 
 ```typescript
 type AppBridgeOptions = {
-  targetDomain?: string;
   saleorApiUrl?: string;
   initialLocale?: LocaleCode;
   autoNotifyReady?: boolean;
   initialTheme?: "dark" | "light";
+  /**
+   * Forward keyboard shortcuts owned by the Dashboard (e.g. Cmd+K) out of the app iframe.
+   * Defaults to true. See "Keyboard shortcuts" below.
+   */
+  forwardKeyboardShortcuts?: boolean | { shouldForward(event: KeyboardEvent): boolean };
 };
 ```
 
@@ -78,6 +82,15 @@ type AppBridgeState = {
    * Permissions of the app itself
    */
   appPermissions?: AppPermission[];
+  /**
+   * Arbitrary payload passed by the `openPopup` action when this app was opened
+   * as a POPUP from one of its own widgets. See "Opening a popup extension".
+   */
+  appParams?: unknown;
+  /**
+   * Internal - used by Dashboard and apps to negotiate inner keyboard shortcuts propagation.
+   */
+  dashboardShortcuts?: DashboardShortcut[];
 };
 ```
 
@@ -162,6 +175,7 @@ appBridge.unsubscribeAll();
 | `theme`         | Fired when Dashboard changes the theme                                       |
 | `localeChanged` | Fired when Dashboard changes locale (and passes locale code in payload)      |
 | `tokenRefresh`  | Fired when Dashboard receives a new auth token and passes it to the app      |
+| `shortcutsChanged` | Internal. Fired when Dashboard changes the set of keyboard shortcuts it owns. Handled automatically by AppBridge |
 
 See [source code for detailed payload](https://github.com/saleor/saleor-app-sdk/blob/5c56cf566d2cc6e4a075c8c619f174fa43aad6c9/src/app-bridge/events.ts)
 
@@ -204,6 +218,33 @@ handleRedirect();
 | `WidgetResize`                | `height` - widget content height in pixels (positive, finite)                                                                                                           | Ask Dashboard to resize the widget iframe to match the app's content height. Only affects `*_DETAILS_WIDGETS` extensions. See [Sizing sidebar widgets](#sizing-sidebar-widgets) for the recommended helpers. |
 | `RefreshEntity` (>=3.23.9)      |                                                                                                                                                                         | Ask Dashboard to refresh the entity active in the current context (e.g. the currently open Order or Product), without a full page reload. Requires `@saleor/app-sdk` 1.11 or newer and Saleor Dashboard 3.23.9 or newer. |
 | `OpenPopup` (>=3.23.19)       | `extensionIdentifier` (string) - app-defined `identifier` of the target `POPUP` extension to open. `params` (optional, JSON-serializable) - arbitrary payload forwarded to the opened popup                              | Ask Dashboard to open one of the **same app's** `POPUP` extensions in full (modal) mode. Intended to be dispatched from a `WIDGET` extension to open a co-located `POPUP`. Requires `@saleor/app-sdk` 1.12 or newer and Saleor 3.23.19 or newer. See [Opening a popup extension](#opening-a-popup-extension). |
+| `RedirectToApp`               | `appIdentifier` (string) - manifest `id` of the target app. `path` (optional string) - path inside the target app                                                        | Ask Dashboard to resolve the URL of another installed app and redirect there. Requires `@saleor/app-sdk` 1.15 or newer. See [Redirecting to another app](#redirecting-to-another-app). |
+
+## Redirecting to another app
+
+Apps often work together — a checkout app may want to hand the user off to the app that owns tax configuration. Instead of hardcoding the other app's URL (which depends on where it is installed), dispatch `actions.RedirectToApp()` with the target app's manifest `id`. The Dashboard resolves that app's URL and navigates to it.
+
+```ts
+import { actions, useAppBridge } from "@saleor/app-sdk/app-bridge";
+
+const { appBridge } = useAppBridge();
+
+const openTaxesApp = async () => {
+  await appBridge.dispatch(
+    actions.RedirectToApp({
+      appIdentifier: "saleor.app.avatax",
+      // Optional: path inside the target app, appended to the resolved URL
+      path: "/configuration",
+    }),
+  );
+};
+```
+
+`appIdentifier` is required and must be a non-empty string — the SDK throws synchronously otherwise. It is the `id` field from the target app's [manifest](../../architecture/manifest.mdx), not its Saleor object ID.
+
+:::info
+Requires `@saleor/app-sdk` 1.15 or newer. The Dashboard must handle the `redirectToApp` action — older Dashboard versions ignore it. The action fails (resolves with `ok: false`) when no app with the given identifier is installed.
+:::
 
 ## Refreshing the active entity
 
@@ -351,18 +392,18 @@ If you are not using React, or you need to report height after a one-off layout 
 
 | Helper | Use when |
 | :----- | :------- |
-| `postWidgetHeight(appBridge, root)` | You have a root element; measure it and dispatch `WidgetResize` in one call |
+| `reportWidgetHeightFromElement(appBridge, root)` | You have a root element; measure it and dispatch `WidgetResize` in one call |
 | `reportWidgetHeight(appBridge, height)` | You already know the height in pixels |
 
 :::warning
-Pass an element that wraps only your widget UI to `postWidgetHeight`. Do not measure `document.body` or `document.documentElement` — they match the iframe size, not your content, so reported heights stay too small and widgets stay clipped. The same applies if you pass a height to `reportWidgetHeight` that you calculated from those nodes.
+Pass an element that wraps only your widget UI to `reportWidgetHeightFromElement`. Do not measure `document.body` or `document.documentElement` — they match the iframe size, not your content, so reported heights stay too small and widgets stay clipped. The same applies if you pass a height to `reportWidgetHeight` that you calculated from those nodes.
 :::
 
-Helpers no-op during SSR. `postWidgetHeight` requires a widget root element.
+Helpers no-op during SSR. `reportWidgetHeightFromElement` requires a widget root element.
 
 ### Protocol
 
-Height is reported through the standard App Bridge channel — `reportWidgetHeight` and `postWidgetHeight` call `appBridge.dispatch(actions.WidgetResize({ height }))`, the same mechanism as redirect, notification, and other actions. If you prefer, you can dispatch it yourself:
+Height is reported through the standard App Bridge channel — `reportWidgetHeight` and `reportWidgetHeightFromElement` call `appBridge.dispatch(actions.WidgetResize({ height }))`, the same mechanism as redirect, notification, and other actions. If you prefer, you can dispatch it yourself:
 
 ```ts
 import { actions } from "@saleor/app-sdk/app-bridge";
@@ -375,3 +416,30 @@ appBridge.dispatch(actions.WidgetResize({ height: 320 })).catch(() => {
 The helpers are the recommended path: they no-op during SSR, skip invalid heights (non-finite or non-positive), and attach a `.catch` so a missing or slow Dashboard response does not surface as an unhandled rejection.
 
 Until the first report, the iframe uses a 200px default height. Reported heights are capped at 5000px.
+
+## Keyboard shortcuts
+
+Dashboard-level shortcuts (such as `Cmd+K`) would otherwise stop working while the app iframe has focus. The Dashboard and AppBridge negotiate this internally with the `shortcutsChanged` event and the `triggerShortcut` action — no code is required in your app, and there is no `actions.TriggerShortcut()` helper.
+
+Pass `forwardKeyboardShortcuts: false` to `new AppBridge()` to opt out, or `{ shouldForward(event) }` to claim a chord back for the app.
+
+:::info
+Available from `@saleor/app-sdk` 1.16.
+:::
+
+## Detaching AppBridge
+
+`appBridge.destroy()` detaches the instance from the window: it stops forwarding keyboard shortcuts, stops receiving Dashboard events, and drops all subscribers. It is safe to call more than once.
+
+You rarely need to call it directly — `AppBridgeProvider` destroys the instance it created when it unmounts. An instance passed via the `appBridgeInstance` prop is left alone, because the caller owns its lifecycle.
+
+```ts
+const appBridge = new AppBridge();
+
+// later, e.g. when tearing down a non-React host
+appBridge.destroy();
+```
+
+:::info
+`destroy()` is available from `@saleor/app-sdk` 1.16.
+:::
