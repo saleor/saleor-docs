@@ -2,7 +2,7 @@
 sidebar_label: Overview
 sidebar_position: 1
 title: Customer Emails
-description: Send order, account, and shipment emails to customers through your SMTP server.
+description: Send order, account, and shipment emails to customers through your SMTP server. Write templates in MJML in the Dashboard.
 ---
 
 import { AppMetadata } from "/components/AppMetadata/AppMetadata.jsx";
@@ -13,11 +13,27 @@ Saleor does not send email to customers. Customer Emails listens for store event
 
 It is available on [Saleor Cloud](/cloud/overview.mdx). If you are self-hosting, use the [SMTP app](/developer/app-store/apps/smtp/overview.mdx).
 
-Content and branding are written once; which mail server sends and in which language is set per channel.
+Open it from **Configuration → Customer emails**. Content and branding are written once; which mail server sends and in which language is set per channel.
 
 :::info Staff emails
 Staff invite and staff password reset are sent by the [Admin Emails](/developer/app-store/legacy-plugins/admin-emails.mdx) plugin. This app never sends those.
 :::
+
+## How the page is organized
+
+The settings page is one list of cards:
+
+| Card                     | What you do there                                                 |
+| ------------------------ | ----------------------------------------------------------------- |
+| **Delivery**             | SMTP connections, and which channel uses which one                |
+| **Branding**             | Store name, logo, colors, help links, and the shared email layout |
+| **Notifications**        | Turn each email on or off, and edit the wording                   |
+| **Translations**         | The same emails in another language                               |
+| **Languages**            | Which language each channel uses                                  |
+| **Suppressed addresses** | Inboxes the mail server already refused                           |
+| **Advanced**             | Extra values every template can read                              |
+
+On a new install, a checklist at the top tracks the three things that must be true before anything can send: a connection, a sender, and at least one notification on. Branding and translations are optional.
 
 ## Before anything sends
 
@@ -29,7 +45,71 @@ You need three things the app cannot invent:
 
 After install, the recommended emails are already on. Nothing is delivered until a connection exists.
 
-Gift card and refund emails stay off unless the app has the `MANAGE_GIFT_CARD` and `MANAGE_ORDERS` permissions.
+## Delivery
+
+Add a connection: a name you will recognize, host, port, encryption, credentials, and the sender customers see.
+
+- Port **587** with **TLS (STARTTLS)**, or **465** with **SSL (implicit TLS)**, is what most providers expect. The form flags a mismatch before you save.
+- **Test connection** on the card proves the server answers. It does not send a customer email.
+
+Each channel sends through exactly one connection, so a customer never receives the same email twice. Assign a channel on the card, or mark a connection as the store default for every channel you do not assign. If you have only one active connection, it is used even without the default mark.
+
+## Writing emails
+
+Templates are [MJML](https://mjml.io/). The app compiles them to HTML when it sends. You edit MJML in the Dashboard; you do not paste HTML or a design from another tool.
+
+Dynamic values use [Handlebars](https://handlebarsjs.com/). Examples you will see in the shipped templates:
+
+```
+{{order.number}}
+{{customer.firstName}}
+{{branding.siteName}}
+{{#each order.lines}}
+  {{this.productName}}
+{{/each}}
+```
+
+The **Sample data** tab is only for the preview and for test emails. A real send uses the order or account that triggered it. The editor suggests fields from that tab. A helper the app does not ship fails the preview and the send.
+
+### Shared layout
+
+**Edit layout** on the Branding card. The layout is the MJML document every notification sits in: the `<mjml>` wrapper, styles, header, and footer.
+
+Exactly one `{{{content}}}` marks where the notification body goes. Triple braces are required so the body is inserted as markup, not escaped text. You cannot save without that placeholder, or with more than one.
+
+Preview the layout wrapped around any notification. Until you save a change, emails use the layout that ships with the app.
+
+### Notifications
+
+Open a row to edit the subject and body. The shipped body is an MJML fragment — sections and columns, not a full document. The layout wraps it.
+
+Saving a change makes that text yours. Later app updates no longer change it. **Reset to default** (or **Delete translation** on a language that is not the store default) goes back to the shipped copy.
+
+**Send test email** from the editor uses the version on screen, including unsaved edits, filled with sample data. Subjects start with `[Test]`. It does not depend on whether customers receive that notification. From Notifications you can also send every enabled email to one inbox; that path uses the saved templates, still with sample data.
+
+### Branding
+
+Store-wide values, not markup. Change them once and every template picks them up. Templates read:
+
+| Field           | Handlebars                  |
+| --------------- | --------------------------- |
+| Store name      | `{{branding.siteName}}`     |
+| Logo            | `{{branding.logoUrl}}`      |
+| Shop URL        | `{{branding.shopUrl}}`      |
+| Accent color    | `{{branding.accentColor}}`  |
+| Help centre     | `{{branding.helpUrl}}`      |
+| Support address | `{{branding.supportEmail}}` |
+| Postal address  | `{{branding.addressLine}}`  |
+
+Empty store name and address fall back to **Configuration → Store → Store details**.
+
+The **Order page URL** field is a link pattern, not an email template. Put `{{id}}` or `{{number}}` in that field (or `{{order.id}}` / `{{order.number}}`) so the **View order details** button can point at a real order, for example `https://example.com/order/{{id}}` or `/account/orders/{{number}}`. A path is joined to Shop URL. The button is left out when the field is empty or the link cannot be built.
+
+`{{customer.firstName}}` is filled from the account or the order address, so a greeting works for guests too.
+
+### Custom variables
+
+Under **Advanced**, add key-value pairs available in every template as `{{customVariables.yourKey}}`. Use this for a storefront URL or a support address you would otherwise repeat in sixteen templates.
 
 ## Which emails exist
 
@@ -72,7 +152,7 @@ Saleor channels have a country, not a language. This app is where you wire the t
 
 1. **Languages** — connect each channel to a language (and turn on any others you want to write).
 2. **Notifications** — the emails themselves: Order confirmed, password reset, and the rest. Turn each one on or off, and edit the wording customers get when you have not translated it.
-3. **Translations** — the same emails in another language. Open a cell to edit Order confirmed in German, for example.
+3. **Translations** — the same emails in another language. Open a cell to edit Order confirmed in German, for example. The editor can show the store default beside it.
 
 When something happens, the app picks a language, then the template in that language. It uses the language on the order or account. Turn **Always** on for a channel if everyone buying there should get that channel's language instead.
 
@@ -97,6 +177,7 @@ This is a different app (`saleor.app.customer-emails`). Installing it does not u
 - Do not leave both sending. The old app can still send more than one email for the same event when multiple configurations match a channel.
 - Settings do not move over from the Dashboard. Set this app up as new, or ask Saleor if you are on Cloud and need an import.
 - Each channel now sends through exactly one connection. The old "all channels except" filter is gone.
+- A customized template imported from the SMTP app arrives as a complete MJML document. It does not use the shared layout. **Reset to default** if you want the header and footer back.
 
 ## If nothing arrives
 
