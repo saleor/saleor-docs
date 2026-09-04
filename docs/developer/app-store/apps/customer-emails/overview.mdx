@@ -1,0 +1,111 @@
+---
+sidebar_label: Overview
+sidebar_position: 1
+title: Customer Emails
+description: Send order, account, and shipment emails to customers through your SMTP server.
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.jsx";
+
+<AppMetadata minSaleorVersion="3.22" />
+
+Saleor does not send email to customers. Customer Emails listens for store events and delivers each message through an SMTP server you connect.
+
+It is available on [Saleor Cloud](/cloud/overview.mdx). If you are self-hosting, use the [SMTP app](/developer/app-store/apps/smtp/overview.mdx).
+
+Content and branding are written once; which mail server sends and in which language is set per channel.
+
+:::info Staff emails
+Staff invite and staff password reset are sent by the [Admin Emails](/developer/app-store/legacy-plugins/admin-emails.mdx) plugin. This app never sends those.
+:::
+
+## Before anything sends
+
+You need three things the app cannot invent:
+
+- An **SMTP server** — Amazon SES, Mailgun, SendGrid, Mailtrap, or a local catcher. Enter host, port, encryption, and credentials. Encrypted connections (TLS and SSL) require TLS 1.3; a provider that only speaks 1.2 will fail the handshake.
+- A **sender name and address** on that connection. Many providers reject the message when From is not the mailbox you authenticated as.
+- For account emails, a **storefront page** that consumes the token URL Saleor puts in the message. The app only delivers. See [Manage account as a customer](/developer/users/customer-account.mdx).
+
+After install, the recommended emails are already on. Nothing is delivered until a connection exists.
+
+Gift card and refund emails stay off unless the app has the `MANAGE_GIFT_CARD` and `MANAGE_ORDERS` permissions.
+
+## Which emails exist
+
+On after install: Order confirmed, Order fulfilled, Order cancelled, Order refunded, and the six account emails.
+
+These stay off because they stack on a default, or they fire from a staff action:
+
+- **Order created** and **Order fully paid** can fire for the same purchase as Order confirmed.
+- **Shipment created** fires in the same moment as Order fulfilled when the order ships in one go.
+- **Invoice sent**, **Order fulfillment updated**, and **Gift card sent** are staff-triggered.
+
+| Email                                      | Sends when                                                                                                                   | Storefront                                                                                    |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Order created                              | An order is placed                                                                                                           | —                                                                                             |
+| Order confirmed                            | The order is confirmed                                                                                                       | —                                                                                             |
+| Order fully paid                           | The order is fully paid                                                                                                      | —                                                                                             |
+| Order cancelled                            | The order is cancelled                                                                                                       | —                                                                                             |
+| Order refunded                             | A refund is issued                                                                                                           | —                                                                                             |
+| Invoice sent                               | Staff sends an invoice                                                                                                       | —                                                                                             |
+| Shipment created                           | Staff creates a shipment and leaves notify customer on                                                                       | —                                                                                             |
+| Order fulfilled                            | The order is fully fulfilled                                                                                                 | —                                                                                             |
+| Order fulfillment updated                  | A tracking number is updated                                                                                                 | —                                                                                             |
+| Customer account confirmation              | A shopper registers, and Configuration → Site settings requires email confirmation. If that setting is off, nothing is sent. | [Confirm account](/developer/users/customer-account.mdx#registration-with-email-confirmation) |
+| Customer account password setup            | Staff creates a customer with a password-setup link                                                                          | [Set password](/developer/users/customer-management.mdx#creating-a-customer)                  |
+| Customer account password reset request    | A customer requests a password reset                                                                                         | [Reset password](/developer/users/customer-account.mdx#resetting-the-password)                |
+| Customer account change email request      | A customer requests an email change                                                                                          | [Change email](/developer/users/customer-account.mdx#changing-the-email-address)              |
+| Customer account change email confirmation | The email change completed                                                                                                   | —                                                                                             |
+| Customer account delete request            | A customer requests account deletion                                                                                         | [Delete account](/developer/users/customer-account.mdx#deleting-the-account)                  |
+| Gift card sent                             | A gift card is sent to a customer                                                                                            | —                                                                                             |
+
+## Account emails and the storefront
+
+Saleor builds the link from the mutation's `redirectUrl`. The app puts that link in the email. If the storefront route is wrong, the message arrives and the customer cannot finish.
+
+[Manage account as a customer](/developer/users/customer-account.mdx) covers confirmation, password reset, email change, and account deletion. Staff-created accounts that need a first password are in [Customer management](/developer/users/customer-management.mdx#creating-a-customer).
+
+## Language
+
+Saleor channels have a country, not a language. This app is where you wire the three together:
+
+1. **Languages** — connect each channel to a language (and turn on any others you want to write).
+2. **Notifications** — the emails themselves: Order confirmed, password reset, and the rest. Turn each one on or off, and edit the wording customers get when you have not translated it.
+3. **Translations** — the same emails in another language. Open a cell to edit Order confirmed in German, for example.
+
+When something happens, the app picks a language, then the template in that language. It uses the language on the order or account. Turn **Always** on for a channel if everyone buying there should get that channel's language instead.
+
+## Suppressed addresses
+
+When the mail server refuses a recipient as unknown — SMTP 550, 551, or 553, or the address on the server's rejected list — the app stores that address and skips later emails to it. The skip is a success for Saleor: nothing to retry.
+
+A Dashboard app problem points at **Suppressed addresses** in settings. Removing a visible address is how you undo a false positive; the next genuine refusal puts it back. Settings shows the 50 most recently refused and how many there are in total.
+
+A 554 (bad message or sender refused) does not add the customer. A store outage does not block a valid send.
+
+## Saleor Cloud preview mail
+
+:::warning
+**Send previews through Saleor's mail server** is only for channels with no connection of their own. Customers receive nothing: each email goes to the organization owner instead, marked as a preview, with the intended recipient in the subject. Production needs your own connection.
+:::
+
+## If you used the SMTP app
+
+This is a different app (`saleor.app.customer-emails`). Installing it does not upgrade or replace `saleor.app.smtp`.
+
+- Do not leave both sending. The old app can still send more than one email for the same event when multiple configurations match a channel.
+- Settings do not move over from the Dashboard. Set this app up as new, or ask Saleor if you are on Cloud and need an import.
+- Each channel now sends through exactly one connection. The old "all channels except" filter is gone.
+
+## If nothing arrives
+
+1. A connection exists and is assigned to the channel — or it is the default, or the only one.
+2. That connection has a sender.
+3. The notification is on.
+4. The old SMTP app is not the one still sending, and both are not on.
+5. For account confirmation: Site settings still requires confirmation.
+6. The address is not on **Suppressed addresses**. Remove it there if a refusal was a false positive.
+7. The provider rejected the message. Permanent replies (unknown mailbox, rejected credentials) stop immediately. A 554 is the message or the sender, not the customer. Transient failures still retry.
+
+Saleor webhook retries do not send a second copy of the same event to the same address.
