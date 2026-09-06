@@ -52,7 +52,9 @@ Add a connection: a name you will recognize, host, port, encryption, credentials
 - Port **587** with **TLS (STARTTLS)**, or **465** with **SSL (implicit TLS)**, is what most providers expect. The form flags a mismatch before you save.
 - **Test connection** on the card proves the server answers. It does not send a customer email.
 
-Each channel sends through exactly one connection, so a customer never receives the same email twice. Assign a channel on the card, or mark a connection as the store default for every channel you do not assign. If you have only one active connection, it is used even without the default mark.
+Each channel sends through exactly one connection, so a customer never receives the same email twice.
+
+The first connection is the store default: every channel you have not assigned elsewhere sends through it. Assign a channel only when it should use a different connection. With two or more connections, **Make default** is in that connection's menu; it asks before channels that currently use the store default start sending through the new one. If the default mark is missing and you have exactly one active connection, that one is used.
 
 ## Writing emails
 
@@ -113,11 +115,11 @@ Under **Advanced**, add key-value pairs available in every template as `{{custom
 
 ## Which emails exist
 
-On after install: Order confirmed, Order fulfilled, Order cancelled, Order refunded, and the six account emails.
+On after install: Order created, Order confirmed, Order fulfilled, Order cancelled, Order refunded, and the six account emails.
 
-These stay off because they stack on a default, or they fire from a staff action:
+These stay off because they stack on that set, or they fire from a staff action:
 
-- **Order created** and **Order fully paid** can fire for the same purchase as Order confirmed.
+- **Order fully paid** can fire for the same purchase as Order created and Order confirmed.
 - **Shipment created** fires in the same moment as Order fulfilled when the order ships in one go.
 - **Invoice sent**, **Order fulfillment updated**, and **Gift card sent** are staff-triggered.
 
@@ -151,7 +153,7 @@ Saleor builds the link from the mutation's `redirectUrl`. The app puts that link
 Saleor channels have a country, not a language. This app is where you wire the three together:
 
 1. **Languages** — connect each channel to a language (and turn on any others you want to write).
-2. **Notifications** — the emails themselves: Order confirmed, password reset, and the rest. Turn each one on or off, and edit the wording customers get when you have not translated it.
+2. **Notifications** — the emails themselves: Order created, Order confirmed, password reset, and the rest. Turn each one on or off, and edit the wording customers get when you have not translated it.
 3. **Translations** — the same emails in another language. Open a cell to edit Order confirmed in German, for example. The editor can show the store default beside it.
 
 When something happens, the app picks a language, then the template in that language. It uses the language on the order or account. Turn **Always** on for a channel if everyone buying there should get that channel's language instead.
@@ -167,7 +169,9 @@ A 554 (bad message or sender refused) does not add the customer. A store outage 
 ## Saleor Cloud preview mail
 
 :::warning
-**Send previews through Saleor's mail server** is only for channels with no connection of their own. Customers receive nothing: each email goes to the organization owner instead, marked as a preview, with the intended recipient in the subject. Production needs your own connection.
+**Send previews through Saleor's mail server** runs only when no connection matches the channel — no assignment, no store default, and not a single active connection. Customers receive nothing: each email goes to the organization owner instead, marked as a preview, with the intended recipient in the subject.
+
+It does not override a connection you already added. Channels that use the store default still send through that connection. On a new Cloud install the toggle is on, so you see mail before you add SMTP. Turn it off and, with no connection, nothing sends. Production needs your own connection.
 :::
 
 ## If you used the SMTP app
@@ -181,7 +185,7 @@ This is a different app (`saleor.app.customer-emails`). Installing it does not u
 
 ## If nothing arrives
 
-1. A connection exists and is assigned to the channel — or it is the default, or the only one.
+1. A connection exists and is assigned to the channel — or it is the store default, or the only one. On Cloud, preview mail to the organization owner is not a substitute for that connection.
 2. That connection has a sender.
 3. The notification is on.
 4. The old SMTP app is not the one still sending, and both are not on.
