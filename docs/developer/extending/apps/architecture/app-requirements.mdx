@@ -2,44 +2,19 @@
 title: App Requirements
 ---
 
-To make an app installable in the Dashboard, you must publish its manifest at a URL that Saleor can access. A register endpoint is conditional:
+To make an App installable in the Dashboard, you must provide:
 
-- [Manifest URL](#manifest-url) - provides the app's metadata.
-- [Register URL](#register-url) - receives the app token. Required only when the manifest includes `tokenTargetUrl`.
+- [Manifest URL](#manifest-url) - required for every App to provide its metadata.
+- [Register URL](#register-url) - required only when the manifest defines `tokenTargetUrl`.
 
 :::info
 We recommend using [Saleor App Template](/developer/extending/apps/developing-apps/app-template.mdx) as a starting point for building your App. It provides all the necessary boilerplate needed to focus on your app's logic.
 :::
 
-## Frontend-Only Apps
+## App Types
 
-A frontend-only app runs entirely in the browser, typically inside an iframe in the Saleor Dashboard. You can host its manifest and user interface as static files, without an application backend.
-
-Omit `tokenTargetUrl` from the manifest. During installation, Saleor creates the app and its extensions, but does not create an app token or send a registration request. Because there is no app token to store, the app does not need a register endpoint or an [Auth Persistence Layer (APL)](/developer/extending/apps/architecture/apl.mdx).
-
-The following manifest installs a frontend-only product widget:
-
-```json
-{
-  "id": "com.example.product-widget",
-  "name": "Product widget",
-  "version": "1.0.0",
-  "permissions": ["MANAGE_PRODUCTS"],
-  "extensions": [
-    {
-      "label": "Product widget",
-      "mount": "PRODUCT_DETAILS_WIDGETS",
-      "target": "WIDGET",
-      "permissions": ["MANAGE_PRODUCTS"],
-      "url": "https://example.com/product-widget"
-    }
-  ]
-}
-```
-
-Frontend-only apps can still make authenticated GraphQL requests while a staff user has the app open. The Dashboard provides a short-lived access token through [App Bridge](/developer/extending/apps/developing-apps/app-sdk/app-bridge.mdx). Its permissions are limited to the intersection of the app's permissions and the staff user's permissions. For an extension, they are also limited to the permissions declared by that extension. If the app only displays static or public data, omit the permissions or use empty arrays.
-
-Add a backend, `tokenTargetUrl`, and an APL when the app must make authenticated requests without an active Dashboard user, receive webhooks, or perform operations with app permissions instead of the user's permissions. See [Server and Client-Side Calls](/developer/extending/apps/architecture/server-and-client-side-calls.mdx) for the token models.
+- A **full App** has a backend in addition to any Dashboard UI. If the backend needs an AppToken for server-side API calls, define `tokenTargetUrl`, implement the Register URL, and store the token in an [Auth Persistence Layer (APL)](/developer/extending/apps/architecture/apl.mdx).
+- A **frontend-only App** consists of a manifest and a browser-based UI. It requires the Manifest URL, but does not require a backend, `tokenTargetUrl`, a Register URL, or an APL. It can make authenticated client-side API calls with the short-lived token provided by [App Bridge](/developer/extending/apps/developing-apps/app-sdk/app-bridge.mdx).
 
 ## Manifest URL
 
@@ -62,7 +37,7 @@ If your App is built with [Next.js](https://nextjs.org/), you can use a [helper 
 - Suggested path - `/api/register`
 
 :::info
-This endpoint is only required when an app needs its own app token for server-side work. A [frontend-only app](#frontend-only-apps) can omit `tokenTargetUrl` and skip this endpoint.
+This endpoint is only required when an App needs its own AppToken for server-side API calls. A frontend-only App can omit `tokenTargetUrl` and skip this endpoint.
 :::
 
 During the installation of an App, Saleor will call this endpoint if `tokenTargetUrl` is provided in the manifest.
