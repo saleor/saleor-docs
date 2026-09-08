@@ -55,11 +55,11 @@ A common flow that causes confusion: a shopper signs up through the storefront, 
 The table below lists, for each mutation in this flow, the asynchronous events emitted and how the corresponding email is delivered. The split is important:
 
 - **Staff emails** (invite / set password / password reset for staff) are sent by the **core admin email plugin** when it is configured. No external app is required.
-- **Customer emails** (account confirmation, set password, password reset for customers) are **not** sent by Saleor core. An external app must subscribe to the corresponding webhook and deliver the email itself — typically using the [SMTP App](https://github.com/saleor/apps/tree/main/apps/smtp) or any other app you build or install.
+- **Customer emails** (account confirmation, set password, password reset for customers) are **not** sent by Saleor core. An external app must subscribe to the corresponding webhook and deliver the email itself — typically [Customer Emails](/developer/app-store/apps/customer-emails/overview.mdx) on Saleor Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview.mdx) if you are self-hosting.
 
 | # | Mutation | Async events emitted | Email |
 | --- | --- | --- | --- |
-| 1 | [`accountRegister`](/api-reference/users/mutations/account-register.mdx) | `CUSTOMER_CREATED`; additionally `ACCOUNT_CONFIRMATION_REQUESTED` if [`enableAccountConfirmationByEmail`](/api-reference/miscellaneous/objects/shop.mdx#enable-account-confirmation-by-email) is `true` | Customer confirmation email. **Not sent by core** — requires an external app (e.g. SMTP App) subscribed to `ACCOUNT_CONFIRMATION_REQUESTED`. |
+| 1 | [`accountRegister`](/api-reference/users/mutations/account-register.mdx) | `CUSTOMER_CREATED`; additionally `ACCOUNT_CONFIRMATION_REQUESTED` if [`enableAccountConfirmationByEmail`](/api-reference/miscellaneous/objects/shop.mdx#enable-account-confirmation-by-email) is `true` | Customer confirmation email. **Not sent by core** — requires an external app (e.g. [Customer Emails](/developer/app-store/apps/customer-emails/overview.mdx) on Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview.mdx) when self-hosting) subscribed to `ACCOUNT_CONFIRMATION_REQUESTED`. |
 | 2 | [`confirmAccount`](/api-reference/users/mutations/confirm-account.mdx) | `ACCOUNT_CONFIRMED` | No email required for the confirmation step itself. If you want a "welcome" email, subscribe an external app to `ACCOUNT_CONFIRMED`. |
 | 3 | [`accountUpdate`](/api-reference/users/mutations/account-update.mdx) (customer edits own profile) | `CUSTOMER_UPDATED`; `CUSTOMER_METADATA_UPDATED` if metadata changed | None by default. |
 | 4 | [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx) (while still a customer) | `ACCOUNT_SET_PASSWORD_REQUESTED` | Customer password reset email. **Not sent by core** — requires an external app subscribed to `ACCOUNT_SET_PASSWORD_REQUESTED`. |
@@ -70,7 +70,7 @@ The table below lists, for each mutation in this flow, the asynchronous events e
 | 9 | [`setPassword`](/api-reference/users/mutations/set-password.mdx) | No webhook event is emitted by this mutation itself. | No email. |
 
 :::info Customer emails require an external app
-Saleor core ships an "admin email" plugin that covers **staff** notifications (staff invite, staff password reset, etc.) out of the box. It does **not** send emails to customers. To deliver account confirmation, customer password reset, order confirmation, and other customer-facing emails, install an app such as the [SMTP App](https://github.com/saleor/apps/tree/main/apps/smtp) and subscribe it to the relevant `ACCOUNT_*` and `CUSTOMER_*` webhook events.
+Saleor core ships an "admin email" plugin that covers **staff** notifications (staff invite, staff password reset, etc.) out of the box. It does **not** send emails to customers. To deliver account confirmation, customer password reset, order confirmation, and other customer-facing emails, install [Customer Emails](/developer/app-store/apps/customer-emails/overview.mdx) on Saleor Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview.mdx) if you are self-hosting, and subscribe it to the relevant `ACCOUNT_*` and `CUSTOMER_*` webhook events.
 :::
 
 :::note Which event fires depends on `isStaff` at the time of the request
