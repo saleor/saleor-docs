@@ -691,6 +691,79 @@ For any other value, the Dashboard will display a generic payment method name.
 To get brand logos in the Dashboard, make sure to pass one of the recognized values listed above when reporting transaction events via webhooks or mutations.
 :::
 
+### Showing payment history to the customer
+
+Added in Saleor 3.23.
+
+`Order.transactions` requires the `MANAGE_ORDERS` or `HANDLE_PAYMENTS` permission, so a storefront cannot use it to tell the customer how their order was paid. Use `Order.transactionSummaries` instead: it is meant for storefronts that display the payment history of an order, for example on an order confirmation page or in the customer's account.
+
+The field requires no permission. Like `billingAddress` or `userEmail`, it is available to whoever can read the order.
+
+Each entry is a `TransactionSummary` - a read-only projection of one transaction that exposes only:
+
+- `createdAt` - when the transaction was created.
+- `paymentMethodDetails` - the payment method, using the same [`PaymentMethodDetails`](/api-reference/miscellaneous/interfaces/payment-method-details.mdx) types as `TransactionItem`.
+- `authorizedAmount`, `authorizePendingAmount`, `chargedAmount`, `chargePendingAmount`, `refundedAmount`, `canceledAmount` - the money that moved.
+
+<Tabs>
+<TabItem value="Query">
+```graphql
+query OrderPaymentHistory($id: ID!) {
+  order(id: $id) {
+    number
+    transactionSummaries {
+      createdAt
+      paymentMethodDetails {
+        name
+        ... on CardPaymentMethodDetails {
+          brand
+        }
+      }
+      chargedAmount {
+        amount
+        currency
+      }
+      refundedAmount {
+        amount
+        currency
+      }
+    }
+  }
+}
+```
+</TabItem>
+
+<TabItem value={"Response"}>
+```json
+{
+  "data": {
+    "order": {
+      "number": "123",
+      "transactionSummaries": [
+        {
+          "createdAt": "2025-09-01T10:15:30+00:00",
+          "paymentMethodDetails": {
+            "name": "Credit card",
+            "brand": "visa"
+          },
+          "chargedAmount": { "amount": 99.0, "currency": "USD" },
+          "refundedAmount": { "amount": 0.0, "currency": "USD" }
+        }
+      ]
+    }
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+Two things are deliberately hidden from this field:
+
+- **Card digits and expiration date.** `firstDigits`, `lastDigits`, `expMonth` and `expYear` of `CardPaymentMethodDetails` are always `null` here. The customer sees the payment method and the brand, and nothing that identifies the instrument. Staff and apps read the full card data through `Order.transactions` as before.
+- **Transactions that moved no money.** A transaction whose amounts are all zero is an abandoned payment attempt. It carries no information for the customer, so it is not returned.
+
+`TransactionSummary` also has no `id`, no `events`, no `externalUrl` and no available actions. If you need any of those, query `Order.transactions` with the required permission.
+
 ### Webhooks
 
 Follow [Transactions Webhook Events](/developer/extending/webhooks/synchronous-events/transaction.mdx) guide.
