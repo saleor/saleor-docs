@@ -84,6 +84,14 @@ const Apps = () => {
 
         <Shell
           color={"rgb(199, 159, 58)"}
+          title={"Customer Emails"}
+          href={"developer/app-store/apps/customer-emails/overview"}
+        >
+          <Notification />
+        </Shell>
+
+        <Shell
+          color={"rgb(199, 159, 58)"}
           title={"SMTP"}
           href={"developer/app-store/apps/smtp/overview"}
         >
