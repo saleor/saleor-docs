@@ -162,10 +162,10 @@ Before publishing, verify:
 
 The following files help AI agents discover and use Saleor documentation:
 
-- [static/llms.txt](/static/llms.txt)
+- [Markdown export plugin](./plugins/agent-docs/README.md), which generates `/llms.txt`, section indexes, and Markdown pages during the site build
 - [docs/developer/ai.mdx](/developer/ai.mdx)
 
 When maintaining these files:
 
-- **New Saleor version released**: Update the GraphQL schema URLs to point to the latest stable version.
-- **Adding or removing pages**: Update `llms.txt` to reflect the current documentation structure for AI agent discoverability.
+- **New Saleor version released**: Update the versioned GraphQL schema URL and its version label in the Markdown export plugin.
+- **Adding or removing pages**: The next build updates the generated indexes automatically. Do not add a handwritten `static/llms.txt`.
