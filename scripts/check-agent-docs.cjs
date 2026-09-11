@@ -22,7 +22,9 @@ for (const [route, entry] of Object.entries(manifest)) {
   };
   visit(fromMarkdown(markdown));
   const codeSamples = new Set(
-    nodes.filter((node) => node.type === "code").map((node) => node.value),
+    nodes
+      .filter((node) => node.type === "code")
+      .map((node) => node.value.replace(/\n+$/, "")),
   );
   for (const node of nodes.filter(
     (node) => node.type === "link" && node.url.startsWith("/"),
@@ -56,6 +58,15 @@ for (const [route, entry] of Object.entries(manifest)) {
   const html = load(
     read(route === "/" ? "/index.html" : `${route}/index.html`),
   );
+  const plainText = nodes
+    .filter((node) => node.type === "text" || node.type === "inlineCode")
+    .map((node) => node.value)
+    .join(" ")
+    .replace(/\s+/g, " ");
+  html(".theme-doc-markdown .badge").each((_, badge) => {
+    const label = html(badge).text().trim().replace(/\s+/g, " ");
+    assert.ok(plainText.includes(label), `${route}: badge lost: ${label}`);
+  });
   assert.equal(
     html('link[rel="alternate"][type="text/markdown"]').attr("href"),
     entry.markdown,
@@ -64,7 +75,8 @@ for (const [route, entry] of Object.entries(manifest)) {
   // A regression in code extraction must fail even on pages not in the fixtures.
   html(".theme-doc-markdown pre code").each((_, code) => {
     html(code).find("br").replaceWith("\n");
-    const source = html(code).text().replace(/\n$/, "");
+    // remark normalizes trailing blank lines; preserve all internal whitespace.
+    const source = html(code).text().replace(/\n+$/, "");
     assert.ok(codeSamples.has(source), `${route}: code sample changed`);
   });
 }

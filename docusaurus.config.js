@@ -77,7 +77,46 @@ module.exports = {
   themes: ["@docusaurus/theme-mermaid"],
 
   plugins: [
-    require.resolve("./plugins/agent-docs/index.cjs"),
+    [
+      // SignalWire generates Markdown and llms.txt; the adapter handles Saleor's
+      // unlisted pages, section indexes and Vercel routing manifest.
+      require.resolve("./plugins/agent-docs/index.cjs"),
+      {
+        siteDescription:
+          "Saleor GraphQL commerce documentation. Check version badges and use the schema matching your Saleor instance.",
+        depth: 1,
+        onRouteError: "throw",
+        content: {
+          contentSelectors: [".theme-doc-markdown"],
+          includeGeneratedIndex: false,
+          excludeRoutes: ["/search", "/tags", "/tags/**"],
+          relativePaths: true,
+          rehypeProcessTables: false,
+          routeRules: [{ route: "/api-reference/**", depth: 2 }],
+          beforeDefaultRehypePlugins: [
+            require("./plugins/agent-docs/rehype-saleor.cjs").rehypeSaleor,
+          ],
+          rehypePlugins: [
+            require("./plugins/agent-docs/rehype-saleor.cjs")
+              .preserveHeadingAnchors,
+          ],
+          remarkStringify: { bullet: "-", fences: true },
+        },
+        optionalLinks: [
+          {
+            title: "Saleor 3.22 schema",
+            url: "https://raw.githubusercontent.com/saleor/saleor/3.22/saleor/graphql/schema.graphql",
+            description:
+              "Versioned schema; choose the tag matching your instance.",
+          },
+          {
+            title: "Development schema",
+            url: "https://raw.githubusercontent.com/saleor/saleor/main/saleor/graphql/schema.graphql",
+            description: "Main branch; may include unreleased changes.",
+          },
+        ],
+      },
+    ],
     [
       "@graphql-markdown/docusaurus",
       /** @type {import('@graphql-markdown/types').ConfigOptions} */

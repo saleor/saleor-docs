@@ -162,10 +162,10 @@ Before publishing, verify:
 
 The following files help AI agents discover and use Saleor documentation:
 
-- [Markdown export plugin](./plugins/agent-docs/index.cjs), which generates `/llms.txt`, section indexes, and Markdown pages during the site build
+- [SignalWire plugin configuration](./docusaurus.config.js) and its [Saleor adapter](./plugins/agent-docs/index.cjs), which publish Markdown pages and generated indexes during the site build
 - [docs/developer/ai.mdx](/developer/ai.mdx)
 
 When maintaining these files:
 
-- **New Saleor version released**: Update the versioned GraphQL schema URL and its version label in the Markdown export plugin.
+- **New Saleor version released**: Update the versioned GraphQL schema URL and its version label in `docusaurus.config.js`.
 - **Adding or removing pages**: The next build updates the generated indexes automatically. Do not add a handwritten `static/llms.txt`.
