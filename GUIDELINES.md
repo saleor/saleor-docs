@@ -162,7 +162,7 @@ Before publishing, verify:
 
 The following files help AI agents discover and use Saleor documentation:
 
-- [Markdown export plugin](./plugins/agent-docs/index.cjs), which generates `/llms.txt`, section indexes, and Markdown pages during the site build
+- [Markdown export plugin](./plugins/agent-docs/README.md), which generates `/llms.txt`, section indexes, and Markdown pages during the site build
 - [docs/developer/ai.mdx](/developer/ai.mdx)
 
 When maintaining these files:

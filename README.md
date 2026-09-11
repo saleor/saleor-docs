@@ -390,23 +390,7 @@ To assign a custom rank to a particular page, use the following code snippet:
 
 The main branch is automatically released to [docs.saleor.io](https://docs.saleor.io/), which is handled by [Vercel](https://vercel.com/saleorcommerce/saleor-docs/settings/domains).
 
-### Markdown for agents
-
-The local `plugins/agent-docs` plugin generates Markdown from the rendered documentation during `pnpm build`. It preserves React component content such as API version badges and permissions, all server-rendered tabs, code samples, tables, and heading anchors. Mermaid's theme component includes hidden diagram source for this export. New components that render meaningful content only in the browser need a static fallback; lazy tabs are rejected when their panels are missing.
-
-- `/llms.txt` is a small generated index linking to section indexes. API reference indexes are split by domain.
-- Each published doc has a `.md` URL, such as `/developer/checkout/overview.md`. The homepage uses `/index.md`. Draft and unlisted docs are excluded.
-- The copy and view actions use these same files, including on preview deployments. Internal links and asset URLs are origin-relative.
-- On Vercel, `middleware.js` uses `build/agent-routes.json` to rewrite requests that explicitly prefer `Accept: text/markdown`. Ordinary browser requests receive HTML. Unknown paths and assets pass through. Both representations advertise discovery links; negotiated responses use `Vary: Accept` and `Cache-Control: private, no-store`.
-- Schema links identify a specific Saleor version or the development branch; the Markdown export does not imply that the reference matches every deployed Saleor version.
-
-Run `pnpm test:agent-docs`, then `pnpm build && pnpm check:agent-docs`. Use `pnpm serve` to inspect generated `.md` files locally; `pnpm start` does not generate them, and Docusaurus's local server does not run Vercel middleware. After deploying a preview, verify both normal and `Accept: text/markdown` requests, including headers, trailing slashes, and a second request after cache warmup:
-
-```sh
-curl -i https://YOUR-PREVIEW/developer/checkout/overview
-curl -i -H 'Accept: text/markdown' https://YOUR-PREVIEW/developer/checkout/overview
-curl -i https://YOUR-PREVIEW/developer/checkout/overview.md
-```
+For Markdown exports and agent discovery, see the [Agent Docs plugin documentation](plugins/agent-docs/README.md).
 
 # Linting
 
