@@ -1,78 +1,13 @@
 import { useDoc } from "@docusaurus/plugin-content-docs/client";
-import { useLocation } from "@docusaurus/router";
+import agentDocs from "@site/lib/agent-docs.cjs";
 import { Check, Copy } from "lucide-react";
 import React, { useCallback, useState } from "react";
 
-function processMarkdownContent(content) {
-  // Remove frontmatter (content between --- at the start)
-  let processed = content.replace(/^---\s*[\s\S]*?\n---\s*\n/, "");
-
-  // Remove import statements
-  processed = processed.replace(/^import\s+.*$/gm, "");
-
-  // Remove empty lines at the beginning
-  processed = processed.replace(/^\s*\n+/, "");
-
-  // Process custom components - convert them to plain markdown
-  // Remove <S.Column> and </S.Column> tags but keep the content
-  processed = processed.replace(
-    /<S\.Column[^>]*>([\s\S]*?)<\/S\.Column>/g,
-    "$1",
-  );
-
-  // Convert <S> step containers to numbered lists
-  processed = processed.replace(
-    /<S>\s*([\s\S]*?)\s*<\/S>/g,
-    (match, stepsContent) => {
-      // Extract individual steps and convert to numbered list
-      const stepPattern =
-        /<S\.Step>\s*<S\.Details>\s*([\s\S]*?)\s*<\/S\.Details>\s*<\/S\.Step>/g;
-      let stepNumber = 1;
-      let result = "";
-      let stepMatch;
-
-      while ((stepMatch = stepPattern.exec(stepsContent)) !== null) {
-        let stepContent = stepMatch[1].trim();
-
-        // Clean up the step content - preserve markdown structure
-        stepContent = stepContent
-          .replace(/\s*\n\s*/g, "\n") // normalize line breaks
-          .replace(/^\s+/gm, "") // remove leading whitespace from lines
-          .trim();
-
-        // Add step number and content
-        result += `## Step ${stepNumber}\n\n${stepContent}\n\n`;
-        stepNumber++;
-      }
-
-      return result;
-    },
-  );
-
-  // Remove any remaining custom component tags
-  processed = processed.replace(/<\/?S\.[^>]*>/g, "");
-  processed = processed.replace(/<\/?S[^>]*>/g, "");
-
-  // Clean up extra whitespace and normalize line breaks
-  processed = processed.replace(/\n\s*\n\s*\n+/g, "\n\n");
-  processed = processed.replace(/^\s+/gm, "");
-  processed = processed.trim();
-
-  return processed;
-}
-
 export default function CopyMarkdownButton() {
   const { metadata } = useDoc();
-  const location = useLocation();
   const [copied, setCopied] = useState(false);
-
-  // Define paths where the button should be hidden
-  const excludedPaths = ["/"];
-
-  // Check if current path should be excluded
-  if (excludedPaths.includes(location.pathname)) {
-    return null;
-  }
+  const [error, setError] = useState(false);
+  const markdownUrl = agentDocs.markdownPath(metadata.permalink);
 
   const copyToClipboard = useCallback(async (text) => {
     // Try modern Clipboard API first
@@ -127,70 +62,77 @@ export default function CopyMarkdownButton() {
   }, []);
 
   const copyMarkdown = useCallback(async () => {
-    if (!metadata?.editUrl) {
-      return;
-    }
-
+    setError(false);
     try {
-      // Convert GitHub edit URL to raw URL
-      // From: https://github.com/saleor/saleor-docs/edit/main/docs/path/to/file.md
-      // To: https://raw.githubusercontent.com/saleor/saleor-docs/main/docs/path/to/file.md
-      const rawUrl = metadata.editUrl
-        .replace("github.com", "raw.githubusercontent.com")
-        .replace("/edit/", "/");
-
-      const response = await fetch(rawUrl);
+      const response = await fetch(markdownUrl);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch markdown: ${response.status}`);
       }
 
-      const rawMarkdownContent = await response.text();
-      const processedContent = processMarkdownContent(rawMarkdownContent);
-
-      const success = await copyToClipboard(processedContent);
+      const content = await response.text();
+      if (/^\s*<!doctype html/i.test(content)) {
+        throw new Error("Markdown endpoint returned HTML");
+      }
+      const success = await copyToClipboard(content);
 
       if (success) {
         setCopied(true);
         // Reset the copied state after 2 seconds
         setTimeout(() => setCopied(false), 2000);
+      } else {
+        setError(true);
       }
-    } catch (error) {
-      // Silent error handling - user will not see "Copied!" if it fails
+    } catch {
+      setError(true);
     }
-  }, [metadata?.editUrl, copyToClipboard]);
+  }, [markdownUrl, copyToClipboard]);
 
-  // Don't show the button if there's no edit URL
-  if (!metadata?.editUrl) {
+  if (metadata.unlisted || metadata.draft) {
     return null;
   }
 
   return (
-    <button
-      onClick={copyMarkdown}
-      title="Copy page for LLM"
-      aria-label="Copy page for LLM"
-      style={{
-        border: "none",
-        background: "none",
-        color: "var(--ifm-color-content-secondary)",
-        fontSize: "14px",
-        padding: 0,
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        textDecoration: "none",
-      }}
-      onMouseEnter={(e) => {
-        e.target.style.textDecoration = "underline";
-      }}
-      onMouseLeave={(e) => {
-        e.target.style.textDecoration = "none";
-      }}
-    >
-      {copied ? <Check size={12} /> : <Copy size={12} />}
-      {copied ? "Copied!" : "Copy for LLM"}
-    </button>
+    <>
+      <button
+        onClick={copyMarkdown}
+        title="Copy page for LLM"
+        aria-label="Copy page for LLM"
+        style={{
+          border: "none",
+          background: "none",
+          color: "var(--ifm-color-content-secondary)",
+          fontSize: "14px",
+          padding: 0,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          textDecoration: "none",
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.textDecoration = "underline";
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.textDecoration = "none";
+        }}
+      >
+        {copied ? <Check size={12} /> : <Copy size={12} />}
+        {copied ? "Copied!" : "Copy Markdown"}
+      </button>
+      <a
+        href={markdownUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ marginLeft: 12, fontSize: 14 }}
+      >
+        View Markdown
+      </a>
+      {error && (
+        <span role="status">
+          Could not copy. Open View Markdown to read the page.
+        </span>
+      )}
+    </>
   );
 }
