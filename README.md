@@ -392,9 +392,7 @@ The main branch is automatically released to [docs.saleor.io](https://docs.saleo
 
 ### Markdown for agents
 
-[`@signalwire/docusaurus-plugin-llms-txt`](https://github.com/signalwire/docusaurus-plugins) generates Markdown and `llms.txt` from the rendered documentation during `pnpm build`. Its options live in `docusaurus.config.js`. The thin `plugins/agent-docs` adapter excludes draft/unlisted pages using Docusaurus metadata, splits the package's generated index into smaller files, and publishes Vercel routing metadata. All page conversion and index entries come from the package.
-
-The package's supported rehype hooks adapt Saleor's badges, tab labels, highlighted code, and heading anchors before/after conversion. API version badges and permission text come from the rendered components, so no raw MDX exports or component tags are exposed. Mermaid's theme component includes hidden diagram source for this export. New components that render meaningful content only in the browser need a static fallback; lazy tabs are rejected when their panels are missing.
+The local `plugins/agent-docs` plugin generates Markdown from the rendered documentation during `pnpm build`. It preserves React component content such as API version badges and permissions, all server-rendered tabs, code samples, tables, and heading anchors. Mermaid's theme component includes hidden diagram source for this export. New components that render meaningful content only in the browser need a static fallback; lazy tabs are rejected when their panels are missing.
 
 - `/llms.txt` is a small generated index linking to section indexes. API reference indexes are split by domain.
 - Each published doc has a `.md` URL, such as `/developer/checkout/overview.md`. The homepage uses `/index.md`. Draft and unlisted docs are excluded.

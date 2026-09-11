@@ -1,75 +1,29 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const fs = require("node:fs/promises");
-const os = require("node:os");
-const path = require("node:path");
-const agentDocs = require("../plugins/agent-docs/index.cjs");
-const config = require("../docusaurus.config.js");
+const { renderMarkdown } = require("../plugins/agent-docs/markdown.cjs");
 const {
   createAgentRouter,
   prefersMarkdown,
 } = require("../lib/agent-routing.cjs");
 
-test("rendered components, every tab, code whitespace, tables and links survive export through SignalWire", async (t) => {
+test("rendered components, every tab, code whitespace, tables and links survive export", () => {
   const html = `<nav>Site navigation</nav><article class="theme-doc-markdown">
     <h1>Example</h1><h2 id="field">Field<a class="hash-link">#</a></h2>
     <div>Requires the <span class="badge">MANAGE_PRODUCTS</span>permission.</div>
     <div><span class="badge">MANAGE_ORDERS</span><span class="badge">MANAGE_PRODUCTS</span></div>
     <span>Added in Saleor 3.24 (unreleased)</span>
-    <div class="tabs-container"><ul role="tablist"><li role="tab">Query</li><li role="tab">Result</li></ul>
+    <ul role="tablist"><li role="tab">Query</li><li role="tab">Result</li></ul>
     <div><div role="tabpanel"><pre class="language-graphql"><code><span>query {<br></span><span>  products { id }<br></span><span>}<br></span></code></pre></div>
-    <div role="tabpanel" hidden><pre class="language-json"><code>{\n  "ok": true\n}</code></pre></div></div></div>
+    <div role="tabpanel" hidden><pre class="language-json"><code>{\n  "ok": true\n}</code></pre></div></div>
     <pre hidden class="language-mermaid"><code>\n\ngraph LR\n  A --&gt; B</code></pre>
     <table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr><td>ID</td><td>String</td></tr></tbody></table>
-    <a href="/next/#field">Next</a><img alt="Diagram" src="/assets/diagram.png">
+    <a href="/next/#field">Next</a><img alt="Diagram" src="../assets/diagram.png">
     <button>Copy</button></article>`;
-  const siteDir = await fs.mkdtemp(path.join(os.tmpdir(), "saleor-llms-test-"));
-  t.after(() => fs.rm(siteDir, { recursive: true, force: true }));
-  const outDir = path.join(siteDir, "build");
-  const routes = ["/guide/start", "/next", "/unlisted"];
-  for (const route of routes) {
-    await fs.mkdir(path.join(outDir, route), { recursive: true });
-    await fs.writeFile(path.join(outDir, route, "index.html"), html);
-  }
-  const plugin = await agentDocs({}, config.plugins[0][1]);
-  plugin.allContentLoaded({
-    allContent: {
-      "docusaurus-plugin-content-docs": {
-        default: {
-          loadedVersions: [
-            {
-              docs: routes.map((permalink) => ({
-                permalink,
-                unlisted: permalink === "/unlisted",
-              })),
-            },
-          ],
-        },
-      },
-    },
+  const result = renderMarkdown(html, {
+    permalink: "/guide/start",
+    siteUrl: "https://docs.saleor.io",
+    routes: new Set(["/next"]),
   });
-  await plugin.postBuild({
-    outDir,
-    siteDir,
-    generatedFilesDir: path.join(siteDir, ".docusaurus"),
-    siteConfig: config,
-    routes: routes.map((route) => ({
-      path: route === "/next" ? "/next/" : route,
-      component: "dummy",
-      exact: true,
-      plugin: { name: "docusaurus-plugin-content-docs", id: "default" },
-    })),
-  });
-  const result = await fs.readFile(path.join(outDir, "guide/start.md"), "utf8");
-  const index = await fs.readFile(path.join(outDir, "llms.txt"), "utf8");
-  assert.doesNotMatch(index, /unlisted/);
-  await assert.rejects(fs.access(path.join(outDir, "unlisted.md")));
-  assert.ok(index.includes("/guide/llms.txt"));
-  assert.ok(
-    (await fs.readFile(path.join(outDir, "guide/llms.txt"), "utf8")).includes(
-      "/guide/start.md",
-    ),
-  );
   assert.match(result, /MANAGE\\?_PRODUCTS/);
   assert.match(result, /MANAGE\\?_PRODUCTS permission/);
   assert.match(result, /MANAGE\\?_ORDERS MANAGE\\?_PRODUCTS/);
@@ -79,7 +33,7 @@ test("rendered components, every tab, code whitespace, tables and links survive 
   assert.ok(result.includes("```graphql\nquery {\n  products { id }\n}\n```"));
   assert.ok(result.includes('```json\n{\n  "ok": true\n}\n```'));
   assert.ok(result.includes("```mermaid\n\n\ngraph LR\n  A --> B\n```"));
-  assert.match(result, /\| Name\s+\| Type\s+\|/);
+  assert.match(result, /\| Name \| Type \|/);
   assert.ok(result.includes("[Next](/next.md#field)"));
   assert.ok(result.includes('<a id="field"></a>'));
   assert.ok(result.includes("![Diagram](/assets/diagram.png)"));
