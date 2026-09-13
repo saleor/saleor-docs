@@ -75,14 +75,14 @@ A native shopping app that creates checkouts is still `storefront`. A till is `p
 
 `granted` | `denied` | `not_required` | `unknown`
 
-Whether the shopper allowed the storefront to read the storage that `marketing` and `session` come from.
+Whether storage-derived sections (`marketing`, `session`) are allowed. Origin itself is never consent-gated. `not_required` covers an implied storefront regime **or** a writer with no shopper cookie (till, import, agent). `unknown` is a missing decision — Paper's default `required` mode with no banner — not a till.
 
-| Value          | Meaning                               | Sibling sections                                  |
-| -------------- | ------------------------------------- | ------------------------------------------------- |
-| `granted`      | Consent given for analytics storage   | `marketing` / `session` present when data existed |
-| `denied`       | Shopper said no                       | `marketing` / `session` **absent**                |
-| `not_required` | No shopper cookie (a till, an import) | `marketing` / `session` present when data existed |
-| `unknown`      | Writer has no consent primitive       | any                                               |
+| Value          | Meaning                                                                                          | Sibling sections                                  |
+| -------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
+| `granted`      | Consent given for analytics storage                                                              | `marketing` / `session` present when data existed |
+| `denied`       | Shopper said no                                                                                  | `marketing` / `session` **absent**                |
+| `not_required` | No shopper opt-in needed — implied storefront regime, or no shopper cookie (till, import, agent) | `marketing` / `session` present when data existed |
+| `unknown`      | Consent primitive exists but no decision yet (Paper `required` with no banner), or not recorded  | any; Paper skips marketing                        |
 
 Write `denied` when the shopper said no — do not omit the field. Without it, a declined visit looks like direct traffic.
 
@@ -194,14 +194,30 @@ Change `surface` and `system`. Keep the key names.
 }
 ```
 
-| Writer                         | `surface`           | `system` (example) | Marketing                                   |
-| ------------------------------ | ------------------- | ------------------ | ------------------------------------------- |
-| Paper / web storefront         | `storefront`        | `paper`            | First-touch, consent-gated                  |
-| iOS or Android shopping app    | `storefront`        | your app id        | Same rules if you keep a landing snapshot   |
-| POS / register                 | `pos`               | register build     | Usually none                                |
-| Dashboard draft                | `draft`             | dashboard          | Usually none                                |
-| CSV / `orderBulkCreate`        | `import`            | importer name      | Usually none                                |
-| Support or agent placing order | `support` / `agent` | that tool          | Optional; `actors` if you own that identity |
+An agent checkout is the same idea — no shopper cookie, so `not_required` — with `surface: "agent"` and `actors` if you own that identity. Do not reuse a storefront origin builder or copy the shopper's first-touch cookie.
+
+```json
+{
+  "commerce.context.origin": {
+    "surface": "agent",
+    "system": "paper",
+    "capturedAt": "2026-09-13T10:00:00.000Z",
+    "consent": "not_required"
+  },
+  "commerce.context.actors": {
+    "agent": { "type": "mcp", "id": "…" }
+  }
+}
+```
+
+| Writer                         | `surface`           | `system` (example) | Marketing                                                                        |
+| ------------------------------ | ------------------- | ------------------ | -------------------------------------------------------------------------------- |
+| Paper / web storefront         | `storefront`        | `paper`            | First-touch, consent-gated                                                       |
+| iOS or Android shopping app    | `storefront`        | your app id        | Same rules if you keep a landing snapshot                                        |
+| POS / register                 | `pos`               | register build     | Usually none                                                                     |
+| Dashboard draft                | `draft`             | dashboard          | Usually none                                                                     |
+| CSV / `orderBulkCreate`        | `import`            | importer name      | Usually none                                                                     |
+| Support or agent placing order | `support` / `agent` | that tool          | Optional own payload; `consent: not_required`; `actors` if you own that identity |
 
 ## What not to write
 
