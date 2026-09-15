@@ -1,0 +1,235 @@
+---
+sidebar_label: Commerce Context
+sidebar_position: 4
+title: Saleor Pulse Commerce Context
+description: Write a small origin note on the Saleor order so Pulse can rank surfaces and campaigns by net after refunds.
+---
+
+import { AppMetadata } from "/components/AppMetadata/AppMetadata.jsx";
+
+<AppMetadata minSaleorVersion="3.23" />
+
+**Commerce Context** is an open note on the Saleor order: sectioned metadata under `commerce.context.*`. Storefronts, POS, imports, and agents write facts. Pulse reads the **order** and shows **Origins** on Financial — surface, campaign, or source, ranked by net after refunds.
+
+The note is the join. Saleor stays the commerce record. Pulse is a reader. Write the note before `checkoutComplete`.
+
+## What Pulse shows
+
+**Origins** sits on Financial, on the same period, currency, and channel as the rest of that view. The subtitle is coverage: tagged revenue orders over all revenue orders. Unconfirmed orders count. Cancelled ones do not.
+
+Pulse ranks **tagged** orders only. Marketing on the note is **first-touch**. Net after refunds is a books figure, not a lift study. Click IDs for Meta or Google stay on your ads path.
+
+A document is useful as soon as `origin.surface` parses. Campaign and source stay empty until you write `marketing`. Untagged surfaces do not rank as worse — they are absent until they write the note.
+
+## Design rules
+
+1. **Metadata on the checkout** — Saleor copies it onto the order at complete. See [Metadata](/api-usage/metadata.mdx).
+2. **Sectioned keys** — each section is its own metadata key (`origin`, `marketing`, `session`), not one combined JSON blob. Saleor replaces a whole key. Do not read-merge-write someone else's section.
+3. **The reader composes** — Pulse (or any consumer) joins the keys. Writers attach facts.
+4. **No people in the note** — the order already links the customer. No emails, names, or tokens.
+5. **Never block checkout** — if the metadata write fails, complete the order anyway.
+
+## Keys
+
+| Key                             | Owner                                                | Contents                                                |
+| ------------------------------- | ---------------------------------------------------- | ------------------------------------------------------- |
+| `commerce.context.origin`       | Checkout surface (storefront / POS / import / draft) | `surface` (required), `system`, `capturedAt`, `consent` |
+| `commerce.context.marketing`    | Storefront / marketing tag layer                     | First-touch UTM-like fields + `landingPath`             |
+| `commerce.context.session`      | Storefront                                           | `sessionId` when storage is allowed                     |
+| `commerce.context.actors`       | Affiliate / sales / agent / support apps             | Write only if you **are** that system                   |
+| `commerce.context.experiment`   | Experiment / flag tool                               | `id`, `variant`                                         |
+| `commerce.context.ext.<vendor>` | That vendor                                          | Your own JSON bag                                       |
+
+There is no shared `commerce.context.properties` key in v1. It invites silent overwrites. Pulse folds each `ext.<vendor>` object into composed `properties.<vendor>`.
+
+Channel stays on the Saleor order, not in this note.
+
+### `origin`
+
+```json
+{
+  "surface": "storefront",
+  "system": "paper",
+  "capturedAt": "2026-09-13T10:00:00.000Z",
+  "consent": "unknown"
+}
+```
+
+| Field        | Required                    | Description                                                                                         |
+| ------------ | --------------------------- | --------------------------------------------------------------------------------------------------- |
+| `surface`    | yes                         | How the order was created                                                                           |
+| `system`     | recommended                 | Writer identity — `paper`, your app id, a register build                                            |
+| `capturedAt` | no                          | ISO-8601 timestamp when this origin object was attached                                             |
+| `consent`    | recommended for storefronts | Shopper consent for storage-derived sections                                                        |
+| `device`     | no                          | `mobile` \| `tablet` \| `desktop` \| `other`. From the user agent; no storage, so no consent needed |
+
+`origin` is never gated on cookie consent. It describes the order, not the person.
+
+#### `surface`
+
+Pulse recognizes `storefront`, `pos`, `draft`, `import`, `marketplace`, `api`, `agent`, and `support`. That list will grow. Pick the closest match. Put the writer in `system`. Do not invent a surface for a device or a brand.
+
+A native shopping app that creates checkouts is still `storefront`. A till is `pos`. A Dashboard staff order is `draft`.
+
+#### `consent`
+
+`granted` | `denied` | `not_required` | `unknown`
+
+Whether storage-derived sections (`marketing`, `session`) are allowed. Origin itself is never consent-gated. `not_required` covers an implied storefront regime **or** a writer with no shopper cookie (till, import, agent). `unknown` is a missing decision — Paper's default `required` mode with no banner — not a till.
+
+| Value          | Meaning                                                                                          | Sibling sections                                  |
+| -------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
+| `granted`      | Consent given for analytics storage                                                              | `marketing` / `session` present when data existed |
+| `denied`       | Shopper said no                                                                                  | `marketing` / `session` **absent**                |
+| `not_required` | No shopper opt-in needed — implied storefront regime, or no shopper cookie (till, import, agent) | `marketing` / `session` present when data existed |
+| `unknown`      | Consent primitive exists but no decision yet (Paper `required` with no banner), or not recorded  | any; Paper skips marketing                        |
+
+Write `denied` when the shopper said no — do not omit the field. Without it, a declined visit looks like direct traffic.
+
+### `marketing`
+
+First-touch UTM fields plus a redacted `landingPath`. Write once, fill-missing. Pulse ranks campaign and source on this first landing. Last-touch is a different policy — own the whole key if you need it; do not merge fields across writes.
+
+Strip tracking query params from `landingPath` before you write. Pulse redacts common secrets again on ingest.
+
+### `session`
+
+A per-visit `sessionId` when storage is allowed. Do not write `anonymousId` in v1.
+
+## Two writes
+
+[Paper](https://saleor.io/blog/paper-announcement) is the reference storefront. Copy the keys, not the React tree. The builders live in [`saleor/storefront`](https://github.com/saleor/storefront) under `src/lib/commerce-context/`.
+
+Saleor 3.21+ accepts metadata on [`checkoutCreate`](/api-reference/checkout/mutations/checkout-create.mdx). Pulse and Paper target **3.23+**.
+
+### On create — `origin`
+
+Put `origin` (and your `ext.<vendor>` bag) in `checkoutCreate`. Zero extra round trips. Present even if the shopper abandons before complete.
+
+```graphql
+mutation CheckoutCreate(
+  $channel: String!
+  $lines: [CheckoutLineInput!]!
+  $metadata: [MetadataInput!]
+) {
+  checkoutCreate(
+    input: { channel: $channel, lines: $lines, metadata: $metadata }
+  ) {
+    checkout {
+      id
+    }
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+
+```json
+[
+  {
+    "key": "commerce.context.origin",
+    "value": "{\"surface\":\"storefront\",\"system\":\"paper\",\"capturedAt\":\"2026-09-13T10:00:00.000Z\",\"consent\":\"unknown\"}"
+  },
+  {
+    "key": "commerce.context.ext.paper",
+    "value": "{\"locale\":\"en-US\",\"paperVersion\":\"223382c0\"}"
+  }
+]
+```
+
+### Before complete — `marketing` and `session`
+
+Write these with [`updateMetadata`](/api-reference/miscellaneous/mutations/update-metadata.mdx) **before** `checkoutComplete`, and only when `origin.consent` is `granted` or `not_required`. Saleor copies checkout metadata onto the order at complete. Pulse reads the order.
+
+```graphql
+mutation EnrichCheckoutContext($id: ID!, $input: [MetadataInput!]!) {
+  updateMetadata(id: $id, input: $input) {
+    item {
+      ... on Checkout {
+        id
+      }
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+```json
+[
+  {
+    "key": "commerce.context.marketing",
+    "value": "{\"source\":\"google\",\"medium\":\"cpc\",\"campaign\":\"summer_sale\",\"landingPath\":\"/collections/summer\"}"
+  },
+  {
+    "key": "commerce.context.session",
+    "value": "{\"sessionId\":\"sess_01J8…\"}"
+  }
+]
+```
+
+If consent changed between create and complete, re-send the whole `origin` key. Keep the original `capturedAt` when you have it.
+
+Paper's default consent mode is `required`, and core Paper ships no banner. Create-time consent is then `unknown`, this second write is skipped, and Pulse still treats the order as valid from `origin` alone. That is a complete origin note. You get surface on Origins. Campaign and source stay empty until you allow first-touch cookies.
+
+If the metadata write fails, complete anyway. Pulse will show surface without a campaign — the same empty campaign as consent `unknown`. A thin note beats a failed payment.
+
+## Other checkouts
+
+Change `surface` and `system`. Keep the key names.
+
+```json
+{
+  "commerce.context.origin": {
+    "surface": "pos",
+    "system": "register-ios",
+    "capturedAt": "2026-09-13T10:00:00.000Z",
+    "consent": "not_required"
+  }
+}
+```
+
+An agent checkout is the same idea — no shopper cookie, so `not_required` — with `surface: "agent"` and `actors` if you own that identity. Do not reuse a storefront origin builder or copy the shopper's first-touch cookie.
+
+```json
+{
+  "commerce.context.origin": {
+    "surface": "agent",
+    "system": "paper",
+    "capturedAt": "2026-09-13T10:00:00.000Z",
+    "consent": "not_required"
+  },
+  "commerce.context.actors": {
+    "agent": { "type": "mcp", "id": "…" }
+  }
+}
+```
+
+| Writer                         | `surface`           | `system` (example) | Marketing                                                                        |
+| ------------------------------ | ------------------- | ------------------ | -------------------------------------------------------------------------------- |
+| Paper / web storefront         | `storefront`        | `paper`            | First-touch, consent-gated                                                       |
+| iOS or Android shopping app    | `storefront`        | your app id        | Same rules if you keep a landing snapshot                                        |
+| POS / register                 | `pos`               | register build     | Usually none                                                                     |
+| Dashboard draft                | `draft`             | dashboard          | Usually none                                                                     |
+| CSV / `orderBulkCreate`        | `import`            | importer name      | Usually none                                                                     |
+| Support or agent placing order | `support` / `agent` | that tool          | Optional own payload; `consent: not_required`; `actors` if you own that identity |
+
+## What not to write
+
+- Emails, names, tokens, click IDs you are not prepared to treat as durable commerce data
+- Tracking query params on `landingPath`
+- `anonymousId` (reserved in v1)
+- Someone else's section
+- A new `surface` for “mobile” or a brand name
+
+## Next steps
+
+- [Pulse overview](./overview.mdx) — where Origins sits on Financial
+- [Data and privacy](./data-and-privacy.mdx) — what Pulse keeps
+- [Metadata API](/api-usage/metadata.mdx)
+- [Paper](https://github.com/saleor/storefront) — reference write in `src/lib/commerce-context/`
