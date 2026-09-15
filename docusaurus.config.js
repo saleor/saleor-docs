@@ -77,6 +77,7 @@ module.exports = {
   themes: ["@docusaurus/theme-mermaid"],
 
   plugins: [
+    require.resolve("./plugins/agent-docs/index.cjs"),
     [
       "@graphql-markdown/docusaurus",
       /** @type {import('@graphql-markdown/types').ConfigOptions} */

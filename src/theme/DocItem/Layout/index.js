@@ -1,5 +1,7 @@
+import Head from "@docusaurus/Head";
 import { useDoc } from "@docusaurus/plugin-content-docs/client";
 import { useWindowSize } from "@docusaurus/theme-common";
+import agentDocs from "@site/lib/agent-docs.cjs";
 import CopyMarkdownButton from "@site/src/components/CopyMarkdownButton";
 import ContentVisibility from "@theme/ContentVisibility";
 import DocBreadcrumbs from "@theme/DocBreadcrumbs";
@@ -38,6 +40,16 @@ export default function DocItemLayout({ children }) {
   const { metadata } = useDoc();
   return (
     <div className="row">
+      {!metadata.unlisted && !metadata.draft && (
+        <Head>
+          <link
+            rel="alternate"
+            type="text/markdown"
+            href={agentDocs.markdownPath(metadata.permalink)}
+          />
+          <link rel="describedby" href="/llms.txt" />
+        </Head>
+      )}
       <div className={clsx("col", !docTOC.hidden && styles.docItemCol)}>
         <ContentVisibility metadata={metadata} />
         <DocVersionBanner />

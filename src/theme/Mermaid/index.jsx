@@ -110,6 +110,10 @@ export default function Mermaid(props) {
       fallback={(params) => <ErrorBoundaryErrorMessageFallback {...params} />}
     >
       <MermaidRenderer {...props} />
+      {/* Mermaid renders in the browser; retain its source for static exports. */}
+      <pre hidden className="language-mermaid">
+        <code>{props.value}</code>
+      </pre>
     </ErrorBoundary>
   );
 }
