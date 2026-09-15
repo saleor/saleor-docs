@@ -390,6 +390,8 @@ To assign a custom rank to a particular page, use the following code snippet:
 
 The main branch is automatically released to [docs.saleor.io](https://docs.saleor.io/), which is handled by [Vercel](https://vercel.com/saleorcommerce/saleor-docs/settings/domains).
 
+For Markdown exports and agent discovery, see the [Agent Docs plugin documentation](plugins/agent-docs/README.md).
+
 # Linting
 
 Run `pnpm lint` to check for any linting errors on staged (modified) files.
