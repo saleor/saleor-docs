@@ -29,6 +29,7 @@ export const extensions = [
   },
   "developer/app-store/apps/cms",
   "developer/app-store/plugins/oidc",
+  "developer/app-store/apps/google-merchant-center",
   "developer/app-store/apps/product-feed",
   {
     type: "category",
