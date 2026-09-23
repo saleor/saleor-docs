@@ -26,7 +26,7 @@ This app replaces the [Product Feed App](./product-feed.mdx). If you use Product
 - **Translated feeds** — pick a language per channel and the app writes titles and descriptions from Saleor translations.
 - **Safety guard** — a run that produces no rows, or far fewer than the last one, does not replace the feed that Google is currently fetching.
 - **Category mapping** — map Saleor categories to the Google product taxonomy.
-- **Attribute mapping** — fill the `brand` and `gtin` columns from Saleor attributes.
+- **Attribute mapping** — fill the `brand`, `gtin`, `color`, `material`, `pattern`, and `size` columns from Saleor attributes.
 - **Per-channel reporting** — how many products were published, how many were left out, and which field each was missing.
 
 ## How it Works
@@ -135,12 +135,24 @@ Avoid `{{ product.description }}` — it holds the raw rich-text JSON, not reada
 
 ### Attribute Mapping
 
-Two Google columns have no Saleor equivalent and can be filled from an attribute:
+Six Google columns have no Saleor equivalent and can be filled from an attribute:
 
-- **Brand** → `brand`
-- **GTIN** → `gtin`
+| Google column | Label in the app |
+| ------------- | ---------------- |
+| `brand`       | Brand            |
+| `gtin`        | GTIN             |
+| `color`       | Color            |
+| `material`    | Material         |
+| `pattern`     | Pattern          |
+| `size`        | Size             |
 
-Only product attributes are offered. A variant attribute value wins over a product attribute value with the same attribute. An unmapped column is left out of the file completely, rather than shipped empty.
+Rules:
+
+- Only **product-type attributes** are offered, and only those whose values become a plain string: dropdown, multiselect, plain text, swatch, and numeric. File, reference, rich-text, boolean, and date attributes are not offered, because they would put a URL, an object ID, or a JSON blob into the feed.
+- A **variant** attribute value wins over a **product** attribute value for the same attribute.
+- An unmapped column is left out of the file entirely rather than shipped empty — Merchant Center reports a declared-but-always-blank column as a problem.
+- Only these six columns can be mapped. A mapping naming a computed column such as `price` or `link` is rejected and never overwrites the computed value.
+- Attributes you have not mapped never reach the feed, even when products carry them.
 
 ### Category Mapping
 
@@ -155,7 +167,8 @@ Set **Feed language** on a channel when that channel's catalog is translated. Me
 With a language set:
 
 - Titles and descriptions come from Saleor translations into that language.
-- A missing translation falls back **per field**, not per product: a product with a translated name and an untranslated description publishes with both, rather than being dropped.
+- Mapped attribute columns are translated too. `color`, `material`, `pattern`, and `size` are words a shopper reads, and Google matches them against search terms in the language of the landing page.
+- A missing translation falls back **per field**, not per product: a product with a translated name and an untranslated description publishes with both, rather than being dropped. Attribute values fall back **per value**, so a half-translated colour palette keeps the translations it has.
 - The channel row reports how many rows were published in their original language. Google may disapprove products when most of a feed does not match its declared language.
 
 Leave the field empty for a single-language store. No translations are then requested at all.
@@ -166,29 +179,32 @@ The file is a TSV export following the Google Merchant Center product data speci
 
 ### Columns
 
-| Column                    | Source                                                                                     |
-| ------------------------- | ------------------------------------------------------------------------------------------ |
-| `id`                      | Variant ID.                                                                                |
-| `item_group_id`           | Product ID.                                                                                |
-| `title`                   | Rendered from the title template, using translations when the channel has a language.      |
-| `description`             | Product SEO description, falling back to the rich-text description rendered as plain text. |
-| `link`                    | Product URL template with `{productSlug}` substituted.                                     |
-| `image_link`              | First variant image, falling back to the product's images and then its thumbnail.          |
-| `additional_image_link`   | The remaining images.                                                                      |
-| `availability`            | `out_of_stock` when the channel reports zero available quantity, otherwise `in_stock`.     |
-| `price`                   | Gross price in the channel's currency. The undiscounted price when the variant is on sale. |
-| `sale_price`              | Gross price, only when it is lower than the undiscounted price.                            |
-| `brand`, `gtin`           | From [attribute mapping](#attribute-mapping). Omitted from the file when unmapped.         |
-| `mpn`                     | Variant SKU.                                                                               |
-| `condition`               | Always `new`.                                                                              |
-| `google_product_category` | From [category mapping](#category-mapping).                                                |
-| `product_type`            | Saleor category name.                                                                      |
-| `shipping_weight`         | Variant weight, when the product type requires shipping and the weight is above zero.      |
-| `identifier_exists`       | `no` when the row has neither a GTIN nor an MPN paired with a brand.                       |
+| Column                                 | Source                                                                                                                              |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                                   | Variant ID.                                                                                                                         |
+| `item_group_id`                        | Product ID.                                                                                                                         |
+| `title`                                | Rendered from the title template, using translations when the channel has a language.                                               |
+| `description`                          | Product SEO description, falling back to the rich-text description rendered as plain text.                                          |
+| `link`                                 | Product URL template with `{productSlug}` substituted.                                                                              |
+| `image_link`                           | First variant image, falling back to the product's images and then its thumbnail.                                                   |
+| `additional_image_link`                | The remaining images.                                                                                                               |
+| `availability`                         | `out_of_stock` when the channel reports zero available quantity, otherwise `in_stock`.                                              |
+| `price`                                | Gross price in the channel's currency. The undiscounted price when the variant is on sale.                                          |
+| `sale_price`                           | Gross price, only when it is lower than the undiscounted price.                                                                     |
+| `brand`, `gtin`                        | From [attribute mapping](#attribute-mapping). Omitted from the file when unmapped.                                                  |
+| `mpn`                                  | Variant SKU.                                                                                                                        |
+| `condition`                            | Always `new`.                                                                                                                       |
+| `google_product_category`              | From [category mapping](#category-mapping).                                                                                         |
+| `product_type`                         | Saleor category name.                                                                                                               |
+| `shipping_weight`                      | Variant weight, when the product type requires shipping and the weight is above zero.                                               |
+| `identifier_exists`                    | `no` when the row has neither a GTIN nor an MPN paired with a brand.                                                                |
+| `color`, `material`, `pattern`, `size` | From [attribute mapping](#attribute-mapping), translated when the channel has a feed language. Omitted from the file when unmapped. |
 
 ### Which Products Are Included
 
-- A variant appears in a channel's feed only when it **has a price in that channel**. A variant that is not sold in the channel is left out silently and is not reported as a problem.
+- A product reaches a channel's feed only when it is **published, past its publication date, visible in listings, and available for purchase in that channel**. Publication is a per-channel setting, so a product live in one channel and unpublished in another appears in the first channel's feed only.
+- A variant appears only when it **has a price in that channel**. A variant that is not sold in the channel is left out silently. Saleor has no variant-level publication flag; a priced channel listing is the only variant-level gate.
+- Neither exclusion is reported as a problem — an unpublished or unsold product is not a data error.
 - A row is dropped when it is missing any field Google requires: `id`, `title`, `description`, `link`, `image_link`, `availability`, or `price`. Merchant Center reports an invalid row against the whole data source, so the app keeps such rows out rather than risk the feed's standing.
 - Because `description` and `image_link` come from the product, a product-level gap drops **all** of that product's variants.
 - Dropped rows do not fail the run. The good rows publish, and the channel row shows a count per missing field, such as `missing image_link (24), description (21)`, so you know which field to fix in the catalog.
@@ -198,24 +214,7 @@ The file is a TSV export following the Google Merchant Center product data speci
 - **Feeds are not real time.** There are no webhooks and no incremental updates. Catalog changes reach Google on the next scheduled run, or after you press **Regenerate all channels**.
 - **Regeneration is all-or-nothing.** A run is one catalog walk that fans out to every configured channel, so there is no cheaper per-channel rebuild to offer. The button is disabled while a run is in flight.
 - **Configuration changes apply to the next run.** A run in flight keeps the language, URLs, title template, and attribute mapping it started with, because the earlier part of the file is already written. The exception is **Allow smaller feeds**, which is read when the run decides whether to publish.
-  {/_ FLAG — NEEDS CONFIRMATION FROM THE APP TEAM. Claim: publication status is not respected.
-  Evidence: the app's catalog walk is `products(first:, after:)` with no channel and no
-  `where` filter (graphql/queries/fetch-products-core.graphql); the per-channel read is
-  `products(channel:, where: {ids:})` (fetch-channel-pricing.graphql). Neither filters on
-  `isPublished` or `visibleInListings`. In Saleor core, `ProductsQueryset.visible_to_user`
-  (saleor/product/managers.py) returns every product assigned to the channel, unfiltered by
-  publication, when the requestor holds MANAGE_PRODUCTS — and `ProductVariant.resolve_pricing`
-  only requires both channel listings to exist. So an unpublished product with a variant price
-  appears to be exported. Remove this bullet if the app filters somewhere I did not find. _/}
-
-- **Publication status is not checked.** Any variant with a price in the channel is exported, including products that are unpublished or hidden from listings. Remove a variant's channel listing if it must not reach Google.
-
-{/_ FLAG — CONFIRM. Claim: only `brand` and `gtin` can be mapped. Evidence:
-`MAPPABLE_TSV_COLUMNS = ["brand", "gtin"]` in src/modules/feed/tsv-writer.ts, enforced by
-the tRPC input schema in src/modules/config/config-form-mapping.ts. The Product Feed app's
-extra mappings (color, material, pattern, size) have no counterpart here. _/}
-
-- **Only `brand` and `gtin` are mappable.** Every other column is computed from catalog data. The `color`, `material`, `pattern`, and `size` mappings that the [Product Feed App](./product-feed.mdx) offered are not supported.
+- **Only six columns are mappable.** `brand`, `gtin`, `color`, `material`, `pattern`, and `size` come from attributes; every other column is computed from catalog data and cannot be overridden.
 - **TSV only.** The app does not produce the XML feed format.
 - **One feed per channel**, always the full catalog for that channel. There is no filtering by category, collection, or product type.
 - **No infrastructure to provide.** Unlike the Product Feed App, this app hosts the generated files for you, so there is no S3 bucket or IAM credentials to configure.
@@ -240,4 +239,4 @@ The [Product Feed App](./product-feed.mdx) is deprecated in favour of this app, 
 - **Feed URLs change.** Register the new per-channel URLs in Merchant Center as scheduled fetches and remove the old data sources once the new feeds publish.
 - **The feed format changes** from XML to TSV. Merchant Center accepts both; you just create the data source anew.
 - **You no longer provide an S3 bucket.** Drop the IAM user you created for the Product Feed App once you stop using it.
-- **Attribute mappings for `color`, `material`, `pattern`, and `size` have no equivalent.** Only `brand` and `gtin` are mappable here.
+- **Attribute mappings have to be set up again**, but every column the Product Feed App could map — `brand`, `gtin`, `color`, `material`, `pattern`, and `size` — is mappable here too.
