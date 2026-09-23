@@ -70,11 +70,32 @@ To avoid overloading the database, unfinished and unpaid checkouts are automatic
 
 ## Releasing Funds for Abandoned Checkouts
 
-Payments for items left in the cart by customers who did not complete the purchase will be refunded to the customer's account.
+Payments for items left in the cart by customers who did not complete the purchase can be released back to the customer's payment method automatically. This is opt-in and controlled **per channel**, not globally.
 
-Abandoned checkout is the checkout that hasn't been changed in a specific period. The TTL is controlled by the environment variable: [`CHECKOUT_TTL_BEFORE_RELEASING_FUNDS`](/setup/configuration.mdx#checkout_ttl_before_releasing_funds), a default set to 6 hours.
+Each channel exposes the following settings under [`Channel.paymentSettings`](/api-reference/miscellaneous/objects/payment-settings.mdx):
 
-For any [`transactionItem`](/api-reference/payments/objects/transaction-item.mdx) with processed funds (`authorizedAmount` or `chargeAmount`) assigned to abandoned checkout, Saleor will trigger the release action.
+- **`releaseFundsForExpiredCheckouts`** (Boolean, default `false`) — master switch for this channel. The release action described below only runs for checkouts in channels where this is `true`.
+- **`checkoutTtlBeforeReleasingFunds`** (Hour, default 6 hours) — how long a checkout must remain unchanged before it is considered abandoned.
+- **`checkoutReleaseFundsCutOffDate`** (DateTime, optional) — an optional floor date; checkouts created before this date are never auto-released. Regardless of this setting, checkouts older than one year are never released.
+
+These are readable and writable via the [`channelUpdate`](/api-reference/channels/mutations/channel-update.mdx) mutation, and in the Dashboard under **Configuration → Channels → [channel] → Payments & checkout**.
+
+To check the current setting per channel:
+
+```graphql
+query {
+  channels {
+    slug
+    paymentSettings {
+      releaseFundsForExpiredCheckouts
+      checkoutTtlBeforeReleasingFunds
+      checkoutReleaseFundsCutOffDate
+    }
+  }
+}
+```
+
+For any [`transactionItem`](/api-reference/payments/objects/transaction-item.mdx) with processed funds (`authorizedAmount` or `chargeAmount`) assigned to an abandoned checkout **in a channel with `releaseFundsForExpiredCheckouts` enabled**, Saleor will trigger the release action.
 
 The release action is:
 
