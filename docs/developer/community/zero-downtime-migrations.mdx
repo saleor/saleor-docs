@@ -68,12 +68,12 @@ flowchart TD
     ver_X-1 -->ver_X
 ```
 
-e.g. **Adding `new_field` to Saleor version 3.14:**
+e.g. **Adding `new_field` to Saleor version 3.23:**
 
-- In version 3.13 add `new_field` with `null=True`.
-- In version 3.13 add logic in code that covers writing to `new_field`.
-- In version 3.13 add migration that will fill nullable values. Please check [data migration](#data-migration)
-- In version 3.14 change `new_field` to be nonnullable.
+- In version 3.22 add `new_field` with `null=True`.
+- In version 3.22 add logic in code that covers writing to `new_field`.
+- In version 3.22 add migration that will fill nullable values. Please check [data migration](#data-migration)
+- In version 3.23 change `new_field` to be nonnullable.
 
 ### Renaming field
 
@@ -93,13 +93,13 @@ flowchart TD
     ver_X-1 -->ver_X
 ```
 
-e.g. **Rename field `old_field_name` to `new_field_name` in Saleor version 3.14:**
+e.g. **Rename field `old_field_name` to `new_field_name` in Saleor version 3.23:**
 
-- In version 3.13 add a new field `new_field_name`.
-- In version 3.13 add logic in code that covers writing to both `new_field_name` and `old_field_name`.
-- In version 3.13 migrate data from `old_field_name` to `new_field_name`. Please check [data migration](#data-migration)
-- In version 3.14 update logic to use only `new_field_name`.
-- From version 3.14 remove `old_field_name`. Please check [removing field](#removing-field).
+- In version 3.22 add a new field `new_field_name`.
+- In version 3.22 add logic in code that covers writing to both `new_field_name` and `old_field_name`.
+- In version 3.22 migrate data from `old_field_name` to `new_field_name`. Please check [data migration](#data-migration)
+- In version 3.23 update logic to use only `new_field_name`.
+- From version 3.23 remove `old_field_name`. Please check [removing field](#removing-field).
 
 ### Change field type without renaming
 
@@ -132,16 +132,16 @@ flowchart TD
     ver_X-1 -->ver_X -->ver_X+1 -->ver_X+2 -->ver_X+3
 ```
 
-e.g. **Change field type of `number` from `int` to `string` in Saleor version 3.14:**
+e.g. **Change field type of `number` from `int` to `string` in Saleor version 3.23:**
 
-- In version 3.13 add a new field `number_string`.
-- In version 3.13 add logic in code that covers writing to both `number` and `number_string`.
-- In version 3.13 migrate data from `number` to `number_string`. Please check [data migration](#data-migration)
-- From version 3.14 remove `number`. Please check [removing field](#removing-field)
-- In version 3.15 add a new field `number` back.
-- In version 3.15 add logic in code that covers writing to both `number` and `number_string`.
-- In version 3.15 migrate data from `number_string` to `number`. Please check [data migration](#data-migration)
-- From version 3.16 remove `number_string`. Please check [removing field](#removing-field)
+- In version 3.22 add a new field `number_string`.
+- In version 3.22 add logic in code that covers writing to both `number` and `number_string`.
+- In version 3.22 migrate data from `number` to `number_string`. Please check [data migration](#data-migration)
+- From version 3.23 remove `number`. Please check [removing field](#removing-field)
+- In version 3.24 add a new field `number` back.
+- In version 3.24 add logic in code that covers writing to both `number` and `number_string`.
+- In version 3.24 migrate data from `number_string` to `number`. Please check [data migration](#data-migration)
+- From version 3.25 remove `number_string`. Please check [removing field](#removing-field)
 
 Please note, that the process can be simplified if we can stay with a new name for the field, in this example that would be `number_string`.
 
@@ -149,9 +149,9 @@ Please note, that the process can be simplified if we can stay with a new name f
 
 To remove a field from the schema, you first need to remove it from ORM and then you can proceed with removal from the database.
 
-e.g. **Removing field `old_field` in Saleor version 3.14:**
+e.g. **Removing field `old_field` in Saleor version 3.23:**
 
-- In version 3.14 drop the field from ORM and ensure that the field is nullable or has a default value:
+- In version 3.23 drop the field from ORM and ensure that the field is nullable or has a default value:
 
 ```python
 operations = [
@@ -175,7 +175,7 @@ operations = [
 ]
 ```
 
-- In version 3.15 drop the field from the database:
+- In version 3.24 drop the field from the database:
 
 ```python
 operations = [
@@ -271,7 +271,7 @@ Migration containing the `ForeignKey` creation should be separated from migratio
 
 Data migration can lock the table for several hours. To avoid such a scenario you need to delegate logic to Celery worker.
 Celery task should be placed in `saleor/<module_name>/migrations/tasks/saleor<X>.py` where X means Saleor version,
-e.g. task to migrate data between orders in Saleor version 3.13 should be placed in `saleor/order/migrations/tasks/saleor3_13.py`
+e.g. task to migrate data between orders in Saleor version 3.22 should be placed in `saleor/order/migrations/tasks/saleor3_22.py`
 
 To call a task inside migration use `post_migrate` signal, e.g:
 
@@ -279,7 +279,7 @@ To call a task inside migration use `post_migrate` signal, e.g:
 from django.db import migrations
 from django.db.models.signals import post_migrate
 from django.apps import apps as registry
-from .tasks.saleor3_13 import migration_task
+from .tasks.saleor3_22 import migration_task
 
 
 def migration(apps, _schema_editor):
@@ -372,6 +372,6 @@ app.autodiscover_tasks(
     packages=[
         "saleor.order.migrations.tasks",
     ],
-    related_name="saleor3_15",
+    related_name="saleor3_24",
 )
 ```
