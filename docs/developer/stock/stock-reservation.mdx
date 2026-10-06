@@ -8,9 +8,29 @@ Saleor implements optional stock reservations feature where stock will be eagerl
 
 ## Enabling reservations
 
-To enable reservations, navigate to "Site settings" page in the dashboard. Here, in the "Checkout Configuration" section you'll find controls allowing you to enable stock reservations for authenticated and anonymous checkouts.
+Stock reservations can be controlled in the dashboard settings or with the [`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update.mdx) mutation. There are two settings, one for authenticated users and one for anonymous users. Each takes the reservation duration in minutes. Reservations are enabled when at least one of them has a value.
 
-To disable stock reservations, clear both controls.
+## Disabling reservations
+
+To disable reservations, clear both settings. Values of `0` or less are also stored as `null`:
+
+```graphql
+mutation {
+  shopSettingsUpdate(
+    input: {
+      reserveStockDurationAnonymousUser: null
+      reserveStockDurationAuthenticatedUser: null
+    }
+  ) {
+    errors {
+      field
+      message
+    }
+  }
+}
+```
+
+Without reservations, stock is allocated only when the checkout is completed and the order is placed, not when the customer adds the item to the cart. As a result, more than one customer can add the last unit to their checkout. The first customer to complete the checkout gets the item. For all other customers, `checkoutComplete` returns the `INSUFFICIENT_STOCK` error.
 
 ## Mechanism of action
 
