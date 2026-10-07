@@ -314,6 +314,85 @@ the discounted price (after applying any catalogue discount) is utilized.
 }
 ```
 
+### Customer conditions
+
+**Added in Saleor 3.24.**
+
+Both catalogue and order promotion rules can be limited to a group of customers with the `customerTypes` and `customerAttributeValues` fields of the rule input. The conditions sit next to the predicate, not inside it, and use the same matching rules as [scoped prices](/developer/products/scoped-prices.mdx#how-a-scoped-price-is-matched): one of the listed customer types is enough, holding one of the listed values of an attribute is enough, and when values of several attributes are listed the customer must match every attribute. Only values of `CUSTOMER_TYPE` attributes with a fixed set of choices are accepted, and each list holds at most 100 items. A guest never matches a rule with customer conditions.
+
+The example gives customers of the B2B customer type 15% off a product:
+
+```graphql
+mutation {
+  promotionRuleCreate(
+    input: {
+      promotion: "UHJvbW90aW9uOjE="
+      name: "B2B rule"
+      channels: ["Q2hhbm5lbDox"]
+      cataloguePredicate: { productPredicate: { ids: ["UHJvZHVjdDoxNDM="] } }
+      rewardValueType: PERCENTAGE
+      rewardValue: 15
+      customerTypes: ["Q3VzdG9tZXJUeXBlOjE="]
+    }
+  ) {
+    promotionRule {
+      id
+      customerTypes {
+        name
+      }
+      customerAttributes {
+        attribute {
+          slug
+        }
+        values {
+          slug
+        }
+      }
+    }
+    errors {
+      field
+      code
+      message
+      customerAttributeValues
+    }
+  }
+}
+```
+
+A rule of an order promotion may rely on its customer conditions alone. Leave the `orderPredicate` empty to give every order of the matching customers the reward:
+
+```graphql
+mutation {
+  promotionRuleCreate(
+    input: {
+      promotion: "UHJvbW90aW9uOjI="
+      name: "Gold perk"
+      channels: ["Q2hhbm5lbDox"]
+      orderPredicate: {}
+      rewardType: SUBTOTAL_DISCOUNT
+      rewardValueType: PERCENTAGE
+      rewardValue: 5
+      customerAttributeValues: ["QXR0cmlidXRlVmFsdWU6OTg="]
+    }
+  ) {
+    promotionRule {
+      id
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+The `rewardType` is still required for such a rule. A rule of an order promotion with neither an `orderPredicate` nor customer conditions is rejected with a `REQUIRED` error, on creation and when an update removes the last condition. Catalogue rules always need a `cataloguePredicate`.
+
+On [`promotionRuleUpdate`](../../api-reference/discounts/mutations/promotion-rule-update) a list you pass replaces the condition, `null` or an empty list removes it, and a field you leave out keeps it. The rule exposes its conditions in the `customerTypes` and `customerAttributes` fields, with the values grouped per attribute.
+
+A catalogue rule with customer conditions is applied for the matching customers in the `pricing` fields, in checkout and in draft orders, but it is left out of the stored discounted price of the variant that guests, price sorting and the minimal price filter use. The best single catalogue rule still wins for a line, so such a rule competes with the public rules of the variant on the customer's base price. See [Discounts on scoped prices](/developer/products/scoped-prices.mdx#discounts-on-scoped-prices).
+
 ## Channel availability
 
 Each rule can have assigned channels in which the discount will be applied.
