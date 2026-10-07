@@ -17,6 +17,7 @@ export const coreConcepts = [
   "developer/products/troubleshooting",
   "developer/products/cookbook",
   "developer/products/api",
+  "developer/products/scoped-prices",
 
   title("Attributes"),
   "developer/attributes/overview",

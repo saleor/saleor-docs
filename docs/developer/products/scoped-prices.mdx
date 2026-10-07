@@ -1,0 +1,296 @@
+---
+title: Scoped Prices
+description: Give different customers a different base price for the same variant in a channel.
+---
+
+**Added in Saleor 3.24.**
+
+Scoped prices let you charge different customers a different base price for the same product variant in a channel, without duplicating products or channels. A scoped price is an extra price on a variant channel listing that applies only to customers in its scope. The scope is built from [customer types and customer attributes](/developer/users/customer-types.mdx), optionally limited to a validity window. The listing price stays the default for everyone else, so a store without scoped prices works exactly as before.
+
+The same scope can limit a promotion rule to a group of customers. See [Buyer conditions on promotion rules](#buyer-conditions-on-promotion-rules) below.
+
+## Permissions
+
+- `MANAGE_PRODUCTS` — create, update, and delete scoped prices. Reading them through `ProductVariantChannelListing.prices` is available to any authenticated staff user or app, like the rest of the channel listing.
+- `MANAGE_PRODUCTS` and `MANAGE_USERS` together — preview the prices a given customer sees through the `customer` argument of the pricing fields.
+- `MANAGE_DISCOUNTS` — set buyer conditions on promotion rules, as for any other rule change.
+
+Customers never see the scoped prices of other customers. The pricing fields resolve prices for the customer making the request, and the `prices` list is not available to customers at all.
+
+## How a Scoped Price Is Matched
+
+A scoped price carries any combination of three kinds of conditions:
+
+- **Customer types** the customer must belong to. One of the listed types is enough.
+- **Customer attribute values** the customer must hold. Only values of `CUSTOMER_TYPE` attributes with a fixed set of choices qualify: the `DROPDOWN`, `MULTISELECT`, `SWATCH`, and `BOOLEAN` input types. Values are grouped by attribute. Holding one of the listed values of an attribute is enough, and when values of several attributes are listed, the customer must match every attribute.
+- **A validity window** with an optional start (`validFrom`, inclusive) and end (`validTo`, exclusive).
+
+A scoped price must have at least one condition. Every condition it declares must hold for the price to apply. Saleor resolves the price of a variant for a customer as follows:
+
+1. A custom price set on the checkout or order line wins over everything else.
+2. Among the scoped prices of the listing that match the customer, the one matching the most conditions wins. Each customer type condition, each attribute condition, and the validity window count as one. On a tie, the lowest price wins.
+3. Without a matching scoped price, the listing price applies.
+4. Catalogue promotions are applied on top of the resolved price. See [Discounts](#discounts-on-scoped-prices) below.
+
+A few rules follow from how customer types work:
+
+- A guest has no customer type and never matches a customer type or attribute condition, not even one scoped to the default customer type. A scoped price with only a validity window applies to everyone, guests included.
+- A logged in customer without an explicit customer type is a member of the default customer type.
+- An attribute value counts only while its attribute is assigned to the customer's current customer type. Values hidden by [unassigning the attribute or switching the type](/developer/users/customer-types.mdx#attribute-value-lifecycle) stop granting the price until they become visible again.
+
+## Creating a Scoped Price
+
+Create a scoped price with [`variantChannelListingPriceCreate`](/api-reference/products/mutations/variant-channel-listing-price-create). The example gives customers of the B2B customer type a lower price:
+
+```graphql
+mutation {
+  variantChannelListingPriceCreate(
+    input: {
+      variantChannelListing: "UHJvZHVjdFZhcmlhbnRDaGFubmVsTGlzdGluZzoxMg=="
+      price: 7.5
+      customerTypes: ["Q3VzdG9tZXJUeXBlOjE="]
+    }
+  ) {
+    variantChannelListingPrice {
+      id
+      price {
+        amount
+        currency
+      }
+      customerTypes {
+        name
+      }
+      customerAttributes {
+        attribute {
+          slug
+        }
+        values {
+          slug
+        }
+      }
+      validFrom
+      validTo
+    }
+    errors {
+      field
+      code
+      message
+      customerTypes
+      customerAttributeValues
+    }
+  }
+}
+```
+
+The price is given in the currency of the channel listing. To scope the price by an attribute, pass the IDs of its values in `customerAttributeValues`. The example limits the price to customers with the `Gold` loyalty level during a promotional week:
+
+```graphql
+mutation {
+  variantChannelListingPriceCreate(
+    input: {
+      variantChannelListing: "UHJvZHVjdFZhcmlhbnRDaGFubmVsTGlzdGluZzoxMg=="
+      price: 8
+      customerAttributeValues: ["QXR0cmlidXRlVmFsdWU6OTg="]
+      validFrom: "2026-11-02T00:00:00+00:00"
+      validTo: "2026-11-09T00:00:00+00:00"
+    }
+  ) {
+    variantChannelListingPrice {
+      id
+    }
+    errors {
+      field
+      code
+      message
+      customerAttributeValues
+    }
+  }
+}
+```
+
+The mutation validates the input and returns a [`VariantChannelListingPriceErrorCode`](/api-reference/products/enums/variant-channel-listing-price-error-code):
+
+- `REQUIRED` when the price has no condition at all.
+- `INVALID` when a value does not belong to a customer attribute with a fixed set of choices. The rejected IDs are returned in the `customerAttributeValues` error field. The same code is returned when `validTo` is not after `validFrom`, or when a list has more than 100 items.
+- `LIMIT_EXCEEDED` when the listing already holds 100 scoped prices.
+- `NOT_FOUND` when the listing does not exist.
+
+Creating, updating, and deleting a scoped price triggers the `PRODUCT_VARIANT_UPDATED` webhook event for the variant.
+
+## Updating and Deleting a Scoped Price
+
+Update a scoped price with [`variantChannelListingPriceUpdate`](/api-reference/products/mutations/variant-channel-listing-price-update). A field you leave out keeps its value. A list you pass replaces the whole condition, and `null` or an empty list removes the condition. Passing `null` for `validFrom` or `validTo` removes that bound. The resulting price must still have at least one condition.
+
+The example replaces the customer type condition with a condition on the loyalty level and removes the end of the validity window:
+
+```graphql
+mutation {
+  variantChannelListingPriceUpdate(
+    id: "VmFyaWFudENoYW5uZWxMaXN0aW5nUHJpY2U6NQ=="
+    input: {
+      customerTypes: []
+      customerAttributeValues: ["QXR0cmlidXRlVmFsdWU6OTg="]
+      validTo: null
+    }
+  ) {
+    variantChannelListingPrice {
+      id
+      customerTypes {
+        name
+      }
+      customerAttributes {
+        attribute {
+          slug
+        }
+        values {
+          slug
+        }
+      }
+      validTo
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+Delete a scoped price with [`variantChannelListingPriceDelete`](/api-reference/products/mutations/variant-channel-listing-price-delete):
+
+```graphql
+mutation {
+  variantChannelListingPriceDelete(id: "VmFyaWFudENoYW5uZWxMaXN0aW5nUHJpY2U6NQ==") {
+    variantChannelListingPrice {
+      id
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+
+## Reading Scoped Prices
+
+The scoped prices of a listing are listed in the `prices` field of [`ProductVariantChannelListing`](/api-reference/products/objects/product-variant-channel-listing). Each [`VariantChannelListingPrice`](/api-reference/products/objects/variant-channel-listing-price) returns its customer types, its attribute conditions grouped per attribute as [`CustomerAttributeCondition`](/api-reference/attributes/objects/customer-attribute-condition) objects, and its validity window:
+
+```graphql
+query {
+  productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MzQ4") {
+    channelListings {
+      channel {
+        slug
+      }
+      price {
+        amount
+      }
+      prices {
+        id
+        price {
+          amount
+        }
+        customerTypes {
+          name
+        }
+        customerAttributes {
+          attribute {
+            slug
+          }
+          values {
+            slug
+          }
+        }
+        validFrom
+        validTo
+      }
+    }
+  }
+}
+```
+
+The `price` field of the listing is the default price and is not affected by scoped prices.
+
+## Previewing Prices as a Customer
+
+The `pricing` fields of `Product`, `ProductVariant`, and `ProductChannelListing` resolve prices for the customer making the request. To check what a given customer pays, pass the customer's ID in the `customer` argument. The request must hold both `MANAGE_PRODUCTS` and `MANAGE_USERS`, otherwise it is rejected with a permission error:
+
+```graphql
+query {
+  productVariant(id: "UHJvZHVjdFZhcmlhbnQ6MzQ4", channel: "default-channel") {
+    pricing(customer: "VXNlcjoyMw==") {
+      priceUndiscounted {
+        gross {
+          amount
+        }
+      }
+      price {
+        gross {
+          amount
+        }
+      }
+    }
+  }
+}
+```
+
+The response shows the scoped price as the undiscounted price, with the catalogue promotions the customer qualifies for applied on top. See [Pricing](/developer/products/api.mdx#pricing) for the fields.
+
+## Scoped Prices in Checkout and Orders
+
+Checkout lines are priced for the customer attached to the checkout, and draft order lines for the customer of the order. The resolved scoped price is the undiscounted unit price of the line, as described in [Price calculation](/developer/price-calculation.mdx#undiscounted-price). A guest checkout uses the listing price.
+
+Prices are resolved again when the customer changes. [`checkoutCustomerAttach`](/api-reference/checkout/mutations/checkout-customer-attach) and [`checkoutCustomerDetach`](/api-reference/checkout/mutations/checkout-customer-detach) invalidate the checkout prices, and changing the `user` of a draft order with [`draftOrderUpdate`](/api-reference/orders/mutations/draft-order-update) marks its lines for recalculation. A line with a custom price set through `price` in the line input keeps that price.
+
+## Discounts on Scoped Prices
+
+Catalogue promotions apply on top of the resolved base price. When a customer gets a scoped price, the promotion rules of the variant are evaluated against that price: a percentage rule scales with it, and a fixed rule is subtracted from it. The best single rule wins, as it does for the listing price.
+
+### Buyer Conditions on Promotion Rules
+
+A promotion rule can be limited to a group of customers with the same `customerTypes` and `customerAttributeValues` conditions, on both catalogue and order promotions. The conditions are rule fields next to the predicate, not part of it. A rule with buyer conditions applies only to customers matching them, and a guest never matches. See [Customer conditions](/developer/discounts/promotions.mdx#customer-conditions) in the promotions guide for the details and examples.
+
+Two consequences matter for a storefront:
+
+- A catalogue rule with buyer conditions is not folded into the stored discounted price of the variant. The `pricing` fields of a guest, sorting products by `PRICE` or `MINIMAL_PRICE`, and the `minimalPrice` filter keep using the price without such rules. A logged in customer matching the rule sees it in the `pricing` fields and in the checkout.
+- An order rule may rely on its buyer conditions alone, with an empty `orderPredicate`, to give a group of customers a discount on every order.
+
+## Deleting Customer Types, Attributes, and Values
+
+A scoped price or a promotion rule that references a customer type or an attribute value keeps it in use. Deleting the object would silently widen the price or the promotion to everyone, so the following mutations refuse with a `CANNOT_DELETE` error that names the counts of referencing scoped prices and rules:
+
+- [`customerTypeDelete`](/api-reference/users/mutations/customer-type-delete)
+- [`attributeDelete`](/api-reference/attributes/mutations/attribute-delete) and [`attributeBulkDelete`](/api-reference/attributes/mutations/attribute-bulk-delete)
+- [`attributeValueDelete`](/api-reference/attributes/mutations/attribute-value-delete) and [`attributeValueBulkDelete`](/api-reference/attributes/mutations/attribute-value-bulk-delete)
+- [`attributeUpdate`](/api-reference/attributes/mutations/attribute-update) and [`attributeBulkUpdate`](/api-reference/attributes/mutations/attribute-bulk-update) when `removeValues` lists a referenced value
+
+```json
+{
+  "field": "id",
+  "code": "CANNOT_DELETE",
+  "message": "The customer type is referenced by 2 scoped variant prices and 3 promotion rules. Remove the customer type from those first."
+}
+```
+
+Remove the customer type or the value from the listed scoped prices and rules, then delete it.
+
+## When Prices Are Refreshed
+
+Scoped prices and customer conditions are resolved at read time, but several prices in Saleor are stored and refreshed later. A change to a scoped price, to a customer's type or attribute values, to the attributes assigned to a type, or to the customer conditions of a promotion rule reaches each of them at a different moment.
+
+- **The `pricing` fields** resolve prices for the customer on every request, so they reflect the change right away. The one exception is a guest: a guest reads the stored discounted price of the listing, described next.
+- **The stored discounted price** of a listing is the price guests see and the one product sorting by `PRICE` or `MINIMAL_PRICE` and the `minimalPrice` filter use. A scoped price with only a validity window applies to everyone, so Saleor folds it into the stored price while the window is open and triggers the usual `PRODUCT_VARIANT_DISCOUNTED_PRICE_UPDATED` events. A background task checks every 30 seconds for windows that opened or closed and schedules the recalculation, so the stored price can lag behind the window by up to about a minute at both ends, the same way it lags after a promotion ends. Creating, updating, or deleting such a price schedules the recalculation directly. If the recalculation of a product is already running when its window price is updated or deleted, it can store the old value, which then stays until the next recalculation of that product. The same applies to a listing price changed at that moment.
+- **Open checkouts** store their line prices and refresh them when they expire, after `CHECKOUT_PRICES_TTL` (one hour by default), or when a mutation invalidates them, such as adding or updating lines, changing the address or shipping, or [attaching or detaching the customer](/api-reference/checkout/mutations/checkout-customer-attach). None of the changes listed above invalidates an existing checkout on its own, so a customer with an open checkout keeps the previous price until then. Lines added after the change get the current price.
+- **Draft orders** keep the base price of a line for the channel's [price freeze period](/developer/price-freeze-period.mdx). Changing the `user` of the draft order with [`draftOrderUpdate`](/api-reference/orders/mutations/draft-order-update) expires the lines right away. Other changes wait for the freeze period, or for a line to be added again.
+
+## Limits and Behavior to Know
+
+- A listing holds at most 100 scoped prices, and each condition list has at most 100 items.
+- A scoped price never makes a variant purchasable on its own. A listing without a `price` stays unavailable.
+- Sorting products by price and filtering by `minimalPrice` use the stored discounted price of the listing, which is the price a guest sees. They do not reflect the scoped prices of the customer making the request.
+- Attribute values hidden by [unassigning the attribute or switching the customer's type](/developer/users/customer-types.mdx#attribute-value-lifecycle) stop granting a price on the next read, with the delays described in [When prices are refreshed](#when-prices-are-refreshed) for stored prices.
+- An app has no customer, so the `pricing` fields resolve the listing price for an app token. An app that needs the price of a given customer passes the customer in the `customer` argument, with the permissions described in [Previewing prices as a customer](#previewing-prices-as-a-customer).
+- Creating, updating, or deleting a scoped price fires only the `PRODUCT_VARIANT_UPDATED` event. A subscription payload can query `channelListings { prices }` on the variant, but the legacy JSON payloads do not include scoped prices, so an app syncing prices to another system has to query the listing.
