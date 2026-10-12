@@ -408,6 +408,73 @@ Below is an example order with multiple transactions and `totalRemainingGrant` a
   :::
 
 
+## Refunding Unfulfilled Items
+
+When you cannot supply items from a confirmed, paid order, record the unavailable quantities and refund their payment. This preserves the original order lines while removing those quantities from the items still awaiting fulfillment.
+
+Use `orderFulfillmentReturnProducts` with `input.orderLines` for unfulfilled items. Although this mutation records a return, it does not require an existing fulfillment or a physical return from the customer. Use order line IDs; `input.fulfillmentLines` is for items that have already been fulfilled.
+
+### Recording the Unavailable Quantities
+
+The following example records one unfulfilled item as returned. Set `replace: false` to avoid creating a replacement order and `refund: false` to process the payment separately through a granted refund.
+
+<Tabs>
+<TabItem value="Mutation">
+```graphql
+mutation ReturnUnfulfilledItems($orderId: ID!, $input: OrderReturnProductsInput!) {
+  orderFulfillmentReturnProducts(order: $orderId, input: $input) {
+    returnFulfillment {
+      id
+      status
+    }
+    errors {
+      field
+      code
+      message
+    }
+  }
+}
+```
+</TabItem>
+<TabItem value="Variables">
+```json
+{
+  "orderId": "ORDER_ID",
+  "input": {
+    "orderLines": [
+      { "orderLineId": "ORDER_LINE_ID", "quantity": 1, "replace": false }
+    ],
+    "refund": false
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+Replace the placeholder IDs with IDs from your order. The mutation creates a return fulfillment and reduces the quantities awaiting fulfillment. You do not need to create or cancel a shipment for these items. This step requires `MANAGE_ORDERS`.
+
+### Refunding the Payment
+
+Call [`orderGrantRefundCreate`](#creating-a-granted-refund) for the same order lines and quantities. Use these variables with the mutation above in **Creating a Granted Refund**:
+
+```json
+{
+  "id": "ORDER_ID",
+  "input": {
+    "transactionId": "TRANSACTION_ID",
+    "lines": [{ "id": "ORDER_LINE_ID", "quantity": 1 }],
+    "reason": "Item unavailable",
+    "grantRefundForShipping": false
+  }
+}
+```
+
+Omitting `amount` uses the [automatic refund calculation](#calculating-the-refund-amount), including tax. Set `grantRefundForShipping` to `true` if you also want to refund shipping.
+
+Next, call [`transactionRequestRefundForGrantedRefund`](#requesting-the-payment-refund) with the returned `grantedRefund.id`. The payment app processes the request against the transaction selected when creating the granted refund. Check the granted refund's `status` for the outcome.
+
+Run each mutation separately and check its `errors` before continuing. Save the returned IDs so that a failure in a later step does not cause you to repeat a completed return or create a duplicate granted refund. For staff requests, include any required [return reason reference](#return-reasons-configuration) and [refund reason reference](#refund-reasons-configuration).
+
 ## Refunds in the Dashboard
 
 The Dashboard uses granted refunds to record refund details before requesting the payment refund:
