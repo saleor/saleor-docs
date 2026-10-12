@@ -14,6 +14,38 @@ There are two ways to process refunds:
 You may have seen we start referencing `Page` as a `Model`. While in the API we still use `Page` name for backwards compatibility, we will be renaming it to `Model` in the future.
 :::
 
+## Refunds After Cancellation or Order Changes
+
+Canceling an order with [`orderCancel`](../../api-reference/orders/mutations/order-cancel.mdx) or deleting a line with [`orderLineDelete`](../../api-reference/orders/mutations/order-line-delete.mdx) does not automatically refund a charged payment. Request the refund separately.
+
+For example, after canceling a paid order, call `transactionRequestAction` with the transaction ID and `actionType: REFUND`. Omit `amount` to refund the transaction's remaining `chargedAmount`, or provide an amount for a partial refund. If an order has multiple charged transactions, request a refund for each transaction you want to refund.
+
+After deleting a line, use the same mutation to refund the amount you intend to return. If you want a refund record linked to specific order lines, use the [granted-refund flow](#granted-refunds) with existing order lines instead. Deleting a line and returning a product are different operations; the granted-refund flow does not require deleting the line.
+
+Both refund request mutations described below trigger [`TRANSACTION_REFUND_REQUESTED`](../extending/webhooks/synchronous-events/transaction.mdx#transaction-refund). The payment app requests the refund from its payment provider and reports the result to Saleor. Requesting a refund does not guarantee that it has completed successfully.
+
+## Refund Amounts and Tax
+
+An explicit refund `amount` is the total money to return to the customer. Saleor does not add tax on top of that amount. For example, to fully refund an item priced at $10 plus $2 tax, request `amount: 12`.
+
+To let Saleor calculate an item-based refund, call `orderGrantRefundCreate` with the order line IDs and quantities in `input.lines`, and omit `input.amount`. Saleor uses the line prices including tax, multiplied by the requested quantities. Set `input.grantRefundForShipping: true` to also include the shipping price including tax. The calculated amount is capped at the selected transaction's `chargedAmount`.
+
+Creating this granted refund records what should be refunded. Call `transactionRequestRefundForGrantedRefund` afterward to request the payment refund.
+
+## Refunds in the Dashboard
+
+For the transaction-based refund form:
+
+1. Open the order and create a refund from its refunds section.
+2. Select the transaction handled by your payment app, choose the items and quantities, and review the refund amount and shipping costs.
+3. Select **Save draft** to create the granted refund.
+4. Open the saved refund and select **Transfer funds** to request the refund through the payment app.
+5. Check the refund status to confirm whether it succeeded, is pending, or failed.
+
+The **Return & Replace** form has a separate flow. Select **Grant refund for returned items**, choose a transaction, and review the amount. To request the payment refund when submitting **Return and Replace products**, also select **Automatically send granted refund**. If that option is unchecked, the form creates the granted refund without sending it; open the refund afterward to transfer the funds.
+
+Automatic sending is available only when the order has exactly one transaction and that transaction supports the `REFUND` action. If the option is disabled, check its tooltip for the reason.
+
 ## Manual refund
 
 The manual refund can be triggered by calling `transactionRequestAction`. If the refund is successful, the `transaction.chargedAmount` will be reduced. The order's `authorizeStatus`, `chargeStatus`, and `totalBalance` will also be recalculated based on the new values of `chargedAmount` and `refundedAmount`. This method is useful when handling overcharged orders.
@@ -65,8 +97,7 @@ The mutation accepts below arguments:
 
 ## Granted refunds
 
-A granted refund refers to the process where a customer receives their money back after a refund request has been approved.
-Once a refund is granted, the customer is reimbursed for the purchase.
+A granted refund records an approved refund: the items, amount, and shipping costs to return. Creating it does not send money to the customer. A separate refund request is required to process the payment.
 
 When processing a refund based on `OrderGrantedRefund`, there are two steps involved. Firstly, an order must be granted a refund, which defines what should be refunded. This step requires the `MANAGE_ORDERS` permission. Secondly, a refund needs to be requested based on the created `OrderGrantedRefund`. This step requires the `HANDLE_PAYMENTS` permission.
 
