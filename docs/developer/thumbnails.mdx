@@ -24,6 +24,25 @@ Size defines the longest dimension of the thumbnail in pixels. You may pass any 
 
 For example, if you pass `55` as size, Saleor will find the closest supported size, 64, and return an image that is at most 64 by 64 pixels.
 
+The closest size may be smaller than the one you requested. For example, `1500` is closer to 1024 than to 2048, so Saleor returns an image that is at most 1024 pixels on its longest side. When the value is exactly halfway between two sizes (e.g. `768`), the smaller size is used.
+
+| Requested size | Returned size |
+| -------------- | ------------- |
+| 1–48           | 32            |
+| 49–96          | 64            |
+| 97–192         | 128           |
+| 193–384        | 256           |
+| 385–768        | 512           |
+| 769–1536       | 1024          |
+| 1537–3072      | 2048          |
+| 3073 and above | 4096          |
+
+Thumbnails are never upscaled: if the original image is smaller than the selected size, the image is returned at its original dimensions.
+
+:::warning
+If the returned thumbnail is smaller than the area it is displayed in, the browser stretches it and the image looks blurry. To avoid this, request a size in device pixels (the displayed width multiplied by the device pixel ratio, e.g. 750 × 2 = 1500 on a retina screen) and round it **up** to the next supported size yourself (e.g. pass `2048` instead of `1500`).
+:::
+
 If omitted, 4096 is used as a default value. Set to 0 it will allow to get original size thumbnail and can potentially resolve an issue when thumbnails are not generating because they weren't resized.
 
 #### Format
