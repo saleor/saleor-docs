@@ -8,6 +8,131 @@ To follow the zero-downtime strategy when upgrading to 3.21, **It is recommended
 Otherwise, you will need to downtime your solution to ensure correct data migration.
 :::
 
+## Strict authorization token validation
+
+Saleor will enforce rigorous validation for all types of authorization tokens, including Saleor-generated tokens, tokens used by the OIDC plugin, and app tokens. In previous versions, when Saleor received an invalid token, it would return a `200 OK`response with a query executed as an anonymous user. This behaviour has been changed to return a `401 Unauthorized`. This change may affect your custom apps that rely on the previous behavior, also storefronts that send invalid tokens to Saleor could be affected. If you have any custom logic that relies on receiving a `200 OK` response for invalid tokens, you will need to update it before upgrading to version 3.21.
+
+### Examples executed with invalid token
+
+#### Query with required permission
+Query:
+```graphql
+query ShopQuery {
+  shop {
+    name
+    privateMetafields
+  }
+}
+```
+
+Responses before 3.21\
+Status code: <b>200</b>\
+Body:
+```graphql
+{
+  "errors": [
+    {
+      "message": "You do not have permission to perform this action",
+      "locations": [
+        {
+          "line": 4,
+          "column": 5
+        }
+      ],
+      "path": [
+        "shop",
+        "privateMetafields"
+      ],
+      "extensions": {
+        "exception": {
+          "code": "PermissionDenied"
+        }
+      }
+    }
+  ],
+  "data": {
+    "shop": {
+      "name": "Saleor e-commerce",
+      "privateMetafields": null
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+Responses after 3.21\
+Status code: <b>401</b>\
+Body:
+```graphql
+{
+  "errors": [
+    {
+      "message": "Invalid authorization token.",
+      "extensions": {
+        "exception": {
+          "code": "PermissionDenied"
+        }
+      }
+    }
+  ]
+}
+```
+
+#### Query without permissions
+Query:
+```graphql
+query ShopQuery {
+  shop {
+    name
+  }
+}
+```
+
+Responses before 3.21\
+Status code: <b>200</b>\
+Body:
+```graphql
+{
+  "data": {
+    "shop": {
+      "name": "Saleor e-commerce"
+    }
+  },
+  "extensions": {
+    "cost": {
+      "requestedQueryCost": 0,
+      "maximumAvailable": 50000
+    }
+  }
+}
+```
+
+Responses after 3.21\
+Status code: <b>401</b>\
+Body:
+```graphql
+{
+  "errors": [
+    {
+      "message": "Invalid authorization token.",
+      "extensions": {
+        "exception": {
+          "code": "PermissionDenied"
+        }
+      }
+    }
+  ]
+}
+```
+
+
+
+
 ## Authentication required for changing `Order` and `OrderLine` metadata
 
 The [updateMetadata](/api-reference/miscellaneous/mutations/update-metadata.mdx) mutation for `Order` and `OrderLine` now requires the `MANAGE_ORDERS` permission.
