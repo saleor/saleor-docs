@@ -31,6 +31,24 @@ Disabling this setting prevents sending update webhooks when only metadata chang
 
 This setting applies to all mutations capable of triggering both `<object>Updated` and `<object>MetadataUpdated` webhooks.
 
+## Deferred Webhook Payload Generation
+
+In 3.23, the payload of subscription webhooks for the following asynchronous events is built by a background task after the request finishes, instead of in the request:
+
+- `ORDER_CREATED`, `ORDER_CONFIRMED`, `ORDER_UPDATED`, `ORDER_CANCELLED`, `ORDER_EXPIRED`, `ORDER_FULFILLED`
+- `ORDER_PAID`, `ORDER_FULLY_PAID`, `ORDER_REFUNDED`, `ORDER_FULLY_REFUNDED`
+- `ORDER_METADATA_UPDATED`
+- `DRAFT_ORDER_CREATED`, `DRAFT_ORDER_UPDATED`
+- `FULFILLMENT_CANCELED`, `FULFILLMENT_METADATA_UPDATED`, `FULFILLMENT_TRACKING_NUMBER_UPDATED`
+- `PRODUCT_VARIANT_DISCOUNTED_PRICE_UPDATED`
+- `PRODUCT_VARIANT_OUT_OF_STOCK_IN_CHANNEL`, `PRODUCT_VARIANT_BACK_IN_STOCK_IN_CHANNEL`, `PRODUCT_VARIANT_OUT_OF_STOCK_FOR_CLICK_AND_COLLECT`, `PRODUCT_VARIANT_BACK_IN_STOCK_FOR_CLICK_AND_COLLECT`
+
+`CHECKOUT_CREATED` and `CHECKOUT_UPDATED` have worked this way since 3.21.
+
+The payload reflects the state of the object when the task runs. When two changes to the same object happen close together, both deliveries can carry the state after the second change. An integration that applies each delivery in sequence, for example a sync keyed on order metadata, can receive the newer value twice and never see the earlier one.
+
+If your integration needs each delivery to reflect the request that triggered it, set `payloadGeneration: IMMEDIATE` on the webhook. The setting is available from Saleor 3.23.41 in `webhookCreate`, `webhookUpdate` and the app manifest. See [Payload Generation](/developer/extending/webhooks/asynchronous-events.mdx#payload-generation) for details, including a note on Saleor Cloud, where all events may become deferred at any time.
+
 ## Dashboard extensions
 
 Since 3.22, Dashboard extension manifests are validated on the frontend. Installing apps directly via GraphQL is discouraged, as such apps may not work properly.
