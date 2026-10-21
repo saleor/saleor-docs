@@ -1,10 +1,15 @@
 ---
 title: Customers and Staff as One User
-sidebar_label: User Model
-description: How customers and staff relate to the shared User type in the Saleor GraphQL API.
+slug: developer/users/user-model
+sidebar:
+  label: User Model
+seo:
+  title: Customers and Staff as One User
+  description: How customers and staff relate to the shared User type in the Saleor GraphQL API.
+lastModified: '2026-09-08'
 ---
 
-Customers and staff are not separate entities in Saleor. Both are represented by the same [`User`](/api-reference/users/objects/user.mdx) GraphQL type. The role of a given user is determined by the `isStaff` field and by which mutations and permissions apply to them.
+Customers and staff are not separate entities in Saleor. Both are represented by the same [`User`](/api-reference/users/objects/user) GraphQL type. The role of a given user is determined by the `isStaff` field and by which mutations and permissions apply to them.
 
 This page explains how the two roles relate at the API level: which fields are meaningful for each, which mutations to use to create or manage them, and how a user can move between roles.
 
@@ -12,7 +17,7 @@ This page explains how the two roles relate at the API level: which fields are m
 
 Every account — whether a shopper or an administrator — is a `User`. The same fields (`id`, `email`, `firstName`, `lastName`, `addresses`, `metadata`, `orders`, etc.) are available on both. The difference is:
 
-- **`isStaff: Boolean!`** — `true` for staff members, `false` for customers. It is exposed publicly on the `User` type and is also included as a claim in the JWT issued by [`tokenCreate`](/api-reference/authentication/mutations/token-create.mdx).
+- **`isStaff: Boolean!`** — `true` for staff members, `false` for customers. It is exposed publicly on the `User` type and is also included as a claim in the JWT issued by [`tokenCreate`](/api-reference/authentication/mutations/token-create).
 - **Role-specific fields** — see below.
 - **Permissions required to manage them** — `MANAGE_USERS` for customers, `MANAGE_STAFF` for staff.
 
@@ -28,7 +33,7 @@ The following fields exist on every `User` but are only populated for staff. For
 | `accessibleChannels` | Channels the staff user has access to via their permission groups. |
 | `restrictedAccessToChannels` | Whether the staff user's access is limited to a subset of channels. |
 
-See [Permissions](/developer/permissions.mdx) for how permission groups and channel restrictions work.
+See [Permissions](/developer/permissions) for how permission groups and channel restrictions work.
 
 ## Choosing a create mutation
 
@@ -36,17 +41,17 @@ There are three mutations that produce a `User`. Pick the one that matches the c
 
 | Mutation | Caller | Required permission | Resulting role |
 | --- | --- | --- | --- |
-| [`accountRegister`](/api-reference/users/mutations/account-register.mdx) | The user themselves (storefront) | None | Customer |
-| [`customerCreate`](/api-reference/users/mutations/customer-create.mdx) | Staff or app | `MANAGE_USERS` | Customer |
-| [`staffCreate`](/api-reference/users/mutations/staff-create.mdx) | Staff or app | `MANAGE_STAFF` | Staff (`isStaff: true`) |
+| [`accountRegister`](/api-reference/users/mutations/account-register) | The user themselves (storefront) | None | Customer |
+| [`customerCreate`](/api-reference/users/mutations/customer-create) | Staff or app | `MANAGE_USERS` | Customer |
+| [`staffCreate`](/api-reference/users/mutations/staff-create) | Staff or app | `MANAGE_STAFF` | Staff (`isStaff: true`) |
 
-`accountRegister` and `customerCreate` both produce a customer; the difference is who initiates the action and whether a password is set up-front or via an emailed link. See [Manage Account as a Customer](/developer/users/customer-account.mdx) and [Customer Management](/developer/users/customer-management.mdx).
+`accountRegister` and `customerCreate` both produce a customer; the difference is who initiates the action and whether a password is set up-front or via an emailed link. See [Manage Account as a Customer](/developer/users/customer-account) and [Customer Management](/developer/users/customer-management).
 
 ### Promoting a customer to staff
 
 If `staffCreate` is called with an email that already belongs to a customer, the existing `User` is reused and promoted to staff. The same `id`, addresses, metadata, and order history are preserved — only `isStaff` flips to `true` and any provided groups are assigned.
 
-There is no public mutation to demote a staff user back to a customer. To revoke staff access, use [`staffDelete`](/api-reference/users/mutations/staff-delete.mdx) or remove the user from all permission groups via [`staffUpdate`](/api-reference/users/mutations/staff-update.mdx).
+There is no public mutation to demote a staff user back to a customer. To revoke staff access, use [`staffDelete`](/api-reference/users/mutations/staff-delete) or remove the user from all permission groups via [`staffUpdate`](/api-reference/users/mutations/staff-update).
 
 #### End-to-end lifecycle: self-registration, then staff invite
 
@@ -55,25 +60,25 @@ A common flow that causes confusion: a shopper signs up through the storefront, 
 The table below lists, for each mutation in this flow, the asynchronous events emitted and how the corresponding email is delivered. The split is important:
 
 - **Staff emails** (invite / set password / password reset for staff) are sent by the **core admin email plugin** when it is configured. No external app is required.
-- **Customer emails** (account confirmation, set password, password reset for customers) are **not** sent by Saleor core. An external app must subscribe to the corresponding webhook and deliver the email itself — typically [Customer Emails](/developer/app-store/apps/customer-emails/overview.mdx) on Saleor Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview.mdx) if you are self-hosting.
+- **Customer emails** (account confirmation, set password, password reset for customers) are **not** sent by Saleor core. An external app must subscribe to the corresponding webhook and deliver the email itself — typically [Customer Emails](/developer/app-store/apps/customer-emails/overview) on Saleor Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview) if you are self-hosting.
 
 | # | Mutation | Async events emitted | Email |
 | --- | --- | --- | --- |
-| 1 | [`accountRegister`](/api-reference/users/mutations/account-register.mdx) | `CUSTOMER_CREATED`; additionally `ACCOUNT_CONFIRMATION_REQUESTED` if [`enableAccountConfirmationByEmail`](/api-reference/miscellaneous/objects/shop.mdx#enable-account-confirmation-by-email) is `true` | Customer confirmation email. **Not sent by core** — requires an external app (e.g. [Customer Emails](/developer/app-store/apps/customer-emails/overview.mdx) on Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview.mdx) when self-hosting) subscribed to `ACCOUNT_CONFIRMATION_REQUESTED`. |
-| 2 | [`confirmAccount`](/api-reference/users/mutations/confirm-account.mdx) | `ACCOUNT_CONFIRMED` | No email required for the confirmation step itself. If you want a "welcome" email, subscribe an external app to `ACCOUNT_CONFIRMED`. |
-| 3 | [`accountUpdate`](/api-reference/users/mutations/account-update.mdx) (customer edits own profile) | `CUSTOMER_UPDATED`; `CUSTOMER_METADATA_UPDATED` if metadata changed | None by default. |
-| 4 | [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx) (while still a customer) | `ACCOUNT_SET_PASSWORD_REQUESTED` | Customer password reset email. **Not sent by core** — requires an external app subscribed to `ACCOUNT_SET_PASSWORD_REQUESTED`. |
-| 5 | [`setPassword`](/api-reference/users/mutations/set-password.mdx) | No webhook event is emitted by this mutation itself. | No email. |
-| 6 | [`staffCreate`](/api-reference/users/mutations/staff-create.mdx) called with the existing customer's email | `STAFF_CREATED` (the same `User.id` is reused; `isStaff` becomes `true`). Additionally `STAFF_SET_PASSWORD_REQUESTED` if `redirectUrl` is provided. | Staff invite / set password email. **Sent by the core admin email plugin** when configured. The customer-facing `ACCOUNT_SET_PASSWORD_REQUESTED` event is **not** emitted in this case, so an external customer-email app does not receive a duplicate. |
-| 7 | [`staffUpdate`](/api-reference/users/mutations/staff-update.mdx) | `STAFF_UPDATED` | None by default. |
-| 8 | [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx) (now as a staff user) | `STAFF_SET_PASSWORD_REQUESTED` | Staff password reset email. **Sent by the core admin email plugin** when configured. |
-| 9 | [`setPassword`](/api-reference/users/mutations/set-password.mdx) | No webhook event is emitted by this mutation itself. | No email. |
+| 1 | [`accountRegister`](/api-reference/users/mutations/account-register) | `CUSTOMER_CREATED`; additionally `ACCOUNT_CONFIRMATION_REQUESTED` if [`enableAccountConfirmationByEmail`](/api-reference/miscellaneous/objects/shop#enable-account-confirmation-by-email) is `true` | Customer confirmation email. **Not sent by core** — requires an external app (e.g. [Customer Emails](/developer/app-store/apps/customer-emails/overview) on Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview) when self-hosting) subscribed to `ACCOUNT_CONFIRMATION_REQUESTED`. |
+| 2 | [`confirmAccount`](/api-reference/users/mutations/confirm-account) | `ACCOUNT_CONFIRMED` | No email required for the confirmation step itself. If you want a "welcome" email, subscribe an external app to `ACCOUNT_CONFIRMED`. |
+| 3 | [`accountUpdate`](/api-reference/users/mutations/account-update) (customer edits own profile) | `CUSTOMER_UPDATED`; `CUSTOMER_METADATA_UPDATED` if metadata changed | None by default. |
+| 4 | [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset) (while still a customer) | `ACCOUNT_SET_PASSWORD_REQUESTED` | Customer password reset email. **Not sent by core** — requires an external app subscribed to `ACCOUNT_SET_PASSWORD_REQUESTED`. |
+| 5 | [`setPassword`](/api-reference/users/mutations/set-password) | No webhook event is emitted by this mutation itself. | No email. |
+| 6 | [`staffCreate`](/api-reference/users/mutations/staff-create) called with the existing customer's email | `STAFF_CREATED` (the same `User.id` is reused; `isStaff` becomes `true`). Additionally `STAFF_SET_PASSWORD_REQUESTED` if `redirectUrl` is provided. | Staff invite / set password email. **Sent by the core admin email plugin** when configured. The customer-facing `ACCOUNT_SET_PASSWORD_REQUESTED` event is **not** emitted in this case, so an external customer-email app does not receive a duplicate. |
+| 7 | [`staffUpdate`](/api-reference/users/mutations/staff-update) | `STAFF_UPDATED` | None by default. |
+| 8 | [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset) (now as a staff user) | `STAFF_SET_PASSWORD_REQUESTED` | Staff password reset email. **Sent by the core admin email plugin** when configured. |
+| 9 | [`setPassword`](/api-reference/users/mutations/set-password) | No webhook event is emitted by this mutation itself. | No email. |
 
-:::info Customer emails require an external app
-Saleor core ships an "admin email" plugin that covers **staff** notifications (staff invite, staff password reset, etc.) out of the box. It does **not** send emails to customers. To deliver account confirmation, customer password reset, order confirmation, and other customer-facing emails, install [Customer Emails](/developer/app-store/apps/customer-emails/overview.mdx) on Saleor Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview.mdx) if you are self-hosting, and subscribe it to the relevant `ACCOUNT_*` and `CUSTOMER_*` webhook events.
+:::info[Customer emails require an external app]
+Saleor core ships an "admin email" plugin that covers **staff** notifications (staff invite, staff password reset, etc.) out of the box. It does **not** send emails to customers. To deliver account confirmation, customer password reset, order confirmation, and other customer-facing emails, install [Customer Emails](/developer/app-store/apps/customer-emails/overview) on Saleor Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview) if you are self-hosting, and subscribe it to the relevant `ACCOUNT_*` and `CUSTOMER_*` webhook events.
 :::
 
-:::note Which event fires depends on `isStaff` at the time of the request
+:::note[Which event fires depends on `isStaff` at the time of the request]
 `requestPasswordReset` branches on the user's current role: it emits `ACCOUNT_SET_PASSWORD_REQUESTED` for customers and `STAFF_SET_PASSWORD_REQUESTED` for staff. Once a user has been promoted via `staffCreate`, all subsequent password-related notifications go through the staff event and the admin email plugin.
 :::
 
@@ -83,8 +88,8 @@ Update and delete mutations are split along the same lines as creation:
 
 | Action | Self-service | Customer (by staff) | Staff (by staff) |
 | --- | --- | --- | --- |
-| Update | [`accountUpdate`](/api-reference/users/mutations/account-update.mdx) | [`customerUpdate`](/api-reference/users/mutations/customer-update.mdx) | [`staffUpdate`](/api-reference/users/mutations/staff-update.mdx) |
-| Delete | [`accountDelete`](/api-reference/users/mutations/account-delete.mdx), [`accountRequestDeletion`](/api-reference/users/mutations/account-request-deletion.mdx) | [`customerDelete`](/api-reference/users/mutations/customer-delete.mdx) | [`staffDelete`](/api-reference/users/mutations/staff-delete.mdx) |
+| Update | [`accountUpdate`](/api-reference/users/mutations/account-update) | [`customerUpdate`](/api-reference/users/mutations/customer-update) | [`staffUpdate`](/api-reference/users/mutations/staff-update) |
+| Delete | [`accountDelete`](/api-reference/users/mutations/account-delete), [`accountRequestDeletion`](/api-reference/users/mutations/account-request-deletion) | [`customerDelete`](/api-reference/users/mutations/customer-delete) | [`staffDelete`](/api-reference/users/mutations/staff-delete) |
 
 The `account*` mutations always operate on the currently authenticated user and never change the user's role. The `customer*` and `staff*` mutations require the matching permission and only operate on users of the corresponding role.
 
@@ -92,10 +97,10 @@ The `account*` mutations always operate on the currently authenticated user and 
 
 The API exposes role-scoped list queries and a single by-identity lookup:
 
-- [`customers`](/api-reference/users/queries/customers.mdx) — requires `MANAGE_USERS` or `MANAGE_ORDERS`. Returns customer accounts. **Staff users who have placed an order also appear in this list**, because order history is tied to the underlying `User`.
-- [`staffUsers`](/api-reference/users/queries/staff-users.mdx) — requires `MANAGE_STAFF`. Returns staff accounts only.
-- [`user`](/api-reference/users/queries/user.mdx) — lookup by `id`, `email`, or `externalReference`. The result is scoped by the caller's permissions: `MANAGE_STAFF` resolves staff, `MANAGE_USERS` or `MANAGE_ORDERS` resolves customers, holding both resolves any user.
-- [`me`](/api-reference/users/queries/me.mdx) — returns the currently authenticated user regardless of role.
+- [`customers`](/api-reference/users/queries/customers) — requires `MANAGE_USERS` or `MANAGE_ORDERS`. Returns customer accounts. **Staff users who have placed an order also appear in this list**, because order history is tied to the underlying `User`.
+- [`staffUsers`](/api-reference/users/queries/staff-users) — requires `MANAGE_STAFF`. Returns staff accounts only.
+- [`user`](/api-reference/users/queries/user) — lookup by `id`, `email`, or `externalReference`. The result is scoped by the caller's permissions: `MANAGE_STAFF` resolves staff, `MANAGE_USERS` or `MANAGE_ORDERS` resolves customers, holding both resolves any user.
+- [`me`](/api-reference/users/queries/me) — returns the currently authenticated user regardless of role.
 
 ### Dual-role behavior
 
@@ -107,13 +112,13 @@ When building integrations, treat the role as a property of the user (`isStaff`)
 
 Customers and staff authenticate against the same endpoints and receive tokens of the same shape:
 
-- [`tokenCreate`](/api-reference/authentication/mutations/token-create.mdx) issues an access token and refresh token for either role. The decoded token includes the `is_staff` claim, but permissions are not embedded — they are resolved on each request from the user's groups and direct permissions.
-- [`tokenRefresh`](/api-reference/authentication/mutations/token-refresh.mdx), [`tokenVerify`](/api-reference/authentication/mutations/token-verify.mdx), and [`tokensDeactivateAll`](/api-reference/authentication/mutations/tokens-deactivate-all.mdx) work the same for both roles.
+- [`tokenCreate`](/api-reference/authentication/mutations/token-create) issues an access token and refresh token for either role. The decoded token includes the `is_staff` claim, but permissions are not embedded — they are resolved on each request from the user's groups and direct permissions.
+- [`tokenRefresh`](/api-reference/authentication/mutations/token-refresh), [`tokenVerify`](/api-reference/authentication/mutations/token-verify), and [`tokensDeactivateAll`](/api-reference/authentication/mutations/tokens-deactivate-all) work the same for both roles.
 
-The [`passwordLoginMode`](/api-usage/authentication.mdx#password-login-mode) shop setting can restrict password login for staff while leaving it available for customers. See [Authentication](/api-usage/authentication.mdx) for the full token lifecycle and JWT structure.
+The [`passwordLoginMode`](/api-usage/authentication#password-login-mode) shop setting can restrict password login for staff while leaving it available for customers. See [Authentication](/api-usage/authentication) for the full token lifecycle and JWT structure.
 
 ## Permission groups are staff-only
 
 Permission groups (`permissionGroupCreate`, `permissionGroupUpdate`, `permissionGroupDelete`) require `MANAGE_STAFF` and only operate on staff members. Customers cannot be added to a permission group through the public API, and the `permissionGroups` field on a customer's `User` will always be empty.
 
-If you need to grant a customer access to staff capabilities, promote them to staff via [`staffCreate`](/api-reference/users/mutations/staff-create.mdx) first.
+If you need to grant a customer access to staff capabilities, promote them to staff via [`staffCreate`](/api-reference/users/mutations/staff-create) first.

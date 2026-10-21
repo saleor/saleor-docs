@@ -1,0 +1,38 @@
+---
+import CodeBlock from "blume/components/content/CodeBlock.astro";
+
+interface Props {
+  path: string;
+  mcpConfig?: boolean;
+}
+
+const { path, mcpConfig = false } = Astro.props;
+const origin = (Astro.site ?? Astro.url).origin;
+const url = new URL(path, origin).href;
+const code = mcpConfig
+  ? JSON.stringify({ mcpServers: { "saleor-docs": { url } } }, null, 2)
+  : url;
+---
+
+<saleor-site-url-code data-origin={origin}>
+  <CodeBlock code={code} lang={mcpConfig ? "json" : "text"} />
+</saleor-site-url-code>
+
+<script>
+  class SiteUrlCode extends HTMLElement {
+    connectedCallback() {
+      const origin = this.dataset.origin;
+      if (!origin || origin === window.location.origin) return;
+      const walker = document.createTreeWalker(this, NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) {
+        const node = walker.currentNode;
+        node.textContent = node.textContent?.replaceAll(origin, window.location.origin) ?? "";
+      }
+      this.dataset.origin = window.location.origin;
+    }
+  }
+
+  if (!customElements.get("saleor-site-url-code")) {
+    customElements.define("saleor-site-url-code", SiteUrlCode);
+  }
+</script>

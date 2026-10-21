@@ -1,91 +1,49 @@
 ---
-api_reference: true
-id: product
-title: product
+title: product Query
+seo:
+  title: product Query
+  description: 'Query: product Query'
+slug: api-reference/products/queries/product
+sidebar:
+  label: product
+search:
+  tags:
+    - API reference
+    - Products
+lastModified: '2026-04-13'
 ---
 
-export const Bullet = () => (
-  <>
-    <span
-      style={{
-        fontWeight: "normal",
-        fontSize: ".5em",
-        color: "var(--ifm-color-secondary-darkest)",
-      }}
-    >
-      &nbsp;●&nbsp;
-    </span>
-  </>
-);
+Look up a product by ID. 
 
-export const SpecifiedBy = (props) => (
-  <>
-    Specification
-    <a
-      className="link"
-      style={{ fontSize: "1.5em", paddingLeft: "4px" }}
-      target="_blank"
-      href={props.url}
-      title={"Specified by " + props.url}
-    >
-      ⎘
-    </a>
-  </>
-);
+<Permissions label="Requires one of the following permissions to include the unpublished items" values="MANAGE_ORDERS,MANAGE_DISCOUNTS,MANAGE_PRODUCTS" />
 
-export const Badge = (props) => (
-  <>
-    <span className={props.class}>{props.text}</span>
-  </>
-);
 
-import FeaturePreview from "@site/components/FeaturePreview";
-import Permissions from "@site/components/Permissions";
 
-Look up a product by ID.
 
-<Permissions
-  permissions={"MANAGE_ORDERS,MANAGE_DISCOUNTS,MANAGE_PRODUCTS"}
-  text={
-    "Requires one of the following permissions to include the unpublished items"
-  }
-/>
 
 ```graphql
-product(
-  id: ID
-  slug: String
-  slugLanguageCode: LanguageCodeEnum
-  externalReference: String
-  channel: String
-): Product
+product(id: ID, slug: String, slugLanguageCode: LanguageCodeEnum, externalReference: String, channel: String): Product
 ```
 
-<Details dataOpen="Hide return type" dataClose="Show return type">
+## Returns
+
+[`Product`](/api-reference/products/objects/product)
+
+<details>
+<summary>Show return type</summary>
+
 
 ```graphql
-type Product implements Node, ObjectWithMetadata, ObjectWithAttributes {
+type Product implements Node & ObjectWithMetadata & ObjectWithAttributes {
   id: ID!
   privateMetadata: [MetadataItem!]!
-  privateMetafield(
-    key: String!
-  ): String
-  privateMetafields(
-    keys: [String!]
-  ): Metadata
+  privateMetafield(key: String!): String
+  privateMetafields(keys: [String!]): Metadata
   metadata: [MetadataItem!]!
-  metafield(
-    key: String!
-  ): String
-  metafields(
-    keys: [String!]
-  ): Metadata
-  assignedAttribute(
-    slug: String!
-  ): AssignedAttribute
-  assignedAttributes(
-    limit: PositiveInt = 100
-  ): [AssignedAttribute!]!
+  metafield(key: String!): String
+  metafields(keys: [String!]): Metadata
+  assignedAttribute(slug: String!): AssignedAttribute
+  assignedAttributes(limit: PositiveInt = 100): [AssignedAttribute!]!
   seoTitle: String
   seoDescription: String
   name: String!
@@ -95,58 +53,29 @@ type Product implements Node, ObjectWithMetadata, ObjectWithAttributes {
   category: Category
   created: DateTime!
   updatedAt: DateTime!
-  chargeTaxes: Boolean! @deprecated
+  chargeTaxes: Boolean! @deprecated(reason: "Use `Channel.taxConfiguration` field to determine whether tax collection is enabled.")
   weight: Weight
   defaultVariant: ProductVariant
-  rating: Float @deprecated
+  rating: Float @deprecated(reason: "Product rating is deprecated and will be removed. Use a numeric attribute instead.")
   channel: String
-  descriptionJson: JSONString @deprecated
-  thumbnail(
-    size: Int
-    sizeRounding: ThumbnailSizeRoundingEnum = NEAREST
-    format: ThumbnailFormatEnum = ORIGINAL
-  ): Image
-  pricing(
-    address: AddressInput
-  ): ProductPricingInfo
-  isAvailable(
-    address: AddressInput
-  ): Boolean
-  taxType: TaxType @deprecated
-  attribute(
-    slug: String!
-  ): SelectedAttribute @deprecated
-  attributes: [SelectedAttribute!]! @deprecated
+  descriptionJson: JSONString @deprecated(reason: "Use the `description` field instead.")
+  thumbnail(size: Int, sizeRounding: ThumbnailSizeRoundingEnum = NEAREST, format: ThumbnailFormatEnum = ORIGINAL): Image
+  pricing(address: AddressInput): ProductPricingInfo
+  isAvailable(address: AddressInput @deprecated): Boolean
+  taxType: TaxType @deprecated(reason: "Use `taxClass` field instead.")
+  attribute(slug: String!): SelectedAttribute @deprecated(reason: "Use the `assignedAttribute` field instead.")
+  attributes: [SelectedAttribute!]! @deprecated(reason: "Use the `assignedAttributes` field instead.")
   channelListings: [ProductChannelListing!]
-  mediaById(
-    id: ID!
-  ): ProductMedia
-  imageById(
-    id: ID!
-  ): ProductImage @deprecated
-  variant(
-    id: ID
-    sku: String
-  ): ProductVariant @deprecated
-  variants: [ProductVariant!] @deprecated
-  productVariants(
-    filter: ProductVariantFilterInput
-    where: ProductVariantWhereInput
-    sortBy: ProductVariantSortingInput
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): ProductVariantCountableConnection
-  media(
-    sortBy: MediaSortingInput
-  ): [ProductMedia!]
-  images: [ProductImage!] @deprecated
+  mediaById(id: ID!): ProductMedia
+  imageById(id: ID!): ProductImage @deprecated(reason: "Use the `mediaById` field instead.")
+  variant(id: ID, sku: String): ProductVariant @deprecated(reason: "Use top-level `variant` query.")
+  variants: [ProductVariant!] @deprecated(reason: "Use `productVariants` field instead.")
+  productVariants(filter: ProductVariantFilterInput @deprecated(reason: "Use `where` filter instead."), where: ProductVariantWhereInput, sortBy: ProductVariantSortingInput, before: String, after: String, first: Int, last: Int): ProductVariantCountableConnection
+  media(sortBy: MediaSortingInput): [ProductMedia!]
+  images: [ProductImage!] @deprecated(reason: "Use the `media` field instead.")
   collections: [Collection!]
-  translation(
-    languageCode: LanguageCodeEnum!
-  ): ProductTranslation
-  availableForPurchase: Date @deprecated
+  translation(languageCode: LanguageCodeEnum!): ProductTranslation
+  availableForPurchase: Date @deprecated(reason: "Use the `availableForPurchaseAt` field to fetch the available for purchase date.")
   availableForPurchaseAt: DateTime
   isAvailableForPurchase: Boolean
   taxClass: TaxClass
@@ -154,37 +83,43 @@ type Product implements Node, ObjectWithMetadata, ObjectWithAttributes {
 }
 ```
 
-</Details>
 
-### Arguments
+</details>
 
-#### [<code>id</code>](#id)<Bullet />[<code>ID</code>](/api-reference/miscellaneous/scalars/id.mdx) \{#id\}
+## Arguments
+
+### id [#id]
+
+**`id`** · [`ID`](/api-reference/miscellaneous/scalars/id)
 
 ID of the product.
 
-#### [<code>slug</code>](#slug)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#slug\}
+### slug [#slug]
+
+**`slug`** · [`String`](/api-reference/miscellaneous/scalars/string)
 
 Slug of the product.
 
-#### [<code>slugLanguageCode</code>](#slug-language-code)<Bullet />[<code>LanguageCodeEnum</code>](/api-reference/miscellaneous/enums/language-code-enum.mdx) \{#slug-language-code\}
+### slugLanguageCode [#slug-language-code]
+
+**`slugLanguageCode`** · [`LanguageCodeEnum`](/api-reference/miscellaneous/enums/language-code-enum)
 
 Language code of the product slug, omit to use primary slug.
 
-<Badge
-  text="Added in Saleor 3.21"
-  class="badge badge--secondary margin-bottom--sm"
-/>
+<Badge variant="accent">Added in Saleor 3.21</Badge>
 
-#### [<code>externalReference</code>](#external-reference)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#external-reference\}
+### externalReference [#external-reference]
+
+**`externalReference`** · [`String`](/api-reference/miscellaneous/scalars/string)
 
 External ID of the product.
 
-#### [<code>channel</code>](#channel)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#channel\}
+### channel [#channel]
+
+**`channel`** · [`String`](/api-reference/miscellaneous/scalars/string)
 
 Slug of a channel for which the data should be returned.
 
-### Type
+---
 
-#### [<code>Product</code>](/api-reference/products/objects/product.mdx)
-
-Represents an individual item for sale in the storefront.
+Schema: **Saleor 3.23.43**. [Download SDL](/schema/saleor.graphql).

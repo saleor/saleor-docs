@@ -1,15 +1,21 @@
 ---
-sidebar_label: Stripe (plugin)
 title: Stripe Plugin
+slug: developer/app-store/legacy-plugins/stripe
+sidebar:
+  label: Stripe (plugin)
+seo:
+  title: Stripe Plugin
+  description: Stripe plugin is deprecated and will be removed. Please migrate to the Stripe App instead.
+lastModified: '2026-03-11'
 ---
 
 :::warning
-Stripe plugin is deprecated and will be removed. Please migrate to the [Stripe App](../apps/stripe/overview.mdx) instead.
+Stripe plugin is deprecated and will be removed. Please migrate to the [Stripe App](/developer/app-store/apps/stripe/overview) instead.
+
 :::
 
 
-:::warning
-From June 2025, Stripe is charging an extra fee for using Stripe Secret Key in the connected integrations. To avoid these, you should generate Restricted Key and replace it in the Saleor dashboard or use the App
+:::warning[From June 2025, Stripe is charging an extra fee for using Stripe Secret Key in the connected integrations. To avoid these, you should generate Restricted Key and replace it in the Saleor dashboard or use the App]
 
 Your Restricted Key must contain following permissions:
 - **Payment Intent:** Write
@@ -24,6 +30,7 @@ Stripe plugin uses [custom payment flow](https://stripe.com/docs/payments/accept
 
 :::note
 Saleor uses Stripe API version [2020-08-27](https://stripe.com/docs/upgrades#2020-08-27)
+
 :::
 
 ## Configuration
@@ -42,8 +49,7 @@ Go to _Configuration_ -> _Plugins_ -> _Stripe_ and fill in the fields:
   - **All Webhook:** Write
   - **Charges:** Write
 
-:::warning
-If enabled, automatic capture happens only on confirmed orders. 
+:::warning[If enabled, automatic capture happens only on confirmed orders. ]
 :::
 
 ### Activating Stripe webhooks
@@ -51,16 +57,16 @@ If enabled, automatic capture happens only on confirmed orders.
 By activating Stripe integration, Saleor will automatically subscribe to Stripe's webhooks, as a result **Webhook endpoint** field will receive an id of the subscription which allows identifying a webhook on Stripe's dashboard side.
 
 :::note
+You need to provide your backend domain in _Site Settings_. Saleor will not subscribe to the Stripe endpoint if you provide `localhost` or `127.0.0.1`. If you want to test it locally, use tools like [ngrok](/developer/running-saleor/exposing-instance#using-ngrok)
 
-You need to provide your backend domain in _Site Settings_. Saleor will not subscribe to the Stripe endpoint if you provide `localhost` or `127.0.0.1`. If you want to test it locally, use tools like [ngrok](/developer/running-saleor/exposing-instance.mdx#using-ngrok)
 
 :::
 
 ## Creating payment in Saleor
 
 To create a payment properly, you need to follow the steps described in
-[Creating a checkout session](/developer/checkout/overview.mdx) and
-[Selecting a shipping method](/developer/checkout/address.mdx).
+[Creating a checkout session](/developer/checkout/overview) and
+[Selecting a shipping method](/developer/checkout/address).
 
 The payment flow would follow these steps:
 
@@ -144,9 +150,7 @@ mutation {
 }
 ```
 
-:::note
-
-The provided `amount` in `checkoutPaymentCreate.input` must be equal to `checkout.totalPrice`.
+:::note[The provided `amount` in `checkoutPaymentCreate.input` must be equal to `checkout.totalPrice`.]
 
 :::
 
@@ -177,6 +181,7 @@ Optionally, `checkoutComplete` can accept additional parameters for Stripe as fi
 
 :::note
 `paymentData.payment_method_types` - accepts all standard payment method types which use standard PaymentIntent flow to process a payment. [For more details check Stripe docs.](https://stripe.com/docs/payments/payment-methods/overview)
+
 :::
 
 ```graphql
@@ -219,7 +224,8 @@ As a result, we get details required to finalize a payment.
 Steps required to finalize a payment transaction are described in [Stripe documentation](https://stripe.com/docs/payments/accept-a-payment?platform=web&ui=elements).
 
 :::warning
-If your checkout is transformed into an order during this step, please make sure that in a given channel, [`allowUnpaidOrders`](/api-reference/miscellaneous/objects/order-settings.mdx#allow-unpaid-orders) setting is turned off.
+If your checkout is transformed into an order during this step, please make sure that in a given channel, [`allowUnpaidOrders`](/api-reference/miscellaneous/objects/order-settings#allow-unpaid-orders) setting is turned off.
+
 This setting is only compatible with Transaction API and will not work with the Stripe Plugin.
 :::
 
@@ -326,9 +332,7 @@ A response would look like this:
 }
 ```
 
-:::caution
-
-When any error is raised during the checkout completion or the payment
+:::caution[When any error is raised during the checkout completion or the payment]
 will become inactive, processed payment will be refunded or voided (in case the payment wasn't charged yet).
 
 Here are the example scenarios that may end up with payment refunding:
@@ -340,9 +344,7 @@ Here are the example scenarios that may end up with payment refunding:
 
 :::
 
-:::note
-
-To create an order, the payment must cover the order total. However, we do not verify if an overpayment occurs.
+:::note[To create an order, the payment must cover the order total. However, we do not verify if an overpayment occurs.]
 In such cases, the order will still be created, and the excess amount must be handled manually.
 
 :::

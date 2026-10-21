@@ -1,72 +1,33 @@
 ---
-api_reference: true
-id: user
-title: User
+title: User Object
+seo:
+  title: User Object
+  description: 'Object: User Object'
+slug: api-reference/users/objects/user
+sidebar:
+  label: User
+search:
+  tags:
+    - API reference
+    - Users
+lastModified: '2026-08-10'
 ---
-
-export const Bullet = () => (
-  <>
-    <span
-      style={{
-        fontWeight: "normal",
-        fontSize: ".5em",
-        color: "var(--ifm-color-secondary-darkest)",
-      }}
-    >
-      &nbsp;●&nbsp;
-    </span>
-  </>
-);
-
-export const SpecifiedBy = (props) => (
-  <>
-    Specification
-    <a
-      className="link"
-      style={{ fontSize: "1.5em", paddingLeft: "4px" }}
-      target="_blank"
-      href={props.url}
-      title={"Specified by " + props.url}
-    >
-      ⎘
-    </a>
-  </>
-);
-
-export const Badge = (props) => (
-  <>
-    <span className={props.class}>{props.text}</span>
-  </>
-);
-
-import FeaturePreview from "@site/components/FeaturePreview";
-import Permissions from "@site/components/Permissions";
 
 Represents user data.
 
+
+
 ```graphql
-type User implements Node, ObjectWithMetadata, ObjectWithAttributes {
+type User implements Node & ObjectWithMetadata & ObjectWithAttributes {
   id: ID!
   privateMetadata: [MetadataItem!]!
-  privateMetafield(
-    key: String!
-  ): String
-  privateMetafields(
-    keys: [String!]
-  ): Metadata
+  privateMetafield(key: String!): String
+  privateMetafields(keys: [String!]): Metadata
   metadata: [MetadataItem!]!
-  metafield(
-    key: String!
-  ): String
-  metafields(
-    keys: [String!]
-  ): Metadata
-  assignedAttribute(
-    slug: String!
-  ): AssignedAttribute
-  assignedAttributes(
-    limit: PositiveInt = 100
-  ): [AssignedAttribute!]!
+  metafield(key: String!): String
+  metafields(keys: [String!]): Metadata
+  assignedAttribute(slug: String!): AssignedAttribute
+  assignedAttributes(limit: PositiveInt = 100): [AssignedAttribute!]!
   email: String!
   firstName: String!
   lastName: String!
@@ -74,48 +35,21 @@ type User implements Node, ObjectWithMetadata, ObjectWithAttributes {
   isActive: Boolean!
   isConfirmed: Boolean!
   addresses: [Address!]!
-  checkout: Checkout @deprecated
-  checkoutTokens(
-    channel: String
-  ): [UUID!] @deprecated
-  checkoutIds(
-    channel: String
-  ): [ID!]
-  checkouts(
-    channel: String
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): CheckoutCountableConnection
-  giftCards(
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): GiftCardCountableConnection
+  checkout: Checkout @deprecated(reason: "Use the `checkoutTokens` field to fetch the user checkouts.")
+  checkoutTokens(channel: String): [UUID!] @deprecated(reason: "Use `checkoutIds` instead.")
+  checkoutIds(channel: String): [ID!]
+  checkouts(channel: String, before: String, after: String, first: Int, last: Int): CheckoutCountableConnection
+  giftCards(before: String, after: String, first: Int, last: Int): GiftCardCountableConnection
   note: String
-  orders(
-    where: CustomerOrderWhereInput
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): OrderCountableConnection
+  orders(where: CustomerOrderWhereInput, before: String, after: String, first: Int, last: Int): OrderCountableConnection
   userPermissions: [UserPermission!]
   permissionGroups: [Group!]
   editableGroups: [Group!]
   accessibleChannels: [Channel!]
   restrictedAccessToChannels: Boolean!
-  avatar(
-    size: Int
-    sizeRounding: ThumbnailSizeRoundingEnum = NEAREST
-    format: ThumbnailFormatEnum = ORIGINAL
-  ): Image
+  avatar(size: Int, sizeRounding: ThumbnailSizeRoundingEnum = NEAREST, format: ThumbnailFormatEnum = ORIGINAL): Image
   events: [CustomerEvent!]
-  storedPaymentSources(
-    channel: String
-  ): [PaymentSource!] @deprecated
+  storedPaymentSources(channel: String): [PaymentSource!] @deprecated(reason: "The legacy Payments API is deprecated and will be removed. Use the Transactions API instead.")
   languageCode: LanguageCodeEnum!
   defaultShippingAddress: Address
   defaultBillingAddress: Address
@@ -124,386 +58,516 @@ type User implements Node, ObjectWithMetadata, ObjectWithAttributes {
   lastLogin: DateTime
   dateJoined: DateTime!
   updatedAt: DateTime!
-  storedPaymentMethods(
-    channel: String!
-  ): [StoredPaymentMethod!]
+  storedPaymentMethods(channel: String!): [StoredPaymentMethod!]
 }
 ```
 
-### Fields
 
-#### [<code>id</code>](#id)<Bullet />[<code>ID!</code>](/api-reference/miscellaneous/scalars/id.mdx) \{#id\}
+## Interfaces
+
+[`Node`](/api-reference/miscellaneous/interfaces/node), [`ObjectWithMetadata`](/api-reference/miscellaneous/interfaces/object-with-metadata), [`ObjectWithAttributes`](/api-reference/attributes/interfaces/object-with-attributes)
+
+## Fields
+
+### id [#id]
+
+**`id`** · [`ID!`](/api-reference/miscellaneous/scalars/id)
 
 The ID of the user.
+### privateMetadata [#private-metadata]
 
-#### [<code>privateMetadata</code>](#private-metadata)<Bullet />[<code>[MetadataItem!]!</code>](/api-reference/miscellaneous/objects/metadata-item.mdx) \{#private-metadata\}
+**`privateMetadata`** · [`[MetadataItem!]!`](/api-reference/miscellaneous/objects/metadata-item)
 
 List of private metadata items. Requires staff permissions to access.
+### privateMetafield [#private-metafield]
 
-#### [<code>privateMetafield</code>](#private-metafield)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#private-metafield\}
+**`privateMetafield`** · [`String`](/api-reference/miscellaneous/scalars/string)
 
 A single key from private metadata. Requires staff permissions to access.
 
 Tip: Use GraphQL aliases to fetch multiple keys.
 
-##### [<code>key</code>](#user-private-metafield-key)<Bullet />[<code>String!</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-private-metafield-key\}
+#### key [#user-private-metafield-key]
 
-#### [<code>privateMetafields</code>](#private-metafields)<Bullet />[<code>Metadata</code>](/api-reference/miscellaneous/scalars/metadata.mdx) \{#private-metafields\}
+**`key`** · [`String!`](/api-reference/miscellaneous/scalars/string)
+
+
+### privateMetafields [#private-metafields]
+
+**`privateMetafields`** · [`Metadata`](/api-reference/miscellaneous/scalars/metadata)
 
 Private metadata. Requires staff permissions to access. Use `keys` to control which fields you want to include. The default is to include everything.
 
-##### [<code>keys</code>](#user-private-metafields-keys)<Bullet />[<code>[String!]</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-private-metafields-keys\}
+#### keys [#user-private-metafields-keys]
 
-#### [<code>metadata</code>](#metadata)<Bullet />[<code>[MetadataItem!]!</code>](/api-reference/miscellaneous/objects/metadata-item.mdx) \{#metadata\}
+**`keys`** · [`[String!]`](/api-reference/miscellaneous/scalars/string)
+
+
+### metadata [#metadata]
+
+**`metadata`** · [`[MetadataItem!]!`](/api-reference/miscellaneous/objects/metadata-item)
 
 List of public metadata items. Can be accessed without permissions.
+### metafield [#metafield]
 
-#### [<code>metafield</code>](#metafield)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#metafield\}
+**`metafield`** · [`String`](/api-reference/miscellaneous/scalars/string)
 
 A single key from public metadata.
 
 Tip: Use GraphQL aliases to fetch multiple keys.
 
-##### [<code>key</code>](#user-metafield-key)<Bullet />[<code>String!</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-metafield-key\}
+#### key [#user-metafield-key]
 
-#### [<code>metafields</code>](#metafields)<Bullet />[<code>Metadata</code>](/api-reference/miscellaneous/scalars/metadata.mdx) \{#metafields\}
+**`key`** · [`String!`](/api-reference/miscellaneous/scalars/string)
+
+
+### metafields [#metafields]
+
+**`metafields`** · [`Metadata`](/api-reference/miscellaneous/scalars/metadata)
 
 Public metadata. Use `keys` to control which fields you want to include. The default is to include everything.
 
-##### [<code>keys</code>](#user-metafields-keys)<Bullet />[<code>[String!]</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-metafields-keys\}
+#### keys [#user-metafields-keys]
 
-#### [<code>assignedAttribute</code>](#assigned-attribute)<Bullet />[<code>AssignedAttribute</code>](/api-reference/attributes/interfaces/assigned-attribute.mdx) \{#assigned-attribute\}
+**`keys`** · [`[String!]`](/api-reference/miscellaneous/scalars/string)
 
-Get a single attribute assigned to the user by attribute slug. The attribute is looked up among the attributes of the user's customer type.
 
-<Permissions
-  permissions={"MANAGE_USERS,OWNER"}
-  text={"Requires one of the following permissions"}
-/>
-The owner can access only attributes that are visible in the storefront.
+### assignedAttribute [#assigned-attribute]
 
-<Badge
-  text="Added in Saleor 3.23"
-  class="badge badge--secondary margin-bottom--sm"
-/>
+**`assignedAttribute`** · [`AssignedAttribute`](/api-reference/attributes/interfaces/assigned-attribute)
 
-##### [<code>slug</code>](#user-assigned-attribute-slug)<Bullet />[<code>String!</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-assigned-attribute-slug\}
+Get a single attribute assigned to the user by attribute slug. The attribute is looked up among the attributes of the user's customer type. 
+
+<Permissions label="Requires one of the following permissions" values="MANAGE_USERS,OWNER" />
+
+ The owner can access only attributes that are visible in the storefront.
+
+<Badge variant="accent">Added in Saleor 3.23</Badge>
+
+#### slug [#user-assigned-attribute-slug]
+
+**`slug`** · [`String!`](/api-reference/miscellaneous/scalars/string)
 
 Slug of the attribute
+### assignedAttributes [#assigned-attributes]
 
-#### [<code>assignedAttributes</code>](#assigned-attributes)<Bullet />[<code>[AssignedAttribute!]!</code>](/api-reference/attributes/interfaces/assigned-attribute.mdx) \{#assigned-attributes\}
+**`assignedAttributes`** · [`[AssignedAttribute!]!`](/api-reference/attributes/interfaces/assigned-attribute)
 
-List of attributes assigned to the user through the user's customer type.
+List of attributes assigned to the user through the user's customer type. 
 
-<Permissions
-  permissions={"MANAGE_USERS,OWNER"}
-  text={"Requires one of the following permissions"}
-/>
-The owner can access only attributes that are visible in the storefront.
+<Permissions label="Requires one of the following permissions" values="MANAGE_USERS,OWNER" />
 
-<Badge
-  text="Added in Saleor 3.23"
-  class="badge badge--secondary margin-bottom--sm"
-/>
+ The owner can access only attributes that are visible in the storefront.
 
-##### [<code>limit</code>](#user-assigned-attributes-limit)<Bullet />[<code>PositiveInt</code>](/api-reference/miscellaneous/scalars/positive-int.mdx) \{#user-assigned-attributes-limit\}
+<Badge variant="accent">Added in Saleor 3.23</Badge>
+
+#### limit [#user-assigned-attributes-limit]
+
+**`limit`** · [`PositiveInt`](/api-reference/miscellaneous/scalars/positive-int)
 
 Maximum number of attributes to return. Default is 100.
 
-#### [<code>email</code>](#email)<Bullet />[<code>String!</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#email\}
+Default: `100`.
+### email [#email]
+
+**`email`** · [`String!`](/api-reference/miscellaneous/scalars/string)
 
 The email address of the user.
+### firstName [#first-name]
 
-#### [<code>firstName</code>](#first-name)<Bullet />[<code>String!</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#first-name\}
+**`firstName`** · [`String!`](/api-reference/miscellaneous/scalars/string)
 
 The given name of the address.
+### lastName [#last-name]
 
-#### [<code>lastName</code>](#last-name)<Bullet />[<code>String!</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#last-name\}
+**`lastName`** · [`String!`](/api-reference/miscellaneous/scalars/string)
 
 The family name of the address.
+### isStaff [#is-staff]
 
-#### [<code>isStaff</code>](#is-staff)<Bullet />[<code>Boolean!</code>](/api-reference/miscellaneous/scalars/boolean.mdx) \{#is-staff\}
+**`isStaff`** · [`Boolean!`](/api-reference/miscellaneous/scalars/boolean)
 
 Determine if the user is a staff admin.
+### isActive [#is-active]
 
-#### [<code>isActive</code>](#is-active)<Bullet />[<code>Boolean!</code>](/api-reference/miscellaneous/scalars/boolean.mdx) \{#is-active\}
+**`isActive`** · [`Boolean!`](/api-reference/miscellaneous/scalars/boolean)
 
 Determine if the user is active.
+### isConfirmed [#is-confirmed]
 
-#### [<code>isConfirmed</code>](#is-confirmed)<Bullet />[<code>Boolean!</code>](/api-reference/miscellaneous/scalars/boolean.mdx) \{#is-confirmed\}
+**`isConfirmed`** · [`Boolean!`](/api-reference/miscellaneous/scalars/boolean)
 
 Determines if user has confirmed email.
+### addresses [#addresses]
 
-#### [<code>addresses</code>](#addresses)<Bullet />[<code>[Address!]!</code>](/api-reference/users/objects/address.mdx) \{#addresses\}
+**`addresses`** · [`[Address!]!`](/api-reference/users/objects/address)
 
 List of all user's addresses.
+### checkout [#checkout]
 
-#### [<code>checkoutIds</code>](#checkout-ids)<Bullet />[<code>[ID!]</code>](/api-reference/miscellaneous/scalars/id.mdx) \{#checkout-ids\}
-
-Returns the checkout ID's assigned to this user.
-
-##### [<code>channel</code>](#user-checkout-ids-channel)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-checkout-ids-channel\}
-
-Slug of a channel for which the data should be returned.
-
-#### [<code>checkouts</code>](#checkouts)<Bullet />[<code>CheckoutCountableConnection</code>](/api-reference/checkout/objects/checkout-countable-connection.mdx) \{#checkouts\}
-
-Returns checkouts assigned to this user. The query will not initiate any external requests, including fetching external shipping methods, filtering available shipping methods, or performing external tax calculations.
-
-##### [<code>channel</code>](#user-checkouts-channel)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-checkouts-channel\}
-
-Slug of a channel for which the data should be returned.
-
-##### [<code>before</code>](#user-checkouts-before)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-checkouts-before\}
-
-Return the elements in the list that come before the specified cursor.
-
-##### [<code>after</code>](#user-checkouts-after)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-checkouts-after\}
-
-Return the elements in the list that come after the specified cursor.
-
-##### [<code>first</code>](#user-checkouts-first)<Bullet />[<code>Int</code>](/api-reference/miscellaneous/scalars/int.mdx) \{#user-checkouts-first\}
-
-Retrieve the first n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
-
-##### [<code>last</code>](#user-checkouts-last)<Bullet />[<code>Int</code>](/api-reference/miscellaneous/scalars/int.mdx) \{#user-checkouts-last\}
-
-Retrieve the last n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
-
-#### [<code>giftCards</code>](#gift-cards)<Bullet />[<code>GiftCardCountableConnection</code>](/api-reference/gift-cards/objects/gift-card-countable-connection.mdx) \{#gift-cards\}
-
-List of the user gift cards.
-
-##### [<code>before</code>](#user-gift-cards-before)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-gift-cards-before\}
-
-Return the elements in the list that come before the specified cursor.
-
-##### [<code>after</code>](#user-gift-cards-after)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-gift-cards-after\}
-
-Return the elements in the list that come after the specified cursor.
-
-##### [<code>first</code>](#user-gift-cards-first)<Bullet />[<code>Int</code>](/api-reference/miscellaneous/scalars/int.mdx) \{#user-gift-cards-first\}
-
-Retrieve the first n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
-
-##### [<code>last</code>](#user-gift-cards-last)<Bullet />[<code>Int</code>](/api-reference/miscellaneous/scalars/int.mdx) \{#user-gift-cards-last\}
-
-Retrieve the last n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
-
-#### [<code>note</code>](#note)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#note\}
-
-A note about the customer.
-
-<Permissions
-  permissions={"MANAGE_USERS,MANAGE_STAFF"}
-  text={"Requires one of the following permissions"}
-/>
-
-#### [<code>orders</code>](#orders)<Bullet />[<code>OrderCountableConnection</code>](/api-reference/orders/objects/order-countable-connection.mdx) \{#orders\}
-
-List of user's orders. The query will not initiate any external requests, including filtering available shipping methods, or performing external tax calculations.
-
-<Permissions
-  permissions={"MANAGE_STAFF,OWNER"}
-  text={"Requires one of the following permissions"}
-/>
-
-##### [<code>where</code>](#user-orders-where)<Bullet />[<code>CustomerOrderWhereInput</code>](/api-reference/orders/inputs/customer-order-where-input.mdx) \{#user-orders-where\}
-
-Where filtering options for orders.
-
-<Badge
-  text="Added in Saleor 3.22"
-  class="badge badge--secondary margin-bottom--sm"
-/>
-
-##### [<code>before</code>](#user-orders-before)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-orders-before\}
-
-Return the elements in the list that come before the specified cursor.
-
-##### [<code>after</code>](#user-orders-after)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-orders-after\}
-
-Return the elements in the list that come after the specified cursor.
-
-##### [<code>first</code>](#user-orders-first)<Bullet />[<code>Int</code>](/api-reference/miscellaneous/scalars/int.mdx) \{#user-orders-first\}
-
-Retrieve the first n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
-
-##### [<code>last</code>](#user-orders-last)<Bullet />[<code>Int</code>](/api-reference/miscellaneous/scalars/int.mdx) \{#user-orders-last\}
-
-Retrieve the last n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
-
-#### [<code>userPermissions</code>](#user-permissions)<Bullet />[<code>[UserPermission!]</code>](/api-reference/users/objects/user-permission.mdx) \{#user-permissions\}
-
-List of user's permissions.
-
-#### [<code>permissionGroups</code>](#permission-groups)<Bullet />[<code>[Group!]</code>](/api-reference/users/objects/group.mdx) \{#permission-groups\}
-
-List of user's permission groups.
-
-#### [<code>editableGroups</code>](#editable-groups)<Bullet />[<code>[Group!]</code>](/api-reference/users/objects/group.mdx) \{#editable-groups\}
-
-List of user's permission groups which user can manage.
-
-#### [<code>accessibleChannels</code>](#accessible-channels)<Bullet />[<code>[Channel!]</code>](/api-reference/channels/objects/channel.mdx) \{#accessible-channels\}
-
-List of channels the user has access to. The sum of channels from all user groups. If at least one group has `restrictedAccessToChannels` set to False - all channels are returned.
-
-#### [<code>restrictedAccessToChannels</code>](#restricted-access-to-channels)<Bullet />[<code>Boolean!</code>](/api-reference/miscellaneous/scalars/boolean.mdx) \{#restricted-access-to-channels\}
-
-Determine if user have restricted access to channels. False if at least one user group has `restrictedAccessToChannels` set to False.
-
-#### [<code>avatar</code>](#avatar)<Bullet />[<code>Image</code>](/api-reference/miscellaneous/objects/image.mdx) \{#avatar\}
-
-The avatar of the user.
-
-##### [<code>size</code>](#user-avatar-size)<Bullet />[<code>Int</code>](/api-reference/miscellaneous/scalars/int.mdx) \{#user-avatar-size\}
-
-Desired longest side the image in pixels. Defaults to 4096. Images are never cropped. Pass 0 to retrieve the original size (not recommended). Thumbnails are generated only in the available sizes: 32, 64, 128, 256, 512, 1024, 2048, 4096; `sizeRounding` determines which one is used.
-
-##### [<code>sizeRounding</code>](#user-avatar-size-rounding)<Bullet />[<code>ThumbnailSizeRoundingEnum</code>](/api-reference/miscellaneous/enums/thumbnail-size-rounding-enum.mdx) \{#user-avatar-size-rounding\}
-
-Determines how the requested size is matched to an available thumbnail size.
-
-<Badge
-  text="Added in Saleor 3.23"
-  class="badge badge--secondary margin-bottom--sm"
-/>
-
-##### [<code>format</code>](#user-avatar-format)<Bullet />[<code>ThumbnailFormatEnum</code>](/api-reference/miscellaneous/enums/thumbnail-format-enum.mdx) \{#user-avatar-format\}
-
-The format of the image. When not provided, format of the original image will be used.
-
-#### [<code>events</code>](#events)<Bullet />[<code>[CustomerEvent!]</code>](/api-reference/users/objects/customer-event.mdx) \{#events\}
-
-List of events associated with the user.
-
-<Permissions
-  permissions={"MANAGE_USERS,MANAGE_STAFF"}
-  text={"Requires one of the following permissions"}
-/>
-
-#### [<code>languageCode</code>](#language-code)<Bullet />[<code>LanguageCodeEnum!</code>](/api-reference/miscellaneous/enums/language-code-enum.mdx) \{#language-code\}
-
-User language code.
-
-#### [<code>defaultShippingAddress</code>](#default-shipping-address)<Bullet />[<code>Address</code>](/api-reference/users/objects/address.mdx) \{#default-shipping-address\}
-
-The default shipping address of the user.
-
-#### [<code>defaultBillingAddress</code>](#default-billing-address)<Bullet />[<code>Address</code>](/api-reference/users/objects/address.mdx) \{#default-billing-address\}
-
-The default billing address of the user.
-
-#### [<code>externalReference</code>](#external-reference)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#external-reference\}
-
-External ID of this user.
-
-#### [<code>customerType</code>](#customer-type)<Bullet />[<code>CustomerType</code>](/api-reference/users/objects/customer-type.mdx) \{#customer-type\}
-
-The customer type assigned to the user.
-
-<Permissions
-  permissions={"MANAGE_USERS,OWNER"}
-  text={"Requires one of the following permissions"}
-/>
-
-<Badge
-  text="Added in Saleor 3.23"
-  class="badge badge--secondary margin-bottom--sm"
-/>
-
-#### [<code>lastLogin</code>](#last-login)<Bullet />[<code>DateTime</code>](/api-reference/miscellaneous/scalars/date-time.mdx) \{#last-login\}
-
-The date when the user last time log in to the system.
-
-#### [<code>dateJoined</code>](#date-joined)<Bullet />[<code>DateTime!</code>](/api-reference/miscellaneous/scalars/date-time.mdx) \{#date-joined\}
-
-The data when the user create account.
-
-#### [<code>updatedAt</code>](#updated-at)<Bullet />[<code>DateTime!</code>](/api-reference/miscellaneous/scalars/date-time.mdx) \{#updated-at\}
-
-The data when the user last update the account information.
-
-#### [<code>storedPaymentMethods</code>](#stored-payment-methods)<Bullet />[<code>[StoredPaymentMethod!]</code>](/api-reference/payments/objects/stored-payment-method.mdx) \{#stored-payment-methods\}
-
-Returns a list of user's stored payment methods that can be used in provided channel. The field returns a list of stored payment methods by payment apps. When `amount` is not provided, 0 will be used as default value.
-
-##### [<code>channel</code>](#user-stored-payment-methods-channel)<Bullet />[<code>String!</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-stored-payment-methods-channel\}
-
-Slug of a channel for which the data should be returned.
-
-<details class="graphql-markdown-details">
-<summary>
-<span class="graphql-markdown-details-label-closed">Show deprecated</span>
-<span class="graphql-markdown-details-label-open">Hide deprecated</span>
-</summary>
-
-#### [<code>checkout</code>](#checkout)<Bullet />[<code>Checkout</code>](/api-reference/checkout/objects/checkout.mdx) \{#checkout\}
-
-:::warning[DEPRECATED]
-
-Use the `checkoutTokens` field to fetch the user checkouts.
-
-:::
+**`checkout`** · [`Checkout`](/api-reference/checkout/objects/checkout)
 
 Returns the last open checkout of this user.
 
-#### [<code>checkoutTokens</code>](#checkout-tokens)<Bullet />[<code>[UUID!]</code>](/api-reference/miscellaneous/scalars/uuid.mdx) \{#checkout-tokens\}
-
-:::warning[DEPRECATED]
-
-Use `checkoutIds` instead.
-
+:::warning[Deprecated]
+Use the `checkoutTokens` field to fetch the user checkouts.
 :::
+
+### checkoutTokens [#checkout-tokens]
+
+**`checkoutTokens`** · [`[UUID!]`](/api-reference/miscellaneous/scalars/uuid)
 
 Returns the checkout UUID's assigned to this user.
 
-##### [<code>channel</code>](#user-checkout-tokens-channel)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-checkout-tokens-channel\}
+:::warning[Deprecated]
+Use `checkoutIds` instead.
+:::
+
+
+#### channel [#user-checkout-tokens-channel]
+
+**`channel`** · [`String`](/api-reference/miscellaneous/scalars/string)
+
+Slug of a channel for which the data should be returned.
+### checkoutIds [#checkout-ids]
+
+**`checkoutIds`** · [`[ID!]`](/api-reference/miscellaneous/scalars/id)
+
+Returns the checkout ID's assigned to this user.
+
+#### channel [#user-checkout-ids-channel]
+
+**`channel`** · [`String`](/api-reference/miscellaneous/scalars/string)
+
+Slug of a channel for which the data should be returned.
+### checkouts [#checkouts]
+
+**`checkouts`** · [`CheckoutCountableConnection`](/api-reference/checkout/objects/checkout-countable-connection)
+
+Returns checkouts assigned to this user. The query will not initiate any external requests, including fetching external shipping methods, filtering available shipping methods, or performing external tax calculations.
+
+#### channel [#user-checkouts-channel]
+
+**`channel`** · [`String`](/api-reference/miscellaneous/scalars/string)
 
 Slug of a channel for which the data should be returned.
 
-#### [<code>storedPaymentSources</code>](#stored-payment-sources)<Bullet />[<code>[PaymentSource!]</code>](/api-reference/payments/objects/payment-source.mdx) \{#stored-payment-sources\}
+#### before [#user-checkouts-before]
 
-:::warning[DEPRECATED]
+**`before`** · [`String`](/api-reference/miscellaneous/scalars/string)
 
-The legacy Payments API is deprecated and will be removed. Use the Transactions API instead.
+Return the elements in the list that come before the specified cursor.
 
-:::
+#### after [#user-checkouts-after]
+
+**`after`** · [`String`](/api-reference/miscellaneous/scalars/string)
+
+Return the elements in the list that come after the specified cursor.
+
+#### first [#user-checkouts-first]
+
+**`first`** · [`Int`](/api-reference/miscellaneous/scalars/int)
+
+Retrieve the first n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
+
+#### last [#user-checkouts-last]
+
+**`last`** · [`Int`](/api-reference/miscellaneous/scalars/int)
+
+Retrieve the last n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
+### giftCards [#gift-cards]
+
+**`giftCards`** · [`GiftCardCountableConnection`](/api-reference/gift-cards/objects/gift-card-countable-connection)
+
+List of the user gift cards.
+
+#### before [#user-gift-cards-before]
+
+**`before`** · [`String`](/api-reference/miscellaneous/scalars/string)
+
+Return the elements in the list that come before the specified cursor.
+
+#### after [#user-gift-cards-after]
+
+**`after`** · [`String`](/api-reference/miscellaneous/scalars/string)
+
+Return the elements in the list that come after the specified cursor.
+
+#### first [#user-gift-cards-first]
+
+**`first`** · [`Int`](/api-reference/miscellaneous/scalars/int)
+
+Retrieve the first n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
+
+#### last [#user-gift-cards-last]
+
+**`last`** · [`Int`](/api-reference/miscellaneous/scalars/int)
+
+Retrieve the last n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
+### note [#note]
+
+**`note`** · [`String`](/api-reference/miscellaneous/scalars/string)
+
+A note about the customer.
+
+
+
+<Permissions label="Requires one of the following permissions" values="MANAGE_USERS,MANAGE_STAFF" />
+
+
+### orders [#orders]
+
+**`orders`** · [`OrderCountableConnection`](/api-reference/orders/objects/order-countable-connection)
+
+List of user's orders. The query will not initiate any external requests, including filtering available shipping methods, or performing external tax calculations. 
+
+<Permissions label="Requires one of the following permissions" values="MANAGE_STAFF,OWNER" />
+
+
+
+#### where [#user-orders-where]
+
+**`where`** · [`CustomerOrderWhereInput`](/api-reference/orders/inputs/customer-order-where-input)
+
+Where filtering options for orders.
+
+<Badge variant="accent">Added in Saleor 3.22</Badge>
+
+#### before [#user-orders-before]
+
+**`before`** · [`String`](/api-reference/miscellaneous/scalars/string)
+
+Return the elements in the list that come before the specified cursor.
+
+#### after [#user-orders-after]
+
+**`after`** · [`String`](/api-reference/miscellaneous/scalars/string)
+
+Return the elements in the list that come after the specified cursor.
+
+#### first [#user-orders-first]
+
+**`first`** · [`Int`](/api-reference/miscellaneous/scalars/int)
+
+Retrieve the first n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
+
+#### last [#user-orders-last]
+
+**`last`** · [`Int`](/api-reference/miscellaneous/scalars/int)
+
+Retrieve the last n elements from the list. Note that the system only allows fetching a maximum of 100 objects in a single query.
+### userPermissions [#user-permissions]
+
+**`userPermissions`** · [`[UserPermission!]`](/api-reference/users/objects/user-permission)
+
+List of user's permissions.
+### permissionGroups [#permission-groups]
+
+**`permissionGroups`** · [`[Group!]`](/api-reference/users/objects/group)
+
+List of user's permission groups.
+### editableGroups [#editable-groups]
+
+**`editableGroups`** · [`[Group!]`](/api-reference/users/objects/group)
+
+List of user's permission groups which user can manage.
+### accessibleChannels [#accessible-channels]
+
+**`accessibleChannels`** · [`[Channel!]`](/api-reference/channels/objects/channel)
+
+List of channels the user has access to. The sum of channels from all user groups. If at least one group has `restrictedAccessToChannels` set to False - all channels are returned.
+### restrictedAccessToChannels [#restricted-access-to-channels]
+
+**`restrictedAccessToChannels`** · [`Boolean!`](/api-reference/miscellaneous/scalars/boolean)
+
+Determine if user have restricted access to channels. False if at least one user group has `restrictedAccessToChannels` set to False.
+### avatar [#avatar]
+
+**`avatar`** · [`Image`](/api-reference/miscellaneous/objects/image)
+
+The avatar of the user.
+
+#### size [#user-avatar-size]
+
+**`size`** · [`Int`](/api-reference/miscellaneous/scalars/int)
+
+Desired longest side the image in pixels. Defaults to 4096. Images are never cropped. Pass 0 to retrieve the original size (not recommended). Thumbnails are generated only in the available sizes: 32, 64, 128, 256, 512, 1024, 2048, 4096; `sizeRounding` determines which one is used.
+
+#### sizeRounding [#user-avatar-size-rounding]
+
+**`sizeRounding`** · [`ThumbnailSizeRoundingEnum`](/api-reference/miscellaneous/enums/thumbnail-size-rounding-enum)
+
+Determines how the requested size is matched to an available thumbnail size.
+
+<Badge variant="accent">Added in Saleor 3.23</Badge>
+
+Default: `NEAREST`.
+
+#### format [#user-avatar-format]
+
+**`format`** · [`ThumbnailFormatEnum`](/api-reference/miscellaneous/enums/thumbnail-format-enum)
+
+The format of the image. When not provided, format of the original image will be used.
+
+Default: `ORIGINAL`.
+### events [#events]
+
+**`events`** · [`[CustomerEvent!]`](/api-reference/users/objects/customer-event)
+
+List of events associated with the user.
+
+
+
+<Permissions label="Requires one of the following permissions" values="MANAGE_USERS,MANAGE_STAFF" />
+
+
+### storedPaymentSources [#stored-payment-sources]
+
+**`storedPaymentSources`** · [`[PaymentSource!]`](/api-reference/payments/objects/payment-source)
 
 List of stored payment sources. The field returns a list of payment sources stored for payment plugins.
 
-##### [<code>channel</code>](#user-stored-payment-sources-channel)<Bullet />[<code>String</code>](/api-reference/miscellaneous/scalars/string.mdx) \{#user-stored-payment-sources-channel\}
+:::warning[Deprecated]
+The legacy Payments API is deprecated and will be removed. Use the Transactions API instead.
+:::
+
+
+#### channel [#user-stored-payment-sources-channel]
+
+**`channel`** · [`String`](/api-reference/miscellaneous/scalars/string)
+
+Slug of a channel for which the data should be returned.
+### languageCode [#language-code]
+
+**`languageCode`** · [`LanguageCodeEnum!`](/api-reference/miscellaneous/enums/language-code-enum)
+
+User language code.
+### defaultShippingAddress [#default-shipping-address]
+
+**`defaultShippingAddress`** · [`Address`](/api-reference/users/objects/address)
+
+The default shipping address of the user.
+### defaultBillingAddress [#default-billing-address]
+
+**`defaultBillingAddress`** · [`Address`](/api-reference/users/objects/address)
+
+The default billing address of the user.
+### externalReference [#external-reference]
+
+**`externalReference`** · [`String`](/api-reference/miscellaneous/scalars/string)
+
+External ID of this user.
+### customerType [#customer-type]
+
+**`customerType`** · [`CustomerType`](/api-reference/users/objects/customer-type)
+
+The customer type assigned to the user. 
+
+<Permissions label="Requires one of the following permissions" values="MANAGE_USERS,OWNER" />
+
+
+
+<Badge variant="accent">Added in Saleor 3.23</Badge>
+### lastLogin [#last-login]
+
+**`lastLogin`** · [`DateTime`](/api-reference/miscellaneous/scalars/date-time)
+
+The date when the user last time log in to the system.
+### dateJoined [#date-joined]
+
+**`dateJoined`** · [`DateTime!`](/api-reference/miscellaneous/scalars/date-time)
+
+The data when the user create account.
+### updatedAt [#updated-at]
+
+**`updatedAt`** · [`DateTime!`](/api-reference/miscellaneous/scalars/date-time)
+
+The data when the user last update the account information.
+### storedPaymentMethods [#stored-payment-methods]
+
+**`storedPaymentMethods`** · [`[StoredPaymentMethod!]`](/api-reference/payments/objects/stored-payment-method)
+
+Returns a list of user's stored payment methods that can be used in provided channel. The field returns a list of stored payment methods by payment apps. When `amount` is not provided, 0 will be used as default value.
+
+#### channel [#user-stored-payment-methods-channel]
+
+**`channel`** · [`String!`](/api-reference/miscellaneous/scalars/string)
 
 Slug of a channel for which the data should be returned.
 
-</details>
+## Used by
 
-### Interfaces
+- [CreateToken (objects)](/api-reference/authentication/objects/create-token)
+- [ExternalObtainAccessTokens (objects)](/api-reference/authentication/objects/external-obtain-access-tokens)
+- [ExternalRefresh (objects)](/api-reference/authentication/objects/external-refresh)
+- [ExternalVerify (objects)](/api-reference/authentication/objects/external-verify)
+- [RefreshToken (objects)](/api-reference/authentication/objects/refresh-token)
+- [VerifyToken (objects)](/api-reference/authentication/objects/verify-token)
+- [Checkout (objects)](/api-reference/checkout/objects/checkout)
+- [GiftCard (objects)](/api-reference/gift-cards/objects/gift-card)
+- [GiftCardEvent (objects)](/api-reference/gift-cards/objects/gift-card-event)
+- [GiftCardEventAssignment (objects)](/api-reference/gift-cards/objects/gift-card-event-assignment)
+- [AppProblemDismissed (objects)](/api-reference/miscellaneous/objects/app-problem-dismissed)
+- [ExportEvent (objects)](/api-reference/miscellaneous/objects/export-event)
+- [ExportFile (objects)](/api-reference/miscellaneous/objects/export-file)
+- [StaffNotificationRecipient (objects)](/api-reference/miscellaneous/objects/staff-notification-recipient)
+- [_Entity (unions)](/api-reference/miscellaneous/unions/entity)
+- [IssuingPrincipal (unions)](/api-reference/miscellaneous/unions/issuing-principal)
+- [UserOrApp (unions)](/api-reference/miscellaneous/unions/user-or-app)
+- [Order (objects)](/api-reference/orders/objects/order)
+- [OrderEvent (objects)](/api-reference/orders/objects/order-event)
+- [OrderGrantedRefund (objects)](/api-reference/orders/objects/order-granted-refund)
+- [ListStoredPaymentMethods (objects)](/api-reference/payments/objects/list-stored-payment-methods)
+- [PaymentGatewayInitializeTokenizationSession (objects)](/api-reference/payments/objects/payment-gateway-initialize-tokenization-session)
+- [PaymentMethodInitializeTokenizationSession (objects)](/api-reference/payments/objects/payment-method-initialize-tokenization-session)
+- [PaymentMethodProcessTokenizationSession (objects)](/api-reference/payments/objects/payment-method-process-tokenization-session)
+- [StoredPaymentMethodDeleteRequested (objects)](/api-reference/payments/objects/stored-payment-method-delete-requested)
+- [AccountAddressCreate (objects)](/api-reference/users/objects/account-address-create)
+- [AccountAddressDelete (objects)](/api-reference/users/objects/account-address-delete)
+- [AccountAddressUpdate (objects)](/api-reference/users/objects/account-address-update)
+- [AccountChangeEmailRequested (objects)](/api-reference/users/objects/account-change-email-requested)
+- [AccountConfirmationRequested (objects)](/api-reference/users/objects/account-confirmation-requested)
+- [AccountConfirmed (objects)](/api-reference/users/objects/account-confirmed)
+- [AccountDelete (objects)](/api-reference/users/objects/account-delete)
+- [AccountDeleteRequested (objects)](/api-reference/users/objects/account-delete-requested)
+- [AccountDeleted (objects)](/api-reference/users/objects/account-deleted)
+- [AccountEmailChanged (objects)](/api-reference/users/objects/account-email-changed)
+- [AccountRegister (objects)](/api-reference/users/objects/account-register)
+- [AccountSetDefaultAddress (objects)](/api-reference/users/objects/account-set-default-address)
+- [AccountSetPasswordRequested (objects)](/api-reference/users/objects/account-set-password-requested)
+- [AccountUpdate (objects)](/api-reference/users/objects/account-update)
+- [AddressCreate (objects)](/api-reference/users/objects/address-create)
+- [AddressDelete (objects)](/api-reference/users/objects/address-delete)
+- [AddressSetDefault (objects)](/api-reference/users/objects/address-set-default)
+- [AddressUpdate (objects)](/api-reference/users/objects/address-update)
+- [ConfirmAccount (objects)](/api-reference/users/objects/confirm-account)
+- [ConfirmEmailChange (objects)](/api-reference/users/objects/confirm-email-change)
+- [CustomerBulkResult (objects)](/api-reference/users/objects/customer-bulk-result)
+- [CustomerCreate (objects)](/api-reference/users/objects/customer-create)
+- [CustomerCreated (objects)](/api-reference/users/objects/customer-created)
+- [CustomerDelete (objects)](/api-reference/users/objects/customer-delete)
+- [CustomerDeleted (objects)](/api-reference/users/objects/customer-deleted)
+- [CustomerEvent (objects)](/api-reference/users/objects/customer-event)
+- [CustomerMetadataUpdated (objects)](/api-reference/users/objects/customer-metadata-updated)
+- [CustomerUpdate (objects)](/api-reference/users/objects/customer-update)
+- [CustomerUpdated (objects)](/api-reference/users/objects/customer-updated)
+- [Group (objects)](/api-reference/users/objects/group)
+- [PasswordChange (objects)](/api-reference/users/objects/password-change)
+- [RequestEmailChange (objects)](/api-reference/users/objects/request-email-change)
+- [SetPassword (objects)](/api-reference/users/objects/set-password)
+- [StaffCreate (objects)](/api-reference/users/objects/staff-create)
+- [StaffCreated (objects)](/api-reference/users/objects/staff-created)
+- [StaffDelete (objects)](/api-reference/users/objects/staff-delete)
+- [StaffDeleted (objects)](/api-reference/users/objects/staff-deleted)
+- [StaffSetPasswordRequested (objects)](/api-reference/users/objects/staff-set-password-requested)
+- [StaffUpdate (objects)](/api-reference/users/objects/staff-update)
+- [StaffUpdated (objects)](/api-reference/users/objects/staff-updated)
+- [UserAvatarDelete (objects)](/api-reference/users/objects/user-avatar-delete)
+- [UserAvatarUpdate (objects)](/api-reference/users/objects/user-avatar-update)
+- [UserCountableEdge (objects)](/api-reference/users/objects/user-countable-edge)
+- [me (queries)](/api-reference/users/queries/me)
+- [user (queries)](/api-reference/users/queries/user)
 
-#### [<code>Node</code>](/api-reference/miscellaneous/interfaces/node.mdx)
+---
 
-An object with an ID
-
-#### [<code>ObjectWithMetadata</code>](/api-reference/miscellaneous/interfaces/object-with-metadata.mdx)
-
-#### [<code>ObjectWithAttributes</code>](/api-reference/attributes/interfaces/object-with-attributes.mdx)
-
-An object with attributes.
-
-<Badge
-  text="Added in Saleor 3.22"
-  class="badge badge--secondary margin-bottom--sm"
-/>
-
-### Returned By
-
-[`me`](/api-reference/users/queries/me.mdx) <Badge class="badge badge--secondary badge--relation" text="query"/><Bullet />[`user`](/api-reference/users/queries/user.mdx) <Badge class="badge badge--secondary badge--relation" text="query"/>
-
-### Member Of
-
-[`AccountAddressCreate`](/api-reference/users/objects/account-address-create.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountAddressDelete`](/api-reference/users/objects/account-address-delete.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountAddressUpdate`](/api-reference/users/objects/account-address-update.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountChangeEmailRequested`](/api-reference/users/objects/account-change-email-requested.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountConfirmationRequested`](/api-reference/users/objects/account-confirmation-requested.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountConfirmed`](/api-reference/users/objects/account-confirmed.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountDelete`](/api-reference/users/objects/account-delete.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountDeleted`](/api-reference/users/objects/account-deleted.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountDeleteRequested`](/api-reference/users/objects/account-delete-requested.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountEmailChanged`](/api-reference/users/objects/account-email-changed.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountRegister`](/api-reference/users/objects/account-register.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountSetDefaultAddress`](/api-reference/users/objects/account-set-default-address.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountSetPasswordRequested`](/api-reference/users/objects/account-set-password-requested.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AccountUpdate`](/api-reference/users/objects/account-update.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AddressCreate`](/api-reference/users/objects/address-create.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AddressDelete`](/api-reference/users/objects/address-delete.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AddressSetDefault`](/api-reference/users/objects/address-set-default.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AddressUpdate`](/api-reference/users/objects/address-update.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`AppProblemDismissed`](/api-reference/miscellaneous/objects/app-problem-dismissed.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`Checkout`](/api-reference/checkout/objects/checkout.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`ConfirmAccount`](/api-reference/users/objects/confirm-account.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`ConfirmEmailChange`](/api-reference/users/objects/confirm-email-change.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`CreateToken`](/api-reference/authentication/objects/create-token.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`CustomerBulkResult`](/api-reference/users/objects/customer-bulk-result.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`CustomerCreate`](/api-reference/users/objects/customer-create.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`CustomerCreated`](/api-reference/users/objects/customer-created.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`CustomerDelete`](/api-reference/users/objects/customer-delete.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`CustomerDeleted`](/api-reference/users/objects/customer-deleted.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`CustomerEvent`](/api-reference/users/objects/customer-event.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`CustomerMetadataUpdated`](/api-reference/users/objects/customer-metadata-updated.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`CustomerUpdate`](/api-reference/users/objects/customer-update.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`CustomerUpdated`](/api-reference/users/objects/customer-updated.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`ExportEvent`](/api-reference/miscellaneous/objects/export-event.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`ExportFile`](/api-reference/miscellaneous/objects/export-file.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`ExternalObtainAccessTokens`](/api-reference/authentication/objects/external-obtain-access-tokens.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`ExternalRefresh`](/api-reference/authentication/objects/external-refresh.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`ExternalVerify`](/api-reference/authentication/objects/external-verify.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`GiftCard`](/api-reference/gift-cards/objects/gift-card.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`GiftCardEvent`](/api-reference/gift-cards/objects/gift-card-event.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`GiftCardEventAssignment`](/api-reference/gift-cards/objects/gift-card-event-assignment.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`Group`](/api-reference/users/objects/group.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`ListStoredPaymentMethods`](/api-reference/payments/objects/list-stored-payment-methods.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`Order`](/api-reference/orders/objects/order.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`OrderEvent`](/api-reference/orders/objects/order-event.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`OrderGrantedRefund`](/api-reference/orders/objects/order-granted-refund.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`PasswordChange`](/api-reference/users/objects/password-change.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`PaymentGatewayInitializeTokenizationSession`](/api-reference/payments/objects/payment-gateway-initialize-tokenization-session.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`PaymentMethodInitializeTokenizationSession`](/api-reference/payments/objects/payment-method-initialize-tokenization-session.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`PaymentMethodProcessTokenizationSession`](/api-reference/payments/objects/payment-method-process-tokenization-session.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`RefreshToken`](/api-reference/authentication/objects/refresh-token.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`RequestEmailChange`](/api-reference/users/objects/request-email-change.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`SetPassword`](/api-reference/users/objects/set-password.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`StaffCreate`](/api-reference/users/objects/staff-create.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`StaffCreated`](/api-reference/users/objects/staff-created.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`StaffDelete`](/api-reference/users/objects/staff-delete.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`StaffDeleted`](/api-reference/users/objects/staff-deleted.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`StaffNotificationRecipient`](/api-reference/miscellaneous/objects/staff-notification-recipient.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`StaffSetPasswordRequested`](/api-reference/users/objects/staff-set-password-requested.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`StaffUpdate`](/api-reference/users/objects/staff-update.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`StaffUpdated`](/api-reference/users/objects/staff-updated.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`StoredPaymentMethodDeleteRequested`](/api-reference/payments/objects/stored-payment-method-delete-requested.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`UserAvatarDelete`](/api-reference/users/objects/user-avatar-delete.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`UserAvatarUpdate`](/api-reference/users/objects/user-avatar-update.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`UserCountableEdge`](/api-reference/users/objects/user-countable-edge.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/><Bullet />[`VerifyToken`](/api-reference/authentication/objects/verify-token.mdx) <Badge class="badge badge--secondary badge--relation" text="object"/>
-
-### Implemented By
-
-[`_Entity`](/api-reference/miscellaneous/unions/entity.mdx) <Badge class="badge badge--secondary badge--relation" text="union"/><Bullet />[`IssuingPrincipal`](/api-reference/miscellaneous/unions/issuing-principal.mdx) <Badge class="badge badge--secondary badge--relation" text="union"/><Bullet />[`UserOrApp`](/api-reference/miscellaneous/unions/user-or-app.mdx) <Badge class="badge badge--secondary badge--relation" text="union"/>
+Schema: **Saleor 3.23.43**. [Download SDL](/schema/saleor.graphql).

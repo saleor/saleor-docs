@@ -1,24 +1,28 @@
 ---
 title: Address Validation
+slug: developer/address
+sidebar: {}
+seo:
+  title: Address Validation
+  description: Address format varies between each country. Saleor has a backend validation library that helps you gather data required by postal services.
+lastModified: '2026-02-23'
 ---
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
 
 Address format varies between each country. Saleor has a backend validation library that helps you gather data required by postal services.
 
 :::note
-
 Validation is only performed on the format of address data. To check if the address exists or get the address auto-complete, use services like [Shippo](https://goshippo.com/) or [Loqate](https://www.loqate.com/en-us/).
+
 
 :::
 
 ## Validation rules
 
-Using the [addressValidationRules](/api-reference/users/queries/address-validation-rules.mdx) query, API clients can fetch validation rules depending on the selected country. Based on the ruleset, some address fields can be hidden (e.g. `countryArea`).
+Using the [addressValidationRules](/api-reference/users/queries/address-validation-rules) query, API clients can fetch validation rules depending on the selected country. Based on the ruleset, some address fields can be hidden (e.g. `countryArea`).
 Saleor Core uses [Google i18n address](https://github.com/mirumee/google-i18n-address) under the hood, with a ruleset from [Google Address Data](https://chromium-i18n.appspot.com/ssl-address).
 
 <Tabs>
-<TabItem value="Query">
+<Tab value="Query">
 ```graphql
 query {
   addressValidationRules(countryCode: PL) {
@@ -29,9 +33,9 @@ query {
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Result"}>
+<Tab value={"Result"}>
 ```json
 {
   "data": {
@@ -51,7 +55,7 @@ query {
   }
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
 
@@ -67,11 +71,11 @@ a proper mapping, the value `Dublin` will be recognized as a valid country area 
 
 ## Setting up the address using the API
 
-As an example of the address validation API, we will set the billing address in the checkout. The operation can be made with [checkoutBillingAddressUpdate](/api-reference/checkout/mutations/checkout-billing-address-update.mdx):
+As an example of the address validation API, we will set the billing address in the checkout. The operation can be made with [checkoutBillingAddressUpdate](/api-reference/checkout/mutations/checkout-billing-address-update):
 
 
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql
 mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!) {
   checkoutBillingAddressUpdate(id: $id, billingAddress: $billingAddress) {
@@ -92,9 +96,9 @@ mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!) {
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Variables"}>
+<Tab value={"Variables"}>
 ```json
 {
   "billingAddress": {
@@ -108,9 +112,9 @@ mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!) {
   "id": "Q2hlY2tvdXQ6YzRhMzMxNTYtNjRlMS00MzkzLWFjYmMtODIzZDRhNTE1Mjdi"
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Result"}>
+<Tab value={"Result"}>
 ```json
 {
   "data": {
@@ -129,7 +133,7 @@ mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!) {
   }
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
 
@@ -138,7 +142,7 @@ mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!) {
 Let's create an example of address validation errors. The address below is missing a few fields and has the wrong postal code:
 
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql
 mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!) {
   checkoutBillingAddressUpdate(id: $id, billingAddress: $billingAddress) {
@@ -159,9 +163,9 @@ mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!) {
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Variables"}>
+<Tab value={"Variables"}>
 ```json
 {
   "billingAddress": {
@@ -173,9 +177,9 @@ mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!) {
   "id": "Q2hlY2tvdXQ6YzRhMzMxNTYtNjRlMS00MzkzLWFjYmMtODIzZDRhNTE1Mjdi"
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Result"}>
+<Tab value={"Result"}>
 ```json
 {
   "data": {
@@ -206,7 +210,7 @@ mutation checkoutBillingAddressUpdate($id: ID, $billingAddress: AddressInput!) {
   }
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
 
@@ -220,8 +224,7 @@ Each field is validated separately, and each issue has a corresponding error cod
 Saleor can skip part of address validation. To enable this, set the `skipValidation` flag to `true` in the `AddressInput`.
 This disables format validation for all fields except the `country` and `phone`. Saleor will still validate required address items and will try to normalize valid fields.
 
-:::info
-Using the `skipValidation` flag may require extra permissions.
+:::info[Using the `skipValidation` flag may require extra permissions.]
 
 - `checkoutCreate` - requires `HANDLE_CHECKOUT` and `AUTHENTICATED_APP` permissions.
 - `accountAddressCreate` and `accountUpdate` - require `IMPERSONATE_USER` and `AUTHENTICATED_APP` permissions.
@@ -229,7 +232,6 @@ Using the `skipValidation` flag may require extra permissions.
 
 :::
 
-:::warning
-Providing an invalid address may cause Saleor to be unable to complete some external requests.
+:::warning[Providing an invalid address may cause Saleor to be unable to complete some external requests.]
 For example, an incorrect address could result in errors in the tax app response and an inability to create an order.
 :::

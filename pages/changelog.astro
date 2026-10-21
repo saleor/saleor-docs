@@ -1,0 +1,83 @@
+---
+import { getCollection, render } from "astro:content";
+import data from "blume:data";
+import { getBlumeCollection } from "blume/runtime";
+import PageLayout from "blume/components/layout/PageLayout.astro";
+import Footer from "../components/Footer.astro";
+
+const { config } = data;
+const routes = getBlumeCollection(data, { locale: config.i18n?.defaultLocale });
+const routeByEntry = new Map(routes.map(route => [route.entryId, route.path]));
+const entries = (await getCollection("docs"))
+  .filter(entry => entry.data.type === "changelog" && routeByEntry.has(entry.id))
+  .sort((a, b) => new Date(b.data.date ?? "").getTime() - new Date(a.data.date ?? "").getTime());
+const releases = await Promise.all(entries.map(async entry => {
+  return {
+    title: entry.data.title,
+    href: routeByEntry.get(entry.id),
+    date: new Date(entry.data.date ?? ""),
+    Content: (await render(entry)).Content,
+  };
+}));
+const dateFormat = new Intl.DateTimeFormat("en", { dateStyle: "long", timeZone: "UTC" });
+---
+
+<PageLayout
+  site={{ title: config.title, description: config.description }}
+  logo={config.logo} banner={config.banner} analytics={config.analytics}
+  navigation={data.navigation} favicon={config.favicon} fontCssVars={data.fontCssVars}
+  themeMode={config.theme.mode} searchEnabled={config.search.enabled}
+  siteUrl={config.site} ogEnabled={config.og.enabled}
+  structuredDataEnabled={config.structuredData}
+  page={{ title: "Changelog — Saleor", description: "Changes, fixes, and original release notes from published Saleor releases.", route: "/changelog" }}
+>
+  <section class="changelog" aria-labelledby="changelog-title">
+    <header class="intro">
+      <div class="title-row">
+        <h1 id="changelog-title">Changelog</h1>
+        <a class="rss" href="/changelog/rss.xml" aria-label="Subscribe via RSS">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true">
+            <circle cx="5" cy="19" r="1" fill="currentColor" />
+            <path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16" />
+          </svg>
+          Subscribe <span class="rss-label">via RSS</span>
+        </a>
+      </div>
+      <p>Changes and fixes from published Saleor releases.</p>
+    </header>
+    <div class="releases">
+      {releases.map(({ title, href, date, Content }) => (
+        <article class="release">
+          <div class="release-heading">
+            <h2><a href={href}>{title}</a></h2>
+            <time datetime={date.toISOString()}>{dateFormat.format(date)}</time>
+          </div>
+          <div class="prose release-body"><Content /></div>
+        </article>
+      ))}
+    </div>
+  </section>
+  <Footer slot="footer" />
+</PageLayout>
+
+<style>
+  .changelog { max-width: 64rem; margin: auto; padding: 3rem 1.5rem; }
+  .intro { margin-bottom: 2.5rem; }
+  .title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+  h1 { margin: 0; }
+  .intro p, time { color: var(--blume-muted-foreground); }
+  .rss { display: inline-flex; align-items: center; gap: 0.4rem; flex-shrink: 0; padding: 0.6rem 0.75rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; color: var(--blume-muted-foreground); transition: background-color 150ms, color 150ms; }
+  .rss:hover { background: var(--blume-muted); color: var(--blume-foreground); }
+  .release { padding: 1.5rem 0; border-top: 1px solid var(--blume-border); }
+  .release-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  h2 { font-size: 1.125rem; font-weight: 600; margin: 0; }
+  h2 a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  time { font-size: 0.875rem; white-space: nowrap; }
+  .release-body { max-width: none; margin-top: 1.5rem; overflow-wrap: anywhere; }
+  @media (max-width: 480px) {
+    .rss-label { display: none; }
+    .rss { padding-inline: 0.5rem; }
+    .release-heading { align-items: flex-start; flex-direction: column; gap: 0.25rem; }
+    .changelog { padding: 2rem 1rem; }
+  }
+</style>

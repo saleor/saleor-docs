@@ -1,617 +1,159 @@
 ---
 title: API Walkthrough
-hide_table_of_contents: true
+slug: quickstart/api
+sidebar: {}
+seo:
+  title: API Walkthrough
+  description: Getting familiar with basic APIs and Webhooks. This guide assumes basic
+lastModified: '2026-02-23'
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
-import S from "@site/components/Steps/";
-
-<S.Column>
+<div>
   Getting familiar with basic APIs and Webhooks. This guide assumes basic
   knowledge of GraphQL.
-</S.Column>
+</div>
 
-<S.Column>
+<div>
 
 Communicating with Saleor is done via public and private GraphQL APIs and webhooks:
 
-    - **Public APIs**: Used for storefront clients, mobile apps, and other public-facing applications that do not store secret tokens.
-    - **Admin APIs**: Can be accessed by backend services, [admin dashboards](https://github.com/saleor/saleor-dashboard), apps or backends for front-ends.
-    - **Webhooks:** Used to notify external systems about events in Saleor, such as order creation, order payment, or order fulfillment.
-    - **Sync Webhooks:** Allow to modify saleor responses, for when user adds item to cart, webhook would call your backend to for custom price calculation.
+- **Public APIs**: Used for storefront clients, mobile apps, and other public-facing applications that do not store secret tokens.
+- **Admin APIs**: Can be accessed by backend services, [admin dashboards](https://github.com/saleor/saleor-dashboard), apps or backends for front-ends.
+- **Webhooks:** Used to notify external systems about events in Saleor, such as order creation, order payment, or order fulfillment.
+- **Sync Webhooks:** Allow to modify saleor responses, for when user adds item to cart, webhook would call your backend to for custom price calculation.
 
-    GraphQL provides [many benefits](/overview/why-saleor/graphql.mdx) and one of them is [tooling](/api-usage/developer-tools.mdx) that eliminates the needs for dedicated SDKs.
-    To keep this guide universal to any technology stack, we will use GraphQL playground, but you can paste the queries to your preferred language or tool.
+GraphQL provides [many benefits](/overview/why-saleor/graphql) and one of them is [tooling](/api-usage/developer-tools) that eliminates the needs for dedicated SDKs.
+To keep this guide universal to any technology stack, we will use GraphQL playground, but you can paste the queries to your preferred language or tool.
 
-</S.Column>
+</div>
 
-<S>
-    <S.Step>
-        <S.Details>
-            ### Use sample dataset
+<Steps titleSize="h3">
+<Step title={"Prepare your store"}>
+<div>
+<span id="use-sample-dataset" />
 
-            To make this guide easier to follow, we recommend using a sample dataset to ensure that the IDs used in example queries and mutations are identical.
+Use a store with published products, purchasable variants, and shipping methods configured for your channel. The interactive examples use IDs returned by your store, so they do not need to match the sample IDs.
 
-            For Saleor Cloud: Go to instance settings and choose _"Replace database with a sample"_.
+For an empty local development store, you can [add sample data](/quickstart/running-locally#add-sample-data).
+</div>
+</Step>
 
-            For local development follow this [step](quickstart/running-locally.mdx#add-sample-data).
-        </S.Details>
-    </S.Step>
+<Step title={"Open GraphQL playground"}>
+<div>
+<span id="open-graphql-playground" />
 
-    <S.Step>
-        <S.Details>
-            ### Open GraphQL playground
+Saleor comes with GraphQL pre-installed, which can be accessed in two ways:
 
-            Saleor comes with GraphQL pre-installed, which can be accessed in two ways:
+**Saleor Dashboard:** The dashboard is available at use ```cmd+'``` to open the playground. All queries will be on behalf of the authenticated user, therefore the queries will be limited to the user's permissions.
 
-            **Saleor Dashboard:** The dashboard is available at use ```cmd+'``` to open the playground. All queries will be on behalf of the authenticated user, therefore the queries will be limited to the user's permissions.
+**Public playground:** Each instance has ```/graphql/``` endpoint available for public access. For example
+```https://{your_store}.saleor.cloud/graphql/```
+or ```http://localhost:8000/graphql/```
+All queries will be via public access unless app token headers are specified.
 
-            **Public playground:** Each instance has ```/graphql/``` endpoint available for public access. For example
-            ```https://{your_store}.saleor.cloud/graphql/```
-            or ```http://localhost:8000/graphql/```
-            All queries will be via public access unless app token headers are specified.
+Run the public examples directly below after configuring your API URL. The embedded Playground sends anonymous requests and does not accept tokens. Before configuration, the examples show editable placeholder values without executing requests.
 
-            For this tutorial, we will use the public playground to execute queries. But you can use the dashboard playground as well, as it will not require additional credentials (assuming you are the admin).
-        </S.Details>
-    </S.Step>
+Within this walkthrough, successful results fill in the next step’s variables. Run each prerequisite first; the connection check is optional. Rerunning or editing an earlier step clears dependent progress. Refreshing, leaving the page, or changing the API URL resets the walkthrough.
 
-    <S.Step>
-        <S.Details>
-            ### Fetch products
-            Retrieve a list of 10 products with a minimal price between 10 and 100.
+The later order operations require an app token and must be run in a separate GraphQL client.
+</div>
+</Step>
 
-            In the result tab, we get a [paginated list](/api-usage/pagination.mdx) of products with their names and categories.
+<Step title={"Check your connection"}>
 
-            Each query also returns the [cost of the query](/api-usage/usage-limits.mdx).
-        </S.Details>
-        <S.Code>
+<GraphQLExample exampleId="shop" />
 
+</Step>
 
-            <Tabs>
-                <TabItem value="graphql" label="GraphQL">
+<Step title={"Fetch products"}>
+<span id="fetch-products" />
 
-```graphql
-{
-  products(
-    first: 10
-    channel: "default-channel"
-    where: { minimalPrice: { range: { gte: 10, lte: 100 } } }
-  ) {
-    edges {
-      node {
-        id
-        name
-        category {
-          id
-          name
-        }
-      }
-    }
-  }
-}
-```
+Retrieve up to 10 products with a minimal price between 10 and 100. The editable channel starts as `default-channel`; replace it with a slug from your store in **Variables**, then execute the query to see a [paginated list](/api-usage/pagination) of product names and categories from your store.
 
-                </TabItem>
-                <TabItem value="json" label="Result">
+The response also includes the [cost of the query](/api-usage/usage-limits).
 
-```json
-{
-  "data": {
-    "products": {
-      "edges": [
-        {
-          "node": {
-            "id": "UHJvZHVjdDoxMzQ=",
-            "name": "Monospace Tee",
-            "category": {
-              "id": "Q2F0ZWdvcnk6Mzk=",
-              "name": "T-shirts"
-            }
-          }
-        },
-        {
-          "node": {
-            "id": "UHJvZHVjdDoxMzA=",
-            "name": "Paul's Balance 420",
-            "category": {
-              "id": "Q2F0ZWdvcnk6Mjg=",
-              "name": "Sneakers"
-            }
-          }
-        },
-        {
-          "node": {
-            "id": "UHJvZHVjdDoxNDU=",
-            "name": "Battle-tested at brands like Lush",
-            "category": {
-              "id": "Q2F0ZWdvcnk6MjY=",
-              "name": "Audiobooks"
-            }
-          }
-        },
-        {
-          "node": {
-            "id": "UHJvZHVjdDoxMzI=",
-            "name": "Blue Hoodie",
-            "category": {
-              "id": "Q2F0ZWdvcnk6Mjk=",
-              "name": "Sweatshirts"
-            }
-          }
-        },
-        {
-          "node": {
-            "id": "UHJvZHVjdDoxMjg=",
-            "name": "Blue Plimsolls",
-            "category": {
-              "id": "Q2F0ZWdvcnk6Mjg=",
-              "name": "Sneakers"
-            }
-          }
-        },
-        {
-          "node": {
-            "id": "UHJvZHVjdDoxMzc=",
-            "name": "Blue Polygon Shirt",
-            "category": {
-              "id": "Q2F0ZWdvcnk6Mzk=",
-              "name": "T-shirts"
-            }
-          }
-        },
-        {
-          "node": {
-            "id": "UHJvZHVjdDoxNjE=",
-            "name": "Cubes Fountain Tee",
-            "category": {
-              "id": "Q2F0ZWdvcnk6Mzk=",
-              "name": "T-shirts"
-            }
-          }
-        },
-        {
-          "node": {
-            "id": "UHJvZHVjdDoxMzY=",
-            "name": "Darko Polo",
-            "category": {
-              "id": "Q2F0ZWdvcnk6NDA=",
-              "name": "Polo shirts"
-            }
-          }
-        },
-        {
-          "node": {
-            "id": "UHJvZHVjdDoxMzg=",
-            "name": "Dark Polygon Tee",
-            "category": {
-              "id": "Q2F0ZWdvcnk6Mzk=",
-              "name": "T-shirts"
-            }
-          }
-        },
-        {
-          "node": {
-            "id": "UHJvZHVjdDoxMjk=",
-            "name": "Dash Force",
-            "category": {
-              "id": "Q2F0ZWdvcnk6Mjg=",
-              "name": "Sneakers"
-            }
-          }
-        }
-      ]
-    }
-  },
-  "extensions": {
-    "cost": {
-      "requestedQueryCost": 20,
-      "maximumAvailable": 50000
-    }
-  }
-}
-```
+<GraphQLExample exampleId="products-filtered" walkthrough="api" />
 
-                </TabItem>
-            </Tabs>
-        </S.Code>
-    </S.Step>
+</Step>
 
-    <S.Step>
-        <S.Details>
-            ### Get specific product
-            Retrieve the first product ID from the previous query and fetch the product details.
+<Step title={"Get specific product"}>
+<div>
+<span id="get-specific-product" />
+The first product ID and channel from the previous successful query are filled in automatically. You can edit them in **Variables** before fetching product details.
 
-            It is possible to fetch many fields associated with products. To conveniently explore the fields that can be added to the query, use the auto-complete by using ```cmd+space``` or ```ctrl+space``` on Windows.
-            Or use the folder icon in the left side panel to explore the fields and interactively add them to the query.
+You can edit the query to explore other public product fields. For schema exploration and autocomplete, use your store’s standalone GraphQL playground.
 
-            Note that some fields are private and require specific permissions, which we will cover in the later steps.
-        </S.Details>
-        <S.Code>
+Note that some fields are private and require specific permissions, which we will cover in the later steps.
+</div>
+<div>
 
 
-            <Tabs>
-                <TabItem value="graphql" label="GraphQL">
+<GraphQLExample exampleId="walkthrough-product" walkthrough="api" />
+</div>
+</Step>
 
-```graphql
-{
-  product(id: "UHJvZHVjdDoxMzQ=", channel: "default-channel") {
-    id
-    seoTitle
-    seoDescription
-    availableForPurchaseAt
-    created
-    externalReference
-    isAvailable(address: { country: US })
-    media(sortBy: { direction: ASC, field: ID }) {
-      id
-      alt
-    }
-    name
-    variants {
-      created
-      id
-      media {
-        alt
-      }
-    }
-  }
-}
-```
+<Step title={"Create a checkout"}>
+<div>
+<span id="create-a-checkout" />
+Let's create a checkout with a product variant we fetched in the previous step.
 
-                </TabItem>
-                <TabItem value="json" label="Result">
-
-```json
-{
-  "data": {
-    "product": {
-      "id": "UHJvZHVjdDoxMzQ=",
-      "seoTitle": "",
-      "seoDescription": "",
-      "availableForPurchaseAt": "2022-05-13T21:22:42.298000+00:00",
-      "created": "2023-12-29T09:47:45.467273+00:00",
-      "externalReference": null,
-      "isAvailable": true,
-      "media": [
-        {
-          "id": "UHJvZHVjdE1lZGlhOjE3",
-          "alt": ""
-        },
-        {
-          "id": "UHJvZHVjdE1lZGlhOjE4",
-          "alt": ""
-        }
-      ],
-      "name": "Monospace Tee",
-      "variants": [
-        {
-          "created": "2023-12-29T09:47:45.931645+00:00",
-          "id": "UHJvZHVjdFZhcmlhbnQ6MzQ4",
-          "media": [
-            {
-              "alt": ""
-            }
-          ]
-        },
-        {
-          "created": "2023-12-29T09:47:45.942318+00:00",
-          "id": "UHJvZHVjdFZhcmlhbnQ6MzQ5",
-          "media": [
-            {
-              "alt": ""
-            }
-          ]
-        },
-        {
-          "created": "2023-12-29T09:47:45.952070+00:00",
-          "id": "UHJvZHVjdFZhcmlhbnQ6MzUw",
-          "media": [
-            {
-              "alt": ""
-            }
-          ]
-        },
-        {
-          "created": "2023-12-29T09:47:45.961975+00:00",
-          "id": "UHJvZHVjdFZhcmlhbnQ6MzUx",
-          "media": [
-            {
-              "alt": ""
-            }
-          ]
-        },
-        {
-          "created": "2023-12-29T09:47:45.971912+00:00",
-          "id": "UHJvZHVjdFZhcmlhbnQ6MzUy",
-          "media": [
-            {
-              "alt": ""
-            }
-          ]
-        }
-      ]
-    }
-  },
-  "extensions": {
-    "cost": {
-      "requestedQueryCost": 4,
-      "maximumAvailable": 50000
-    }
-  }
-}
-```
-
-                </TabItem>
-            </Tabs>
-        </S.Code>
-    </S.Step>
-
-    <S.Step>
-        <S.Details>
-            ### Create a checkout
-            Let's create a checkout with a product variant we fetched in the previous step.
-
-            Checkout only accepts the variant ID, not the product, as variants have [inventory and pricing information](/developer/products/overview.mdx#product-and-variants).
+Checkout only accepts the variant ID, not the product, as variants have [inventory and pricing information](/developer/products/overview#product-and-variants).
 
 
-        </S.Details>
-        <S.Code>
+</div>
+<div>
 
 
-            <Tabs>
-                <TabItem value="graphql" label="GraphQL">
+<GraphQLExample exampleId="walkthrough-checkout" walkthrough="api" />
+</div>
+</Step>
 
-```graphql
-mutation {
-  checkoutCreate(
-    input: {
-      channel: "default-channel"
-      lines: { quantity: 1, variantId: "UHJvZHVjdFZhcmlhbnQ6MzQ4" }
-    }
-  ) {
-    checkout {
-      id
-      lines {
-        id
-        variant {
-          name
-        }
-      }
-    }
-    errors {
-      field
-      message
-    }
-  }
-}
-```
+<Step title={"Update checkout"}>
+<div>
+<span id="update-checkout" />
+Let's add shipping and billing addresses and an email to the anonymous checkout. Review the sample address and email in **Variables** before running this mutation.
 
-                </TabItem>
-                <TabItem value="json" label="Result">
+Notice that we can add three mutations in a single request. In the last mutation, we updated the email address of the checkout and requested the shipping methods available for the checkout.
+</div>
+<div>
+<GraphQLExample exampleId="walkthrough-update" walkthrough="api" />
+</div>
+</Step>
 
-```json
-{
-  "data": {
-    "checkoutCreate": {
-      "checkout": {
-        "id": "Q2hlY2tvdXQ6NmUzMzRlMjMtOWJiNS00MWUwLTk1NzYtZDc0NmJmMzQ4NDc1",
-        "lines": [
-          {
-            "id": "Q2hlY2tvdXRMaW5lOjEwMGFkMTUwLWNhZTktNDVlMi1hZDIxLTE3MDVmZDAxZWM3NQ==",
-            "variant": {
-              "name": "S"
-            }
-          }
-        ]
-      },
-      "errors": []
-    }
-  },
-  "extensions": {
-    "cost": {
-      "requestedQueryCost": 1,
-      "maximumAvailable": 50000
-    }
-  }
-}
-```
+<Step title={"Select shipping method"}>
+<div>
+<span id="select-shipping-method" />
+The first available shipping method from the previous step is filled in automatically. You can replace its ID in **Variables** with another returned method. If none are available, review the address and your store’s shipping configuration before rerunning Update checkout.
+</div>
+<div>
+<GraphQLExample exampleId="walkthrough-delivery" walkthrough="api" />
+</div>
 
-                </TabItem>
-            </Tabs>
-        </S.Code>
-    </S.Step>
+</Step>
 
-    <S.Step>
-        <S.Details>
-            ### Update checkout
-            Let's add the user and billing addresses to the checkout and assign them to an anonymous user.
+<Step title={"Add webhook"}>
+<div>
+<span id="add-webhook" />
+Before placing an order, we would like to add a webhook to notify our system about the order so we can
+dispatch email, create an export to the ERP system, or any other custom action.
 
-            Notice that we can add two mutations in a single request. In the last mutation, we updated the email address of the checkout and requested the shipping methods available for the checkout.
-        </S.Details>
-        <S.Code>
-            <Tabs>
-                <TabItem value="graphql" label="GraphQL">
+For simplicity of the steps, let's do it via the dashboard:
 
-```graphql
-mutation {
-  checkoutShippingAddressUpdate(
-    checkoutId: "Q2hlY2tvdXQ6NmUzMzRlMjMtOWJiNS00MWUwLTk1NzYtZDc0NmJmMzQ4NDc1"
-    shippingAddress: {
-      firstName: "First"
-      lastName: "Last"
-      streetAddress1: "8066 Madison St."
-      city: "Brooklyn"
-      postalCode: "11237"
-      country: US
-      countryArea: "NY"
-    }
-  ) {
-    errors {
-      field
-      message
-    }
-  }
-  checkoutBillingAddressUpdate(
-    checkoutId: "Q2hlY2tvdXQ6NmUzMzRlMjMtOWJiNS00MWUwLTk1NzYtZDc0NmJmMzQ4NDc1"
-    billingAddress: {
-      firstName: "First"
-      lastName: "Last"
-      streetAddress1: "8066 Madison St."
-      city: "Brooklyn"
-      postalCode: "11237"
-      country: US
-      countryArea: "NY"
-    }
-  ) {
-    errors {
-      field
-      message
-    }
-  }
-  checkoutEmailUpdate(
-    checkoutId: "Q2hlY2tvdXQ6NmUzMzRlMjMtOWJiNS00MWUwLTk1NzYtZDc0NmJmMzQ4NDc1"
-    email: "test@test.com"
-  ) {
-    checkout {
-      shippingMethods {
-        id
-        name
-      }
-    }
-    errors {
-      field
-      message
-    }
-  }
-}
-```
+- Open Saleor dashboard
+- Go to _Extentions_ → _Add Extention_ → _Provide details manually_
+- App name `My App`
+- Enable permissions `HANDLE_CHECKOUTS` and `MANAGE_ORDERS`
+- Copy the generated token somewhere safe
+- Create a webhook with the following details:
+  - Name: `Order webhook`
+  - Target URL: For simplicity of the test, go to `https://webhook.site/` and copy the `Your unique URL` value
+  - App: `My App`
+  - Select event: Asynchronous → `ORDER` → `CREATED`
 
-                </TabItem>
-                <TabItem value="json" label="Result">
-
-```json
-{
-  "data": {
-    "checkoutShippingAddressUpdate": {
-      "errors": []
-    },
-    "checkoutBillingAddressUpdate": {
-      "errors": []
-    },
-    "checkoutEmailUpdate": {
-      "checkout": {
-        "shippingMethods": [
-          {
-            "id": "U2hpcHBpbmdNZXRob2Q6MQ==",
-            "name": "Default"
-          },
-          {
-            "id": "U2hpcHBpbmdNZXRob2Q6MTU=",
-            "name": "FedEx"
-          },
-          {
-            "id": "U2hpcHBpbmdNZXRob2Q6MTQ=",
-            "name": "UPS"
-          },
-          {
-            "id": "U2hpcHBpbmdNZXRob2Q6MTY=",
-            "name": "EMS"
-          },
-          {
-            "id": "U2hpcHBpbmdNZXRob2Q6MTM=",
-            "name": "DHL"
-          }
-        ]
-      },
-      "errors": []
-    }
-  },
-  "extensions": {
-    "cost": {
-      "requestedQueryCost": 1,
-      "maximumAvailable": 50000
-    }
-  }
-}
-```
-
-                </TabItem>
-            </Tabs>
-        </S.Code>
-    </S.Step>
-
-    <S.Step>
-        <S.Details>
-            ### Select shipping method
-            Let's select the default shipping method for the checkout retrieved in the previous step.
-        </S.Details>
-        <S.Code>
-            <Tabs>
-                <TabItem value="graphql" label="GraphQL">
-
-```graphql
-mutation {
-  checkoutDeliveryMethodUpdate(
-    id: "Q2hlY2tvdXQ6NmUzMzRlMjMtOWJiNS00MWUwLTk1NzYtZDc0NmJmMzQ4NDc1"
-    deliveryMethodId: "U2hpcHBpbmdNZXRob2Q6MQ=="
-  ) {
-    errors {
-      field
-      message
-    }
-  }
-}
-```
-
-                </TabItem>
-                <TabItem value="json" label="Result">
-
-```json
-{
-  "data": {
-    "checkoutDeliveryMethodUpdate": {
-      "errors": []
-    }
-  },
-  "extensions": {
-    "cost": {
-      "requestedQueryCost": 0,
-      "maximumAvailable": 50000
-    }
-  }
-}
-```
-
-                </TabItem>
-            </Tabs>
-        </S.Code>
-
-    </S.Step>
-
-    <S.Step>
-        <S.Details>
-            ### Add webhook
-            Before placing an order, we would like to add a webhook to notify our system about the order so we can
-            dispatch email, create an export to the ERP system, or any other custom action.
-
-            For simplicity of the steps, let's do it via the dashboard:
-            * Open Saleor dashboard
-            * Go to _Extentions_ -> _Add Extention_ -> _Provide details manually_
-            * App name ```My App```
-            * Enable Permissions ```HANDLE_CHECKOUT``` and ```MANAGE_ORDERS```
-            * Copy generated token somewhere safe
-            * Create a webhook with the following details:
-                * Name: ```Order webhook```
-                * Target URL: For simplicity of the test go to ```https://webhook.site/``` and copy ```Your unique URL```
-                value
-                * App: ```My App```
-                * Select Event: Asynchronous -> ```ORDER``` -> ```CREATED```
-
-        </S.Details>
-        <S.Code>
-            <Tabs>
-                <TabItem value="graphql" label="Subscription query">
+</div>
+<div>
+<Tabs>
+<Tab value="graphql" title="Subscription query">
 
 ```graphql
 subscription {
@@ -642,28 +184,28 @@ subscription {
 }
 ```
 
-                </TabItem>
-            </Tabs>
-        </S.Code>
-    </S.Step>
+</Tab>
+</Tabs>
+</div>
+</Step>
 
-    <S.Step>
-        <S.Details>
-            ### Create an order
+<Step title={"Create an order"}>
+<div>
+<span id="create-an-order" />
 
-            For simplicity of the steps, we will skip the [payment step](/developer/payments/overview.mdx) and create an order directly.
+For simplicity of the steps, we will skip the [payment step](/developer/payments/overview) and create an order directly.
 
-            Creating an order without payment requires admin or app permission. Add the app token copied in the previous step to the headers in the playground.
-            If you forgot or lost a token from the previous step, you can create another one in the app settings.
+This operation requires an app token with `HANDLE_CHECKOUTS`. Use a separate GraphQL client, such as your store’s `/graphql/` playground, and add the app token copied in the previous step to its headers. The embedded Playground does not accept tokens. Replace the sample checkout ID below with the ID returned when you created your checkout.
+If you forgot or lost a token from the previous step, you can create another one in the app settings.
 
-            After executing the mutation, you should be able to see the order in the dashboard and a payload in the https://webhook.site/ with the order details provided in the subscription query.
+After executing the mutation, you should be able to see the order in the dashboard and a payload in the https://webhook.site/ with the order details provided in the subscription query.
 
-            Note: [`orderCreateFromCheckout`](/api-reference/orders/mutations/order-create-from-checkout) mutation requires the App Token. To transform the checkout on behalf of the customer, use [`checkoutComplete`](/api-reference/checkout/mutations/checkout-complete) mutation.
-        </S.Details>
+Note: [`orderCreateFromCheckout`](/api-reference/orders/mutations/order-create-from-checkout) mutation requires the App Token. To transform the checkout on behalf of the customer, use [`checkoutComplete`](/api-reference/checkout/mutations/checkout-complete) mutation.
+</div>
 
-        <S.Code>
-            <Tabs>
-                <TabItem value="headers" label="Headers">
+<div>
+<Tabs>
+<Tab value="headers" title="Headers">
 
 ```json
 {
@@ -671,8 +213,8 @@ subscription {
 }
 ```
 
-                </TabItem>
-                <TabItem value="graphql" label="Mutation">
+</Tab>
+<Tab value="graphql" title="Mutation">
 
 ```graphql
 mutation {
@@ -695,8 +237,8 @@ mutation {
 }
 ```
 
-                </TabItem>
-                <TabItem value={"json"} label={"Result"}>
+</Tab>
+<Tab value={"json"} title={"Result"}>
 
 ```json
 {
@@ -724,22 +266,24 @@ mutation {
 }
 ```
 
-                </TabItem>
-            </Tabs>
-        </S.Code>
-    </S.Step>
+</Tab>
+</Tabs>
+</div>
+</Step>
 
-    <S.Step>
-        <S.Details>
-            ### Marking order as paid
+<Step title={"Marking order as paid"}>
+<div>
+<span id="marking-order-as-paid" />
 
-            We can mark the order as paid manually in the dashboard, but let's proceed via API, as the main feature of headless API is that we can automate anything via API.
+This operation requires `MANAGE_ORDERS`. Run it in the same authenticated client and replace the sample order ID with the ID returned by the previous operation.
 
-        </S.Details>
+We can mark the order as paid manually in the dashboard, but let's proceed via API, as the main feature of headless API is that we can automate anything via API.
 
-        <S.Code>
-            <Tabs>
-                <TabItem value="headers" label="Mutation">
+</div>
+
+<div>
+<Tabs>
+<Tab value="headers" title="Mutation">
 
 ```graphql
 mutation {
@@ -756,8 +300,8 @@ mutation {
 }
 ```
 
-                </TabItem>
-                <TabItem value="graphql" label="Result">
+</Tab>
+<Tab value="graphql" title="Result">
 
 ```graphql
 {
@@ -778,32 +322,32 @@ mutation {
 }
 ```
 
-                </TabItem>
+</Tab>
 
-            </Tabs>
-        </S.Code>
-    </S.Step>
+</Tabs>
+</div>
+</Step>
 
-</S>
+</Steps>
 
 ## Next steps
 
-<S.Column>
+<div>
 To learn more about Saleor APIs interactively, you can inspect GraphQL operations using the browser's native network inspector or [GraphQL inspector](https://github.com/warrenday/graphql-network-inspector) while using the dashboard.
 
-- Explore [GraphQL tools](/api-usage/developer-tools.mdx)
-- Learn more about [Saleor's GraphQL API](/api-usage/overview.mdx) usage.
+- Explore [GraphQL tools](/api-usage/developer-tools)
+- Learn more about [Saleor's GraphQL API](/api-usage/overview) usage.
 
-</S.Column>
+</div>
 
 ## Useful resources
 
 ### Postman
 
-<S.Column>
+<div>
   Official [postman](https://www.postman.com/saleor-official) profile of
   Saleor's QA team. You can **fork**
   [collections](https://www.postman.com/saleor-official?tab=collections) and
   [flows](https://www.postman.com/saleor-official?tab=flows) which are useful
   for testing and exploring Saleor APIs.
-</S.Column>
+</div>

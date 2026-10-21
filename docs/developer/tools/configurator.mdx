@@ -1,0 +1,66 @@
+---
+title: Saleor Configurator
+slug: developer/tools/configurator
+sidebar:
+  label: Configurator
+description: Manage Saleor configuration in version-controlled YAML and reuse configuration templates for common commerce scenarios.
+---
+
+[Saleor Configurator](https://github.com/saleor/configurator) is a command-line tool for managing store configuration in YAML. Use it to keep changes in Git, review them in pull requests, and repeat a setup across Saleor environments.
+
+## Get started
+
+You need Node.js 20 or later, a Saleor GraphQL endpoint, and an [app token](/api-usage/authentication#app-authentication) with permissions for the resources you manage. Choose a Configurator release that matches your Saleor major and minor version; see the repository's [compatibility guidance](https://github.com/saleor/configurator#compatibility).
+
+Launch the interactive setup:
+
+```shell
+npx @saleor/configurator start
+```
+
+## Manage configuration across environments
+
+When a setup spans many channels, warehouses, shipping zones, and product types, a configuration file gives your team a shared record of the intended setup. Start by exporting an existing instance, edit the file, then review the proposed changes before deploying.
+
+Set `SALEOR_URL` to your instance's GraphQL endpoint and `SALEOR_TOKEN` to your app token. Keep tokens out of version control.
+
+```shell
+# Export the current configuration to config.yml.
+npx @saleor/configurator introspect --url "$SALEOR_URL" --token "$SALEOR_TOKEN"
+
+# After editing config.yml, preview the changes.
+npx @saleor/configurator diff --url "$SALEOR_URL" --token "$SALEOR_TOKEN"
+
+# Apply the reviewed configuration to the instance.
+npx @saleor/configurator deploy --url "$SALEOR_URL" --token "$SALEOR_TOKEN"
+```
+
+Commit the configuration to Git and test changes against a development or staging instance before applying them to production. Review environment-specific values, such as warehouse addresses and channel settings, for each target. See the [configuration schema](https://github.com/saleor/configurator/blob/main/SCHEMA.md) for supported resources and fields, and the [CI/CD guide](https://github.com/saleor/configurator/blob/main/docs/ci-cd/README.md) for automation.
+
+## Start from a recipe
+
+Configurator provides templates that complement these guides:
+
+| Guide                                               | Configurator template | Configuration covered                             |
+| --------------------------------------------------- | --------------------- | ------------------------------------------------- |
+| [Multi-region](/recipes/multi-region)           | `multi-region`        | Regional channels, warehouses, and shipping zones |
+| [Digital products](/recipes/digital-products)   | `digital-products`    | Product types without shipping requirements       |
+| [Click and collect](/recipes/click-and-collect) | `click-and-collect`   | Pickup warehouses and a shipping zone             |
+| [Custom shipping](/recipes/custom-shipping)     | `custom-shipping`     | Shipping zones, methods, and rates                |
+
+Preview a template, then export it to adapt its example values:
+
+```shell
+npx @saleor/configurator recipe list
+npx @saleor/configurator recipe show multi-region
+npx @saleor/configurator recipe export multi-region --output my-store.yml
+```
+
+After editing `my-store.yml`, preview and deploy it using the same file for both commands:
+
+```shell
+npx @saleor/configurator diff --url "$SALEOR_URL" --token "$SALEOR_TOKEN" --config my-store.yml
+npx @saleor/configurator deploy --url "$SALEOR_URL" --token "$SALEOR_TOKEN" --config my-store.yml
+```
+
+For an existing store, incorporate the template into your store's configuration and review the diff. Templates provide configuration starting points; follow the linked guides for storefront behavior, asset delivery, and custom app logic. See the [Configurator recipe catalog](https://github.com/saleor/configurator/blob/main/recipes/README.md) for details.

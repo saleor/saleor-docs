@@ -1,5 +1,11 @@
 ---
 title: App Requirements
+slug: developer/extending/apps/architecture/app-requirements
+sidebar: {}
+seo:
+  title: App Requirements
+  description: 'To make an App installable in the Dashboard, you must provide:'
+lastModified: '2026-09-07'
 ---
 
 To make an App installable in the Dashboard, you must provide:
@@ -8,25 +14,26 @@ To make an App installable in the Dashboard, you must provide:
 - [Register URL](#register-url) - required only when the manifest defines `tokenTargetUrl`.
 
 :::info
-We recommend using [Saleor App Template](/developer/extending/apps/developing-apps/app-template.mdx) as a starting point for building your App. It provides all the necessary boilerplate needed to focus on your app's logic.
+We recommend using [Saleor App Template](/developer/extending/apps/developing-apps/app-template) as a starting point for building your App. It provides all the necessary boilerplate needed to focus on your app's logic.
+
 :::
 
 ## App Types
 
-- A **full App** has a backend in addition to any Dashboard UI. If the backend needs an AppToken for server-side API calls, define `tokenTargetUrl`, implement the Register URL, and store the token in an [Auth Persistence Layer (APL)](/developer/extending/apps/architecture/apl.mdx).
-- A **frontend-only App** consists of a manifest and a browser-based UI. It requires the Manifest URL, but does not require a backend, `tokenTargetUrl`, a Register URL, or an APL. It can make authenticated client-side API calls with the short-lived token provided by [App Bridge](/developer/extending/apps/developing-apps/app-sdk/app-bridge.mdx).
+- A **full App** has a backend in addition to any Dashboard UI. If the backend needs an AppToken for server-side API calls, define `tokenTargetUrl`, implement the Register URL, and store the token in an [Auth Persistence Layer (APL)](/developer/extending/apps/architecture/apl).
+- A **frontend-only App** consists of a manifest and a browser-based UI. It requires the Manifest URL, but does not require a backend, `tokenTargetUrl`, a Register URL, or an APL. It can make authenticated client-side API calls with the short-lived token provided by [App Bridge](/developer/extending/apps/developing-apps/app-sdk/app-bridge).
 
 ## Manifest URL
 
 - Method: `GET`
-- Response - `JSON` with a valid [App Manifest](/developer/extending/apps/architecture/manifest.mdx)
+- Response - `JSON` with a valid [App Manifest](/developer/extending/apps/architecture/manifest)
 - Suggested path: `/api/manifest`
 
 Saleor will call this endpoint to get your App metadata. It returns the App's name and description, as well as all the necessary information to register webhooks, permissions, and extensions.
 
 Dashboard and Saleor API will use this endpoint to retrieve information needed to install the App.
 
-To learn more about what Manifest consists of, please check the [Manifest docs](/developer/extending/apps/architecture/manifest.mdx) or explore its [type](https://github.com/saleor/saleor-app-sdk/blob/main/src/types.ts#L67).
+To learn more about what Manifest consists of, please check the [Manifest docs](/developer/extending/apps/architecture/manifest) or explore its [type](https://github.com/saleor/saleor-app-sdk/blob/main/src/types.ts#L67).
 
 If your App is built with [Next.js](https://nextjs.org/), you can use a [helper from @saleor/app-sdk](https://github.com/saleor/saleor-app-sdk/blob/main/docs/api-handlers.md#manifest-handler-factory) that creates a Manifest handler with minimal config.
 
@@ -36,16 +43,15 @@ If your App is built with [Next.js](https://nextjs.org/), you can use a [helper 
 - Response - status `200`
 - Suggested path - `/api/register`
 
-:::info
-This endpoint is only required when an App needs its own AppToken for server-side API calls. A frontend-only App can omit `tokenTargetUrl` and skip this endpoint.
+:::info[This endpoint is only required when an App needs its own AppToken for server-side API calls. A frontend-only App can omit `tokenTargetUrl` and skip this endpoint.]
 :::
 
 During the installation of an App, Saleor will call this endpoint if `tokenTargetUrl` is provided in the manifest.
 
 When calling the "register" endpoint, Saleor will add the `auth_token` param to the request body and domain header. The App's job is to save the token and use it to run API calls.
 
-While we suggest `/api/register` path, it can be configured in [Manifest](/developer/extending/apps/architecture/manifest.mdx) with the `tokenTargetUrl` field.
+While we suggest `/api/register` path, it can be configured in [Manifest](/developer/extending/apps/architecture/manifest) with the `tokenTargetUrl` field.
 
 You can write this endpoint on your own, but we recommend using a [helper](https://github.com/saleor/saleor-app-sdk/blob/main/docs/api-handlers.md#app-register-handler-factory) provided by `@saleor/app-sdk`.
 
-To use this helper, you must provide a valid [Auth Persistence Layer - APL](/developer/extending/apps/architecture/apl.mdx), that will handle storing token and domain pairs for your App.
+To use this helper, you must provide a valid [Auth Persistence Layer - APL](/developer/extending/apps/architecture/apl), that will handle storing token and domain pairs for your App.

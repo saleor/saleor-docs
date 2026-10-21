@@ -1,14 +1,17 @@
 ---
 title: Authentication and Authorization
-sidebar_label: Authentication
+slug: api-usage/authentication
+sidebar:
+  label: Authentication
+seo:
+  title: Authentication and Authorization
+  description: This document describes different ways in which clients can authenticate with the API.
+lastModified: '2026-08-14'
 ---
-
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
 
 This document describes different ways in which clients can authenticate with the API.
 
-:::info Authentication vs. authorization
+:::info[Authentication vs. authorization]
 Authentication is the process of verifying the identity of an actor. Authorization is the process of verifying what permissions the actor has to access a resource.
 :::
 
@@ -21,7 +24,7 @@ User tokens are short-lived and are used to access resources related to the user
 
 App tokens are long-lived and are used to access resources related to the app, such as products or orders.
 
-See [permissions](/developer/permissions.mdx) for more information on permissions.
+See [permissions](/developer/permissions) for more information on permissions.
 
 ## Choosing the Authentication Method
 
@@ -39,7 +42,7 @@ When integrating with Saleor, one of the first decisions is which authentication
 
   However, apps cannot install or manage other Apps. Those actions require a human user.
 
-- **Dashboard extension authentication**: Dashboard extensions receive a special dashboard extension JWT passed automatically via the [App SDK](/developer/extending/apps/developing-apps/app-sdk/overview.mdx).
+- **Dashboard extension authentication**: Dashboard extensions receive a special dashboard extension JWT passed automatically via the [App SDK](/developer/extending/apps/developing-apps/app-sdk/overview).
 
 ```mermaid
 flowchart TD
@@ -104,8 +107,7 @@ Then, you can use `getServerAuthClient().fetchWithAuth` for any queries and muta
 
 For a full working example, see the [Saleor Auth SDK example](https://github.com/saleor/examples/blob/main/example-auth-nextjs-apollo-urql/app/ssr/page.tsx).
 
-:::caution
-Make sure a new instance of auth client is created for each request.
+:::caution[Make sure a new instance of auth client is created for each request.]
 :::
 
 ### Next.js (Pages Router) with Apollo Client
@@ -242,15 +244,14 @@ Follow a complete [video tutorial](https://www.youtube.com/watch?v=t6nxBk7JHCw) 
 
 This is the most common way of authenticating users. It is used in the Saleor Storefront and Dashboard.
 
-:::caution
-If you are using a Single Sign-On provider, you will not be able to log in using email and password,
+:::caution[If you are using a Single Sign-On provider, you will not be able to log in using email and password,]
 as no password exists in the environment's database for SSO users.
 
 However, if your account was first created by Saleor or you set a password using the "forgot password" feature,
 both SSO and email/password logins may be available.
 :::
 
-To authenticate a user, you need to use the [`tokenCreate`](/api-reference/authentication/mutations/token-create.mdx) mutation. It takes an email and password as input and returns an **access token** that can be used to access resources related to the user and a **refresh token** that can be used to generate future access tokens.
+To authenticate a user, you need to use the [`tokenCreate`](/api-reference/authentication/mutations/token-create) mutation. It takes an email and password as input and returns an **access token** that can be used to access resources related to the user and a **refresh token** that can be used to generate future access tokens.
 
 ```graphql
 mutation {
@@ -323,19 +324,18 @@ A decoded token has the following structure:
 }
 ```
 
-:::info
-`csrf_token` field is deprecated and is not used in the current authentication flow.
+:::info[`csrf_token` field is deprecated and is not used in the current authentication flow.]
 :::
 
 #### Customer vs. staff tokens
 
-`tokenCreate` returns the same token shape for both customers and staff users. The decoded token includes an `is_staff` claim that reflects the role of the underlying [`User`](/developer/users/user-model.mdx), but **permissions themselves are not embedded in the token** — they are resolved server-side on each request from the user's permission groups and direct permissions.
+`tokenCreate` returns the same token shape for both customers and staff users. The decoded token includes an `is_staff` claim that reflects the role of the underlying [`User`](/developer/users/user-model), but **permissions themselves are not embedded in the token** — they are resolved server-side on each request from the user's permission groups and direct permissions.
 
 Treat `is_staff` as informational only. Do not use it on the client to make authorization decisions; rely on the response of the actual operation and on the [`me`](#fetching-information-about-the-currently-authenticated-user) query (which exposes `userPermissions` and `permissionGroups`) when you need to drive UI by role.
 
 #### Fetching information about the currently authenticated user
 
-You can use the [`me`](/api-reference/users/queries/me.mdx) query to retrieve information about the currently authenticated user:
+You can use the [`me`](/api-reference/users/queries/me) query to retrieve information about the currently authenticated user:
 
 ```graphql
 query {
@@ -352,6 +352,7 @@ This query will verify the token and return the current user's data or an error 
 
 :::tip
 When implementing a storefront, you should probably use the [`me`](#fetching-information-about-the-currently-authenticated-user) query instead.
+
 :::
 
 There are two ways to verify a token: by using the JWKS file or via a GraphQL mutation.
@@ -378,7 +379,7 @@ console.log(result);
 
 ##### Verifying tokens with a mutation
 
-You can verify tokens by calling the [`tokenVerify`](/api-reference/authentication/mutations/token-verify.mdx) mutation:
+You can verify tokens by calling the [`tokenVerify`](/api-reference/authentication/mutations/token-verify) mutation:
 
 ```graphql {2}
 mutation {
@@ -404,15 +405,14 @@ mutation {
 }
 ```
 
-:::caution
-Keep in mind that you should **not** add the `Authorization` header with an expired access token to this request. It will result in an error.
+:::caution[Keep in mind that you should **not** add the `Authorization` header with an expired access token to this request. It will result in an error.]
 :::
 
 In the future, `tokenRefresh` mutation will also generate a new refresh token and refresh tokens will be one-time use only.
 
 #### Deactivating all tokens of a particular user
 
-The [`tokensDeactivateAll`](/api-reference/authentication/mutations/tokens-deactivate-all.mdx) mutation will invalidate all tokens (access and refresh, including the token used to invoke the mutation) that belong to the invoking user.
+The [`tokensDeactivateAll`](/api-reference/authentication/mutations/tokens-deactivate-all) mutation will invalidate all tokens (access and refresh, including the token used to invoke the mutation) that belong to the invoking user.
 
 ```graphql
 mutation {
@@ -493,16 +493,15 @@ The `passwordLoginMode` setting on `Shop` supports three modes:
 | `CUSTOMERS_ONLY`    | Normal login | Staff can still log in, but they get no permissions | `tokenCreate` succeeds for staff, but the issued token resolves no staff permissions — operations requiring `MANAGE_*` permissions will fail as if the caller were a customer |
 | `DISABLED`          | Blocked      | Blocked                                             | `tokenCreate` and `tokenRefresh` return `DISABLED_AUTHENTICATION_METHOD`; password-related mutations are blocked                                                              |
 
-:::info
-`ENABLED` is the default. Existing deployments are unaffected unless explicitly changed.
+:::info[`ENABLED` is the default. Existing deployments are unaffected unless explicitly changed.]
 :::
 
 ### Configuring the Mode
 
-Use the [`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update.mdx) mutation to change the mode:
+Use the [`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update) mutation to change the mode:
 
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql
 mutation ShopSettingsUpdate($input: ShopSettingsInput!) {
   shopSettingsUpdate(input: $input) {
@@ -517,9 +516,9 @@ mutation ShopSettingsUpdate($input: ShopSettingsInput!) {
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value="Variables">
+<Tab value="Variables">
 ```json
 {
   "input": {
@@ -527,9 +526,9 @@ mutation ShopSettingsUpdate($input: ShopSettingsInput!) {
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value="Result">
+<Tab value="Result">
 ```json
 {
   "data": {
@@ -542,22 +541,21 @@ mutation ShopSettingsUpdate($input: ShopSettingsInput!) {
   }
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
-:::caution
-Password-authenticated admins **cannot** set the mode to `CUSTOMERS_ONLY` or `DISABLED`.
+:::caution[Password-authenticated admins **cannot** set the mode to `CUSTOMERS_ONLY` or `DISABLED`.]
 Only OIDC-authenticated admins can restrict password login.
 Attempting otherwise returns a `PASSWORD_AUTH_RESTRICTION` error.
 :::
 
 ### Affected Mutations
 
-- [`tokenCreate`](/api-reference/authentication/mutations/token-create.mdx) — returns an error when `DISABLED`; in `CUSTOMERS_ONLY`, staff can still log in, but the token has no staff permissions
-- [`tokenRefresh`](/api-reference/authentication/mutations/token-refresh.mdx) — returns an error when `DISABLED`; in `CUSTOMERS_ONLY`, staff can still log in, but the token has no staff permissions
-- [`passwordChange`](/api-reference/users/mutations/password-change.mdx) — blocked when `DISABLED`
-- [`setPassword`](/api-reference/users/mutations/set-password.mdx) — blocked when `DISABLED`
-- [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx) — blocked when `DISABLED`
+- [`tokenCreate`](/api-reference/authentication/mutations/token-create) — returns an error when `DISABLED`; in `CUSTOMERS_ONLY`, staff can still log in, but the token has no staff permissions
+- [`tokenRefresh`](/api-reference/authentication/mutations/token-refresh) — returns an error when `DISABLED`; in `CUSTOMERS_ONLY`, staff can still log in, but the token has no staff permissions
+- [`passwordChange`](/api-reference/users/mutations/password-change) — blocked when `DISABLED`
+- [`setPassword`](/api-reference/users/mutations/set-password) — blocked when `DISABLED`
+- [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset) — blocked when `DISABLED`
 
 ### Error Codes
 
@@ -600,14 +598,14 @@ Rejected requests are never executed. The response is:
 }
 ```
 
-A [batched request](/api-usage/usage-limits.mdx) is rejected as a whole: the response is a single 401 carrying one such error object per batch entry.
+A [batched request](/api-usage/usage-limits) is rejected as a whole: the response is a single 401 carrying one such error object per batch entry.
 
 ### Configuring the setting
 
-Use the [`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update.mdx) mutation. It requires the `MANAGE_SETTINGS` permission:
+Use the [`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update) mutation. It requires the `MANAGE_SETTINGS` permission:
 
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql
 mutation ShopSettingsUpdate($input: ShopSettingsInput!) {
   shopSettingsUpdate(input: $input) {
@@ -622,9 +620,9 @@ mutation ShopSettingsUpdate($input: ShopSettingsInput!) {
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value="Variables">
+<Tab value="Variables">
 ```json
 {
   "input": {
@@ -632,20 +630,19 @@ mutation ShopSettingsUpdate($input: ShopSettingsInput!) {
   }
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
 ### What else gets blocked
 
 The check runs before the GraphQL document is inspected, so it rejects **every** non-privileged request regardless of the operation. That includes:
 
-- **Authentication mutations** — [`tokenCreate`](/api-reference/authentication/mutations/token-create.mdx), [`tokenRefresh`](/api-reference/authentication/mutations/token-refresh.mdx), [`externalObtainAccessTokens`](/api-reference/authentication/mutations/external-obtain-access-tokens.mdx), [`setPassword`](/api-reference/users/mutations/set-password.mdx), [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset.mdx). A customer cannot log in at all, and therefore can never become privileged enough to pass the check.
+- **Authentication mutations** — [`tokenCreate`](/api-reference/authentication/mutations/token-create), [`tokenRefresh`](/api-reference/authentication/mutations/token-refresh), [`externalObtainAccessTokens`](/api-reference/authentication/mutations/external-obtain-access-tokens), [`setPassword`](/api-reference/users/mutations/set-password), [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset). A customer cannot log in at all, and therefore can never become privileged enough to pass the check.
 - **Introspection** — the schema is not readable without app or staff credentials. The [Playground](#authentication-with-playground) page still loads, but its introspection query fails until you set a staff or app token in the headers.
 
 This is by design: exempting operations would require classifying the document before the check and maintaining an allowlist. Do not enable this setting if you need public login or public introspection.
 
-:::warning
-This is an access-control switch, not a DoS protection. Requests are rejected only after the body has been parsed and validated, so blocked traffic still consumes worker resources. Use a WAF or a rate limiter in front of Saleor to shed hostile load.
+:::warning[This is an access-control switch, not a DoS protection. Requests are rejected only after the body has been parsed and validated, so blocked traffic still consumes worker resources. Use a WAF or a rate limiter in front of Saleor to shed hostile load.]
 :::
 
 ## User authentication using OpenID Connect
@@ -658,7 +655,7 @@ Saleor supports OIDC authentication in two modes:
 
 - **Saleor as an OIDC client**: the client uses Saleor as a proxy to the authorization server.
 
-To enable OIDC authentication, you must enable and configure the OpenID Connect plugin using the Saleor dashboard. See [OIDC Plugin docs](../developer/app-store/plugins/oidc).
+To enable OIDC authentication, you must enable and configure the OpenID Connect plugin using the Saleor dashboard. See [OIDC Plugin docs](/developer/app-store/plugins/oidc).
 
 ### OAuth scopes
 
@@ -673,7 +670,7 @@ The implicit flow requires the following scopes to operate:
 
 If **Use OAuth scope permissions** is enabled, any permissions granted to a user on the authentication provider side will be used as the effective permissions on the Saleor side.
 
-If the plugin is configured to manage user permissions, you need to create OAuth scopes corresponding to Saleor permissions on the identity provider side. The plugin will request lowercase scope names based on the [`PermissionEnum`](/api-reference/users/enums/permission-enum.mdx). For example, the `MANAGE_PRODUCTS` corresponds to the `saleor:manage_products` scope.
+If the plugin is configured to manage user permissions, you need to create OAuth scopes corresponding to Saleor permissions on the identity provider side. The plugin will request lowercase scope names based on the [`PermissionEnum`](/api-reference/users/enums/permission-enum). For example, the `MANAGE_PRODUCTS` corresponds to the `saleor:manage_products` scope.
 
 Saleor will look for supported permissions in the `scope` field of the access token. If the `scope` doesn't contain any Saleor permissions, Saleor will look for permissions in the token's `permissions` field.
 
@@ -701,10 +698,9 @@ sequenceDiagram
 
 ### Setup
 
-To use this flow, you need to configure the [OIDC plugin](../developer/app-store/plugins/oidc) providing values for **JSON Web Key Set URL**, **User info URL**.
+To use this flow, you need to configure the [OIDC plugin](/developer/app-store/plugins/oidc) providing values for **JSON Web Key Set URL**, **User info URL**.
 If you use OAuth permissions, you will also need to provide **Audience** value.
-:::info
-Audience claim is a string that identifies the intended recipient of the token. It is used to prevent token misuse across different services. When a service receives a JWT with an audience value that does not match the expected value, the token is rejected.
+:::info[Audience claim is a string that identifies the intended recipient of the token. It is used to prevent token misuse across different services. When a service receives a JWT with an audience value that does not match the expected value, the token is rejected.]
 
 Your Identity Provider (IdP) might provide a fixed audience value (typically the Client ID) or allow you to set a custom value. If configurable, a good practice is to set it to the public URL of the API or resource the token is intended for.
 :::
@@ -748,7 +744,7 @@ Authorization: Bearer <access-token>
 
 To authenticate the user, you will need to redirect them to the identity provider's login page.
 
-Start by calling the [`externalAuthenticationUrl`](/api-reference/authentication/mutations/external-authentication-url.mdx) mutation passing `"mirumee.authentication.openidconnect"` as the `pluginId` argument and include a `redirectUri` parameter in the `input` argument:
+Start by calling the [`externalAuthenticationUrl`](/api-reference/authentication/mutations/external-authentication-url) mutation passing `"mirumee.authentication.openidconnect"` as the `pluginId` argument and include a `redirectUri` parameter in the `input` argument:
 
 ```graphql
 mutation {
@@ -785,7 +781,7 @@ Next, redirect the user to the identity provider's login page. Once the user is 
 
 ### Obtaining an access token
 
-The [`externalObtainAccessTokens`](/api-reference/authentication/mutations/external-obtain-access-tokens.mdx) mutation will allow you to exchange the token returned by the identity provider for a Saleor access token.
+The [`externalObtainAccessTokens`](/api-reference/authentication/mutations/external-obtain-access-tokens) mutation will allow you to exchange the token returned by the identity provider for a Saleor access token.
 
 Once again, you will need to pass `"mirumee.authentication.openidconnect"` as the `pluginId` argument, this time including the `code` and `state` received in the query parameters:
 
@@ -814,7 +810,7 @@ mutation {
 
 ### Refreshing tokens
 
-The [`externalRefresh`](/api-reference/authentication/mutations/external-refresh.mdx) mutation will generate a new access token when given a valid refresh token.
+The [`externalRefresh`](/api-reference/authentication/mutations/external-refresh) mutation will generate a new access token when given a valid refresh token.
 
 As with the previous calls, you will need to pass `"mirumee.authentication.openidconnect"` as the `pluginId` argument, this time including the `refreshToken`:
 
@@ -839,7 +835,7 @@ mutation {
 
 ### Verifying tokens
 
-To verify the token, use the following [`externalVerify`](/api-reference/authentication/mutations/external-verify.mdx) mutation.
+To verify the token, use the following [`externalVerify`](/api-reference/authentication/mutations/external-verify) mutation.
 
 Once again, you will need to pass `"mirumee.authentication.openidconnect"` as the `pluginId` argument, this time including the `token`:
 
@@ -868,7 +864,7 @@ The `user` field will contain the user's details if the token is valid.
 
 Logging out requires the user to be redirected to the identity provider's logout page.
 
-You can prepare the logout URL by calling the [`externalLogout`](/api-reference/authentication/mutations/external-logout.mdx) mutation. Any parameters you pass in the `input` argument will be included in the logout URL.
+You can prepare the logout URL by calling the [`externalLogout`](/api-reference/authentication/mutations/external-logout) mutation. Any parameters you pass in the `input` argument will be included in the logout URL.
 
 ```graphql
 mutation ($input: JSONString!) {
@@ -910,8 +906,8 @@ Saleor Apps are a primary method for extending Saleor's core functionalities.
 
 Unlike regular users, Saleor Apps have long-living tokens they can use to communicate with the API.  
 These tokens are generated when an app is installed or created and must be stored securely.
-To obtain an auth token, you must either [install a third-party app](/developer/extending/apps/installing-apps.mdx)
-or [create a local app](/developer/extending/webhooks/creating.mdx#app-creation).
+To obtain an auth token, you must either [install a third-party app](/developer/extending/apps/installing-apps)
+or [create a local app](/developer/extending/webhooks/creating#app-creation).
 
 The authorization header for Apps is similar to the one used for users:
 
@@ -923,7 +919,7 @@ Authorization: Bearer <app-token>
 
 When calling graphQL, you may see `AUTHENTICATED_APP` error - if this happens, ensure you have attached valid token to the request header.
 
-Apart of the authentication, app must also authorize with valid [permissions](../developer/permissions#app-permissions), that are applied once app is created.
+Apart of the authentication, app must also authorize with valid [permissions](/developer/permissions#app-permissions), that are applied once app is created.
 
 ### Dashboard extensions
 
@@ -931,11 +927,11 @@ Saleor Apps extending the dashboard will be passed a special JSON Web Token (JWT
 
 You can also use this token to authenticate browser calls to your application's API by validating the token in your backend. See the user authentication section for more details on obtaining the necessary JWKS.
 
-See the [Saleor App SDK documentation](../developer/extending/apps/developing-apps/app-sdk/app-bridge#events) for more details on how to receive the token.
+See the [Saleor App SDK documentation](/developer/extending/apps/developing-apps/app-sdk/app-bridge#events) for more details on how to receive the token.
 
 ## Authentication with Playground
 
-If you are using [Playground](./developer-tools.mdx#playground) to access the API, you can authorize your requests by providing user or app token in the _HTTP HEADERS_ tab. To do that, paste the following JSON structure into the tab, replacing the token with your real token:
+If you are using [Playground](/api-usage/developer-tools#playground) to access the API, you can authorize your requests by providing user or app token in the _HTTP HEADERS_ tab. To do that, paste the following JSON structure into the tab, replacing the token with your real token:
 
 ```json
 {
@@ -943,6 +939,5 @@ If you are using [Playground](./developer-tools.mdx#playground) to access the AP
 }
 ```
 
-:::caution
-User tokens are short lived and need to be manually refreshed.
+:::caution[User tokens are short lived and need to be manually refreshed.]
 :::

@@ -1,0 +1,16 @@
+---
+import { localImageDimensions } from "./image-dimensions.mjs";
+
+const { src, width, height, ...attributes } = Astro.props;
+const intrinsic = await localImageDimensions(src);
+// Explicit author sizing wins. Infer the other dimension at the same ratio.
+const ratio = intrinsic.width && intrinsic.height ? intrinsic.width / intrinsic.height : undefined;
+const renderedWidth = width ?? (height && ratio ? Math.round(Number(height) * ratio) : intrinsic.width);
+const renderedHeight = height ?? (width && ratio ? Math.round(Number(width) / ratio) : intrinsic.height);
+---
+
+<img {...attributes} src={src} width={renderedWidth} height={renderedHeight} />
+
+<style>
+  img { max-width: 100%; height: auto; }
+</style>
