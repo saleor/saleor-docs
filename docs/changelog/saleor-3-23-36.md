@@ -3,6 +3,14 @@ title: Saleor 3.23.36
 description: 'Saleor 3.23.36: Feature: added idempotencyKey on transaction action requested webhooks'
 slug: changelog/saleor-3-23-36
 type: changelog
+hidden: true
+noindex: true
+search:
+  exclude: true
+ai:
+  exclude: true
+seo:
+  noindex: true
 date: '2026-09-24T09:06:43Z'
 changelog:
   version: 3.23.36

@@ -59,7 +59,7 @@ export default defineConfig({
       label: "Sign up",
       href: "https://cloud.saleor.io/signup?utm_button=Sign%20up&utm_page=docs",
     },
-    actions: [{ label: "Changelog", href: "/changelog" }],
+    actions: [],
     repo: false,
   },
   github: repositoryConfig(),
@@ -98,7 +98,7 @@ export default defineConfig({
     ? [googleTagManager({ id: process.env.GTM_CONTAINER_ID })]
     : [],
   seo: {
-    rss: { enabled: true, types: ["changelog"], limit: 50 },
+    rss: { enabled: false },
     og: {
       enabled: true,
       logo: "/img/logo-white.svg",

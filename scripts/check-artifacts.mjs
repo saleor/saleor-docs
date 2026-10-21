@@ -42,10 +42,8 @@ for (const name of ["saleor-app", "saleor-storefront", "saleor-core", "saleor-co
   assert.match(entries, /SKILL\.md/);
   assert.match(entries, /LICENSE/);
 }
-const rss = await readFile(`${out}/changelog/rss.xml`, "utf8");
-assert.match(rss, /<item>/);
-assert.match(rss, /Saleor 3\.23\.36/);
-await stat(`${out}/changelog/index.html`);
+assert(!Object.keys(routes).some(route => route.startsWith("/changelog")), "Hidden changelog leaked into public routes");
+assert.equal(await stat(`${out}/changelog/rss.xml`).then(() => true, () => false), false, "Hidden changelog still publishes RSS");
 const legacy = await readJson("schema/api-routes.json");
 for (const route of Object.values(legacy))
   assert(routes[route], `Missing legacy route ${route}`);

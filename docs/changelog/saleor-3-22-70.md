@@ -3,6 +3,14 @@ title: Saleor 3.22.70
 description: 'Saleor 3.22.70: Fix giftCardBulkCreate removing existing tags from previously created gift cards'
 slug: changelog/saleor-3-22-70
 type: changelog
+hidden: true
+noindex: true
+search:
+  exclude: true
+ai:
+  exclude: true
+seo:
+  noindex: true
 date: '2026-09-18T12:31:02Z'
 changelog:
   version: 3.22.70

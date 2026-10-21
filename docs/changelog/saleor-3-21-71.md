@@ -3,6 +3,14 @@ title: Saleor 3.21.71
 description: 'Saleor 3.21.71: Upgraded pyjwt to 2.15.0 to fix GHSA-x33g-cr3x-6449, GHSA-42vr-xj54-vc7v'
 slug: changelog/saleor-3-21-71
 type: changelog
+hidden: true
+noindex: true
+search:
+  exclude: true
+ai:
+  exclude: true
+seo:
+  noindex: true
 date: '2026-09-24T09:05:42Z'
 changelog:
   version: 3.21.71
