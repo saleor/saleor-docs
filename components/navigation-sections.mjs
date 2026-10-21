@@ -79,7 +79,7 @@ function sidebarItems(items, { api = false, depth = 0 } = {}) {
     if (item.customProps?.sidebar_is_backlink) continue;
     if (item.type === 'html') {
       if (item.value?.includes('<hr')) continue;
-      const heading = { label: item.value.replace(/<[^>]+>/g, ''), items: [] };
+      const heading = { label: item.value.replace(/<[^>]+>/g, '').replace(/[<>]/g, ''), items: [] };
       result.push(heading);
       target = heading.items;
     } else if (item.type === 'link') {

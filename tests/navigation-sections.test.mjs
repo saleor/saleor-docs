@@ -70,3 +70,21 @@ test('section sidebars retain every previously reachable internal destination', 
   assert.ok(!guides.includes('/developer/app-store/overview'));
   assert.ok(guides.includes('/developer/products/overview'));
 });
+
+test('malformed heading markup cannot leave HTML delimiters in labels', () => {
+  const input = structuredClone(navigation);
+  const visit = items => {
+    for (const item of items) {
+      if (item.type === 'html' && !item.value.includes('<hr')) item.value = '<scr<script>ipt>Example</script>';
+      if (item.items) visit(item.items);
+    }
+  };
+  Object.values(input.sidebars).forEach(visit);
+  const inspect = items => {
+    for (const item of items) {
+      assert(!/[<>]/.test(item.label));
+      if (item.items) inspect(item.items);
+    }
+  };
+  inspect(sidebarConfig(input));
+});
