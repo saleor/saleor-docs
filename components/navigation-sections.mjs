@@ -77,9 +77,8 @@ function sidebarItems(items, { api = false, depth = 0 } = {}) {
   let target = result;
   for (const item of items) {
     if (item.customProps?.sidebar_is_backlink) continue;
-    if (item.type === 'html') {
-      if (item.value?.includes('<hr')) continue;
-      const heading = { label: item.value.replace(/<[^>]+>/g, '').replace(/[<>]/g, ''), items: [] };
+    if (item.type === 'heading') {
+      const heading = { label: item.label, items: [] };
       result.push(heading);
       target = heading.items;
     } else if (item.type === 'link') {
