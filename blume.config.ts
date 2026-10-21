@@ -1,4 +1,5 @@
 import { sentrySourceMaps } from "./sentry-integration";
+import { mcpOrigin } from "./scripts/mcp-origin.mjs";
 import { defineConfig } from "blume";
 import { sectionTabs, sidebarConfig } from "./components/navigation-sections.mjs";
 import navigation from "./config/navigation.json";
@@ -12,7 +13,7 @@ import { resolveSiteUrls, documentationMcp } from "./scripts/site-config.mjs";
 const { canonical: site } = resolveSiteUrls();
 
 export default defineConfig({
-  integrations: [sentrySourceMaps()],
+  integrations: [sentrySourceMaps(), mcpOrigin()],
   title: "Saleor Commerce Documentation",
   description:
     "Build commerce your way with Saleor’s GraphQL API, developer guides, and recipes.",

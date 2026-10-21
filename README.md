@@ -38,7 +38,7 @@ The scheduled API update workflow proposes changes as pull requests. Schema prov
 
 ## Deployment
 
-Enable Vercel system environment variables. Canonical metadata and the sitemap use `VERCEL_PROJECT_PRODUCTION_URL`; preview connection URLs use `VERCEL_URL`. Local builds fall back to `http://localhost:4321`.
+Enable Vercel system environment variables. Canonical metadata and the sitemap use `VERCEL_PROJECT_PRODUCTION_URL`; preview connection URLs and links returned by MCP/the docs API use `VERCEL_URL`. Production MCP links use the production domain. Local builds fall back to `http://localhost:4321`.
 
 See `.env.example` for analytics and error-reporting configuration. Redirects belong in `config/redirects.json`; the build applies them after copied media routes so existing asset URLs continue working.
 
