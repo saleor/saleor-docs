@@ -1,3 +1,4 @@
+import { customizeSearch } from './customize-search.mjs';
 import { readFile } from 'node:fs/promises';
 import { includeStepHeadings } from '../components/step-headings.mjs';
 import path from 'node:path';
@@ -19,7 +20,7 @@ const ui = original.replace('---', '---\n// Generated from Blume 2.0.3 by script
   .replace('await import("blume:search-client")', 'await import("../search/client.mjs")');
 // Keep result context readable while grouping filters by reader intent.
 const scopedUi = ui.replace('${hit.title}${versionTag}</span>', '${hit.title}${versionTag}</span><span class="block mt-0.5 text-xs text-muted-foreground">${escapeHtml(hit.section ?? "")} · ${escapeHtml(hit.url.split("#")[0].split("/").filter(Boolean).slice(0, -1).join(" / "))}</span>');
-await write('components/Search.astro', scopedUi);
+await write('components/Search.astro', customizeSearch(scopedUi));
 const metadata = {};
 for (const file of (await walk('docs')).filter(f => /\.mdx?$/.test(f))) {
   const { data, content } = matter(await readFile(file, 'utf8'));
