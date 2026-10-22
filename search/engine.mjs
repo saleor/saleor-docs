@@ -29,12 +29,19 @@ export function createEngine(documents, metadata = {}) {
     const ranked = matches.map((match) => rankMatch(match, query));
     ranked.sort(compareRankedMatches);
 
+    const seenRoutes = new Set();
     const visible = ranked
       .filter(
         ({ record }) =>
           !options.section || record.document.section === options.section,
       )
-      .slice(0, RESULT_LIMIT);
+      .filter(({ record }) => {
+        if (!options.uniquePages) return true;
+        if (seenRoutes.has(record.document.route)) return false;
+        seenRoutes.add(record.document.route);
+        return true;
+      })
+      .slice(0, options.limit ?? RESULT_LIMIT);
 
     return {
       sections: countSections(ranked),
@@ -199,7 +206,12 @@ function matchesDocumentFilters(document, options) {
   const matchesVersion =
     options.version === undefined ||
     (document.version ?? '') === options.version;
-  return matchesLocale && matchesVersion;
+  const matchesType = !options.contentTypes?.length ||
+    options.contentTypes.includes(document.contentType);
+  const matchesFacets = Object.entries(options.facets ?? {}).every(
+    ([key, value]) => document.facets?.[key] === value,
+  );
+  return matchesLocale && matchesVersion && matchesType && matchesFacets;
 }
 
 function rankMatch({ record, termEdits }, query) {

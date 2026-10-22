@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createEngine } from '../search/engine.mjs';
+import { buildOramaIndex, queryOramaIndex } from '../search/mcp.mjs';
 const out = process.env.BLUME_BUILD_DIR ?? (process.env.BLUME_SERVER !== '0' ? '.vercel/output/static' : 'dist');
 const documents = JSON.parse(await readFile(`${out}/blume-search.json`, 'utf8'));
 const metadata = JSON.parse(await readFile(`${out}/saleor-search-metadata.json`, 'utf8'));
 const search = createEngine(documents, metadata);
+const mcpIndex = buildOramaIndex(documents);
 const tutorial = '/developer/extending/apps/building-payment-app';
 for (const [query, route, maxRank] of [
   ['how to build a payment app', tutorial, 1],
@@ -22,7 +24,10 @@ for (const [query, route, maxRank] of [
   const { hits } = await search(query);
   const rank = hits.findIndex(hit => hit.url.split('#')[0] === route) + 1;
   assert(rank > 0 && rank <= maxRank, `${query}: expected ${route} within top ${maxRank}, got ${rank || 'no result'}`);
-  console.log(`${query}: rank ${rank}`);
+  const mcpHits = await queryOramaIndex(mcpIndex, query, maxRank);
+  assert(mcpHits.some(hit => hit.route === route), `${query}: MCP must return ${route} within top ${maxRank}`);
+  assert.equal(new Set(mcpHits.map(hit => hit.route)).size, mcpHits.length, 'MCP returns unique pages');
+  console.log(`${query}: website rank ${rank}; MCP within top ${maxRank}`);
 }
 const gateways = await search('payment gateways');
 assert(gateways.hits.every(hit=>!hit.url.includes('/extending/plugins/')), 'Legacy plugins must not outrank current guidance');

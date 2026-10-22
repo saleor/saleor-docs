@@ -1,4 +1,5 @@
 import { sentrySourceMaps } from "./sentry-integration";
+import { mcpSearch } from "./scripts/mcp-search.mjs";
 import { mcpOrigin } from "./scripts/mcp-origin.mjs";
 import { defineConfig } from "blume";
 import { sectionTabs, sidebarConfig } from "./components/navigation-sections.mjs";
@@ -13,7 +14,7 @@ import { resolveSiteUrls, documentationMcp } from "./scripts/site-config.mjs";
 const { canonical: site } = resolveSiteUrls();
 
 export default defineConfig({
-  integrations: [sentrySourceMaps(), mcpOrigin()],
+  integrations: [sentrySourceMaps(), mcpOrigin(), mcpSearch()],
   title: "Saleor Commerce Documentation",
   description:
     "Build commerce your way with Saleor’s GraphQL API, developer guides, and recipes.",
@@ -67,7 +68,7 @@ export default defineConfig({
   lastModified: "frontmatter",
   search: {
     // Generates the static page index; Search layout uses search/client.mjs.
-    // Other Blume consumers retain this native provider.
+    // Hosted MCP/JSON API queries share search/engine.mjs through mcpSearch().
     provider: flexsearch(),
     indexing: { includeCodeBlocks: true },
     popular: [
