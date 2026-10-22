@@ -61,19 +61,37 @@ function openDiagram(diagram: HTMLElement, trigger: HTMLButtonElement) {
     svg.style.height = `${height * scale}px`;
     status.textContent = `${Math.round(scale * 100)}%`;
   };
-  const control = (label: string, action: () => void) => {
+  const fit = () => resize(Math.min(1,
+    (viewport.clientWidth - 32) / width,
+    (viewport.clientHeight - 32) / height));
+  const control = (label: string, path: string, action: () => void) => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = label;
+    button.setAttribute('aria-label', label);
+    button.title = label;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', '18');
+    svg.setAttribute('height', '18');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.75');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+    const shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    shape.setAttribute('d', path);
+    svg.append(shape);
+    button.append(svg);
     button.addEventListener('click', action);
     toolbar.append(button);
+    return button;
   };
-  control('Zoom out', () => resize(scale / 1.25));
+  control('Zoom out', 'M5 12h14', () => resize(scale / 1.25));
+  control('Zoom in', 'M5 12h14 M12 5v14', () => resize(scale * 1.25));
   toolbar.append(status);
-  control('Zoom in', () => resize(scale * 1.25));
-  control('Fit', () => resize(Math.min(1, (viewport.clientWidth - 32) / width)));
-  control('Actual size', () => resize(1));
-  control('Close', () => dialog.close());
+  control('Reset zoom to fit', 'M8 3H3v5 M16 3h5v5 M21 16v5h-5 M8 21H3v-5', fit);
+  control('Close diagram', 'M6 6l12 12 M18 6 6 18', () => dialog.close()).className = 'diagram-close';
   dialog.append(toolbar, viewport);
   document.body.append(dialog);
   const previousOverflow = document.body.style.overflow;
@@ -85,5 +103,5 @@ function openDiagram(diagram: HTMLElement, trigger: HTMLButtonElement) {
   }, { once: true });
   document.addEventListener('astro:before-swap', () => dialog.close(), { once: true });
   dialog.showModal();
-  resize(Math.min(1, (viewport.clientWidth - 32) / width));
+  fit();
 }
