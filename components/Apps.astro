@@ -2,26 +2,30 @@
 import { apps, appUrl } from './app-list';
 import Card from 'blume/components/content/Card.astro';
 import CardGroup from 'blume/components/content/CardGroup.astro';
+
+const logos = import.meta.glob<string>('../public/img/apps/*.svg', {
+  query: '?raw', import: 'default', eager: true,
+});
+const logo = (name: string) => logos[`../public/img/apps/${name}.svg`]
+  .replace('<svg ', `<svg data-app-logo="${name}" `);
 ---
 <div class="app-cards">
   <CardGroup cols={2}>
     {apps.map(([name, route, icon]) => (
-      <Card title={name} href={appUrl(route)} icon={'/img/apps/' + icon + '.svg'} arrow />
+      <Card title={name} href={appUrl(route)} icon={logo(icon)} arrow />
     ))}
   </CardGroup>
 </div>
 
 <style>
-  .app-cards :global(img[src*="/img/apps/"]) {
+  .app-cards :global(svg[data-app-logo]) {
     display: block;
+    flex-shrink: 0;
     width: 24px;
     height: 24px;
-    object-fit: contain;
-    object-position: left center;
   }
-  .app-cards :global(img[src$="/adyen.svg"]) {
+  .app-cards :global(svg[data-app-logo="adyen"]) {
     width: 48px;
     height: 24px;
-    object-fit: cover;
   }
 </style>
