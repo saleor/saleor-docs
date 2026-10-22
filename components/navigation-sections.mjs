@@ -112,6 +112,16 @@ const sectionIcons = {
 };
 const withSectionIcons = items => items.map(item => ({ ...item, icon: sectionIcons[item.label] }));
 
+// Long app trees use Blume's native drill-in panels. Keep the catalog heading
+// static so the initial view is a readable list of integrations, not a tree.
+function appSidebar(items, depth = 0) {
+  return items.map(item => item.items ? {
+    ...item,
+    display: depth === 0 && item.label === 'Available integrations' ? 'flat' : 'page',
+    items: appSidebar(item.items, depth + 1),
+  } : item);
+}
+
 export function sidebarConfig(navigation) {
   return [
     ...withSectionIcons(sidebarItems(sectionItems(navigation, '/'))),
@@ -120,7 +130,9 @@ export function sidebarConfig(navigation) {
       root: tab.href,
       items: tab.href === '/api-reference'
         ? sidebarItems(sectionItems(navigation, tab.href), { api: true })
-        : withSectionIcons(sidebarItems(sectionItems(navigation, tab.href))),
+        : withSectionIcons(tab.href === '/developer/app-store/overview'
+          ? appSidebar(sidebarItems(sectionItems(navigation, tab.href)))
+          : sidebarItems(sectionItems(navigation, tab.href))),
     })),
   ];
 }
