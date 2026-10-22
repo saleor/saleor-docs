@@ -128,7 +128,7 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
         aria-expanded="false"
         aria-label={s.label}
         autocomplete="off"
-        class="flex-1 border-0 bg-transparent text-foreground text-sm pointer-coarse:text-base focus:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+        class="min-w-0 flex-1 border-0 bg-transparent px-2 py-1.5 text-foreground text-sm pointer-coarse:text-base focus:outline-none [&::-webkit-search-cancel-button]:appearance-none"
         data-blume-search-input
         placeholder={s.placeholder}
         role="combobox"
@@ -238,6 +238,7 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
   />
 
   <script>
+    import { createSearchPreview } from "./search-preview";
     import { navigate } from "astro:transitions/client";
     import { chromeIcons as icons } from "../node_modules/blume/src/theme/chrome-icons.ts";
     import { mountBase } from "../node_modules/blume/src/components/islands/base-path.ts";
@@ -342,6 +343,8 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
       /** Monotonic id source for option rows (aria-activedescendant). */
       optionSeq = 0;
       previewOn = true;
+      previewRequest: AbortController | null = null;
+      previewPages = new Map<string, string>();
       devOnlyMsg = "Search is available in the production build.";
       noResultsMsg = "No results found.";
       errorMsg = "Something went wrong. Please try again.";
@@ -504,6 +507,7 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
       }
 
       disconnectedCallback() {
+        this.previewRequest?.abort();
         document.removeEventListener("keydown", this.#onDocumentKeydown);
         this.unlockPageScroll();
       }
@@ -911,10 +915,12 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
       }
 
       clearPreview() {
+        this.previewRequest?.abort();
         this.preview.replaceChildren();
       }
 
-      updatePreview() {
+      async updatePreview() {
+        this.previewRequest?.abort();
         if (!this.previewOn) {
           return;
         }
@@ -931,6 +937,37 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
         this.preview.innerHTML = `
           <h3 class="m-0 mb-3 font-medium text-foreground text-lg ${MARK}">${hit.title}</h3>
           <div class="text-muted-foreground text-sm leading-relaxed ${MARK}">${body}</div>`;
+        void this.loadFormattedPreview(hit);
+      }
+
+      async loadFormattedPreview(hit: SearchHit) {
+        const url = new URL(hit.url, window.location.href);
+        if (url.origin !== window.location.origin) return;
+        url.hash = '';
+        url.pathname = url.pathname === '/' ? '/index.md' : url.pathname.replace(/\/$/, '') + '.md';
+        const controller = new AbortController();
+        this.previewRequest = controller;
+        try {
+          let html = this.previewPages.get(url.href);
+          if (!html) {
+            const response = await fetch(url, { signal: controller.signal });
+            if (!response.ok || response.headers.get('content-type')?.includes('text/html')) return;
+            html = await response.text();
+            if (controller.signal.aborted) return;
+            if (this.previewPages.size >= 20) this.previewPages.delete(this.previewPages.keys().next().value!);
+            this.previewPages.set(url.href, html);
+          }
+          if (controller.signal.aborted) return;
+          const content = createSearchPreview(html, url.href);
+          if (!content) return;
+          const title = document.createElement('h3');
+          title.className = 'm-0 mb-3 font-medium text-foreground text-lg';
+          title.textContent = hit.title.replace(/<[^>]*>/g, '');
+          this.preview.replaceChildren(title, content);
+          this.preview.scrollTop = 0;
+        } catch {
+          // Keep the indexed excerpt if the page cannot be fetched.
+        }
       }
 
       togglePreview() {
