@@ -1,0 +1,958 @@
+---
+// Generated from Blume 2.0.3 by scripts/prepare-search.mjs; preserves its native UI.
+import data from "blume:data";
+
+import { EN_UI } from "../node_modules/blume/src/core/i18n-ui.ts";
+import type { UIStrings } from "../node_modules/blume/src/core/i18n-ui.ts";
+import type { Navigation } from "../node_modules/blume/src/core/types.ts";
+import { scopesVersions } from "../node_modules/blume/src/search/adapters/version-scope.ts";
+import { resolvePopularIconMarkup } from "../node_modules/blume/src/search/popular-icon.ts";
+import Icon from "../node_modules/blume/src/components/Icon.astro";
+import { withBase, withMountedBase } from "../node_modules/blume/src/components/islands/base-path.ts";
+import { flattenPages } from "../node_modules/blume/src/components/layout/nav-utils.ts";
+
+// The provider-specific loader is generated per project into `blume:search-client`
+// (an alias to `.blume/src/generated/search-client.ts`), so this component is
+// provider-agnostic: it lazy-imports that module on first open and uses the
+// `SearchFn` it returns. Only the configured provider's SDK is bundled.
+
+interface Props {
+  assistantEnabled?: boolean;
+  navigation?: Navigation;
+  /** Curated empty-state pages; falls back to the first sidebar pages when empty or omitted. */
+  popularPages?: { icon?: string; label: string; route: string }[];
+  strings?: UIStrings["search"];
+  /** Active locale to filter results to; omitted disables locale filtering. */
+  locale?: string;
+  /**
+   * Docs version to filter results to (`""` = the current docs — a meaningful
+   * value, so `null`/omitted is what disables version filtering). Ignored when
+   * the configured provider can't scope by version.
+   */
+  version?: string | null;
+}
+
+const {
+  assistantEnabled = false,
+  navigation,
+  popularPages,
+  strings,
+  locale,
+  version: viewedVersion = null,
+} = Astro.props;
+// Pagefind, Orama Cloud, and Mixedbread search every version whatever the
+// dialog asks, so on those an "All versions" toggle would change nothing:
+// treat the site as unversioned for search instead.
+const version = scopesVersions(data.config.search.provider)
+  ? viewedVersion
+  : null;
+// Merge over the English baseline per key (rather than `strings ?? …`) so a
+// partial — or empty `{}` — strings object still resolves every label to a
+// default, matching the pattern PageActions uses for its own dictionary.
+const s = { ...EN_UI.search, ...strings };
+
+// Resolve popular icons to markup here (icon set is server-only). Unknown
+// names fall through to the island's file glyph. Each entry's served href is
+// resolved here too: a configured entry is authored, so a base written by hand
+// is kept (`withBase`); the sidebar fallback links generated routes, which
+// always go under the base (`withMountedBase`).
+const popular =
+  popularPages && popularPages.length > 0
+    ? popularPages.map((page) => ({
+        href: withBase(page.route),
+        icon: resolvePopularIconMarkup(
+          page.icon,
+          import.meta.env.BASE_URL ?? "/"
+        ),
+        label: page.label,
+      }))
+    : navigation
+      ? flattenPages(navigation.sidebar)
+          .slice(0, 6)
+          .map((page) => ({
+            href: withMountedBase(page.route),
+            label: page.label,
+          }))
+      : [];
+
+const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
+---
+
+<blume-search
+  class="contents"
+  data-ask={assistantEnabled ? "" : undefined}
+  data-i18n-all={s.all}
+  data-i18n-ask={s.assistant}
+  data-i18n-ask-hint={s.assistantHint}
+  data-i18n-dev={s.devOnly}
+  data-i18n-empty={s.noResults}
+  data-i18n-error={s.error}
+  data-i18n-latest={s.latest}
+  data-i18n-popular={s.popular}
+  data-i18n-results={s.results}
+  data-locale={locale || undefined}
+  data-version={version ?? undefined}
+  data-versioned={version === null ? undefined : ""}
+>
+  {/* The label and shortcut hint wait until `lg`: below it the hamburger and
+      inline tab bar share the header row, and a full-width search field would
+      press into the language switcher. */}
+  <button
+    aria-label={s.button}
+    class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-border bg-background px-3 text-muted-foreground text-sm transition-colors hover:border-foreground hover:text-foreground lg:min-w-40"
+    data-blume-search-open
+    type="button"
+  >
+    <Icon name="search" size={16} />
+    <span class="flex-1 text-start max-lg:hidden">{s.button}</span>
+    {/* A key chord reads left to right in every locale ("⌘K", never "K⌘"). */}
+    <kbd
+      class="font-mono text-[0.7rem] max-lg:hidden"
+      data-blume-search-kbd
+      dir="ltr">⌘K</kbd
+    >
+  </button>
+
+  <dialog
+    aria-label={s.label}
+    class="mx-auto mt-[8vh] mb-auto h-[min(480px,90dvh)] w-[min(62.5rem,94vw)] flex-col overflow-hidden rounded-blume border border-border bg-background/80 p-0 text-foreground shadow-2xl outline-none backdrop-blur-xl backdrop:bg-black/30 open:flex sm:mt-auto"
+    data-blume-search-dialog
+  >
+    <div
+      class="flex items-center gap-2.5 border-border border-b px-4 py-3 text-muted-foreground"
+    >
+      <Icon name="search" size={18} />
+      <input
+        aria-autocomplete="list"
+        aria-controls="blume-search-listbox"
+        aria-expanded="false"
+        aria-label={s.label}
+        autocomplete="off"
+        class="flex-1 border-0 bg-transparent text-foreground text-sm pointer-coarse:text-base focus:outline-none [&::-webkit-search-cancel-button]:appearance-none"
+        data-blume-search-input
+        placeholder={s.placeholder}
+        role="combobox"
+        type="search"
+      />
+      <kbd class={`${kbd} text-[0.7rem]`}>Esc</kbd>
+    </div>
+    <div
+      class="grid min-h-0 flex-1 md:grid-cols-[22rem_minmax(0,1fr)]"
+      data-blume-search-grid
+    >
+      <div class="flex min-h-0 flex-col md:border-border md:border-e">
+        {/* The cap shows two full rows of pills plus most of a third as the
+            scroll cue: pills are 26px (PILL_BASE below: text-xs, py-1, 1px
+            border — change that string and this cap together) on a 32px pitch
+            (gap-1.5) below the row's py-2, so their tops sit at 8, 40 and 72
+            inside the 91px scrollport 5.75rem leaves after border-b — the
+            third row shows 19px of its pills, a recognizable cut rather than
+            a sliver of rounded caps. Pills never wrap (whitespace-nowrap), so
+            the arithmetic holds for long section labels; one wider than the
+            column is clipped rather than growing a horizontal bar. */}
+        <div
+          class="flex max-h-[5.75rem] flex-wrap gap-1.5 overflow-x-hidden overflow-y-auto overscroll-contain border-border border-b px-3 py-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
+          data-blume-search-filters
+          hidden
+        >
+        </div>
+        <div
+          aria-label={s.label}
+          class="min-h-0 flex-1 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent overflow-y-auto p-2"
+          data-blume-search-results
+          id="blume-search-listbox"
+          role="listbox"
+        >
+        </div>
+        <p
+          class="m-0 px-4 py-6 text-center text-muted-foreground text-sm"
+          data-blume-search-message
+          hidden
+        >
+        </p>
+      </div>
+      <div
+        class="hidden min-h-0 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent overflow-y-auto p-5 md:block"
+        data-blume-search-preview
+      >
+      </div>
+    </div>
+    <div
+      class="flex items-center justify-between gap-3 border-border border-t px-3 py-2 text-muted-foreground text-xs"
+    >
+      {
+        locale || version !== null ? (
+          <span class="flex items-center gap-3">
+            {locale && (
+              <label class="flex cursor-pointer select-none items-center gap-1.5">
+                <input
+                  class="size-3.5 accent-accent"
+                  data-blume-search-all-locales
+                  type="checkbox"
+                />
+                {s.allLanguages}
+              </label>
+            )}
+            {version !== null && (
+              <label class="flex cursor-pointer select-none items-center gap-1.5">
+                <input
+                  class="size-3.5 accent-accent"
+                  data-blume-search-all-versions
+                  type="checkbox"
+                />
+                {s.allVersions}
+              </label>
+            )}
+          </span>
+        ) : (
+          <span />
+        )
+      }
+      <div class="flex items-center gap-3">
+        <span class="flex items-center gap-1">
+          <kbd class={`${kbd} text-[0.65rem]`}>↑</kbd>
+          <kbd class={`${kbd} text-[0.65rem]`}>↓</kbd>
+          {s.navigate}
+        </span>
+        <span class="flex items-center gap-1">
+          <kbd class={`${kbd} text-[0.65rem]`}>↵</kbd>
+          {s.open}
+        </span>
+        <span class="flex items-center gap-1 max-md:hidden">
+          <kbd
+            class={`${kbd} text-[0.65rem]`}
+            data-blume-search-preview-kbd
+            dir="ltr">⌘J</kbd
+          >
+          {s.preview}
+        </span>
+      </div>
+    </div>
+  </dialog>
+
+  <script
+    data-blume-search-popular
+    is:inline
+    set:html={JSON.stringify(popular).replaceAll("<", "\\u003c")}
+    type="application/json"
+  />
+
+  <script>
+    import { navigate } from "astro:transitions/client";
+    import { chromeIcons as icons } from "../node_modules/blume/src/theme/chrome-icons.ts";
+    import { mountBase } from "../node_modules/blume/src/components/islands/base-path.ts";
+    import { escapeHtml } from "../search/engine.mjs";
+
+    import { highlight, matchSnippet } from "../node_modules/blume/src/components/layout/search/types.ts";
+    import type { SearchFn, SearchHit } from "../node_modules/blume/src/components/layout/search/types.ts";
+
+    interface Selectable {
+      el: HTMLElement;
+      hit?: SearchHit;
+      kind: "ask" | "link";
+      url?: string;
+    }
+
+    interface PopularPage {
+      /** The served URL, base included (resolved server-side). */
+      href: string;
+      /** Pre-resolved inline SVG from the server; absent falls back to `file`. */
+      icon?: string;
+      label: string;
+    }
+
+    const GRID_COLS = "md:grid-cols-[22rem_minmax(0,1fr)]";
+    const ROW_CLASS =
+      "flex w-full cursor-pointer items-start gap-2.5 rounded-blume border border-transparent px-2.5 py-2 text-start text-inherit transition-colors hover:no-underline";
+    // A transparent border sits on every row so selecting one only recolors it
+    // (to the theme border) — no 1px layout shift as the cursor moves.
+    const ROW_ON = ["bg-muted", "border-border"];
+    const ROW_OFF = ["border-transparent"];
+    const MARK =
+      "[&_mark]:rounded-sm [&_mark]:bg-accent/25 [&_mark]:text-inherit";
+    const PILL_BASE =
+      "inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 font-medium text-xs transition-colors";
+    const PILL_ON = "border-transparent bg-foreground text-background";
+    const PILL_OFF = "border-border text-muted-foreground hover:text-foreground";
+
+    const svg = (name: string, size = 16): string =>
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] ?? ""}</svg>`;
+
+    // localStorage access throws SecurityError when storage is blocked (Safari
+    // "Block All Cookies", some embedded webviews). These guards make blocked
+    // storage degrade to session-default preferences instead of throwing inside
+    // connectedCallback before the open/keyboard listeners are attached — which
+    // would leave search completely dead.
+    const readStorage = (key: string): string | null => {
+      try {
+        return localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    };
+    const writeStorage = (key: string, value: string): void => {
+      try {
+        localStorage.setItem(key, value);
+      } catch {
+        // Preference simply isn't remembered.
+      }
+    };
+
+    // The generated client and the index it fetches are the same on every
+    // page (locale and version filters apply per query), but each client-router
+    // swap rebuilds the header, and this element with it. Loading once in
+    // module scope — bundled modules survive swaps — keeps the first search
+    // after a navigation from refetching the index and rebuilding it. A failed
+    // load clears the cache, so the next open retries.
+    let searchClient: Promise<SearchFn> | undefined;
+    const loadSearchClient = (): Promise<SearchFn> => {
+      searchClient ??= (async () => {
+        try {
+          const { createSearch } = await import("../search/client.mjs");
+          return await createSearch();
+        } catch (error) {
+          searchClient = undefined;
+          throw error;
+        }
+      })();
+      return searchClient;
+    };
+
+    class BlumeSearch extends HTMLElement {
+      dialog!: HTMLDialogElement;
+      input!: HTMLInputElement;
+      grid!: HTMLElement;
+      filters!: HTMLElement;
+      results!: HTMLElement;
+      message!: HTMLElement;
+      preview!: HTMLElement;
+      searchFn: SearchFn | null = null;
+      loaded = false;
+      loadFailed = false;
+      /** First-open client/index load still in flight. */
+      loading = false;
+      assistantEnabled = false;
+      popular: PopularPage[] = [];
+      selectables: Selectable[] = [];
+      selectedIndex = -1;
+      activeSection: string | null = null;
+      /** The section pill for `activeSection` in the current filter row. */
+      activePill: HTMLElement | undefined;
+      renderGeneration = 0;
+      /** Monotonic id source for option rows (aria-activedescendant). */
+      optionSeq = 0;
+      previewOn = true;
+      devOnlyMsg = "Search is available in the production build.";
+      noResultsMsg = "No results found.";
+      errorMsg = "Something went wrong. Please try again.";
+      askMsg = "Assistant";
+      askHintMsg = "Get an instant answer from AI";
+      allMsg = "All";
+      popularMsg = "Popular";
+      resultsMsg = "Results";
+      latestMsg = "latest";
+      // The active locale to filter to (null when i18n is off), and whether the
+      // reader has opted to search across every language instead.
+      locale: string | null = null;
+      allLocales = false;
+      // The viewed docs version ("" = current; null when versioning is off),
+      // and the opt-in to search across every version.
+      versioned = false;
+      version = "";
+      allVersions = false;
+
+      // Document-level, so it outlives this element unless removed: each
+      // client-router swap rebuilds the header (and this element with it), and
+      // an orphaned copy would keep toggling a dialog that is no longer in the
+      // document. Held as a field so disconnectedCallback can detach it.
+      #onDocumentKeydown = (event: KeyboardEvent) => {
+        if (
+          (event.key === "k" || event.key === "K") &&
+          (event.metaKey || event.ctrlKey) &&
+          // Ctrl+Shift+K is Firefox's web console; a shifted or alted chord
+          // belongs to the browser, not the search dialog.
+          !event.shiftKey &&
+          !event.altKey
+        ) {
+          // ⌘K toggles, mirroring the assistant panel's ⌘I: pressing it with
+          // the dialog open must close it, not re-showModal an open dialog
+          // (an InvalidStateError on older engines).
+          event.preventDefault();
+          if (this.dialog.open) {
+            this.dialog.close();
+          } else {
+            this.open();
+          }
+        } else if (event.key === "/" && !this.isField(event.target)) {
+          // "/" stays open-only; the field guard keeps it inert while
+          // typing (including in the search input itself).
+          event.preventDefault();
+          this.open();
+        }
+      };
+
+      connectedCallback() {
+        this.devOnlyMsg =
+          this.getAttribute("data-i18n-dev") || this.devOnlyMsg;
+        this.noResultsMsg =
+          this.getAttribute("data-i18n-empty") || this.noResultsMsg;
+        this.errorMsg = this.getAttribute("data-i18n-error") || this.errorMsg;
+        this.askMsg = this.getAttribute("data-i18n-ask") || this.askMsg;
+        this.askHintMsg =
+          this.getAttribute("data-i18n-ask-hint") || this.askHintMsg;
+        this.allMsg = this.getAttribute("data-i18n-all") || this.allMsg;
+        this.popularMsg =
+          this.getAttribute("data-i18n-popular") || this.popularMsg;
+        this.resultsMsg =
+          this.getAttribute("data-i18n-results") || this.resultsMsg;
+        this.latestMsg =
+          this.getAttribute("data-i18n-latest") || this.latestMsg;
+        this.locale = this.getAttribute("data-locale");
+        // "" (the current docs) is a real version value, so a presence flag —
+        // not the attribute's truthiness — decides whether filtering is on.
+        this.versioned = this.hasAttribute("data-versioned");
+        this.version = this.getAttribute("data-version") ?? "";
+        this.dialog = this.querySelector("[data-blume-search-dialog]")!;
+        this.input = this.querySelector("[data-blume-search-input]")!;
+        this.grid = this.querySelector("[data-blume-search-grid]")!;
+        this.filters = this.querySelector("[data-blume-search-filters]")!;
+        this.results = this.querySelector("[data-blume-search-results]")!;
+        this.message = this.querySelector("[data-blume-search-message]")!;
+        this.preview = this.querySelector("[data-blume-search-preview]")!;
+        this.assistantEnabled = this.hasAttribute("data-ask");
+
+        const popularScript = this.querySelector(
+          "[data-blume-search-popular]"
+        );
+        try {
+          this.popular = JSON.parse(popularScript?.textContent || "[]");
+        } catch {
+          this.popular = [];
+        }
+
+        this.previewOn = readStorage("blume-search-preview") !== "0";
+        this.applyPreviewState();
+
+        // Per-language filtering: default to the active locale, with an opt-in
+        // toggle to search every language. The choice is remembered.
+        const allToggle = this.querySelector<HTMLInputElement>(
+          "[data-blume-search-all-locales]"
+        );
+        if (allToggle) {
+          this.allLocales = readStorage("blume-search-all-locales") === "1";
+          allToggle.checked = this.allLocales;
+          allToggle.addEventListener("change", () => {
+            this.allLocales = allToggle.checked;
+            writeStorage(
+              "blume-search-all-locales",
+              this.allLocales ? "1" : "0"
+            );
+            this.render();
+          });
+        }
+
+        // Per-version filtering mirrors the locale toggle: default to the
+        // viewed version, with a remembered opt-in to search every version.
+        const allVersionsToggle = this.querySelector<HTMLInputElement>(
+          "[data-blume-search-all-versions]"
+        );
+        if (allVersionsToggle) {
+          this.allVersions =
+            readStorage("blume-search-all-versions") === "1";
+          allVersionsToggle.checked = this.allVersions;
+          allVersionsToggle.addEventListener("change", () => {
+            this.allVersions = allVersionsToggle.checked;
+            writeStorage(
+              "blume-search-all-versions",
+              this.allVersions ? "1" : "0"
+            );
+            this.render();
+          });
+        }
+
+        // The handlers accept both ⌘ and Ctrl chords; show the right modifier
+        // per platform on the button hint and the footer's preview hint.
+        const isApple = /mac|iphone|ipad|ipod/iu.test(navigator.platform);
+        const hint = this.querySelector("[data-blume-search-kbd]");
+        if (hint) {
+          hint.textContent = isApple ? "⌘K" : "Ctrl K";
+        }
+        const previewHint = this.querySelector(
+          "[data-blume-search-preview-kbd]"
+        );
+        if (previewHint) {
+          previewHint.textContent = isApple ? "⌘J" : "Ctrl J";
+        }
+
+        this.querySelector("[data-blume-search-open]")?.addEventListener(
+          "click",
+          () => this.open()
+        );
+
+        document.addEventListener("keydown", this.#onDocumentKeydown);
+
+        this.input.addEventListener("input", () => this.render());
+        this.dialog.addEventListener("keydown", (event) =>
+          this.onKeydown(event)
+        );
+        this.dialog.addEventListener("close", () => this.unlockPageScroll());
+        this.dialog.addEventListener("click", (event) => {
+          if (event.target === this.dialog) {
+            this.dialog.close();
+          }
+        });
+      }
+
+      disconnectedCallback() {
+        document.removeEventListener("keydown", this.#onDocumentKeydown);
+        this.unlockPageScroll();
+      }
+
+      isField(target: EventTarget | null): boolean {
+        const el = target as HTMLElement | null;
+        return Boolean(
+          el &&
+            (el.tagName === "INPUT" ||
+              el.tagName === "TEXTAREA" ||
+              el.isContentEditable)
+        );
+      }
+
+      async open() {
+        // Re-entrant opens (e.g. the open button while already shown) must
+        // not call showModal on an open dialog.
+        if (this.dialog.open) {
+          return;
+        }
+        this.dialog.showModal();
+        this.lockPageScroll();
+        this.input.focus();
+        this.input.select();
+        if (!this.loaded) {
+          this.loading = true;
+          try {
+            this.searchFn = await loadSearchClient();
+            // Only latch on success — a transient failure (flaky network
+            // fetching the index) must retry on the next open, not disable
+            // search until a full page reload.
+            this.loaded = true;
+            this.loadFailed = false;
+          } catch {
+            this.searchFn = null;
+            // In dev a client can be missing by design (Pagefind's bundle
+            // only exists in the production build) — that's the "dev only"
+            // hint. The same failure in production is a real error.
+            this.loadFailed = !import.meta.env.DEV;
+          } finally {
+            this.loading = false;
+          }
+        }
+        this.render();
+      }
+
+      lockPageScroll() {
+        document.documentElement.setAttribute("data-blume-search-dialog-open", "");
+      }
+
+      unlockPageScroll() {
+        document.documentElement.removeAttribute("data-blume-search-dialog-open");
+      }
+
+      onKeydown(event: KeyboardEvent) {
+        if (event.key === "ArrowDown") {
+          event.preventDefault();
+          this.move(1);
+        } else if (event.key === "ArrowUp") {
+          event.preventDefault();
+          this.move(-1);
+        } else if (event.key === "Enter" && !event.isComposing) {
+          // `isComposing` guards IME input: Enter confirming a CJK conversion
+          // must commit the text, not activate the selected result.
+          const item = this.selectables[this.selectedIndex];
+          if (item) {
+            event.preventDefault();
+            this.activate(item);
+          }
+        } else if (
+          (event.key === "j" || event.key === "J") &&
+          (event.metaKey || event.ctrlKey)
+        ) {
+          event.preventDefault();
+          this.togglePreview();
+        }
+      }
+
+      setMessage(text: string) {
+        this.message.textContent = text;
+        this.message.hidden = !text;
+      }
+
+      async render() {
+        const query = this.input.value.trim();
+        this.renderGeneration += 1;
+        const generation = this.renderGeneration;
+        this.selectables = [];
+        this.selectedIndex = -1;
+        this.results.replaceChildren();
+        this.setMessage("");
+
+        if (!query) {
+          this.renderFilters([]);
+          this.renderEmpty();
+          this.finishRender();
+          return;
+        }
+
+        if (!this.searchFn) {
+          this.renderFilters([]);
+          this.clearPreview();
+          if (this.loading) {
+            // Typing while the first-open load (client import + index fetch)
+            // is still in flight: the dev-only hint would be wrong in
+            // production and the error message premature. Show a neutral
+            // placeholder; `open()` re-renders once the load settles.
+            this.setMessage("…");
+          } else {
+            this.setMessage(this.loadFailed ? this.errorMsg : this.devOnlyMsg);
+          }
+          return;
+        }
+
+        const localeFilter =
+          this.locale && !this.allLocales ? this.locale : undefined;
+        const versionFilter =
+          this.versioned && !this.allVersions ? this.version : undefined;
+        let result: Awaited<ReturnType<SearchFn>>;
+        try {
+          result = await this.searchFn(query, {
+            locale: localeFilter,
+            section: this.activeSection ?? undefined,
+            version: versionFilter,
+          });
+        } catch {
+          // A hosted provider can reject (network error, outage); the results
+          // list is already cleared, so show a message instead of a blank pane.
+          if (generation === this.renderGeneration) {
+            this.renderFilters([]);
+            this.clearPreview();
+            this.setMessage(this.errorMsg);
+          }
+          return;
+        }
+        // Any newer render — a keystroke, a section pill, a locale toggle —
+        // supersedes this one mid-await, even for the same query text;
+        // appending the stale hits would duplicate rows and desync selection.
+        if (generation !== this.renderGeneration) {
+          return;
+        }
+
+        // A section picked for an earlier query can be missing from the new
+        // pool — and when the pool has fewer than two sections the pills that
+        // would clear it are hidden too, so the stale filter would silently
+        // empty the results. Drop it and search again unfiltered.
+        if (
+          this.activeSection &&
+          !result.sections.some((s) => s.label === this.activeSection)
+        ) {
+          this.activeSection = null;
+          this.render();
+          return;
+        }
+
+        this.renderFilters(result.sections);
+
+        if (this.assistantEnabled) {
+          const group = this.addGroup(this.askMsg);
+          const ask = this.createAskRow(query);
+          group.appendChild(ask.el);
+          this.selectables.push(ask);
+        }
+
+        if (result.hits.length > 0) {
+          const group = this.addGroup(this.resultsMsg);
+          for (const hit of result.hits) {
+            const item = this.createHitRow(hit, query);
+            group.appendChild(item.el);
+            this.selectables.push(item);
+          }
+        } else if (!this.assistantEnabled) {
+          this.setMessage(this.noResultsMsg);
+        }
+
+        this.finishRender();
+      }
+
+      renderEmpty() {
+        if (this.assistantEnabled) {
+          const group = this.addGroup(this.askMsg);
+          const ask = this.createAskRow("");
+          group.appendChild(ask.el);
+          this.selectables.push(ask);
+        }
+        if (this.popular.length > 0) {
+          const group = this.addGroup(this.popularMsg);
+          for (const page of this.popular) {
+            const item = this.createLinkRow(page.href, page.label, page.icon);
+            group.appendChild(item.el);
+            this.selectables.push(item);
+          }
+        }
+      }
+
+      renderFilters(sections: { count: number; label: string }[]) {
+        this.activePill = undefined;
+        if (sections.length < 2) {
+          this.filters.hidden = true;
+          this.filters.replaceChildren();
+          return;
+        }
+        this.filters.hidden = false;
+        this.filters.replaceChildren();
+        const total = sections.reduce((sum, s) => sum + s.count, 0);
+        this.filters.appendChild(this.createPill(this.allMsg, total, null));
+        for (const section of sections) {
+          const pill = this.createPill(
+            section.label,
+            section.count,
+            section.label
+          );
+          this.filters.appendChild(pill);
+          if (section.label === this.activeSection) {
+            this.activePill = pill;
+          }
+        }
+      }
+
+      createPill(label: string, count: number, value: string | null) {
+        const button = document.createElement("button");
+        button.type = "button";
+        const active = this.activeSection === value;
+        // A filter chip is a toggle whose only visual state is color; the
+        // pressed state gives assistive tech the same information.
+        button.setAttribute("aria-pressed", String(active));
+        button.className = `${PILL_BASE} ${active ? PILL_ON : PILL_OFF}`;
+        button.innerHTML = `${escapeHtml(label)} <span class="opacity-60">${count}</span>`;
+        button.addEventListener("click", () => {
+          this.activeSection = value;
+          this.render();
+          this.input.focus();
+        });
+        return button;
+      }
+
+      addGroup(label: string): HTMLElement {
+        const header = document.createElement("p");
+        header.className =
+          "m-0 px-2.5 pt-3 pb-1 font-normal text-muted-foreground text-xs";
+        header.textContent = label;
+        // The listbox tree allows only group/option descendants: the group
+        // carries the label for assistive tech, the visual header is
+        // decoration.
+        header.setAttribute("aria-hidden", "true");
+        const container = document.createElement("div");
+        container.setAttribute("role", "group");
+        container.setAttribute("aria-label", label);
+        this.results.append(header, container);
+        return container;
+      }
+
+      createAskRow(query: string): Selectable {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = `${ROW_CLASS} ${MARK}`;
+        const title = query
+          ? `${escapeHtml(this.askMsg)}: <span class="text-muted-foreground">“${escapeHtml(query)}”</span>`
+          : escapeHtml(this.askMsg);
+        el.innerHTML = `
+          <span class="mt-0.5 shrink-0 text-accent">${svg("sparkles")}</span>
+          <span class="flex-1">
+            <span class="block truncate font-normal text-foreground text-sm">${title}</span>
+            <span class="block truncate text-muted-foreground text-sm">${escapeHtml(this.askHintMsg)}</span>
+          </span>`;
+        const item: Selectable = { el, kind: "ask" };
+        this.bindRow(item);
+        return item;
+      }
+
+      createHitRow(hit: SearchHit, query: string): Selectable {
+        const el = document.createElement("a");
+        // Index URLs are base-less logical routes; mount them under the
+        // deployment base so clicking a result lands on the page's real served
+        // URL, even when the route starts with the base's own name.
+        const href = mountBase(import.meta.env.BASE_URL, hit.url);
+        el.href = href;
+        el.className = `${ROW_CLASS} ${MARK}`;
+        // `line-clamp-2` already sets `display`, so no `block` here (it would
+        // override the clamp and let the excerpt run to full height).
+        const excerpt = hit.excerpt
+          ? `<span class="mt-0.5 line-clamp-2 text-muted-foreground text-xs">${hit.excerpt}</span>`
+          : "";
+        // A cross-version hit (all-versions search) names its version so the
+        // reader knows they're about to leave the docs they're viewing.
+        const versionTag =
+          this.versioned && hit.version !== undefined && hit.version !== this.version
+            ? `<span class="ms-2 inline-block rounded-full bg-muted px-1.5 py-0.5 align-middle text-[0.65rem] text-muted-foreground">${escapeHtml(hit.version || this.latestMsg)}</span>`
+            : "";
+        el.innerHTML = `
+          <span class="mt-0.5 shrink-0 text-muted-foreground">${svg("file")}</span>
+          <span class="flex-1">
+            <span class="block truncate font-normal text-foreground text-sm">${hit.title}${versionTag}</span><span class="block mt-0.5 text-xs text-muted-foreground">${escapeHtml(hit.section ?? "")} · ${escapeHtml(hit.url.split("#")[0].split("/").filter(Boolean).slice(0, -1).join(" / "))}</span>
+            ${excerpt}
+          </span>`;
+        const item: Selectable = { el, hit, kind: "link", url: href };
+        this.bindRow(item);
+        return item;
+      }
+
+      createLinkRow(href: string, label: string, icon?: string): Selectable {
+        const el = document.createElement("a");
+        el.href = href;
+        el.className = ROW_CLASS;
+        // `icon` is server-resolved markup (built-in Lucide, `<img>`, or
+        // config-authored inline SVG) — the label still goes through `escapeHtml`.
+        el.innerHTML = `
+          <span class="mt-0.5 shrink-0 text-muted-foreground">${icon ?? svg("file")}</span>
+          <span class="flex-1">
+            <span class="block truncate font-normal text-foreground text-sm">${escapeHtml(label)}</span>
+          </span>`;
+        const item: Selectable = { el, kind: "link", url: href };
+        this.bindRow(item);
+        return item;
+      }
+
+      bindRow(item: Selectable) {
+        // Options for the combobox pattern: selection is announced through
+        // aria-activedescendant on the input (focus never leaves it), so
+        // every row needs a stable id and an aria-selected to flip.
+        item.el.setAttribute("role", "option");
+        item.el.setAttribute("aria-selected", "false");
+        this.optionSeq += 1;
+        item.el.id = `blume-search-option-${this.optionSeq}`;
+        item.el.addEventListener("mouseenter", () => {
+          this.selectIndex(this.selectables.indexOf(item));
+        });
+        if (item.kind === "ask") {
+          item.el.addEventListener("click", (event) => {
+            event.preventDefault();
+            this.activate(item);
+          });
+        }
+      }
+
+      finishRender() {
+        this.input.setAttribute(
+          "aria-expanded",
+          String(this.selectables.length > 0)
+        );
+        if (this.selectables.length > 0) {
+          this.selectIndex(0);
+        } else {
+          this.input.removeAttribute("aria-activedescendant");
+          this.clearPreview();
+        }
+        // The filter row is height-capped and scrolls. Pills sit in the pool's
+        // first-seen order and sections drop out as the query narrows, so the
+        // active pill can move rows between renders — and the row's scrollTop
+        // survives replaceChildren — so without this the reader can be looking
+        // at filtered results with no highlighted pill in view. Only a section
+        // pill: with "All" selected every render (each keystroke, each resolved
+        // search) would otherwise snap a row the reader scrolled back to the
+        // top, moving the pill they were about to click. Issued here, after
+        // the results are in the DOM, so it shares one layout flush with
+        // selectIndex instead of forcing a second one mid-render.
+        this.activePill?.scrollIntoView({ block: "nearest" });
+      }
+
+      selectIndex(index: number) {
+        if (index < 0 || index >= this.selectables.length) {
+          return;
+        }
+        const current = this.selectables[this.selectedIndex];
+        if (current) {
+          current.el.classList.remove(...ROW_ON);
+          current.el.classList.add(...ROW_OFF);
+          current.el.setAttribute("aria-selected", "false");
+        }
+        this.selectedIndex = index;
+        const next = this.selectables[index];
+        next.el.classList.remove(...ROW_OFF);
+        next.el.classList.add(...ROW_ON);
+        next.el.setAttribute("aria-selected", "true");
+        // Focus stays on the input; the selection is surfaced to assistive
+        // tech through the active descendant.
+        this.input.setAttribute("aria-activedescendant", next.el.id);
+        next.el.scrollIntoView({ block: "nearest" });
+        this.updatePreview();
+      }
+
+      move(delta: number) {
+        if (this.selectables.length === 0) {
+          return;
+        }
+        const max = this.selectables.length - 1;
+        const next = Math.min(max, Math.max(0, this.selectedIndex + delta));
+        this.selectIndex(next);
+      }
+
+      activate(item: Selectable) {
+        if (item.kind === "ask") {
+          const query = this.input.value.trim();
+          this.dialog.close();
+          window.dispatchEvent(
+            new CustomEvent("blume:open-assistant", { detail: { query } })
+          );
+        } else if (item.url) {
+          // Close first so the dialog isn't left open over the transition;
+          // navigate() rides the client router (and falls back to a normal
+          // full load on pages without it).
+          this.dialog.close();
+          navigate(item.url);
+        }
+      }
+
+      clearPreview() {
+        this.preview.replaceChildren();
+      }
+
+      updatePreview() {
+        if (!this.previewOn) {
+          return;
+        }
+        const item = this.selectables[this.selectedIndex];
+        if (!item || item.kind !== "link" || !item.hit) {
+          this.clearPreview();
+          return;
+        }
+        const hit = item.hit;
+        const query = this.input.value.trim();
+        const body = hit.content
+          ? highlight(matchSnippet(hit.content, query, 600), query)
+          : (hit.excerpt ?? "");
+        this.preview.innerHTML = `
+          <h3 class="m-0 mb-3 font-medium text-foreground text-lg ${MARK}">${hit.title}</h3>
+          <div class="text-muted-foreground text-sm leading-relaxed ${MARK}">${body}</div>`;
+      }
+
+      togglePreview() {
+        this.previewOn = !this.previewOn;
+        writeStorage("blume-search-preview", this.previewOn ? "1" : "0");
+        this.applyPreviewState();
+        this.updatePreview();
+      }
+
+      applyPreviewState() {
+        if (this.previewOn) {
+          this.grid.classList.add(GRID_COLS);
+          this.preview.classList.add("md:block");
+        } else {
+          this.grid.classList.remove(GRID_COLS);
+          this.preview.classList.remove("md:block");
+        }
+      }
+    }
+
+    if (!customElements.get("blume-search")) {
+      customElements.define("blume-search", BlumeSearch);
+    }
+  </script>
+</blume-search>

@@ -1,0 +1,31 @@
+---
+import type { ComponentProps } from 'astro/types';
+import RootLayout from 'blume/components/layout/RootLayout.astro';
+import { sidebarForTabs, tabsForRoute } from './navigation-sections.mjs';
+type Props = ComponentProps<typeof RootLayout>;
+const props = Astro.props;
+const tabs = tabsForRoute(props.page.route);
+const navigation = {
+  ...props.navigation,
+  tabs,
+  sidebar: sidebarForTabs(props.navigation.sidebar, tabs),
+};
+---
+<RootLayout {...props} navigation={navigation}><slot /></RootLayout>
+
+<script>
+  import { installPageActionMenus } from './page-action-menus';
+  installPageActionMenus();
+</script>
+
+<style is:global>
+  /* Match the 6px icon gap used by expandable sidebar groups. */
+  .blume-nav-link > .flex { gap: 0.375rem; }
+
+  /* Keep the four section labels intact; tablet navigation uses the drawer. */
+  [data-blume-header] nav[aria-label="Sections"] a { white-space: nowrap; }
+  @media (max-width: 1023px) {
+    [data-blume-header] nav[aria-label="Sections"] { display: none; }
+    #blume-nav-drawer nav[aria-label="Sections"] { display: block; }
+  }
+</style>

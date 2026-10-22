@@ -1,89 +1,112 @@
 ---
-title: AI Integration
-sidebar_label: AI Integration
-description: Resources for AI agents and developers using AI tools with Saleor.
-tags: [AI, "Artificial Intelligence", MCP]
+title: Agents
+slug: developer/ai
+sidebar: {}
+seo:
+  title: Agents
+  description: Connect AI agents to Saleor documentation, install Saleor Agent Skills, and use the Documentation MCP and Saleor MCP.
+lastModified: '2026-09-25'
 ---
 
-# Using AI with Saleor
+Use these resources to give AI agents accurate, task-specific context about Saleor.
 
-Saleor provides resources to help AI agents and AI-assisted development tools work effectively with the platform.
+<span id="for-ai-agents" />
+<span id="url-patterns" />
+<span id="key-entry-points" />
+<span id="agent-readable-documentation" />
 
-:::note
-Saleor doesn't share any data to AI vendors.
+If you are an AI agent, start here: [`llms.txt`](/llms.txt).
+
+<CardGroup cols={2}>
+
+  <Card title="Documentation MCP" href="#documentation-mcp" arrow>
+Search and read Saleor documentation from an MCP-compatible agent.
+</Card>
+
+  <Card title="Agent Skills" href="#agent-skills" arrow>
+Add Saleor workflows and implementation guidance to your agent.
+</Card>
+
+  <Card title="Saleor MCP" href="#saleor-mcp" arrow>
+Give an MCP-compatible tool access to the Saleor GraphQL schema.
+</Card>
+
+</CardGroup>
+
+:::note[Saleor doesn't share any data with AI vendors.]
+These resources expose public documentation and schema information. Your choice of agent, model, and editor determines how that information is processed.
 :::
 
-## For AI Agents
+## Documentation MCP
 
-If you're an AI agent exploring Saleor documentation:
+The Documentation MCP is a read-only server for this documentation site. It lets agents:
 
-- **Documentation index**: https://docs.saleor.io/llms.txt — structured overview of all documentation
-- **GraphQL Schema** (latest stable): https://raw.githubusercontent.com/saleor/saleor/3.23/saleor/graphql/schema.graphql
-- **GraphQL Schema** (main, may contain unreleased and unstable changes): https://raw.githubusercontent.com/saleor/saleor/main/saleor/graphql/schema.graphql
-- **Base URL**: https://docs.saleor.io
+- search the documentation;
+- read a page as agent-optimized Markdown;
+- list available pages; and
+- inspect the documentation navigation.
 
-### URL Patterns
+Connect an MCP-compatible client to:
 
-Public documentation URLs follow this pattern:
-```
-https://docs.saleor.io/{path}
-```
+<SiteUrlCode path="/mcp" />
 
-Raw MDX source files are available at:
-```
-https://raw.githubusercontent.com/saleor/saleor-docs/main/docs/{path}.mdx
-```
+For clients that use JSON configuration:
 
-### Key Entry Points
+<SiteUrlCode path="/mcp" mcpConfig />
 
-| Topic | Public URL | Raw MDX |
-|-------|------------|---------|
-| Quickstart | https://docs.saleor.io/quickstart/cloud | [source](https://raw.githubusercontent.com/saleor/saleor-docs/main/docs/quickstart/cloud.mdx) |
-| Core Concepts | https://docs.saleor.io/developer | [source](https://raw.githubusercontent.com/saleor/saleor-docs/main/docs/developer/index.mdx) |
-| API Reference | https://docs.saleor.io/api-reference/api-reference | [source](https://raw.githubusercontent.com/saleor/saleor-docs/main/docs/api-reference/api-reference.mdx) |
-| Building Apps | https://docs.saleor.io/developer/extending/apps/overview | [source](https://raw.githubusercontent.com/saleor/saleor-docs/main/docs/developer/extending/apps/overview.mdx) |
-| Webhooks | https://docs.saleor.io/developer/extending/webhooks/overview | [source](https://raw.githubusercontent.com/saleor/saleor-docs/main/docs/developer/extending/webhooks/overview.mdx) |
+This endpoint searches and reads documentation. It does not connect to a Saleor instance or execute GraphQL operations.
 
-## Model Context Protocol (MCP)
+MCP discovery metadata is available at:
 
-To help AI agents properly interact with Saleor, you can use the Model Context Protocol, which can interact with Saleor by understanding the GraphQL schema.
+- [MCP discovery manifest](/.well-known/mcp.json)
+- [MCP server card](/.well-known/mcp/server-card.json)
 
-To configure your compatible IDE / editor to use the MCP, you can use the following configuration:
+## Agent Skills
+
+Saleor publishes five Agent Skills with focused implementation guidance:
+
+| Skill | Use it for |
+| --- | --- |
+| [`saleor-app`](/.well-known/agent-skills/saleor-app.txt) | Apps, registration, permissions, payments, and webhooks |
+| [`saleor-storefront`](/.well-known/agent-skills/saleor-storefront.txt) | Storefront API patterns, checkout, channels, and variants |
+| [`storefront-builder`](/.well-known/agent-skills/storefront-builder.txt) | Storefront data contracts and user experience |
+| [`saleor-configurator`](/.well-known/agent-skills/saleor-configurator.txt) | Store configuration as code |
+| [`saleor-core`](/.well-known/agent-skills/saleor-core.txt) | Saleor backend internals and implementation details |
+
+Compatible agents can discover the skills and their downloadable bundles at:
+
+<SiteUrlCode path="/.well-known/agent-skills/index.json" />
+
+<span id="model-context-protocol-mcp" />
+
+<span id="graphql-schema" />
+
+## Saleor MCP
+
+The Documentation MCP above answers questions from the Saleor documentation. To work with the Saleor GraphQL schema through MCP, run a GraphQL MCP server separately and point it at a downloaded Saleor schema.
+
+For example, with `mcp-graphql`:
 
 ```json
 {
   "mcpServers": {
-    "mcp-saleor": {
+    "saleor-api": {
       "command": "npx",
       "args": ["mcp-graphql"],
       "env": {
-        "SCHEMA": "/path/to/local/schema.graphql"
+        "SCHEMA": "/path/to/saleor.graphql"
       }
     }
   }
 }
 ```
 
-You can download the full Saleor GraphQL schema from the following URL: https://raw.githubusercontent.com/saleor/saleor/3.23/saleor/graphql/schema.graphql
+Download the schema from [the documentation](/schema/saleor.graphql) or from the Saleor repository. The `main` branch schema can contain unreleased changes, so prefer the schema matching your Saleor version.
 
-Note: The URL includes the specific Saleor version (3.23) in the path. To reference a different version, adjust the URL accordingly.
+<span id="editor-configuration" />
 
-### Editor Configuration
+Configuration locations vary by client:
 
-Example MCP configurations for popular editors:
-- VS Code: `.vscode/mcp.json` — [docs](https://code.visualstudio.com/docs/copilot/chat/mcp-servers)
-- Cursor: `.cursor/mcp.json` — [docs](https://docs.cursor.com/context/model-context-protocol#configuration-locations)
-- [JetBrains IDE](https://www.jetbrains.com/help/ai-assistant/configure-an-mcp-server.html)
-
-## GraphQL Schema
-
-The GraphQL schema is the source of truth for all API operations. It includes:
-
-- **Queries**: Read operations (products, orders, users, etc.)
-- **Mutations**: Write operations (create, update, delete)
-- **Subscriptions**: Real-time events via webhooks
-- **Types**: All data structures and their fields
-
-Schema URLs by version:
-- Latest stable (3.23): `https://raw.githubusercontent.com/saleor/saleor/3.23/saleor/graphql/schema.graphql`
-- Main (may contain unreleased and unstable changes): `https://raw.githubusercontent.com/saleor/saleor/main/saleor/graphql/schema.graphql`
+- VS Code: `.vscode/mcp.json` — [configuration guide](https://code.visualstudio.com/docs/copilot/chat/mcp-servers)
+- Cursor: `.cursor/mcp.json` — [configuration guide](https://docs.cursor.com/context/model-context-protocol#configuration-locations)
+- [JetBrains IDE configuration guide](https://www.jetbrains.com/help/ai-assistant/configure-an-mcp-server.html)

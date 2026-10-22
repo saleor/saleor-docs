@@ -1,6 +1,12 @@
 ---
 title: Lifecycle
-sidebar_label: Lifecycle
+slug: developer/payments/lifecycle
+sidebar:
+  label: Lifecycle
+seo:
+  title: Lifecycle
+  description: Payment status on Order
+lastModified: '2026-03-11'
 ---
 
 ## Payment status on Order 
@@ -36,13 +42,13 @@ stateDiagram-v2
  PARTIALLY_REFUNDED --> FULLY_REFUNDED
 ```
 
-[`Order.paymentStatus`](/api-reference/orders/objects/order.mdx#payment-status) represents the combined payment and refund status of the order. It's calculated based on:
+[`Order.paymentStatus`](/api-reference/orders/objects/order#payment-status) represents the combined payment and refund status of the order. It's calculated based on:
 
 - `order.total` value
 - status of the payments
 - refunds granted for the order
 
-When [no refunds](/developer/payments/refunds.mdx) are created, the status is one of the following:
+When [no refunds](/developer/payments/refunds) are created, the status is one of the following:
 
 - `PENDING`: waiting for the response from the payment gateway
 - `REFUSED`: payment refused by the payment gateway
@@ -56,8 +62,7 @@ Creating the refund will change the status to:
 - `PARTIALLY_REFUNDED`: the refunded amount does not cover the order total
 - `FULLY_REFUNDED`: refunded funds fully cover the order total
 
-:::note
-`Checkout` doesn't have `paymentStatus` field.
+:::note[`Checkout` doesn't have `paymentStatus` field.]
 :::
 
 ## Authorize status
@@ -77,15 +82,14 @@ stateDiagram-v2
 
 ### Authorization status calculation for Checkout
 
-[`Checkout.authorizeStatus`](/api-reference/checkout/objects/checkout.mdx#authorize-status) depends on:
+[`Checkout.authorizeStatus`](/api-reference/checkout/objects/checkout#authorize-status) depends on:
 - sum of charged transactions (`TransactionItem.chargedAmount`)
 - sum of transactions with pending charge (`TransactionItem.chargePendingAmount`)
 - sum of a authorized transactions (`TransactionItem.authorizedAmount`)
 - sum of transactions with pending authorization (`TransactionItem.authorizePendingAmount`)
 - `checkout.totalPrice` value
 
-:::tip
-Note that pending amounts are included in Checkout `authorizeStatus` calculation, but are not considered in Order `authorizeStatus` calculation.
+:::tip[Note that pending amounts are included in Checkout `authorizeStatus` calculation, but are not considered in Order `authorizeStatus` calculation.]
 :::
 
 In this context, authorization means that funds have been either authorized or charged (or a combination of partially charged and partially authorized).
@@ -109,8 +113,7 @@ Based on that calculation `Checkout.authorizeStatus` can have the following valu
 - **`PARTIAL`**: Some funds were authorized, but they do not cover required amount (`AmountToCover > CoveredAmount`)
 - **`FULL`**: The authorized funds fully cover the required amount. (`AmountToCover <= CoveredAmount`)
 
-:::caution
-Transaction that is pending will be confirmed later by the payment app (it will result in either success or failure).
+:::caution[Transaction that is pending will be confirmed later by the payment app (it will result in either success or failure).]
 
 This means user can create an Order that may remain unpaid if the pending amounts eventually fail.
 :::
@@ -122,15 +125,14 @@ This means user can create an Order that may remain unpaid if the pending amount
 
 ### Authorization status calculation for Order
 
-[`Order.authorizeStatus`](/api-reference/orders/objects/order.mdx#authorize-status) status depends on:
+[`Order.authorizeStatus`](/api-reference/orders/objects/order#authorize-status) status depends on:
 
 - sum of **charged** transactions (`TransactionItem.chargedAmount`)
 - sum of **authorized** transactions (`TransactionItem.authorizedAmount`)
 - `order.totalGrantedRefund` value
 - `order.total` value
 
-:::caution
-Unlike Checkout, this status does not take into consideration pending transactions.
+:::caution[Unlike Checkout, this status does not take into consideration pending transactions.]
 
 This means that after completing checkout, `authorizeStatus` might be set from `FULL` to `NONE`, if payments are pending.
 :::
@@ -141,7 +143,7 @@ Authorization in this context means that funds have been either fully or partial
 AuthorizationStatus = Charged + Authorized
 ```
 
-The status is calculated based on summing up all transactions assigned to the `Order` (`authorizedAmount` and `chargedAmount` on each `TransactionItem`) and by comparing it with the difference between [`total`](/api-reference/orders/objects/order.mdx#total) and [`totalGrantedRefund`](/api-reference/orders/objects/order.mdx#total-granted-refund).
+The status is calculated based on summing up all transactions assigned to the `Order` (`authorizedAmount` and `chargedAmount` on each `TransactionItem`) and by comparing it with the difference between [`total`](/api-reference/orders/objects/order#total) and [`totalGrantedRefund`](/api-reference/orders/objects/order#total-granted-refund).
 
 It uses a formula:
 ```
@@ -186,17 +188,16 @@ stateDiagram-v2
 
 ### Charge status calculations for Order
 
-[`Order.chargeStatus`](/api-reference/orders/objects/order.mdx#charge-status) depends on:
+[`Order.chargeStatus`](/api-reference/orders/objects/order#charge-status) depends on:
 
 - sum of **charged** transactions (`TransactionItem.chargedAmount`)
 - `order.totalGrantedRefund` value
 - `order.total` value
 
-:::caution
-Unlike Checkout, this status does not take into consideration pending transactions.
+:::caution[Unlike Checkout, this status does not take into consideration pending transactions.]
 :::
 
-The status is calculated by summing up all transactions assigned to the `Order` (`chargedAmount` on each `TransactionItem`) and by comparing it with the difference between [`total`](/api-reference/orders/objects/order.mdx#total) and [`totalGrantedRefund`](/api-reference/orders/objects/order.mdx#total-granted-refund).
+The status is calculated by summing up all transactions assigned to the `Order` (`chargedAmount` on each `TransactionItem`) and by comparing it with the difference between [`total`](/api-reference/orders/objects/order#total) and [`totalGrantedRefund`](/api-reference/orders/objects/order#total-granted-refund).
 
 It uses a formula:
 
@@ -221,7 +222,7 @@ Based on that calculation `Order.chargeStatus` can have following values:
 
 ### Charge status calculations for Checkout
 
-[`Checkout.chargeStatus`](/api-reference/checkout/objects/checkout.mdx#charge-status) depends on:
+[`Checkout.chargeStatus`](/api-reference/checkout/objects/checkout#charge-status) depends on:
 - sum of **charged** transactions (`TransactionItem.chargedAmount`)
 - sum of transactions with **pending charge** (`TransactionItem.chargePendingAmount`)
 - `checkout.totalPrice` value
@@ -248,8 +249,7 @@ to convert the checkout into an order.
 the `CHECKOUT_FULLY_PAID` webhook event is sent as well, and `checkoutComplete`
 can still be called to convert the checkout into an order.
 
-:::caution
-When the checkout `chargeStatus` is either `FULL` or `OVERCHARGED`, the `authorizeStatus`
+:::caution[When the checkout `chargeStatus` is either `FULL` or `OVERCHARGED`, the `authorizeStatus`]
 also changes to `FULL`, allowing the checkout to be completed.
 However, any pending amounts (whether successful or failed) will be confirmed later
 by the payment application. This means that even though the order is created,
@@ -288,13 +288,13 @@ Events are created automatically by Saleor when calling `transactionInitialize` 
 - `AUTHORIZATION_REQUEST` when `action` in mutation input or `channel.transactionFlowStrategy` is `AUTHORIZATION`
 - or `CHARGE_REQUEST` when `action` in mutation input or `channel.transactionFlowStrategy` is `CHARGE`
 
-Events are also created when requesting action in Saleor (refund, charge, cancel) via [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action.mdx) mutation.
+Events are also created when requesting action in Saleor (refund, charge, cancel) via [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action) mutation.
 
 Such events don't have initially any `pspReference`, it's filled in once Saleor receives a response from payment app.
 
 Saleor also creates automatically `_FAILURE` events when an exception happens:
 - when handling `transactionEventReport` mutation
-- when handling incorrect response from [sync webhook sent to payment app](/developer/extending/webhooks/synchronous-events/transaction.mdx) (e.g. app didn't respond in 20s, returned JSON is invalid, etc.)
+- when handling incorrect response from [sync webhook sent to payment app](/developer/extending/webhooks/synchronous-events/transaction) (e.g. app didn't respond in 20s, returned JSON is invalid, etc.)
 
 Such events don't have `pspReference` and include a `message` that explains the error.
 
@@ -302,18 +302,16 @@ Such events don't have `pspReference` and include a `message` that explains the 
 
 Events are also created by a payment app that processes the payment:
 
-- When payment app sends response to any of the [Transaction synchronous events](/developer/extending/webhooks/synchronous-events/transaction.mdx)
+- When payment app sends response to any of the [Transaction synchronous events](/developer/extending/webhooks/synchronous-events/transaction)
 
-:::info
-Instead of creating new event, Saleor will update existing event's missing `pspReference` field when:
+:::info[Instead of creating new event, Saleor will update existing event's missing `pspReference` field when:]
 - Event without `pspReference` already exists, because it was automatically created by Saleor after calling `transactionInitialize` or `transactionProcess` mutation
 - Response from `TRANSACTION_INITIALIZE_SESSION` or `TRANSACTION_PROCESS_SESSION` has the same `type` as that initial event
 
 When updating event `createdAt` field won't be changed.
 :::
 
-:::note
-It can look like this:
+:::note[It can look like this:]
 1. User requests payment by calling `transactionInitialize` mutation - Saleor immediately created new `CHARGE_REQUESTED` event
 2. App sends response from `TRANSACTION_INITIALIZE_SESSION` webhook with `type`: `CHARGE_ACTION_REQUIRED`
 3. User completes the action and calls `transactionProcess`
@@ -324,18 +322,18 @@ Note that this will result in events order as follows:
 1. `CHARGE_REQUESTED` with updated `pspReference` (updated events don't get their `createdAt` field modified)
 2. `CHARGE_ACTION_REQUIRED`
 :::
-- When [`transactionEventReport` mutation is called](/developer/payments/transactions.mdx#reporting-actions-for-transactions) (usually happens when payment provider sends asynchronous webhook)
+- When [`transactionEventReport` mutation is called](/developer/payments/transactions#reporting-actions-for-transactions) (usually happens when payment provider sends asynchronous webhook)
 
 :::tip
 Events can be de-duplicated, when that happens new one won't be created. Read more in [Event deduplication section](#events-deduplication).
+
 :::
 
 ### Rules of calculating amounts
 
 Each event impacts different amount on `TransactionItem`:
 
-:::caution
-Each event can be excluded from calculation if it has matching `*_FAILURE` event with the same `pspReference` and newer `time` than the `*_REQUEST` / `*_SUCCESS` event.
+:::caution[Each event can be excluded from calculation if it has matching `*_FAILURE` event with the same `pspReference` and newer `time` than the `*_REQUEST` / `*_SUCCESS` event.]
 :::
 
 - `authorizedAmount` - `AUTHORIZATION_SUCCESS` event amount
@@ -353,13 +351,12 @@ Each event can be excluded from calculation if it has matching `*_FAILURE` event
 - `cancelPendingAmount` - sum of `CANCEL_REQUEST` event amounts
 
 
-:::note
-`AUTHORIZATION_ACTION_REQUIRED`, `CHARGE_ACTION_REQUIRED`, and `INFO` event types are not included in amount calculations.
+:::note[`AUTHORIZATION_ACTION_REQUIRED`, `CHARGE_ACTION_REQUIRED`, and `INFO` event types are not included in amount calculations.]
 :::
 
 To learn more about each event type, see [Transaction event types](#transaction-event-types) section.
 
-To learn more about amount calculations see [Price calculations](/developer/payments/price-calculations.mdx) page.
+To learn more about amount calculations see [Price calculations](/developer/payments/price-calculations) page.
 
 #### Events deduplication
 
@@ -367,13 +364,12 @@ Each event in `TransactionItem` is identified by `pspReference`. This field is u
 
 For example if Saleor receives two `CHARGE_SUCCESS` events for a single `TransactionItem` with the same `pspReference` and `amount` there will be only one event stored on the Transaction. Second event will be treated as "already reported" and it won't be stored by Saleor.
 
-:::caution
-If the `CHARGE_SUCCESS` event has different `amount` Saleor **will throw an error**.
+:::caution[If the `CHARGE_SUCCESS` event has different `amount` Saleor **will throw an error**.]
 :::
 
 When reporting such events in `transactionEventReport` mutation it returns event that already exists and a flag `alreadyReported: true`.
 
-You can learn more about this mutation and event deduplication in [Reporting actions for transactions](/developer/payments/transactions.mdx#reporting-actions-for-transactions) docs.
+You can learn more about this mutation and event deduplication in [Reporting actions for transactions](/developer/payments/transactions#reporting-actions-for-transactions) docs.
 
 ### State machine
 
@@ -390,25 +386,21 @@ With that in mind, Saleor prohibits following changes, that would otherwise caus
 - Multiple `AUTHORIZATION_SUCCESS` events with different either `pspReference` or `amount`
   - Saleor will throw an exception: "Event with `AUTHORIZATION_SUCCESS` already reported for the transaction. Use `AUTHORIZATION_ADJUSTMENT` to change the authorization amount."
 
-:::note
-**Example**: `AUTHORIZATION_SUCCESS` event with `pspReference: psp1` and `amount: 10 USD`, then report `AUTHORIZATION_SUCCESS` event with `pspReference: psp2` and `amount: 10 USD`
+:::note[**Example**: `AUTHORIZATION_SUCCESS` event with `pspReference: psp1` and `amount: 10 USD`, then report `AUTHORIZATION_SUCCESS` event with `pspReference: psp2` and `amount: 10 USD`]
 :::
 
-:::tip
-**Fix**: In order to change `authorizedAmount` value on existing `TransactionItem`, payment app should send `AUTHORIZATION_ADJUSTMENT` event.
+:::tip[**Fix**: In order to change `authorizedAmount` value on existing `TransactionItem`, payment app should send `AUTHORIZATION_ADJUSTMENT` event.]
 
-If there was a new payment made (e.g. outside of Saleor flow), instead of reporting multiple `AUTHORIZATION_SUCCESS` events which would be rejected by Saleor, create new `TransactionItem` by calling [`transactionCreate`](/api-reference/payments/mutations/transaction-create.mdx) mutation.
+If there was a new payment made (e.g. outside of Saleor flow), instead of reporting multiple `AUTHORIZATION_SUCCESS` events which would be rejected by Saleor, create new `TransactionItem` by calling [`transactionCreate`](/api-reference/payments/mutations/transaction-create) mutation.
 :::
 
 - Reporting the same event based on `type` and `pspReference` with different `amount`
   - Saleor will throw an exception: "The transaction with provided `pspReference` and `type` already exists with different amount."
 
-:::note
-**Example**: `REFUND_SUCCESS` with `pspReference: psp1` and `amount: 10 USD`, then report `REFUND_SUCCESS` with `pspReference: psp1` and `amount: 21 USD`
+:::note[**Example**: `REFUND_SUCCESS` with `pspReference: psp1` and `amount: 10 USD`, then report `REFUND_SUCCESS` with `pspReference: psp1` and `amount: 21 USD`]
 :::
 
-:::tip
-**Fix**: Previous event must be invalidated via `_FAILURE` event, then report `_SUCCESS` event again, new `_SUCCESS` event must have **different pspReference**.
+:::tip[**Fix**: Previous event must be invalidated via `_FAILURE` event, then report `_SUCCESS` event again, new `_SUCCESS` event must have **different pspReference**.]
 :::
 
 
@@ -527,9 +519,7 @@ will be reduced by the amount reported in the `AUTHORIZATION_SUCCESS` event.
 You can’t have two successful authorizations for a single transaction.
 Each successful request after the first one will raise an exception. `AUTHORIZATION_ADJUSTMENT` should be used to change the `transaction.authorizedAmount`.
 
-:::info
-
-In the case of finding `AUTHORIZATION_SUCCESS` and `AUTHORIZATION_FAILURE` with the same `pspReference`,
+:::info[In the case of finding `AUTHORIZATION_SUCCESS` and `AUTHORIZATION_FAILURE` with the same `pspReference`,]
 the recalculation for `transaction.authorizedAmount` will not take into account the amount from
 `AUTHORIZATION_SUCCESS`, when `AUTHORIZATION_SUCCESS` is the older one.
 
@@ -559,8 +549,7 @@ Adds the provided `amount` to the `transaction.chargedAmount`. Each next call wi
 `transaction.chargedAmount` (`transaction.chargedAmount += amount`). If a `CHARGE_SUCCESS` event is related to a `CHARGE_REQUEST` event by `pspReference`, then the `transactionItem.chargePendingAmount`
 will be reduced by the amount reported in the `CHARGE_SUCCESS` event. If there is no related `CHARGE_REQUEST` event, the provided `amount` will reduce `transaction.authorizedAmount`.
 
-:::info
-In the case of finding `CHARGE_SUCCESS` and `CHARGE_FAILURE` with the same `pspReference`, the recalculation
+:::info[In the case of finding `CHARGE_SUCCESS` and `CHARGE_FAILURE` with the same `pspReference`, the recalculation]
 for `transaction.chargedAmount` will not take into account the amount from `CHARGE_SUCCESS`, when
 `CHARGE_SUCCESS` is the older one.
 :::
@@ -585,8 +574,7 @@ Multiple events of this type might be present.
 
 ### Refund events
 
-:::warning
-Refund events should only be triggered if the transaction has been previously charged.
+:::warning[Refund events should only be triggered if the transaction has been previously charged.]
 Triggering a refund for uncharged transactions can lead to negative `chargedAmount`.
 Refund events modify both the `refundedAmount` and `chargedAmount` values, so if the transaction wasn’t charged beforehand, it may result in data inconsistencies.
 :::
@@ -599,8 +587,7 @@ Adds provided `amount` to `transaction.refundedAmount` and removes it from `tran
 If a `REFUND_SUCCESS` event is related to a `REFUND_REQUEST` event by `pspReference`, then the `transactionItem.refundPendingAmount`
 will be reduced by the amount reported in the `REFUND_SUCCESS` event. If there is no related `REFUND_REQUEST` event, the provided `amount` will reduce `transaction.chargedAmount`.
 
-:::info
-In the case of finding `REFUND_SUCCESS` and `REFUND_FAILURE` with the same `pspReference`, the recalculation
+:::info[In the case of finding `REFUND_SUCCESS` and `REFUND_FAILURE` with the same `pspReference`, the recalculation]
 for `transaction.refundedAmount` will not take into account the amount from `REFUND_SUCCESS`, when
 `REFUND_SUCCESS` is the older one.
 :::
@@ -618,8 +605,7 @@ The provided `amount` will increase `transaction.chargedAmount`.
 
 ### Cancel events
 
-:::warning
-Cancel events should only be triggered if the transaction has been previously authorized.
+:::warning[Cancel events should only be triggered if the transaction has been previously authorized.]
 Triggering a cancel for transactions that didn't have any `authorizedAmount` can lead to negative `authorizedAmount`.
 Cancel events modify both the `canceledAmount` and `authorizedAmount` values, so if the transaction wasn’t authorized beforehand, it may result in data inconsistencies.
 :::
@@ -630,8 +616,7 @@ The provided `amount` will be added to `transaction.canceledAmount`
 (`transaction.canceledAmount += amount`). If a `CANCEL_SUCCESS` event is related to a `CANCEL_REQUEST` event by `pspReference`, then the `transactionItem.cancelPendingAmount`
 will be reduced by the amount reported in the `CANCEL_SUCCESS` event. If there is no related `CANCEL_REQUEST` event, the provided `amount` will reduce `transaction.authorizedAmount`.
 
-:::info
-In the case of finding `CANCEL_SUCCESS` and `CANCEL_FAILURE` with the same `pspReference`, the recalculation
+:::info[In the case of finding `CANCEL_SUCCESS` and `CANCEL_FAILURE` with the same `pspReference`, the recalculation]
 for `transaction.canceledAmount` will not take into account the amount from `CANCEL_SUCCESS`, when
 `CANCEL_SUCCESS` is the older one.
 :::

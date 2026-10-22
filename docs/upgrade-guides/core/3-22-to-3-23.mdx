@@ -1,16 +1,21 @@
 ---
 title: Upgrading From 3.22 To 3.23
-sidebar_position: 2
+slug: upgrade-guides/core/3-22-to-3-23
+sidebar:
+  order: 3
+seo:
+  title: Upgrading From 3.22 To 3.23
+  description: To follow a zero-downtime upgrade strategy to 3.23, we recommend first migrating to the latest 3.22.x release and enabling the Celery worker to process all data migrations asynchronously.
+lastModified: '2026-10-19'
 ---
 
-:::info
-To follow a zero-downtime upgrade strategy to 3.23, **we recommend first migrating to the latest 3.22.x release** and enabling the Celery worker to process all data migrations asynchronously.
+:::info[To follow a zero-downtime upgrade strategy to 3.23, **we recommend first migrating to the latest 3.22.x release** and enabling the Celery worker to process all data migrations asynchronously.]
 Otherwise, you will need to schedule downtime to ensure data migrations complete correctly.
 :::
 
 ## Customer email on Saleor Cloud
 
-On Saleor Cloud, [Customer Emails](/developer/app-store/apps/customer-emails/overview.mdx) is the app for customer transactional mail from 3.23. It cannot be installed on 3.22 — stay on the [SMTP app](/developer/app-store/apps/smtp/overview.mdx) until you upgrade. Self-hosted stores keep using the SMTP app.
+On Saleor Cloud, [Customer Emails](/developer/app-store/apps/customer-emails/overview) is the app for customer transactional mail from 3.23. It cannot be installed on 3.22 — stay on the [SMTP app](/developer/app-store/apps/smtp/overview) until you upgrade. Self-hosted stores keep using the SMTP app.
 
 ## Changes in Webhook Emission for Instance Updates
 
@@ -47,7 +52,7 @@ In 3.23, the payload of subscription webhooks for the following asynchronous eve
 
 The payload reflects the state of the object when the task runs. When two changes to the same object happen close together, both deliveries can carry the state after the second change. An integration that applies each delivery in sequence, for example a sync keyed on order metadata, can receive the newer value twice and never see the earlier one.
 
-If your integration needs each delivery to reflect the request that triggered it, set `payloadGeneration: IMMEDIATE` on the webhook. The setting is available from Saleor 3.23.41 in `webhookCreate`, `webhookUpdate` and the app manifest. See [Payload Generation](/developer/extending/webhooks/asynchronous-events.mdx#payload-generation) for details, including a note on Saleor Cloud, where all events may become deferred at any time.
+If your integration needs each delivery to reflect the request that triggered it, set `payloadGeneration: IMMEDIATE` on the webhook. The setting is available from Saleor 3.23.41 in `webhookCreate`, `webhookUpdate` and the app manifest. See [Payload Generation](/developer/extending/webhooks/asynchronous-events#payload-generation) for details, including a note on Saleor Cloud, where all events may become deferred at any time.
 
 ## Dashboard extensions
 
@@ -76,29 +81,30 @@ Use the `CheckoutDelivery` ID (returned by `deliveryOptionsCalculate`) instead.
 
 Saleor 3.23 makes delivery options calculation explicit by introducing:
 
-- New mutation: [`deliveryOptionsCalculate`](/api-reference/shipping/mutations/delivery-options-calculate.mdx).
+- New mutation: [`deliveryOptionsCalculate`](/api-reference/shipping/mutations/delivery-options-calculate).
   Returns a list of available deliveries for the checkout. Calling this mutation explicitly fires
   `SHIPPING_LIST_METHODS_FOR_CHECKOUT` and `CHECKOUT_FILTER_SHIPPING_METHODS` webhooks.
   The mutation replaces the deprecated fields: `checkout.shippingMethods` and `checkout.availableShippingMethods`.
 
-- New field: [`Checkout.delivery`](/api-reference/checkout/objects/checkout.mdx#delivery).
+- New field: [`Checkout.delivery`](/api-reference/checkout/objects/checkout#delivery).
   It represents the currently assigned delivery method. The field replaces the deprecated `checkout.deliveryMethod`
   and `checkout.shippingMethod`.
 
 - New checkout problems:
-  - [`CheckoutProblemDeliveryMethodStale`](/api-reference/checkout/objects/checkout-problem-delivery-method-stale.mdx) - the assigned delivery method needs recalculation (e.g. after a voucher change, address update, or line quantity change). Call `deliveryOptionsCalculate` to resolve.
-  - [`CheckoutProblemDeliveryMethodInvalid`](/api-reference/checkout/objects/checkout-problem-delivery-method-invalid.mdx) - the assigned delivery method is no longer valid. The customer must re-select a delivery method.
+  - [`CheckoutProblemDeliveryMethodStale`](/api-reference/checkout/objects/checkout-problem-delivery-method-stale) - the assigned delivery method needs recalculation (e.g. after a voucher change, address update, or line quantity change). Call `deliveryOptionsCalculate` to resolve.
+  - [`CheckoutProblemDeliveryMethodInvalid`](/api-reference/checkout/objects/checkout-problem-delivery-method-invalid) - the assigned delivery method is no longer valid. The customer must re-select a delivery method.
 
-:::warning
-When reading `problem`, just like other interface implementations, you should rely on additional `__typename` field check, because new implementations shape may differ.
+:::warning[When reading `problem`, just like other interface implementations, you should rely on additional `__typename` field check, because new implementations shape may differ.]
 
 For example, `CheckoutProblemDeliveryMethodInvalid` and `CheckoutProblemDeliveryMethodStale` do not provide `line` field. Code from `3.22`: `problem.line` will always work, but in 3.23 it may break.
 
-Change `if(problem.line)` to `if(problem.__typename === "CheckoutLineProblemVariantNotAvailable" && problem.line)` to ensure it's safe before an upgrade.
+Check the problem type before accessing its line:
+
+<Diff lang="ts" old={'if (problem.line) { /* handle the line */ }'} new={'if (problem.__typename === "CheckoutLineProblemVariantNotAvailable" && problem.line) { /* handle the line */ }'} />
 
 :::
 
-See [delivery method problems](/developer/checkout/problems.mdx#checkoutproblemdeliverymethodstale) for full handling guidance.
+See [delivery method problems](/developer/checkout/problems#checkoutproblemdeliverymethodstale) for full handling guidance.
 
 - Deprecations introduced in 3.23:
   - `checkout.shippingMethods` - use `deliveryOptionsCalculate` mutation
@@ -106,8 +112,7 @@ See [delivery method problems](/developer/checkout/problems.mdx#checkoutproblemd
   - `checkout.deliveryMethod` - use `checkout.delivery`
   - `checkout.shippingMethod` - use `checkout.delivery`
 
-:::warning
-Querying the deprecated fields (`shippingMethods`, `availableShippingMethods`, `deliveryMethod`, `shippingMethod`)
+:::warning[Querying the deprecated fields (`shippingMethods`, `availableShippingMethods`, `deliveryMethod`, `shippingMethod`)]
 still works in 3.23, but these fields will be removed in a future release. Requesting these fields can implicitly
 trigger the `SHIPPING_LIST_METHODS_FOR_CHECKOUT`, `CHECKOUT_FILTER_SHIPPING_METHODS` webhooks.
 :::
@@ -163,8 +168,8 @@ mutation DeliveryOptionsCalculate($id: ID!) {
 
 In previous versions, Saleor was making the validation after each change on Checkout,
 causing multiple webhooks called implicitly. This slows down the checkout process, by increasing the network traffic and costs.
-Starting from 3.23, [Checkout.problems](/api-reference/checkout/objects/checkout.mdx#problems) can contain
-the problem: [CheckoutProblemDeliveryMethodStale](/api-reference/checkout/objects/checkout-problem-delivery-method-stale.mdx).
+Starting from 3.23, [Checkout.problems](/api-reference/checkout/objects/checkout#problems) can contain
+the problem: [CheckoutProblemDeliveryMethodStale](/api-reference/checkout/objects/checkout-problem-delivery-method-stale).
 
 ```graphql
 query Checkout($id: ID!) {
@@ -181,9 +186,7 @@ query Checkout($id: ID!) {
 The problem provides the information that mutation call: `deliveryOptionsCalculate` is needed to confirm that stale
 delivery method is still valid for the checkout. The storefront decides when to call `deliveryOptionsCalculate`.
 
-:::info
-
-Calling `checkoutComplete` with existing `CheckoutProblemDeliveryMethodStale` will implicitly refresh the delivery method.
+:::info[Calling `checkoutComplete` with existing `CheckoutProblemDeliveryMethodStale` will implicitly refresh the delivery method.]
 
 :::
 
@@ -211,9 +214,7 @@ query Checkout($id: ID!) {
 
 Saleor won't unassign it implicitly anymore. The storefront decides when to change the invalid delivery method.
 
-:::info
-
-Calling `checkoutComplete` with existing `CheckoutProblemDeliveryMethodInvalid` will return error.
+:::info[Calling `checkoutComplete` with existing `CheckoutProblemDeliveryMethodInvalid` will return error.]
 
 :::
 
@@ -288,8 +289,8 @@ If you were using the old digital content API:
   require support for additional URL schemes, open a request:
   https://github.com/saleor/saleor/issues
 
-[`EDITOR_JS_LINK_REL`]: ../../setup/configuration.mdx#editor_js_link_rel
-[`UNSAFE_EDITOR_JS_ALLOWED_URL_SCHEMES`]: ../../setup/configuration.mdx#unsafe_editor_js_allowed_url_schemes
+[`EDITOR_JS_LINK_REL`]: /setup/configuration#editor_js_link_rel
+[`UNSAFE_EDITOR_JS_ALLOWED_URL_SCHEMES`]: /setup/configuration#unsafe_editor_js_allowed_url_schemes
 
 ### EditorJS Parser Strictness
 
@@ -328,11 +329,10 @@ Previously, `productMediaCreate` and `productBulkCreate` mutations blocked until
 
 ### Affected mutations
 
-- [`productMediaCreate`](/api-reference/products/mutations/product-media-create.mdx) — when using the `mediaUrl` input field with an image URL.
-- [`productBulkCreate`](/api-reference/products/mutations/product-bulk-create.mdx) — when providing media with `mediaUrl` in the product input.
+- [`productMediaCreate`](/api-reference/products/mutations/product-media-create) — when using the `mediaUrl` input field with an image URL.
+- [`productBulkCreate`](/api-reference/products/mutations/product-bulk-create) — when providing media with `mediaUrl` in the product input.
 
-:::info
-This change only affects media created via external image URLs (`mediaUrl`). Direct file uploads and video/oEmbed URLs are not affected.
+:::info[This change only affects media created via external image URLs (`mediaUrl`). Direct file uploads and video/oEmbed URLs are not affected.]
 :::
 
 ### New `/image/` endpoint
@@ -351,7 +351,7 @@ Three modes are available:
 - **`CUSTOMERS_ONLY`** — customers can still log in with passwords, but staff tokens are issued with `is_staff=false` and no permissions.
 - **`DISABLED`** — all password-based mutations (`tokenCreate`, `passwordChange`, `setPassword`, `requestPasswordReset`) are blocked for all users.
 
-For full details, including configuration examples and migration steps, see the [Password Login Mode documentation](/api-usage/authentication.mdx#password-login-mode).
+For full details, including configuration examples and migration steps, see the [Password Login Mode documentation](/api-usage/authentication#password-login-mode).
 
 ## Removal of Adyen Plugin
 
@@ -434,7 +434,7 @@ If your users authenticate via both password and OIDC, be aware that once an OID
 
 Stock availability is no longer determined by shipping zones. Instead, it is based solely on the direct warehouse-channel link — if a warehouse is assigned to a channel, its stock counts toward product availability in that channel.
 
-The previous behavior, where stock was filtered by shipping zones and the customer's destination address, is now deprecated. It is controlled by the [`useLegacyShippingZoneStockAvailability`](/api-reference/miscellaneous/objects/shop.mdx#use-legacy-shipping-zone-stock-availability) setting on `Shop` / `SiteSettings`:
+The previous behavior, where stock was filtered by shipping zones and the customer's destination address, is now deprecated. It is controlled by the [`useLegacyShippingZoneStockAvailability`](/api-reference/miscellaneous/objects/shop#use-legacy-shipping-zone-stock-availability) setting on `Shop` / `SiteSettings`:
 
 - **Existing instances** have this set to `true` to preserve backwards compatibility.
 - **New instances** default to `false`.
@@ -524,7 +524,7 @@ With the new default behavior, shipping zones and the customer's address are no 
 
    Omit `channels:` to receive events from every channel. Only one filterable subscription field is allowed per webhook, so create a separate webhook for each of the four events.
 
-For full details, see [Stock Overview](/developer/stock/overview.mdx).
+For full details, see [Stock Overview](/developer/stock/overview).
 
 ## Apps can edit Staff User metadata
 
@@ -538,7 +538,7 @@ The `APP_INSTALLED`, `APP_UPDATED`, `APP_STATUS_CHANGED`, and `APP_DELETED` even
 
 Apps no longer need `MANAGE_APPS` to subscribe to their own lifecycle events. The most useful pattern enabled by this change is letting an app **clean up after itself** when it is uninstalled — for example, removing tenant rows from its own database, revoking external credentials, or cancelling scheduled jobs — by subscribing to `APP_DELETED`.
 
-See the new guide: [Subscribing to App Lifecycle Webhooks](/developer/extending/apps/developing-apps/apps-patterns/app-lifecycle-webhooks.mdx).
+See the new guide: [Subscribing to App Lifecycle Webhooks](/developer/extending/apps/developing-apps/apps-patterns/app-lifecycle-webhooks).
 
 ## Deprecations
 

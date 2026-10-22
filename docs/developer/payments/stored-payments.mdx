@@ -1,28 +1,31 @@
 ---
 title: Stored Payment Methods
+slug: developer/payments/stored-payments
+sidebar: {}
+seo:
+  title: Stored Payment Methods
+  description: Stored payment methods
+lastModified: '2026-03-11'
 ---
-
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
 
 ## Stored payment methods
 
 A stored payment method is a payment method saved by a customer for later use. It allows the user to use it without the need to provide all payment details again.
-Saleor uses synchronous webhooks to notify the Payment App about actions related to stored payment methods (such as [`LIST_STORED_PAYMENT_METHODS`](/developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#list-stored-payment-methods)) requested by the customer.
+Saleor uses synchronous webhooks to notify the Payment App about actions related to stored payment methods (such as [`LIST_STORED_PAYMENT_METHODS`](/developer/extending/webhooks/synchronous-events/stored-payment-method#list-stored-payment-methods)) requested by the customer.
 
 ### Listing user's stored payment methods
 
 :::info
+This feature is dedicated to [third-party](/api-reference/apps/enums/app-type-enum#thirdparty) apps.
 
-This feature is dedicated to [third-party](/api-reference/apps/enums/app-type-enum.mdx#thirdparty) apps.
 
 :::
 
-Requesting [`checkout.storedPaymentMethods`](/api-reference/checkout/objects/checkout.mdx#stored-payment-methods) or [`User.storedPaymentMethods`](/api-reference/users/objects/user.mdx#stored-payment-methods) field triggers synchronous requests to each app subscribed to [`LIST_STORED_PAYMENT_METHODS`](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#list-stored-payment-methods)
+Requesting [`checkout.storedPaymentMethods`](/api-reference/checkout/objects/checkout#stored-payment-methods) or [`User.storedPaymentMethods`](/api-reference/users/objects/user#stored-payment-methods) field triggers synchronous requests to each app subscribed to [`LIST_STORED_PAYMENT_METHODS`](/api-reference/webhooks/enums/webhook-event-type-sync-enum#list-stored-payment-methods)
 webhook. In response, Saleor returns a list of payment methods from the subscribed apps. Stored payment methods can be used in further steps of payment processing.
 
-All details related to [`LIST_STORED_PAYMENT_METHODS`](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#list-stored-payment-methods)
-webhook can be found [in the Stored Payment Methods guide](/developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#list-stored-payment-methods).
+All details related to [`LIST_STORED_PAYMENT_METHODS`](/api-reference/webhooks/enums/webhook-event-type-sync-enum#list-stored-payment-methods)
+webhook can be found [in the Stored Payment Methods guide](/developer/extending/webhooks/synchronous-events/stored-payment-method#list-stored-payment-methods).
 
 The diagram below shows the workflow of fetching stored payment methods with a Payment App:
 
@@ -42,14 +45,15 @@ sequenceDiagram
 ### Requesting deletion of stored payment method
 
 :::info
-This feature is dedicated to [third-party](/api-reference/apps/enums/app-type-enum.mdx#thirdparty) apps.
+This feature is dedicated to [third-party](/api-reference/apps/enums/app-type-enum#thirdparty) apps.
+
 :::
 
 The user can request a deletion of their stored payment methods. Saleor doesn't store directly a user's payment methods or transmit payment method details.
 It is a part of the responsibility of the payment app. The request deletion will be sent to the payment app which owns the
 specific stored payment method.
-Saleor will also invalidate the cache of stored-payment-methods. Fetching [checkout.storedPaymentMethods](/api-reference/checkout/objects/checkout.mdx#stored-payment-methods)
-or [User.storedPaymentMethods](/api-reference/users/objects/user.mdx#stored-payment-methods)
+Saleor will also invalidate the cache of stored-payment-methods. Fetching [checkout.storedPaymentMethods](/api-reference/checkout/objects/checkout#stored-payment-methods)
+or [User.storedPaymentMethods](/api-reference/users/objects/user#stored-payment-methods)
 will trigger the request to the payment app which was the owner of the
 payment method.
 
@@ -64,10 +68,10 @@ sequenceDiagram
    Storefront->>User: Display result
 ```
 
-The following example shows how to use the [storedPaymentMethodRequestDelete](/api-reference/payments/mutations/payment-gateway-initialize.mdx) mutation to request deletion of stored payment method:
+The following example shows how to use the [storedPaymentMethodRequestDelete](/api-reference/payments/mutations/payment-gateway-initialize) mutation to request deletion of stored payment method:
 
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql
 mutation StoredPaymentMethodRequestDelete($id: ID!, $channel: String!) {
   storedPaymentMethodRequestDelete(id: $id, channel: $channel) {
@@ -80,33 +84,32 @@ mutation StoredPaymentMethodRequestDelete($id: ID!, $channel: String!) {
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Variables"}>
+<Tab value={"Variables"}>
 ```json
 {
   "id": "YXBwOmR1bW15LnBheW1lbnQ6cGF5bWVudC1tZXRob2Qx",
   "channel": "default-channel"
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
-As a response, the mutation will return a [result](/api-reference/payments/enums/stored-payment-method-request-delete-result.mdx) field which determines the status of the requested action.
-In case of a failure result, the [errors](/api-reference/payments/objects/payment-method-request-delete-error.mdx) list will contain details of the failed action.
+As a response, the mutation will return a [result](/api-reference/payments/enums/stored-payment-method-request-delete-result) field which determines the status of the requested action.
+In case of a failure result, the [errors](/api-reference/payments/objects/payment-method-request-delete-error) list will contain details of the failed action.
 
-The mutation will trigger the [STORED_PAYMENT_METHOD_DELETE_REQUESTED](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#stored-payment-method-delete-requested) webhook.
-For more details about this webhook, please refer to its [documentation](/developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#delete-stored-payment-method-requested).
+The mutation will trigger the [STORED_PAYMENT_METHOD_DELETE_REQUESTED](/api-reference/webhooks/enums/webhook-event-type-sync-enum#stored-payment-method-delete-requested) webhook.
+For more details about this webhook, please refer to its [documentation](/developer/extending/webhooks/synchronous-events/stored-payment-method#delete-stored-payment-method-requested).
 
 ### Tokenizing a new payment method
 
 :::info
-This feature is dedicated to [third-party](/api-reference/apps/enums/app-type-enum.mdx#thirdparty) apps.
+This feature is dedicated to [third-party](/api-reference/apps/enums/app-type-enum#thirdparty) apps.
+
 :::
 
-:::info
-
-Tokenizing a payment method can also be done during the checkout process. Please refer to your payment app's documentation for details.
+:::info[Tokenizing a payment method can also be done during the checkout process. Please refer to your payment app's documentation for details.]
 
 :::
 
@@ -146,11 +149,11 @@ sequenceDiagram
 
 #### Initializing the payment gateway for tokenizing a payment method
 
-The [paymentGatewayInitializeTokenization](/api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx) mutation should be used when the payment gateway needs to be initialized first. For example, when retrieving the data required to initialize the drop-in on the storefront side.
+The [paymentGatewayInitializeTokenization](/api-reference/payments/mutations/payment-gateway-initialize-tokenization) mutation should be used when the payment gateway needs to be initialized first. For example, when retrieving the data required to initialize the drop-in on the storefront side.
 
-This mutation triggers the synchronous webhook [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-gateway-initialize-tokenization-session). The webhook is sent to the app with the provided [id](/api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx#id).
+This mutation triggers the synchronous webhook [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-gateway-initialize-tokenization-session). The webhook is sent to the app with the provided [id](/api-reference/payments/mutations/payment-gateway-initialize-tokenization#id).
 
-The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](/api-reference/checkout/objects/checkout.mdx#available-payment-gateways) or `shop.availablePaymentGateways`. The JSON `data` is passed to the payment app via the synchronous webhook.
+The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](/api-reference/checkout/objects/checkout#available-payment-gateways) or `shop.availablePaymentGateways`. The JSON `data` is passed to the payment app via the synchronous webhook.
 
 ```graphql
 mutation PaymentGatewayInitializeTokenization($id: String!, $channel: String!, $data: JSON) {
@@ -168,19 +171,19 @@ mutation PaymentGatewayInitializeTokenization($id: String!, $channel: String!, $
 
 In the response, Saleor returns:
 
-- `result`: The enum value of [PaymentGatewayInitializeTokenizationResult](/api-reference/payments/enums/payment-gateway-initialize-tokenization-result.mdx).
+- `result`: The enum value of [PaymentGatewayInitializeTokenizationResult](/api-reference/payments/enums/payment-gateway-initialize-tokenization-result).
 - `data`: The JSON `data` returned by the payment app.
 - `id`: The ID of the payment method.
 
-More details about the triggered webhook [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-gateway-initialize-tokenization-session) can be found [here](/developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#initialize-payment-gateway-session).
+More details about the triggered webhook [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-gateway-initialize-tokenization-session) can be found [here](/developer/extending/webhooks/synchronous-events/stored-payment-method#initialize-payment-gateway-session).
 
 #### Initializing payment method tokenization
 
-The [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation starts the process of tokenizing the payment method. This mutation triggers the synchronous webhook [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-method-initialize-tokenization-session), which is sent to the app with the provided [id](/api-reference/payments/mutations/payment-method-initialize-tokenization.mdx#id).
+The [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization) mutation starts the process of tokenizing the payment method. This mutation triggers the synchronous webhook [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-method-initialize-tokenization-session), which is sent to the app with the provided [id](/api-reference/payments/mutations/payment-method-initialize-tokenization#id).
 
-The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](/api-reference/checkout/objects/checkout.mdx#available-payment-gateways) or [shop.availablePaymentGateways](/api-reference/miscellaneous/objects/shop.mdx#available-payment-gateways). The JSON [data](/api-reference/payments/mutations/payment-method-initialize-tokenization.mdx#data) is passed to the payment app via the synchronous webhook. The `paymentFlowToSupport` is a value from the [TokenizedPaymentFlowEnum](/api-reference/payments/enums/tokenized-payment-flow-enum.mdx). It represents the requested payment flow that the payment method should follow.
+The `id` is the ID of the payment app received from [checkout.availablePaymentGateways](/api-reference/checkout/objects/checkout#available-payment-gateways) or [shop.availablePaymentGateways](/api-reference/miscellaneous/objects/shop#available-payment-gateways). The JSON [data](/api-reference/payments/mutations/payment-method-initialize-tokenization#data) is passed to the payment app via the synchronous webhook. The `paymentFlowToSupport` is a value from the [TokenizedPaymentFlowEnum](/api-reference/payments/enums/tokenized-payment-flow-enum). It represents the requested payment flow that the payment method should follow.
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql
 mutation paymentMethodInitializeTokenization($id: String!, $channel: String!, $paymentFlowToSupport: TokenizedPaymentFlowEnum!, $data: JSON) {
   paymentMethodInitializeTokenization(
@@ -200,9 +203,9 @@ mutation paymentMethodInitializeTokenization($id: String!, $channel: String!, $p
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Variables"}>
+<Tab value={"Variables"}>
 ```json
 {
   "id": "YXBwOmR1bW15LnBheW1lbnQ=",
@@ -213,25 +216,25 @@ mutation paymentMethodInitializeTokenization($id: String!, $channel: String!, $p
   "paymentFlowToSupport": "INTERACTIVE"
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
 
 In the response, Saleor returns:
 
-- `result`: The enum value of [PaymentMethodTokenizationResult](/api-reference/payments/enums/payment-method-tokenization-result.mdx), which determines the status of the tokenization.
+- `result`: The enum value of [PaymentMethodTokenizationResult](/api-reference/payments/enums/payment-method-tokenization-result), which determines the status of the tokenization.
 - `data`: The JSON `data` returned by the payment app.
 - `id`: The ID of the payment method.
 
-More details about the triggered [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-method-initialize-tokenization-session) webhook can be found [here](/developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#initialize-payment-method-tokenization).
+More details about the triggered [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-method-initialize-tokenization-session) webhook can be found [here](/developer/extending/webhooks/synchronous-events/stored-payment-method#initialize-payment-method-tokenization).
 
 #### Processing additional actions required to tokenize the payment method
 
-The [paymentMethodProcessTokenization](/api-reference/payments/mutations/payment-method-process-tokenization.mdx) mutation should be called when the payment app returns the `result` [PaymentMethodTokenizationResult.ADDITIONAL_ACTION_REQUIRED](/api-reference/payments/enums/payment-method-tokenization-result.mdx#additional-action-required). This mutation is dedicated to processing additional actions required to finalize the tokenization of the payment method.
+The [paymentMethodProcessTokenization](/api-reference/payments/mutations/payment-method-process-tokenization) mutation should be called when the payment app returns the `result` [PaymentMethodTokenizationResult.ADDITIONAL_ACTION_REQUIRED](/api-reference/payments/enums/payment-method-tokenization-result#additional-action-required). This mutation is dedicated to processing additional actions required to finalize the tokenization of the payment method.
 
-This mutation triggers the synchronous webhook [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-method-process-tokenization-session).
+This mutation triggers the synchronous webhook [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-method-process-tokenization-session).
 
-The `id` is the ID received as a response from [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) or previous [paymentMethodProcessTokenization](/api-reference/payments/mutations/payment-method-process-tokenization.mdx) calls. The JSON `data` is passed to the payment app via the synchronous webhook.
+The `id` is the ID received as a response from [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization) or previous [paymentMethodProcessTokenization](/api-reference/payments/mutations/payment-method-process-tokenization) calls. The JSON `data` is passed to the payment app via the synchronous webhook.
 
 ```graphql
 mutation PaymentMethodProcessTokenization(
@@ -254,8 +257,8 @@ mutation PaymentMethodProcessTokenization(
 
 In the response, Saleor returns:
 
-- `result`: The enum value of [PaymentMethodTokenizationResult](/api-reference/payments/enums/payment-method-tokenization-result.mdx), which determines the status of the tokenization.
+- `result`: The enum value of [PaymentMethodTokenizationResult](/api-reference/payments/enums/payment-method-tokenization-result), which determines the status of the tokenization.
 - `data`: The JSON `data` returned by the payment app.
 - `id`: The ID of the payment method.
 
-More details about the triggered [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-method-process-tokenization-session) webhook can be found [here](/developer/extending/webhooks/synchronous-events/stored-payment-method.mdx#process-additional-actions-for-payment-method-tokenization).
+More details about the triggered [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-method-process-tokenization-session) webhook can be found [here](/developer/extending/webhooks/synchronous-events/stored-payment-method#process-additional-actions-for-payment-method-tokenization).

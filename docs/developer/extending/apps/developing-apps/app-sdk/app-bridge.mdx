@@ -1,4 +1,12 @@
-# AppBridge
+---
+title: AppBridge
+slug: developer/extending/apps/developing-apps/app-sdk/app-bridge
+sidebar: {}
+seo:
+  title: AppBridge
+  description: AppBridge is an interface that connects an App (running inside Dashboard) with the Dashboard itself.
+lastModified: '2026-08-24'
+---
 
 AppBridge is an interface that connects an App (running inside Dashboard) with the Dashboard itself.
 
@@ -240,10 +248,9 @@ const openTaxesApp = async () => {
 };
 ```
 
-`appIdentifier` is required and must be a non-empty string — the SDK throws synchronously otherwise. It is the `id` field from the target app's [manifest](../../architecture/manifest.mdx), not its Saleor object ID.
+`appIdentifier` is required and must be a non-empty string — the SDK throws synchronously otherwise. It is the `id` field from the target app's [manifest](/developer/extending/apps/architecture/manifest), not its Saleor object ID.
 
-:::info
-Requires `@saleor/app-sdk` 1.15 or newer. The Dashboard must handle the `redirectToApp` action — older Dashboard versions ignore it. The action fails (resolves with `ok: false`) when no app with the given identifier is installed.
+:::info[Requires `@saleor/app-sdk` 1.15 or newer. The Dashboard must handle the `redirectToApp` action — older Dashboard versions ignore it. The action fails (resolves with `ok: false`) when no app with the given identifier is installed.]
 :::
 
 ## Refreshing the active entity
@@ -266,11 +273,12 @@ The action takes no arguments: the Dashboard already knows which entity is open 
 
 :::info
 Requires `@saleor/app-sdk` 1.11 or newer. Dashboard support for handling this action was added in [Saleor Dashboard 3.23.9](https://github.com/saleor/saleor-dashboard/releases/tag/3.23.9) — coordinate SDK and Dashboard upgrades.
+
 :::
 
 ## Opening a popup extension
 
-A sidebar [`WIDGET`](../../extending-dashboard-with-apps.mdx#widget-target-from-322) is small by design, so complex flows don't fit well inside it. Instead of cramming everything into the widget, you can dispatch `actions.OpenPopup()` to ask the Dashboard to open one of your app's [`POPUP`](../../extending-dashboard-with-apps.mdx#popup-target) extensions in full (modal) mode — a "compact widget that expands into a full view" pattern.
+A sidebar [`WIDGET`](/developer/extending/apps/extending-dashboard-with-apps#widget-target-from-322) is small by design, so complex flows don't fit well inside it. Instead of cramming everything into the widget, you can dispatch `actions.OpenPopup()` to ask the Dashboard to open one of your app's [`POPUP`](/developer/extending/apps/extending-dashboard-with-apps#popup-target) extensions in full (modal) mode — a "compact widget that expands into a full view" pattern.
 
 The Dashboard resolves the target popup by its `identifier` and renders it in a modal dialog as a regular app iframe.
 
@@ -300,7 +308,7 @@ The target `POPUP` must belong to the **same app** and declare a stable `identif
 }
 ```
 
-The `identifier` must be unique within a single app (an app cannot reuse the same `identifier` for two of its extensions), but the same value may be used by different apps. See [extension `identifier`](../../extending-dashboard-with-apps.mdx#extension-identifier).
+The `identifier` must be unique within a single app (an app cannot reuse the same `identifier` for two of its extensions), but the same value may be used by different apps. See [extension `identifier`](/developer/extending/apps/extending-dashboard-with-apps#extension-identifier).
 
 ### Dispatching the action
 
@@ -347,8 +355,7 @@ const OrderToolsPopup = () => {
 - **Same app.** A widget can only open a `POPUP` that belongs to the same app — you cannot open another app's extension.
 - **Co-located.** The target popup must be one of the app's extensions registered on the current page. If no matching `POPUP` with the given `identifier` is found, the action fails (resolves with `ok: false`).
 
-:::info
-Requires `@saleor/app-sdk` 1.12 or newer and Saleor 3.23.19 or newer (the manifest `identifier` field is available from Saleor 3.23.19). The Dashboard must also handle the `openPopup` action — older Dashboard versions ignore it. Coordinate SDK, Core, and Dashboard upgrades.
+:::info[Requires `@saleor/app-sdk` 1.12 or newer and Saleor 3.23.19 or newer (the manifest `identifier` field is available from Saleor 3.23.19). The Dashboard must also handle the `openPopup` action — older Dashboard versions ignore it. Coordinate SDK, Core, and Dashboard upgrades.]
 :::
 
 ## Sizing sidebar widgets
@@ -357,8 +364,7 @@ Detail-page widgets (`PRODUCT_DETAILS_WIDGETS`, `ORDER_DETAILS_WIDGETS`, and oth
 
 When you report your widget's content height, the Dashboard resizes the iframe to match. Staff see the full widget without scrolling inside a tiny frame, and multiple app widgets stack naturally in the sidebar without internal scrollbars.
 
-:::info
-Requires `@saleor/app-sdk` 1.9 or newer. Height is sent as the `widgetResize` App Bridge action (`actions.WidgetResize`). The Dashboard must handle this action in its App Bridge message handler — coordinate SDK and Dashboard upgrades.
+:::info[Requires `@saleor/app-sdk` 1.9 or newer. Height is sent as the `widgetResize` App Bridge action (`actions.WidgetResize`). The Dashboard must handle this action in its App Bridge message handler — coordinate SDK and Dashboard upgrades.]
 :::
 
 Reporting height is opt-in. Apps that do not use the helpers below keep the previous fixed height.
@@ -384,7 +390,7 @@ export default function ProductWidget() {
 }
 ```
 
-Use this on routes served for `target: "WIDGET"` extensions on `*_DETAILS_WIDGETS` mounts. See [Extending Dashboard with Apps](../../extending-dashboard-with-apps.mdx) for manifest setup.
+Use this on routes served for `target: "WIDGET"` extensions on `*_DETAILS_WIDGETS` mounts. See [Extending Dashboard with Apps](/developer/extending/apps/extending-dashboard-with-apps) for manifest setup.
 
 ### Without the hook
 
@@ -395,8 +401,7 @@ If you are not using React, or you need to report height after a one-off layout 
 | `reportWidgetHeightFromElement(appBridge, root)` | You have a root element; measure it and dispatch `WidgetResize` in one call |
 | `reportWidgetHeight(appBridge, height)` | You already know the height in pixels |
 
-:::warning
-Pass an element that wraps only your widget UI to `reportWidgetHeightFromElement`. Do not measure `document.body` or `document.documentElement` — they match the iframe size, not your content, so reported heights stay too small and widgets stay clipped. The same applies if you pass a height to `reportWidgetHeight` that you calculated from those nodes.
+:::warning[Pass an element that wraps only your widget UI to `reportWidgetHeightFromElement`. Do not measure `document.body` or `document.documentElement` — they match the iframe size, not your content, so reported heights stay too small and widgets stay clipped. The same applies if you pass a height to `reportWidgetHeight` that you calculated from those nodes.]
 :::
 
 Helpers no-op during SSR. `reportWidgetHeightFromElement` requires a widget root element.
@@ -423,8 +428,7 @@ Dashboard-level shortcuts (such as `Cmd+K`) would otherwise stop working while t
 
 Pass `forwardKeyboardShortcuts: false` to `new AppBridge()` to opt out, or `{ shouldForward(event) }` to claim a chord back for the app.
 
-:::info
-Available from `@saleor/app-sdk` 1.16.
+:::info[Available from `@saleor/app-sdk` 1.16.]
 :::
 
 ## Detaching AppBridge
@@ -440,6 +444,5 @@ const appBridge = new AppBridge();
 appBridge.destroy();
 ```
 
-:::info
-`destroy()` is available from `@saleor/app-sdk` 1.16.
+:::info[`destroy()` is available from `@saleor/app-sdk` 1.16.]
 :::

@@ -1,17 +1,19 @@
 ---
 title: Refunds
+slug: developer/payments/refunds
+sidebar: {}
+seo:
+  title: Refunds
+  description: 'There are two ways to process refunds:'
+lastModified: '2026-06-23'
 ---
-
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
 
 There are two ways to process refunds:
 
 - Manual refund: This method involves directly refunding the payment through the payment app.
 - Refund based on `OrderGrantedRefund`: This method triggers the refund request based on the details stored in `OrderGrantedRefund`.
 
-:::note
-You may have seen we start referencing `Page` as a `Model`. While in the API we still use `Page` name for backwards compatibility, we will be renaming it to `Model` in the future.
+:::note[You may have seen we start referencing `Page` as a `Model`. While in the API we still use `Page` name for backwards compatibility, we will be renaming it to `Model` in the future.]
 :::
 
 ## Manual refund
@@ -21,7 +23,7 @@ The manual refund can be triggered by calling `transactionRequestAction`. If the
 The below example shows how to trigger the manual refund:
 
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql
 mutation TransactionRequestAction($id: ID, $actionType: TransactionActionEnum!, $amount: PositiveDecimal) {
   transactionRequestAction(id: $id, actionType: $actionType, amount: $amount) {
@@ -39,9 +41,9 @@ mutation TransactionRequestAction($id: ID, $actionType: TransactionActionEnum!, 
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Variables"}>
+<Tab value={"Variables"}>
 ```json
 {
   "id": "VHJhbnNhY3Rpb25JdGVtOjljY2NkYTYyLTllMjktNGE0OC05NzIyLWRlYzAwOTRmZmY5Yg==",
@@ -51,7 +53,7 @@ mutation TransactionRequestAction($id: ID, $actionType: TransactionActionEnum!, 
   "refundReasonReference": "UGFnZTox"  # ID of a Page/Model representing the reason for the refund
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
 The mutation accepts below arguments:
@@ -83,8 +85,7 @@ The `status` is calculated based on the latest refund `TransactionEvent`s assign
 
 The `OrderGrantedRefund` has an impact on the `authorizeStatus`, `chargeStatus`, and `totalBalance`, as it reduces the total value used to calculate the `totalBalance`.
 
-:::note
-The maximum `amount` of `OrderGrantedRefund` is the `order.total`.
+:::note[The maximum `amount` of `OrderGrantedRefund` is the `order.total`.]
 :::
 
 For example:
@@ -102,7 +103,7 @@ For example:
 The following example shows how to create the granted refund with the assigned `TransactionItem` for the order.
 
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql
 mutation OrderGrantRefundCreate($id: ID!, $input: OrderGrantRefundCreateInput!) {
   orderGrantRefundCreate(id: $id, input: $input) {
@@ -143,9 +144,9 @@ mutation OrderGrantRefundCreate($id: ID!, $input: OrderGrantRefundCreateInput!) 
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Variables"}>
+<Tab value={"Variables"}>
 ```json
 {
   "id": "T3JkZXI6NWZlOTE5NzItYjg3OC00Y2QyLTkyN2UtZTQwZDJjZDRjMmEz",
@@ -170,7 +171,7 @@ mutation OrderGrantRefundCreate($id: ID!, $input: OrderGrantRefundCreateInput!) 
   }
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
 The mutation accepts below arguments:
@@ -193,7 +194,7 @@ The order-level `reasonReference` is required for staff users when the `refundRe
 The below example shows how to update the existing granted refund
 
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql
 mutation OrderGrantRefundUpdate($id: ID!, $input: OrderGrantRefundUpdateInput!) {
   orderGrantRefundUpdate(id: $id, input: $input) {
@@ -230,9 +231,9 @@ mutation OrderGrantRefundUpdate($id: ID!, $input: OrderGrantRefundUpdateInput!) 
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Variables"}>
+<Tab value={"Variables"}>
 ```json
 {
   "id": "T3JkZXJHcmFudGVkUmVmdW5kOjE=",
@@ -254,7 +255,7 @@ mutation OrderGrantRefundUpdate($id: ID!, $input: OrderGrantRefundUpdateInput!) 
   }
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
 The mutation accepts below arguments:
@@ -273,16 +274,14 @@ The mutation accepts below arguments:
   - `reasonReference` - Order-level `Page` ID representing the reason for the refund. Required for staff when `refundReasonReferenceType` is configured. See [configuration](#refund-reasons-configuration) to learn more.
   - `transactionId` - ID of `TransactionItem` that will be used to process the refund. If `amount` is provided in the input, the `transaction.chargedAmount` needs to be equal to or greater than the provided `amount`. If `amount` is not provided in the input and calculated automatically by Saleor, the `min(calculatedAmount, transaction.chargedAmount)` will be used.
 
-:::info
-
-When `OrderGrantedRefund.status` is `SUCCESS` or `PENDING`, only `reason` can be updated.
+:::info[When `OrderGrantedRefund.status` is `SUCCESS` or `PENDING`, only `reason` can be updated.]
 
 :::
 
 Below example shows how to trigger the refund based on `OrderGrantedRefund`:
 
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql
 mutation TransactionRequestRefundForGrantedRefund($grantedRefundId: ID!) {
   transactionRequestRefundForGrantedRefund(grantedRefundId: $grantedRefundId) {
@@ -297,15 +296,15 @@ mutation TransactionRequestRefundForGrantedRefund($grantedRefundId: ID!) {
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Variables"}>
+<Tab value={"Variables"}>
 ```json
 {
   "grantedRefundId": "T3JkZXJHcmFudGVkUmVmdW5kOjE="
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
 To request a refund, you need to provide the `grantedRefundId` field. The mandatory refund details are stored as `OrderGrantedRefund`, so the refund request will be created based on this data.
@@ -383,8 +382,7 @@ Below is an example order with multiple transactions and `totalRemainingGrant` a
 > - `totalChargedAmount` - is the sum of charged amounts from all transactions
 > - `totalRefundedAmount` - is the sum of all refunded or pending refunds amount from all transactions
 
-:::info
-**In case of calculating total remaining grant:**
+:::info[**In case of calculating total remaining grant:**]
 
 - Pending amounts are treated as they were processed, so are included in all processed amounts.
   It also means that `totalChargedAmount` includes `amountChargePending`, and `totalRefundedAmount` includes `amountRefundPending`.
@@ -394,8 +392,7 @@ Below is an example order with multiple transactions and `totalRemainingGrant` a
 
 ## Return and replace reasons
 
-:::note
-Available from 3.22
+:::note[Available from 3.22]
 :::
 
 The [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products) mutation supports attaching reasons to returns and replacements. Reasons can be provided at two levels:
@@ -446,7 +443,7 @@ type FulfillmentLine {
 ### Example: Return with reasons
 
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql
 mutation OrderFulfillmentReturnProducts($orderId: ID!, $input: OrderReturnProductsInput!) {
   orderFulfillmentReturnProducts(order: $orderId, input: $input) {
@@ -500,9 +497,9 @@ mutation OrderFulfillmentReturnProducts($orderId: ID!, $input: OrderReturnProduc
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Variables"}>
+<Tab value={"Variables"}>
 ```json
 {
   "orderId": "T3JkZXI6NjAzYWI5OWMtY2EzZC00NzQwLWIxMDMtMjRhYzMyYmM0MjE2",
@@ -531,7 +528,7 @@ mutation OrderFulfillmentReturnProducts($orderId: ID!, $input: OrderReturnProduc
   }
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
 The mutation accepts the following reason-related arguments:
@@ -552,12 +549,14 @@ The mutation accepts the following reason-related arguments:
 
 :::note
 Returns are gated by a **dedicated** setting, `returnReasonReferenceType`, which is independent of the `refundReasonReferenceType` used by the refund mutations. Configuring one does not configure the other. See [return reasons configuration](#return-reasons-configuration).
+
 :::
 
 ## Refund reasons configuration
 
 :::note
 Available from 3.22. Per-line reason references for grant refund mutations added in 3.23. Return/replace reasons use a separate setting — see [return reasons configuration](#return-reasons-configuration).
+
 :::
 
 Staff users with `MANAGE_SETTINGS` permission can access additional refunds configuration available in Dashboard and via API.
@@ -573,7 +572,7 @@ You can decide you want a strict policy to require a reason reference for every 
 Once you have a `PageType` ID, you can set it in the `refundSettingsUpdate` mutation.
 
 <Tabs>
-    <TabItem value="Mutation">
+    <Tab value="Mutation">
     ```graphql
     mutation SetRefundTypeRequired($pageTypeId:ID!){
       refundSettingsUpdate(input:{
@@ -585,15 +584,15 @@ Once you have a `PageType` ID, you can set it in the `refundSettingsUpdate` muta
       }
     }
     ```
-    </TabItem>
-    <TabItem value="Variables">
+    </Tab>
+    <Tab value="Variables">
     ```json
     {
       "pageTypeId": "your-id"
     }
     
     ```
-    </TabItem>
+    </Tab>
 </Tabs>
 
 Now, every time a *staff user* tries to create or update a refund (`transactionRequestAction`, `orderGrantRefundCreate`, `orderGrantRefundUpdate`), they will be required to provide a reason reference. The existing free-text "reason" field will still be available, but it will be optional.
@@ -637,8 +636,7 @@ mutation DisableRefundTypeRequired {
 
 ## Return reasons configuration
 
-:::note
-Available from 3.23
+:::note[Available from 3.23]
 :::
 
 Returns use a configuration that is **separate** from refunds. The `ReturnSettings` type controls whether a `reasonReference` is required when products are returned via [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products). Like refund settings, it is global and reflected on every channel, and requires the `MANAGE_SETTINGS` permission.
@@ -661,7 +659,7 @@ query {
 As with refunds, you first create a dedicated `Model` (Page) type (in the Dashboard or via `pageTypeCreate`), then set its ID with the `returnSettingsUpdate` mutation:
 
 <Tabs>
-    <TabItem value="Mutation">
+    <Tab value="Mutation">
     ```graphql
     mutation SetReturnTypeRequired($pageTypeId: ID!) {
       returnSettingsUpdate(input: {
@@ -678,14 +676,14 @@ As with refunds, you first create a dedicated `Model` (Page) type (in the Dashbo
       }
     }
     ```
-    </TabItem>
-    <TabItem value="Variables">
+    </Tab>
+    <Tab value="Variables">
     ```json
     {
       "pageTypeId": "your-id"
     }
     ```
-    </TabItem>
+    </Tab>
 </Tabs>
 
 Once configured, a *staff user* calling `orderFulfillmentReturnProducts` must provide a global `reasonReference` whose `Page` belongs to the configured type; otherwise a `ValidationError` is raised. Per-line `reasonReference` remains optional. Apps may always omit it. This is independent of the `refund` flag.

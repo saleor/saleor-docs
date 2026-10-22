@@ -1,6 +1,11 @@
 ---
 title: Stored payment method events
-description: Synchronous stored payment method events
+slug: developer/extending/webhooks/synchronous-events/stored-payment-method
+sidebar: {}
+seo:
+  title: Stored payment method events
+  description: Synchronous stored payment method events
+lastModified: '2026-03-11'
 ---
 
 A stored payment method is a payment method that can be used later by customers without providing all payment details.
@@ -11,11 +16,11 @@ Saleor has synchronous webhooks that allow delegating the stored payment methods
 The `HANDLE_PAYMENTS` permission is required for the App to receive store payment method webhooks.
 
 The usage of the webhook is strictly related to the usage of stored payment method.
-You can find more details about it in the [_Stored Payment Methods_](/developer/payments/stored-payments.mdx).
+You can find more details about it in the [_Stored Payment Methods_](/developer/payments/stored-payments).
 
 :::info
+This feature is dedicated to [third-party](/api-reference/apps/enums/app-type-enum#thirdparty) apps.
 
-This feature is dedicated to [third-party](/api-reference/apps/enums/app-type-enum.mdx#thirdparty) apps.
 
 :::
 
@@ -25,14 +30,12 @@ This feature is dedicated to [third-party](/api-reference/apps/enums/app-type-en
 
 
 A synchronous webhook is called when the user wants to fetch stored payment methods. Triggered when a
-customer requested a field [User.storedPaymentMethods](/api-reference/users/objects/user.mdx#stored-payment-methods), [checkout.storedPaymentMethods](/api-reference/checkout/objects/checkout.mdx#stored-payment-methods).
+customer requested a field [User.storedPaymentMethods](/api-reference/users/objects/user#stored-payment-methods), [checkout.storedPaymentMethods](/api-reference/checkout/objects/checkout#stored-payment-methods).
 
 The webhook expects to return a list of payment methods that are assigned to the customer. The payment
-methods from the webhook response will be returned as a response for [User.storedPaymentMethods](/api-reference/users/objects/user.mdx#stored-payment-methods), [checkout.storedPaymentMethods](/api-reference/checkout/objects/checkout.mdx#stored-payment-methods) fields.
+methods from the webhook response will be returned as a response for [User.storedPaymentMethods](/api-reference/users/objects/user#stored-payment-methods), [checkout.storedPaymentMethods](/api-reference/checkout/objects/checkout#stored-payment-methods) fields.
 
-:::info
-
-To reduce the number of HTTP requests triggered to the payment app, the response is cached on
+:::info[To reduce the number of HTTP requests triggered to the payment app, the response is cached on]
 Saleor side. Saleor will trigger a new request when the cache expires or becomes invalid.
 
 :::
@@ -40,10 +43,10 @@ Saleor side. Saleor will trigger a new request when the cache expires or becomes
 ### Request
 
 Saleor will send a
-[LIST_STORED_PAYMENT_METHODS](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#list-stored-payment-methods)
-webhook by using the [ListStoredPaymentMethods](/api-reference/payments/objects/list-stored-payment-methods.mdx) subscription type or with a pre-defined payload in case of a missing subscription query.
+[LIST_STORED_PAYMENT_METHODS](/api-reference/webhooks/enums/webhook-event-type-sync-enum#list-stored-payment-methods)
+webhook by using the [ListStoredPaymentMethods](/api-reference/payments/objects/list-stored-payment-methods) subscription type or with a pre-defined payload in case of a missing subscription query.
 
-You can find more details about building webhook subscription queries in [Subscription Webhook Payloads](../subscription-webhook-payloads.mdx).
+You can find more details about building webhook subscription queries in [Subscription Webhook Payloads](/developer/extending/webhooks/subscription-webhook-payloads).
 
 The example below shows a sample webhook subscription defined to list stored payment methods:
 
@@ -103,9 +106,7 @@ Below are the possible `supportedPaymentFlows` values and their explanations:
 
 - `INTERACTIVE` - When the user needs to be present to prove the ownership of the payment method (instead of, for example, a subscription-based payment which does not require user interaction).
 
-:::warning
-
-There is no default payment flow. If the `supportedPaymentFlows` list is empty, the payment method will not be returned.
+:::warning[There is no default payment flow. If the `supportedPaymentFlows` list is empty, the payment method will not be returned.]
 
 :::
 
@@ -113,13 +114,13 @@ There is no default payment flow. If the `supportedPaymentFlows` list is empty, 
 
 `STORED_PAYMENT_METHOD_DELETE_REQUESTED`
 
-A synchronous webhook [STORED_PAYMENT_METHOD_DELETE_REQUESTED](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#stored-payment-method-delete-requested) is called when the user requests the deletion of the stored payment method. User can request the deletion of the stored payment method by triggering the mutation [storedPaymentMethodRequestDelete](/api-reference/payments/mutations/stored-payment-method-request-delete.mdx).
-More details about the flow can be found in the [transactions overview](/developer/payments/overview.mdx).
+A synchronous webhook [STORED_PAYMENT_METHOD_DELETE_REQUESTED](/api-reference/webhooks/enums/webhook-event-type-sync-enum#stored-payment-method-delete-requested) is called when the user requests the deletion of the stored payment method. User can request the deletion of the stored payment method by triggering the mutation [storedPaymentMethodRequestDelete](/api-reference/payments/mutations/stored-payment-method-request-delete).
+More details about the flow can be found in the [transactions overview](/developer/payments/overview).
 
 ### Request
 
 The example below shows a sample webhook subscription defined for
-[STORED_PAYMENT_METHOD_DELETE_REQUESTED](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#stored-payment-method-delete-requested)
+[STORED_PAYMENT_METHOD_DELETE_REQUESTED](/api-reference/webhooks/enums/webhook-event-type-sync-enum#stored-payment-method-delete-requested)
 webhook:
 
 ```graphql
@@ -171,25 +172,25 @@ The response in this case should have the following structure:
 }
 ```
 
-The `result` field is an enum value of [StoredPaymentMethodRequestDeleteResult](/api-reference/payments/enums/stored-payment-method-request-delete-result.mdx).
+The `result` field is an enum value of [StoredPaymentMethodRequestDeleteResult](/api-reference/payments/enums/stored-payment-method-request-delete-result).
 In case of returning failure `result`, the `error` message will be attached
-to the [error](/api-reference/payments/objects/payment-method-request-delete-error.mdx) returned by [storedPaymentMethodRequestDelete](/api-reference/payments/mutations/stored-payment-method-request-delete.mdx) mutation.
+to the [error](/api-reference/payments/objects/payment-method-request-delete-error) returned by [storedPaymentMethodRequestDelete](/api-reference/payments/mutations/stored-payment-method-request-delete) mutation.
 
 ## Initialize payment gateway session
 
 `PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION`
 
-The synchronous [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-gateway-initialize-tokenization-session) webhook is triggered when a customer requests the initialization of the payment gateway to tokenize a payment method. This webhook is activated by executing the [paymentGatewayInitializeTokenization](/api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx) mutation.
+The synchronous [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-gateway-initialize-tokenization-session) webhook is triggered when a customer requests the initialization of the payment gateway to tokenize a payment method. This webhook is activated by executing the [paymentGatewayInitializeTokenization](/api-reference/payments/mutations/payment-gateway-initialize-tokenization) mutation.
 
-The webhook payload includes details about the [customer](/api-reference/payments/objects/payment-gateway-initialize-tokenization-session.mdx#user), [channel](/api-reference/payments/objects/payment-gateway-initialize-tokenization-session.mdx#channel), and [data](/api-reference/payments/objects/payment-gateway-initialize-tokenization-session.mdx#data). The [data](/api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx#data) field contains the JSON data provided as input in the [paymentGatewayInitializeTokenization](/api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx) mutation.
+The webhook payload includes details about the [customer](/api-reference/payments/objects/payment-gateway-initialize-tokenization-session#user), [channel](/api-reference/payments/objects/payment-gateway-initialize-tokenization-session#channel), and [data](/api-reference/payments/objects/payment-gateway-initialize-tokenization-session#data). The [data](/api-reference/payments/mutations/payment-gateway-initialize-tokenization#data) field contains the JSON data provided as input in the [paymentGatewayInitializeTokenization](/api-reference/payments/mutations/payment-gateway-initialize-tokenization) mutation.
 
-The response must adhere to the expected format and will be returned within the [paymentGatewayInitializeTokenization](/api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx) mutation.
+The response must adhere to the expected format and will be returned within the [paymentGatewayInitializeTokenization](/api-reference/payments/mutations/payment-gateway-initialize-tokenization) mutation.
 
 ### Request
 
-Saleor will send a [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-gateway-initialize-tokenization-session) webhook using the [PaymentGatewayInitializeTokenizationSession](/api-reference/payments/objects/payment-gateway-initialize-tokenization-session.mdx) subscription type or with a predefined payload in case of a missing subscription query.
+Saleor will send a [PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-gateway-initialize-tokenization-session) webhook using the [PaymentGatewayInitializeTokenizationSession](/api-reference/payments/objects/payment-gateway-initialize-tokenization-session) subscription type or with a predefined payload in case of a missing subscription query.
 
-For more details on building webhook subscription queries, refer to [Subscription Webhook Payloads](../subscription-webhook-payloads.mdx).
+For more details on building webhook subscription queries, refer to [Subscription Webhook Payloads](/developer/extending/webhooks/subscription-webhook-payloads).
 
 The example below demonstrates a sample webhook subscription defined to handle the initialization of the payment gateway for tokenizing a payment method:
 
@@ -241,23 +242,23 @@ The application should return the status of the initialization and optionally `d
 }
 ```
 
-The `result` field is an enum value of [PaymentGatewayInitializeTokenizationResultEnum](/api-reference/payments/enums/payment-gateway-initialize-tokenization-result.mdx). In the event of returning a failure `result`, the `errors` message will be attached to the [error](/api-reference/payments/objects/payment-gateway-initialize-tokenization.mdx) returned by the [paymentGatewayInitializeTokenization](/api-reference/payments/mutations/payment-gateway-initialize-tokenization.mdx) mutation.
+The `result` field is an enum value of [PaymentGatewayInitializeTokenizationResultEnum](/api-reference/payments/enums/payment-gateway-initialize-tokenization-result). In the event of returning a failure `result`, the `errors` message will be attached to the [error](/api-reference/payments/objects/payment-gateway-initialize-tokenization) returned by the [paymentGatewayInitializeTokenization](/api-reference/payments/mutations/payment-gateway-initialize-tokenization) mutation.
 
 ## Initialize payment method tokenization
 
 `PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION`
 
-The synchronous [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-method-initialize-tokenization-session) webhook is triggered when a customer requests the tokenization of a payment method. This webhook is activated by executing the [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation.
+The synchronous [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-method-initialize-tokenization-session) webhook is triggered when a customer requests the tokenization of a payment method. This webhook is activated by executing the [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization) mutation.
 
-The webhook payload includes details about the [customer](/api-reference/payments/objects/payment-method-initialize-tokenization-session.mdx#user), [channel](/api-reference/payments/objects/payment-method-initialize-tokenization-session.mdx#channel), and [data](/api-reference/payments/objects/payment-method-initialize-tokenization-session.mdx#data). The [data](/api-reference/payments/objects/payment-method-initialize-tokenization-session.mdx#data) field contains the JSON data provided as input in the [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation.
+The webhook payload includes details about the [customer](/api-reference/payments/objects/payment-method-initialize-tokenization-session#user), [channel](/api-reference/payments/objects/payment-method-initialize-tokenization-session#channel), and [data](/api-reference/payments/objects/payment-method-initialize-tokenization-session#data). The [data](/api-reference/payments/objects/payment-method-initialize-tokenization-session#data) field contains the JSON data provided as input in the [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization) mutation.
 
-The response must conform to the expected format and will be returned within the [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation.
+The response must conform to the expected format and will be returned within the [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization) mutation.
 
 ### Request
 
-Saleor will send a [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-method-initialize-tokenization-session) webhook using the `PaymentMethodInitializeTokenizationSession` subscription type or with a predefined payload in case of a missing subscription query.
+Saleor will send a [PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-method-initialize-tokenization-session) webhook using the `PaymentMethodInitializeTokenizationSession` subscription type or with a predefined payload in case of a missing subscription query.
 
-For detailed information on building webhook subscription queries, please refer to [Subscription Webhook Payloads](../subscription-webhook-payloads.mdx).
+For detailed information on building webhook subscription queries, please refer to [Subscription Webhook Payloads](/developer/extending/webhooks/subscription-webhook-payloads).
 
 The following example demonstrates a sample webhook subscription defined to handle the tokenization of a payment method:
 
@@ -329,23 +330,23 @@ The next example illustrates the predefined payload that will be used if a subsc
 }
 ```
 
-The `result` field is an enum value of [PaymentMethodTokenizationResultEnum](/api-reference/payments/enums/payment-method-tokenization-result.mdx). In case of a failure `result`, the `error` message will be attached to the [errors](/api-reference/payments/objects/payment-method-initialize-tokenization.mdx#errors) returned by the [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization.mdx) mutation.
+The `result` field is an enum value of [PaymentMethodTokenizationResultEnum](/api-reference/payments/enums/payment-method-tokenization-result). In case of a failure `result`, the `error` message will be attached to the [errors](/api-reference/payments/objects/payment-method-initialize-tokenization#errors) returned by the [paymentMethodInitializeTokenization](/api-reference/payments/mutations/payment-method-initialize-tokenization) mutation.
 
 ## Process additional actions for payment method tokenization
 
 `PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION`
 
-The synchronous [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-method-process-tokenization-session) webhook is triggered when a customer requests to process additional actions required for tokenizing the payment method. This webhook is activated by executing the `paymentMethodProcessTokenization` mutation.
+The synchronous [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-method-process-tokenization-session) webhook is triggered when a customer requests to process additional actions required for tokenizing the payment method. This webhook is activated by executing the `paymentMethodProcessTokenization` mutation.
 
-The webhook payload includes details about the [customer](/api-reference/users/objects/user.mdx), [channel](/api-reference/channels/objects/channel.mdx), and data. The `data` field contains the JSON data provided as input in the [paymentMethodProcessTokenization](/api-reference/payments/mutations/payment-method-process-tokenization.mdx) mutation.
+The webhook payload includes details about the [customer](/api-reference/users/objects/user), [channel](/api-reference/channels/objects/channel), and data. The `data` field contains the JSON data provided as input in the [paymentMethodProcessTokenization](/api-reference/payments/mutations/payment-method-process-tokenization) mutation.
 
-The response must adhere to the expected format and will be returned within the [paymentMethodProcessTokenization](/api-reference/payments/mutations/payment-method-process-tokenization.mdx) mutation.
+The response must adhere to the expected format and will be returned within the [paymentMethodProcessTokenization](/api-reference/payments/mutations/payment-method-process-tokenization) mutation.
 
 ### Request
 
-Saleor will send a [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx#payment-method-process-tokenization-session) webhook using the [PaymentMethodProcessTokenizationSession](/api-reference/payments/objects/payment-method-process-tokenization-session.mdx) subscription type or with a predefined payload in case of a missing subscription query.
+Saleor will send a [PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION](/api-reference/webhooks/enums/webhook-event-type-sync-enum#payment-method-process-tokenization-session) webhook using the [PaymentMethodProcessTokenizationSession](/api-reference/payments/objects/payment-method-process-tokenization-session) subscription type or with a predefined payload in case of a missing subscription query.
 
-For detailed information on building webhook subscription queries, please refer to [Subscription Webhook Payloads](../subscription-webhook-payloads.mdx).
+For detailed information on building webhook subscription queries, please refer to [Subscription Webhook Payloads](/developer/extending/webhooks/subscription-webhook-payloads).
 
 The following example demonstrates a sample webhook subscription defined to handle the tokenization of a payment method:
 
@@ -416,4 +417,4 @@ The next example illustrates the predefined payload that will be used if a subsc
 }
 ```
 
-The `result` field is an enum value of [PaymentMethodTokenizationResultEnum](/api-reference/payments/enums/payment-method-tokenization-result.mdx). In case of a failure `result`, the `error` message will be attached to the [errors](/api-reference/payments/objects/payment-method-process-tokenization.mdx#errors) returned by the [paymentMethodProcessTokenization](/api-reference/payments/objects/payment-method-process-tokenization.mdx) mutation.
+The `result` field is an enum value of [PaymentMethodTokenizationResultEnum](/api-reference/payments/enums/payment-method-tokenization-result). In case of a failure `result`, the `error` message will be attached to the [errors](/api-reference/payments/objects/payment-method-process-tokenization#errors) returned by the [paymentMethodProcessTokenization](/api-reference/payments/objects/payment-method-process-tokenization) mutation.

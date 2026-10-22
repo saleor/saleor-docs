@@ -1,5 +1,11 @@
 ---
 title: Asynchronous Events
+slug: developer/extending/webhooks/asynchronous-events
+sidebar: {}
+seo:
+  title: Asynchronous Events
+  description: Architecture
+lastModified: '2026-10-19'
 ---
 
 ## Architecture
@@ -8,7 +14,7 @@ Asynchronous webhooks can be used for reacting to the events emitted by Saleor.
 
 The worker instance will send the event payload via the chosen protocol. Your App or service should acknowledge receiving the payload, by responding with HTTP 200 status. If a successful response has not been received, for example in the case of temporary service unavailability, the worker instance will retry delivery. The delivery is triggered a maximum of five times. Behind the scenes, Saleor uses an exponential backoff strategy with the retry interval calculated as 10 \* (2\*\*retries) seconds.
 
-The asynchronous events are meant to be used for Apps or services that do not require processing on the Saleor side. If you need to send data back to the user (for example, calculated shipping cost), you should use a [synchronous webhook](/developer/extending/webhooks/synchronous-events/overview.mdx).
+The asynchronous events are meant to be used for Apps or services that do not require processing on the Saleor side. If you need to send data back to the user (for example, calculated shipping cost), you should use a [synchronous webhook](/developer/extending/webhooks/synchronous-events/overview).
 
 ## Examples of the use cases
 
@@ -43,7 +49,7 @@ While HTTPS webhooks are a familiar concept and may seem easy to implement, ensu
 
 Webhook endpoints must respond within 20 seconds, including the network latency.
 
-If your application performs long-running operations, consider using a [task queue](/developer/extending/apps/architecture/communication-between-app-and-saleor.mdx#task-queue) instead.
+If your application performs long-running operations, consider using a [task queue](/developer/extending/apps/architecture/communication-between-app-and-saleor#task-queue) instead.
 
 #### Fault tolerance
 
@@ -102,8 +108,7 @@ The structure of `targetUrl` should be as below:
 awssqs://<access-key-id>:<secret-access-key>@sqs.<region>.amazonaws.com/<account-id>/<queue-name>
 ```
 
-:::note
-FIFO queues (ending in `.fifo`) must be configured to have `ContentBasedDeduplication` enabled.
+:::note[FIFO queues (ending in `.fifo`) must be configured to have `ContentBasedDeduplication` enabled.]
 `MessageGroupID` will be set to Saleor's domain name.
 :::
 
@@ -147,7 +152,7 @@ Set `payloadGeneration` on the webhook to choose how its payload is built:
 - `DEFERRED` (default): the payload is built by a background task, as described above.
 - `IMMEDIATE`: the payload is built in the request that triggered the event, the way all events worked before deferred generation was introduced.
 
-The setting is available in [`webhookCreate`](/api-reference/webhooks/mutations/webhook-create.mdx), in [`webhookUpdate`](/api-reference/webhooks/mutations/webhook-update.mdx), on the [`Webhook`](/api-reference/webhooks/objects/webhook.mdx) type, and as `payloadGeneration` on each entry of the `webhooks` list in the [app manifest](/developer/extending/apps/architecture/manifest.mdx). It has no effect on legacy webhooks, synchronous events, and events that are not deferred.
+The setting is available in [`webhookCreate`](/api-reference/webhooks/mutations/webhook-create), in [`webhookUpdate`](/api-reference/webhooks/mutations/webhook-update), on the [`Webhook`](/api-reference/webhooks/objects/webhook) type, and as `payloadGeneration` on each entry of the `webhooks` list in the [app manifest](/developer/extending/apps/architecture/manifest). It has no effect on legacy webhooks, synchronous events, and events that are not deferred.
 
 ```graphql {7}
 mutation {
@@ -182,4 +187,4 @@ The order in which deliveries arrive is not guaranteed in either mode. If you ne
 
 ## Available webhook events
 
-The [WebhookEventTypeAsyncEnum](/api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#values) represents the latest list of asynchronous webhooks
+The [WebhookEventTypeAsyncEnum](/api-reference/webhooks/enums/webhook-event-type-async-enum#values) represents the latest list of asynchronous webhooks

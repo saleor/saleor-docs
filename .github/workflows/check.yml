@@ -1,0 +1,29 @@
+name: Check documentation
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm blume:doctor
+      - run: pnpm knip
+      - run: pnpm test
+      - run: pnpm generate-api-reference
+      - run: git diff --exit-code -- docs/api-reference public/schema
+      - run: pnpm validate
+      - run: pnpm typecheck
+      - run: pnpm build
+      - run: pnpm check:artifacts
+      - run: pnpm check:search
+      - run: pnpm run audit
+        env:
+          # The rendered documentation exceeds Node's default 2 GB heap.
+          NODE_OPTIONS: --max-old-space-size=4096

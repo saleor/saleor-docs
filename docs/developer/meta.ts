@@ -1,0 +1,2 @@
+import { defineMeta } from "blume";
+export default defineMeta({"title":"Core concepts","pages":["index","products","checkout","app-store","extending","address","ai","attributes","bulks","channels","community","discounts","export","gift-cards","modeling","models","order","payments","permissions","price-calculation","price-freeze-period","running-saleor","shipping","stock","structures","taxes","thumbnails","users","tools"]});

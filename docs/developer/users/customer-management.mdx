@@ -1,5 +1,11 @@
 ---
 title: Customer Management
+slug: developer/users/customer-management
+sidebar: {}
+seo:
+  title: Customer Management
+  description: Saleor enables staff users and authorized apps to manage customer accounts and data.
+lastModified: '2026-08-10'
 ---
 
 Saleor enables staff users and authorized apps to manage customer accounts and data. 
@@ -7,7 +13,8 @@ While customers can register and manage their own accounts, there are many scena
 or third-party apps need to interact with customer data directly for support, marketing, analytics, or system integration.
 
 :::note
-Customers and staff are represented by the same [`User`](/developer/users/user-model.mdx) type. The mutations on this page operate on users with `isStaff: false`. For the relationship between the two roles — including how a customer can be promoted to staff — see [Customers and Staff as One User](/developer/users/user-model.mdx).
+Customers and staff are represented by the same [`User`](/developer/users/user-model) type. The mutations on this page operate on users with `isStaff: false`. For the relationship between the two roles — including how a customer can be promoted to staff — see [Customers and Staff as One User](/developer/users/user-model).
+
 :::
 
 Managing customer data is essential for:
@@ -23,27 +30,26 @@ Managing customers is available to users and apps with the `MANAGE_USERS` permis
 You can create customer accounts using either the Saleor Dashboard (admin UI) or the API:
 
 - **Dashboard:** Staff users can manually create customer accounts through the **Customers** section in the Dashboard.
-- **API:** Staff users or apps can create customer accounts programmatically using the [`customerCreate`](/api-reference/users/mutations/customer-create.mdx) mutation.
+- **API:** Staff users or apps can create customer accounts programmatically using the [`customerCreate`](/api-reference/users/mutations/customer-create) mutation.
 
 Unlike the `accountRegister` mutation, where a password must be set immediately, when a customer account is created by staff or an app, 
 there is no immediate need to set a password. Instead, a link for setting the password will be automatically emailed to the customer. 
 This provides a convenient way to onboard customers.
 
-:::info
-A set password email is sent only if both `redirectUrl` and `channel` are provided in the `customerCreate` mutation and the relevant plugin or app is subscribed to the correct event.
+:::info[A set password email is sent only if both `redirectUrl` and `channel` are provided in the `customerCreate` mutation and the relevant plugin or app is subscribed to the correct event.]
 :::
 
 ## Updating Customer Data
 If your storefront does not expose profile editing, staff users or apps can update customer data through the Dashboard or the API:
 
 - **Dashboard:** Edit customer details (name, email, addresses, etc.) directly in the `Customers` section.
-- **API:** Use the [`customerUpdate`](/api-reference/users/mutations/customer-update.mdx) mutation to update details programmatically.
+- **API:** Use the [`customerUpdate`](/api-reference/users/mutations/customer-update) mutation to update details programmatically.
 
-Besides the built-in fields, `customerUpdate` can also assign a [customer type and set attribute values](/developer/users/customer-types.mdx) on the account.
+Besides the built-in fields, `customerUpdate` can also assign a [customer type and set attribute values](/developer/users/customer-types) on the account.
 
 ## Delete a Customer
 - **Dashboard:** Staff users can remove customer directly in the **Customers** section.
-- **API:** Use the [`customerDelete`](/api-reference/users/mutations/customer-delete.mdx) mutation.
+- **API:** Use the [`customerDelete`](/api-reference/users/mutations/customer-delete) mutation.
 
 Deleting a customer does **not** remove their orders or related records. 
 Order history and associated data remain in the system even after the customer account is deleted.
@@ -53,7 +59,7 @@ Order history and associated data remain in the system even after the customer a
 If you are migrating an existing store to Saleor and need to import your existing customers:
 
 ### Create Customers via API
-For each customer, run the [`customerCreate`](/api-reference/users/mutations/customer-create.mdx) mutation.
+For each customer, run the [`customerCreate`](/api-reference/users/mutations/customer-create) mutation.
 You can't directly transfer password hashes, you need to allow customers to set their passwords. 
 To send password-setup emails, include both the `redirectUrl` and `channel` parameters in the mutation.
 Ensure that the relevant plugin or app for sending customer emails is enabled.
@@ -65,11 +71,10 @@ If you use an identity provider (IdP) for login, customer accounts will be autom
 The OIDC plugin stores the IdP’s authorization key in the customer’s private metadata.
 
 
-Learn how to set up the OIDC plugin in the [OIDC guide](/api-usage/authentication.mdx#user-authentication-using-openid-connect).
+Learn how to set up the OIDC plugin in the [OIDC guide](/api-usage/authentication#user-authentication-using-openid-connect).
 
 
-:::info
-All anonymous orders placed using a given email address will be automatically linked to the corresponding customer account after the user logs in.
+:::info[All anonymous orders placed using a given email address will be automatically linked to the corresponding customer account after the user logs in.]
 :::
 
 ## Extending Customers with Metadata
@@ -77,7 +82,8 @@ All anonymous orders placed using a given email address will be automatically li
 Saleor allows you to attach custom metadata to customer accounts, enabling integrations with external systems or adding custom fields.
 
 :::tip
-Metadata is freeform key-value data. For structured fields that are validated against a schema and filterable in the `customers` query — such as loyalty tiers or company details — use [customer types and attributes](/developer/users/customer-types.mdx) instead.
+Metadata is freeform key-value data. For structured fields that are validated against a schema and filterable in the `customers` query — such as loyalty tiers or company details — use [customer types and attributes](/developer/users/customer-types) instead.
+
 :::
 
 You can manage customer metadata using either the Dashboard or the API:
@@ -86,17 +92,16 @@ You can manage customer metadata using either the Dashboard or the API:
   Staff users can view, add, or edit customer metadata directly in the **Customers** section of the Dashboard, within the customer details view.
 
 - **API:**  
-  - To set or update metadata when updating a customer, include the `metadata` or `privateMetadata` fields in the [`customerUpdate`](/api-reference/users/mutations/customer-update.mdx) mutation.
+  - To set or update metadata when updating a customer, include the `metadata` or `privateMetadata` fields in the [`customerUpdate`](/api-reference/users/mutations/customer-update) mutation.
   - For more granular control, use the dedicated metadata mutations:
-    - [`updateMetadata`](/api-reference/miscellaneous/mutations/update-metadata.mdx) for public key-value data (visible to apps and staff).
-    - [`updatePrivateMetadata`](/api-reference/miscellaneous/mutations/update-private-metadata.mdx) for secure/internal values (not exposed via the public API).
+    - [`updateMetadata`](/api-reference/miscellaneous/mutations/update-metadata) for public key-value data (visible to apps and staff).
+    - [`updatePrivateMetadata`](/api-reference/miscellaneous/mutations/update-private-metadata) for secure/internal values (not exposed via the public API).
 
 
 ## Exporting Customer Data
 Saleor does not provide CSV exports by default. You must implement this yourself.
 
 To export customer data (e.g., for analytics or GDPR):
-- Use the [`customers`](/api-reference/users/queries/customers.mdx) query to fetch customers.
+- Use the [`customers`](/api-reference/users/queries/customers) query to fetch customers.
 - Include fields like name, email, and metadata.
 - Automate extraction with scripts calling Saleor’s GraphQL API.
-
