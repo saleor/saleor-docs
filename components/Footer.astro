@@ -1,0 +1,26 @@
+---
+const year = new Date().getUTCFullYear();
+const sentryDsn = import.meta.env.SENTRY_DSN;
+const sentryEnvironment = import.meta.env.VERCEL_ENV || "development";
+const sentryRelease = import.meta.env.VERCEL_GIT_COMMIT_SHA || import.meta.env.GITHUB_SHA;
+---
+
+<footer data-sentry-dsn={sentryDsn} data-sentry-environment={sentryEnvironment} data-sentry-release={sentryRelease} class="border-border border-t px-6 py-8 text-center text-muted-foreground text-sm">
+  Copyright © 2018–{year} <a href="https://saleor.io/">Saleor Commerce</a>. All rights reserved. |
+  <a href="https://saleor.io/legal/terms"> Terms</a> |
+  <a href="https://saleor.io/legal/privacy"> Privacy</a> |
+  <a class="cky-banner-element" href="#"> Manage Cookies Settings</a>
+</footer>
+
+<script>
+  import * as Sentry from "@sentry/browser";
+  const telemetry = document.querySelector<HTMLElement>("[data-sentry-dsn]")?.dataset;
+  if (telemetry?.sentryDsn) Sentry.init({
+    dsn: telemetry.sentryDsn,
+    environment: telemetry.sentryEnvironment,
+    release: telemetry.sentryRelease,
+  });
+  window.addEventListener("error", (event) => {
+    if (event.error?.name === "ChunkLoadError") window.location.reload();
+  });
+</script>

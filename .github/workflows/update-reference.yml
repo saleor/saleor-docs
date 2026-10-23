@@ -1,0 +1,71 @@
+name: Update API reference
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Saleor release tag (empty selects latest published release)
+        required: false
+  schedule:
+    - cron: "0 2 * * *"
+permissions:
+  contents: read
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: pnpm install --frozen-lockfile
+      - name: Resolve release and regenerate
+        env:
+          REQUESTED_REF: ${{ inputs.ref }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release_ref="$REQUESTED_REF"
+          if [ -z "$release_ref" ]; then
+            release_ref=$(gh api repos/saleor/saleor/releases/latest --jq .tag_name)
+          fi
+          pnpm update-schema "$release_ref"
+      - run: pnpm test && pnpm validate && pnpm build && pnpm check:artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: updated-api-reference
+          path: |
+            schema/
+            docs/api-reference/
+
+            public/schema/
+  propose:
+    needs: generate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: rm -rf docs/api-reference
+      - uses: actions/download-artifact@v4
+        with:
+          name: updated-api-reference
+          path: .
+      - name: Get Saleor Bot token
+        id: get-token
+        uses: saleor/saleor-internal-actions/request-vault-token@d7b612674c6d2c0c04c9e946e5decfc483e2795a
+        with:
+          vault-url: ${{ secrets.VAULT_URL }}
+          vault-jwt: ${{ secrets.VAULT_JWT }}
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ steps.get-token.outputs.token }}
+          branch: bot-update-api-reference
+          title: Update Saleor API reference
+          commit-message: Update pinned Saleor schema and API reference
+          body: Regenerated from a published Saleor release and checked with the documentation tests, build, and artifact checks.
+          add-paths: |
+            schema/
+            docs/api-reference/
+
+            public/schema/

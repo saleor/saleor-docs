@@ -1,0 +1,72 @@
+---
+import metadata from "../public/saleor-search-metadata.json";
+const { headings, title, variant } = Astro.props;
+const route = Astro.url.pathname.replace(/\/$/, "") || "/";
+const visible = route === "/" ? [] : (metadata[route as keyof typeof metadata]?.headings ?? headings);
+---
+
+{visible.length > 0 && variant === "mobile" && (
+  <details class="mx-auto mb-6 max-w-content rounded-blume border border-border xl:hidden">
+    <summary class="cursor-pointer px-4 py-3 font-medium text-sm">{title}</summary>
+    <ul class="m-0 list-none border-border border-t p-2">
+      {visible.map((heading) => <li data-depth={heading.depth}><a class="block px-2 py-1.5 text-muted-foreground text-sm" href={`#${heading.slug}`}>{heading.text}</a></li>)}
+    </ul>
+  </details>
+)}
+{visible.length > 0 && variant === "desktop" && (
+  <>
+    <p class="mb-3 font-semibold text-sm">{title}</p>
+    <ul class="m-0 list-none p-0" data-saleor-toc-headings>
+      {visible.map((heading) => <li data-depth={heading.depth}><a class="block py-1.5 text-muted-foreground text-sm" href={`#${heading.slug}`}>{heading.text}</a></li>)}
+    </ul>
+  </>
+)}
+
+<style is:global>
+  /* The native layout may count headings that our filtered ToC omits. */
+  [data-blume-toc]:not(:has([data-saleor-toc-headings])) > [data-blume-page-actions] {
+    margin-top: 0;
+    border-top: 0;
+    padding-top: 0;
+  }
+</style>
+
+<style>
+  li[data-depth="3"] { padding-inline-start: 0.75rem; }
+  a[aria-current="location"] { color: var(--blume-foreground); font-weight: 600; border-inline-start: 2px solid currentColor; padding-inline-start: 0.5rem; }
+</style>
+<script>
+  let observer: IntersectionObserver | undefined;
+  function observeHeadings() {
+    observer?.disconnect();
+    const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-blume-toc] a[href^="#"], main details a[href^="#"]')];
+    const targets = links.map(link => document.getElementById(decodeURIComponent(link.hash.slice(1)))).filter((el): el is HTMLElement => Boolean(el));
+    observer = new IntersectionObserver(entries => {
+      const active = entries.find(entry => entry.isIntersecting);
+      if (!active) return;
+      for (const link of links) {
+        if (decodeURIComponent(link.hash.slice(1)) === active.target.id) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      }
+    }, { rootMargin: `-${document.querySelector('[data-blume-header]')?.getBoundingClientRect().height ?? 64}px 0px -65% 0px` });
+    targets.forEach(target => observer!.observe(target));
+  }
+  function revealAnchor() {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    let parent = target.parentElement;
+    let opened = false;
+    while (parent) {
+      if (parent instanceof HTMLDetailsElement && !parent.open) { parent.open = true; opened = true; }
+      parent = parent.parentElement;
+    }
+    if (opened) target.scrollIntoView();
+  }
+  window.addEventListener('hashchange', revealAnchor);
+  document.addEventListener('astro:page-load', revealAnchor);
+  revealAnchor();
+  document.addEventListener('astro:page-load', observeHeadings);
+  observeHeadings();
+</script>

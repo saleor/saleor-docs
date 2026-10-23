@@ -1,5 +1,11 @@
 ---
 title: AppErrorCode
+slug: developer/extending/apps/developing-apps/app-error-codes
+sidebar: {}
+seo:
+  title: AppErrorCode
+  description: Below you'll find explanations for AppErrorCode values that can be returned during various app-related operations in Saleor, such as installing an app, fetching its manifest, updating an app, or deleting it. Each section explains what the error means, when it can happen, and what you should check or do to resolve it.
+lastModified: '2026-04-07'
 ---
 
 Below you'll find explanations for `AppErrorCode` values that can be returned during various app-related operations in Saleor, such as installing an app, fetching its manifest, updating an app, or deleting it. Each section explains what the error means, when it can happen, and what you should check or do to resolve it.
@@ -24,19 +30,19 @@ It can occur for field `manifestUrl` (when fetching app's manifest) or for any U
 - 💡 **Debugging Tips**:
   - Inspect the `manifestUrl` and the full manifest content you are submitting.
   - Identify the specific field and its invalid URL value from the error details.
-  - Confirm the expected URL format and allowed scheme for the specific field. For most fields, `http` or `https` is required. Some, like webhook `targetUrl`, allow additional schemes. Refer to Saleor's [App Manifest documentation](/developer/extending/apps/architecture/manifest.mdx) for per-field requirements.
+  - Confirm the expected URL format and allowed scheme for the specific field. For most fields, `http` or `https` is required. Some, like webhook `targetUrl`, allow additional schemes. Refer to Saleor's [App Manifest documentation](/developer/extending/apps/architecture/manifest) for per-field requirements.
   - Ensure all URLs are well-formed and use the correct scheme for their context.
 
 ## `AppErrorCode.INVALID_PERMISSION`
 This error occurs when the `permissions` array in the manifest (either the top-level `permissions` array or within an `extensions[].permissions` field)
-lists one or more permission that are not recognized by Saleor (i.e. not valid [`PermissionEnum`](/developer/permissions.mdx#available-permissions)).
+lists one or more permission that are not recognized by Saleor (i.e. not valid [`PermissionEnum`](/developer/permissions#available-permissions)).
 
 - 🧐 **Cause**:
     - The manifest requests a permission that is not valid.
     - Incorrect input for the `appInstall` mutation.
 - 💡 **Debugging Tips**:
   - Review the full manifest content, specifically all `permissions` arrays (top-level and within each `extensions` item).
-  - Compare these requested permissions with the list of available permissions in your Saleor instance. See [Available Permissions](/developer/permissions.mdx#available-permissions).
+  - Compare these requested permissions with the list of available permissions in your Saleor instance. See [Available Permissions](/developer/permissions#available-permissions).
   - Identify the specific unknown permission codename(s). The `appFetchManifest` response should indicate the problematic codenames.
 
 ## `AppErrorCode.OUT_OF_SCOPE_PERMISSION`
@@ -58,7 +64,7 @@ This error can be raised in two main scenarios:
     - Examine the full manifest content. Carefully compare the top-level `permissions` array with the `permissions` array within each item of the `extensions` array.
     - Identify the specific extension component and the permission causing the mismatch. Error details from `appFetchManifest` should provide this information.
     - Ensure any permission listed for an extension is also present in the main `permissions` list for the app.
-    - Consult the [list of available permissions](/developer/permissions.mdx) to verify the permissions requested by your app.
+    - Consult the [list of available permissions](/developer/permissions) to verify the permissions requested by your app.
 
 ## `AppErrorCode.OUT_OF_SCOPE_APP`
 This error is raised when a staff user tries to manage an app whose permission scope is broader than their own. Saleor blocks updates, deletions, and token operations unless the requester can grant every permission that the app currently has.
@@ -94,13 +100,13 @@ This error means the manifest has invalid structure. This can include issues lik
 
 - 🧐 **Cause**: The manifest file does not adhere to the expected structure, contains formatting issues, or is not valid JSON.
 - 💡 **Debugging Tips**:
-  - Before installation, validate your app manifest against Saleor's schema. Refer to the [App Manifest documentation](/developer/extending/apps/architecture/manifest.mdx) for schema details. Using a JSON linter can also catch basic syntax errors.
+  - Before installation, validate your app manifest against Saleor's schema. Refer to the [App Manifest documentation](/developer/extending/apps/architecture/manifest) for schema details. Using a JSON linter can also catch basic syntax errors.
   - If you encounter a JSON decode error:
     1. Obtain the raw content fetched from the `manifestUrl` (e.g., using `curl`).
     2. Validate this content with a JSON linter.
   - Review the full manifest content carefully for any structural issues.
   - Examine the full error returned by Saleor. It often points to specific problematic fields in the manifest and explains why they are problematic.
-  - Consider using Saleor's [`app-sdk`](/developer/extending/apps/developing-apps/app-sdk/overview.mdx) to construct the manifest, as it helps adhere to the documented structure.
+  - Consider using Saleor's [`app-sdk`](/developer/extending/apps/developing-apps/app-sdk/overview) to construct the manifest, as it helps adhere to the documented structure.
 
 ## `AppErrorCode.REQUIRED`
 This error means the manifest is missing required data. Saleor validates that mandatory fields exist at multiple levels within the manifest.
@@ -112,7 +118,7 @@ This error means the manifest is missing required data. Saleor validates that ma
 - 💡 **Debugging Tips**:
   - Inspect the full manifest content.
   - Check error details, which should indicate the specific required field(s) that are missing.
-  - Verify each extension and webhook entry also contains all mandatory fields documented in Saleor's [App Manifest documentation](/developer/extending/apps/architecture/manifest.mdx).
+  - Verify each extension and webhook entry also contains all mandatory fields documented in Saleor's [App Manifest documentation](/developer/extending/apps/architecture/manifest).
 
 ## `AppErrorCode.UNIQUE`
 This error means the `id` field (identifier) in the manifest is already used by another app in your Saleor instance.
@@ -167,7 +173,7 @@ This error is raised when the `customHeaders` field for a webhook defined in the
       !"#$%&'()*+,-./0123456789;:<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~ \t
       ```
   - Find the exact validation error message from the validator in background worker logs. This will point to the issue (e.g., "Headers must be a dictionary of strings.", "Key (...) contains invalid character.", or "(...) does not match allowed key pattern...").
-  - Refer to the webhook section of the [App Manifest documentation](/developer/extending/apps/architecture/manifest.mdx) and the [`WebhookCreateInput`](/api-reference/webhooks/inputs/webhook-create-input.mdx) documentation for details on `customHeaders`.
+  - Refer to the webhook section of the [App Manifest documentation](/developer/extending/apps/architecture/manifest) and the [`WebhookCreateInput`](/api-reference/webhooks/inputs/webhook-create-input) documentation for details on `customHeaders`.
 
 ## `AppErrorCode.GRAPHQL_ERROR`
 This error indicates a general GraphQL processing error occurred during an app-related operation. It is used as a fallback when no more specific `AppErrorCode` applies.
@@ -183,13 +189,13 @@ This generic error is raised during manifest processing, app installation, or ot
 
 - 🧐 **Cause**: This error can arise from a variety of issues, often related to the manifest content or app assets:
     1.  **Manifest values**:
-        *   **Webhooks ([`manifest.webhooks`](/developer/extending/apps/architecture/manifest.mdx))**:
-            *   [`isActive`](/developer/extending/apps/architecture/manifest.mdx): Value provided is not a boolean (`true`/`false`).
-            *   [`asyncEvents`](/developer/extending/apps/architecture/manifest.mdx) / [`syncEvents`](/developer/extending/apps/architecture/manifest.mdx): Contains event type strings not recognized by Saleor (i.e., not valid [`WebhookEventAsyncType`](/api-reference/webhooks/enums/webhook-event-type-async-enum.mdx) or [`WebhookEventSyncType`](/api-reference/webhooks/enums/webhook-event-type-sync-enum.mdx) enum members).
-            *   [`query`](/developer/extending/apps/architecture/manifest.mdx): The GraphQL subscription query is syntactically incorrect or invalid for Saleor subscriptions.
-        *   **Required Saleor version ([`manifest.requiredSaleorVersion`](/developer/extending/apps/architecture/manifest.mdx))**: The value is not a parseable semantic versioning string (e.g., `"~=3.0"`, `"^3.22"`).
-        *   **Author ([`manifest.author`](/developer/extending/apps/architecture/manifest.mdx))**: The field is present but contains an empty string or only whitespace.
-    2.  **App icon issues ([`manifest.brand.logo.default`](/developer/extending/apps/architecture/manifest.mdx))**:
+        *   **Webhooks ([`manifest.webhooks`](/developer/extending/apps/architecture/manifest))**:
+            *   [`isActive`](/developer/extending/apps/architecture/manifest): Value provided is not a boolean (`true`/`false`).
+            *   [`asyncEvents`](/developer/extending/apps/architecture/manifest) / [`syncEvents`](/developer/extending/apps/architecture/manifest): Contains event type strings not recognized by Saleor (i.e., not valid [`WebhookEventAsyncType`](/api-reference/webhooks/enums/webhook-event-type-async-enum) or [`WebhookEventSyncType`](/api-reference/webhooks/enums/webhook-event-type-sync-enum) enum members).
+            *   [`query`](/developer/extending/apps/architecture/manifest): The GraphQL subscription query is syntactically incorrect or invalid for Saleor subscriptions.
+        *   **Required Saleor version ([`manifest.requiredSaleorVersion`](/developer/extending/apps/architecture/manifest))**: The value is not a parseable semantic versioning string (e.g., `"~=3.0"`, `"^3.22"`).
+        *   **Author ([`manifest.author`](/developer/extending/apps/architecture/manifest))**: The field is present but contains an empty string or only whitespace.
+    2.  **App icon issues ([`manifest.brand.logo.default`](/developer/extending/apps/architecture/manifest))**:
         *   **Required file format**: The icon must be a valid PNG image, `Content-Type` header should also be set to `image/png`.
         *   **Excessive file size**: The image file, as indicated by the `Content-Length` header or the actual downloaded content, must not exceed 10MB.
         *   **Image dimensions & properties**:
@@ -200,11 +206,11 @@ This generic error is raised during manifest processing, app installation, or ot
     4.  **Data validation error**: A value provided in the manifest for a particular field violates a constraint when Saleor tries to save or process it. This could be due to issues like exceeding a maximum length, providing an invalid choice for a field, or other data type mismatches against what Saleor expects for that field.
 
 - 💡 **Debugging Tips**:
-  - Before attempting installation, validate your app manifest against Saleor's schema and documentation. Many errors can be caught early by ensuring your manifest is correctly structured and contains all required information with correct types and formats. Use a JSON linter for basic syntax and refer to the [App Manifest documentation](/developer/extending/apps/architecture/manifest.mdx) for detailed schema information.
+  - Before attempting installation, validate your app manifest against Saleor's schema and documentation. Many errors can be caught early by ensuring your manifest is correctly structured and contains all required information with correct types and formats. Use a JSON linter for basic syntax and refer to the [App Manifest documentation](/developer/extending/apps/architecture/manifest) for detailed schema information.
   - Review the full manifest content.
   - Examine the GraphQL mutation response (e.g. `appInstall`, `appFetchManifest`). The error message or details within the response will often pinpoint the specific field and the nature of the invalidity.
   - **For manifest field issues**:
-      - Refer to Saleor's [App Manifest documentation](/developer/extending/apps/architecture/manifest.mdx) for correct data types, allowed enum values, formatting, and constraints for each field.
+      - Refer to Saleor's [App Manifest documentation](/developer/extending/apps/architecture/manifest) for correct data types, allowed enum values, formatting, and constraints for each field.
       - Validate your manifest against the schema.
   - **For app icon/logo issues**:
       - Verify the icon URL is correct and publicly accessible.
@@ -223,7 +229,7 @@ This error happens when you try to perform an action on an app installation that
 
 - 🧐 **Cause**: For example, trying to retry an installation or deleting an installation when it isn't marked as `FAILED`.
 - 💡 **Debugging Tips**:
-  - Check the current status of the app installation (e.g., `FAILED`, `SUCCESS`, `PENDING`) in the Saleor Dashboard or via the [`appsInstallations`](/api-reference/apps/queries/apps-installations.mdx) query.
+  - Check the current status of the app installation (e.g., `FAILED`, `SUCCESS`, `PENDING`) in the Saleor Dashboard or via the [`appsInstallations`](/api-reference/apps/queries/apps-installations) query.
   - Make sure the action you want to perform is allowed for the current status. For example, `appRetryInstall` only works if the status is `FAILED`.
   - To find out why an installation failed, check the `message` field on the `AppInstallation` object.
 

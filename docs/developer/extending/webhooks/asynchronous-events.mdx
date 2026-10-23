@@ -1,5 +1,11 @@
 ---
 title: Asynchronous Events
+slug: developer/extending/webhooks/asynchronous-events
+sidebar: {}
+seo:
+  title: Asynchronous Events
+  description: Architecture
+lastModified: '2026-10-19'
 ---
 
 ## Architecture
@@ -8,7 +14,7 @@ Asynchronous webhooks can be used for reacting to the events emitted by Saleor.
 
 The worker instance will send the event payload via the chosen protocol. Your App or service should acknowledge receiving the payload, by responding with HTTP 200 status. If a successful response has not been received, for example in the case of temporary service unavailability, the worker instance will retry delivery. The delivery is triggered a maximum of five times. Behind the scenes, Saleor uses an exponential backoff strategy with the retry interval calculated as 10 \* (2\*\*retries) seconds.
 
-The asynchronous events are meant to be used for Apps or services that do not require processing on the Saleor side. If you need to send data back to the user (for example, calculated shipping cost), you should use a [synchronous webhook](/developer/extending/webhooks/synchronous-events/overview.mdx).
+The asynchronous events are meant to be used for Apps or services that do not require processing on the Saleor side. If you need to send data back to the user (for example, calculated shipping cost), you should use a [synchronous webhook](/developer/extending/webhooks/synchronous-events/overview).
 
 ## Examples of the use cases
 
@@ -43,7 +49,7 @@ While HTTPS webhooks are a familiar concept and may seem easy to implement, ensu
 
 Webhook endpoints must respond within 20 seconds, including the network latency.
 
-If your application performs long-running operations, consider using a [task queue](/developer/extending/apps/architecture/communication-between-app-and-saleor.mdx#task-queue) instead.
+If your application performs long-running operations, consider using a [task queue](/developer/extending/apps/architecture/communication-between-app-and-saleor#task-queue) instead.
 
 #### Fault tolerance
 
@@ -102,11 +108,83 @@ The structure of `targetUrl` should be as below:
 awssqs://<access-key-id>:<secret-access-key>@sqs.<region>.amazonaws.com/<account-id>/<queue-name>
 ```
 
-:::note
-FIFO queues (ending in `.fifo`) must be configured to have `ContentBasedDeduplication` enabled.
+:::note[FIFO queues (ending in `.fifo`) must be configured to have `ContentBasedDeduplication` enabled.]
 `MessageGroupID` will be set to Saleor's domain name.
+:::
+
+## Payload Generation
+
+Saleor builds the payload of an asynchronous webhook in one of two ways:
+
+- **In the request.** The payload is built as part of the API request or background job that triggered the event. It reflects the state of the object at that moment.
+- **Deferred.** The request only records that the event happened. A background task on a Saleor worker builds the payload later, by resolving the subscription query against the state of the object at that time. The request finishes faster, but the payload reflects the state at generation time, not at the time of the request that triggered the event.
+
+Deferred generation applies only to webhooks with a subscription `query`. Legacy webhooks without a query always build their payload in the request.
+
+### Deferred Events
+
+Payloads of `CHECKOUT_CREATED` and `CHECKOUT_UPDATED` are deferred from Saleor 3.21. Payloads of the following events are deferred from Saleor 3.23:
+
+- `ORDER_CREATED`, `ORDER_CONFIRMED`, `ORDER_UPDATED`, `ORDER_CANCELLED`, `ORDER_EXPIRED`, `ORDER_FULFILLED`
+- `ORDER_PAID`, `ORDER_FULLY_PAID`, `ORDER_REFUNDED`, `ORDER_FULLY_REFUNDED`
+- `ORDER_METADATA_UPDATED`
+- `DRAFT_ORDER_CREATED`, `DRAFT_ORDER_UPDATED`
+- `FULFILLMENT_CANCELED`, `FULFILLMENT_METADATA_UPDATED`, `FULFILLMENT_TRACKING_NUMBER_UPDATED`
+- `PRODUCT_VARIANT_DISCOUNTED_PRICE_UPDATED`
+- `PRODUCT_VARIANT_OUT_OF_STOCK_IN_CHANNEL`, `PRODUCT_VARIANT_BACK_IN_STOCK_IN_CHANNEL`, `PRODUCT_VARIANT_OUT_OF_STOCK_FOR_CLICK_AND_COLLECT`, `PRODUCT_VARIANT_BACK_IN_STOCK_FOR_CLICK_AND_COLLECT`
+
+:::warning
+Saleor Cloud may defer payload generation for all events at any time, without a change of the API version.
+:::
+
+### What Deferred Generation Means for Your App
+
+When two changes to the same object happen close together, both deliveries can be generated after the second change and carry the same, newer state. For example, two `orderMetadataUpdated` deliveries can both contain the metadata written by the second mutation. Both deliveries are still sent, but you cannot use them to replay the sequence of changes.
+
+Deferred deliveries keep the `issuedAt` and `issuingPrincipal` of the request that triggered the event. If the object is deleted before the task runs, the delivery fails.
+
+### Choosing Payload Generation per Webhook
+
+**Added in Saleor 3.23.41.**
+
+Set `payloadGeneration` on the webhook to choose how its payload is built:
+
+- `DEFERRED` (default): the payload is built by a background task, as described above.
+- `IMMEDIATE`: the payload is built in the request that triggered the event, the way all events worked before deferred generation was introduced.
+
+The setting is available in [`webhookCreate`](/api-reference/webhooks/mutations/webhook-create), in [`webhookUpdate`](/api-reference/webhooks/mutations/webhook-update), on the [`Webhook`](/api-reference/webhooks/objects/webhook) type, and as `payloadGeneration` on each entry of the `webhooks` list in the [app manifest](/developer/extending/apps/architecture/manifest). It has no effect on legacy webhooks, synchronous events, and events that are not deferred.
+
+```graphql {7}
+mutation {
+  webhookCreate(
+    input: {
+      name: "Order metadata sync"
+      targetUrl: "https://erp-sync.example.com/webhooks/order-metadata"
+      asyncEvents: [ORDER_METADATA_UPDATED]
+      payloadGeneration: IMMEDIATE
+      query: "subscription { event { ... on OrderMetadataUpdated { issuedAt order { id metadata { key value } } } } }"
+    }
+  ) {
+    webhook {
+      id
+      payloadGeneration
+    }
+    errors {
+      field
+      code
+    }
+  }
+}
+```
+
+A change of the setting applies to events triggered after the update. Deliveries created before the change finish the way they started, so around a change a newer delivery can be sent before an older one.
+
+:::note
+`IMMEDIATE` makes the request that triggers the event slower, because the payload is resolved before the request returns. Use it only on webhooks that need it.
+
+The order in which deliveries arrive is not guaranteed in either mode. If you need to apply changes in order, include a field such as `issuedAt` in your subscription query and discard deliveries older than the last one you applied.
 :::
 
 ## Available webhook events
 
-The [WebhookEventTypeAsyncEnum](/api-reference/webhooks/enums/webhook-event-type-async-enum.mdx#values) represents the latest list of asynchronous webhooks
+The [WebhookEventTypeAsyncEnum](/api-reference/webhooks/enums/webhook-event-type-async-enum#values) represents the latest list of asynchronous webhooks

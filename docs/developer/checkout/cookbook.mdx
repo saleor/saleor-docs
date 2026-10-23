@@ -1,10 +1,13 @@
 ---
 title: Checkout cookbook
-sidebar_label: Cookbook
+slug: developer/checkout/cookbook
+sidebar:
+  label: Cookbook
+seo:
+  title: Checkout cookbook
+  description: Free orders
+lastModified: '2026-03-11'
 ---
-
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
 
 ## Free orders
 
@@ -58,7 +61,7 @@ sequenceDiagram
 
 Similar to previous flow, but instead of communicating with a custom app directly, Saleor Transaction API is used, payment app can be easily swapped for another.
 
-Learn more about this integration in [Transactions Overview](/developer/payments/overview.mdx).
+Learn more about this integration in [Transactions Overview](/developer/payments/overview).
 
 ```mermaid
 sequenceDiagram
@@ -76,17 +79,17 @@ sequenceDiagram
 
 ### Creating order from checkout without Payments
 
-Creating unpaid orders is possible for channels that have [`allowUnpaidOrders`](/api-reference/miscellaneous/objects/order-settings.mdx#allow-unpaid-orders) setting enabled.
-If you wish to bypass this setting, you can use [`orderCreateFromCheckout`](/api-reference/orders/mutations/order-create-from-checkout.mdx).
+Creating unpaid orders is possible for channels that have [`allowUnpaidOrders`](/api-reference/miscellaneous/objects/order-settings#allow-unpaid-orders) setting enabled.
+If you wish to bypass this setting, you can use [`orderCreateFromCheckout`](/api-reference/orders/mutations/order-create-from-checkout).
 
 The operation requires the `HANDLE_CHECKOUTS` permission and can be called only by the App. Calling `checkoutPaymentCreate` and `checkoutComplete` is not necessary.
 
 The created order can be marked as paid by staff customer/app with the `MANAGE_ORDERS` permission.
 
-To create an order from checkout we can pass id of the checkout to [`orderCreateFromCheckout`](/api-reference/orders/mutations/order-create-from-checkout.mdx).
+To create an order from checkout we can pass id of the checkout to [`orderCreateFromCheckout`](/api-reference/orders/mutations/order-create-from-checkout).
 
 <Tabs>
-<TabItem value={"Mutation"}>
+<Tab value={"Mutation"}>
 ```graphql
 mutation orderCreateFromCheckout($id: ID!, $removeCheckout: Boolean) {
   orderCreateFromCheckout(id: $id, removeCheckout: $removeCheckout) {
@@ -96,18 +99,18 @@ mutation orderCreateFromCheckout($id: ID!, $removeCheckout: Boolean) {
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Variables"}>
+<Tab value={"Variables"}>
 ```json
 {
   "id": "Q2hlY2tvdXQ6YTcxYjRjZDQtNzI1NS00ZjAyLWEzOTEtMDQxYWQ0MmNjZWNk",
   "removeCheckout": true
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Result"}>
+<Tab value={"Result"}>
 ```json
 {
   "data": {
@@ -125,7 +128,7 @@ mutation orderCreateFromCheckout($id: ID!, $removeCheckout: Boolean) {
   }
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>
 
 
@@ -144,18 +147,17 @@ Prepare two transactions, one that is only authorized and one that is charged im
 1. **Initialize transactions:**
 
 For the authorized-only transaction:
-- Checkout passes `amount` to the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize.mdx) mutation, and desired action such as `AUTHORIZE`.
+- Checkout passes `amount` to the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize) mutation, and desired action such as `AUTHORIZE`.
 - In the `TRANSACTION_INITIALIZE_SESSION` webhook the payment app validates the split (e.g. if it is allowed) and includes `AUTHORIZE` in [allowed actions](/developer/extending/webhooks/synchronous-events/transaction#response-4).
 
 Remaining amount:
-- Checkout passes the remaining `amount` to the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize.mdx) mutation and desired action such as `CHARGE`.
+- Checkout passes the remaining `amount` to the [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize) mutation and desired action such as `CHARGE`.
 - In the `TRANSACTION_INITIALIZE_SESSION` webhook, the payment app validates the split (e.g., if it is allowed) and includes `CHARGE` in [allowed actions](/developer/extending/webhooks/synchronous-events/transaction#response-4).
 
 2. **Process transactions:**
- - Calling [`transactionProcess`](/api-reference/payments/mutations/transaction-process.mdx) with `action` set to `AUTHORIZE` for the first transaction and `CHARGE` for the second transaction.
+ - Calling [`transactionProcess`](/api-reference/payments/mutations/transaction-process) with `action` set to `AUTHORIZE` for the first transaction and `CHARGE` for the second transaction.
 
-:::note
-While it is possible to call `transactionInitialize` and `transactionProcess` directly from the storefront (client-side), it is recommended that these operations be executed from the backend (server-side), which would be more resilient and maintainable.
+:::note[While it is possible to call `transactionInitialize` and `transactionProcess` directly from the storefront (client-side), it is recommended that these operations be executed from the backend (server-side), which would be more resilient and maintainable.]
 :::
 
 ## Product personalization
@@ -167,24 +169,24 @@ Common use cases of product personalization are:
 - Product configuration such as PC components, furniture, cars, etc.
 - Delivery preferences for each item
 
-The personalization can be achieved by adding additional [`metadfields`](/api-reference/checkout/objects/checkout-line.mdx#metafields) fields to the [`CheckoutLine`](/api-reference/checkout/objects/checkout-line.mdx) object.
+The personalization can be achieved by adding additional [`metadfields`](/api-reference/checkout/objects/checkout-line#metafields) fields to the [`CheckoutLine`](/api-reference/checkout/objects/checkout-line) object.
 
 With the following mutations:
-- [`checkoutLinesAdd`](/api-reference/checkout/mutations/checkout-lines-add.mdx)
-- [`checkoutLinesUpdate`](/api-reference/checkout/mutations/checkout-lines-update.mdx)
+- [`checkoutLinesAdd`](/api-reference/checkout/mutations/checkout-lines-add)
+- [`checkoutLinesUpdate`](/api-reference/checkout/mutations/checkout-lines-update)
 
-The [`metafields`](/api-reference/orders/objects/order-line.mdx#metafields) will be copied to the [`OrderLine`](/api-reference/orders/objects/order-line.mdx) after checkout completion.
+The [`metafields`](/api-reference/orders/objects/order-line#metafields) will be copied to the [`OrderLine`](/api-reference/orders/objects/order-line) after checkout completion.
 
 Additional steps might be required to process such fields in the fulfillment process, such as:
 
 - Pass the fields to the ERP system
-- Listen to [`webhook`](/developer/extending/webhooks/overview.mdx) events such as `ORDER_CREATED` to process the fields
+- Listen to [`webhook`](/developer/extending/webhooks/overview) events such as `ORDER_CREATED` to process the fields
 - [Custom pricing](#custom-product-pricing)
 - Metadata can be added without permissions via front-end API; thus, it might require extra validation steps on the server or write metadata lines with server permissions to `privateMetadata` instead.
 
 ## Custom product pricing
 
-To set prices on checkout lines dynamically you can use the [`checkoutLinesUpdate`](/api-reference/checkout/inputs/checkout-line-update-input.mdx#price) mutation.
+To set prices on checkout lines dynamically you can use the [`checkoutLinesUpdate`](/api-reference/checkout/inputs/checkout-line-update-input#price) mutation.
 See example [repository](https://github.com/saleor/saleor-app-checkout-prices) for creating custom pricing middleware.
 
 
@@ -196,7 +198,7 @@ You can use a phone number instead of an email address to identify customers. Wh
 
 The checkout can be automatically completed once full payment is received when using Payment Apps.
 
-For more details, read [here](/developer/payments/transactions.mdx#automatic-checkout-completion).
+For more details, read [here](/developer/payments/transactions#automatic-checkout-completion).
 
 
 ## Order approvals and quotes
@@ -207,12 +209,12 @@ Example order approval flow:
 3. Customer pays the final price
 4. The order is shipped
 
-[Channel setting](/developer/channels/configuration.mdx#allow-unpaid-orders) should enable [`allowUnpaidOrders`](/api-reference/orders/inputs/order-settings-input.mdx#allow-unpaid-orders) to create orders without payments, (settings can be set via [API](/api-reference/channels/mutations/channel-update.mdx) or _Dashboard -> Order -> Order settings cogwheel_).
+[Channel setting](/developer/channels/configuration#allow-unpaid-orders) should enable [`allowUnpaidOrders`](/api-reference/orders/inputs/order-settings-input#allow-unpaid-orders) to create orders without payments, (settings can be set via [API](/api-reference/channels/mutations/channel-update) or _Dashboard -> Order -> Order settings cogwheel_).
 
-To require manual approval of orders in the dashboard, set the [`automaticallyConfirmAllNewOrders`](/api-reference/orders/inputs/order-settings-input.mdx#automatically-confirm-all-new-orders) to `false`
+To require manual approval of orders in the dashboard, set the [`automaticallyConfirmAllNewOrders`](/api-reference/orders/inputs/order-settings-input#automatically-confirm-all-new-orders) to `false`
 (can be set via the dashboard _Configuration -> Channel_).
 
-To arrange communication between flow between admin see Order related [`webhooks`](/api-reference/webhooks/enums/webhook-sample-event-type-enum.mdx).
+To arrange communication between flow between admin see Order related [`webhooks`](/api-reference/webhooks/enums/webhook-sample-event-type-enum).
 
 
 ## Subscriptions
@@ -223,4 +225,4 @@ Common use cases of subscriptions are:
 - Create membership subscriptions that do not require fulfillment.
 
 A subscription service can be implemented as a standalone service that communicates with Saleor to write orders, update payments, and fulfill orders.
-If admins need to manage subscriptions, you can use [custom app](/developer/extending/apps/quickstart.mdx) to create a dedicated UI in the Saleor dashboard to talk to your subscription service.
+If admins need to manage subscriptions, you can use [custom app](/developer/extending/apps/quickstart) to create a dedicated UI in the Saleor dashboard to talk to your subscription service.

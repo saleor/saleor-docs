@@ -1,6 +1,11 @@
 ---
 title: How to Build a Payment App
-description: How to build a Saleor Payment App that covers checkout payments, refunds, provider webhooks, and stored payment methods.
+slug: developer/extending/apps/building-payment-app
+sidebar: {}
+seo:
+  title: How to Build a Payment App
+  description: How to build a Saleor Payment App that covers checkout payments, refunds, provider webhooks, and stored payment methods.
+lastModified: '2026-08-18'
 ---
 
 ## Overview
@@ -9,15 +14,13 @@ This tutorial shows how to build a dummy Saleor Payment App that covers the main
 
 The dummy provider does not charge money. Use it as a reference for the integration shape, then replace provider calls with your gateway API.
 
-:::tip Building a payment app with an AI agent?
+:::tip[Building a payment app with an AI agent?]
 
-Install the [Saleor App Agent Skill](https://github.com/saleor/agent-skills) to give your agent Saleor-specific guidance for building apps, including manifests, webhooks, and permissions.
+Install the [`saleor-app` Agent Skill](/developer/ai#agent-skills) to give your agent Saleor-specific guidance for building apps, including manifests, webhooks, and permissions.
 
 :::
 
-:::info
-
-The `@example/payment-provider-sdk` import is fictional. It mocks the integration surface of a typical payment provider SDK.
+:::info[The `@example/payment-provider-sdk` import is fictional. It mocks the integration surface of a typical payment provider SDK.]
 
 :::
 
@@ -30,7 +33,7 @@ You can test the storefront side by forking [Saleor Payment Apps test client](ht
 
 ### Prerequisites
 
-- Basic understanding of [Saleor Apps](./overview.mdx)
+- Basic understanding of [Saleor Apps](/developer/extending/apps/overview)
 - Familiarity with [Next.js](https://nextjs.org/), especially API routes
 
 ## Integration Surface
@@ -87,7 +90,7 @@ sequenceDiagram
 
 ### Build the App
 
-Start from the [Saleor App Template](./developing-apps/app-template.mdx):
+Start from the [Saleor App Template](/developer/extending/apps/developing-apps/app-template):
 
 ```bash
 git clone https://github.com/saleor/saleor-app-template.git
@@ -96,7 +99,7 @@ pnpm install
 pnpm dev
 ```
 
-Install the app in Saleor by exposing the local app through a tunnel. See [Developing with Tunnels](./developing-with-tunnels.mdx) if you have not installed a local app before.
+Install the app in Saleor by exposing the local app through a tunnel. See [Developing with Tunnels](/developer/extending/apps/developing-with-tunnels) if you have not installed a local app before.
 
 ```bash
 ngrok http 3000
@@ -110,7 +113,7 @@ A payment app starts as a regular Saleor App. The first payment-specific require
 
 Start with the app identity, registration endpoint, and permission. In the Saleor App Template, the manifest handler usually lives at `src/pages/api/manifest.ts`. If your app uses a different Next.js structure, keep the same manifest fields and adapt the file path.
 
-```ts
+```ts {13}
 // src/pages/api/manifest.ts
 
 import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
@@ -123,7 +126,6 @@ export default createManifestHandler({
       id: "app.saleor.dummy-payment",
       appUrl: appBaseUrl,
       tokenTargetUrl: `${appBaseUrl}/api/register`,
-      // highlight-next-line
       permissions: ["HANDLE_PAYMENTS"],
       webhooks: [],
     };
@@ -136,8 +138,8 @@ export default createManifestHandler({
 The empty `webhooks` array is intentional at this point. Add each webhook to the manifest only after you create the route that handles it. When you add or change a webhook subscription query, reinstall the app or update the webhook in Saleor.
 
 :::info
+The [App SDK](/developer/extending/apps/developing-apps/app-sdk/overview) uses the [APL](/developer/extending/apps/developing-apps/app-sdk/apl) to store app installation auth data. A single-tenant app can usually read one installation record and one set of provider credentials. A multi-tenant app must resolve provider configuration by Saleor installation, channel, or merchant account before it calls the provider.
 
-The [App SDK](./developing-apps/app-sdk/overview.mdx) uses the [APL](./developing-apps/app-sdk/apl.mdx) to store app installation auth data. A single-tenant app can usually read one installation record and one set of provider credentials. A multi-tenant app must resolve provider configuration by Saleor installation, channel, or merchant account before it calls the provider.
 
 :::
 
@@ -301,8 +303,8 @@ webhooks: [
 ```
 
 :::caution
+When you add a new webhook or modify a subscription query for a registered webhook, Saleor does not update the installed webhook automatically. The easiest way to apply the change during development is to reinstall the app. For production update flows, see [How to Update App Webhooks](/developer/extending/apps/updating-app-webhooks).
 
-When you add a new webhook or modify a subscription query for a registered webhook, Saleor does not update the installed webhook automatically. The easiest way to apply the change during development is to reinstall the app. For production update flows, see [How to Update App Webhooks](./updating-app-webhooks.mdx).
 
 :::
 
@@ -556,8 +558,8 @@ Saleor can request transaction actions after the original payment. For a payment
 
 There are two request mutations:
 
-- [`transactionRequestAction`](../../../api-reference/payments/mutations/transaction-request-action.mdx) can request charge, cancel, or refund actions for a transaction.
-- [`transactionRequestRefundForGrantedRefund`](../../../api-reference/payments/mutations/transaction-request-refund-for-granted-refund.mdx) requests a refund based on an `OrderGrantedRefund`.
+- [`transactionRequestAction`](/api-reference/payments/mutations/transaction-request-action) can request charge, cancel, or refund actions for a transaction.
+- [`transactionRequestRefundForGrantedRefund`](/api-reference/payments/mutations/transaction-request-refund-for-granted-refund) requests a refund based on an `OrderGrantedRefund`.
 
 Both paths can trigger `TRANSACTION_REFUND_REQUESTED`. If you support delayed capture or cancellation, you can also implement `TRANSACTION_CHARGE_REQUESTED` and `TRANSACTION_CANCELATION_REQUESTED`.
 
@@ -975,7 +977,7 @@ The same pattern covers the rest of the stored-method lifecycle. The storefront 
 | Delete a saved method | `storedPaymentMethodRequestDelete` / `STORED_PAYMENT_METHOD_DELETE_REQUESTED` | Detach or disable the method at the provider and return `SUCCESSFULLY_DELETED`. |
 | Pay with a saved method | `transactionInitialize` / `TRANSACTION_INITIALIZE_SESSION` | Resolve the supplied method ID, verify ownership, and create a payment with the provider. |
 
-These operations do not need separate implementations in this tutorial. They use the same webhook structure and provider boundary as the two methods above. See [Stored Payment Methods](../../payments/stored-payments.mdx) for every request and response shape.
+These operations do not need separate implementations in this tutorial. They use the same webhook structure and provider boundary as the two methods above. See [Stored Payment Methods](/developer/payments/stored-payments) for every request and response shape.
 
 ## Best Practices
 
@@ -1020,9 +1022,9 @@ For a one-time payment, the frontend should:
 
 ## Related Resources
 
-- [Using Payment Apps](../../payments/payment-apps.mdx)
-- [Transactions API](../../payments/transactions.mdx)
-- [Stored Payment Methods](../../payments/stored-payments.mdx)
-- [Transaction Webhooks](../webhooks/synchronous-events/transaction.mdx)
-- [Stored Payment Method Webhooks](../webhooks/synchronous-events/stored-payment-method.mdx)
-- [Subscription Webhook Payloads](../webhooks/subscription-webhook-payloads.mdx)
+- [Using Payment Apps](/developer/payments/payment-apps)
+- [Transactions API](/developer/payments/transactions)
+- [Stored Payment Methods](/developer/payments/stored-payments)
+- [Transaction Webhooks](/developer/extending/webhooks/synchronous-events/transaction)
+- [Stored Payment Method Webhooks](/developer/extending/webhooks/synchronous-events/stored-payment-method)
+- [Subscription Webhook Payloads](/developer/extending/webhooks/subscription-webhook-payloads)

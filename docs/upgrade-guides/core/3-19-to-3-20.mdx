@@ -1,10 +1,15 @@
 ---
 title: Upgrading From 3.19 To 3.20
-sidebar_position: 5
+slug: upgrade-guides/core/3-19-to-3-20
+sidebar:
+  order: 6
+seo:
+  title: Upgrading From 3.19 To 3.20
+  description: To follow the zero-downtime strategy when upgrading to 3.20, It is recommended to first migrate to latest 3.19.X and turn on the Celery worker to process all data migrations asynchronously.
+lastModified: '2026-08-24'
 ---
 
-:::info
-To follow the zero-downtime strategy when upgrading to 3.20, **It is recommended to first migrate to latest 3.19.X** and turn on the Celery worker to process all data migrations asynchronously.
+:::info[To follow the zero-downtime strategy when upgrading to 3.20, **It is recommended to first migrate to latest 3.19.X** and turn on the Celery worker to process all data migrations asynchronously.]
 Otherwise, you will need to downtime your solution to ensure correct data migration.
 :::
 
@@ -13,21 +18,22 @@ Otherwise, you will need to downtime your solution to ensure correct data migrat
 Since Saleor 3.20 webhook event delivery payloads are stored as files using dedicated private storage.
 Make sure `PRIVATE_FILE_STORAGE` is configured properly in `settings.py` before upgrade.
 
-Please refer to [Amazon S3](/setup/media-s3.mdx) or [Google Cloud Storage (GCS)](/setup/media-gcs.mdx) guidelines if you are using cloud storage.
+Please refer to [Amazon S3](/setup/media-s3) or [Google Cloud Storage (GCS)](/setup/media-gcs) guidelines if you are using cloud storage.
 
 ## Automatic checkout completion
 
 Saleor 3.20 added new functionality to automatically complete `Checkout` that have been paid by the customer.
 
-👉 To learn more, about how this feature works and how to enable it, [read the Automatic Checkout completion docs](/developer/payments/transactions.mdx#automatic-checkout-completion).
+👉 To learn more, about how this feature works and how to enable it, [read the Automatic Checkout completion docs](/developer/payments/transactions#automatic-checkout-completion).
 
 :::info
-By "paid" in this guide we mean that the `TransactionItems` connected to `Checkout` have fully covered [`Checkout.totalPrice`](/api-reference/checkout/objects/checkout.mdx#total-price), which results in [`Checkout.authorizeStatus`](/developer/payments/lifecycle.mdx#authorization-status-calculation-for-checkout) being set to [`FULL`](/api-reference/checkout/enums/checkout-authorize-status-enum.mdx).
+By "paid" in this guide we mean that the `TransactionItems` connected to `Checkout` have fully covered [`Checkout.totalPrice`](/api-reference/checkout/objects/checkout#total-price), which results in [`Checkout.authorizeStatus`](/developer/payments/lifecycle#authorization-status-calculation-for-checkout) being set to [`FULL`](/api-reference/checkout/enums/checkout-authorize-status-enum).
 
-Learn more about this in [Transaction docs](/developer/payments/transactions.mdx#automatic-checkout-completion)
+
+Learn more about this in [Transaction docs](/developer/payments/transactions#automatic-checkout-completion)
 :::
 
-This feature is **disabled** for existing instances by default and needs to be enabled manually in the [channel settings](/developer/channels/configuration.mdx#settings).
+This feature is **disabled** for existing instances by default and needs to be enabled manually in the [channel settings](/developer/channels/configuration#settings).
 
 New Saleor instances created from version 3.20 onwards will have this feature **enabled by default**.
 
@@ -35,8 +41,7 @@ This removes the need for storefront implementation to call `checkoutComplete` m
 
 Previously a store might have had missing orders, due to `checkoutComplete` mutation not being always called. This could have happened for many unexpected reasons: network issues, storefront bug, customer leaving website, closing tab before being redirected from payment provider, etc.
 
-:::tip
-Before Saleor 3.20 you might have used other measures to mitigate missing orders issue, for example by using `CHECKOUT_FULLY_PAID` webhook and calling `checkoutComplete` mutation on your backend.
+:::tip[Before Saleor 3.20 you might have used other measures to mitigate missing orders issue, for example by using `CHECKOUT_FULLY_PAID` webhook and calling `checkoutComplete` mutation on your backend.]
 
 After migrating to Saleor 3.20 and enabling this feature for all your channels, you can safely get rid of this workaround.
 
@@ -45,8 +50,7 @@ Keep in mind that `CHECKOUT_FULLY_PAID` webhook would have only been triggered i
 
 ### Before you enable this feature
 
-:::danger
-Enabling this feature might break your current storefront implementation and services connected to Saleor that use `Checkout` object.
+:::danger[Enabling this feature might break your current storefront implementation and services connected to Saleor that use `Checkout` object.]
 :::
 
 Before you enable this feature make sure that you don't rely on any `Checkout` query or mutation that updates `Checkout` after transaction is created.
@@ -55,8 +59,7 @@ Automatic checkout completion works just like calling `checkoutComplete` mutatio
 
 After completion `checkout` query with a `id` of already completed `Checkout` will return `null`.
 
-:::tip
-You can determine if checkout was automatically completed by making `checkout` query:
+:::tip[You can determine if checkout was automatically completed by making `checkout` query:]
 
 ```graphql
 query CheckoutDetails($id: ID!) {
@@ -92,16 +95,14 @@ If automatic checkout completion is not enabled in a `Channel`, storefront shoul
 
 :::
 
-:::tip
-The checkout may not be automatically completed due to issues that arise during validation.
+:::tip[The checkout may not be automatically completed due to issues that arise during validation.]
 
 You can identify any existing problems using the `Checkout.problems` query.
 For more information, refer to the [Checkout Problems page](/developer/checkout/problems).
 
 :::
 
-:::tip
-To determine if `Checkout` was completed you can also rely on response from `transactionInitialize` or `transactionProcess` mutations by checking the `TransactionEvent` object returned in the mutation response.
+:::tip[To determine if `Checkout` was completed you can also rely on response from `transactionInitialize` or `transactionProcess` mutations by checking the `TransactionEvent` object returned in the mutation response.]
 
 Such transaction is considered successful in a context of a `Checkout` when the `TransactionEvent`'s `amount` is equal to `Checkout.totalPrice` and its `type` is one of these:
 
@@ -119,8 +120,7 @@ In order to get the `Order` details after payment you can use:
 
 1. **`checkoutComplete` mutation**
 
-:::note
-This query can be called directly by customers in a storefront.
+:::note[This query can be called directly by customers in a storefront.]
 :::
 
 This mutation is idempotent, which means it can be called multiple times, but only one `Order` will be created. If `checkoutComplete` is invoked multiple times it will return the same `Order` object.
@@ -167,8 +167,7 @@ If `Checkout` hasn't been paid, the response will contain an error:
 
 2. **`orders` query**
 
-:::note
-This query requires <span class="badge badge--danger">MANAGE_ORDERS</span> permission, it cannot be used directly by customers in a storefront.
+:::note[This query requires <span class="badge badge--danger">MANAGE_ORDERS</span> permission, it cannot be used directly by customers in a storefront.]
 :::
 
 `orders` query filter, has an option to provide `checkoutIds` or `checkoutTokens` to get `Order` object that was created by specified `Checkout`:
@@ -198,7 +197,8 @@ query OrderDetails($checkoutToken: UUID!) {
 ```
 
 :::warning
-If you use [`orderCreateFromCheckout`](/api-reference/orders/mutations/order-create-from-checkout.mdx) mutation with parameter [`removeCheckout: false`](/api-reference/orders/mutations/order-create-from-checkout.mdx#remove-checkout) multiple `Orders` may be created from a single `Checkout`.
+If you use [`orderCreateFromCheckout`](/api-reference/orders/mutations/order-create-from-checkout) mutation with parameter [`removeCheckout: false`](/api-reference/orders/mutations/order-create-from-checkout#remove-checkout) multiple `Orders` may be created from a single `Checkout`.
+
 
 Please note that this situation doesn't apply to `checkoutComplete` mutation or automatic checkout completions. Therefore, we can safely assume that only one `Order` can be created from `Checkout`. This is why this query uses `first: 1` parameter.
 :::

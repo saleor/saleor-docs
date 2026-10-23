@@ -1,16 +1,19 @@
 ---
 title: Checkout Lifecycle
-sidebar_label: Lifecycle
+slug: developer/checkout/lifecycle
+sidebar:
+  label: Lifecycle
+seo:
+  title: Checkout Lifecycle
+  description: Checkout Creation
+lastModified: '2026-03-11'
 ---
-
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
 
 ## Checkout Creation
 
-Upon creation, `checkout` is assigned to a channel that influences product stock, availability, and price. The channel can not be changed after the checkout is created. Learn more about [Channels](/developer/channels/overview.mdx).
+Upon creation, `checkout` is assigned to a channel that influences product stock, availability, and price. The channel can not be changed after the checkout is created. Learn more about [Channels](/developer/channels/overview).
 
-Checkout can be created from [existing orders](/developer/order/order-to-checkout.mdx), which is helpful for re-order functionality.
+Checkout can be created from [existing orders](/developer/order/order-to-checkout), which is helpful for re-order functionality.
 
 ## Authentication in Checkout
 
@@ -23,13 +26,13 @@ You do not need separate logic branches for different user states; instead, Sale
 
 ### Attaching a Guest Checkout to a User
 
-If a guest user logs in midway through their shopping experience, you can convert their anonymous checkout into a signed one using the [`checkoutCustomerAttach`](/api-reference/checkout/mutations/checkout-customer-attach.mdx) mutation. 
+If a guest user logs in midway through their shopping experience, you can convert their anonymous checkout into a signed one using the [`checkoutCustomerAttach`](/api-reference/checkout/mutations/checkout-customer-attach) mutation. 
 This ensures their items are preserved and linked to their account history.
 
 
 ## Updating Checkout
 
-- **Updating lines**. Each line (product variant) should have at least a quantity of 1; if the line reaches a quantity of 0, it will be automatically removed. Optionally [Price overwrites](/developer/checkout/api-guide.mdx#setting-custom-line-prices) and [Line Stacking](/developer/checkout/api-guide.mdx#creating-two-lines-using-a-single-variant) can be controlled via API.
+- **Updating lines**. Each line (product variant) should have at least a quantity of 1; if the line reaches a quantity of 0, it will be automatically removed. Optionally [Price overwrites](/developer/checkout/api-guide#setting-custom-line-prices) and [Line Stacking](/developer/checkout/api-guide#creating-two-lines-using-a-single-variant) can be controlled via API.
 
 ## Completing Checkout
 
@@ -37,17 +40,15 @@ When checkout is finalized/completed, it is converted into an order.
 
 The following are the requirements to finalize the checkout:
 
-1. The required addresses are valid, except when [`skipValidation`](/developer/address.mdx#skipping-the-address-validation) is used.
+1. The required addresses are valid, except when [`skipValidation`](/developer/address#skipping-the-address-validation) is used.
 
-2. Delivery options and addresses are valid. [Learn more](/developer/checkout/address.mdx).
+2. Delivery options and addresses are valid. [Learn more](/developer/checkout/address).
 
-3. All selected products are in stock (while purchasing, another user could already buy the last available item). See [`Allocations`](/developer/stock/stock-allocation.mdx) and [`Reservations`](/developer/stock/stock-reservation.mdx).
+3. All selected products are in stock (while purchasing, another user could already buy the last available item). See [`Allocations`](/developer/stock/stock-allocation) and [`Reservations`](/developer/stock/stock-reservation).
 
-4. The [payments](/developer/payments/overview.mdx) are processed unless the `Channel` setting of the checkout has [`allowUnpaidOrders`](/api-reference/miscellaneous/objects/order-settings.mdx#allow-unpaid-orders) setting enabled or checkout's total is `0`. If you need to bypass this setting, you use [`orderCreateFromCheckout`](/api-reference/orders/mutations/order-create-from-checkout.mdx).
+4. The [payments](/developer/payments/overview) are processed unless the `Channel` setting of the checkout has [`allowUnpaidOrders`](/api-reference/miscellaneous/objects/order-settings#allow-unpaid-orders) setting enabled or checkout's total is `0`. If you need to bypass this setting, you use [`orderCreateFromCheckout`](/api-reference/orders/mutations/order-create-from-checkout).
 
-:::note
-
-If case an order is overcharged, it will still be created. The overcharge must be handled manually.
+:::note[If case an order is overcharged, it will still be created. The overcharge must be handled manually.]
 
 :::
 
@@ -72,13 +73,13 @@ To avoid overloading the database, unfinished and unpaid checkouts are automatic
 
 Payments for items left in the cart by customers who did not complete the purchase can be released back to the customer's payment method automatically. This is opt-in and controlled **per channel**, not globally.
 
-Each channel exposes the following settings under [`Channel.paymentSettings`](/api-reference/miscellaneous/objects/payment-settings.mdx):
+Each channel exposes the following settings under [`Channel.paymentSettings`](/api-reference/miscellaneous/objects/payment-settings):
 
 - **`releaseFundsForExpiredCheckouts`** (Boolean, default `false`) — master switch for this channel. The release action described below only runs for checkouts in channels where this is `true`.
 - **`checkoutTtlBeforeReleasingFunds`** (Hour, default 6 hours) — how long a checkout must remain unchanged before it is considered abandoned.
 - **`checkoutReleaseFundsCutOffDate`** (DateTime, optional) — an optional floor date; checkouts created before this date are never auto-released. Regardless of this setting, checkouts older than one year are never released.
 
-These are readable and writable via the [`channelUpdate`](/api-reference/channels/mutations/channel-update.mdx) mutation, and in the Dashboard under **Configuration → Channels → [channel] → Payments & checkout**.
+These are readable and writable via the [`channelUpdate`](/api-reference/channels/mutations/channel-update) mutation, and in the Dashboard under **Configuration → Channels → [channel] → Payments & checkout**.
 
 To check the current setting per channel:
 
@@ -95,19 +96,19 @@ query {
 }
 ```
 
-For any [`transactionItem`](/api-reference/payments/objects/transaction-item.mdx) with processed funds (`authorizedAmount` or `chargeAmount`) assigned to an abandoned checkout **in a channel with `releaseFundsForExpiredCheckouts` enabled**, Saleor will trigger the release action.
+For any [`transactionItem`](/api-reference/payments/objects/transaction-item) with processed funds (`authorizedAmount` or `chargeAmount`) assigned to an abandoned checkout **in a channel with `releaseFundsForExpiredCheckouts` enabled**, Saleor will trigger the release action.
 
 The release action is:
 
-- webhook with the event:`TRANSACTION_CANCELATION_REQUESTED` triggered when [`transactionItem`](/api-reference/payments/objects/transaction-item.mdx) contains authorized funds
-- webhook with the event: `TRANSACTION_REFUND_REQUESTED` triggered when [`transactionItem`](/api-reference/payments/objects/transaction-item.mdx) contains charged funds.
+- webhook with the event:`TRANSACTION_CANCELATION_REQUESTED` triggered when [`transactionItem`](/api-reference/payments/objects/transaction-item) contains authorized funds
+- webhook with the event: `TRANSACTION_REFUND_REQUESTED` triggered when [`transactionItem`](/api-reference/payments/objects/transaction-item) contains charged funds.
 
 The release action is triggered only once. If a subscription for a release event is missing or the app fails to process the action, the release action needs to be handled manually.
 
 To fetch paid checkouts, use the below query:
 
 <Tabs>
-<TabItem value="Mutation">
+<Tab value="Mutation">
 ```graphql 
 query checkouts($first: Int, $filter: CheckoutFilterInput) {
   checkouts(first: $first, filter: $filter) {
@@ -124,9 +125,9 @@ query checkouts($first: Int, $filter: CheckoutFilterInput) {
 }
 ```
 
-</TabItem>
+</Tab>
 
-<TabItem value={"Variables"}>
+<Tab value={"Variables"}>
 ```json {4-7}
 {
   "first": 2,
@@ -138,9 +139,9 @@ query checkouts($first: Int, $filter: CheckoutFilterInput) {
   }
 }
 ```
-</TabItem>
+</Tab>
 
-<TabItem value={"Result"}>
+<Tab value={"Result"}>
 ```json
 {
   "data": {
@@ -168,5 +169,5 @@ query checkouts($first: Int, $filter: CheckoutFilterInput) {
   }
 }
 ```
-</TabItem>
+</Tab>
 </Tabs>

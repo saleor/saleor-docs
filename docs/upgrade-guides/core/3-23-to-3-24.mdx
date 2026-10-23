@@ -1,14 +1,19 @@
 ---
 title: Upgrading From 3.23 To 3.24
-sidebar_position: 1
+slug: upgrade-guides/core/3-23-to-3-24
+sidebar:
+  order: 2
+seo:
+  title: Upgrading From 3.23 To 3.24
+  description: Removal of Authorize.net Plugin
+lastModified: '2026-10-19'
 ---
 
 ## Removal of Authorize.net Plugin
 
 The legacy Authorize.net payment gateway plugin has been removed from Saleor core in 3.24 (see [saleor/saleor#19142](https://github.com/saleor/saleor/pull/19142)).
 
-:::warning
-Before upgrading to 3.24, stop using the Authorize.net plugin. After the upgrade, any checkout or order flow still relying on it will fail because the gateway is no longer registered.
+:::warning[Before upgrading to 3.24, stop using the Authorize.net plugin. After the upgrade, any checkout or order flow still relying on it will fail because the gateway is no longer registered.]
 :::
 
 ### Migration steps
@@ -26,8 +31,7 @@ This applies to all bulk delete mutations:
 
 `productBulkDelete`, `productVariantBulkDelete`, `categoryBulkDelete`, `collectionBulkDelete`, `productTypeBulkDelete`, `productMediaBulkDelete`, `attributeBulkDelete`, `attributeValueBulkDelete`, `customerBulkDelete`, `staffBulkDelete`, `pageBulkDelete`, `pageTypeBulkDelete`, `menuBulkDelete`, `menuItemBulkDelete`, `giftCardBulkDelete`, `saleBulkDelete`, `voucherBulkDelete`, `promotionBulkDelete`, `shippingPriceBulkDelete`, `shippingZoneBulkDelete`, `draftOrderBulkDelete`, and `draftOrderLinesBulkDelete`.
 
-:::warning
-If any of your integrations delete more than 100 objects in a single bulk delete call, update them to send batches of at most `BULK_DELETE_LIMIT` items (100 by default), or raise the limit via the `BULK_DELETE_LIMIT` environment variable.
+:::warning[If any of your integrations delete more than 100 objects in a single bulk delete call, update them to send batches of at most `BULK_DELETE_LIMIT` items (100 by default), or raise the limit via the `BULK_DELETE_LIMIT` environment variable.]
 :::
 
 ## Prohibited `MANAGE_APPS` permission for Apps
@@ -48,3 +52,19 @@ If you want to test if everything works as expected, you can manually remove thi
 
 1. Ensure your apps (manifests) don't have `MANAGE_APPS` permission. Such installation will be rejected after the upgrade.
 2. Manually update apps (`appUpdate` mutation) to remove `MANAGE_APPS` permission and test if they work while still on 3.23.
+
+## Thumbnail sizes are rounded up by default
+
+Saleor 3.24 changes how a requested thumbnail `size` is matched to a supported size (see [saleor/saleor#19913](https://github.com/saleor/saleor/pull/19913)).
+
+Thumbnails are generated only in the following sizes: 32, 64, 128, 256, 512, 1024, 2048, 4096. Before 3.24, Saleor used the nearest supported size, which could be smaller than requested (`1500` returned `1024`) and made images look blurry. From 3.24, Saleor uses the smallest supported size that is not smaller than requested (`1500` returns `2048`).
+
+This applies to all thumbnail fields (`User.avatar`, `Product.thumbnail`, `ProductMedia.url`, `ProductImage.url`, `OrderLine.thumbnail`, `Category.backgroundImage`, `Collection.backgroundImage`, `AppBrandLogo.default`, and `AppManifestBrandLogo.default`) and to product thumbnails in email notifications.
+
+:::warning
+Clients that request a size that is not one of the supported sizes receive larger images than before, up to four times more pixels (e.g. `1025` returns `2048` instead of `1024`). Expect a one-time increase in thumbnail generation and storage for sizes that were not cached yet, and potentially increased egress cost if relevant.
+:::
+
+### Migration steps
+
+If you want to keep the previous behavior, pass `sizeRounding: NEAREST` to the thumbnail fields. The argument is available from Saleor 3.23, so you can add it before upgrading. See [Thumbnails](/developer/thumbnails#size-rounding) for details.
