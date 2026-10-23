@@ -1,3 +1,29 @@
+// Read ranking rules from top to bottom: the first difference decides the order.
+// Only ties advance to the next rule; the signals are never added together.
+const RANKING_ORDER = [
+  { signal: 'exactGuideTitle', prefer: 'higher' }, // A current guide named by the query.
+  { signal: 'exactApiMatch', prefer: 'higher' },   // An API entity named by the query.
+  { signal: 'pagePriority', prefer: 'higher' },    // Current docs > API > legacy plugins.
+  { signal: 'appOverviewMatch', prefer: 'higher' }, // App landing page for a broad app query.
+  { signal: 'fieldPriority', prefer: 'higher' },   // Page title > heading > body.
+  { signal: 'typoCount', prefer: 'lower' },        // Fewer spelling corrections.
+  { signal: 'exactWordCount', prefer: 'higher' },  // More exact words in the matched field.
+  { signal: 'phraseMatch', prefer: 'higher' },     // Query words appear together, in order.
+  { signal: 'headingDepth', prefer: 'lower' },     // Shallower headings.
+  { signal: 'fieldWordCount', prefer: 'lower' },   // Shorter, more focused titles/headings.
+];
+// Remaining ties use document title, route, and heading order for stability.
+
+// Only relative order matters; gaps between numbers do not add extra weight.
+const PAGE_PRIORITY = {
+  currentDocs: 40,
+  apiMutation: 30,
+  apiQuery: 20,
+  apiType: 10,
+  legacyPlugin: 1,
+};
+const FIELD_PRIORITY = { pageTitle: 3, heading: 2, body: 1 };
+
 const RESULT_LIMIT = 12;
 const TERM_CACHE_LIMIT = 256;
 const SECTION_ORDER = ['Guides', 'API', 'Recipes', 'Releases'];
@@ -10,12 +36,6 @@ const HTML_ENTITIES = {
   '"': '&quot;',
   "'": '&#39;',
 };
-
-const legacyRoutes = new Set([
-  '/developer/app-store/legacy-plugins/adyen',
-  '/developer/extending/plugins/overview',
-  '/developer/extending/plugins/payment-gateways',
-]);
 
 export function createEngine(documents, metadata = {}) {
   const index = createSearchIndex(documents, metadata);
@@ -50,6 +70,118 @@ export function createEngine(documents, metadata = {}) {
   };
 }
 
+// Ranking: decide which of the matching records comes first.
+function rankMatch({ record, termEdits }, query) {
+  const titleMatch = query.wordMatches.every((words) =>
+    fieldMatches(record.titleTokens, words),
+  );
+  const headingMatch =
+    record.heading &&
+    query.wordMatches.every(
+      (words) =>
+        fieldMatches(record.titleTokens, words) ||
+        fieldMatches(record.headingTokens, words),
+    );
+  const fieldWords =
+    headingMatch && !titleMatch ? record.headingWords : record.titleWords;
+
+  return {
+    record,
+    rank: {
+      exactGuideTitle: Number(matchesGuideTitle(record, query.normalizedText)),
+      exactApiMatch: Number(matchesApiName(record, query.normalizedText)),
+      pagePriority: pageRank(record.document.route),
+      appOverviewMatch: Number(matchesAppOverview(record, query)),
+      fieldPriority: matchedFieldPriority(record, titleMatch, headingMatch),
+      typoCount: [...termEdits.values()].reduce(
+        (total, edits) => total + edits,
+        0,
+      ),
+      exactWordCount: query.terms.filter((term) => fieldWords.includes(term))
+        .length,
+      phraseMatch: Number(fieldWords.join(' ').includes(query.phrase)),
+      headingDepth: record.heading?.depth ?? 1,
+      fieldWordCount: fieldWords.length,
+    },
+  };
+}
+
+function fieldMatches(fieldTokens, wordMatches) {
+  return [...wordMatches.keys()].some((word) => fieldTokens.has(word));
+}
+
+function matchesGuideTitle(record, queryText) {
+  return (
+    !record.heading &&
+    record.document.section === 'Guides' &&
+    !isLegacyRoute(record.document.route) &&
+    queryText === record.normalizedTitle
+  );
+}
+
+function matchesAppOverview(record, query) {
+  // A topic such as 'configuration' must not receive the broad-query boost.
+  // Every query word must match the app's title with 'Overview' removed.
+  return (
+    !record.heading &&
+    record.overviewSubjectTokens !== null &&
+    query.wordMatches.every((words) =>
+      fieldMatches(record.overviewSubjectTokens, words),
+    )
+  );
+}
+
+function matchesApiName(record, queryName) {
+  return (
+    !record.heading &&
+    record.apiName !== null &&
+    (queryName === record.apiName || queryName === record.apiTitle)
+  );
+}
+
+export function pageRank(route) {
+  if (isLegacyRoute(route)) return PAGE_PRIORITY.legacyPlugin;
+  if (!route.startsWith('/api-reference/')) return PAGE_PRIORITY.currentDocs;
+  if (route.includes('/mutations/')) return PAGE_PRIORITY.apiMutation;
+  if (route.includes('/queries/')) return PAGE_PRIORITY.apiQuery;
+  return PAGE_PRIORITY.apiType;
+}
+
+function isLegacyRoute(route) {
+  return [
+    '/developer/app-store/legacy-plugins',
+    '/developer/extending/plugins',
+  ].some((prefix) => route === prefix || route.startsWith(`${prefix}/`));
+}
+
+function isAppOverview(route) {
+  return /^\/developer\/app-store\/apps\/[^/]+\/overview$/.test(route);
+}
+
+function matchedFieldPriority(record, titleMatch, headingMatch) {
+  if (titleMatch && !record.heading) return FIELD_PRIORITY.pageTitle;
+  if (titleMatch || headingMatch) return FIELD_PRIORITY.heading;
+  return FIELD_PRIORITY.body;
+}
+
+function compareRankedMatches(left, right) {
+  for (const { signal, prefer } of RANKING_ORDER) {
+    const difference = left.rank[signal] - right.rank[signal];
+    if (difference !== 0) return prefer === 'higher' ? -difference : difference;
+  }
+  return compareRecordOrder(left.record, right.record);
+}
+
+function compareRecordOrder(left, right) {
+  if (left.document.route === right.document.route)
+    return left.position - right.position;
+  return (
+    left.document.title.localeCompare(right.document.title) ||
+    left.document.route.localeCompare(right.document.route)
+  );
+}
+
+// Matching: index words, expand query terms, and require every query term.
 function createSearchIndex(documents, metadata) {
   const records = [];
   const recordIdsByWord = new Map();
@@ -62,10 +194,10 @@ function createSearchIndex(documents, metadata) {
 
     const bodyWords = heading
       ? []
-      : tokens(`${document.description} ${document.content}`);
+      : indexedTokens(`${document.description} ${document.content}`);
     const words = new Set([
-      ...record.titleWords,
-      ...record.headingWords,
+      ...record.titleTokens,
+      ...record.headingTokens,
       ...bodyWords,
     ]);
 
@@ -95,6 +227,17 @@ function createSearchIndex(documents, metadata) {
 function createRecord(document, heading, position) {
   const titleWords = tokens(document.title);
   const headingWords = heading ? tokens(heading.text) : [];
+  const appOverview = isAppOverview(document.route);
+  const titleTokens = new Set(indexedTokens(document.title));
+  const overviewSubjectTokens = appOverview
+    ? new Set(indexedTokens(document.title.replace(/\s+Overview$/i, '')))
+    : null;
+
+  // The route establishes this is an app, even for titles like 'Segment Overview'.
+  if (appOverview) {
+    titleTokens.add('app');
+    overviewSubjectTokens.add('app');
+  }
   const apiEntity = document.route.startsWith('/api-reference/')
     ? document.title.match(API_ENTITY_TITLE)
     : null;
@@ -105,8 +248,10 @@ function createRecord(document, heading, position) {
     position,
     titleWords,
     headingWords,
-    titleTokens: new Set(titleWords),
-    headingTokens: new Set(headingWords),
+    normalizedTitle: normalizedWords(document.title).join(' '),
+    titleTokens,
+    headingTokens: new Set(heading ? indexedTokens(heading.text) : []),
+    overviewSubjectTokens,
     apiName: apiEntity ? normalizedWords(apiEntity[1]).join(' ') : null,
     apiTitle: apiEntity ? normalizedWords(document.title).join(' ') : null,
   };
@@ -166,7 +311,7 @@ function prepareQuery(text, matchTerm) {
   return {
     terms,
     phrase: terms.join(' '),
-    apiName: normalizedWords(text).join(' '),
+    normalizedText: normalizedWords(text).join(' '),
     wordMatches: terms.map((term, position) =>
       matchTerm(term, {
         allowPrefix: position === terms.length - 1,
@@ -214,83 +359,6 @@ function matchesDocumentFilters(document, options) {
   return matchesLocale && matchesVersion && matchesType && matchesFacets;
 }
 
-function rankMatch({ record, termEdits }, query) {
-  const titleMatch = query.wordMatches.every((words) =>
-    fieldMatches(record.titleTokens, words),
-  );
-  const headingMatch =
-    record.heading &&
-    query.wordMatches.every(
-      (words) =>
-        fieldMatches(record.titleTokens, words) ||
-        fieldMatches(record.headingTokens, words),
-    );
-  const fieldWords =
-    headingMatch && !titleMatch ? record.headingWords : record.titleWords;
-
-  return {
-    record,
-    rank: {
-      exactApiMatch: Number(matchesApiName(record, query.apiName)),
-      pagePriority: pageRank(record.document.route),
-      fieldPriority: matchedFieldPriority(record, titleMatch, headingMatch),
-      typoCount: [...termEdits.values()].reduce(
-        (total, edits) => total + edits,
-        0,
-      ),
-      exactWordCount: query.terms.filter((term) => fieldWords.includes(term))
-        .length,
-      phraseMatch: Number(fieldWords.join(' ').includes(query.phrase)),
-      headingDepth: record.heading?.depth ?? 1,
-      fieldWordCount: fieldWords.length,
-    },
-  };
-}
-
-function fieldMatches(fieldTokens, wordMatches) {
-  return [...wordMatches.keys()].some((word) => fieldTokens.has(word));
-}
-
-function matchesApiName(record, queryName) {
-  return (
-    !record.heading &&
-    record.apiName !== null &&
-    (queryName === record.apiName || queryName === record.apiTitle)
-  );
-}
-
-function matchedFieldPriority(record, titleMatch, headingMatch) {
-  if (titleMatch) return record.heading ? 2 : 3;
-  if (headingMatch) return 2;
-  return 1;
-}
-
-function compareRankedMatches(left, right) {
-  const leftRank = left.rank;
-  const rightRank = right.rank;
-
-  return (
-    rightRank.exactApiMatch - leftRank.exactApiMatch ||
-    rightRank.pagePriority - leftRank.pagePriority ||
-    rightRank.fieldPriority - leftRank.fieldPriority ||
-    leftRank.typoCount - rightRank.typoCount ||
-    rightRank.exactWordCount - leftRank.exactWordCount ||
-    rightRank.phraseMatch - leftRank.phraseMatch ||
-    leftRank.headingDepth - rightRank.headingDepth ||
-    leftRank.fieldWordCount - rightRank.fieldWordCount ||
-    compareRecordOrder(left.record, right.record)
-  );
-}
-
-function compareRecordOrder(left, right) {
-  if (left.document.route === right.document.route)
-    return left.position - right.position;
-  return (
-    left.document.title.localeCompare(right.document.title) ||
-    left.document.route.localeCompare(right.document.route)
-  );
-}
-
 function countSections(ranked) {
   const counts = new Map();
   const countedRoutes = new Set();
@@ -324,14 +392,6 @@ function toSearchHit({ document, heading }) {
   };
 }
 
-export function pageRank(route) {
-  if (legacyRoutes.has(route)) return 1;
-  if (!route.startsWith('/api-reference/')) return 40;
-  if (route.includes('/mutations/')) return 30;
-  if (route.includes('/queries/')) return 20;
-  return 10;
-}
-
 function searchScope(route) {
   if (route === '/api-reference' || route.startsWith('/api-reference/'))
     return 'API';
@@ -349,6 +409,12 @@ export function escapeHtml(text) {
 
 export function tokens(text) {
   return normalizedWords(text).map(singular);
+}
+
+// Index both the parts and the whole of compound names such as AvaTax.
+// Queries still require every word; aliases do not introduce extra query terms.
+function indexedTokens(text) {
+  return [...new Set([...tokens(text), ...tokens(String(text).toLowerCase())])];
 }
 
 function normalizedWords(text) {
