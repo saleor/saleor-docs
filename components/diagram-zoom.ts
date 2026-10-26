@@ -3,19 +3,63 @@ export function installDiagramZoom() {
   if (document.documentElement.dataset.diagramZoomInstalled) return;
   document.documentElement.dataset.diagramZoomInstalled = 'true';
 
+  const observed = new Set<HTMLElement>();
+  const resizeObserver = new ResizeObserver(() => schedule());
+  let frame = 0;
+  const schedule = () => {
+    if (!frame) frame = requestAnimationFrame(() => {
+      frame = 0;
+      enhance();
+    });
+  };
   const enhance = () => {
+    for (const diagram of observed) {
+      if (!diagram.isConnected) {
+        resizeObserver.unobserve(diagram);
+        observed.delete(diagram);
+      }
+    }
     document.querySelectorAll<HTMLElement>('blume-mermaid').forEach((diagram) => {
-      if (!diagram.querySelector('svg') || diagram.querySelector('[data-expand-diagram]')) return;
+      if (!observed.has(diagram)) {
+        observed.add(diagram);
+        resizeObserver.observe(diagram);
+      }
+      const svg = diagram.querySelector<SVGSVGElement>('svg:not([aria-hidden])');
+      const existing = diagram.querySelector('[data-expand-diagram]');
+      // Below 75% of its authored size, a typical 16px label drops below 12px.
+      // Measure actual scaling rather than treating every wide layout as dense.
+      const naturalWidth = svg?.viewBox.baseVal.width ?? 0;
+      const renderedWidth = svg?.getBoundingClientRect().width ?? 0;
+      if (!naturalWidth || !renderedWidth || renderedWidth / naturalWidth >= 0.75) {
+        existing?.remove();
+        return;
+      }
+      if (existing) return;
       const button = document.createElement('button');
       button.type = 'button';
       button.dataset.expandDiagram = '';
       button.className = 'diagram-expand';
-      button.textContent = 'Expand diagram';
+      button.setAttribute('aria-label', 'Expand diagram');
+      button.title = 'Expand diagram';
+      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      icon.setAttribute('viewBox', '0 0 24 24');
+      icon.setAttribute('width', '18');
+      icon.setAttribute('height', '18');
+      icon.setAttribute('fill', 'none');
+      icon.setAttribute('stroke', 'currentColor');
+      icon.setAttribute('stroke-width', '1.75');
+      icon.setAttribute('stroke-linecap', 'round');
+      icon.setAttribute('stroke-linejoin', 'round');
+      icon.setAttribute('aria-hidden', 'true');
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', 'M8 3H3v5 M3 3l6 6 M16 3h5v5 M21 3l-6 6 M21 16v5h-5 M21 21l-6-6 M8 21H3v-5 M3 21l6-6');
+      icon.append(path);
+      button.append(icon);
       button.addEventListener('click', () => openDiagram(diagram, button));
       diagram.append(button);
     });
   };
-  new MutationObserver(enhance).observe(document.documentElement, { childList: true, subtree: true });
+  new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
   enhance();
 }
 
