@@ -56,6 +56,54 @@ test('exact names apply to queries and types without promoting partial or fuzzy 
   ]);
   assert.equal((await pluralSearch('stored payment methods')).hits[0].url, '/guide');
 });
+test('an exact guide title stays above a matching API name as typing finishes', async () => {
+  const guide = '/developer/order/order-status';
+  const api = '/api-reference/orders/enums/order-status';
+  const search = createEngine([
+    doc(api, 'OrderStatus Enum'),
+    doc(guide, 'Order Status'),
+  ], {[guide]: {headings: [{text: 'Settings', slug: 'settings', depth: 2}]}});
+  for (const query of ['order stat', 'order statu', 'order status', 'Order Status', 'order status ']) {
+    assert.equal((await search(query)).hits[0].url, guide, query);
+  }
+  assert.equal((await search('OrderStatus Enum')).hits[0].url, api);
+  assert.equal((await search('order status', {section: 'API'})).hits[0].url, api);
+});
+test('app overviews lead broad searches while specific topics retain their relevance', async () => {
+  for (const [name, slug] of [['Stripe', 'stripe'], ['AvaTax', 'avatax'], ['ExamplePay', 'example-pay']]) {
+    const base = `/developer/app-store/apps/${slug}`;
+    const search = createEngine([
+      doc(`/developer/app-store/legacy-plugins/${slug}`, `${name} Plugin`, `${name} app`),
+      doc(`${base}/architecture`, `${name} App Architecture`),
+      doc(`${base}/configuration`, `${name} App Configuration`),
+      doc(`${base}/overview`, `${name} App Overview`, `${name} configuration architecture`),
+      doc('/other', 'AppBridge', `${name} app`),
+    ], {[`${base}/overview`]: {headings: [{text: 'Architecture', slug: 'architecture', depth: 2}]}});
+    for (const query of [name, name.toLowerCase(), `${name.toLowerCase()} app`]) {
+      const {hits} = await search(query);
+      assert.equal(hits[0].url, `${base}/overview`, query);
+      assert.equal(hits.at(-1).url, `/developer/app-store/legacy-plugins/${slug}`, query);
+    }
+    for (const topic of ['architecture', 'configuration']) {
+      assert.equal((await search(`${name.toLowerCase()} ${topic}`)).hits[0].url, `${base}/${topic}`);
+    }
+  }
+});
+test('legacy sections are demoted consistently, including exact legacy titles', async () => {
+  for (const route of ['/developer/app-store/legacy-plugins/stripe', '/developer/app-store/legacy-plugins/avalara', '/developer/extending/plugins/new-plugin']) {
+    assert.equal(pageRank(route), 1);
+    const search = createEngine([doc(route, 'Example Plugin'), doc('/guide', 'Migrating to the app', 'Example Plugin')]);
+    assert.equal((await search('Example Plugin')).hits[0].url, '/guide');
+  }
+});
+test('app overview titles need not contain the word app', async () => {
+  const base = '/developer/app-store/apps/example';
+  const search = createEngine([
+    doc(`${base}/overview`, 'Example Overview'),
+    doc(`${base}/configuration`, 'Example App Configuration'),
+  ]);
+  assert.equal((await search('example app')).hits[0].url, `${base}/overview`);
+});
 test('headings link to their explicit anchor, filters apply before limiting', async () => {
   const docs=Array.from({length:20},(_,i)=>doc('/other'+i,'Integration surface','',{locale:'de'}));
   docs.push(doc('/tutorial','Payment tutorial'));
