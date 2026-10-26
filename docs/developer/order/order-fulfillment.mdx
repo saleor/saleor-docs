@@ -5,7 +5,7 @@ sidebar: {}
 seo:
   title: Order Fulfillment
   description: Manage order fulfillment in Saleor, from confirmed orders to shipping goods. Learn when fulfillments can be created and how they track delivery.
-lastModified: '2026-08-10'
+lastModified: '2026-10-26'
 ---
 
 ## Introduction
@@ -108,15 +108,71 @@ Example of order line fulfillment status in a response:
 The impact of fulfillments on stock depends on whether inventory tracking is enabled for the product variant ([`ProductVariant.trackInventory`](/api-reference/products/objects/product-variant#track-inventory)).
 
 - When `trackInventory` is enabled:
-  - Creating a fulfillment reduces stock in the specified warehouse and releases the stock allocation
-  - Canceling a fulfillment restores stock to the warehouse and restore the stock allocation
+  - Approved fulfillment reduces stock in the specified warehouse and releases the fulfilled quantity from the line's allocations. For `WAITING_FOR_APPROVAL`, these stock changes happen on approval
+  - Canceling an approved fulfillment with a restocking warehouse restores stock and allocations there. Canceling a fulfillment is not the same as canceling the order line: the items can require fulfillment again
   - Returns require manual stock restoration after staff review (this is by design to allow staff to review returned items before deciding if they can be resold)
 - When `trackInventory` is disabled:
   - No stock changes occur for any fulfillment operation
 
 #### Warehouse Selection for Fulfillment
-- Saleor dashboard may suggest warehouses based on stock allocation
-- You can manually select warehouses when creating fulfillments
+
+A custom integration can read the line's allocations and use them as its fulfillment plan:
+
+```graphql
+query OrderAllocations($id: ID!) {
+  order(id: $id) {
+    lines {
+      id
+      quantityToFulfill
+      allocations {
+        quantity
+        warehouse { id name }
+      }
+    }
+  }
+}
+```
+
+For each selected line, pass its ID as `input.lines[].orderLineId` to `orderFulfill`. Build `input.lines[].stocks` entries using each allocation's `warehouse.id` and the quantity to fulfill. Use positive allocations and keep the requested total within `quantityToFulfill`. A partial fulfillment can use only part of an allocation. Read current data before submitting and handle mutation errors; allocations or stock can change between the query and mutation.
+
+The API requires explicit warehouses and quantities; it does not automatically fill them from allocations. You can instead choose another eligible warehouse. Saleor releases the fulfilled quantity from the line's existing allocations and deducts physical stock from the warehouse selected in the request. Stock availability is validated unless `allowStockToBeExceeded` is enabled.
+
+For example, assume a line has two units allocated entirely in A, both warehouses have ten physical units, and there are no other holds:
+
+| State | A: physical / allocated / available | B: physical / allocated / available |
+| --- | --- | --- |
+| Before fulfillment | 10 / 2 / 8 | 10 / 0 / 10 |
+| Fulfill both units from A | 8 / 0 / 8 | 10 / 0 / 10 |
+| Alternatively, fulfill both units from B | 10 / 0 / 10 | 8 / 0 / 8 |
+
+The last two rows are alternative outcomes. Fulfilling from B does not transfer physical stock from A to B. It releases A's hold and consumes B's stock.
+
+For partial fulfillment of a line allocated across several warehouses, deallocation follows the existing allocations' stock order. Do not assume it releases the allocation in the selected fulfillment warehouse first. Re-read allocations before planning the remaining fulfillment.
+
+#### Releasing Stock for an Unfulfilled Line
+
+When you will no longer supply part of an order, call [`orderFulfillmentReturnProducts`](/api-reference/orders/mutations/order-fulfillment-return-products) with the selected unfulfilled line in `input.orderLines`, its `orderLineId`, the `quantity` to release, and `replace: false`.
+
+On successful processing, Saleor decreases that quantity's existing allocations and removes it from the quantity awaiting fulfillment. You do not select a release warehouse: Saleor releases the holds from the line's existing warehouse allocations. Other lines remain allocated. Physical stock does not increase because these units had not yet been deducted.
+
+```mermaid
+flowchart TD
+    A[Two unfulfilled lines: both allocated] --> R[Return selected quantity of one order line]
+    R --> S[Successful return processing]
+    S --> D[Release selected quantity from existing allocations]
+    D --> V[Available stock increases; physical count unchanged]
+    S --> U[Other line remains allocated]
+```
+
+For example, returning two unfulfilled units allocated in A changes A from **10 physical / 2 allocated / 8 available** to **10 physical / 0 allocated / 10 available**, assuming no other holds. Stock is available for new purchases; it is not automatically reassigned to another order.
+
+The release happens as part of the line-return operation, not when the payment refund completes. `orderGrantRefundCreate` and transaction refund operations do not release stock, even if the granted refund references that line. For the legacy payment-plugin flow, `orderFulfillmentRefundProducts` also releases allocations when its input includes unfulfilled order-line quantities.
+
+If you cancel because stock is missing, correct the warehouse's physical stock count as part of your inventory workflow. Releasing an allocation does not correct the recorded inventory discrepancy and can otherwise make missing units available to sell again.
+
+Already fulfilled units have had their stock deducted. Returning or refunding those units does not automatically restock them. After receiving and inspecting a return, your integration can call [`productVariantStocksUpdate`](/api-reference/products/mutations/product-variant-stocks-update) for the variant and receiving warehouse, or synchronize the updated count from your inventory system. The `quantity` input sets the new total physical stock count, not an increment: if the current count is 8 and two sellable units return, set it to 10, not 2. Coordinate this update with other inventory writes so a stale count does not overwrite concurrent changes.
+
+[`orderFulfillmentCancel`](/api-reference/orders/mutations/order-fulfillment-cancel) with a restocking warehouse also restores physical stock, but it undoes fulfillment and reallocates those units for the order. Use that operation when fulfillment needs to be undone, not as a substitute for restocking a completed customer return.
 
 #### Stock Level Overrides
 - The `allowStockToBeExceeded` parameter in the [`orderFulfill`](/api-reference/orders/mutations/order-fulfill) mutation allows creating fulfillments even when stock is insufficient
