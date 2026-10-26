@@ -11,6 +11,20 @@ import { readHostRoutes } from "./vercel-routing.mjs";
 const out = process.env.BLUME_OUTPUT_DIR ??
   (process.env.BLUME_SERVER !== "0" ? ".vercel/output/static" : "dist");
 const routes = await readJson(`${out}/agent-routes.json`);
+const runtimeDir = process.env.BLUME_RUNTIME_DIR ??
+  (out === ".blume-verify/dist" ? ".blume-verify" : ".blume");
+const builtManifest = await readJson(`${runtimeDir}/blume.manifest.json`);
+const resolvedDates = new Map(builtManifest.routes.map(route => [route.path, route.lastModified]));
+const sitemap = load(await readFile(`${out}/sitemap.xml`, "utf8"), { xml: true });
+for (const entry of sitemap("url").toArray()) {
+  const route = new URL(sitemap(entry).find("loc").text()).pathname;
+  assert.equal(sitemap(entry).find("lastmod").text(), resolvedDates.get(route) ?? "", `${route}: sitemap date differs from Blume`);
+}
+const sampleRoute = "/developer/stock/stock-reservation";
+const committedDate = execFileSync("git", ["log", "-1", "--format=%cI", "--", `docs${sampleRoute}.mdx`], { encoding: "utf8" }).trim();
+assert(committedDate, "Git history must contain the sample documentation page");
+assert.equal(resolvedDates.get(sampleRoute), committedDate, "Blume must use the Git modification date");
+
 const discovery = await readJson(`${out}/agent-readability.json`);
 const mcpDiscovery = await readJson(`${out}/.well-known/mcp.json`);
 const mcpCard = await readJson(`${out}/.well-known/mcp/server-card.json`);

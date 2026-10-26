@@ -357,7 +357,7 @@ export async function main() {
     try { source = await readFile(file, "utf8"); }
     catch (error) { if (error.code === "ENOENT") continue; throw error; }
     const parsed = matter(source);
-    for (const key of ["title", "seo", "lastModified"]) {
+    for (const key of ["title", "seo"]) {
       if (previous[key] !== undefined) parsed.data[key] = previous[key];
     }
     if (previous.description === undefined && previous.seo) delete parsed.data.description;
