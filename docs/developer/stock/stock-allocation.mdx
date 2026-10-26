@@ -105,8 +105,8 @@ For inventory-tracked products, reservations and allocations hold quantities in 
 
 1. Creating a checkout with lines, or adding/updating its lines, creates expiring [reservations](/developer/stock/stock-reservation) when enabled for that customer type.
 2. Completing checkout creates order allocations using the channel's allocation strategy. Saleor selects warehouses again; it does not guarantee that the order allocation uses the checkout reservation's warehouses.
-3. Your integration reads `OrderLine.allocations` to obtain warehouse IDs and allocated quantities.
-4. Your integration submits `orderFulfill` with explicit warehouse IDs and quantities. It can follow the allocations or select another eligible warehouse with sufficient stock.
+3. `OrderLine.allocations` exposes the warehouses and quantities allocated to each order line.
+4. `orderFulfill` requires explicit warehouse IDs and quantities. Fulfillment can use the allocated warehouses or other eligible warehouses with sufficient stock.
 5. Approved fulfillment releases the fulfilled quantity from the line's allocations and decreases physical stock in the fulfillment warehouse. When approval is required, these stock changes wait for approval.
 
 ```mermaid
@@ -116,7 +116,7 @@ flowchart TD
     R --> O
     R --> E[Reservation expires: held quantity becomes available]
     O --> A[Order stock allocated across eligible warehouses]
-    A --> I[Integration reads line allocations]
+    A --> I[Read order line allocations]
     I --> F[Submit explicit warehouses and quantities]
     F --> P[Approved fulfillment]
     P --> D[Release allocations and deduct physical stock from fulfillment warehouses]
