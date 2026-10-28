@@ -141,6 +141,10 @@ const { canonical, deployment: site } = resolveSiteUrls();
   await writeJson(`${out}/.well-known/mcp.json`, buildMcpDiscovery(input));
   await writeJson(`${out}/.well-known/mcp/server-card.json`, buildMcpServerCard(input));
 }
+// Reuse the dates resolved by Blume for the page footer, JSON-LD, and API.
+// Both server and isolated builds emit this manifest in their runtime directory.
+const builtManifest = await readJson(path.join(process.env.BLUME_RUNTIME_DIR ?? ".blume", "blume.manifest.json"));
+const modifiedByRoute = new Map(builtManifest.routes.map(route => [route.path, route.lastModified]));
 const xml = (value) => String(value)
   .replaceAll("&", "&amp;")
   .replaceAll("<", "&lt;")
@@ -153,8 +157,8 @@ await write(
   ])]
     .sort()
     .map((route) => {
-      const modified = documents.get(route)?.lastModified;
-      return `  <url><loc>${xml(new URL(route, canonical))}</loc>${modified ? `<lastmod>${modified}</lastmod>` : ""}</url>`;
+      const modified = modifiedByRoute.get(route);
+      return `  <url><loc>${xml(new URL(route, canonical))}</loc>${modified ? `<lastmod>${xml(modified)}</lastmod>` : ""}</url>`;
     })
     .join("\n")}\n</urlset>\n`,
 );

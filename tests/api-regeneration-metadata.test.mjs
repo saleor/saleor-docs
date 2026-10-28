@@ -30,7 +30,7 @@ test("API regeneration preserves maintained metadata and refreshes schema conten
     const parsed = matter(output);
     assert.equal(parsed.data.title, "Maintained title");
     assert.equal(parsed.data.seo.description, "Maintained summary");
-    assert.equal(parsed.data.lastModified, "2026-10-20");
+    assert.equal(parsed.data.lastModified, undefined);
     assert(!parsed.content.includes("Old generated body"));
     assert(parsed.content.includes("ping"));
     run();

@@ -65,7 +65,7 @@ export default defineConfig({
     repo: false,
   },
   github: repositoryConfig(),
-  lastModified: "frontmatter",
+  lastModified: "git",
   search: {
     // Generates the static page index; Search layout uses search/client.mjs.
     // Hosted MCP/JSON API queries share search/engine.mjs through mcpSearch().

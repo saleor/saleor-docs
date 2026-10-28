@@ -28,6 +28,20 @@ pnpm check:search
 
 `pnpm build:isolated` and `pnpm check:isolated` build and check static output separately from the development server.
 
+### Page modification dates
+
+Blume derives page dates from the latest Git commit touching each file. Do not add
+`lastModified` frontmatter: it overrides Git. Uncommitted edits retain the previous
+commit's date; new untracked pages have no date until committed. Formatting and
+metadata-only commits also count as updates.
+
+Builds require a Git checkout with full history. The build commands automatically
+unshallow hosted checkouts without moving HEAD, using `origin` or the public
+`saleor/saleor-docs` repository when no origin exists. Fetch failures stop the build.
+CI checks out full history directly. Source archives without Git metadata are not
+supported for production builds. The custom sitemap reuses Blume's resolved dates,
+so its timestamps match the page metadata.
+
 ## Updating generated documentation
 
 - `pnpm update-schema <release-tag>` pins a Saleor schema and regenerates its API reference.
