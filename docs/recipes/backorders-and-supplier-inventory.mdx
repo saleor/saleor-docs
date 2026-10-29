@@ -1,0 +1,103 @@
+---
+title: Backorders and Supplier Inventory
+slug: recipes/backorders-and-supplier-inventory
+sidebar: {}
+seo:
+  title: Backorders and Supplier Inventory
+  description: Separate sellable availability from stock ready to ship, using supplier inventory, warehouse allocation, and fulfillment lead times.
+lastModified: '2026-10-29'
+---
+
+Use this pattern when customers can order more units than you can dispatch immediately. Separate **sellable availability** (how much the customer can order) from **fulfillment lead time** (when the ordered units can ship).
+
+This commonly occurs when a merchant holds inventory and sources additional units from a supplier. It can also apply to another distribution center with a longer fulfillment lead time.
+
+## Choose the Inventory and Fulfillment Model
+
+Use these terms to describe the business requirements:
+
+- **On-hand inventory** is inventory physically held at a location. Some units may already be allocated or reserved, so on-hand quantity is not the same as availability for a new order.
+- **Sellable availability** is the quantity offered for purchase after inventory commitments and applicable limits. It can span multiple inventory sources.
+- **Backorders** are orders accepted for items that cannot currently be fulfilled and must wait for replenishment. A merchant can have both immediately fulfillable and backordered quantities of the same item in one order.
+- **Fulfillment lead time** is the time needed to prepare and dispatch an item. A customer delivery estimate must also account for transit time.
+- **Dropshipping** means a supplier ships directly to the customer. Supplier inventory does not imply dropshipping: goods may first be received at the merchant's warehouse.
+
+This recipe implements a bounded supply model: represent known, sourceable inventory in separate Saleor warehouses and prioritize the source that can dispatch first. For example, 20 units are available for immediate dispatch and another 200 can be sourced with a two-week dispatch lead time.
+
+Saleor treats both quantities as sellable stock. The supplier warehouse is a representation of supply in this integration, not a native backorder status or a replenishment schedule. This pattern does not cover accepting orders against unknown future supply or calculating date-based availability. Your integration owns sourcing commitments and delivery estimates.
+
+## Represent Inventory Sources as Warehouses
+
+For the merchant-and-supplier example, create a merchant warehouse and a supplier warehouse. The supplier warehouse represents the quantity you can source, even if you do not physically hold it yet.
+
+For each product variant:
+
+- Keep [`trackInventory`](/api-reference/products/objects/product-variant#track-inventory) enabled.
+- Set 20 units in the merchant warehouse and 200 units in the supplier warehouse.
+- Assign both warehouses to the sales channel.
+
+With no existing allocations or reservations, this makes 220 units available across the two warehouses. Checkout limits can further restrict the quantity a customer can purchase. Disabling inventory tracking would remove stock validation and allocation for both sources.
+
+See [warehouse configuration](/developer/stock/overview#assign-warehouses-to-the-channels) for channel assignment. If your shop uses [legacy stock availability](/developer/stock/overview#legacy-stock-availability), both warehouses must also have the shipping-zone links needed for the customer's destination.
+
+## Prioritize the Immediately Available Source
+
+Set the channel's allocation strategy to `PRIORITIZE_SORTING_ORDER` and place the merchant warehouse before the supplier warehouse. You can set the strategy through [`channelUpdate`](/api-reference/channels/mutations/channel-update), using `stockSettings.allocationStrategy`, and change the warehouse order through [`channelReorderWarehouses`](/api-reference/channels/mutations/channel-reorder-warehouses).
+
+Saleor allocates merchant stock first and uses supplier stock for the remainder. With 20 units available at the merchant warehouse, completing a checkout for 25 units allocates 20 to the merchant warehouse and 5 to the supplier warehouse.
+
+Avoid `PRIORITIZE_HIGH_STOCK` for this pattern: it can prioritize the supplier warehouse because it has more stock. See [stock allocation](/developer/stock/stock-allocation#allocation-strategies) for details. This pattern assumes shipping; local-stock pickup is limited to the selected collection point's stock.
+
+## Query Availability by Warehouse
+
+[`quantityAvailable`](/api-reference/products/objects/product-variant#quantity-available) provides combined purchase availability. To distinguish immediately available units from supplier units, read the variant's stock entries from your storefront backend:
+
+```graphql
+query VariantStock($id: ID!, $channel: String!) {
+  productVariant(id: $id, channel: $channel) {
+    id
+    quantityAvailable
+    stocks {
+      warehouse {
+        id
+        name
+      }
+      quantity
+      quantityAllocated
+      quantityReserved
+    }
+  }
+}
+```
+
+Pass the product variant ID and the storefront's channel slug as variables. If you use legacy stock availability, pass the customer's destination using the `address` argument on both `quantityAvailable` and `stocks`. Otherwise, availability is determined by the warehouse-channel links.
+
+The [`stocks`](/api-reference/products/objects/product-variant#stocks) field and the [stock quantity fields](/api-reference/products/objects/stock) require `MANAGE_PRODUCTS` or `MANAGE_ORDERS`. Make this request with an app token on your backend, keep the token on the server, and return only the availability breakdown needed by the storefront.
+
+Identify each source by its warehouse ID. For a general availability display, calculate the available quantity in each warehouse as:
+
+```text
+max(0, quantity - quantityAllocated - quantityReserved)
+```
+
+`quantity` includes units already allocated to orders, so displaying it directly can overstate what is available. `quantityReserved` accounts for active checkout reservations. This calculation is a snapshot, not a delivery guarantee: reservations can include the current customer's checkout, and availability can change before checkout completion. Let Saleor validate the final purchase quantity.
+
+## Show the Delivery Promise
+
+Use availability at each source and its fulfillment lead time to distinguish immediate dispatch from delayed fulfillment. For example:
+
+> 20 available for immediate dispatch. Additional units available with an estimated two-week dispatch lead time.
+
+For a customer buying 25 units, with 20 still available at the merchant warehouse:
+
+> 20 can ship immediately. The remaining 5 are expected to ship in approximately two weeks.
+
+Your storefront implements this messaging on product pages, in the cart, and at checkout. Label the delayed quantity as backordered when it must wait for replenishment; use a dispatch estimate for stock shipping from another location. Warehouse allocation alone does not establish a customer delivery promise. Store the supplier lead time in your integration or suitable [metadata](/api-usage/metadata), and decide whether to offer separate shipments or wait until the complete order is ready. If you ship everything together, show the longer delivery estimate for the order.
+
+## Synchronize Supplier Stock and Fulfill Orders
+
+Keep supplier stock synchronized with the quantity you can actually source. An arbitrary value such as 999 allows purchases beyond the supplier's known availability. Account for outstanding supplier commitments when synchronizing, so already allocated units are not offered for sale again. See [external stock synchronization](/developer/stock/stock-tracking#synchronizing-stock-from-external-sources).
+
+Saleor treats the supplier warehouse as ordinary sellable stock. Your integration must handle supplier purchasing, lead-time changes, and the movement of goods if they arrive at the merchant warehouse before dispatch. Keep stock and order allocations consistent with the warehouse you fulfill from; do not count the same supplier units in both warehouses.
+
+Offer **split shipments** when customers can receive the immediately available quantity first, or hold the order until all items are ready. Use [partial fulfillments](/developer/order/order-fulfillment) when you ship the units at the merchant warehouse first and the supplier units later. Create fulfillments when goods are dispatched, rather than when you place the purchase order with the supplier.
