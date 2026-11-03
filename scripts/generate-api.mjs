@@ -136,6 +136,11 @@ export function generateReference(sdl, legacy = {}, provenance = {}) {
   const prose = (text) =>
     outsideFences(safe(text), (value) =>
       value
+        // 3.22 is the oldest supported release, so older "Added in" notes are noise.
+        .replace(
+          /^[ \t]*Added in Saleor 3\.(\d+)\.[ \t]*\n| ?Added in Saleor 3\.(\d+)\. ?/gm,
+          (note, line, inline) => (Number(line ?? inline) <= 22 ? "" : note),
+        )
         .replace(
           /^Added in Saleor ([\d.]+)\.$/gm,
           (_, v) => `<Badge variant="accent">Added in Saleor ${v}</Badge>`,

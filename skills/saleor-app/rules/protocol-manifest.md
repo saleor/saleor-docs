@@ -38,10 +38,10 @@ Every Saleor app must expose two required HTTP endpoints: **manifest** (GET) and
 | `appUrl`                | Yes      | Main iframe URL                    |
 | `tokenTargetUrl`        | Yes      | Registration endpoint URL          |
 | `permissions`           | Yes      | Permissions the app needs          |
-| `requiredSaleorVersion` | No       | Semver constraint (e.g. `"^3.15"`) |
+| `requiredSaleorVersion` | No       | Semver constraint (e.g. `"^3.22"`) |
 | `webhooks`              | No       | Webhook subscriptions              |
 | `extensions`            | No       | Dashboard UI mount points          |
-| `brand.logo.default`    | No       | Logo URL (Saleor 3.15+)            |
+| `brand.logo.default`    | No       | Logo URL                           |
 
 ### Webhook Entries
 
@@ -96,7 +96,7 @@ import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
 export default createManifestHandler({
   manifestFactory({ appBaseUrl, request, schemaVersion }) {
     // appBaseUrl: from Host header
-    // schemaVersion: from saleor-schema-version header (null if <3.15)
+    // schemaVersion: from saleor-schema-version header
     return {
       id: "my.app",
       version: "1.0.0",

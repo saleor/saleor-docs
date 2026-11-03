@@ -16,7 +16,7 @@ Headers:
   saleor-domain: my-shop.saleor.cloud
   saleor-api-url: https://api.saleor.cloud/graphql/
   saleor-signature: <JWS compact>
-  saleor-schema-version: 3.20 (optional)
+  saleor-schema-version: 3.23 (optional)
   content-type: application/json
 
 Body: JSON shaped by subscription query

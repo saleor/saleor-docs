@@ -100,7 +100,6 @@ const product = await readFile(
   "utf8",
 );
 assert.match(product, /MANAGE_PRODUCTS/);
-assert.match(product, /Added in Saleor 3.21/);
 const metadata = await readFile(
   `${out}/api-reference/miscellaneous/scalars/metadata.md`,
   "utf8",

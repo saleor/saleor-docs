@@ -19,9 +19,9 @@ interface AppManifest {
   homepageUrl?: string;
   supportUrl?: string;
   configurationUrl?: string;           // Settings page URL
-  requiredSaleorVersion?: string;      // Semver constraint (e.g. "^3.15")
+  requiredSaleorVersion?: string;      // Semver constraint (e.g. "^3.22")
   brand?: {
-    logo: { default: string };         // Logo URL (Saleor 3.15+)
+    logo: { default: string };         // Logo URL
   };
 
   // Webhooks
