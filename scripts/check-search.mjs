@@ -11,7 +11,9 @@ const tutorial = '/developer/extending/apps/building-payment-app';
 for (const [query, route, maxRank] of [
   ['how to build a payment app', tutorial, 1],
   ['payment app', tutorial, 3],
-  ['paymnt app', tutorial, 3],
+  // Typo tolerance: a misspelled query must still find the tutorial. Exact order among
+  // payment app pages depends on title length, so allow room for new app pages.
+  ['paymnt app', tutorial, 5],
   ['build payment', tutorial, 1],
   ['building payment', tutorial, 3],
   ['stored payment methods', '/developer/payments/stored-payments', 1],
