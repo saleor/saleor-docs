@@ -1,0 +1,106 @@
+---
+title: Square App Configuration
+slug: developer/app-store/apps/square/configuration
+sidebar:
+  label: Configuration
+  order: 3
+seo:
+  title: Square App Configuration
+  description: Connect Square accounts to the Saleor Square App, set up the Square webhook, and assign connections to Saleor channels.
+lastModified: '2026-11-02'
+---
+
+This guide explains how to connect your Square account to the app, set up the Square webhook, and assign Square connections to Saleor channels.
+
+App configuration is based on three entities:
+
+- **Square connections**: credentials for a Square application and location
+- **Square webhooks**: one subscription per Square application and environment that sends payment and refund updates to the app
+- **Channel assignments**: the mapping between a Saleor channel and a Square connection
+
+You can add multiple connections. A connection isn't used until it's assigned to a channel. Each channel can be assigned to only one connection.
+
+To configure the app, open **Extensions** in the Saleor Dashboard and select the installed Square app.
+
+:::note[To configure the app, the logged-in staff user must have the `HANDLE_PAYMENTS` and `MANAGE_APPS` permissions.]
+:::
+
+## Before you start
+
+You need a Square application in the [Square Developer Console](https://developer.squareup.com/apps). Open your application and collect the following values for the environment you want to use (sandbox or production):
+
+- **Application ID**, from the **Credentials** page
+- **Access token**, from the **Credentials** page
+- **Location ID**, from the **Locations** page
+
+:::tip
+Start with a sandbox connection. You can use [Square sandbox test values](https://developer.squareup.com/docs/devtools/sandbox/payments) to test payments without real money.
+:::
+
+## Adding a Square connection
+
+In the **Square connections** section, click **Add connection** and fill in the form:
+
+- **Connection name**: A label that helps staff users tell connections apart, for example "Sandbox" or "Production US"
+- **Environment**: `Sandbox` or `Production`. It must match the environment of the credentials.
+- **Application ID**: The Square application ID. It's sent to the storefront to initialize the Square Web Payments SDK.
+- **Location ID**: The Square location that receives the payments. The location's country decides which wallets are available.
+- **Access token**: The Square access token. It's stored encrypted and is never sent to the storefront.
+
+Click **Create connection** to save it.
+
+The app doesn't verify the credentials when you save them. Test a payment after you finish the configuration. If the access token is wrong, the app reports a problem in the Dashboard on the first failed payment.
+
+A connection is identified by its environment, application ID, and location ID. Adding a connection with the same three values replaces the existing one, and keeps its channel assignments. Deleting a connection also removes its channel assignments.
+
+:::warning[Refunds use the connection the payment was made with]
+Each payment is linked to the environment, application ID, and location ID of its connection. To refund it from Saleor, a connection with these values must exist. If you delete it, add it again before refunding older payments.
+:::
+
+### Rotating the access token
+
+To replace the access token, click **Add connection** and enter the same environment, application ID, and location ID with the new access token. The app replaces the stored token. Channel assignments stay unchanged, and earlier payments remain refundable.
+
+To move a channel to a different Square application or location, add a new connection and assign the channel to it. Keep the old connection while you may still need to refund payments made with it.
+
+## Setting up the Square webhook
+
+Square sends payment and refund updates to the app through a webhook subscription. The app needs it to:
+
+- Resolve payments whose outcome was unknown during checkout
+- Reflect refunds made in the Square Dashboard
+- Update refunds that Square processes asynchronously
+
+In the **Square webhooks** section, the app lists one row per Square application and environment used by your connections. Click **Set up webhook** to create the subscription.
+
+The app creates a subscription for the `payment.updated` and `refund.updated` events and stores its signature key encrypted. You can check it in the **Webhooks** page of your application in the Square Developer Console.
+
+Use **Update webhook** to repair the subscription, for example after the app URL changed. Use **Remove webhook** to delete it.
+
+If Square has more than one subscription for this installation, the app lists them so you can remove the duplicates.
+
+:::warning
+The app manages its Square webhook subscription. Don't disable or edit it in the Square Developer Console while the app is in use, or payment and refund updates won't reach Saleor.
+:::
+
+## Assigning a connection to a channel
+
+In the **Channel assignments** section, select a connection for each channel that should offer Square at checkout. A channel set to **Not assigned** doesn't offer Square.
+
+Changes apply to new payments only. Payments that already started keep using the connection they were created with.
+
+Ensure the channel has its transaction flow set to `CHARGE` and has **Use Transaction flow when marking order as paid** enabled in the channel settings.
+
+:::warning
+The channel currency must be supported by the Square account of the assigned location. Square rejects payments in other currencies.
+:::
+
+## Reinstalling the app
+
+Reinstalling the app doesn't restore the previous configuration. To keep processing payments and refunds made before reinstallation:
+
+1. Add a connection with the same environment, application ID, and location ID as before.
+2. Assign the channels again.
+3. Set up the Square webhook again.
+
+The app removes the webhook subscription of the previous installation the next time Square delivers an event to it.
