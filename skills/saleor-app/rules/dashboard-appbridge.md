@@ -74,7 +74,7 @@ appBridge.dispatch(
 // Signal ready (auto-called unless autoNotifyReady: false)
 appBridge.dispatch(actions.NotifyReady());
 
-// Request elevated permissions (Saleor 3.15+)
+// Request elevated permissions
 appBridge.dispatch(
   actions.RequestPermissions({
     permissions: ["MANAGE_ORDERS"],
