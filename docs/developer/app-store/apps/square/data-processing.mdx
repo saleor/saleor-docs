@@ -1,0 +1,57 @@
+---
+title: Square App - How We Process Your Data
+slug: developer/app-store/apps/square/data-processing
+sidebar:
+  label: Data Processing
+  order: 10
+seo:
+  title: Square App - How We Process Your Data
+  description: Which data the Saleor Square App stores and processes, and which data it sends to Square.
+lastModified: '2026-11-02'
+---
+
+Data processing is a critical aspect of any application that handles monetary transactions. This page outlines how the Square App processes your data.
+
+## Data persistence
+
+The app uses its internal database to store the following data. Configuration is stored encrypted.
+
+- App configuration:
+  - Connection name
+  - Square environment, application ID, and location ID
+  - Square access token
+  - Square location country, cached
+  - Mapping between channel IDs and connections
+  - Square webhook subscription ID, notification URL, and signature key
+- Payment attempts:
+  - Saleor transaction ID and the source checkout or order ID
+  - Connection, location, and Square Order ID
+  - Expected amount and currency
+  - Idempotency key and a digest of the payment request
+  - Square payment ID, once known
+- Mapping between a Saleor checkout and its Square Order
+
+The app doesn't store payment tokens, verification tokens, or card details.
+
+The app also stores the Square Order ID in the checkout's private metadata, under the `saleor.app.square:order:v1` key.
+
+## Data processing
+
+The Square App doesn't process payment details. Customers enter them in the Square Web Payments SDK on the storefront, which sends them directly to Square.
+
+The app processes the following data:
+
+- IDs of the transaction, checkout or order, and customer
+- Amount and currency of the transaction
+- Checkout lines (product names, quantities, and prices) and shipping, to create the itemized Square Order
+- The customer's email, sent to Square with the payment
+- The payment method type and the payment token returned by the Square Web Payments SDK
+- Card brand, last digits, and expiration date returned by Square
+
+When a customer saves a card, the app creates a Square customer with the Saleor user's name and email and links it to the Saleor user.
+
+## Data field
+
+The storefront can write sensitive information to the `data` field of transaction mutations. The app doesn't request such data, but it can't prevent the storefront from sending it. The app rejects `data` that contains fields it doesn't expect.
+
+See the [webhooks documentation](./webhooks) for the data shapes and fields.
