@@ -1,5 +1,5 @@
-// The prompt a reader copies into their coding agent to integrate the Square App, and its
-// Markdown export. tests/square-prompt.test.mjs checks it against the Square App docs pages.
+// The prompt a reader copies into their coding agent to integrate the Square App.
+// tests/square-prompt.test.mjs checks it against the Square App docs pages.
 
 const gatewayId = "saleor.app.square";
 const dataVersion = "saleor.app.square.v1";
@@ -75,10 +75,3 @@ Verify:
 - Then pay once in the browser with the SDK in sandbox, and confirm the order is created.
 
 When you're done, tell me which files you changed and what you verified.`;
-
-export const agentPromptMarkdown = () => `Copy this prompt into your coding agent:
-
-\`\`\`text
-${agentPrompt}
-\`\`\`
-`;
