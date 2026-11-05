@@ -128,6 +128,16 @@ for (const operation of ["ProductDetails", "WalkthroughCreateCheckout", "UpdateC
 assert(quickstartMarkdown.includes("REPLACE_WITH_YOUR_PRODUCT_ID"));
 assert(quickstartMarkdown.includes("REPLACE_WITH_YOUR_SHIPPING_METHOD_ID"));
 assert(!quickstartMarkdown.includes("<GraphQLExample"), "Runner was not serialized into Markdown");
+const square = load(await readFile(`${out}/developer/app-store/apps/square/storefront-integration/index.html`, "utf8"));
+assert.equal(square(".agent-prompt-copy").length, 1, "Square agent prompt is missing");
+const squareMarkdown = await readFile(`${out}/developer/app-store/apps/square/storefront-integration.md`, "utf8");
+assert.match(squareMarkdown, /```text\nIntegrate Square payments/, "Square agent prompt was not serialized into Markdown");
+assert(!squareMarkdown.includes("<AgentPrompt"), "Square agent prompt tag leaked into Markdown");
+const stripe = load(await readFile(`${out}/developer/app-store/apps/stripe/storefront-integration/index.html`, "utf8"));
+assert.equal(stripe(".agent-prompt-copy").length, 1, "Stripe agent prompt is missing");
+const stripeMarkdown = await readFile(`${out}/developer/app-store/apps/stripe/storefront-integration.md`, "utf8");
+assert.match(stripeMarkdown, /```text\nIntegrate Stripe payments/, "Stripe agent prompt was not serialized into Markdown");
+assert(!stripeMarkdown.includes("<AgentPrompt"), "Stripe agent prompt tag leaked into Markdown");
 const webhooks = load(await readFile(`${out}/developer/extending/webhooks/creating/index.html`, "utf8"));
 assert(webhooks("#webhook-identifier").length, "Comment conversion lost webhook content");
 assert(webhooks("article pre").length >= 8, "Webhook examples were lost");

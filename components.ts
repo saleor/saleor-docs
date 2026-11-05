@@ -18,6 +18,7 @@ export default defineComponents({
     Video: "./components/Video.astro",
     Apps: "./components/Apps.astro",
     GraphQLExample: { component: "./components/playground/GraphQLExample.tsx", client: "visible" },
+    AgentPrompt: { component: "./components/playground/AgentPrompt.tsx", client: "visible" },
     Permissions: "./components/Permissions.astro",
   },
 });
