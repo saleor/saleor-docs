@@ -1,0 +1,389 @@
+---
+title: Square App Storefront Integration
+slug: developer/app-store/apps/square/storefront-integration
+sidebar:
+  label: Storefront integration
+  order: 5
+seo:
+  title: Square App Storefront Integration
+  description: Integrate the Square Web Payments SDK with Saleor checkout to accept card, wallet, gift card, and saved card payments through the Square App.
+lastModified: '2026-11-02'
+---
+
+This page shows how to accept Square payments in a Saleor storefront with the Square App: card payments, wallets, gift cards, and saved cards.
+
+:::note[The app is installed with the manifest ID `saleor.app.square`. The storefront uses this ID to choose the payment gateway.]
+:::
+
+## Integrate with your coding agent
+
+The fastest way to integrate is to let your coding agent do it. The prompt walks the agent through the API calls, the `data` shapes, the outcomes, idempotency, and the error codes, links these docs as the source of truth, and asks it to test the result against a Square sandbox.
+
+<SquareAgentPrompt />
+
+## Manual integration
+
+To build the integration yourself, follow the steps below. They connect the [Square Web Payments SDK](https://developer.squareup.com/docs/web-payments/overview) to Saleor checkout for card payments, then explain what changes for wallets, gift cards, and saved cards. Refer to the [Square Web Payments SDK documentation](https://developer.squareup.com/docs/web-payments/take-card-payment) for details on how to use the SDK.
+
+### Assumptions
+
+- This guide assumes a React-based UI. Follow the Square documentation for other frameworks.
+- For brevity, the code examples don't handle errors and omit non-essential code. A real storefront needs more code for loading states, errors, and notifications.
+- The GraphQL client is `request`.
+
+### Prerequisites
+
+- Install and [configure](./configuration) the Square App in the Saleor Dashboard
+- Assign a Square connection to your channel and set the channel's transaction flow to `CHARGE`
+- [Set up the Square webhook](./configuration#setting-up-the-square-webhook)
+
+To initialize the payment, you should also have a flow that:
+
+- Creates a checkout
+- Sets the required fields, like addresses and the shipping method
+- Has the final amount to pay calculated
+
+In this guide, you will render the card form with a working **PAY** button.
+
+### Initialize gateway
+
+First, check that the app is available for the checkout: `saleor.app.square` must be in the checkout's `availablePaymentGateways`. If it isn't, the Square App isn't installed or isn't active, so don't offer Square.
+
+Then fetch the browser-safe Square configuration from the app.
+
+Prepare the following GraphQL mutation:
+
+```graphql
+mutation InitializeSquareGateway($checkoutId: ID!, $amount: PositiveDecimal!) {
+  paymentGatewayInitialize(
+    id: $checkoutId
+    paymentGateways: { id: "saleor.app.square" }
+    amount: $amount
+  ) {
+    gatewayConfigs {
+      id
+      data
+      errors {
+        field
+        message
+        code
+      }
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+If the app is configured, you receive a response like this:
+
+```json
+{
+  "data": {
+    "paymentGatewayInitialize": {
+      "gatewayConfigs": [
+        {
+          "id": "saleor.app.square",
+          "data": {
+            "square": {
+              "environment": "sandbox",
+              "applicationId": "sandbox-sq0idb-...",
+              "locationId": "L...",
+              "countryCode": "US"
+            },
+            "captureMode": "CHARGE",
+            "methods": ["card", "gift-card", "apple-pay", "cash-app-pay", "afterpay-clearpay", "saved-card"]
+          },
+          "errors": []
+        }
+      ],
+      "errors": []
+    }
+  }
+}
+```
+
+Only render the methods listed in `methods`.
+
+Load the Web Payments SDK script that matches `environment`:
+
+- `sandbox`: `https://sandbox.web.squarecdn.com/v1/square.js`
+- `production`: `https://web.squarecdn.com/v1/square.js`
+
+Then create the card form:
+
+```tsx
+import { useEffect, useRef, useState } from "react";
+
+const SQUARE_SDK_URLS = {
+  sandbox: "https://sandbox.web.squarecdn.com/v1/square.js",
+  production: "https://web.squarecdn.com/v1/square.js",
+};
+
+const loadSquareSdk = (environment: "sandbox" | "production") =>
+  new Promise<void>((resolve, reject) => {
+    const script = document.createElement("script");
+
+    script.src = SQUARE_SDK_URLS[environment];
+    script.onload = () => resolve();
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+
+export const SquareCardForm = ({ squareConfig }) => {
+  const cardRef = useRef(null);
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const init = async () => {
+      await loadSquareSdk(squareConfig.environment);
+
+      const payments = window.Square.payments(squareConfig.applicationId, squareConfig.locationId);
+      const card = await payments.card();
+
+      await card.attach("#square-card");
+      cardRef.current = card;
+      setIsReady(true);
+    };
+
+    void init();
+
+    return () => {
+      void cardRef.current?.destroy();
+    };
+  }, [squareConfig]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    // We will implement this in the next step
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div id="square-card" />
+      <button type="submit" disabled={!isReady}>
+        PAY
+      </button>
+    </form>
+  );
+};
+```
+
+At this point, you should see:
+
+- The Square card form rendered
+- The **PAY** button visible, but doing nothing when clicked
+
+### Submitting payment
+
+Next, tokenize the card and pass the token to Saleor. Prepare the following mutation:
+
+```graphql
+mutation InitializeTransaction(
+  $checkoutId: ID!
+  $amount: PositiveDecimal!
+  $idempotencyKey: String!
+  $data: JSON
+) {
+  transactionInitialize(
+    id: $checkoutId
+    amount: $amount
+    idempotencyKey: $idempotencyKey
+    paymentGateway: { id: "saleor.app.square", data: $data }
+  ) {
+    transaction {
+      id
+    }
+    transactionEvent {
+      type
+      message
+    }
+    data
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+Assume the mutation is assigned to the `transactionInitializeDocument` variable.
+
+Now implement `handleSubmit`:
+
+```tsx
+import request from "my-graphql-client";
+import { transactionInitializeDocument } from "my-graphql-queries";
+
+const handleSubmit = async (event) => {
+  event.preventDefault();
+
+  // Tokenize the card. Passing verification details lets Square run
+  // buyer verification (3-D Secure) when the card issuer requires it.
+  const tokenResult = await cardRef.current.tokenize({
+    amount: checkoutTotal.toFixed(2),
+    currencyCode: checkoutCurrency,
+    intent: "CHARGE",
+    customerInitiated: true,
+    sellerKeyedIn: false,
+    billingContact: {
+      givenName: billingAddress.firstName,
+      familyName: billingAddress.lastName,
+      email: checkoutEmail,
+      countryCode: billingAddress.country.code,
+    },
+  });
+
+  if (tokenResult.status !== "OK") {
+    // Show tokenResult.errors to the customer
+    return;
+  }
+
+  // Keep the same key when retrying this payment attempt.
+  // Generate a new one only when the customer starts a new attempt.
+  const idempotencyKey = getOrCreateIdempotencyKey(checkoutId);
+
+  const result = await request(transactionInitializeDocument, {
+    checkoutId,
+    amount: checkoutTotal,
+    idempotencyKey,
+    data: {
+      version: "saleor.app.square.v1",
+      method: "card",
+      sourceId: tokenResult.token,
+    },
+  });
+
+  const { transactionEvent, data } = result.transactionInitialize;
+
+  // Handle the result, see below
+};
+```
+
+The `data` field is plain JSON, so it isn't type-checked. The app returns an error if it's invalid. See [webhooks](./webhooks#transactioninitializesession) for all shapes.
+
+### Handling the result
+
+Unlike some other payment providers, Square charges the payment during `transactionInitialize`. There's no separate confirmation step and you don't need to call `transactionProcess`.
+
+Check `transactionEvent.type`:
+
+| Type                     | What to do                                                                                                                                           |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CHARGE_SUCCESS`         | Payment is complete. Complete the checkout.                                                                                                          |
+| `CHARGE_REQUEST`         | Square accepted the payment but hasn't completed it yet. Wait and re-read the checkout before completing it.                                         |
+| `CHARGE_ACTION_REQUIRED` | The outcome is unknown (`data.square.pending` is `true`). Retry with the **same** idempotency key, or wait. Don't let the customer start a new payment. |
+| `CHARGE_FAILURE`         | Show the error from `data.square.errors` and let the customer try again with a new idempotency key.                                                  |
+| `AUTHORIZATION_SUCCESS`  | A gift card covered part of the total. Collect the remaining amount, see [gift cards](#paying-with-a-square-gift-card).                               |
+
+:::warning[Keep the idempotency key while the outcome is unknown]
+If you generate a new key after `CHARGE_ACTION_REQUIRED` or a network error, the app treats it as a new payment. It rejects new payments while the earlier attempt is unresolved. Retrying with the original key lets the app find the original payment instead.
+:::
+
+### Completing the checkout
+
+When the checkout is fully paid, call `checkoutComplete` to create the order:
+
+```graphql
+mutation CompleteCheckout($checkoutId: ID!) {
+  checkoutComplete(id: $checkoutId) {
+    order {
+      id
+    }
+    errors {
+      field
+      message
+      code
+    }
+  }
+}
+```
+
+If no errors are returned, the checkout is completed and the order is created.
+
+### Paying with wallets
+
+Apple Pay, Cash App Pay, and Afterpay/Clearpay use a Square payment request built from the checkout total and the location's `countryCode`:
+
+```ts
+const paymentRequest = payments.paymentRequest({
+  countryCode: squareConfig.countryCode,
+  currencyCode: checkoutCurrency,
+  total: { amount: checkoutTotal.toFixed(2), label: "Total" },
+});
+```
+
+Then create the method with `payments.applePay(paymentRequest)`, `payments.cashAppPay(paymentRequest, options)`, or `payments.afterpayClearpay(paymentRequest)`, tokenize it, and call `transactionInitialize` with the matching `method`:
+
+```json
+{
+  "version": "saleor.app.square.v1",
+  "method": "apple-pay",
+  "sourceId": "<token>",
+  "verificationToken": "<token from payments.verifyBuyer()>"
+}
+```
+
+Each wallet has its own requirements, for example Apple Pay domain verification and calling `tokenize()` directly from the click handler. Cash App Pay returns its token in the `ontokenization` event instead of from `tokenize()`. Follow the Square guides for [Apple Pay](https://developer.squareup.com/docs/web-payments/apple-pay), [Cash App Pay](https://developer.squareup.com/docs/web-payments/add-cash-app-pay), and [Afterpay/Clearpay](https://developer.squareup.com/docs/web-payments/add-afterpay).
+
+### Paying with a Square gift card
+
+Create the form with `payments.giftCard()`, tokenize it, and call `transactionInitialize` with `method: "gift-card"`. Pass the full amount due: the app charges up to the gift card balance.
+
+- If the gift card covers the whole amount, the result is `CHARGE_SUCCESS`.
+- If it doesn't, the result is `AUTHORIZATION_SUCCESS` and `data.square.remainingAmount` holds the amount left to pay.
+
+To pay the rest, start a new `transactionInitialize` with a new idempotency key, the remaining amount, and another method, and set `giftCardRemainder: true`:
+
+```json
+{
+  "version": "saleor.app.square.v1",
+  "method": "card",
+  "sourceId": "<token>",
+  "giftCardRemainder": true
+}
+```
+
+When the remainder succeeds, the app charges both payments together and both transactions become `CHARGE_SUCCESS`. Re-read the checkout before calling `checkoutComplete`.
+
+Square cancels the gift card authorization if the remainder isn't paid within 30 minutes. Show the customer how much time they have left. Only one gift card can be used per checkout.
+
+### Saving cards
+
+Saved cards require a logged-in customer. The storefront uses the Saleor [stored payment methods API](/developer/payments/stored-payments):
+
+1. Call `paymentGatewayInitializeTokenization` with the `saleor.app.square` gateway to get the Square configuration.
+2. Render the card form and tokenize it with `intent: "STORE"` in the verification details.
+3. Call `paymentMethodInitializeTokenization` with the following `data`:
+
+   ```json
+   {
+     "version": "saleor.app.square.v1",
+     "method": "card",
+     "sourceId": "<token>"
+   }
+   ```
+
+4. List saved cards with the `storedPaymentMethods` field on the checkout or user.
+
+To pay with a saved card, call `transactionInitialize` with its ID:
+
+```json
+{
+  "version": "saleor.app.square.v1",
+  "method": "saved-card",
+  "paymentMethodId": "<storedPaymentMethods.id>"
+}
+```
+
+You don't need to tokenize anything when paying with a saved card.
+
+### Idempotency key
+
+Both Saleor and Square support [idempotency](https://developer.squareup.com/docs/build-basics/common-api-patterns/idempotency) to ensure the same payment isn't executed more than once.
+
+Saleor generates an idempotency key if you don't pass one, and the app derives the Square key from it. We recommend passing your own key to [the mutation](/api-reference/payments/mutations/transaction-initialize), so you can retry the same payment attempt after a network error without charging the customer twice.

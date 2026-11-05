@@ -1,0 +1,277 @@
+---
+title: Square App Webhooks
+slug: developer/app-store/apps/square/webhooks
+sidebar:
+  label: Webhooks
+  order: 4
+seo:
+  title: Square App Webhooks
+  description: Saleor and Square webhooks handled by the Square App, with the data each one expects and returns.
+lastModified: '2026-11-02'
+---
+
+Most of the app's logic runs while it handles webhooks:
+
+- Payment and stored payment method webhooks from Saleor
+- Payment and refund events from Square
+
+This page covers how each webhook behaves, which data it expects, and what it returns.
+
+## Saleor webhooks
+
+The app supports the following synchronous webhooks. They run as a result of mutations called by the storefront (to pay or manage saved cards) or by the Dashboard (to cancel or refund payments).
+
+Check the [Transactions documentation](/developer/payments/transactions) and the [stored payment methods documentation](/developer/payments/stored-payments) to learn more.
+
+### `PaymentGatewayInitializeSession`
+
+This webhook checks that a Square connection is assigned to the checkout's channel. It returns the values the storefront needs to initialize the [Square Web Payments SDK](https://developer.squareup.com/docs/web-payments/overview).
+
+It returns the following `data` shape:
+
+```json
+{
+  "square": {
+    "environment": "sandbox",
+    "applicationId": "sandbox-sq0idb-...",
+    "locationId": "L...",
+    "countryCode": "US"
+  },
+  "captureMode": "CHARGE",
+  "methods": ["card", "gift-card", "apple-pay", "cash-app-pay", "afterpay-clearpay", "saved-card"]
+}
+```
+
+- `environment` decides which Web Payments SDK script you load. See [storefront integration](./storefront-integration#initialize-gateway).
+- `countryCode` is the country of the Square location. It's required by wallet payment requests.
+- `methods` lists the methods the app accepts for this channel. If the app can't read the location's country, `countryCode` is omitted and only `card`, `gift-card`, and `saved-card` are returned.
+
+If no connection is assigned to the channel, the gateway returns an error.
+
+### `TransactionInitializeSession`
+
+This webhook takes the payment token from the storefront, creates or updates the Square Order for the checkout, and creates the Square payment.
+
+It requires one of the following `data` shapes, depending on the payment method.
+
+Card, Apple Pay, Cash App Pay, or Afterpay/Clearpay:
+
+```json
+{
+  "version": "saleor.app.square.v1",
+  "method": "card",
+  "sourceId": "<token from the Web Payments SDK>",
+  "verificationToken": "<optional buyer verification token>",
+  "giftCardRemainder": true
+}
+```
+
+`method` is one of `card`, `apple-pay`, `cash-app-pay`, or `afterpay-clearpay`.
+
+Square gift card:
+
+```json
+{
+  "version": "saleor.app.square.v1",
+  "method": "gift-card",
+  "sourceId": "<token from the Web Payments SDK>"
+}
+```
+
+Saved card:
+
+```json
+{
+  "version": "saleor.app.square.v1",
+  "method": "saved-card",
+  "paymentMethodId": "<id returned by listStoredPaymentMethods>",
+  "giftCardRemainder": true
+}
+```
+
+- `verificationToken` is optional. Pass it if you run Square buyer verification (3-D Secure) separately from tokenization.
+- `giftCardRemainder` is optional. Set it to `true` only when the payment covers the rest of the total after a Square gift card was authorized. The app rejects the payment if a gift card authorization exists and the flag is missing.
+- Saved cards require a logged-in customer. The app checks that the card belongs to the customer.
+
+:::warning[Data is strictly validated]
+The app returns an error when the shape is invalid, contains unknown fields, or uses a method that isn't supported.
+:::
+
+Amount, currency, and line items always come from Saleor, not from `data`.
+
+The webhook can set the following results:
+
+| Result                    | When                                                                                                      |
+| ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `CHARGE_SUCCESS`          | Square completed the payment                                                                              |
+| `AUTHORIZATION_SUCCESS`   | A Square gift card was authorized and doesn't cover the whole total. `data.square.remainingAmount` is set |
+| `CHARGE_REQUEST`          | Square accepted the payment, but it's not completed yet                                                   |
+| `CHARGE_ACTION_REQUIRED`  | The app couldn't confirm the outcome with Square. `data.square.pending` is `true`                         |
+| `CHARGE_FAILURE`          | The payment was declined, or the request was invalid                                                      |
+
+On success, it returns `data` with the following shape:
+
+```json
+{
+  "square": {
+    "paymentId": "<Square payment ID>",
+    "status": "COMPLETED",
+    "sourceType": "CARD",
+    "providerMethod": "card",
+    "amount": 100,
+    "cardLast4": "1111",
+    "remainingAmount": 70
+  }
+}
+```
+
+`cardLast4` is set for cards and gift cards. `remainingAmount` is set only for a partial gift card authorization.
+
+When the outcome is unknown, it returns:
+
+```json
+{
+  "square": {
+    "pending": true,
+    "uncertaintyCode": "SQUARE_TIMEOUT"
+  }
+}
+```
+
+See [recovering an uncertain payment](./architecture#recovering-an-uncertain-payment) for how to handle this state.
+
+On failure, it returns:
+
+```json
+{
+  "square": {
+    "errors": [
+      {
+        "code": "SQUARE_PAYMENT_DECLINED",
+        "message": "human readable message"
+      }
+    ]
+  }
+}
+```
+
+See [errors](./errors) for the possible codes.
+
+The app also sets `paymentMethodDetails` on the transaction (for example card brand and last digits) and `externalUrl` pointing to the Square receipt.
+
+### `TransactionCancelationRequested`
+
+This webhook runs when a staff user cancels an authorized Square gift card payment. The app retrieves the payment from Square and cancels it only if it's still authorized (`APPROVED`).
+
+- If Square cancels the payment, the app sets `CANCEL_SUCCESS`.
+- If the payment was already charged, or can't be canceled, the app sets `CANCEL_FAILURE`. Refund the payment instead.
+
+### `TransactionRefundRequested`
+
+This webhook runs when a staff user refunds a charged payment. The app creates a refund with the Square Refunds API and reports the result based on the Square refund status:
+
+- `COMPLETED` reports `REFUND_SUCCESS`
+- `PENDING` returns the Square refund ID. Saleor keeps the refund as `REFUND_REQUEST` until Square sends a `refund.updated` event.
+- `FAILED` or `REJECTED` reports `REFUND_FAILURE`
+
+If the app can't confirm whether Square created the refund, it responds with an error so Saleor can retry the request with the same idempotency key.
+
+### `PaymentGatewayInitializeTokenizationSession`
+
+This webhook runs when the storefront calls `paymentGatewayInitializeTokenization` to start saving a card. It returns the values needed to render the Square card form:
+
+```json
+{
+  "square": {
+    "environment": "sandbox",
+    "applicationId": "sandbox-sq0idb-...",
+    "locationId": "L..."
+  },
+  "methods": {
+    "savedCard": true
+  }
+}
+```
+
+### `PaymentMethodInitializeTokenizationSession`
+
+This webhook runs when the storefront calls `paymentMethodInitializeTokenization` to save a card. It creates or reuses the Square customer linked to the Saleor user, and saves the card in Square.
+
+It requires the following `data` shape:
+
+```json
+{
+  "version": "saleor.app.square.v1",
+  "method": "card",
+  "sourceId": "<token from the Web Payments SDK>",
+  "verificationToken": "<optional buyer verification token>"
+}
+```
+
+On success, it returns the stored payment method ID and card details:
+
+```json
+{
+  "square": {
+    "cardBrand": "VISA",
+    "lastDigits": "1111",
+    "expMonth": 12,
+    "expYear": 2030
+  }
+}
+```
+
+### `ListStoredPaymentMethods`
+
+This webhook returns the cards the logged-in customer saved in Square for the channel's connection. Each card is returned with type `card`, the `INTERACTIVE` payment flow, and its brand, last digits, and expiration date.
+
+### `StoredPaymentMethodDeleteRequested`
+
+This webhook runs when the customer deletes a saved card. The app disables the card in Square.
+
+## Square webhook
+
+When you [set up the Square webhook](./configuration#setting-up-the-square-webhook), the app creates a Square webhook subscription for the following events:
+
+- `payment.updated`
+- `refund.updated`
+
+Square sends them to `/api/webhooks/square`. The app verifies the signature of each event with the stored signature key.
+
+### `payment.updated`
+
+The app finds the Saleor transaction for the Square payment and reports its status:
+
+| Square payment status | Saleor event            |
+| --------------------- | ----------------------- |
+| `COMPLETED`           | `CHARGE_SUCCESS`        |
+| `APPROVED`            | `AUTHORIZATION_SUCCESS` for an expected gift card authorization, otherwise ignored |
+| `CANCELED`            | `CANCEL_SUCCESS`        |
+| `FAILED`              | `CHARGE_FAILURE`        |
+| `PENDING`             | Ignored                 |
+
+Usually the status from this webhook is the same as the one returned by `transactionInitialize`. The webhook matters when the app couldn't confirm the outcome during checkout. In that case, Square resolves the final state in the background, after the customer leaves the page.
+
+### `refund.updated`
+
+The app finds the Saleor transaction for the refunded payment and reports `REFUND_SUCCESS` (for `COMPLETED`) or `REFUND_FAILURE` (for `FAILED` or `REJECTED`). Pending refunds are ignored until they reach a final status.
+
+Refunds created in the Square Dashboard are reported to Saleor this way too.
+
+### Responses
+
+The webhook returns:
+
+- Status 200 when the event was processed or intentionally ignored
+- Status 401 when the signature is invalid
+- Status 503 when the webhook isn't configured for the installation
+- Status 500 when processing failed, for example when the Saleor transaction isn't visible yet. Square retries the event.
+
+:::warning
+The app expects:
+
+- One Square webhook subscription per installation and Square application environment
+- That the subscription is managed only from the app UI
+
+You can expect issues if these conditions are not met.
+:::

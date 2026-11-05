@@ -1,0 +1,69 @@
+---
+title: Square App Errors
+slug: developer/app-store/apps/square/errors
+sidebar:
+  label: Errors
+  order: 6
+seo:
+  title: Square App Errors
+  description: How the Square App reports payment errors to the storefront and staff users, and the most common error codes.
+lastModified: '2026-11-02'
+---
+
+An error can occur during the payment process for several reasons:
+
+- Expected errors: for example, the customer's card was declined
+- App configuration errors: for example, the access token is wrong or expired
+- Square errors: the Square API can be unavailable or return unexpected errors
+- Integration errors: the storefront sends invalid data to the mutations
+- Saleor errors: Saleor can be unavailable or return unexpected errors
+
+The app detects each class of errors to give the best possible message to the integrator and staff users.
+
+The app sets two types of messages:
+
+1. `TransactionEvent.message`: a short message explaining why the app set a `FAILURE` event
+2. `data` errors: errors for the storefront to debug (by reading the network response) or to handle (by reading and translating error codes)
+
+## `data` errors
+
+Errors returned in `data` always have the following structure:
+
+```json5
+{
+  square: {
+    errors: [
+      {
+        code: "SQUARE_PAYMENT_DECLINED", // Use this code to react to the cause
+        message: "Card was declined. Use a different card or contact your bank.", // This message CAN change; use it for debugging
+      },
+    ],
+  },
+}
+```
+
+Both `TransactionEvent.message` and `data` are public fields available to the storefront, so the app doesn't return internal details in them. Details are visible to staff users in the app problems in the Dashboard and in the app logs.
+
+## Common error codes
+
+When Square rejects a request, `code` is the [Square error code](https://developer.squareup.com/reference/square/enums/ErrorCode), for example `CARD_DECLINED`, `INSUFFICIENT_FUNDS`, `GENERIC_DECLINE`, or `CVV_FAILURE`.
+
+The app also returns its own codes. The most common ones are:
+
+| Code                                         | Meaning                                                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `PARSE_ERROR`                                | The `data` sent by the storefront has an invalid shape. See [webhooks](./webhooks).              |
+| `MISSING_CONFIG`                             | No Square connection is assigned to the channel.                                                 |
+| `UNSUPPORTED_TRANSACTION_ACTION`             | The transaction was initialized with `AUTHORIZATION`. The app supports `CHARGE` only.            |
+| `SQUARE_PAYMENT_DECLINED`                    | Square declined the payment.                                                                     |
+| `SQUARE_TIMEOUT`                             | Square didn't respond in time. For payments, the outcome is unknown and the result is pending.   |
+| `SQUARE_PAYMENT_RECOVERY_PENDING`            | An earlier payment attempt for this checkout is still being confirmed. Don't start a new one.    |
+| `SQUARE_ORDER_TOTAL_MISMATCH`                | The checkout total changed during payment. Refresh the checkout and try again.                   |
+| `SQUARE_ORDER_TERMINAL`                      | The Square Order for this checkout is already completed or canceled.                             |
+| `SQUARE_GIFT_CARD_ALREADY_AUTHORIZED`        | A Square gift card is already applied to this checkout. Only one is allowed.                     |
+| `SQUARE_GIFT_CARD_REMAINDER_MARKER_REQUIRED` | A gift card is authorized, but the payment for the rest didn't set `giftCardRemainder: true`.    |
+| `SQUARE_STORED_PAYMENT_METHOD_NOT_FOUND`     | The saved card doesn't exist or doesn't belong to the logged-in customer.                        |
+| `SQUARE_LOCATION_COUNTRY_MISSING`            | The app couldn't read the Square location's country, which wallets require.                     |
+| `SQUARE_API_ERROR`, `SQUARE_UNKNOWN_ERROR`   | Square returned an unexpected error.                                                             |
+
+Treat unknown codes as a generic failure and show the customer a general message.

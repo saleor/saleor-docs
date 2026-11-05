@@ -1,0 +1,52 @@
+---
+title: Square App - PCI DSS Compliance
+slug: developer/app-store/apps/square/pci-dss
+sidebar:
+  label: PCI DSS
+  order: 11
+seo:
+  title: Square App - PCI DSS Compliance
+  description: Flow of sensitive payment data between the storefront, Saleor, the Square App, and Square.
+lastModified: '2026-11-02'
+---
+
+The following diagram shows the flow of sensitive data between services when using the Square App:
+
+```mermaid
+sequenceDiagram
+    box Merchant controlled
+    actor User via storefront
+    end
+    participant Saleor
+    participant Square App
+    participant Square API
+
+    User via storefront ->> Saleor: Request browser-safe Square configuration
+    Saleor ->> Square App: Pass through request
+    Square App ->> Saleor: Application ID, location ID, environment
+    Saleor ->> User via storefront: Pass through configuration
+
+    rect rgba(240,150,150,0.5)
+        note right of User via storefront: Primary Account Number (PAN) and Sensitive Authentication Data (SAD) Flow
+        User via storefront <<->> Square API: Pass card details and PII to the Web Payments SDK,<br/>run buyer verification (3-D Secure)
+    end
+    Square API ->> User via storefront: Single-use payment token
+
+    User via storefront ->> Saleor: Pass payment token and non-sensitive payment data*
+    create participant Saleor database
+    Saleor ->> Saleor database: Store internal transaction model (non sensitive)
+    Saleor ->> Square App: Pass through payment token and non-sensitive payment data*
+    create participant Square App database
+    Square App ->> Square App database: Store payment attempt (non sensitive, without token)
+    Square App ->> Square API: Create payment with the token
+    Square API ->> Square App: Payment result (including PII and non-sensitive payment data*)
+    Square App ->> Saleor: Pass payment result
+    Saleor ->> Saleor database: Update transaction model (non sensitive)
+    Saleor ->> User via storefront: Pass payment result
+```
+
+\*Passes non-PCI DSS regulated payment information, such as the payment method type, card brand, and last four digits.
+
+Card numbers and security codes never reach the storefront's servers, Saleor, or the app.
+
+For more information about Square PCI DSS compliance, see the [Square documentation](https://developer.squareup.com/docs/web-payments/overview#pci-compliance).
