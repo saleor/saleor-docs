@@ -6,7 +6,7 @@ sidebar:
 seo:
   title: Storefront Integration
   description: The Adyen App can be used to process payments using the Adyen API. By using Saleor's standard GraphQL payment APIs, one can interact with Adyen to authorize, capture, refund, and cancel payments.
-lastModified: '2026-08-25'
+lastModified: '2026-11-05'
 ---
 
 The Adyen App can be used to process payments using the Adyen API. By using Saleor's standard GraphQL payment APIs, one can interact with Adyen to authorize, capture, refund, and cancel payments.
@@ -286,6 +286,41 @@ Many payment methods are not settled synchronously. Sometimes it takes seconds, 
 
 :::
 
+## Checking `paymentGatewayInitialize` data
+
+The Adyen App supports four `action` values in the `paymentGatewayInitialize` `$data`: `APPLEPAY_onvalidatemerchant`, `checkBalance`, `createOrder` and `cancelOrder`. The sections below describe each one.
+
+Saleor passes `$data` to the app without checking its shape, and the app rejects data that doesn't match. To catch mistakes before you deploy, use the JSON Schema that the app publishes for this data:
+
+```text
+https://adyen.saleor.app/.well-known/PaymentGatewayInitializeSessionRequestData.schema.json
+```
+
+The app generates this schema from the same code it uses to validate requests, so the two always match. If you host the Adyen App yourself, your deployment serves the schema at the same path.
+
+Save the schema in your storefront repository. Then generate TypeScript types from it with [`json-schema-to-typescript`](https://github.com/bcherny/json-schema-to-typescript):
+
+```bash
+npx json2ts -i PaymentGatewayInitializeSessionRequestData.schema.json -o adyen-gateway-data.ts
+```
+
+You can also check the data in your tests with [Ajv](https://ajv.js.org/):
+
+```ts
+import Ajv from "ajv";
+import schema from "./PaymentGatewayInitializeSessionRequestData.schema.json" with {
+  type: "json",
+};
+
+const validateAdyenData = new Ajv().compile(schema);
+
+if (!validateAdyenData({ action: "createOrder" })) {
+  console.error(validateAdyenData.errors);
+}
+```
+
+The schema covers only `paymentGatewayInitialize`. The `$data` of `transactionInitialize` and `transactionProcess` comes from Adyen Drop-in, as described in the sections above.
+
 ## Apple Pay `onValidateMerchant`
 
 To implement Apple Pay integration through Adyen and use your own Apple Pay certificate, you must implement `onValidateMerchant` (Web, React Native) or `onvalidatemerchant` (iOS). The Adyen Saleor App provides a way to validate the merchant using the `paymentGatewayInitialize` mutation:
@@ -540,7 +575,7 @@ To call the `/orders/cancel` endpoint, similarly to `onBalanceCheck`, use the `p
 ```json
 {
   "action": "cancelOrder",
-  "orderData": "..."
+  "orderData": "...",
   "pspReference": "..."
 }
 ```
