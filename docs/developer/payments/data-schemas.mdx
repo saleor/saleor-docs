@@ -1,0 +1,50 @@
+---
+title: Data Schemas
+slug: developer/payments/data-schemas
+sidebar: {}
+seo:
+  title: Data Schemas
+  description: Payment apps can publish a JSON Schema for the data your storefront passes to Saleor's payment mutations. Use it to generate types and check the data in tests.
+lastModified: '2026-11-05'
+---
+
+Saleor's payment mutations, such as [`paymentGatewayInitialize`](/api-reference/payments/mutations/payment-gateway-initialize) and [`transactionInitialize`](/api-reference/payments/mutations/transaction-initialize), take a `data` argument that Saleor passes to the [payment app](/developer/payments/payment-apps). `data` is a `JSON` scalar, so Saleor doesn't check its shape. Each app expects its own shape and rejects data that doesn't match.
+
+A data schema is a [JSON Schema](https://json-schema.org/) that a payment app publishes for the `data` of one mutation. The app generates it from the same code it uses to validate requests, so the schema always matches what the app accepts.
+
+## Finding a data schema
+
+App pages show a data schema in a box like this one, next to the mutation it describes:
+
+<DataSchema mutation="paymentGatewayInitialize" src="https://adyen.saleor.app/.well-known/PaymentGatewayInitializeSessionRequestData.schema.json" />
+
+The app serves each schema from its own deployment, at `/.well-known/<Name>.schema.json`. If you host the app yourself, your deployment serves the same file at the same path.
+
+If a mutation has no data schema box, the app doesn't validate that `data` itself. For example, it may pass the data to the payment provider unchanged. The app's page describes the expected fields instead.
+
+## Using a data schema
+
+Save the schema in your storefront repository, so a new app release can't change it without you noticing. Then use it at build and test time.
+
+Generate TypeScript types with [`json-schema-to-typescript`](https://github.com/bcherny/json-schema-to-typescript):
+
+```bash
+npx json2ts -i PaymentGatewayInitializeSessionRequestData.schema.json -o adyen-gateway-data.ts
+```
+
+Check the data in your tests with [Ajv](https://ajv.js.org/):
+
+```ts
+import Ajv from "ajv";
+import schema from "./PaymentGatewayInitializeSessionRequestData.schema.json" with {
+  type: "json",
+};
+
+const validateAdyenData = new Ajv().compile(schema);
+
+if (!validateAdyenData({ action: "createOrder" })) {
+  console.error(validateAdyenData.errors);
+}
+```
+
+When you update the app, download the schema again and rerun these checks.

@@ -1,0 +1,61 @@
+---
+import Icon from "blume/components/Icon.astro";
+
+interface Props {
+  /** GraphQL mutation whose `data` the schema describes, e.g. `paymentGatewayInitialize`. */
+  mutation: string;
+  /** Full URL of the JSON Schema the app serves under `/.well-known/`. */
+  src: string;
+}
+
+const { mutation, src } = Astro.props;
+// Let long URLs wrap after a slash instead of at the hyphen in `well-known`.
+const srcParts = src.split(/(?<=\/)/);
+---
+
+<aside class="saleor-data-schema" aria-label={`Data schema for ${mutation}`}>
+  <p class="saleor-data-schema-title">
+    <Icon name="file-json" size={16} />
+    <a href="/developer/payments/data-schemas">Data schema</a>
+    <span>for <code>{mutation}</code> <code>data</code></span>
+  </p>
+  <a class="saleor-data-schema-url" href={src}>{srcParts.map((part) => <Fragment>{part}<wbr /></Fragment>)}</a>
+</aside>
+
+<style>
+  .saleor-data-schema {
+    --data-schema-hue: #7c3aed;
+    margin-block: 1.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid color-mix(in oklab, var(--data-schema-hue) 35%, transparent);
+    border-left-width: 4px;
+    border-radius: var(--radius-blume);
+    background: color-mix(in oklab, var(--data-schema-hue) 6%, var(--color-background));
+  }
+
+  .saleor-data-schema-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 0.35rem;
+    color: var(--color-foreground);
+  }
+
+  .saleor-data-schema-title :global(svg),
+  .saleor-data-schema-title a {
+    /* Mixing with the text color keeps the violet readable in light and dark themes. */
+    color: color-mix(in oklab, var(--data-schema-hue) 70%, var(--color-foreground));
+  }
+
+  .saleor-data-schema-title a {
+    font-weight: 600;
+  }
+
+  .saleor-data-schema-url {
+    display: block;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.85em;
+    color: var(--color-muted-foreground);
+  }
+</style>
