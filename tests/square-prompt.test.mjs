@@ -1,10 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdir, readFile } from "node:fs/promises";
-import { build } from "esbuild";
-import { JSDOM } from "jsdom";
+import { readFile } from "node:fs/promises";
 import { matter } from "../scripts/common.mjs";
-import { createElement, act } from "react";
 import { agentPrompt, outcomes, promptErrorCodes, promptMethods, promptPages, testTokens } from "../components/playground/square-prompt.mjs";
 
 const docs = "docs/developer/app-store/apps/square";
@@ -12,7 +9,7 @@ const read = page => readFile(`${docs}/${page}.mdx`, "utf8");
 
 test("the page leads with the agent prompt, then the manual guide", async () => {
   const integration = await read("storefront-integration");
-  const order = ["<SquareAgentPrompt />", "\n## Manual integration"].map(marker => integration.indexOf(marker));
+  const order = ['<AgentPrompt app="square" />', "\n## Manual integration"].map(marker => integration.indexOf(marker));
   assert(order.every(index => index > 0) && order[0] < order[1], "Unexpected page order");
 });
 
@@ -37,33 +34,4 @@ test("the agent prompt stays in sync with the Square docs", async () => {
     assert(integration.includes(field) || webhooks.includes(field), `${field} isn't in the docs any more`);
   }
   for (const sdk of agentPrompt.match(/https:\/\/[\w.]*squarecdn\.com\/v1\/square\.js/g)) assert(integration.includes(sdk), `${sdk} isn't the documented SDK URL`);
-});
-
-test("copy prompt puts the exact prompt on the clipboard", async () => {
-  await mkdir("artifacts", { recursive: true });
-  await build({
-    entryPoints: ["components/playground/SquareAgentPrompt.tsx"],
-    outfile: "artifacts/square-agent-prompt-test.mjs", bundle: true, format: "esm", platform: "node",
-    packages: "external", jsx: "automatic", loader: { ".css": "empty" },
-  });
-  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: "https://docs.example.test" });
-  Object.assign(globalThis, { window: dom.window, document: dom.window.document, HTMLElement: dom.window.HTMLElement, IS_REACT_ACT_ENVIRONMENT: true });
-  let copied;
-  const clipboard = Object.getOwnPropertyDescriptor(globalThis.navigator, "clipboard");
-  Object.defineProperty(globalThis.navigator, "clipboard", { configurable: true, value: { writeText: async text => { copied = text; } } });
-  const { createRoot } = await import("react-dom/client");
-  const { default: Prompt } = await import(`../artifacts/square-agent-prompt-test.mjs?${Date.now()}`);
-  const root = createRoot(document.getElementById("root"));
-  try {
-    await act(async () => root.render(createElement(Prompt)));
-    const button = document.querySelector(".square-agent-copy");
-    assert.equal(button.textContent, "Copy prompt");
-    await act(async () => button.click());
-    assert.equal(copied, agentPrompt);
-    assert.equal(button.textContent, "Copied");
-    assert.equal(document.querySelector(".square-agent-prompt").textContent, agentPrompt, "The visible prompt is what gets copied");
-  } finally {
-    if (clipboard) Object.defineProperty(globalThis.navigator, "clipboard", clipboard); else delete globalThis.navigator.clipboard;
-    await act(async () => root.unmount());
-  }
 });

@@ -7,7 +7,7 @@ sidebar:
 seo:
   title: Stripe App Webhooks
   description: 'The majority of application logic happens during webhook execution:'
-lastModified: '2026-08-25'
+lastModified: '2026-11-04'
 ---
 
 The majority of application logic happens during webhook execution:
@@ -68,7 +68,7 @@ For successful operation it will set either `CHARGE_ACTION_REQUIRED` or `AUTHORI
 }
 ```
 
-For failed operation it will set either `CHARGED_FAILURE` or `AUTHORIZATION_FAILURE` in Saleor and return data:
+For failed operation it will set either `CHARGE_FAILURE` or `AUTHORIZATION_FAILURE` in Saleor and return data:
 
 ```json
 {
@@ -85,6 +85,8 @@ For failed operation it will set either `CHARGED_FAILURE` or `AUTHORIZATION_FAIL
 
 Possible codes are:
 
+- `ParseError`: `data` doesn't match the shape above
+- `UnsupportedPaymentMethodError`: `paymentMethod` isn't one of the [supported payment methods](./supported-payment-methods)
 - `StripeCardError`
 - `StripeApiError`
 
@@ -106,27 +108,7 @@ It can set the following statuses on Saleor transaction (based on Stripe Payment
 - `CHARGE_FAILURE`
 - `AUTHORIZATION_FAILURE`
 
-In some cases it can fail to process and return the following data to Storefront
-
-```json
-{
-  "paymentIntent": {
-    "errors": [
-      {
-        "code": "error code",
-        "message": "human readable message"
-      }
-    ]
-  }
-}
-```
-
-If error occurs, it will set `CHARGE_FAILURE` or `AUTHORIZATION_FAILURE` on Saleor transaction.
-
-Possible codes are:
-
-- `StripeCardError`
-- `StripeApiError`
+If the app can't read the Payment Intent from Stripe, for example because of a rate limit, a network error, or a Stripe outage, it responds with an error. Saleor records a `CHARGE_FAILURE` or `AUTHORIZATION_FAILURE` event, but doesn't count it against the payment. The storefront can call `transactionProcess` again, and the status Stripe confirmed is counted.
 
 ### `TransactionChargeRequested`
 
