@@ -1,0 +1,35 @@
+---
+title: Saleor MCP Errors
+slug: developer/app-store/apps/mcp/errors
+sidebar:
+  label: Errors
+  order: 6
+seo:
+  title: Saleor MCP Errors
+  description: HTTP status codes, tool errors, and GraphQL errors returned by Saleor MCP, with what to do about each.
+lastModified: '2026-11-06'
+---
+
+Saleor MCP reports problems in three ways: an HTTP status code, a tool error, or GraphQL `errors` in the response. This page explains each one and what to do.
+
+## Error Index
+
+| Signal | Meaning | What to do |
+| --- | --- | --- |
+| HTTP `400` | The request could not be authenticated because it is malformed. | Check the `Authorization` header and the MCP URL. |
+| HTTP `401` | The token or key is missing, expired, revoked, or for another Saleor environment. User OAuth URLs also return `WWW-Authenticate` with `resource_metadata`. | Sign in again from your client. For an access key, create a new one in **Settings → Access keys**. |
+| HTTP `403` | User OAuth only. The call needs access this connection was not approved for, such as **Edit** in an area, and the user can approve it now. `WWW-Authenticate` carries `insufficient_scope` and the scopes to request. | Some clients start the OAuth sign-in on their own. Otherwise, the assistant should offer a [permission upgrade](/developer/app-store/apps/mcp/permissions#adding-access-to-a-connection) through `connection_info`. Approve it, then retry. |
+| HTTP `405` | The MCP endpoint accepts only `POST`. | Use a client that supports Streamable HTTP. |
+| HTTP `429` | Too many requests to an OAuth endpoint from your IP address. | Wait a few minutes, then try again. |
+| HTTP `500` | Something went wrong in Saleor MCP. | Try again. If it keeps happening, contact Saleor support. |
+| HTTP `503` | Another request is refreshing the user's Saleor session, or a service Saleor MCP depends on is briefly unavailable. | Retry after the `Retry-After` delay. |
+| Tool error | Saleor MCP stopped the request before it reached Saleor: a query or mutation outside the granted access, a mutation that isn't available or was sent to the wrong tool, or an invalid document. With an access key, missing access shows up here, not as a `403`. | Read the message. It names the fields that were denied. |
+| GraphQL `errors` | Saleor ran the request and reported a problem. The tool call itself succeeds. | Fix the document, or the missing Saleor permission. |
+
+## Rate Limits and Timeouts
+
+Only the OAuth endpoints are rate limited: `/oauth/authorize`, `/oauth/token`, `/oauth/register`, and `/oauth/revoke`. The limit applies per client IP address. Over the limit, they return HTTP `429`.
+
+`/mcp` and `/api/oauth/upgrade` are not rate limited.
+
+Each request from Saleor MCP to Saleor times out after 30 seconds.
