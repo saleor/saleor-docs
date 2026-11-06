@@ -1,0 +1,129 @@
+---
+title: Saleor MCP Permissions and Mutation Tiers
+slug: developer/app-store/apps/mcp/permissions
+sidebar:
+  label: Permissions and Tiers
+  order: 4
+seo:
+  title: Saleor MCP Permissions and Mutation Tiers
+  description: How app permissions, staff permissions, and group policy limit what Saleor MCP can do, and which changes need Edit or Full access.
+lastModified: '2026-11-06'
+---
+
+Three levels decide what an assistant can reach through Saleor MCP. All three are checked on every request. This page explains them, the access levels you can grant, and which kinds of changes each level allows.
+
+In these docs, an **administrator** is a staff user with both `MANAGE_APPS` and `MANAGE_STAFF`.
+
+## Permission Levels
+
+| Level | Set by | What it decides |
+| --- | --- | --- |
+| 1. App permissions | An administrator, in **Saleor MCP → Settings → App permissions** | The most Saleor MCP can reach for anyone. Nothing goes past it. |
+| 2. User permissions | Saleor, through the user's staff permission groups | Saleor MCP never gives a person more than they already have in the Dashboard. |
+| 3. Group policy | An administrator, in **Saleor MCP → Settings → Group policy** | The most each permission group can use through Saleor MCP, per area. |
+
+In the group policy, each permission group gets **None**, **Read**, **Edit**, or **Full** per area. A group with no assignment gets nothing. A member of several groups gets what all of their groups allow combined.
+
+Areas use Saleor's [permission codes](/developer/permissions), such as `MANAGE_PRODUCTS` or `MANAGE_ORDERS`.
+
+## Access Levels
+
+| Level | Allows |
+| --- | --- |
+| **Read** | Queries that start in the area, through `run_query` |
+| **Edit** | Also everyday changes in the area, through `run_mutation` |
+| **Full** | Also high-impact changes in the area, through `run_high_impact_mutation` |
+
+An area offers only the levels that add something. For example, an area with no high-impact mutations has no **Full** level.
+
+Saleor MCP checks where a query starts before it sends the query to Saleor. Saleor then checks related data against the permissions the user and the app share. So a user whose group policy allows only products can start product queries. The results may still include related order data if their Saleor permissions allow it.
+
+## Mutation Tiers
+
+Saleor MCP runs only mutations that have been reviewed. Each reviewed mutation belongs to a tier, and each tier has its own tool, so your MCP client asks for approval separately.
+
+| Tool | Runs | Requires |
+| --- | --- | --- |
+| `run_mutation` | Everyday changes: creating and editing single objects, or removing a part of one | **Edit** |
+| `run_high_impact_mutation` | Changes that are hard to undo or reach customers or money | **Full** |
+| Not available | Mutations that haven't been reviewed for Saleor MCP | Use the Saleor Dashboard |
+
+### Everyday Changes
+
+These run through `run_mutation`:
+
+- Creating and editing products, variants, stock, categories, and collections
+- Creating and editing pages and menus
+- Creating product types and page types, and assigning attributes to them
+- Creating and editing draft orders, order lines, order discounts, and order notes
+- Creating and editing vouchers
+- Translating single objects
+- Removing a part of an object, such as an order line, a product image, or a stock record
+- Small gift card changes, such as adding a note, activating a card, or assigning it to a customer
+
+### High-Impact Changes
+
+These run through `run_high_impact_mutation`:
+
+- Deleting whole objects, such as products, categories, collections, pages, menus, vouchers, or draft orders
+- Bulk changes: bulk create, update, delete, publish, and translate
+- Store-wide settings: shipping zones and methods, tax classes and configuration, and promotions
+- Money: refunds, payment actions, and most gift card changes, including creating, editing, deleting, and adjusting balances
+- Order actions that reach customers or move fulfillment forward, such as completing a draft order, confirming, fulfilling, cancelling, or marking an order as paid
+- Editing or deleting product types and page types, or removing their attributes, which affects every product or page of that type
+
+### Not Available
+
+Staff, apps, webhooks, customers, checkouts, metadata, channels, attribute definitions, shop settings, and any mutation that hasn't been reviewed yet can't be run through Saleor MCP. Use the Saleor Dashboard for those.
+
+### The Authoritative List
+
+The lists above describe the tiers by area. The exact set of mutations changes as Saleor adds them, so check what the server reports:
+
+- In **Saleor MCP → Settings**, the access editor for the group policy and access keys shows which operations each level includes in each area.
+- `connection_info` reports the access a connection has and which mutation tools it can use.
+- The `run_mutation` and `run_high_impact_mutation` tool descriptions summarize what each tool accepts.
+
+If a mutation is sent to the wrong tool, or isn't available, the tool call returns an error that says so.
+
+## Reviewing Changes
+
+Mutation tools need a `summary`: one sentence describing the change, so the approval prompt in your client is readable. Check it against the `query`, which is what actually runs.
+
+Saleor MCP does not ask for approval itself. Keep approval prompts on in your client, at least for `run_high_impact_mutation`.
+
+Saleor data can contain text written by customers or other people, such as order notes. Tool results are marked as data, but such text can still mislead an assistant. This is another reason to review each change before you approve it.
+
+## Adding Access to a Connection
+
+Removing access takes effect on the next request. Access added later is not added to existing user OAuth connections. The assistant asks for it the first time it needs it.
+
+To check what a connection can do, ask the assistant to call `connection_info`. For user OAuth connections it returns:
+
+- `permissions`: the access in effect
+- `availablePermissions`: what the app permissions, your staff permissions, and group policy allow
+- `permissionsRequiringConsent`: what still needs your approval
+
+When your request needs access listed in `permissionsRequiringConsent`:
+
+1. The assistant asks, "Should I initiate the permission upgrade?"
+2. After you agree, it calls `connection_info` with `upgradePermissions` and gives you a browser link. The link works once and expires after 10 minutes. Creating or opening it does not grant access.
+3. Open the link, sign in as the owner of the connection, and approve. This updates the existing connection. You don't need to sign in to the MCP client again.
+4. Back in the assistant, it calls `connection_info` to confirm the access, then continues. If you decline, it stops and doesn't ask again on its own.
+
+If the access is missing from `availablePermissions`, an upgrade can't add it. Ask an administrator to check the app permissions, your staff permissions, and the group policy.
+
+You can also sign in again from your client's OAuth login action, such as `codex mcp login saleor` in Codex. Refreshing a token or repeating a denied query does not add access.
+
+Access keys don't sign in. An administrator changes a key's access in **Settings → Access keys**, and the change applies to the key's next request.
+
+## Activity Log
+
+Administrators can see each tool call in **Saleor MCP → Activity**:
+
+- Who made it: the user or the access key
+- The MCP client
+- The tool and the root operations
+- The outcome
+
+Mutations also record their tier and the summary the assistant wrote. The summary is not checked against what ran. Mutations are kept for 90 days, other calls for 14 days. GraphQL documents, variables, and responses are not stored.

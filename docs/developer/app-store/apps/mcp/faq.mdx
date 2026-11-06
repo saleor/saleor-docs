@@ -1,0 +1,66 @@
+---
+title: Saleor MCP FAQ
+slug: developer/app-store/apps/mcp/faq
+sidebar:
+  label: FAQ
+  order: 7
+seo:
+  title: Saleor MCP FAQ
+  description: Answers to common questions about Saleor MCP, its availability, access, data handling, and troubleshooting.
+lastModified: '2026-11-06'
+---
+
+Answers to common questions about Saleor MCP.
+
+## Can I Use Saleor MCP With a Self-Hosted Saleor?
+
+No. Saleor MCP is a hosted app for Saleor Cloud environments on Saleor 3.23 or later. Staff sign in with their Saleor Cloud account.
+
+## Which MCP Clients Work With Saleor MCP?
+
+Any client that supports remote MCP servers over Streamable HTTP. For staff sign-in, the client must also support OAuth. The **Connect** page has ready-made setup for Codex and Claude Code, and a JSON entry for other clients. See the [quickstart](/developer/app-store/apps/mcp/quickstart#4-connect-a-client).
+
+## How Is This Different From the Documentation MCP or a GraphQL MCP Server?
+
+The [Documentation MCP](/developer/ai#documentation-mcp) answers questions from the Saleor documentation. A local GraphQL MCP server, such as the one described in [Agents](/developer/ai#saleor-mcp), reads a downloaded schema file.
+
+Saleor MCP connects to your live Saleor Cloud environment. It reads and changes real data, checks permissions on every request, and logs every call.
+
+## Can the Assistant Do More Than I Can in the Dashboard?
+
+No. Saleor MCP never gives a person more than their own Saleor permissions allow. App permissions and the group policy can narrow access further. See [Permission levels](/developer/app-store/apps/mcp/permissions#permission-levels).
+
+## Can the Assistant Delete Products or Issue Refunds?
+
+Only with **Full** access in that area, and only through `run_high_impact_mutation`. Keep approval prompts on in your client for that tool. See [Mutation tiers](/developer/app-store/apps/mcp/permissions#mutation-tiers).
+
+## Where Is the Full List of Supported Mutations?
+
+The list changes as Saleor reviews new mutations, so these docs describe the tiers by area. For the exact operations each level includes, see the access editor in **Saleor MCP → Settings**. To see what a connection can do, ask the assistant to call `connection_info`. See [The authoritative list](/developer/app-store/apps/mcp/permissions#the-authoritative-list).
+
+## Why Can't My Assistant See Data I Can See in the Dashboard?
+
+Check these, in order:
+
+1. Ask the assistant to call `connection_info`. If the access is in `permissionsRequiringConsent`, approve a [permission upgrade](/developer/app-store/apps/mcp/permissions#adding-access-to-a-connection).
+2. If it's missing from `availablePermissions`, ask an administrator to check the app permissions and the group policy for your permission groups.
+
+## I Gave My Group More Access. Why Doesn't the Assistant Have It?
+
+Access added later isn't added to existing connections. The assistant asks for it the first time it needs it, through a permission upgrade. You can also sign in again from your client.
+
+## Does Saleor MCP Store My Data?
+
+The activity log stores who made each call, the client, the tool, the root operations, the outcome, and, for mutations, the tier and the summary. GraphQL documents, variables, and responses are not stored. Mutations are kept for 90 days, other calls for 14 days.
+
+MCP clients never receive a Saleor token. Your choice of AI assistant and model decides how it processes the data it reads.
+
+## How Do I Revoke Access?
+
+- **An access key:** an administrator revokes it in **Saleor MCP → Settings → Access keys**. Revocation applies to the key's next request.
+- **A user connection:** log out from your client, or revoke the connection's token. See [Revoking a connection](/developer/app-store/apps/mcp/authentication#revoking-a-connection).
+- **A whole permission group:** an administrator sets the group to **None** in the group policy.
+
+## Who Can See the Activity Log?
+
+Administrators: staff users with both `MANAGE_APPS` and `MANAGE_STAFF`. Open **Saleor MCP → Activity**.

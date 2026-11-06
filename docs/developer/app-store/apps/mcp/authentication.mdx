@@ -1,0 +1,145 @@
+---
+title: Saleor MCP Authentication
+slug: developer/app-store/apps/mcp/authentication
+sidebar:
+  label: Authentication
+  order: 3
+seo:
+  title: Saleor MCP Authentication
+  description: Connect to Saleor MCP as a staff user with Saleor Cloud OAuth, or as an autonomous agent with an access key.
+lastModified: '2026-11-06'
+---
+
+There are two ways to connect to Saleor MCP. Staff use **user OAuth**: they sign in with their own Saleor Cloud account. Agents that run on their own use an **access key**. The server tells them apart by the bearer token it receives and rejects requests without a valid token.
+
+## Comparison
+
+| | User OAuth | Access key |
+| --- | --- | --- |
+| Use it for | Assistants a staff member uses directly | Agents and automations that run on their own |
+| MCP URL | `/mcp?saleor_api_url=…`, copied from the **Connect** page | `/mcp`, copied from the setup shown with the key |
+| Credential | An access token the client gets through OAuth | A key an administrator creates in **Settings → Access keys** |
+| Acts as | The signed-in staff user | The app, limited to the key's own access |
+| Can read | Areas you approved, within the three [permission levels](/developer/app-store/apps/mcp/permissions) | Areas where the key has **Read** or higher |
+| Can write | Areas set to **Edit** that you approved. High-impact actions only in areas set to **Full**. | Areas where the key has **Edit**. High-impact actions only in areas set to **Full**. |
+| Lifetime | Access token: 1 hour. Refresh token: replaced on each use, expires after 30 days without use. | 90 days. Administrators can edit or revoke a key at any time. |
+
+MCP clients never receive a Saleor token.
+
+## User OAuth
+
+Use user OAuth when a person works with the assistant. Copy the setup from **Saleor MCP → Connect**, as described in the [quickstart](/developer/app-store/apps/mcp/quickstart#4-connect-a-client).
+
+The MCP URL includes your environment's GraphQL API URL in the `saleor_api_url` parameter. Your client finds everything else on its own:
+
+- Authorization code flow with PKCE (`S256`)
+- Dynamic client registration for public clients
+- OAuth discovery through the protected resource metadata
+
+When the client connects, you sign in with your Saleor Cloud account and approve the access the assistant may use. New connections are offered everything your group policy allows, and you can lower any area before you approve.
+
+### OAuth Scopes
+
+Besides `mcp`, each scope names an area and a level, using Saleor's [permission codes](/developer/permissions):
+
+| Scope | Level |
+| --- | --- |
+| `MANAGE_ORDERS` | Read |
+| `MANAGE_ORDERS:write` | Edit |
+| `MANAGE_ORDERS:high_impact` | Full |
+
+Each level includes the ones below it. A client that asks for no scope is offered everything the user's group policy allows. Access keys use the same codes.
+
+### Revoking a Connection
+
+To end a connection, log out from your client if it offers that, or send one of the connection's tokens to `POST /oauth/revoke`. Revoking a token revokes the whole connection it belongs to.
+
+To take access away from a group, an administrator lowers it in the group policy. This takes effect on the next request.
+
+## Access Keys
+
+Use an access key for agents and automations that run without a person signed in.
+
+1. An administrator opens **Saleor MCP → Settings → Access keys** and creates a key.
+2. They name the key and give it access per area, using the same levels as the group policy. They can grant only access they hold themselves.
+3. The key and the setup for each client, with the right MCP URL filled in, are shown once. Copy the setup from there and store the key securely.
+
+Keys expire after 90 days. Changes to a key and revocation apply to its next request.
+
+The setup looks like this. `<your-mcp-url>` stands for the address shown in the app:
+
+<Tabs>
+<Tab title="Codex">
+
+Paste the setup shown with the key into `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.saleor]
+url = "https://<your-mcp-url>/mcp"
+http_headers = { Authorization = "Bearer <access key>" }
+```
+
+</Tab>
+<Tab title="Claude Code">
+
+Run the command shown with the key on the machine where the agent runs:
+
+```shell
+claude mcp add --transport http --scope user saleor \
+  'https://<your-mcp-url>/mcp' \
+  --header 'Authorization: Bearer <access key>'
+```
+
+</Tab>
+<Tab title="Other clients">
+
+Add the JSON entry shown with the key to your client:
+
+```json
+{
+  "mcpServers": {
+    "saleor": {
+      "type": "http",
+      "url": "https://<your-mcp-url>/mcp",
+      "headers": {
+        "Authorization": "Bearer <access key>"
+      }
+    }
+  }
+}
+```
+
+</Tab>
+</Tabs>
+
+## Calling the Server Directly
+
+The transport is stateless Streamable HTTP. Every request is a single `POST` answered with JSON. There is no session to start and no stream from the server.
+
+Use the MCP URL from the setup shown with your access key in place of `https://<your-mcp-url>/mcp`:
+
+```shell
+curl -X POST 'https://<your-mcp-url>/mcp' \
+  -H 'Authorization: Bearer <access key>' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+## Endpoints
+
+All paths are relative to the Saleor MCP address in the MCP URL on the **Connect** page.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /mcp` | MCP over Streamable HTTP. Add `?saleor_api_url=…` for user OAuth. |
+| `GET /.well-known/oauth-protected-resource/mcp` | Protected resource metadata for one environment (`?saleor_api_url=…`). |
+| `GET /.well-known/oauth-authorization-server` | Authorization server metadata. |
+| `POST /oauth/register` | Dynamic client registration for public clients. Rate limited. |
+| `GET /oauth/authorize` | Starts sign-in with Saleor Cloud and consent. Rate limited. |
+| `POST /oauth/token` | Exchanges an authorization code or refresh token for MCP tokens. Rate limited. |
+| `POST /oauth/revoke` | Revokes a token and the whole connection it belongs to. Rate limited. |
+| `GET /api/oauth/upgrade` | Opens the browser approval for a [permission upgrade](/developer/app-store/apps/mcp/permissions#adding-access-to-a-connection) link. |
+| `GET /health` | Health check. |
+
+See [Errors](/developer/app-store/apps/mcp/errors#rate-limits-and-timeouts) for rate limits.
