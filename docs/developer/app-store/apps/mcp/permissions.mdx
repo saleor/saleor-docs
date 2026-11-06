@@ -10,11 +10,54 @@ seo:
 lastModified: '2026-11-06'
 ---
 
-Three levels decide what an assistant can reach through Saleor MCP. All three are checked on every request. This page explains them, the access levels you can grant, and which kinds of changes each level allows.
+Permissions are the most involved part of Saleor MCP. This page explains who can configure the app, how a user's or an access key's access is calculated, the access levels you can grant, and which changes each level allows.
 
-In these docs, an **administrator** is a staff user with both `MANAGE_APPS` and `MANAGE_STAFF`.
+## Who Can Configure Saleor MCP
+
+In these docs, an **administrator** is a staff user with both `MANAGE_APPS` and `MANAGE_STAFF`. Saleor MCP needs `MANAGE_STAFF` to read your permission groups, so `MANAGE_APPS` alone isn't enough to configure it.
+
+| Task | Who can do it | Also required |
+| --- | --- | --- |
+| Install the app | Staff with `MANAGE_APPS` | You must hold `MANAGE_STAFF` yourself, because the app asks for it when you install it. |
+| Connect an assistant | Any staff user | Nothing to set up. Without a group policy entry for one of your groups, the assistant gets no access. |
+| Open **Settings** | Staff with `MANAGE_APPS` | Without `MANAGE_STAFF`, you can only view it. |
+| Change app permissions | Administrators | You must hold every permission the app has now, and every permission you add. |
+| Edit the group policy | Administrators | None. You can assign areas you don't hold yourself. |
+| Create or edit access keys | Administrators | You can grant only areas you hold yourself. |
+| Revoke access keys | Administrators | None. |
+| View **Activity** | Administrators | None. |
+
+Staff users without `MANAGE_APPS` find Saleor MCP on the Dashboard home page, or by searching the Dashboard for "Connect an AI assistant". You can also open it from **Extensions → Installed**.
+
+### Changing App Permissions
+
+Saleor itself checks every change to an app's permissions:
+
+- **You can't add a permission you don't have.** To give Saleor MCP `MANAGE_ORDERS`, you need `MANAGE_ORDERS` yourself.
+- **You can't manage an app that has more permissions than you.** Once Saleor MCP holds `MANAGE_ORDERS`, an administrator without `MANAGE_ORDERS` can't change its permissions at all, not even to add a different area. Saleor rejects the change with "You can't manage this app."
+
+If Saleor rejects a change, ask someone who holds all the app's current permissions and the ones you want to add.
+
+**Saleor MCP → Settings → App permissions** adds permissions through Saleor's permission request. To remove a permission, use **Edit permissions** on the app's page in **Extensions → Installed**.
+
+Saleor MCP can never hold `MANAGE_APPS`. Saleor doesn't allow apps to have it.
+
+### Editing the Group Policy
+
+The group policy offers only the areas the app has in its app permissions. An area the app doesn't have doesn't appear until someone adds it.
+
+You can give a group an area you don't hold yourself. This doesn't let anyone go past their own Saleor permissions: a member still needs that permission in Saleor to use the area through Saleor MCP. See [How access is calculated](#how-access-is-calculated).
+
+### Managing Access Keys
+
+- When you create a key, you can grant only areas that you and the app both hold.
+- When you edit a key, you can keep access that another administrator granted, even if you don't hold it. You can add only areas you hold.
+- Any administrator can revoke any key.
+- A key doesn't depend on the person who created it. It keeps its access if that person loses permissions or leaves.
 
 ## Permission Levels
+
+Three levels decide what an assistant can reach. All three are checked on every request.
 
 | Level | Set by | What it decides |
 | --- | --- | --- |
@@ -22,9 +65,30 @@ In these docs, an **administrator** is a staff user with both `MANAGE_APPS` and 
 | 2. User permissions | Saleor, through the user's staff permission groups | Saleor MCP never gives a person more than they already have in the Dashboard. |
 | 3. Group policy | An administrator, in **Saleor MCP → Settings → Group policy** | The most each permission group can use through Saleor MCP, per area. |
 
-In the group policy, each permission group gets **None**, **Read**, **Edit**, or **Full** per area. A group with no assignment gets nothing. A member of several groups gets what all of their groups allow combined.
+In the group policy, each permission group gets **None**, **Read**, **Edit**, or **Full** per area. A group with no assignment gets nothing.
 
 Areas use Saleor's [permission codes](/developer/permissions), such as `MANAGE_PRODUCTS` or `MANAGE_ORDERS`.
+
+### How Access Is Calculated
+
+For a staff user, Saleor MCP works out access on every request:
+
+1. It combines the group policy entries of all the user's permission groups.
+2. It keeps only the areas where both the app and the user hold the Saleor permission. The user's permission can come from any of their groups.
+3. For a user OAuth connection, it keeps only what the user approved when connecting.
+
+Saleor then checks each call against the permissions the user and the app share.
+
+For example, Anna is in two permission groups:
+
+| Group | Saleor permissions | Group policy |
+| --- | --- | --- |
+| Support | `MANAGE_ORDERS` | Orders: **Edit** |
+| Catalog | `MANAGE_PRODUCTS` | None |
+
+The app holds `MANAGE_ORDERS` and `MANAGE_PRODUCTS`. Anna's assistant can read and edit orders. It can't reach products, because none of Anna's groups has a group policy entry for products, even though she can manage products in the Dashboard.
+
+For an access key, access is what an administrator gave the key. Calls go to Saleor as the app, so Saleor also limits them to the app's permissions. If someone removes an app permission that a key uses, Saleor MCP still accepts the call, but Saleor returns a GraphQL permission error.
 
 ## Access Levels
 
