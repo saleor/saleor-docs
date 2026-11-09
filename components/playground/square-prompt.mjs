@@ -1,5 +1,6 @@
 // The prompt a reader copies into their coding agent to integrate the Square App.
 // tests/square-prompt.test.mjs checks it against the Square App docs pages.
+import { dataSchemas } from "../data-schemas.mjs";
 
 const gatewayId = "saleor.app.square";
 const dataVersion = "saleor.app.square.v1";
@@ -48,7 +49,7 @@ Build the payment step:
    - square.environment is "sandbox" or "production". Load https://sandbox.web.squarecdn.com/v1/square.js or https://web.squarecdn.com/v1/square.js to match.
    - Create the SDK with Square.payments(square.applicationId, square.locationId). Wallets also need square.countryCode for their payment request.
    - methods lists what to offer, from: ${promptMethods.join(", ")}. Render only these, and only if the SDK initializes them.
-3. Pay. Tokenize, then call transactionInitialize(id: <checkout ID>, amount: <amount to pay>, idempotencyKey: <key>, paymentGateway: { id: "${gatewayId}", data: <data> }) and read transaction { id }, transactionEvent { type message }, data, and errors. \`data\` is untyped JSON and strictly validated: unknown fields, a wrong version, or an unsupported method fail with PARSE_ERROR.
+3. Pay. Tokenize, then call transactionInitialize(id: <checkout ID>, amount: <amount to pay>, idempotencyKey: <key>, paymentGateway: { id: "${gatewayId}", data: <data> }) and read transaction { id }, transactionEvent { type message }, data, and errors. \`data\` is untyped JSON and strictly validated: unknown fields, a wrong version, or an unsupported method fail with PARSE_ERROR. The app publishes a JSON Schema for it at ${dataSchemas.square.transactionInitialize}. Use it to type data or check it in tests.
    - Card, Apple Pay, Cash App Pay, Afterpay/Clearpay: { "version": "${dataVersion}", "method": "card" | "apple-pay" | "cash-app-pay" | "afterpay-clearpay", "sourceId": "<token>" }, plus "verificationToken" if you run buyer verification separately.
    - Square gift card: { "version": "${dataVersion}", "method": "gift-card", "sourceId": "<token>" }, with the full amount due.
    - Saved card: { "version": "${dataVersion}", "method": "saved-card", "paymentMethodId": "<storedPaymentMethods id>" }. No tokenizing.
