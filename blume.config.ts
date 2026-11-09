@@ -1,6 +1,7 @@
 import { sentrySourceMaps } from "./sentry-integration";
 import { mcpSearch } from "./scripts/mcp-search.mjs";
 import { mcpOrigin } from "./scripts/mcp-origin.mjs";
+import { mcpSkills } from "./scripts/mcp-skills.mjs";
 import { defineConfig } from "blume";
 import { sectionTabs, sidebarConfig } from "./components/navigation-sections.mjs";
 import navigation from "./config/navigation.json";
@@ -14,7 +15,7 @@ import { resolveSiteUrls, documentationMcp } from "./scripts/site-config.mjs";
 const { canonical: site } = resolveSiteUrls();
 
 export default defineConfig({
-  integrations: [sentrySourceMaps(), mcpOrigin(), mcpSearch()],
+  integrations: [sentrySourceMaps(), mcpOrigin(), mcpSearch(), mcpSkills()],
   title: "Saleor Commerce Documentation",
   description:
     "Build commerce your way with Saleor’s GraphQL API, developer guides, and recipes.",
@@ -84,7 +85,7 @@ export default defineConfig({
       enabled: process.env.BLUME_SERVER !== "0",
       ...documentationMcp,
       instructions:
-        "Search Saleor guides and GraphQL reference pages. Check the schema version and required permissions before suggesting an operation. Saleor implementation skills are published by this site at /.well-known/agent-skills/index.json.",
+        "Search Saleor guides and GraphQL reference pages. Check the schema version and required permissions before suggesting an operation. Saleor implementation skills are available from skills/list, and published at /.well-known/agent-skills/index.json.",
     },
     llmsTxt: {
       details:

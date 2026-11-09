@@ -12,6 +12,8 @@ const config: KnipConfig = {
     "tests/*.test.mjs",
     // Loaded on demand inside the generated Astro search component.
     "search/client.mjs",
+    // Swapped in for Blume's MCP server module by scripts/mcp-skills.mjs.
+    "scripts/mcp-skills-handler.mjs",
   ],
   project: ["*.ts", "components/**/*.{astro,ts,tsx,mjs}", "pages/**/*.astro", "scripts/**/*.mjs", "search/**/*.mjs", "tests/**/*.mjs"],
 };
