@@ -2,14 +2,15 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { matter } from "../scripts/common.mjs";
+import { dataSchemas } from "../components/data-schemas.mjs";
 import { agentPrompt, outcomes, promptErrorCodes, promptMethods, promptPages, testTokens } from "../components/playground/square-prompt.mjs";
 
 const docs = "docs/developer/app-store/apps/square";
 const read = page => readFile(`${docs}/${page}.mdx`, "utf8");
 
-test("the page leads with the agent prompt, then the manual guide", async () => {
+test("the page leads with the data schemas and the agent prompt, then the manual guide", async () => {
   const integration = await read("storefront-integration");
-  const order = ['<AgentPrompt app="square" />', "\n## Manual integration"].map(marker => integration.indexOf(marker));
+  const order = ['<DataSchema app="square" />', '<AgentPrompt app="square" />', "\n## Manual integration"].map(marker => integration.indexOf(marker));
   assert(order.every(index => index > 0) && order[0] < order[1], "Unexpected page order");
 });
 
@@ -33,5 +34,6 @@ test("the agent prompt stays in sync with the Square docs", async () => {
     assert(agentPrompt.includes(field));
     assert(integration.includes(field) || webhooks.includes(field), `${field} isn't in the docs any more`);
   }
+  assert(agentPrompt.includes(dataSchemas.square.transactionInitialize), "The prompt doesn't link the transactionInitialize data schema");
   for (const sdk of agentPrompt.match(/https:\/\/[\w.]*squarecdn\.com\/v1\/square\.js/g)) assert(integration.includes(sdk), `${sdk} isn't the documented SDK URL`);
 });
