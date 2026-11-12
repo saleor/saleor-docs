@@ -1,0 +1,54 @@
+---
+title: Storefront integration guidelines
+slug: developer/storefront/overview
+sidebar:
+  label: Overview
+seo:
+  title: Storefront integration guidelines
+  description: This chapter contains guidelines for integrating a storefront with Saleor.
+lastModified: '2026-11-10'
+---
+
+This chapter contains guidelines for integrating a storefront with Saleor.
+
+## Images
+
+### Serve thumbnails from Saleor's CDN
+
+Saleor [thumbnails](/developer/thumbnails) are already resized, converted to the requested format, and served from Saleor's CDN. Passing them through an image optimizer such as Next.js `next/image` (on Vercel or Netlify) processes the same image a second time, and those platforms bill per transformation.
+
+Instead, request several sizes in one query using aliases, and render a plain `<img>` with a `srcset` so the browser picks the size it needs:
+
+```graphql
+query {
+  product(slug: "my-product", channel: "default-channel") {
+    thumbnail(size: 1024, format: WEBP) {
+      url
+      alt
+    }
+    thumbnail256: thumbnail(size: 256, format: WEBP) {
+      url
+    }
+    thumbnail512: thumbnail(size: 512, format: WEBP) {
+      url
+    }
+  }
+}
+```
+
+```html
+<img
+  src="{thumbnail.url}"
+  srcset="{thumbnail256.url} 256w, {thumbnail512.url} 512w, {thumbnail.url} 1024w"
+  sizes="(min-width: 768px) 33vw, 100vw"
+  alt="{thumbnail.alt}"
+/>
+```
+
+Keep `next/image` for images that Saleor doesn't resize, such as files from your own app or `FILE` attribute uploads.
+
+For a complete implementation, see the [`SaleorImage`](https://github.com/saleor/storefront/blob/main/src/ui/atoms/saleor-image.tsx) component in the Saleor storefront.
+
+### Request each size from the API
+
+Do not build thumbnail URLs for other sizes by editing a returned URL. A thumbnail URL is either a proxy URL or a direct media URL, and changing the size in a direct media URL returns 404.
