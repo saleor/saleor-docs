@@ -1,0 +1,82 @@
+---
+import Icon from "blume/components/Icon.astro";
+import { dataSchemasFor } from "./data-schemas.mjs";
+
+interface Props {
+  /** Key in `dataSchemas` from `data-schemas.mjs`, e.g. `square`. */
+  app: string;
+}
+
+const schemas = dataSchemasFor(Astro.props.app);
+const single = schemas.length === 1;
+// Let long URLs wrap after a slash instead of at the hyphen in `well-known`.
+const wrap = (url: string) => url.split(/(?<=\/)/);
+---
+
+<aside class="saleor-data-schema" aria-label={single ? `Data schema for ${schemas[0][0]}` : "Data schemas"}>
+  <p class="saleor-data-schema-title">
+    <Icon name="file-json" size={16} />
+    {single ? (
+      <Fragment><span class="saleor-data-schema-label">Data schema</span><span>for <code>{schemas[0][0]}</code> <code>data</code></span></Fragment>
+    ) : (
+      <span class="saleor-data-schema-label">Data schemas</span>
+    )}
+  </p>
+  <p>Saleor doesn't check <code>data</code>, but the app does. It publishes {single ? "a" : "one"} <a href="https://json-schema.org/">JSON Schema</a> {single ? "" : "per mutation, "}generated from its own validation, so {single ? "the schema always matches" : "the schemas always match"} what the app accepts.</p>
+  <p>Save {single ? "it" : "them"} in your repository to generate types (for example, with <a href="https://github.com/bcherny/json-schema-to-typescript">json-schema-to-typescript</a>) or check <code>data</code> in tests (for example, with <a href="https://ajv.js.org/">Ajv</a>).</p>
+  {schemas.map(([mutation, url]) => (
+    <Fragment>
+      {!single && <p class="saleor-data-schema-mutation"><code>{mutation}</code></p>}
+      <a class="saleor-data-schema-url" href={url}>{wrap(url).map((part) => <Fragment>{part}<wbr /></Fragment>)}</a>
+    </Fragment>
+  ))}
+</aside>
+
+<style>
+  .saleor-data-schema {
+    --data-schema-hue: #7c3aed;
+    margin-block: 1.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid color-mix(in oklab, var(--data-schema-hue) 35%, transparent);
+    border-left-width: 4px;
+    border-radius: var(--radius-blume);
+    background: color-mix(in oklab, var(--data-schema-hue) 6%, var(--color-background));
+  }
+
+  .saleor-data-schema p {
+    margin: 0 0 0.5rem;
+    font-size: 0.9em;
+    color: var(--color-muted-foreground);
+  }
+
+  .saleor-data-schema p.saleor-data-schema-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.35rem;
+    font-size: 1em;
+    color: var(--color-foreground);
+  }
+
+  .saleor-data-schema-title :global(svg),
+  .saleor-data-schema-label {
+    /* Mixing with the text color keeps the violet readable in light and dark themes. */
+    color: color-mix(in oklab, var(--data-schema-hue) 70%, var(--color-foreground));
+  }
+
+  .saleor-data-schema-label {
+    font-weight: 600;
+  }
+
+  .saleor-data-schema p.saleor-data-schema-mutation {
+    margin: 0.75rem 0 0.15rem;
+  }
+
+  .saleor-data-schema-url {
+    display: block;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.85em;
+    color: var(--color-muted-foreground);
+  }
+</style>
