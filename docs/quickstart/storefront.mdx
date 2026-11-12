@@ -5,13 +5,13 @@ sidebar: {}
 seo:
   title: Storefront
   description: This guide will help you set up a Saleor storefront in your local environment.
-lastModified: '2025-01-29'
+lastModified: '2026-11-12'
 ---
 
 <div>
 This guide will help you set up a [Saleor storefront](https://github.com/saleor/storefront/) in your local environment.
 
-The storefront is a Next.js application. However, the Checkout page can be extracted from any React application as it is designed to be a standalone component.
+The storefront is a Next.js application. It requires Saleor 3.23 or later and Node.js 24.
 
 </div>
 
@@ -19,7 +19,7 @@ The storefront is a Next.js application. However, the Checkout page can be extra
 <Step title={"Install project"}>
 <div>
 <span id="install-project" />
-Clone repo and install dependencies
+Clone repo and install dependencies. Alternatively, bootstrap the project with the [Saleor CLI](https://github.com/saleor/saleor-cli): `saleor storefront create --url https://{your_domain}.saleor.cloud/graphql/`.
 
 </div>
 <div>
@@ -58,6 +58,9 @@ Alternatively, you can [run Saleor locally](/quickstart/running-locally) using D
 
             # Local example
             # NEXT_PUBLIC_SALEOR_API_URL=http://localhost:8000/graphql/
+
+            # Channel slug from Dashboard → Configuration → Channels
+            NEXT_PUBLIC_DEFAULT_CHANNEL=default-channel
             ```
 </div>
 </Step>
@@ -80,18 +83,18 @@ Run the development server.
 <span id="edit-a-product" />
 1. Find any product page in the storefront
 2. Go to the dashboard of your Saleor instance and change that product information, such as name, price, or description.
-3. Refresh the product page in the storefront; notice that information has not changed due to Next.js caching.
-4. Visit ```http://{your-host}/api/draft``` (e.g. [http://localhost:3000/api/draft](http://localhost:3000/api/draft)) to see the changes. This endpoint bypasses the cache by setting a [special next.js cookie](https://nextjs.org/docs/pages/building-your-application/configuring/preview-mode).
+3. Refresh the product page in the storefront; notice that information has not changed. Product pages are cached and refreshed at most once an hour.
+4. To see changes right away, install the [Saleor Paper app](https://github.com/saleor/saleor-paper-app) from Dashboard → Extensions (Saleor Cloud only). It sets up webhooks that refresh the cached page when you save a product.
 </div>
 </Step>
 
 <Step title={"Edit a query"}>
 <div>
 <span id="edit-a-query" />
-1. In ```src/graphql``` folder, find a query you want to edit. For example add field ```isAvailable``` to ```ProductDetails.graphql```.
+1. In ```src/graphql``` folder, find a query you want to edit. For example add field ```rating``` to ```ProductDetails.graphql```.
 2. Generate types and queries by running the following command:
 
-This would update types and queries for the new field, which we will use in the next step.
+This would update types and queries for the new field, which we will use in the next step. Queries used by the checkout are generated with `pnpm run generate:checkout`.
 </div>
 <div>
             ```bash
@@ -103,15 +106,15 @@ This would update types and queries for the new field, which we will use in the 
 <Step title={"Update product page"}>
 <div>
 <span id="update-product-page" />
-1. Open ```src/app/[channel]/[main]/Products/[slug].tsx``` file.
-2. You will be able now to render the newly added field ```isAvailable``` in the product page. Notice that the new field can be autocompleted by Typescript.
+1. Open ```src/app/(storefront)/[locale]/[channel]/(main)/products/[slug]/page.tsx``` file.
+2. You will be able now to render the newly added field ```rating``` in the product page. Notice that the new field can be autocompleted by Typescript.
 </div>
 <div>
-            ```jsx title="src/app/[channel]/[main]/Products/[slug].tsx"
+            ```jsx title="src/app/(storefront)/[locale]/[channel]/(main)/products/[slug]/page.tsx"
 
-            export default async function Page(){
+            async function ProductShell({ params: paramsPromise }) {
                 // ...
-                const isAvailable = data.product.isAvailable;
+                const rating = product.rating;
                 // ...
             }
             ```
