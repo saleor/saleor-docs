@@ -1,0 +1,91 @@
+---
+title: Saleor MCP Tools
+slug: developer/app-store/apps/mcp/tools
+sidebar:
+  label: Tools
+  order: 5
+seo:
+  title: Saleor MCP Tools
+  description: The tools and resource that Saleor MCP exposes, and the checks every GraphQL document goes through.
+lastModified: '2026-11-06'
+---
+
+Saleor MCP exposes a small set of generic tools. The assistant uses them to look up the schema and run GraphQL, instead of calling one tool per commerce action. This page lists the tools, the schema resource, and the checks every document goes through.
+
+Your MCP client lists the current tools and their full descriptions through `tools/list`. Treat that as the authoritative reference.
+
+## Tools
+
+| Tool | What it does | Changes data |
+| --- | --- | --- |
+| `connection_info` | Reports the connected environment, who the assistant acts as, its access per area, and which mutation tools it can use. Call it first, and after a permission change. It also starts a [permission upgrade](/developer/app-store/apps/mcp/permissions#adding-access-to-a-connection). | No |
+| `introspect_schema` | Explores the Saleor GraphQL schema in small slices. | No |
+| `run_query` | Runs a read-only GraphQL query. | No |
+| `run_mutation` | Runs an everyday mutation. Requires **Edit** in the area. | Yes |
+| `run_high_impact_mutation` | Runs a high-impact mutation. Requires **Full** in the area. | Yes |
+
+Your client sees a mutation tool only when the access available to the connection includes something that tool can run. See [Mutation tiers](/developer/app-store/apps/mcp/permissions#mutation-tiers) for which changes go to which tool.
+
+### `connection_info`
+
+| Argument | Description |
+| --- | --- |
+| `upgradePermissions` | Optional. Permission codes from `permissionsRequiringConsent` to request. Pass it only after the user agrees to a permission upgrade. Omit it to inspect access. |
+
+### `introspect_schema`
+
+| Argument | Description |
+| --- | --- |
+| `action` | One of `search`, `describe_type`, `list_operations`, or `describe_operation`. |
+| `name` | Type or operation name. Required by `describe_type` and `describe_operation`. |
+| `kind` | `query` or `mutation`. Required by `list_operations`. Narrows `describe_operation`. |
+| `search` | Keyword. Required by `search`. Filters `list_operations`. |
+
+### `run_query`
+
+| Argument | Description |
+| --- | --- |
+| `query` | A GraphQL document that contains only query operations. |
+| `variables` | Optional. Variables as a JSON object. |
+| `operation_name` | Optional. The operation to run when the document defines several. |
+
+Example arguments:
+
+```json
+{
+  "query": "query Products($first: Int!) { products(first: $first) { edges { node { id name } } } }",
+  "variables": { "first": 5 }
+}
+```
+
+### `run_mutation` and `run_high_impact_mutation`
+
+| Argument | Description |
+| --- | --- |
+| `summary` | One plain-language sentence describing the change, for the person approving it. Kept in the activity log for 90 days. |
+| `query` | A GraphQL document that contains only mutation operations. This is what actually runs. |
+| `variables` | Optional. Variables as a JSON object. |
+| `operation_name` | Optional. The operation to run when the document defines several. |
+
+The summary should name the objects and values that change, for example "Set the price of variant SKU-123 to 19.99 USD in the default channel". It should refer to customers and orders by ID or number, and never include names, emails, addresses, phone numbers, gift card or voucher codes, passwords, or tokens.
+
+`run_high_impact_mutation` accepts only documents that contain at least one high-impact mutation.
+
+## Responses
+
+GraphQL tools return Saleor's response unchanged, as `{ data, errors }`, both as text and as `structuredContent`. Check the mutation's own `errors` field to see whether a change succeeded.
+
+## Schema Resource
+
+The resource `saleor://schema/graphql` holds the full schema of the connected environment, as SDL.
+
+## Document Checks
+
+Saleor MCP checks every GraphQL document before it sends it to Saleor:
+
+- A document holds queries or mutations, never both. GraphQL subscriptions are not supported.
+- A document can have at most 100,000 characters and 10,000 tokens, and each operation at most 500 root fields.
+- The credential fields `accessToken` and `authToken` can't be selected.
+- Queries must start in areas the connection can read. Mutations must be reviewed and allowed for the connection's access.
+
+A document that fails a check returns a tool error and is not sent to Saleor. See [Errors](/developer/app-store/apps/mcp/errors).
