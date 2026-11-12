@@ -16,7 +16,7 @@ This chapter contains guidelines for integrating a storefront with Saleor.
 - **Serve [thumbnails](/developer/thumbnails) straight from Saleor's CDN.** They are already resized and converted. Running them through an image optimizer such as Next.js `next/image` on Vercel or Netlify processes them a second time, and those platforms bill per transformation.
 - **Request several sizes in one query and render `<img srcset>`.** Alias the field, e.g. `thumbnail256: thumbnail(size: 256, format: WEBP)`, and let the browser pick. See [`SaleorImage`](https://github.com/saleor/storefront/blob/main/src/ui/atoms/saleor-image.tsx) for an implementation.
 - **Request each size from the API.** Don't change the size in a returned URL: a direct media URL with a different size returns 404.
-- **Keep `next/image` for images Saleor doesn't resize,** such as files bundled with your app.
+- **Use your framework's or host's image optimizer only for images Saleor doesn't resize,** such as files bundled with your app.
 
 ## Product availability
 
@@ -24,27 +24,12 @@ This chapter contains guidelines for integrating a storefront with Saleor.
 - **Don't treat `isAvailable` as a promise of delivery.** Outside legacy mode, a product can be added to the cart and still have no shipping method for the customer's address. Handle that case in checkout.
 - **A product is purchasable in a channel only when** it is published and available for purchase there, the variant has a price in that channel, and stock is reachable as described above.
 
-## Variants
-
-- **Add variants to the cart, not products.** `checkoutLinesAdd` needs a `variantId`, so the customer has to pick every selection attribute first.
-- **Split attributes with `attributes(variantSelection: ...)`.** `VARIANT_SELECTION` attributes (size, color) become pickers. `NOT_VARIANT_SELECTION` attributes (material) are display-only. See [Attributes](/developer/attributes/overview).
-
-## Product lists
-
-- **Use either `filter` or `where`, not both.** Saleor rejects a `products` query that sets both. Use `where` to combine several values of one attribute with OR.
-- **Pass search text in the top-level `search` argument.** Sorting by `RANK` only works together with `search`.
-
 ## Caching
 
 - **Cache catalog data, never cart or checkout data.** Product, category and menu queries can be cached and refreshed with [webhooks](/developer/extending/webhooks/overview) such as `PRODUCT_UPDATED` or `MENU_UPDATED`. Always fetch the cart and checkout live.
 - **A cached price is safe to show.** Saleor recalculates prices when lines are added to a checkout and when it's completed, so a customer can't pay a stale price.
 - **Keep per-customer data out of the shared cache.** If one customer's cart or session change clears a shared cache entry, every visitor triggers a re-render.
-- **Don't cache errors.** A partial response with `errors` cached as a page serves a broken product until the cache expires.
-
-## Customer accounts
-
-- **Add every storefront domain to [`ALLOWED_CLIENT_HOSTS`](/setup/configuration#allowed_client_hosts).** Saleor rejects `redirectUrl` values on other domains in mutations like `accountRegister` and `requestPasswordReset`.
-- **Validate `redirectUrl` in the storefront too.** Build it from configured origins, not from request headers such as `Host` or `Origin`.
+- **Don't cache responses that contain `errors`.** Saleor can return partial data alongside errors, e.g. a product without a price. Cached, it stays broken until the cache expires.
 
 ## Orders
 
@@ -56,5 +41,5 @@ This chapter contains guidelines for integrating a storefront with Saleor.
 
 ## Translations
 
-- **Request translated fields with `translation(languageCode:)`.** It returns `null` when no translation exists, so fall back to the base field. See [Translations](/developer/extending/api/i18n).
+- **Fall back to the base field when a translation is missing.** `translation(languageCode:)` returns `null` for untranslated content instead of the default-language text. See [Translations](/developer/extending/api/i18n).
 - **Keep language and channel separate.** One channel can serve several languages, so a language alone doesn't determine prices or stock.
