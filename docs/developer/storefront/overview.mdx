@@ -1,45 +1,39 @@
 ---
-title: Storefront integration guidelines
+title: Storefront
 slug: developer/storefront/overview
 sidebar:
   label: Overview
 seo:
-  title: Storefront integration guidelines
-  description: This chapter contains guidelines for integrating a storefront with Saleor.
+  title: Storefront
+  description: Resources for building a storefront on Saleor.
 lastModified: '2026-11-12'
 ---
 
-This chapter contains guidelines for integrating a storefront with Saleor.
+Resources for building a storefront on Saleor.
 
-## Images
+<CardGroup cols={2}>
 
-- **Serve [thumbnails](/developer/thumbnails) straight from Saleor's CDN.** They are already resized and converted. Running them through an image optimizer such as Next.js `next/image` on Vercel or Netlify processes them a second time, and those platforms bill per transformation.
-- **Request several sizes in one query and render `<img srcset>`.** Alias the field, e.g. `thumbnail256: thumbnail(size: 256, format: WEBP)`, and let the browser pick. See [`SaleorImage`](https://github.com/saleor/storefront/blob/main/src/ui/atoms/saleor-image.tsx) for an implementation.
-- **Request each size from the API.** Don't change the size in a returned URL: a direct media URL with a different size returns 404.
-- **Use your framework's or host's image optimizer only for images Saleor doesn't resize,** such as files bundled with your app.
+  <Card title="Guidelines" href="/developer/storefront/guidelines" arrow>
+Non-obvious rules for images, availability, caching, orders, content, and translations.
+</Card>
 
-## Product availability
+  <Card title="Saleor Storefront" href="/quickstart/storefront" arrow>
+Run the open-source Next.js storefront locally.
+</Card>
 
-- **Check which stock mode the shop uses.** Query `shop { useLegacyShippingZoneStockAvailability }`. In legacy mode, stock counts only in warehouses that are assigned to the channel and to one of its shipping zones. Otherwise, a warehouse assigned to the channel is enough. See [Stock](/developer/stock/overview).
-- **Don't treat `isAvailable` as a promise of delivery.** Outside legacy mode, a product can be added to the cart and still have no shipping method for the customer's address. Handle that case in checkout.
-- **A product is purchasable in a channel only when** it is published and available for purchase there, the variant has a price in that channel, and stock is reachable as described above.
+  <Card title="Checkout" href="/developer/checkout/overview" arrow>
+Create, update, and complete checkouts.
+</Card>
 
-## Caching
+  <Card title="Agent Skills" href="/developer/ai#agent-skills" arrow>
+Give your coding agent Saleor storefront patterns.
+</Card>
 
-- **Cache catalog data, never cart or checkout data.** Product, category and menu queries can be cached and refreshed with [webhooks](/developer/extending/webhooks/overview) such as `PRODUCT_UPDATED` or `MENU_UPDATED`. Always fetch the cart and checkout live.
-- **A cached price is safe to show.** Saleor recalculates prices when lines are added to a checkout and when it's completed, so a customer can't pay a stale price.
-- **Keep per-customer data out of the shared cache.** If one customer's cart or session change clears a shared cache entry, every visitor triggers a re-render.
-- **Don't cache responses that contain `errors`.** Saleor can return partial data alongside errors, e.g. a product without a price. Cached, it stays broken until the cache expires.
+</CardGroup>
 
-## Orders
+## Payment apps
 
-- **Treat the order ID like a password.** Anyone who has it can read the order with `order(id:)`, including the address and email, without signing in. Keep it out of analytics, logs and third-party scripts. On a public order status page, show the address and email only after the customer signs in or confirms the order's email. See [Orders](/developer/order/overview).
-
-## Content
-
-- **Store storefront copy in [Models](/developer/models).** Pages are not channel-scoped and page slugs are unique across the shop, so encode per-channel copy in the slug (e.g. `homepage-eu`) and fall back to a shared page.
-
-## Translations
-
-- **Fall back to the base field when a translation is missing.** `translation(languageCode:)` returns `null` for untranslated content instead of the default-language text. See [Translations](/developer/extending/api/i18n).
-- **Keep language and channel separate.** One channel can serve several languages, so a language alone doesn't determine prices or stock.
+- [Stripe](/developer/app-store/apps/stripe/storefront-integration)
+- [Adyen](/developer/app-store/apps/adyen/storefront)
+- [Square](/developer/app-store/apps/square/storefront-integration)
+- [NP Atobarai](/developer/app-store/apps/np-atobarai/storefront-integration)

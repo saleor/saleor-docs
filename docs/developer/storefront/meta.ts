@@ -1,2 +1,2 @@
 import { defineMeta } from "blume";
-export default defineMeta({"title":"Storefront","pages":["overview"]});
+export default defineMeta({"title":"Storefront","pages":["overview","guidelines"]});
