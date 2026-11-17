@@ -7,7 +7,7 @@ sidebar:
 seo:
   title: Saleor MCP Errors
   description: HTTP status codes, tool errors, and GraphQL errors returned by Saleor MCP, with what to do about each.
-lastModified: '2026-11-06'
+lastModified: '2026-11-16'
 ---
 
 Saleor MCP reports problems in three ways: an HTTP status code, a tool error, or GraphQL `errors` in the response. This page explains each one and what to do.
@@ -17,7 +17,7 @@ Saleor MCP reports problems in three ways: an HTTP status code, a tool error, or
 | Signal | Meaning | What to do |
 | --- | --- | --- |
 | HTTP `400` | The request could not be authenticated because it is malformed. | Check the `Authorization` header and the MCP URL. |
-| HTTP `401` | The token or key is missing, expired, revoked, or for another Saleor environment. User OAuth URLs also return `WWW-Authenticate` with `resource_metadata`. | Sign in again from your client. For an access key, create a new one in **Settings → Access keys**. |
+| HTTP `401` | The token or key is missing, expired, revoked, or for another Saleor environment. User OAuth URLs also return `WWW-Authenticate` with `resource_metadata`. | See [Authentication Errors](#authentication-errors) for the message and what to do. |
 | HTTP `403` | User OAuth only. The call needs access this connection was not approved for, such as **Edit** in an area, and the user can approve it now. `WWW-Authenticate` carries `insufficient_scope` and the scopes to request. | Some clients start the OAuth sign-in on their own. Otherwise, the assistant should offer a [permission upgrade](/developer/app-store/apps/mcp/permissions#adding-access-to-a-connection) through `connection_info`. Approve it, then retry. |
 | HTTP `405` | The MCP endpoint accepts only `POST`. | Use a client that supports Streamable HTTP. |
 | HTTP `429` | Too many requests to an OAuth endpoint from your IP address. | Wait a few minutes, then try again. |
@@ -25,6 +25,22 @@ Saleor MCP reports problems in three ways: an HTTP status code, a tool error, or
 | HTTP `503` | Another request is refreshing the user's Saleor session, or a service Saleor MCP depends on is briefly unavailable. | Retry after the `Retry-After` delay. |
 | Tool error | Saleor MCP stopped the request before it reached Saleor: a query or mutation outside the granted access, a mutation that isn't available or was sent to the wrong tool, or an invalid document. With an access key, missing access shows up here, not as a `403`. | Read the message. It names the fields that were denied. |
 | GraphQL `errors` | Saleor ran the request and reported a problem. The tool call itself succeeds. | Fix the document, or the missing Saleor permission. |
+
+## Authentication Errors
+
+A `401` response carries one of these messages. User OAuth URLs return the same message in the `error_description` of the `WWW-Authenticate` header.
+
+| Message | What to do |
+| --- | --- |
+| Missing MCP access token. | Send the token or key in the `Authorization: Bearer` header. |
+| Invalid MCP access key. | Check that the whole key was copied. If it was lost, create a new one in **Settings → Access keys**. |
+| MCP access key expired. Ask an administrator to create a new access key in the Saleor MCP app. | Create a new key in **Settings → Access keys**. |
+| This MCP access key was revoked or expired. Ask an administrator for a new one. | Create a new key in **Settings → Access keys**. |
+| Invalid or expired MCP access token. | Sign in again from your client. |
+| Could not resolve the Saleor user authorization. Sign in again. | Sign in again from your client. If it happens again, check that your staff account is active. |
+| This MCP access token belongs to another Saleor environment. | Use the MCP URL from the **Connect** page of that environment. |
+| User OAuth access tokens require a tenant-bound MCP resource URL. | Use the MCP URL from the **Connect** page. It includes `saleor_api_url`. |
+| This Saleor MCP installation is no longer active. | The app was uninstalled or reinstalled. Connect again, or create a new key. |
 
 ## Rate Limits and Timeouts
 
