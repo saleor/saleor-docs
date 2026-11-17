@@ -103,7 +103,27 @@ Proxy URL will be constructed using a domain that Saleor is set to run on. This 
 
 ### Using thumbnails in a storefront
 
-To serve thumbnails without paying for a second round of image optimization, see [Storefront integration guidelines](/developer/storefront/guidelines#images).
+Saleor resizes and converts thumbnails, so serve their URLs as they are. An image optimizer such as Next.js `next/image` would process them a second time.
+
+To let the browser pick a size, request several sizes in one query using field aliases, and list the returned URLs in an `<img srcset>`:
+
+```graphql
+query {
+  product(slug: "t-shirt", channel: "default-channel") {
+    thumbnail256: thumbnail(size: 256, format: WEBP) {
+      url
+    }
+    thumbnail512: thumbnail(size: 512, format: WEBP) {
+      url
+    }
+    thumbnail1024: thumbnail(size: 1024, format: WEBP) {
+      url
+    }
+  }
+}
+```
+
+Request every size from the API instead of editing the size in a returned URL. A direct thumbnail URL points to one stored file, so with the size edited it returns 404 unless that size was already generated.
 
 ### Example
 
