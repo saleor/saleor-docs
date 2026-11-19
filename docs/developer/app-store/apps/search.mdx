@@ -7,7 +7,7 @@ sidebar:
 seo:
   title: Search App
   description: Search App
-lastModified: '2026-08-26'
+lastModified: '2026-11-19'
 ---
 
 <Callout type="info">
@@ -16,23 +16,28 @@ Saleor version required: **3.22**. [Repository](https://github.com/saleor/apps/t
 
 </Callout>
 
-The application provides integration with [Algolia](https://www.algolia.com/) search engine. It allows you to index your products, categories, and pages — then search them using Algolia's API.
+The application provides integration with [Algolia](https://www.algolia.com/) search engine. It keeps your products, categories, and pages in Algolia indexes, so your storefront can search them using Algolia's API.
 
 ## Features
 
 - Synchronize products, categories, and pages with Algolia
-- Update Algolia indices on product, category, and page changes
-- Selective page indexing — choose which page types to sync
+- Send changes to Algolia on their own, usually within a minute of the change in Saleor
+- Run full syncs on the server: you can close the app while they run
+- Remove records of deleted or hidden products, categories, and pages when a full sync finishes
+- See the state of syncing in the app: progress of a running full sync, the result of the last one, changes waiting to be sent, and when changes last reached Algolia
+- Selective page indexing: choose which page types to sync
+- Choose which optional fields each record carries, to stay within Algolia's record size limit
 
 ## Assumptions & limitations
 
-- Initial synchronization has to be done manually in the App
+- Records that already exist in Algolia are created by a full sync. Run one for products (and for categories and pages, if you search them) after you connect the app, and again after you change which fields are sent. Changes made in Saleor after that reach Algolia on their own.
 - The application creates a separate record for each product variant
-- A single record size is limited due to [Algolia record size constraint](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/how-to/reducing-object-size/). That means the data attached to your records such as the number of attributes or wrong field filtering configuration in the app settings can lead to exceeding that limitation. In that case, the app cannot store your record.
+- A single record size is limited due to [Algolia record size constraint](https://www.algolia.com/doc/guides/sending-and-managing-data/prepare-your-data/how-to/reducing-object-size/). That means the data attached to your records, such as the number of attributes, can exceed that limit. In that case, the app skips the record and reports an app problem in the Dashboard that names the product variant, category, or page. See [Record size limit exceeded](#record-size-limit-exceeded).
 - Each of the channels is indexed separately
 - At this moment translations are not supported
 - The exact state of the product quantity is not indexed, only the boolean value (in stock / out of stock)
-- Page indexing is selective — you choose which page types to sync. You can disable specific page fields globally to keep records within the size limit.
+- Page indexing is selective: you choose which page types to sync. With no page type selected, pages aren't indexed.
+- The app does not apply index settings (grouping, searchable attributes, faceting) on its own. Apply them once with **Apply recommended settings** in the app. Applying them overwrites the same settings if you changed them in Algolia.
 - The app will synchronize data on the following [events](/developer/extending/webhooks/asynchronous-events):
   - `PRODUCT_CREATED`
   - `PRODUCT_UPDATED`
@@ -42,6 +47,7 @@ The application provides integration with [Algolia](https://www.algolia.com/) se
   - `PRODUCT_VARIANT_DELETED`
   - `PRODUCT_VARIANT_OUT_OF_STOCK`
   - `PRODUCT_VARIANT_BACK_IN_STOCK`
+  - `PRODUCT_VARIANT_DISCOUNTED_PRICE_UPDATED` (a feature preview event: it keeps discounted prices current when a promotion starts or ends)
   - `CATEGORY_CREATED`
   - `CATEGORY_UPDATED`
   - `CATEGORY_DELETED`
@@ -62,6 +68,8 @@ The application provides integration with [Algolia](https://www.algolia.com/) se
 
 ## Application flow
 
+Webhooks only tell the app what changed. The app then reads the current state from Saleor and writes it to Algolia. Changes to the same product that arrive close together are sent once.
+
 ```mermaid
 sequenceDiagram
     participant Saleor
@@ -69,35 +77,42 @@ sequenceDiagram
     participant Algolia API
     participant Storefront
 
-
-    alt Initial synchronization
-        Note over Search App: Staff user initializes synchronization in the Dashboard
-
-        Search App->>+Saleor: Get Products, Categories, and Pages data
-        Saleor-->>-Search App: GraphQL response
-        Search App->>Search App: Transform data to Algolia format
-        Search App->>+Algolia API: Records with product, category, and page data
-        Algolia API-->>-Search App: Confirmation
-    end
-
-    alt Updating index on changes
-        Note over Saleor: Products, categories, or pages in the Saleor Instance changed
+    alt Updating indexes on changes
+        Note over Saleor: Products, categories, or pages change
 
         Saleor->>+Search App: Webhook: product/category/page changed
-        Search App->>Search App: Transform data to Algolia format
-        Search App->>+Algolia API: Updated records
+        Search App->>Search App: Record what changed
+        Search App-->>-Saleor: Accepted
+
+        Note over Search App: About once a minute
+        Search App->>+Saleor: Get the current state of changed items
+        Saleor-->>-Search App: GraphQL response
+        Search App->>+Algolia API: Updated or deleted records
         Algolia API-->>-Search App: Confirmation
-        Search App-->>-Saleor: Index updated
     end
 
-    alt Making queries to the Algolia
+    alt Full sync
+        Note over Search App: Staff user starts a full sync in the app
+
+        loop Page by page, on the server
+            Search App->>+Saleor: Get the next page of products, categories, or pages
+            Saleor-->>-Search App: GraphQL response
+            Search App->>+Algolia API: Records
+            Algolia API-->>-Search App: Confirmation
+        end
+        Search App->>+Algolia API: Delete records this sync didn't write
+        Algolia API-->>-Search App: Confirmation
+    end
+
+    alt Making queries to Algolia
         Note over Storefront: User searches the storefront
 
         Storefront->>+Algolia API: Search request (products, categories, or pages)
         Algolia API-->>-Storefront: Search results
     end
-
 ```
+
+While a full sync runs, changes made in Saleor wait and are sent after it finishes, so they always land last.
 
 ## Pre-requisites
 
@@ -108,37 +123,59 @@ If you have installed the app before indexing pages and categories have been int
 
 ## Configuration
 
-- Go to [API Keys](https://dashboard.algolia.com/account/api-keys/all) section in the Algolia dashboard to obtain API credentials
-- Go to the Search App dashboard and fill required fields:
-  - Application ID
-  - Admin API Key
-  - Index name prefix is optional, but recommended if you want to use the same Algolia account for multiple Saleor instances
-- Click `Save`
+All settings are on one page in the app. Settings in every section apply to the whole store, not to a single channel. A section menu on the left takes you to each section, and the bar at the bottom saves all changes at once and lists the sections you changed.
 
-The application is now connected to your Algolia account. You can start synchronizing your data:
+### Connect Algolia
 
-- Click on the `Start importing` button to bulk-import products, categories, and pages
-- Wait for the synchronization to finish.
-- After the process is finished, apply recommended settings to the indices using the `Update indices configuration` button in the `Set indices settings` section
+1. In the Algolia dashboard, go to [API Keys](https://dashboard.algolia.com/account/api-keys/all). Copy the **Application ID** and an API key that can write records: it needs the `addObject`, `deleteObject`, `browse`, `listIndexes`, and `editSettings` permissions. The Admin API Key has them. Don't use the Search-Only API Key.
+2. In the Search App, fill in the **Algolia connection** section:
+   - **Application ID**
+   - **Write API Key**
+   - **Index name prefix** (optional). Recommended if you use the same Algolia application for several Saleor instances, for example `staging` and `production`.
+3. Click **Save**. The app checks the keys with Algolia before saving them, and turns on its webhooks.
 
-:::caution[Synchronization **works on the frontend side**, which means the App **must remain open** during this operation.]
-In large shops, this operation can take a few seconds.
+After the keys are saved, the app doesn't show them again: the key field shows only the last four characters of the saved key. To replace the key, type a new one and save. To keep it, leave the field empty. **Test connection** checks whether Algolia still accepts the saved keys.
 
-:::
+Until the first full product sync finishes, a setup checklist at the top of the page shows what is left to do.
 
-The application should now be configured and synchronized. You can start making queries using the Algolia API or browse the data in the Algolia dashboard. Changes to products, categories, and pages will be automatically synchronized via webhooks.
+### Run the first full sync
 
-### Page type selection
+In the **Sync** section, click **Full sync** next to **Products**. Do the same for **Categories** and **Pages** if your storefront searches them. Full syncs run on the server, so you can close the app. Each row shows:
 
-Not every page belongs in search results. In the App configuration, you can select which **page types** should be indexed. Only pages of the selected types will be synced to Algolia.
+- **Queued** until the sync starts, then **Syncing** with the number of products, categories, or pages written so far
+- When the last full sync finished and how many items it wrote, or that it failed
 
-To keep records lean, you can disable the `attributes`, `metadata`, `seoDescription`, or `contentPlaintext` fields globally for page records in the `Algolia fields filtering` section.
+When a full sync finishes, it deletes records the sync didn't write: products, categories, and pages that were deleted or hidden in Saleor, and records left from before. A full sync that fails 5 times in a row stops and reports an app problem. Changes made in Saleor still sync in the meantime. Start it again once the cause is fixed.
+
+Below the rows, **Waiting changes** shows how many changed items wait to be sent (above 1,000 it shows "1,000+"), and **Last update sent** shows when changes last reached Algolia.
+
+### Apply recommended index settings
+
+In the **Index settings** section, click **Apply recommended settings**. This sets up the product indexes to:
+
+- Group variants of one product into a single result (distinct on `productId`). See [Grouping results](#grouping-results).
+- Search name, description, category, and collections
+- Filter by category, collection, price, product type, stock, and attributes
+
+Applying them overwrites the same settings if you changed them in Algolia.
+
+The application is now configured and synchronized. You can start making queries using the Algolia API or browse the data in the Algolia dashboard.
 
 ### Fields configuration
 
-Due to performance reasons, Algolia enforces a limit on the maximum size of the record. This means that not all data can be indexed. The application allows you to configure which fields should be used.
+Algolia limits the size of a single record, so not all data fits. In the **Product records** section, choose which optional fields each product variant record carries. The section shows how many of them are sent. Name, SKU, prices, stock, availability, and thumbnail are always sent.
 
-The configuration is done in the `Algolia fields filtering` section of the App dashboard. By default, all are enabled. You can disable fields that you don't need in your search (for example product metadata or descriptions).
+By default, all optional fields are enabled. Turn off fields your storefront doesn't search or filter by, for example product metadata or descriptions.
+
+Records already in Algolia keep their old fields until a full sync rewrites them. After you save a change that affects records (fields, page types, the Algolia application, or the index prefix), the bar at the bottom suggests the full syncs that update existing records. The app doesn't start them on its own: click **Run full sync**, or **Not now** to run them later from the **Sync** section.
+
+### Page type selection
+
+Not every page belongs in search results. In the **Pages** section, select which **page types** to index. Only pages of the selected types are synced to Algolia. With no type selected, pages aren't indexed.
+
+To keep page records lean, you can turn off the `attributes`, `metadata`, `seoDescription`, or `contentPlaintext` fields for all page records under **Page fields** in the same section.
+
+Indexing pages requires the `MANAGE_PAGES` permission. If you installed the app before page indexing was introduced, reinstall the app to grant it.
 
 ## Data model
 
@@ -200,9 +237,9 @@ Categories are stored in a dedicated index with the following fields:
 
 ### Page records
 
-Pages are stored in a dedicated index. You choose which **page types** to sync in the App configuration — only pages of the selected types will be indexed.
+Pages are stored in a dedicated index. You choose which **page types** to sync in the **Pages** section. Only pages of the selected types are indexed.
 
-To keep records within the Algolia size limit, you can disable the `attributes`, `metadata`, `seoDescription`, or `contentPlaintext` fields globally for page records in the `Algolia fields filtering` section. The exact set of indexed fields depends on your configuration.
+To keep records within the Algolia size limit, you can turn off the `attributes`, `metadata`, `seoDescription`, or `contentPlaintext` fields for all page records under **Page fields**. The exact set of indexed fields depends on your configuration.
 
 Every page record includes a `_type` field set to `"page"` and a `pageTypeId` field (used for faceting), so you can distinguish page results and filter by page type in your storefront.
 
@@ -330,24 +367,39 @@ Examples of building interfaces with faceting can be found in the [Inspiration L
 
 ### Record size limit exceeded
 
-If you see an error like this in your Saleor Dashboard webhook deliveries:
+If the app can't store a record because it's too large, it skips that record and reports an app problem in the Saleor Dashboard, for example:
 
 ```
-Product variant UHJvZHVjdFZhcmlhbnQ6MTIz exceeds Algolia's record size limit (10KB).
-Current size: 15000 bytes, limit: 10000 bytes.
+Product variant UHJvZHVjdFZhcmlhbnQ6MTIz exceeds Algolia's record size limit.
 ```
 
 **Cause**: Algolia enforces a maximum record size of 10KB (or more depending on your plan). Products with large descriptions, many attributes, or extensive metadata can exceed this limit. Pages with heavy content blocks can also hit this limit.
 
-**Solution**: Go to Search App settings in Saleor Dashboard and disable fields you don't need in the "Algolia fields filtering" section:
+**Solution**: In the Search App, turn off fields you don't need in the **Product records** section:
 
 - `description` / `descriptionPlaintext` - often the largest fields, especially for products with rich HTML content
 - `metadata` / `variantMetadata` - can contain large amounts of custom data
 - `media` - if you don't need media URLs in search results
 
-For pages, you can disable the `attributes`, `metadata`, `seoDescription`, or `contentPlaintext` fields globally in the same `Algolia fields filtering` section.
+For pages, turn off the `attributes`, `metadata`, `seoDescription`, or `contentPlaintext` fields under **Page fields** in the **Pages** section.
+
+Then run a full sync so the skipped records are written with the smaller field set.
 
 **Alternative**: If you still need a searchable description, create a shorter product attribute (e.g., `algoliaDescription`) with a condensed version of your description. Product attributes are automatically synced to Algolia and can be used for search.
+
+### Live updates are off
+
+If the **Sync** section shows **Live updates off**, Saleor has turned off the app's webhooks, usually after repeated delivery failures, for example after the Algolia key was revoked. Changes in Saleor don't reach Algolia until the webhooks are back on.
+
+Fix the cause first: if the key changed, save the new one in the **Algolia connection** section, which also turns the webhooks back on. Otherwise click **Turn back on**. Then run a full sync to catch up on changes made while the webhooks were off.
+
+### Invalid Algolia credentials
+
+If Algolia rejects the saved keys, or the Application ID doesn't exist, the app reports an app problem and is deactivated. Changes it had already recorded are kept and sent once it works again. Save valid keys in the **Algolia connection** section, activate the app again in the Dashboard, and run a full sync to catch up on changes made while it was deactivated. **Test connection** shows whether Algolia accepts the saved keys.
+
+### A full sync failed
+
+If a full sync fails 5 times in a row, for example because Algolia is unreachable or the plan's limits are exceeded, it stops and the app reports an app problem. Some items may be missing or outdated in search, but changes made in Saleor still sync. Check that Algolia is reachable and its limits aren't exceeded, then start the full sync again in the **Sync** section. The problem clears when that sync finishes.
 
 ## Development
 
