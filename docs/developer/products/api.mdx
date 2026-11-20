@@ -680,9 +680,20 @@ query ProductVariant($id: ID, $channel: String, $address: AddressInput) {
 
 A warehouse is chosen based on the argument `address`. If the argument is omitted, API will return the highest available quantity.
 
-:::note[To avoid leaking precise stock information, the `quantityAvailable` field will not be greater than the maximum orderable threshold ]
-which can be configured through the mutation [`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update).
+:::note[To avoid leaking precise stock information, the `quantityAvailable` field will not be greater than `Shop.limitQuantityPerCheckout`.]
+It doesn't apply the variant's own limit. See [checkout quantity limits](#checkout-quantity-limits).
 :::
+
+### Checkout quantity limits
+
+Two settings limit how many units of one variant a single checkout can contain:
+
+- [`Shop.limitQuantityPerCheckout`](/api-reference/miscellaneous/objects/shop#limit-quantity-per-checkout) applies to every variant. Set it with [`shopSettingsUpdate`](/api-reference/shop/mutations/shop-settings-update).
+- [`ProductVariant.quantityLimitPerCustomer`](/api-reference/products/objects/product-variant#quantity-limit-per-customer) applies to one variant and replaces the shop limit for it. It can be lower or higher than the shop limit.
+
+Both limits count units in one checkout. They don't stop a customer from placing several orders. [`checkoutCreate`](/api-reference/checkout/mutations/checkout-create), [`checkoutLinesAdd`](/api-reference/checkout/mutations/checkout-lines-add), and [`checkoutLinesUpdate`](/api-reference/checkout/mutations/checkout-lines-update) return the [`QUANTITY_GREATER_THAN_LIMIT`](/api-reference/checkout/enums/checkout-error-code#quantity-greater-than-limit) error when a quantity exceeds the limit.
+
+`quantityAvailable` applies only `Shop.limitQuantityPerCheckout`, which storefronts can't query because it requires the `MANAGE_SETTINGS` permission. For a quantity selector, use the lower of `quantityAvailable` and `quantityLimitPerCustomer`.
 
 ## Stock quantities
 
@@ -751,9 +762,10 @@ query ProductVariant($id: ID, $channel: String) {
 </Tab>
 </Tabs>
 
-- The `quantityAvailable` is a sum of stock quantities from all available stocks.
+- The `quantityAvailable` is the sum of stock quantities from all available stocks, minus allocated and, when enabled,
+  [reserved](/developer/stock/stock-reservation) quantities.
   In this case, the sum is higher than the `Shop.limitQuantityPerCheckout`, so the maximum
-  value of 50 products is returned.
+  value of 50 products is returned. Below that limit, the exact quantity is returned.
 - `stocks` contain a full list of stock quantities in each warehouse.
 
 :::note[When the product has the track inventory turned off, the `quantityAvailable` will always]
