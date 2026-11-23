@@ -16,7 +16,10 @@ Navigation is configured in `config/navigation.json` and the `meta.ts` files alo
 
 ## Checks and builds
 
+`pnpm prettier` formats the repository. CI runs `pnpm check:prettier` and fails on unformatted files.
+
 ```sh
+pnpm check:prettier
 pnpm knip
 pnpm test
 pnpm validate
