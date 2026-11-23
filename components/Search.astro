@@ -1,10 +1,11 @@
 ---
-// Generated from Blume 2.0.3 by scripts/prepare-search.mjs; preserves its native UI.
+// Generated from Blume 2.2.7 by scripts/prepare-search.mjs; preserves its native UI.
 import data from "blume:data";
 
 import { EN_UI } from "../node_modules/blume/src/core/i18n-ui.ts";
 import type { UIStrings } from "../node_modules/blume/src/core/i18n-ui.ts";
 import type { Navigation } from "../node_modules/blume/src/core/types.ts";
+import { scopesLocales } from "../node_modules/blume/src/search/adapters/locale-scope.ts";
 import { scopesVersions } from "../node_modules/blume/src/search/adapters/version-scope.ts";
 import { resolvePopularIconMarkup } from "../node_modules/blume/src/search/popular-icon.ts";
 import Icon from "../node_modules/blume/src/components/Icon.astro";
@@ -37,9 +38,15 @@ const {
   navigation,
   popularPages,
   strings,
-  locale,
+  locale: viewedLocale,
   version: viewedVersion = null,
 } = Astro.props;
+// Mixedbread searches every language whatever the dialog asks, so on it an
+// "All languages" toggle would change nothing: treat the site as
+// single-language for search instead.
+const locale = scopesLocales(data.config.search.provider)
+  ? viewedLocale
+  : undefined;
 // Pagefind, Orama Cloud, and Mixedbread search every version whatever the
 // dialog asks, so on those an "All versions" toggle would change nothing:
 // treat the site as unversioned for search instead.
@@ -91,26 +98,23 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
   data-i18n-popular={s.popular}
   data-i18n-results={s.results}
   data-locale={locale || undefined}
+  data-redact-queries={data.config.search.analytics.queries ? undefined : ""}
   data-version={version ?? undefined}
   data-versioned={version === null ? undefined : ""}
 >
-  {/* The label and shortcut hint wait until `lg`: below it the hamburger and
-      inline tab bar share the header row, and a full-width search field would
-      press into the language switcher. */}
+  {/* An icon button like the theme toggle beside it, named with its shortcut
+      by the header's tooltip. The chord reads left to right in every locale
+      ("⌘K", never "K⌘"), and the script swaps in Ctrl off Apple devices. */}
   <button
+    aria-keyshortcuts="Meta+K Control+K"
     aria-label={s.button}
-    class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-border bg-background px-3 text-muted-foreground text-sm transition-colors hover:border-foreground hover:text-foreground lg:min-w-40"
+    class="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     data-blume-search-open
+    data-blume-tooltip={`${s.button} (\u2066⌘K\u2069)`}
+    data-label={s.button}
     type="button"
   >
-    <Icon name="search" size={16} />
-    <span class="flex-1 text-start max-lg:hidden">{s.button}</span>
-    {/* A key chord reads left to right in every locale ("⌘K", never "K⌘"). */}
-    <kbd
-      class="font-mono text-[0.7rem] max-lg:hidden"
-      data-blume-search-kbd
-      dir="ltr">⌘K</kbd
-    >
+    <Icon name="search" size={18} />
   </button>
 
   <dialog
@@ -244,6 +248,9 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
     import { mountBase } from "../node_modules/blume/src/components/islands/base-path.ts";
     import { escapeHtml } from "../search/engine.mjs";
 
+    import { track } from "../node_modules/blume/src/components/layout/analytics-client.ts";
+    import { createSearchTracker } from "../node_modules/blume/src/components/layout/search/analytics.ts";
+    import type { SearchTracker } from "../node_modules/blume/src/components/layout/search/analytics.ts";
     import { highlight, matchSnippet } from "../node_modules/blume/src/components/layout/search/types.ts";
     import type { SearchFn, SearchHit } from "../node_modules/blume/src/components/layout/search/types.ts";
 
@@ -310,7 +317,8 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
       searchClient ??= (async () => {
         try {
           const { createSearch } = await import("../search/client.mjs");
-          return await createSearch();
+          // The reader types each query, so each supersedes the last.
+          return await createSearch({ typing: true });
         } catch (error) {
           searchClient = undefined;
           throw error;
@@ -328,6 +336,8 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
       message!: HTMLElement;
       preview!: HTMLElement;
       searchFn: SearchFn | null = null;
+      /** Records settled queries and picked results (search/analytics.ts). */
+      tracker!: SearchTracker;
       loaded = false;
       loadFailed = false;
       /** First-open client/index load still in flight. */
@@ -423,6 +433,10 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
         this.message = this.querySelector("[data-blume-search-message]")!;
         this.preview = this.querySelector("[data-blume-search-preview]")!;
         this.assistantEnabled = this.hasAttribute("data-ask");
+        // `search.analytics.queries: false` keeps query text off providers.
+        this.tracker = createSearchTracker(track, {
+          queries: !this.hasAttribute("data-redact-queries"),
+        });
 
         const popularScript = this.querySelector(
           "[data-blume-search-popular]"
@@ -474,11 +488,13 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
         }
 
         // The handlers accept both ⌘ and Ctrl chords; show the right modifier
-        // per platform on the button hint and the footer's preview hint.
+        // per platform in the button's tooltip and the footer's preview hint.
         const isApple = /mac|iphone|ipad|ipod/iu.test(navigator.platform);
-        const hint = this.querySelector("[data-blume-search-kbd]");
-        if (hint) {
-          hint.textContent = isApple ? "⌘K" : "Ctrl K";
+        const trigger = this.querySelector<HTMLElement>(
+          "[data-blume-search-open]"
+        );
+        if (trigger && !isApple) {
+          trigger.dataset.blumeTooltip = `${trigger.dataset.label ?? ""} (\u2066Ctrl K\u2069)`;
         }
         const previewHint = this.querySelector(
           "[data-blume-search-preview-kbd]"
@@ -498,7 +514,10 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
         this.dialog.addEventListener("keydown", (event) =>
           this.onKeydown(event)
         );
-        this.dialog.addEventListener("close", () => this.unlockPageScroll());
+        this.dialog.addEventListener("close", () => {
+          this.unlockPageScroll();
+          this.tracker.closed();
+        });
         this.dialog.addEventListener("click", (event) => {
           if (event.target === this.dialog) {
             this.dialog.close();
@@ -683,6 +702,7 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
           this.setMessage(this.noResultsMsg);
         }
 
+        this.tracker.settled(query, result.hits.length);
         this.finishRender();
       }
 
@@ -906,6 +926,14 @@ const kbd = "rounded border border-border bg-muted px-1 py-0.5 font-mono";
             new CustomEvent("blume:open-assistant", { detail: { query } })
           );
         } else if (item.url) {
+          if (item.hit) {
+            const hits = this.selectables.filter((row) => row.hit);
+            this.tracker.selected(
+              this.input.value.trim(),
+              hits.indexOf(item) + 1,
+              item.url
+            );
+          }
           // Close first so the dialog isn't left open over the transition;
           // navigate() rides the client router (and falls back to a normal
           // full load on pages without it).
