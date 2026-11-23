@@ -1,7 +1,8 @@
 // Vercel supplies hostnames; verification builds can supply a complete local URL.
-const origin = (value) => value
-  ? new URL(value.includes("://") ? value : `https://${value}`).origin
-  : undefined;
+const origin = (value) =>
+  value
+    ? new URL(value.includes("://") ? value : `https://${value}`).origin
+    : undefined;
 
 export function resolveSiteUrls(env = process.env) {
   const local = "http://localhost:4321";
@@ -10,8 +11,10 @@ export function resolveSiteUrls(env = process.env) {
   const canonical = production || deployment || local;
   return {
     canonical,
-    deployment: (env.VERCEL_ENV === "production" ? production || deployment : deployment || production) ||
-      local,
+    deployment:
+      (env.VERCEL_ENV === "production"
+        ? production || deployment
+        : deployment || production) || local,
   };
 }
 

@@ -30,6 +30,7 @@ pnpm dlx @saleor/configurator introspect --url=$SALEOR_URL --token=$SALEOR_TOKEN
 ```
 
 Use this to:
+
 - Bootstrap `config.yml` from an existing store
 - Sync after manual changes in the Saleor Dashboard
 - Reset local config to match remote state
@@ -44,6 +45,7 @@ pnpm dlx @saleor/configurator deploy --url=$SALEOR_URL --token=$SALEOR_TOKEN
 ```
 
 **Output**:
+
 - Console: deployment summary box with timing, changes, and resilience stats
 - Report file: auto-saved as `deployment-report-YYYY-MM-DD_HH-MM-SS.json` in CWD
 - Use `--report-path=custom.json` to control report location
@@ -58,6 +60,7 @@ pnpm dlx @saleor/configurator diff --url=$SALEOR_URL --token=$SALEOR_TOKEN
 ```
 
 Use this to:
+
 - Preview changes before deploying
 - Verify a deploy was idempotent (diff should show no changes after deploy)
 - Debug unexpected state differences
@@ -90,25 +93,25 @@ pnpm dlx @saleor/configurator deploy --exclude=products
 
 ## Useful Flags
 
-| Flag | Command | Purpose |
-| ---- | ------- | ------- |
-| `--url` | all | Saleor GraphQL endpoint URL |
-| `--token` | all | API token with required permissions |
-| `--report-path` | deploy | Custom path for deployment report JSON |
-| `--include=a,b` | deploy | Only deploy listed entity types |
-| `--exclude=a,b` | deploy | Skip listed entity types |
+| Flag            | Command | Purpose                                |
+| --------------- | ------- | -------------------------------------- |
+| `--url`         | all     | Saleor GraphQL endpoint URL            |
+| `--token`       | all     | API token with required permissions    |
+| `--report-path` | deploy  | Custom path for deployment report JSON |
+| `--include=a,b` | deploy  | Only deploy listed entity types        |
+| `--exclude=a,b` | deploy  | Skip listed entity types               |
 
 ## Environment Variables
 
-| Variable | Purpose |
-| -------- | ------- |
-| `SALEOR_URL` | Saleor GraphQL endpoint |
-| `SALEOR_TOKEN` | API authentication token |
-| `LOG_LEVEL` | Logging verbosity (`info`, `debug`) |
-| `GRAPHQL_GOVERNOR_ENABLED` | Enable/disable request rate governor |
-| `GRAPHQL_MAX_CONCURRENCY` | Max concurrent GraphQL requests (default: 4) |
-| `GRAPHQL_INTERVAL_CAP` | Max requests per interval (default: 20) |
-| `GRAPHQL_INTERVAL_MS` | Interval window in ms (default: 1000) |
+| Variable                   | Purpose                                      |
+| -------------------------- | -------------------------------------------- |
+| `SALEOR_URL`               | Saleor GraphQL endpoint                      |
+| `SALEOR_TOKEN`             | API authentication token                     |
+| `LOG_LEVEL`                | Logging verbosity (`info`, `debug`)          |
+| `GRAPHQL_GOVERNOR_ENABLED` | Enable/disable request rate governor         |
+| `GRAPHQL_MAX_CONCURRENCY`  | Max concurrent GraphQL requests (default: 4) |
+| `GRAPHQL_INTERVAL_CAP`     | Max requests per interval (default: 20)      |
+| `GRAPHQL_INTERVAL_MS`      | Interval window in ms (default: 1000)        |
 
 ## Recommended Workflow
 

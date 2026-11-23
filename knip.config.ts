@@ -13,7 +13,14 @@ const config: KnipConfig = {
     // Loaded on demand inside the generated Astro search component.
     "search/client.mjs",
   ],
-  project: ["*.ts", "components/**/*.{astro,ts,tsx,mjs}", "pages/**/*.astro", "scripts/**/*.mjs", "search/**/*.mjs", "tests/**/*.mjs"],
+  project: [
+    "*.ts",
+    "components/**/*.{astro,ts,tsx,mjs}",
+    "pages/**/*.astro",
+    "scripts/**/*.mjs",
+    "search/**/*.mjs",
+    "tests/**/*.mjs",
+  ],
 };
 
 export default config;

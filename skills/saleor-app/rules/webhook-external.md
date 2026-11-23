@@ -27,7 +27,10 @@ export async function handleStripeWebhook(request: Request) {
   if (!authData) return new Response("Unknown tenant", { status: 401 });
 
   // Verify Stripe signature using per-tenant secret
-  const secret = await settingsManager.get("stripe_webhook_secret", saleorApiUrl);
+  const secret = await settingsManager.get(
+    "stripe_webhook_secret",
+    saleorApiUrl,
+  );
   verifyStripeSignature(request, secret);
 
   // Use authData.token to call Saleor GraphQL API

@@ -29,15 +29,15 @@ Framework-agnostic protocol documentation with Next.js examples using `@saleor/a
 
 ## Rule Categories by Priority
 
-| Priority | Category        | Impact   | Prefix          |
-| -------- | --------------- | -------- | --------------- |
-| 1        | Protocol        | CRITICAL | `protocol-`     |
-| 2        | Permissions     | CRITICAL | `permissions-`  |
-| 3        | Payment Apps    | CRITICAL | `payment-`      |
-| 4        | Webhooks        | HIGH     | `webhook-`      |
-| 5        | Data & Settings | HIGH     | `data-`         |
-| 6        | Dashboard UI    | MEDIUM   | `dashboard-`    |
-| 7        | Development     | MEDIUM   | `dev-`          |
+| Priority | Category        | Impact   | Prefix         |
+| -------- | --------------- | -------- | -------------- |
+| 1        | Protocol        | CRITICAL | `protocol-`    |
+| 2        | Permissions     | CRITICAL | `permissions-` |
+| 3        | Payment Apps    | CRITICAL | `payment-`     |
+| 4        | Webhooks        | HIGH     | `webhook-`     |
+| 5        | Data & Settings | HIGH     | `data-`        |
+| 6        | Dashboard UI    | MEDIUM   | `dashboard-`   |
+| 7        | Development     | MEDIUM   | `dev-`         |
 
 ## Quick Reference
 

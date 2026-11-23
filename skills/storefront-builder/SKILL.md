@@ -48,6 +48,7 @@ Connect an existing project to Saleor's GraphQL API with correct client separati
 Ask the user:
 
 > "Do you have a Saleor instance ready?
+>
 > - **No** — create one at https://cloud.saleor.io/ (free tier available), then come back with the API URL.
 > - **Yes** — paste your storefront/API URL and we'll get started."
 
@@ -90,9 +91,11 @@ When running `/storefront-builder`, execute only the requested step, then stop a
 ## Saleor rules
 
 <!-- include if .agent-skills/saleor-storefront/ exists -->
+
 @.agent-skills/saleor-storefront/AGENTS.md
 
 <!-- include if .agent-skills/saleor-configurator/ exists -->
+
 @.agent-skills/saleor-configurator/AGENTS.md
 ```
 
@@ -137,6 +140,7 @@ The auth client should only include the `Authorization` header when the token en
 Determine the env variable naming convention from the project (e.g. Next.js uses `NEXT_PUBLIC_*` for browser-accessible vars, Nuxt uses `NUXT_PUBLIC_*`, etc.).
 
 Required variables:
+
 - `[PUBLIC_PREFIX]_SALEOR_API_URL` — Saleor GraphQL endpoint
 - `[PUBLIC_PREFIX]_SALEOR_CHANNEL` — default channel slug
 - `SALEOR_APP_TOKEN` (no public prefix — server-side only)
@@ -190,6 +194,7 @@ Define the visual identity of the storefront before writing any UI code. The out
 ### 1. Inspect the project's styling setup
 
 Read the project to determine:
+
 - CSS framework in use (Tailwind, CSS Modules, styled-components, UnoCSS, vanilla CSS, etc.)
 - Existing design token conventions (CSS custom properties, a `theme.*` file, Tailwind config, etc.)
 - Where shared styles live
@@ -215,12 +220,14 @@ Determine values for: background, surface, border, text primary, text secondary,
 ### 4. Write theme tokens
 
 Write a theme module in a location consistent with the project's conventions. Include a comment block capturing:
+
 - Style preset name
 - Reference (if any)
 - Accent rationale
 - Typography choice
 
 Wire the tokens into the project's styling system following local conventions:
+
 - **Tailwind**: extend `tailwind.config.*` with the token values
 - **CSS custom properties**: write to the project's global CSS file
 - **Other**: follow what's already in use
@@ -292,6 +299,7 @@ fragment ProductCard on Product {
 ```
 
 **Why these fields:**
+
 - `thumbnail` is nullable — always guard with a fallback image or placeholder
 - `pricing.priceRange.start` is nullable — guard before rendering price
 - `category` is nullable — guard before rendering category label
@@ -363,6 +371,7 @@ fragment ProductDetails on Product {
 ```
 
 **Why these fields:**
+
 - `media` array preferred over `thumbnail` on PDP — use `thumbnail` as fallback when `media` is empty
 - `variants.pricing` is nullable — guard before accessing `amount`
 - `quantityAvailable` is nullable for anonymous users — treat `null` as in-stock (behave as if 1 available)
@@ -407,11 +416,14 @@ Saleor stores `description` as EditorJS JSON. Never render it raw. Parse safely:
 ```typescript
 function extractDescriptionText(description: unknown): string {
   try {
-    const parsed = typeof description === "string" ? JSON.parse(description) : description;
-    return parsed?.blocks
-      ?.map((b: { data?: { text?: string } }) => b.data?.text ?? "")
-      .filter(Boolean)
-      .join(" ") ?? "";
+    const parsed =
+      typeof description === "string" ? JSON.parse(description) : description;
+    return (
+      parsed?.blocks
+        ?.map((b: { data?: { text?: string } }) => b.data?.text ?? "")
+        .filter(Boolean)
+        .join(" ") ?? ""
+    );
   } catch {
     return "";
   }
@@ -424,7 +436,10 @@ Always use `Intl.NumberFormat` with the currency from the response — never har
 
 ```typescript
 function formatPrice(amount: number, currency: string) {
-  return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amount);
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency,
+  }).format(amount);
 }
 ```
 
@@ -480,6 +495,7 @@ Apply all data handling rules from section 2.
 Write a `VariantSelector` component in the project's component directory. It must be client-interactive (use whatever interactivity primitive the framework provides — React state, Vue `ref`, Svelte store, etc.).
 
 Behaviour:
+
 - Shows all variants; disables out-of-stock ones (do not hide them)
 - Highlights selected variant
 - Updates displayed price when a variant is selected (variant `pricing.price` takes precedence)
@@ -492,6 +508,7 @@ Behaviour:
 Start the dev server using the project's dev command. Direct the user to the product list and a PDP URL to confirm data loads correctly.
 
 Common issues:
+
 - **Empty list**: wrong channel slug or products not published in that channel — suggest running `configurator introspect` to inspect the store
 - **Codegen errors**: API URL not set or unreachable
 - **Product not found on every slug**: channel mismatch or product unpublished in that channel

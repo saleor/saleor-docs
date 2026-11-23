@@ -3,7 +3,9 @@
 // in schema/releases.json so new rules can be applied without another fetch.
 const proseRules = [
   function removeWhatsChangedHeading(line) {
-    return /^ {0,3}#{1,6}[ \t]+what['’]s changed(?:[ \t]+#+)?[ \t]*$/i.test(line)
+    return /^ {0,3}#{1,6}[ \t]+what['’]s changed(?:[ \t]+#+)?[ \t]*$/i.test(
+      line,
+    )
       ? null
       : line;
   },
@@ -23,7 +25,12 @@ export function transformReleaseNotes(markdown) {
   for (const line of markdown.replaceAll("\r\n", "\n").split("\n")) {
     if (fence) {
       const closing = line.match(/^ {0,3}(`{3,}|~{3,})[ \t]*$/);
-      if (closing && closing[1][0] === fence[0] && closing[1].length >= fence.length) fence = null;
+      if (
+        closing &&
+        closing[1][0] === fence[0] &&
+        closing[1].length >= fence.length
+      )
+        fence = null;
       output.push(line);
       continue;
     }

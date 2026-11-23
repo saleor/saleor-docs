@@ -22,7 +22,7 @@ This file is generated via API introspection, so it always matches your exact Sa
 
 ## Step 3: Check Saleor Source for Behavior
 
-Types tell you *what* fields exist. For *how* they behave (permission checks, filtering logic, side effects), check the Saleor core source.
+Types tell you _what_ fields exist. For _how_ they behave (permission checks, filtering logic, side effects), check the Saleor core source.
 
 If the Saleor core repo is available locally (e.g. `../saleor/`), or clone it:
 

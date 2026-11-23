@@ -39,10 +39,10 @@ Dashboard gotchas.
 
 ## Rule Categories
 
-| Priority | Category   | Impact   | Prefix       |
-| -------- | ---------- | -------- | ------------ |
-| 1        | Discounts  | CRITICAL | `discount-`  |
-| 2        | Stock      | CRITICAL | `stock-`     |
+| Priority | Category  | Impact   | Prefix      |
+| -------- | --------- | -------- | ----------- |
+| 1        | Discounts | CRITICAL | `discount-` |
+| 2        | Stock     | CRITICAL | `stock-`    |
 
 ## Quick Reference
 

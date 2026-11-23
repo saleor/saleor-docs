@@ -51,7 +51,10 @@ subscription OrderCreated {
         number
         userEmail
         total {
-          gross { amount currency }
+          gross {
+            amount
+            currency
+          }
         }
       }
     }
@@ -129,7 +132,8 @@ export async function handleWebhook(request: Request) {
   const signature = request.headers.get("saleor-signature");
   const saleorApiUrl = request.headers.get("saleor-api-url");
 
-  if (event !== "order_created") return new Response("Wrong event", { status: 400 });
+  if (event !== "order_created")
+    return new Response("Wrong event", { status: 400 });
 
   const authData = await myApl.get(saleorApiUrl);
   if (!authData) return new Response("Not registered", { status: 401 });

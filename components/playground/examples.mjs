@@ -1,7 +1,8 @@
 export const examples = {
   "products-filtered": {
     title: "Fetch products",
-    description: "Filter products by price in your channel. Replace default-channel in Variables with a channel slug from your store.",
+    description:
+      "Filter products by price in your channel. Replace default-channel in Variables with a channel slug from your store.",
     query: `query ProductsByPrice($channel: String!) {
   products(
     first: 10
@@ -21,7 +22,8 @@ export const examples = {
   },
   products: {
     title: "Find products in your sandbox",
-    description: "Use your channel slug to fetch products and their variant IDs. No token is needed for a public channel.",
+    description:
+      "Use your channel slug to fetch products and their variant IDs. No token is needed for a public channel.",
     query: `query Products($channel: String!) {
   products(first: 5, channel: $channel) {
     edges {
@@ -37,7 +39,8 @@ export const examples = {
   },
   shop: {
     title: "Read your shop name",
-    description: "A small public query to check your connection. No token is needed.",
+    description:
+      "A small public query to check your connection. No token is needed.",
     query: `query ShopName {
   shop { name }
 }`,
@@ -45,18 +48,25 @@ export const examples = {
   },
   "checkout-create": {
     title: "Create a checkout in your sandbox",
-    description: "Replace the variant ID with one from your sandbox and use its channel slug. This creates a checkout; it does not place an order or charge a payment.",
+    description:
+      "Replace the variant ID with one from your sandbox and use its channel slug. This creates a checkout; it does not place an order or charge a payment.",
     query: `mutation CreateCheckout($input: CheckoutCreateInput!) {
   checkoutCreate(input: $input) {
     checkout { id }
     errors { field code message }
   }
 }`,
-    variables: { input: { channel: "default-channel", lines: [{ variantId: "REPLACE_WITH_YOUR_VARIANT_ID", quantity: 1 }] } },
+    variables: {
+      input: {
+        channel: "default-channel",
+        lines: [{ variantId: "REPLACE_WITH_YOUR_VARIANT_ID", quantity: 1 }],
+      },
+    },
   },
   "walkthrough-product": {
     title: "Get specific product",
-    description: "Use the first product returned by Fetch products. You can edit its ID and channel in Variables.",
+    description:
+      "Use the first product returned by Fetch products. You can edit its ID and channel in Variables.",
     query: `query ProductDetails($id: ID!, $channel: String!) {
   product(id: $id, channel: $channel) {
     id
@@ -68,11 +78,15 @@ export const examples = {
     variants { id name }
   }
 }`,
-    variables: { id: "REPLACE_WITH_YOUR_PRODUCT_ID", channel: "default-channel" },
+    variables: {
+      id: "REPLACE_WITH_YOUR_PRODUCT_ID",
+      channel: "default-channel",
+    },
   },
   "walkthrough-checkout": {
     title: "Create a checkout",
-    description: "Use the first variant returned by Get specific product. This creates a checkout without placing an order or charging a payment.",
+    description:
+      "Use the first variant returned by Get specific product. This creates a checkout without placing an order or charging a payment.",
     query: `mutation WalkthroughCreateCheckout($input: CheckoutCreateInput!) {
   checkoutCreate(input: $input) {
     checkout {
@@ -82,11 +96,17 @@ export const examples = {
     errors { field code message }
   }
 }`,
-    variables: { input: { channel: "default-channel", lines: [{ variantId: "REPLACE_WITH_YOUR_VARIANT_ID", quantity: 1 }] } },
+    variables: {
+      input: {
+        channel: "default-channel",
+        lines: [{ variantId: "REPLACE_WITH_YOUR_VARIANT_ID", quantity: 1 }],
+      },
+    },
   },
   "walkthrough-update": {
     title: "Update checkout",
-    description: "Add shipping and billing addresses and an email to the created checkout. Edit the sample address and email in Variables for your store.",
+    description:
+      "Add shipping and billing addresses and an email to the created checkout. Edit the sample address and email in Variables for your store.",
     query: `mutation UpdateCheckout($checkoutId: ID!, $address: AddressInput!, $email: String!) {
   checkoutShippingAddressUpdate(checkoutId: $checkoutId, shippingAddress: $address) {
     errors { field code message }
@@ -101,20 +121,32 @@ export const examples = {
 }`,
     variables: {
       checkoutId: "REPLACE_WITH_YOUR_CHECKOUT_ID",
-      address: { firstName: "First", lastName: "Last", streetAddress1: "8066 Madison St.", city: "Brooklyn", postalCode: "11237", country: "US", countryArea: "NY" },
+      address: {
+        firstName: "First",
+        lastName: "Last",
+        streetAddress1: "8066 Madison St.",
+        city: "Brooklyn",
+        postalCode: "11237",
+        country: "US",
+        countryArea: "NY",
+      },
       email: "reader@example.com",
     },
   },
   "walkthrough-delivery": {
     title: "Select shipping method",
-    description: "Use the first shipping method returned by Update checkout. You can choose a different returned ID in Variables.",
+    description:
+      "Use the first shipping method returned by Update checkout. You can choose a different returned ID in Variables.",
     query: `mutation SelectShippingMethod($checkoutId: ID!, $deliveryMethodId: ID!) {
   checkoutDeliveryMethodUpdate(id: $checkoutId, deliveryMethodId: $deliveryMethodId) {
     checkout { id }
     errors { field code message }
   }
 }`,
-    variables: { checkoutId: "REPLACE_WITH_YOUR_CHECKOUT_ID", deliveryMethodId: "REPLACE_WITH_YOUR_SHIPPING_METHOD_ID" },
+    variables: {
+      checkoutId: "REPLACE_WITH_YOUR_CHECKOUT_ID",
+      deliveryMethodId: "REPLACE_WITH_YOUR_SHIPPING_METHOD_ID",
+    },
   },
 };
 

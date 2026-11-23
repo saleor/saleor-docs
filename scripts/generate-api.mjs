@@ -269,9 +269,14 @@ export function generateReference(sdl, legacy = {}, provenance = {}) {
             .join("\n") +
           "\n";
     }
-    const exampleId = e.kind === "queries" && e.name === "products" ? "products"
-      : e.kind === "mutations" && e.name === "checkoutCreate" ? "checkout-create" : null;
-    if (exampleId) body += `\n## Try it\n\n<GraphQLExample exampleId="${exampleId}" />\n`;
+    const exampleId =
+      e.kind === "queries" && e.name === "products"
+        ? "products"
+        : e.kind === "mutations" && e.name === "checkoutCreate"
+          ? "checkout-create"
+          : null;
+    if (exampleId)
+      body += `\n## Try it\n\n<GraphQLExample exampleId="${exampleId}" />\n`;
     body += `\n---\n\nSchema: **${provenance.label ?? "Local snapshot"}**. [Download SDL](/schema/saleor.graphql).\n`;
     pages.push({
       route: e.route,
@@ -303,7 +308,9 @@ export async function main() {
   const sdl = await readFile("schema/saleor.graphql", "utf8");
   const { pages } = generateReference(sdl, legacy, provenance);
   const metadata = new Map();
-  for (const file of (await walk("docs/api-reference")).filter(file => /\.mdx?$/.test(file))) {
+  for (const file of (await walk("docs/api-reference")).filter((file) =>
+    /\.mdx?$/.test(file),
+  )) {
     const { data } = matter(await readFile(file, "utf8"));
     metadata.set(file, data);
   }
@@ -313,7 +320,13 @@ export async function main() {
   const domains = [...new Set(pages.map((p) => p.domain))].sort();
   for (const domain of domains) {
     const base = `docs/api-reference/${slug(domain)}`;
-    await write(`${base}/index.mdx`, frontmatter({ title: `${domain} API`, sidebar: { label: "Overview", order: 0 } }, domainOverview(domain, pages, provenance.label)));
+    await write(
+      `${base}/index.mdx`,
+      frontmatter(
+        { title: `${domain} API`, sidebar: { label: "Overview", order: 0 } },
+        domainOverview(domain, pages, provenance.label),
+      ),
+    );
     await write(
       `${base}/meta.ts`,
       `export default ${JSON.stringify({ title: domain, display: "group", collapsed: true })};\n`,
@@ -333,10 +346,14 @@ export async function main() {
     route.slice(0, route.lastIndexOf("/")),
   );
   for (const group of siblings.values()) {
-    group.sort(([, a], [, b]) =>
-      (a.order ?? Infinity) - (b.order ?? Infinity) || a.title.localeCompare(b.title),
+    group.sort(
+      ([, a], [, b]) =>
+        (a.order ?? Infinity) - (b.order ?? Infinity) ||
+        a.title.localeCompare(b.title),
     );
-    group.forEach(([, meta], index) => { meta.order = index + 1; });
+    group.forEach(([, meta], index) => {
+      meta.order = index + 1;
+    });
   }
   for (const [route, meta] of Object.entries(categories)) {
     if (pages.some((page) => page.route.startsWith(route + "/"))) {
@@ -359,15 +376,23 @@ export async function main() {
   );
   for (const [file, previous] of metadata) {
     let source;
-    try { source = await readFile(file, "utf8"); }
-    catch (error) { if (error.code === "ENOENT") continue; throw error; }
+    try {
+      source = await readFile(file, "utf8");
+    } catch (error) {
+      if (error.code === "ENOENT") continue;
+      throw error;
+    }
     const parsed = matter(source);
     for (const key of ["title", "seo", "lastModified"]) {
       if (previous[key] !== undefined) parsed.data[key] = previous[key];
     }
-    if (previous.description === undefined && previous.seo) delete parsed.data.description;
+    if (previous.description === undefined && previous.seo)
+      delete parsed.data.description;
     const heading = parsed.data.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const body = parsed.content.replace(new RegExp(`^(\\s*(?:import[^\\n]+\\n\\s*)*)## ${heading}\\s*\\n`, "m"), "$1");
+    const body = parsed.content.replace(
+      new RegExp(`^(\\s*(?:import[^\\n]+\\n\\s*)*)## ${heading}\\s*\\n`, "m"),
+      "$1",
+    );
     await write(file, frontmatter(parsed.data, body));
   }
   console.log(

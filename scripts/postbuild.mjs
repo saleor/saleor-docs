@@ -10,11 +10,12 @@ import { applyHostRoutes, readHostRoutes } from "./vercel-routing.mjs";
 import { resolveSiteUrls, documentationMcp } from "./site-config.mjs";
 import { createRequire } from "node:module";
 
-const out = process.env.BLUME_SERVER !== "0"
-  ? ".vercel/output/static"
-  : process.env.BLUME_RUNTIME_DIR
-    ? path.join(process.env.BLUME_RUNTIME_DIR, "dist")
-    : "dist";
+const out =
+  process.env.BLUME_SERVER !== "0"
+    ? ".vercel/output/static"
+    : process.env.BLUME_RUNTIME_DIR
+      ? path.join(process.env.BLUME_RUNTIME_DIR, "dist")
+      : "dist";
 
 const escapeHtml = (value) =>
   String(value)
@@ -30,18 +31,29 @@ const replaceMeta = (html, attribute, name, value) => {
   );
 };
 const documents = new Map();
-for (const file of (await walk("docs")).filter((file) => /\.mdx?$/.test(file))) {
+for (const file of (await walk("docs")).filter((file) =>
+  /\.mdx?$/.test(file),
+)) {
   const { data } = matter(await readFile(file, "utf8"));
-  const route = "/" + (data.slug ?? path.relative("docs", file)
-    .replaceAll(path.sep, "/").replace(/\.mdx?$/, "").replace(/(^|\/)index$/, "")).replace(/^\//, "");
+  const route =
+    "/" +
+    (
+      data.slug ??
+      path
+        .relative("docs", file)
+        .replaceAll(path.sep, "/")
+        .replace(/\.mdx?$/, "")
+        .replace(/(^|\/)index$/, "")
+    ).replace(/^\//, "");
   documents.set(route, data);
 }
 let metadataPages = 0;
 for (const route of documents.keys()) {
   const metadata = pageMetadata(documents.get(route));
-  const file = route === "/404"
-    ? path.join(out, "404.html")
-    : path.join(out, route.slice(1), "index.html");
+  const file =
+    route === "/404"
+      ? path.join(out, "404.html")
+      : path.join(out, route.slice(1), "index.html");
   let html;
   try {
     html = await readFile(file, "utf8");
@@ -63,7 +75,12 @@ for (const route of documents.keys()) {
   );
   // Keep social metadata synchronized with maintained page frontmatter.
   html = replaceMeta(html, "name", "twitter:title", metadata.openGraphTitle);
-  html = replaceMeta(html, "name", "twitter:description", metadata.openGraphDescription);
+  html = replaceMeta(
+    html,
+    "name",
+    "twitter:description",
+    metadata.openGraphDescription,
+  );
   if (route === "/404")
     html = html.replace(
       /(<h1[^>]*>)[\s\S]*?(<\/h1>)/,
@@ -72,7 +89,9 @@ for (const route of documents.keys()) {
   await writeFile(file, html);
   metadataPages += 1;
 }
-console.log(`Applied maintained page SEO metadata to ${metadataPages} built pages.`);
+console.log(
+  `Applied maintained page SEO metadata to ${metadataPages} built pages.`,
+);
 const groups = new Map();
 const manifest = {};
 for (const file of (await walk("docs")).filter((p) => /\.mdx?$/.test(p))) {
@@ -122,7 +141,7 @@ await write(
     ]
       .sort()
       .map((s) => `- [${s}](/${s}/llms.txt)`)
-    .join("\n")}\n`,
+      .join("\n")}\n`,
 );
 
 // Isolated Blume builds intentionally skip deploy artifacts. Generate the
@@ -135,22 +154,28 @@ const { canonical, deployment: site } = resolveSiteUrls();
   const require = createRequire(import.meta.url);
   const blumeRequire = createRequire(require.resolve("blume"));
   const { createJiti } = blumeRequire("jiti");
-  const { buildMcpDiscovery, buildMcpServerCard } = await createJiti(import.meta.url).import("blume/ai/mcp/discovery.ts");
+  const { buildMcpDiscovery, buildMcpServerCard } = await createJiti(
+    import.meta.url,
+  ).import("blume/ai/mcp/discovery.ts");
   const { version } = require("blume/package.json");
   const input = { ...documentationMcp, base: "", site, version };
   await writeJson(`${out}/.well-known/mcp.json`, buildMcpDiscovery(input));
-  await writeJson(`${out}/.well-known/mcp/server-card.json`, buildMcpServerCard(input));
+  await writeJson(
+    `${out}/.well-known/mcp/server-card.json`,
+    buildMcpServerCard(input),
+  );
 }
-const xml = (value) => String(value)
-  .replaceAll("&", "&amp;")
-  .replaceAll("<", "&lt;")
-  .replaceAll(">", "&gt;")
-  .replaceAll('"', "&quot;");
+const xml = (value) =>
+  String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 await write(
   `${out}/sitemap.xml`,
-  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...new Set([
-    ...Object.keys(manifest),
-  ])]
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[
+    ...new Set([...Object.keys(manifest)]),
+  ]
     .sort()
     .map((route) => {
       const modified = documents.get(route)?.lastModified;
@@ -179,7 +204,14 @@ if (!existsSync(skillsIndex)) {
     const description = parsed.data.description;
     if (!(name && description)) continue;
     const target = path.join(skillsDir, `${name}.tar.gz`);
-    execFileSync("tar", ["-czf", path.resolve(target), "--exclude=.DS_Store", "-C", path.resolve(source), "."]);
+    execFileSync("tar", [
+      "-czf",
+      path.resolve(target),
+      "--exclude=.DS_Store",
+      "-C",
+      path.resolve(source),
+      ".",
+    ]);
     const content = await readFile(target);
     skills.push({
       description,
@@ -194,24 +226,32 @@ if (!existsSync(skillsIndex)) {
     skills,
   });
 }
-if (!existsSync(`${out}/agent-readability.json`)) await writeJson(`${out}/agent-readability.json`, {
-  artifacts: {
-    markdown: { pattern: `${site}/{route}.md` },
-    api: { openapi: `${site}/openapi.json`, pages: `${site}/api/docs/pages.json` },
-    llmsTxt: `${site}/llms.txt`,
-    sitemap: `${site}/sitemap.xml`,
-    agentSkills: `${site}/.well-known/agent-skills/index.json`,
-  },
-  description: "Build commerce your way with Saleor’s GraphQL API, developer guides, and recipes.",
-  generator: "blume@2.0.3",
-  name: "Saleor Commerce Documentation",
-  site,
-  contentUsage: { search: true, "ai-input": true, "ai-train": true },
-});
+if (!existsSync(`${out}/agent-readability.json`))
+  await writeJson(`${out}/agent-readability.json`, {
+    artifacts: {
+      markdown: { pattern: `${site}/{route}.md` },
+      api: {
+        openapi: `${site}/openapi.json`,
+        pages: `${site}/api/docs/pages.json`,
+      },
+      llmsTxt: `${site}/llms.txt`,
+      sitemap: `${site}/sitemap.xml`,
+      agentSkills: `${site}/.well-known/agent-skills/index.json`,
+    },
+    description:
+      "Build commerce your way with Saleor’s GraphQL API, developer guides, and recipes.",
+    generator: "blume@2.0.3",
+    name: "Saleor Commerce Documentation",
+    site,
+    contentUsage: { search: true, "ai-input": true, "ai-train": true },
+  });
 // Existing Blume discovery also includes operational links to this deployment.
 if (canonical !== site) {
   const discovery = await readFile(`${out}/agent-readability.json`, "utf8");
-  await writeFile(`${out}/agent-readability.json`, discovery.replaceAll(canonical, site));
+  await writeFile(
+    `${out}/agent-readability.json`,
+    discovery.replaceAll(canonical, site),
+  );
 }
 console.log(
   `Published ${groups.size} section indexes and ${Object.keys(manifest).length} route mappings.`,
@@ -219,7 +259,19 @@ console.log(
 
 if (process.env.BLUME_SERVER !== "0") {
   const configPath = ".vercel/output/config.json";
-  const staticAssets = (await walk("public/docs"))
-    .map(file => "/" + path.relative("public", file).split(path.sep).map(encodeURIComponent).join("/"));
-  await writeJson(configPath, applyHostRoutes(await readJson(configPath), await readHostRoutes(), { staticAssets }));
+  const staticAssets = (await walk("public/docs")).map(
+    (file) =>
+      "/" +
+      path
+        .relative("public", file)
+        .split(path.sep)
+        .map(encodeURIComponent)
+        .join("/"),
+  );
+  await writeJson(
+    configPath,
+    applyHostRoutes(await readJson(configPath), await readHostRoutes(), {
+      staticAssets,
+    }),
+  );
 }

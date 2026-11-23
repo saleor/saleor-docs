@@ -2,7 +2,10 @@ import { sentrySourceMaps } from "./sentry-integration";
 import { mcpSearch } from "./scripts/mcp-search.mjs";
 import { mcpOrigin } from "./scripts/mcp-origin.mjs";
 import { defineConfig } from "blume";
-import { sectionTabs, sidebarConfig } from "./components/navigation-sections.mjs";
+import {
+  sectionTabs,
+  sidebarConfig,
+} from "./components/navigation-sections.mjs";
 import navigation from "./config/navigation.json";
 import { vercel } from "blume/deploy";
 import { googleTagManager } from "blume/analytics";
@@ -37,19 +40,28 @@ export default defineConfig({
       body: {
         name: "Geist",
         variants: [
-          { src: "./public/assets/fonts/Geist-Latin.woff2", weight: "100..900" },
+          {
+            src: "./public/assets/fonts/Geist-Latin.woff2",
+            weight: "100..900",
+          },
         ],
       },
       display: {
         name: "Geist",
         variants: [
-          { src: "./public/assets/fonts/Geist-Latin.woff2", weight: "100..900" },
+          {
+            src: "./public/assets/fonts/Geist-Latin.woff2",
+            weight: "100..900",
+          },
         ],
       },
       mono: {
         name: "Geist Mono",
         variants: [
-          { src: "./public/assets/fonts/GeistMono-Latin.woff2", weight: "100..900" },
+          {
+            src: "./public/assets/fonts/GeistMono-Latin.woff2",
+            weight: "100..900",
+          },
         ],
       },
     },

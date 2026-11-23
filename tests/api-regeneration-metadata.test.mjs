@@ -14,17 +14,43 @@ test("API regeneration preserves maintained metadata and refreshes schema conten
   try {
     const sdl = '"Current description"\ntype Query { ping: String }';
     const { pages } = generateReference(sdl);
-    const page = pages.find(page => page.name === "ping");
+    const page = pages.find((page) => page.name === "ping");
     assert(page);
     const file = path.join(root, `docs${page.route}.mdx`);
     await mkdir(path.dirname(file), { recursive: true });
-    await writeFile(file, frontmatter({ title: "Maintained title", seo: { description: "Maintained summary" }, lastModified: "2026-10-20" }, "Old generated body"));
+    await writeFile(
+      file,
+      frontmatter(
+        {
+          title: "Maintained title",
+          seo: { description: "Maintained summary" },
+          lastModified: "2026-10-20",
+        },
+        "Old generated body",
+      ),
+    );
     await mkdir(path.join(root, "schema"));
-    for (const [name, value] of Object.entries({ "api-routes": {}, "api-categories": {}, provenance: { label: "Test schema" } })) {
-      await writeFile(path.join(root, `schema/${name}.json`), JSON.stringify(value));
+    for (const [name, value] of Object.entries({
+      "api-routes": {},
+      "api-categories": {},
+      provenance: { label: "Test schema" },
+    })) {
+      await writeFile(
+        path.join(root, `schema/${name}.json`),
+        JSON.stringify(value),
+      );
     }
     await writeFile(path.join(root, "schema/saleor.graphql"), sdl);
-    const run = () => execFileSync(process.execPath, ["--input-type=module", "-e", `import { main } from ${JSON.stringify(generator)}; await main();`], { cwd: root });
+    const run = () =>
+      execFileSync(
+        process.execPath,
+        [
+          "--input-type=module",
+          "-e",
+          `import { main } from ${JSON.stringify(generator)}; await main();`,
+        ],
+        { cwd: root },
+      );
     run();
     const output = await readFile(file, "utf8");
     const parsed = matter(output);

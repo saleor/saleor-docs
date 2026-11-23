@@ -146,34 +146,57 @@ Use Saleor's GraphQL mutations to update the App object in-place — preserves `
 ```graphql
 # Update permissions
 mutation {
-  appUpdate(id: "APP_ID", input: { permissions: [MANAGE_ORDERS, MANAGE_PRODUCTS] }) {
-    app { id }
-    errors { field message }
+  appUpdate(
+    id: "APP_ID"
+    input: { permissions: [MANAGE_ORDERS, MANAGE_PRODUCTS] }
+  ) {
+    app {
+      id
+    }
+    errors {
+      field
+      message
+    }
   }
 }
 
 # Update a webhook's subscription query
 mutation {
-  webhookUpdate(id: "WEBHOOK_ID", input: {
-    query: "subscription { event { ... on OrderCreated { order { id number userEmail } } } }"
-  }) {
-    webhook { id }
-    errors { field message }
+  webhookUpdate(
+    id: "WEBHOOK_ID"
+    input: {
+      query: "subscription { event { ... on OrderCreated { order { id number userEmail } } } }"
+    }
+  ) {
+    webhook {
+      id
+    }
+    errors {
+      field
+      message
+    }
   }
 }
 
 # Create a new webhook
 mutation {
-  webhookCreate(input: {
-    app: "APP_ID"
-    name: "Order Updated"
-    targetUrl: "https://my-app.com/api/webhooks/order-updated"
-    asyncEvents: [ORDER_UPDATED]
-    query: "subscription { event { ... on OrderUpdated { order { id status } } } }"
-    isActive: true
-  }) {
-    webhook { id }
-    errors { field message }
+  webhookCreate(
+    input: {
+      app: "APP_ID"
+      name: "Order Updated"
+      targetUrl: "https://my-app.com/api/webhooks/order-updated"
+      asyncEvents: [ORDER_UPDATED]
+      query: "subscription { event { ... on OrderUpdated { order { id status } } } }"
+      isActive: true
+    }
+  ) {
+    webhook {
+      id
+    }
+    errors {
+      field
+      message
+    }
   }
 }
 ```
