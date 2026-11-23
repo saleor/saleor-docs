@@ -16,7 +16,10 @@ Navigation is configured in `config/navigation.json` and the `meta.ts` files alo
 
 ## Checks and builds
 
+`pnpm format` formats the repository with oxfmt. CI runs `pnpm check:format` and fails on unformatted files.
+
 ```sh
+pnpm check:format
 pnpm knip
 pnpm test
 pnpm validate
