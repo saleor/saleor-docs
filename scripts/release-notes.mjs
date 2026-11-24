@@ -12,6 +12,13 @@ const proseRules = [
       ? "**New Contributors**"
       : line;
   },
+  // GitHub alerts render as callouts only in MDX; release notes are Markdown.
+  function labelGithubAlert(line) {
+    const alert = line.match(/^( {0,3}>[ \t]*)\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*$/i);
+    if (!alert) return line;
+    const type = alert[2].toLowerCase();
+    return `${alert[1]}**${type[0].toUpperCase()}${type.slice(1)}:**`;
+  },
   function escapeHtml(line) {
     return line.replace(/</g, "&lt;");
   },
