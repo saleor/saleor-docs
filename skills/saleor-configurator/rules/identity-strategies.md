@@ -33,9 +33,9 @@ slug: "default-channel"
 slug: "us-east"
 
 # ❌ Invalid slugs
-slug: "iPhone 15 Pro"    # spaces not allowed
-slug: "US_East"          # underscores not allowed
-slug: "Default Channel"  # uppercase + spaces
+slug: "iPhone 15 Pro" # spaces not allowed
+slug: "US_East" # underscores not allowed
+slug: "Default Channel" # uppercase + spaces
 ```
 
 ## Name Rules
@@ -52,7 +52,7 @@ name: "North America"
 name: "Standard Rate"
 
 # ❌ Problematic — will create a second entity, not update
-name: "physical product"   # when "Physical Product" already exists remotely
+name: "physical product" # when "Physical Product" already exists remotely
 ```
 
 ## Cross-Reference Consistency
@@ -63,20 +63,20 @@ When entities reference each other, the reference must use the correct strategy 
 products:
   - name: "My Product"
     slug: "my-product"
-    productType: "Physical Product"   # ProductType is name-based → use name
-    category: "electronics"           # Category is slug-based → use slug
+    productType: "Physical Product" # ProductType is name-based → use name
+    category: "electronics" # Category is slug-based → use slug
 
 warehouses:
   - name: "My Warehouse"
     slug: "my-warehouse"
     shippingZones:
-      - "North America"               # ShippingZone is name-based → use name
+      - "North America" # ShippingZone is name-based → use name
 
 menus:
   - slug: "main-nav"
     items:
-      - category: "electronics"       # Category is slug-based → use slug
-        collection: "summer-sale"     # Collection is slug-based → use slug
+      - category: "electronics" # Category is slug-based → use slug
+        collection: "summer-sale" # Collection is slug-based → use slug
 ```
 
 ## Why Two Strategies Exist

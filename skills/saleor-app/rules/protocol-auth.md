@@ -31,11 +31,11 @@ Dashboard → Install App
 
 ```typescript
 interface AuthData {
-  token: string;        // App token for GraphQL API
+  token: string; // App token for GraphQL API
   saleorApiUrl: string; // GraphQL endpoint (used as tenant key)
-  appId: string;        // App ID (changes on reinstall)
-  domain: string;       // Saleor domain
-  jwks?: string;        // Cached JWKS for signature verification
+  appId: string; // App ID (changes on reinstall)
+  domain: string; // Saleor domain
+  jwks?: string; // Cached JWKS for signature verification
 }
 ```
 
@@ -74,9 +74,10 @@ See `references/apl-implementations.md` for setup details.
 ```typescript
 import { FileAPL, UpstashAPL } from "@saleor/app-sdk/APL";
 
-const apl = process.env.NODE_ENV === "production"
-  ? new UpstashAPL()   // reads UPSTASH_URL, UPSTASH_TOKEN from env
-  : new FileAPL();
+const apl =
+  process.env.NODE_ENV === "production"
+    ? new UpstashAPL() // reads UPSTASH_URL, UPSTASH_TOKEN from env
+    : new FileAPL();
 ```
 
 ---
@@ -151,7 +152,7 @@ export default createProtectedHandler(
     res.json({ ok: true });
   },
   saleorApp.apl,
-  ["MANAGE_ORDERS"]  // required permissions (optional)
+  ["MANAGE_ORDERS"], // required permissions (optional)
 );
 ```
 

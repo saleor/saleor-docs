@@ -5,7 +5,7 @@ sidebar: {}
 seo:
   title: Saleor Webhook Utilities
   description: Apps are usually connected via webhooks - one service sends an HTTP request to another service, informing about some event or requesting some action to be performed.
-lastModified: '2026-02-23'
+lastModified: "2026-02-23"
 ---
 
 Apps are usually connected via webhooks - one service sends an HTTP request to another service, informing about some event or requesting some action to be performed.
@@ -59,7 +59,7 @@ type OrderPayload = {
 
 export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>(
   // See below
-  options
+  options,
 );
 ```
 
@@ -86,7 +86,7 @@ type CalculateTaxedPayload = {
 
 export const orderCalculateTaxesWebhook = new SaleorSyncWebhook<OrderPayload>(
   // See below
-  options
+  options,
 );
 ```
 
@@ -119,18 +119,14 @@ type Options = {
   /**
    * Optional callback that allows to inject custom error handling and take control of the response
    */
-  onError?(
-    error: WebhookError | Error,
-    req: NextApiRequest,
-    res: NextApiResponse
-  ): void;
+  onError?(error: WebhookError | Error, req: NextApiRequest, res: NextApiResponse): void;
   /**
    * Optional callback that allows formatting error messages. Useful to control how many details should be returned in the response
    */
   formatErrorResponse?(
     error: WebhookError | Error,
     req: NextApiRequest,
-    res: NextApiResponse
+    res: NextApiResponse,
   ): Promise<{
     code: number;
     body: object | string;
@@ -189,7 +185,7 @@ export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderPayload>({
   async formatErrorResponse(
     error: WebhookError | Error,
     req: NextApiRequest,
-    res: NextApiResponse
+    res: NextApiResponse,
   ) {
     return {
       code: 400,
@@ -245,7 +241,7 @@ export const orderCalculateTaxesWebhook = new SaleorAsyncWebhook<Payload>({
   async formatErrorResponse(
     error: WebhookError | Error,
     req: NextApiRequest,
-    res: NextApiResponse
+    res: NextApiResponse,
   ) {
     return {
       code: 400,
@@ -329,12 +325,12 @@ const webhook = new SaleorAsyncWebhook({
 
 webhook.createHandler((req, res, context) => {
   return res.status(200).send(
-    buildSyncWebhookResponsePayload<'ORDER_CALCULATE_TAXES'>({
-        lines: [
-            // ... Everything is typed here
-        ],
-        // ...
-    })
+    buildSyncWebhookResponsePayload<"ORDER_CALCULATE_TAXES">({
+      lines: [
+        // ... Everything is typed here
+      ],
+      // ...
+    }),
   );
 });
 ```
@@ -366,14 +362,13 @@ export const ExampleProductUpdatedSubscription = gql`
   }
 `;
 
-export const productUpdatedWebhook =
-  new SaleorAsyncWebhook<ProductUpdatedWebhookPayloadFragment>({
-    name: "Example product updated webhook",
-    webhookPath: "api/webhooks/saleor/product-updated",
-    event: "PRODUCT_UPDATED",
-    apl: saleorApp.apl,
-    query: ExampleProductUpdatedSubscription, // Or use plain string
-  });
+export const productUpdatedWebhook = new SaleorAsyncWebhook<ProductUpdatedWebhookPayloadFragment>({
+  name: "Example product updated webhook",
+  webhookPath: "api/webhooks/saleor/product-updated",
+  event: "PRODUCT_UPDATED",
+  apl: saleorApp.apl,
+  query: ExampleProductUpdatedSubscription, // Or use plain string
+});
 ```
 
 ### Saleor schema version inside context

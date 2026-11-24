@@ -31,7 +31,10 @@ mutation {
     query: "subscription { event { ... on OrderCreated { order { id number } } } }"
   ) {
     payload
-    errors { field message }
+    errors {
+      field
+      message
+    }
   }
 }
 ```

@@ -102,10 +102,10 @@ export async function handleSyncWebhook(request: Request) {
   const payload = JSON.parse(rawBody);
 
   // Return event-specific response
-  return new Response(
-    JSON.stringify({ excluded_methods: [] }),
-    { status: 200, headers: { "content-type": "application/json" } }
-  );
+  return new Response(JSON.stringify({ excluded_methods: [] }), {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
 }
 ```
 

@@ -5,23 +5,23 @@ Full field reference for the app manifest JSON.
 ```typescript
 interface AppManifest {
   // Required
-  id: string;                          // Unique app identifier
-  version: string;                     // Semver
-  name: string;                        // Display name
-  appUrl: string;                      // Main iframe URL
-  tokenTargetUrl: string;              // Registration endpoint
-  permissions: AppPermission[];        // Required permissions
+  id: string; // Unique app identifier
+  version: string; // Semver
+  name: string; // Display name
+  appUrl: string; // Main iframe URL
+  tokenTargetUrl: string; // Registration endpoint
+  permissions: AppPermission[]; // Required permissions
 
   // Optional
-  about?: string;                      // Description
-  author?: string;                     // Author name
+  about?: string; // Description
+  author?: string; // Author name
   dataPrivacyUrl?: string;
   homepageUrl?: string;
   supportUrl?: string;
-  configurationUrl?: string;           // Settings page URL
-  requiredSaleorVersion?: string;      // Semver constraint (e.g. "^3.22")
+  configurationUrl?: string; // Settings page URL
+  requiredSaleorVersion?: string; // Semver constraint (e.g. "^3.22")
   brand?: {
-    logo: { default: string };         // Logo URL
+    logo: { default: string }; // Logo URL
   };
 
   // Webhooks
@@ -33,19 +33,19 @@ interface AppManifest {
 
 interface WebhookManifest {
   name: string;
-  asyncEvents?: string[];              // e.g. ["ORDER_CREATED"]
-  syncEvents?: string[];               // e.g. ["CHECKOUT_CALCULATE_TAXES"]
-  query: string;                       // GraphQL subscription document
-  targetUrl: string;                   // Webhook endpoint URL
-  isActive?: boolean;                  // default true
+  asyncEvents?: string[]; // e.g. ["ORDER_CREATED"]
+  syncEvents?: string[]; // e.g. ["CHECKOUT_CALCULATE_TAXES"]
+  query: string; // GraphQL subscription document
+  targetUrl: string; // Webhook endpoint URL
+  isActive?: boolean; // default true
 }
 
 interface AppExtension {
-  label: string;                       // Button/menu text
-  mount: AppExtensionMount;            // Dashboard location
-  target: "POPUP" | "APP_PAGE";        // Render mode
-  permissions: AppPermission[];        // Required user permissions
-  url: string;                         // Extension URL (relative to appUrl)
+  label: string; // Button/menu text
+  mount: AppExtensionMount; // Dashboard location
+  target: "POPUP" | "APP_PAGE"; // Render mode
+  permissions: AppPermission[]; // Required user permissions
+  url: string; // Extension URL (relative to appUrl)
 }
 ```
 

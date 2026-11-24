@@ -62,10 +62,10 @@ Query the flag from `Shop`:
 
 ```graphql
 query StockAvailabilityMode {
-	shop {
-		id
-		useLegacyShippingZoneStockAvailability
-	}
+  shop {
+    id
+    useLegacyShippingZoneStockAvailability
+  }
 }
 ```
 
@@ -132,13 +132,20 @@ Always pass the `channel` argument to get correct pricing and availability:
 
 ```graphql
 query ProductDetails($slug: String!, $channel: String!) {
-	product(slug: $slug, channel: $channel) {
-		name
-		isAvailable
-		pricing {
-			priceRange { start { gross { amount currency } } }
-		}
-	}
+  product(slug: $slug, channel: $channel) {
+    name
+    isAvailable
+    pricing {
+      priceRange {
+        start {
+          gross {
+            amount
+            currency
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -174,12 +181,12 @@ The `channels` query requires an authenticated app token:
 
 ```graphql
 query {
-	channels {
-		id
-		slug
-		name
-		currencyCode
-	}
+  channels {
+    id
+    slug
+    name
+    currencyCode
+  }
 }
 ```
 

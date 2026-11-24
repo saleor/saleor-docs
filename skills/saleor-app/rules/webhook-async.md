@@ -51,7 +51,10 @@ subscription OrderCreated {
         number
         userEmail
         total {
-          gross { amount currency }
+          gross {
+            amount
+            currency
+          }
         }
       }
     }
@@ -73,14 +76,13 @@ import {
   OrderCreatedSubscriptionDocument,
 } from "@/generated/graphql";
 
-export const orderCreatedWebhook =
-  new SaleorAsyncWebhook<OrderCreatedWebhookPayloadFragment>({
-    name: "Order Created",
-    webhookPath: "api/webhooks/order-created",
-    event: "ORDER_CREATED",
-    apl: saleorApp.apl,
-    query: OrderCreatedSubscriptionDocument,
-  });
+export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderCreatedWebhookPayloadFragment>({
+  name: "Order Created",
+  webhookPath: "api/webhooks/order-created",
+  event: "ORDER_CREATED",
+  apl: saleorApp.apl,
+  query: OrderCreatedSubscriptionDocument,
+});
 
 export default orderCreatedWebhook.createHandler((req, res, ctx) => {
   const { payload, authData } = ctx;

@@ -91,9 +91,11 @@ When running `/storefront-builder`, execute only the requested step, then stop a
 ## Saleor rules
 
 <!-- include if .agent-skills/saleor-storefront/ exists -->
+
 @.agent-skills/saleor-storefront/AGENTS.md
 
 <!-- include if .agent-skills/saleor-configurator/ exists -->
+
 @.agent-skills/saleor-configurator/AGENTS.md
 ```
 
@@ -415,10 +417,12 @@ Saleor stores `description` as EditorJS JSON. Never render it raw. Parse safely:
 function extractDescriptionText(description: unknown): string {
   try {
     const parsed = typeof description === "string" ? JSON.parse(description) : description;
-    return parsed?.blocks
-      ?.map((b: { data?: { text?: string } }) => b.data?.text ?? "")
-      .filter(Boolean)
-      .join(" ") ?? "";
+    return (
+      parsed?.blocks
+        ?.map((b: { data?: { text?: string } }) => b.data?.text ?? "")
+        .filter(Boolean)
+        .join(" ") ?? ""
+    );
   } catch {
     return "";
   }

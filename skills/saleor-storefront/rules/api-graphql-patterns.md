@@ -10,11 +10,20 @@ Most storefront queries require a `channel` argument:
 
 ```graphql
 query ProductDetails($slug: String!, $channel: String!) {
-	product(slug: $slug, channel: $channel) {
-		id
-		name
-		pricing { priceRange { start { gross { amount currency } } } }
-	}
+  product(slug: $slug, channel: $channel) {
+    id
+    name
+    pricing {
+      priceRange {
+        start {
+          gross {
+            amount
+            currency
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -53,11 +62,15 @@ Use `ProductFilterInput` for server-side filtering:
 
 ```graphql
 query Products($channel: String!, $filter: ProductFilterInput) {
-	products(channel: $channel, filter: $filter, first: 20) {
-		edges {
-			node { id name slug }
-		}
-	}
+  products(channel: $channel, filter: $filter, first: 20) {
+    edges {
+      node {
+        id
+        name
+        slug
+      }
+    }
+  }
 }
 ```
 
@@ -92,11 +105,11 @@ Most Saleor storefronts use `graphql-codegen` with API introspection:
 ```typescript
 // .graphqlrc.ts or codegen.ts
 const config = {
-	schema: process.env.NEXT_PUBLIC_SALEOR_API_URL,
-	documents: "src/graphql/*.graphql",
-	generates: {
-		"src/gql/": { preset: "client" },
-	},
+  schema: process.env.NEXT_PUBLIC_SALEOR_API_URL,
+  documents: "src/graphql/*.graphql",
+  generates: {
+    "src/gql/": { preset: "client" },
+  },
 };
 ```
 

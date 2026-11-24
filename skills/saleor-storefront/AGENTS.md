@@ -55,7 +55,7 @@ const name = product.category?.name ?? "Uncategorized";
 
 // Guard when null means something is wrong
 if (!product.defaultVariant) {
-	throw new Error(`Product ${product.slug} has no default variant`);
+  throw new Error(`Product ${product.slug} has no default variant`);
 }
 ```
 
@@ -76,10 +76,10 @@ Every priced entity in Saleor uses the `TaxedMoney` pattern:
 
 ```graphql
 type TaxedMoney {
-	gross: Money!   # Price including tax
-	net: Money!     # Price excluding tax
-	tax: Money!     # Tax amount
-	currency: String!
+  gross: Money! # Price including tax
+  net: Money! # Price excluding tax
+  tax: Money! # Tax amount
+  currency: String!
 }
 ```
 
@@ -101,9 +101,7 @@ A variant has a discount when `priceUndiscounted.gross.amount > price.gross.amou
 ### Discount Percentage
 
 ```typescript
-const discount = Math.round(
-	((undiscounted - price) / undiscounted) * 100
-);
+const discount = Math.round(((undiscounted - price) / undiscounted) * 100);
 ```
 
 ## Automatic Storefront Filtering
@@ -229,11 +227,20 @@ Most storefront queries require a `channel` argument:
 
 ```graphql
 query ProductDetails($slug: String!, $channel: String!) {
-	product(slug: $slug, channel: $channel) {
-		id
-		name
-		pricing { priceRange { start { gross { amount currency } } } }
-	}
+  product(slug: $slug, channel: $channel) {
+    id
+    name
+    pricing {
+      priceRange {
+        start {
+          gross {
+            amount
+            currency
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -272,11 +279,15 @@ Use `ProductFilterInput` for server-side filtering:
 
 ```graphql
 query Products($channel: String!, $filter: ProductFilterInput) {
-	products(channel: $channel, filter: $filter, first: 20) {
-		edges {
-			node { id name slug }
-		}
-	}
+  products(channel: $channel, filter: $filter, first: 20) {
+    edges {
+      node {
+        id
+        name
+        slug
+      }
+    }
+  }
 }
 ```
 
@@ -311,11 +322,11 @@ Most Saleor storefronts use `graphql-codegen` with API introspection:
 ```typescript
 // .graphqlrc.ts or codegen.ts
 const config = {
-	schema: process.env.NEXT_PUBLIC_SALEOR_API_URL,
-	documents: "src/graphql/*.graphql",
-	generates: {
-		"src/gql/": { preset: "client" },
-	},
+  schema: process.env.NEXT_PUBLIC_SALEOR_API_URL,
+  documents: "src/graphql/*.graphql",
+  generates: {
+    "src/gql/": { preset: "client" },
+  },
 };
 ```
 
@@ -693,10 +704,10 @@ The authorized amount doesn't cover the checkout's total amount.
 
 ```json
 {
-	"transactionEvent": {
-		"message": "Failed to delivery request.",
-		"type": "AUTHORIZATION_FAILURE"
-	}
+  "transactionEvent": {
+    "message": "Failed to delivery request.",
+    "type": "AUTHORIZATION_FAILURE"
+  }
 }
 ```
 
@@ -718,24 +729,40 @@ If payment fails multiple times, the checkout accumulates partial transactions. 
 
 ```graphql
 query {
-	checkout(id: "Q2hlY2tvdXQ6...") {
-		id
-		totalPrice { gross { amount currency } }
-		lines { variant { name } quantity }
-		shippingMethod { name }
-		transactions {
-			id
-			chargedAmount { amount }
-			authorizedAmount { amount }
-		}
-	}
+  checkout(id: "Q2hlY2tvdXQ6...") {
+    id
+    totalPrice {
+      gross {
+        amount
+        currency
+      }
+    }
+    lines {
+      variant {
+        name
+      }
+      quantity
+    }
+    shippingMethod {
+      name
+    }
+    transactions {
+      id
+      chargedAmount {
+        amount
+      }
+      authorizedAmount {
+        amount
+      }
+    }
+  }
 }
 ```
 
 ### Check Cookie in Browser
 
 ```javascript
-document.cookie.split(";").find(c => c.includes("checkoutId"));
+document.cookie.split(";").find((c) => c.includes("checkoutId"));
 ```
 
 ## Best Practices
@@ -825,10 +852,10 @@ Query the flag from `Shop`:
 
 ```graphql
 query StockAvailabilityMode {
-	shop {
-		id
-		useLegacyShippingZoneStockAvailability
-	}
+  shop {
+    id
+    useLegacyShippingZoneStockAvailability
+  }
 }
 ```
 
@@ -895,13 +922,20 @@ Always pass the `channel` argument to get correct pricing and availability:
 
 ```graphql
 query ProductDetails($slug: String!, $channel: String!) {
-	product(slug: $slug, channel: $channel) {
-		name
-		isAvailable
-		pricing {
-			priceRange { start { gross { amount currency } } }
-		}
-	}
+  product(slug: $slug, channel: $channel) {
+    name
+    isAvailable
+    pricing {
+      priceRange {
+        start {
+          gross {
+            amount
+            currency
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -937,12 +971,12 @@ The `channels` query requires an authenticated app token:
 
 ```graphql
 query {
-	channels {
-		id
-		slug
-		name
-		currencyCode
-	}
+  channels {
+    id
+    slug
+    name
+    currencyCode
+  }
 }
 ```
 

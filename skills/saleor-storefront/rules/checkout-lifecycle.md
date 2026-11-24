@@ -85,10 +85,10 @@ The authorized amount doesn't cover the checkout's total amount.
 
 ```json
 {
-	"transactionEvent": {
-		"message": "Failed to delivery request.",
-		"type": "AUTHORIZATION_FAILURE"
-	}
+  "transactionEvent": {
+    "message": "Failed to delivery request.",
+    "type": "AUTHORIZATION_FAILURE"
+  }
 }
 ```
 
@@ -110,24 +110,40 @@ If payment fails multiple times, the checkout accumulates partial transactions. 
 
 ```graphql
 query {
-	checkout(id: "Q2hlY2tvdXQ6...") {
-		id
-		totalPrice { gross { amount currency } }
-		lines { variant { name } quantity }
-		shippingMethod { name }
-		transactions {
-			id
-			chargedAmount { amount }
-			authorizedAmount { amount }
-		}
-	}
+  checkout(id: "Q2hlY2tvdXQ6...") {
+    id
+    totalPrice {
+      gross {
+        amount
+        currency
+      }
+    }
+    lines {
+      variant {
+        name
+      }
+      quantity
+    }
+    shippingMethod {
+      name
+    }
+    transactions {
+      id
+      chargedAmount {
+        amount
+      }
+      authorizedAmount {
+        amount
+      }
+    }
+  }
 }
 ```
 
 ### Check Cookie in Browser
 
 ```javascript
-document.cookie.split(";").find(c => c.includes("checkoutId"));
+document.cookie.split(";").find((c) => c.includes("checkoutId"));
 ```
 
 ## Best Practices
