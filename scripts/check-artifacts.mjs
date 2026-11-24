@@ -8,6 +8,9 @@ import { execFileSync } from "node:child_process";
 import { siteUrl, documentationMcp } from "./site-config.mjs";
 import { readHostRoutes } from "./vercel-routing.mjs";
 
+// htmlparser2 is several times faster than the default parse5 across thousands of pages.
+const parseHtml = (html) => load(html, { xml: { xmlMode: false } });
+
 const out =
   process.env.BLUME_OUTPUT_DIR ??
   (process.env.BLUME_SERVER !== "0" ? ".vercel/output/static" : "dist");
@@ -91,7 +94,7 @@ for (const [route, { markdown }] of Object.entries(routes)) {
   try {
     const html = await readFile(`${out}${route === "/" ? "" : route}/index.html`, "utf8");
     const md = await readFile(`${out}${markdown}`, "utf8");
-    const $ = load(html);
+    const $ = parseHtml(html);
     assert.equal($("h1").length, 1, `${route}: expected one H1`);
     const ogPath = `/og/${route === "/" ? "index" : route.slice(1)}.png`;
     assert.equal(
@@ -127,7 +130,7 @@ assert.match(metadata, /"key1": "value1"/);
 const pulse = await readFile(`${out}/developer/app-store/apps/pulse/overview.md`, "utf8");
 assert.match(pulse, /Saleor version required/);
 assert.match(pulse, /pulse-tour.mp4/);
-const api = load(await readFile(`${out}/quickstart/api/index.html`, "utf8"));
+const api = parseHtml(await readFile(`${out}/quickstart/api/index.html`, "utf8"));
 assert(api("[data-blume-tab-panel]").length >= 2, "Tabs did not render all panels");
 assert(api("pre code").length > 5, "Quickstart examples are missing");
 assert.equal(api(".graphql-example").length, 6, "Quickstart runners are missing");
@@ -153,7 +156,7 @@ for (const operation of [
 assert(quickstartMarkdown.includes("REPLACE_WITH_YOUR_PRODUCT_ID"));
 assert(quickstartMarkdown.includes("REPLACE_WITH_YOUR_SHIPPING_METHOD_ID"));
 assert(!quickstartMarkdown.includes("<GraphQLExample"), "Runner was not serialized into Markdown");
-const square = load(
+const square = parseHtml(
   await readFile(
     `${out}/developer/app-store/apps/square/storefront-integration/index.html`,
     "utf8",
@@ -170,7 +173,7 @@ assert.match(
   "Square agent prompt was not serialized into Markdown",
 );
 assert(!squareMarkdown.includes("<AgentPrompt"), "Square agent prompt tag leaked into Markdown");
-const stripe = load(
+const stripe = parseHtml(
   await readFile(
     `${out}/developer/app-store/apps/stripe/storefront-integration/index.html`,
     "utf8",
@@ -187,15 +190,17 @@ assert.match(
   "Stripe agent prompt was not serialized into Markdown",
 );
 assert(!stripeMarkdown.includes("<AgentPrompt"), "Stripe agent prompt tag leaked into Markdown");
-const webhooks = load(
+const webhooks = parseHtml(
   await readFile(`${out}/developer/extending/webhooks/creating/index.html`, "utf8"),
 );
 assert(webhooks("#webhook-identifier").length, "Comment conversion lost webhook content");
 assert(webhooks("article pre").length >= 8, "Webhook examples were lost");
-const checkout = load(await readFile(`${out}/developer/checkout/api-guide/index.html`, "utf8"));
+const checkout = parseHtml(
+  await readFile(`${out}/developer/checkout/api-guide/index.html`, "utf8"),
+);
 assert(checkout("article pre").length >= 42, "Checkout tab examples were lost");
 assert.equal(checkout("tabitem").length, 0, "Unconverted checkout tabs");
-const examples = load(
+const examples = parseHtml(
   await readFile(`${out}/developer/extending/apps/developing-apps/app-examples/index.html`, "utf8"),
 );
 assert(examples("article [data-blume-card]").length >= 15, "App example cards were lost");

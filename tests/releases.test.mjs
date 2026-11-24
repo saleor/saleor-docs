@@ -29,6 +29,14 @@ test("contributors remain within release notes as a label, preserving credits", 
   );
 });
 
+test("GitHub alerts become labelled quotes, which Markdown pages render", () => {
+  const body = "> [!CAUTION]\r\n> Upgrade to **3.23**.\n\n```md\n> [!NOTE]\n```";
+  assert.equal(
+    transformReleaseNotes(body),
+    "> **Caution:**\n> Upgrade to **3.23**.\n\n```md\n> [!NOTE]\n```",
+  );
+});
+
 test("release pages preserve published facts, dates, source links and changelog metadata", () => {
   const release = {
     tag_name: "3.23.36",

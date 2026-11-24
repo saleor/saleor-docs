@@ -17,6 +17,14 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check:format
+      # Reuse generated social images and the Astro and Vite caches between runs.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            node_modules/.cache/blume
+            .blume/.cache
+          key: blume-build-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: blume-build-${{ hashFiles('pnpm-lock.yaml') }}-
       - run: pnpm blume:doctor
       - run: pnpm knip
       - run: pnpm test
