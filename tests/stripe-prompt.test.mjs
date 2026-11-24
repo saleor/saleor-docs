@@ -63,7 +63,7 @@ test("the agent prompt stays in sync with the Stripe docs", async () => {
     );
   }
   assert(
-    integration.includes("data.paymentIntent\n    .stripeClientSecret"),
+    /data\.paymentIntent\s*\.stripeClientSecret/.test(integration),
     "The guide reads the client secret from the wrong path",
   );
 });
