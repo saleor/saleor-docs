@@ -10,5 +10,4 @@ export const apps = [
   ["Twilio Segment", "segment/overview", "segment"],
   ["Stripe", "stripe/overview", "app-payment-stripe"],
 ];
-export const appUrl = (route: string) =>
-  `/developer/app-store/apps/${route}`;
+export const appUrl = (route: string) => `/developer/app-store/apps/${route}`;

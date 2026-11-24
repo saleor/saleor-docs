@@ -44,6 +44,7 @@ Shop Settings
 Runs before any mutations. Aborts the entire deployment on failure.
 
 Checks:
+
 - Schema validation against Zod schemas
 - Duplicate slug/name detection within each entity type
 - Required field presence
@@ -79,18 +80,19 @@ configurator deploy    # Second run: should show 0 changes
 
 Large catalogs can take minutes. Approximate estimates:
 
-| Entity    | Typical Count | Chunk Size | Estimated Time |
-| --------- | ------------- | ---------- | -------------- |
-| Products  | 100–10,000    | 50         | 2–30 min       |
-| Categories| 10–500        | 50         | 1–5 min        |
-| Attributes| 10–100        | 50         | < 1 min        |
-| Others    | Variable      | 50         | < 1 min        |
+| Entity     | Typical Count | Chunk Size | Estimated Time |
+| ---------- | ------------- | ---------- | -------------- |
+| Products   | 100–10,000    | 50         | 2–30 min       |
+| Categories | 10–500        | 50         | 1–5 min        |
+| Attributes | 10–100        | 50         | < 1 min        |
+| Others     | Variable      | 50         | < 1 min        |
 
 Rate limiting (HTTP 429) is handled automatically with exponential backoff (max 5 retries).
 
 ## Deployment Report
 
 Every deploy writes a JSON report to `deployment-report-YYYY-MM-DD_HH-MM-SS.json`. It includes:
+
 - Per-stage results (created / updated / deleted / unchanged counts)
 - Errors with entity context
 - Timing breakdown

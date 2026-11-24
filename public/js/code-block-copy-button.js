@@ -36,10 +36,7 @@ window.addEventListener("load", function () {
       const code =
         codeLines.length <= 1
           ? codeElement.textContent
-          : [...codeLines].reduce(
-              (carry, codeLine) => `${carry + codeLine.textContent}\n`,
-              "",
-            );
+          : [...codeLines].reduce((carry, codeLine) => `${carry + codeLine.textContent}\n`, "");
 
       return code.replace(/^\$\s/gm, "").trim();
     },
@@ -47,9 +44,7 @@ window.addEventListener("load", function () {
 
   clipboard.on("success", function (event) {
     event.clearSelection();
-    const copyButtonTextElement = event.trigger.querySelector(
-      ".copyCodeButtonText",
-    );
+    const copyButtonTextElement = event.trigger.querySelector(".copyCodeButtonText");
 
     copyButtonTextElement.textContent = COPY_BUTTON_SUCCESS_TEXT_LABEL;
     setTimeout(function () {

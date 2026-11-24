@@ -14,14 +14,33 @@ test("copy prompt puts the exact prompt on the clipboard", async () => {
   await mkdir("artifacts", { recursive: true });
   await build({
     entryPoints: ["components/playground/AgentPrompt.tsx"],
-    outfile: "artifacts/agent-prompt-test.mjs", bundle: true, format: "esm", platform: "node",
-    packages: "external", jsx: "automatic", loader: { ".css": "empty" },
+    outfile: "artifacts/agent-prompt-test.mjs",
+    bundle: true,
+    format: "esm",
+    platform: "node",
+    packages: "external",
+    jsx: "automatic",
+    loader: { ".css": "empty" },
   });
-  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: "https://docs.example.test" });
-  Object.assign(globalThis, { window: dom.window, document: dom.window.document, HTMLElement: dom.window.HTMLElement, IS_REACT_ACT_ENVIRONMENT: true });
+  const dom = new JSDOM('<!doctype html><div id="root"></div>', {
+    url: "https://docs.example.test",
+  });
+  Object.assign(globalThis, {
+    window: dom.window,
+    document: dom.window.document,
+    HTMLElement: dom.window.HTMLElement,
+    IS_REACT_ACT_ENVIRONMENT: true,
+  });
   let copied;
   const clipboard = Object.getOwnPropertyDescriptor(globalThis.navigator, "clipboard");
-  Object.defineProperty(globalThis.navigator, "clipboard", { configurable: true, value: { writeText: async text => { copied = text; } } });
+  Object.defineProperty(globalThis.navigator, "clipboard", {
+    configurable: true,
+    value: {
+      writeText: async (text) => {
+        copied = text;
+      },
+    },
+  });
   const { createRoot } = await import("react-dom/client");
   const { default: Prompt } = await import(`../artifacts/agent-prompt-test.mjs?${Date.now()}`);
   try {
@@ -35,12 +54,17 @@ test("copy prompt puts the exact prompt on the clipboard", async () => {
         await act(async () => button.click());
         assert.equal(copied, prompt, `${app}: the copied text isn't the prompt`);
         assert.equal(button.textContent, "Copied");
-        assert.equal(document.querySelector(".agent-prompt-text").textContent, prompt, `${app}: the visible prompt is what gets copied`);
+        assert.equal(
+          document.querySelector(".agent-prompt-text").textContent,
+          prompt,
+          `${app}: the visible prompt is what gets copied`,
+        );
       } finally {
         await act(async () => root.unmount());
       }
     }
   } finally {
-    if (clipboard) Object.defineProperty(globalThis.navigator, "clipboard", clipboard); else delete globalThis.navigator.clipboard;
+    if (clipboard) Object.defineProperty(globalThis.navigator, "clipboard", clipboard);
+    else delete globalThis.navigator.clipboard;
   }
 });

@@ -83,20 +83,20 @@ Every entity has exactly **one** identification strategy. Using the wrong one ca
 
 ### Strategy Matrix
 
-| Entity        | Strategy  | Field  | Example               |
-| ------------- | --------- | ------ | --------------------- |
-| Categories    | slug      | `slug` | `smartphones`         |
-| Channels      | slug      | `slug` | `default-channel`     |
-| Collections   | slug      | `slug` | `summer-sale`         |
-| Menus         | slug      | `slug` | `main-navigation`     |
-| Products      | slug      | `slug` | `iphone-15-pro`       |
-| Warehouses    | slug      | `slug` | `us-east-warehouse`   |
-| ProductTypes  | name      | `name` | `Physical Product`    |
-| PageTypes     | name      | `name` | `Blog Post`           |
-| TaxClasses    | name      | `name` | `Standard Rate`       |
-| ShippingZones | name      | `name` | `North America`       |
-| Attributes    | name      | `name` | `Color`               |
-| Shop          | singleton | N/A    | (only one per store)  |
+| Entity        | Strategy  | Field  | Example              |
+| ------------- | --------- | ------ | -------------------- |
+| Categories    | slug      | `slug` | `smartphones`        |
+| Channels      | slug      | `slug` | `default-channel`    |
+| Collections   | slug      | `slug` | `summer-sale`        |
+| Menus         | slug      | `slug` | `main-navigation`    |
+| Products      | slug      | `slug` | `iphone-15-pro`      |
+| Warehouses    | slug      | `slug` | `us-east-warehouse`  |
+| ProductTypes  | name      | `name` | `Physical Product`   |
+| PageTypes     | name      | `name` | `Blog Post`          |
+| TaxClasses    | name      | `name` | `Standard Rate`      |
+| ShippingZones | name      | `name` | `North America`      |
+| Attributes    | name      | `name` | `Color`              |
+| Shop          | singleton | N/A    | (only one per store) |
 
 ### Slug Rules
 
@@ -191,23 +191,23 @@ pnpm dlx @saleor/configurator deploy --exclude=products
 
 ### Useful Flags
 
-| Flag | Purpose |
-| ---- | ------- |
-| `--url` | Saleor GraphQL endpoint |
-| `--token` | API token |
+| Flag            | Purpose                           |
+| --------------- | --------------------------------- |
+| `--url`         | Saleor GraphQL endpoint           |
+| `--token`       | API token                         |
 | `--report-path` | Custom path for deployment report |
-| `--include=a,b` | Only deploy listed entity types |
-| `--exclude=a,b` | Skip listed entity types |
+| `--include=a,b` | Only deploy listed entity types   |
+| `--exclude=a,b` | Skip listed entity types          |
 
 ### Environment Variables
 
-| Variable | Purpose |
-| -------- | ------- |
-| `SALEOR_URL` | Saleor GraphQL endpoint |
-| `SALEOR_TOKEN` | API authentication token |
-| `LOG_LEVEL` | Logging verbosity (`info`, `debug`) |
-| `GRAPHQL_MAX_CONCURRENCY` | Max concurrent requests (default: 4) |
-| `GRAPHQL_INTERVAL_CAP` | Max requests per interval (default: 20) |
+| Variable                  | Purpose                                 |
+| ------------------------- | --------------------------------------- |
+| `SALEOR_URL`              | Saleor GraphQL endpoint                 |
+| `SALEOR_TOKEN`            | API authentication token                |
+| `LOG_LEVEL`               | Logging verbosity (`info`, `debug`)     |
+| `GRAPHQL_MAX_CONCURRENCY` | Max concurrent requests (default: 4)    |
+| `GRAPHQL_INTERVAL_CAP`    | Max requests per interval (default: 20) |
 
 ### Recommended Workflow
 
@@ -305,6 +305,7 @@ Configurator **does not delete entities**. It only creates and updates. Remote e
 ### How Comparison Works
 
 For each entity type:
+
 1. Fetch all remote entities
 2. Match each local entity to remote by slug or name
 3. Compare field values
@@ -312,11 +313,11 @@ For each entity type:
 
 ### Diff Result Types
 
-| Result      | Meaning                                        |
-| ----------- | ---------------------------------------------- |
-| `create`    | Exists locally, not remotely                   |
-| `update`    | Exists in both, fields differ                  |
-| `unchanged` | Exists in both, all fields match               |
+| Result      | Meaning                          |
+| ----------- | -------------------------------- |
+| `create`    | Exists locally, not remotely     |
+| `update`    | Exists in both, fields differ    |
+| `unchanged` | Exists in both, all fields match |
 
 ### Omitted or Empty Sections = No Changes
 
@@ -335,6 +336,7 @@ productTypes:
 ### Nested Comparison
 
 Nested structures are also diffed:
+
 - ProductType → assigned attributes
 - Category → parent hierarchy
 - Menu → items and children

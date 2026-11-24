@@ -58,14 +58,14 @@ interface APL {
 
 ### Implementations
 
-| APL | Use Case | Storage |
-|-----|----------|---------|
-| `FileAPL` | Dev only | `.saleor-app-auth.json` file |
-| `EnvAPL` | Single-tenant | Environment variables |
-| `UpstashAPL` | Serverless production | Upstash Redis |
-| `RedisAPL` | Self-hosted production | Redis |
-| `VercelKvApl` | Vercel deployments | Vercel KV |
-| `SaleorCloudAPL` | Saleor Cloud apps | Saleor Cloud API |
+| APL              | Use Case               | Storage                      |
+| ---------------- | ---------------------- | ---------------------------- |
+| `FileAPL`        | Dev only               | `.saleor-app-auth.json` file |
+| `EnvAPL`         | Single-tenant          | Environment variables        |
+| `UpstashAPL`     | Serverless production  | Upstash Redis                |
+| `RedisAPL`       | Self-hosted production | Redis                        |
+| `VercelKvApl`    | Vercel deployments     | Vercel KV                    |
+| `SaleorCloudAPL` | Saleor Cloud apps      | Saleor Cloud API             |
 
 See `references/apl-implementations.md` for setup details.
 
@@ -162,6 +162,7 @@ export default createProtectedHandler(
 Webhook payloads are signed with JWS. The `saleor-signature` header contains a compact JWS: `header.payload.signature`.
 
 Verification:
+
 1. Parse JWS from `saleor-signature` header
 2. Use JWKS (cached in APL or fetched from `{origin}/.well-known/jwks.json`)
 3. Verify with `jose.flattenedVerify()` — payload must match raw request body

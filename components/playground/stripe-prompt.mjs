@@ -6,10 +6,14 @@ const gatewayId = "saleor.app.payment.stripe";
 // What the storefront does after transactionProcess, by transactionEvent.type. The prefix is
 // CHARGE_ or AUTHORIZATION_, depending on the channel's transaction flow and the payment method.
 export const outcomes = {
-  SUCCESS: "Payment is complete (AUTHORIZATION_SUCCESS: authorized, captured later from the Dashboard). Complete the checkout.",
-  REQUEST: "Stripe is still processing the payment, which is normal for bank debits. Complete the checkout; the order shows the payment as pending until Stripe confirms it.",
-  ACTION_REQUIRED: "The payment isn't finished, for example the customer abandoned a redirect or the payment failed. Don't complete the checkout. Let the customer pay again, starting from transactionInitialize.",
-  FAILURE: "The app couldn't read the payment from Stripe, for example during a Stripe outage. This doesn't mean the payment failed: wait a moment and call transactionProcess again before showing an error.",
+  SUCCESS:
+    "Payment is complete (AUTHORIZATION_SUCCESS: authorized, captured later from the Dashboard). Complete the checkout.",
+  REQUEST:
+    "Stripe is still processing the payment, which is normal for bank debits. Complete the checkout; the order shows the payment as pending until Stripe confirms it.",
+  ACTION_REQUIRED:
+    "The payment isn't finished, for example the customer abandoned a redirect or the payment failed. Don't complete the checkout. Let the customer pay again, starting from transactionInitialize.",
+  FAILURE:
+    "The app couldn't read the payment from Stripe, for example during a Stripe outage. This doesn't mean the payment failed: wait a moment and call transactionProcess again before showing an error.",
 };
 
 // Stripe test cards: https://docs.stripe.com/testing
@@ -20,19 +24,43 @@ const testCards = [
 ];
 
 const docsUrl = "https://docs.saleor.io/developer/app-store/apps/stripe";
-export const promptPages = { "storefront-integration": "Storefront integration", webhooks: "Request data shapes", "supported-payment-methods": "Supported payment methods", errors: "Errors" };
+export const promptPages = {
+  "storefront-integration": "Storefront integration",
+  webhooks: "Request data shapes",
+  "supported-payment-methods": "Supported payment methods",
+  errors: "Errors",
+};
 
 // paymentMethod values the app accepts in transactionInitialize `data`, as listed on the supported payment methods page.
-export const promptMethods = ["card", "apple_pay", "google_pay", "link", "klarna", "paypal", "us_bank_account", "sepa_debit", "pay_by_bank", "mobilepay", "revolut_pay"];
+export const promptMethods = [
+  "card",
+  "apple_pay",
+  "google_pay",
+  "link",
+  "klarna",
+  "paypal",
+  "us_bank_account",
+  "sepa_debit",
+  "pay_by_bank",
+  "mobilepay",
+  "revolut_pay",
+];
 // Codes in data.paymentIntent.errors, as listed on the webhooks page.
-export const promptErrorCodes = ["ParseError", "UnsupportedPaymentMethodError", "StripeCardError", "StripeApiError"];
+export const promptErrorCodes = [
+  "ParseError",
+  "UnsupportedPaymentMethodError",
+  "StripeCardError",
+  "StripeApiError",
+];
 
 // The prompt walks through the API surface so the agent can start without fetching anything,
 // and links the docs as the source of truth.
 export const agentPrompt = `Integrate Stripe payments into this Saleor storefront's checkout using the Saleor Stripe App.
 
 The docs below are the source of truth. Read them before writing code, and follow them if anything here disagrees:
-${Object.entries(promptPages).map(([page, title]) => `- ${title}: ${docsUrl}/${page}.md`).join("\n")}
+${Object.entries(promptPages)
+  .map(([page, title]) => `- ${title}: ${docsUrl}/${page}.md`)
+  .join("\n")}
 
 How it works:
 - The storefront renders Stripe's Payment Element (@stripe/stripe-js, plus @stripe/react-stripe-js in React) and confirms the payment with Stripe.js. Saleor calls the Stripe App, and the app creates the PaymentIntent in Stripe. The storefront never calls Stripe's API with a secret key and never handles raw card data.
@@ -54,7 +82,9 @@ Build the payment step:
 5. Confirm. Call stripe.confirmPayment({ elements, clientSecret, confirmParams: { return_url } }). Put the checkout ID and the transaction ID in return_url, because the page reloads after a redirect and React state is lost. Stripe adds payment_intent_client_secret to the URL when it redirects back. If confirmPayment returns an error, Stripe didn't redirect: show error.message and let the customer try again.
 6. Process on the return page. Call transactionProcess(id: <transaction ID>) and read transactionEvent { type message } and errors. It asks the app to read the PaymentIntent from Stripe, so the storefront doesn't have to wait for Stripe's webhook. Saleor ignores whichever of the two reports arrives second.
 7. React to transactionEvent.type, which starts with CHARGE_ or AUTHORIZATION_:
-${Object.entries(outcomes).map(([type, next]) => `   - *_${type}: ${next}`).join("\n")}
+${Object.entries(outcomes)
+  .map(([type, next]) => `   - *_${type}: ${next}`)
+  .join("\n")}
 8. Complete. Call checkoutComplete(id: <checkout ID>) and show the order. Its errors mean the checkout isn't paid yet.
 
 Idempotency:
@@ -66,7 +96,7 @@ Errors:
 - In live mode the app hides error details. Stripe test mode returns them in messages, which helps while building.
 
 Verify:
-- Connect the app to a Stripe test mode account, then pay in the browser with Stripe test cards (any future expiry date and any CVC): ${testCards.map(card => `${card.number} ${card.label}`).join(", ")}. See https://docs.stripe.com/testing for other methods.
+- Connect the app to a Stripe test mode account, then pay in the browser with Stripe test cards (any future expiry date and any CVC): ${testCards.map((card) => `${card.number} ${card.label}`).join(", ")}. See https://docs.stripe.com/testing for other methods.
 - Check that the declined card shows Stripe's error and creates no order, and that the other two reach *_SUCCESS after transactionProcess, create an order, and show up in the Stripe Dashboard.
 
 When you're done, tell me which files you changed and what you verified.`;

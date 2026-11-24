@@ -4,20 +4,20 @@ Every entity has exactly **one** identification strategy. Using the wrong one ca
 
 ## Strategy Matrix
 
-| Entity        | Strategy  | Field  | Example               |
-| ------------- | --------- | ------ | --------------------- |
-| Categories    | slug      | `slug` | `smartphones`         |
-| Channels      | slug      | `slug` | `default-channel`     |
-| Collections   | slug      | `slug` | `summer-sale`         |
-| Menus         | slug      | `slug` | `main-navigation`     |
-| Products      | slug      | `slug` | `iphone-15-pro`       |
-| Warehouses    | slug      | `slug` | `us-east-warehouse`   |
-| ProductTypes  | name      | `name` | `Physical Product`    |
-| PageTypes     | name      | `name` | `Blog Post`           |
-| TaxClasses    | name      | `name` | `Standard Rate`       |
-| ShippingZones | name      | `name` | `North America`       |
-| Attributes    | name      | `name` | `Color`               |
-| Shop          | singleton | N/A    | (only one per store)  |
+| Entity        | Strategy  | Field  | Example              |
+| ------------- | --------- | ------ | -------------------- |
+| Categories    | slug      | `slug` | `smartphones`        |
+| Channels      | slug      | `slug` | `default-channel`    |
+| Collections   | slug      | `slug` | `summer-sale`        |
+| Menus         | slug      | `slug` | `main-navigation`    |
+| Products      | slug      | `slug` | `iphone-15-pro`      |
+| Warehouses    | slug      | `slug` | `us-east-warehouse`  |
+| ProductTypes  | name      | `name` | `Physical Product`   |
+| PageTypes     | name      | `name` | `Blog Post`          |
+| TaxClasses    | name      | `name` | `Standard Rate`      |
+| ShippingZones | name      | `name` | `North America`      |
+| Attributes    | name      | `name` | `Color`              |
+| Shop          | singleton | N/A    | (only one per store) |
 
 ## Slug Rules
 
@@ -88,6 +88,7 @@ menus:
 ## Changing Identifiers
 
 **Changing a slug or name** is a destructive operation — the Configurator treats it as:
+
 1. Delete the old entity (by old slug/name)
 2. Create a new entity (with new slug/name)
 

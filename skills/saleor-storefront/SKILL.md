@@ -31,12 +31,12 @@ Reference these guidelines when:
 
 ## Rule Categories
 
-| Priority | Category  | Impact   | Prefix       |
-| -------- | --------- | -------- | ------------ |
-| 1        | API       | CRITICAL | `api-`       |
-| 2        | Products  | HIGH     | `products-`  |
-| 3        | Checkout  | HIGH     | `checkout-`  |
-| 4        | Channels  | MEDIUM   | `channels-`  |
+| Priority | Category | Impact   | Prefix      |
+| -------- | -------- | -------- | ----------- |
+| 1        | API      | CRITICAL | `api-`      |
+| 2        | Products | HIGH     | `products-` |
+| 3        | Checkout | HIGH     | `checkout-` |
+| 4        | Channels | MEDIUM   | `channels-` |
 
 ## Quick Reference
 

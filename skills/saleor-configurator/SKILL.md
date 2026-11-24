@@ -26,13 +26,13 @@ your entire Saleor store configuration in YAML and deploy it declaratively.
 
 ## Rule Categories by Priority
 
-| Priority | Category           | Impact   | Prefix       |
-| -------- | ------------------ | -------- | ------------ |
-| 1        | Config Schema      | CRITICAL | `config-`    |
-| 2        | Entity Identity    | CRITICAL | `identity-`  |
-| 3        | CLI Workflow       | HIGH     | `cli-`       |
-| 4        | Deployment         | HIGH     | `deploy-`    |
-| 5        | Diff & Sync        | MEDIUM   | `diff-`      |
+| Priority | Category        | Impact   | Prefix      |
+| -------- | --------------- | -------- | ----------- |
+| 1        | Config Schema   | CRITICAL | `config-`   |
+| 2        | Entity Identity | CRITICAL | `identity-` |
+| 3        | CLI Workflow    | HIGH     | `cli-`      |
+| 4        | Deployment      | HIGH     | `deploy-`   |
+| 5        | Diff & Sync     | MEDIUM   | `diff-`     |
 
 ## Quick Reference
 

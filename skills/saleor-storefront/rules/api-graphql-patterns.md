@@ -40,10 +40,10 @@ product {
 }
 ```
 
-| Type              | `variantSelection` value    | Purpose                              | UI Pattern          |
-| ----------------- | --------------------------- | ------------------------------------ | ------------------- |
-| **Selection**     | `VARIANT_SELECTION`         | Identify which variant (color, size) | Interactive picker  |
-| **Non-Selection** | `NOT_VARIANT_SELECTION`     | Describe the variant (material)      | Display-only badges |
+| Type              | `variantSelection` value | Purpose                              | UI Pattern          |
+| ----------------- | ------------------------ | ------------------------------------ | ------------------- |
+| **Selection**     | `VARIANT_SELECTION`      | Identify which variant (color, size) | Interactive picker  |
+| **Non-Selection** | `NOT_VARIANT_SELECTION`  | Describe the variant (material)      | Display-only badges |
 
 **Key insight**: Neither type is "passed" to checkout. You only pass the `variantId`. All attributes are already stored on the variant in Saleor.
 
@@ -63,14 +63,14 @@ query Products($channel: String!, $filter: ProductFilterInput) {
 
 Common filter fields:
 
-| Filter             | Type            | Notes                                        |
-| ------------------ | --------------- | -------------------------------------------- |
-| `categories`       | `[ID!]`         | Requires category IDs (not slugs)            |
-| `collections`      | `[ID!]`         | Requires collection IDs                      |
-| `price`            | `PriceRangeInput` | `{ gte: 10, lte: 50 }`                    |
-| `search`           | `String`        | Full-text search                             |
-| `stockAvailability`| `StockAvailability` | `IN_STOCK` or `OUT_OF_STOCK`           |
-| `attributes`       | `[AttributeInput!]` | Filter by attribute values              |
+| Filter              | Type                | Notes                             |
+| ------------------- | ------------------- | --------------------------------- |
+| `categories`        | `[ID!]`             | Requires category IDs (not slugs) |
+| `collections`       | `[ID!]`             | Requires collection IDs           |
+| `price`             | `PriceRangeInput`   | `{ gte: 10, lte: 50 }`            |
+| `search`            | `String`            | Full-text search                  |
+| `stockAvailability` | `StockAvailability` | `IN_STOCK` or `OUT_OF_STOCK`      |
+| `attributes`        | `[AttributeInput!]` | Filter by attribute values        |
 
 **Gotcha**: Categories and collections require **IDs**, not slugs. You need a slug-to-ID resolution step if your URLs use slugs.
 

@@ -47,9 +47,11 @@ Only works for async events. Requires the same permissions as the event.
 **Cause**: Body was parsed before signature verification.
 
 **Fix**: Disable body parsing in Next.js:
+
 ```typescript
 export const config = { api: { bodyParser: false } };
 ```
+
 Other frameworks: read raw body before any middleware processes it.
 
 ### "Not registered" / AuthData Not Found
@@ -57,6 +59,7 @@ Other frameworks: read raw body before any middleware processes it.
 **Cause**: APL has no entry for the `saleor-api-url` header value.
 
 **Debug**:
+
 1. Check APL storage (`.saleor-app-auth.json` for FileAPL)
 2. Reinstall the app in Dashboard
 3. Verify `saleor-api-url` header matches stored `saleorApiUrl` exactly (trailing slash matters)
@@ -72,6 +75,7 @@ Other frameworks: read raw body before any middleware processes it.
 **Cause**: Token lacks required permissions.
 
 **Check**:
+
 - App-scope: verify manifest `permissions` includes needed permission
 - User-scope: verify Dashboard user has the permission
 - After changing manifest permissions, reinstall the app or update via `appUpdate` mutation (see `protocol-manifest.md`)
@@ -79,6 +83,7 @@ Other frameworks: read raw body before any middleware processes it.
 ### Webhook Not Firing
 
 **Debug**:
+
 1. Check Dashboard → Apps → your app → webhook list
 2. Verify webhook is active (`isActive: true`)
 3. Check `targetUrl` is reachable from Saleor

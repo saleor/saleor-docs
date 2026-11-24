@@ -22,7 +22,7 @@ query ($slug: String!, $channel: String!) {
 }
 ```
 
-How the storefront *picks* which slug to send is a routing concern, not a Saleor concern. Common patterns:
+How the storefront _picks_ which slug to send is a routing concern, not a Saleor concern. Common patterns:
 
 - Path segment: `/us/products/...` → `us-store`
 - Subdomain: `uk.example.com` → `uk-store`
@@ -38,10 +38,10 @@ Saleor 3.23 introduced a per-shop boolean **`Shop.useLegacyShippingZoneStockAvai
 
 The single most important insight is that 3.23 splits one entangled concept into two orthogonal ones:
 
-| Concern | Meaning | Driven by |
-|---|---|---|
-| **Purchasability** | Can a customer add this variant to cart? | Channel publication, channel listing, variant pricing, warehouse-channel link, stock quantity |
-| **Shippability** | Can a customer complete checkout for a shippable order? | Shipping zones, shipping methods, destination |
+| Concern            | Meaning                                                 | Driven by                                                                                     |
+| ------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Purchasability** | Can a customer add this variant to cart?                | Channel publication, channel listing, variant pricing, warehouse-channel link, stock quantity |
+| **Shippability**   | Can a customer complete checkout for a shippable order? | Shipping zones, shipping methods, destination                                                 |
 
 In **legacy mode** (pre-3.23 behavior, still the default for upgraded shops) the two are entangled: a missing shipping zone hides the product entirely, so shippability problems cause purchasability problems.
 

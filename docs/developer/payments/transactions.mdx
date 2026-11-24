@@ -34,7 +34,6 @@ The [`transactionCreate`](/api-reference/payments/mutations/transaction-create) 
 :::info
 The [`transactionCreate`](/api-reference/payments/mutations/transaction-create) can only be called by staff users or apps with the [`HANDLE_PAYMENTS`](/api-reference/users/enums/permission-enum#handle-payments) permission.
 
-
 :::
 
 The following example shows how you can use the [`transactionCreate`](/api-reference/payments/mutations/transaction-create) mutation to create a new transaction.
@@ -105,6 +104,7 @@ mutation TransactionCreate($id: ID!, $transaction: TransactionCreateInput!) {
 </Tabs>
 
 :::info
+
 - Transactions attached to the checkout are accessible via the [`checkout.transactions`](/api-reference/checkout/objects/checkout#transactions) field.
 
 - Transactions attached to order are accessible via the [`order.transactions`](/api-reference/orders/objects/order#transactions) field.
@@ -208,6 +208,7 @@ mutation TransactionUpdate($id: ID, $transaction: TransactionUpdateInput, $trans
 Assuming we have a transaction with `authorizedAmount` equal to 100 USD. Moving the `authorizedAmount` to `chargedAmount` requires setting the `authorizedAmount` to 0.
 
 This complexity is handled automatically when Payment Apps are used instead of a custom app.
+
 <Tabs>
 <Tab value="Mutation">
 
@@ -269,9 +270,9 @@ It takes the following arguments:
 - `id`: The id of the transaction.
 - `type`: Type of the reported action.
 - `amount`: The amount of the reported action. The amount is rounded based on the given currency precision.
-It is mandatory for all `REQUEST`, `SUCCESS`, `ACTION_REQUIRED`, and `REQUEST` events. For other events,
-if the amount is not provided, it will be calculated based on previous events with the same pspReference.
-If the amount cannot be determined, an error will be raised. (Refer to the additional details [below](#amount-calculations-for-reporting-an-action-with-missing-amount-value) ).
+  It is mandatory for all `REQUEST`, `SUCCESS`, `ACTION_REQUIRED`, and `REQUEST` events. For other events,
+  if the amount is not provided, it will be calculated based on previous events with the same pspReference.
+  If the amount cannot be determined, an error will be raised. (Refer to the additional details [below](#amount-calculations-for-reporting-an-action-with-missing-amount-value) ).
 - `pspReference`: The reference assigned to the action.
 - `time`: The time of the action.
 - `externalUrl`: The URL for the staff user to check the details of the action on the payment provider's page. This URL will be available in the Saleor Dashboard.
@@ -362,7 +363,9 @@ In the response, Saleor returns:
 - `transactionEvent` - [TransactionEvent](/api-reference/payments/objects/transaction-event) that has been created based on the received report.
 
 #### Amount calculations for reporting an action with missing amount value
+
 The `amount` value is required for the following event `type`s:
+
 - [`AUTHORIZATION_SUCCESS`](/api-reference/payments/enums/transaction-event-type-enum#authorization-success),
 - [`AUTHORIZATION_ADJUSTMENT`](/api-reference/payments/enums/transaction-event-type-enum#authorization-adjustment),
 - [`AUTHORIZATION_REQUEST`](/api-reference/payments/enums/transaction-event-type-enum#authorization-request),
@@ -376,9 +379,10 @@ The `amount` value is required for the following event `type`s:
 
 It's optional for the rest of the events. In case of missing `amount` value the following rules are used to
 calculate the `amount`:
+
 - In case of missing amount for event `INFO`, the 0 is used.
 - In case of missing amount for all `*_FAILURE`, the amount is taken from the corresponding `*_SUCCESS` or `*_REQUEST` event with the same `pspReference`.
-In case of multiple events, the value from the newest event is taken:
+  In case of multiple events, the value from the newest event is taken:
   - for `REFUND_FAILURE` the `amount` is taken from the newest event of one of the following types: `REFUND_SUCCESS`, `REFUND_REQUEST`, `CHARGE_SUCCESS`, `CHARGE_FAILURE`, `CHARGE_REQUEST`;
   - for `CHARGE_FAILURE` the `amount` is taken from the newest event of one of the following types: `CHARGE_SUCCESS`, `CHARGE_REQUEST`, `AUTHORIZATION_SUCCESS`, `AUTHORIZATION_FAILURE`, `AUTHORIZATION_REQUEST`;
   - for `AUTHORIZATION_FAILURE` the `amount` is taken from the newest event of one of the following types: `AUTHORIZATION_SUCCESS`, `AUTHORIZATION_REQUEST`;
@@ -390,6 +394,7 @@ In case of multiple events, the value from the newest event is taken:
 #### Events Not Requiring pspReference
 
 The following events do not require a `pspReference`:
+
 - `CHARGE_ACTION_REQUIRED`
 - `AUTHORIZATION_ACTION_REQUIRED`
 - `CHARGE_FAILURE`
@@ -401,11 +406,9 @@ If the `pspReference` is missing, the event will still be created but will be ex
 Consequently, it will not impact the `charge`, `refund`, `cancel`, or `authorize` amounts.
 Additionally, it will not affect any existing `transactionEvent` of the same type that has a `pspReference` set.
 
-
 ### Handling action requests for transactions
 
 An action request is called when a staff user or an app requests an action for a given transaction.
-
 
 Two mutations can trigger the action on the app side:
 
@@ -483,7 +486,7 @@ sequenceDiagram
     Saleor ->> Saleor: Update transaction amounts
 ```
 
-### TransactionItem and  TransactionEvents pspReference Matching
+### TransactionItem and TransactionEvents pspReference Matching
 
 Both [TransactionItem](/api-reference/payments/objects/transaction-item)
 and [TransactionEvent](/api-reference/payments/objects/transaction-event)
@@ -493,13 +496,14 @@ contain a `pspReference` field, which refers to the payment service provider ref
 - The `pspReference` on `TransactionEvent` identifies specific actions that occurred within the `Transaction`.
 
 **Key Assumptions:**
+
 - For a specific `TransactionItem`, only one `TransactionEvent` of a given `type` and `pspReference` may exist, except for the following types:
-	- [`AUTHORIZATION_ACTION_REQUIRED`](/developer/payments/lifecycle#authorization_action_required)
-	-	[`CHARGE_ACTION_REQUIRED`](/developer/payments/lifecycle#charge_action_required)
-	-	[`INFO`](/developer/payments/lifecycle#info)
+  - [`AUTHORIZATION_ACTION_REQUIRED`](/developer/payments/lifecycle#authorization_action_required)
+  - [`CHARGE_ACTION_REQUIRED`](/developer/payments/lifecycle#charge_action_required)
+  - [`INFO`](/developer/payments/lifecycle#info)
 - Only one `TransactionEvent` of type `AUTHORIZATION_SUCCESS` is allowed to exist.
-If an update is needed, the existing `AUTHORIZATION_SUCCESS` event can be modified using
-the [`AUTHORIZATION_ADJUSTMENT`](/developer/payments/lifecycle#authorization_adjustment) event.
+  If an update is needed, the existing `AUTHORIZATION_SUCCESS` event can be modified using
+  the [`AUTHORIZATION_ADJUSTMENT`](/developer/payments/lifecycle#authorization_adjustment) event.
 
 #### Setting the `pspReference` on the `TransactionItem`
 
@@ -508,12 +512,12 @@ during the `TransactionCreate` mutation or as a result of the `TransactionInitia
 
 The `transactionItem.pspReference` is updated during payment processing and reflects the `pspReference` from the most recent event received from the payment application.
 For example:
-	•	If a transaction is successful, the `pspReference` will be set based on the last `SUCCESS` event from the payment provider.
-	•	If the event sequence changes or multiple events are received, the `pspReference` always represents the value from the latest processed event.
+• If a transaction is successful, the `pspReference` will be set based on the last `SUCCESS` event from the payment provider.
+• If the event sequence changes or multiple events are received, the `pspReference` always represents the value from the latest processed event.
 
 The `pspReference` can be updated through the `transactionUpdate` mutation if necessary.
 
-#### Events with optional `pspReference` 
+#### Events with optional `pspReference`
 
 Certain event types do not require a pspReference.
 For more details, see [Events Not Requiring pspReference](#events-not-requiring-pspreference).
@@ -565,6 +569,7 @@ Saleor allows storing two types of payment method details:
 These details are available on the `TransactionItem.paymentMethodDetails` field.
 
 Payment method details can be stored in two ways:
+
 - Via Transaction Webhooks
 - Via Transaction Mutations
 
@@ -584,7 +589,6 @@ The following mutations accept a `paymentMethodDetails` input field:
 - `transactionEventReport`
 - `transactionCreate`
 - `transactionUpdate`
-
 
 #### Examples
 
@@ -809,7 +813,6 @@ A checkout is considered fully covered when the [`Checkout.authorizeStatus`](/de
 This occurs when the total of `authorizedAmount`, `chargedAmount`, `authorizePendingAmount`, and `chargePendingAmount`
 from all transactions connected to the `Checkout` covers the [`checkout.totalPrice`](/api-reference/checkout/objects/checkout#total-price).
 
-
 :::note
 Configure completion with the `automaticCompletion` input and its `delay` and `cutOffDate` options. The old boolean flag is deprecated but still functional.
 :::
@@ -817,12 +820,10 @@ Configure completion with the `automaticCompletion` input and its `delay` and `c
 :::caution
 This feature isn't compatible with [legacy Payments API](/developer/extending/plugins/payment-gateways) that uses [plugins](/developer/extending/plugins/overview) (instead of apps). For example this setting won't work with [Stripe plugin](/developer/app-store/legacy-plugins/stripe).
 
-
 Payments API uses `checkoutComplete` mutation to pass payment data to a plugin and return payment status, thanks to this `Order` is always created right after such payment is made.
- **This means that this setting doesn't impact Payments API**.
+**This means that this setting doesn't impact Payments API**.
 
 :::
-
 
 :::info[Automatic checkout completion is managed by a scheduled task that runs every minute. During each run, up to 20 checkouts are processed. The system prioritizes:]
 
@@ -891,11 +892,10 @@ mutation UpdateChannel($id: ID!,$input: ChannelUpdateInput!){
 Use `cutOffDate` set to the current date/time when first enabling this feature. This ensures only newly created checkouts will be automatically completed, allowing you to verify your storefront handles the flow correctly before applying it to all checkouts.
 :::
 
-
-
 #### Important behavior notes
 
 **Checkout validation:** Checkouts will not be automatically completed if validation issues occur. Use the `Checkout.problems` query to identify issues. Common validation problems include:
+
 - Unavailable items (missing product/variant listings, unavailable products, hidden products)
 - Missing billing address
 - Invalid voucher or gift card
@@ -905,6 +905,7 @@ Use `cutOffDate` set to the current date/time when first enabling this feature. 
 See the [Checkout Problems page](/developer/checkout/problems) for details.
 
 **Checkout lifecycle:** Once a checkout is automatically completed:
+
 - The `Checkout` object is deleted and queries/mutations on it will no longer work
 - Running `checkoutComplete` on an already completed checkout returns the previously created `Order`
 - Ensure your storefront handles this flow correctly before enabling
@@ -916,7 +917,6 @@ See the [Checkout Problems page](/developer/checkout/problems) for details.
 
 :::caution
 Once `Checkout` is converted to into `Order`, the `authorizeStatus` might change from `FULL` to `NONE` or `PARTIAL`. This happens because [`Order.authorizeStatus`](/api-reference/orders/enums/order-authorize-status-enum#values) uses different logic to calculate its value.
-
 
 - **For checkouts**: pending Transactions **are** considered "paid" and are included in the [`Checkout.authorizeStatus`](/api-reference/checkout/enums/checkout-authorize-status-enum) calculation.
 - **For orders**: pending Transactions **are not** considered "paid" and will not be included in the [`Order.authorizeStatus`](/api-reference/orders/enums/order-authorize-status-enum#values) calculation.

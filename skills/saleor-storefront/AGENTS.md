@@ -139,12 +139,12 @@ Understanding how Saleor's permission model works prevents "Permission denied" e
 
 ## Token Types
 
-| Token Type            | How to Get                    | Typical Use              |
-| --------------------- | ----------------------------- | ------------------------ |
-| **Anonymous**         | No token                      | Product browsing         |
-| **Customer JWT**      | `tokenCreate` mutation        | User account, checkout   |
-| **App token**         | Saleor Dashboard → Extensions | Server-side operations   |
-| **Staff JWT**         | Dashboard login               | Admin operations (never use in storefront) |
+| Token Type       | How to Get                    | Typical Use                                |
+| ---------------- | ----------------------------- | ------------------------------------------ |
+| **Anonymous**    | No token                      | Product browsing                           |
+| **Customer JWT** | `tokenCreate` mutation        | User account, checkout                     |
+| **App token**    | Saleor Dashboard → Extensions | Server-side operations                     |
+| **Staff JWT**    | Dashboard login               | Admin operations (never use in storefront) |
 
 ## Permission Error
 
@@ -205,6 +205,7 @@ const checkout = await authenticatedQuery(CheckoutDocument, { variables });
 ```
 
 This separation ensures:
+
 - Only publicly visible products are fetched on display pages
 - No user cookies leak into cached responses
 - No "Signature has expired" errors on public pages
@@ -258,10 +259,10 @@ product {
 }
 ```
 
-| Type              | `variantSelection` value    | Purpose                              | UI Pattern          |
-| ----------------- | --------------------------- | ------------------------------------ | ------------------- |
-| **Selection**     | `VARIANT_SELECTION`         | Identify which variant (color, size) | Interactive picker  |
-| **Non-Selection** | `NOT_VARIANT_SELECTION`     | Describe the variant (material)      | Display-only badges |
+| Type              | `variantSelection` value | Purpose                              | UI Pattern          |
+| ----------------- | ------------------------ | ------------------------------------ | ------------------- |
+| **Selection**     | `VARIANT_SELECTION`      | Identify which variant (color, size) | Interactive picker  |
+| **Non-Selection** | `NOT_VARIANT_SELECTION`  | Describe the variant (material)      | Display-only badges |
 
 **Key insight**: Neither type is "passed" to checkout. You only pass the `variantId`. All attributes are already stored on the variant in Saleor.
 
@@ -281,14 +282,14 @@ query Products($channel: String!, $filter: ProductFilterInput) {
 
 Common filter fields:
 
-| Filter             | Type                | Notes                                        |
-| ------------------ | ------------------- | -------------------------------------------- |
-| `categories`       | `[ID!]`             | Requires category IDs (not slugs)            |
-| `collections`      | `[ID!]`             | Requires collection IDs                      |
-| `price`            | `PriceRangeInput`   | `{ gte: 10, lte: 50 }`                      |
-| `search`           | `String`            | Full-text search                             |
-| `stockAvailability`| `StockAvailability`  | `IN_STOCK` or `OUT_OF_STOCK`                |
-| `attributes`       | `[AttributeInput!]` | Filter by attribute values                   |
+| Filter              | Type                | Notes                             |
+| ------------------- | ------------------- | --------------------------------- |
+| `categories`        | `[ID!]`             | Requires category IDs (not slugs) |
+| `collections`       | `[ID!]`             | Requires collection IDs           |
+| `price`             | `PriceRangeInput`   | `{ gte: 10, lte: 50 }`            |
+| `search`            | `String`            | Full-text search                  |
+| `stockAvailability` | `StockAvailability` | `IN_STOCK` or `OUT_OF_STOCK`      |
+| `attributes`        | `[AttributeInput!]` | Filter by attribute values        |
 
 **Gotcha**: Categories and collections require **IDs**, not slugs. You need a slug-to-ID resolution step if your URLs use slugs.
 
@@ -351,7 +352,7 @@ This file is generated via API introspection, so it always matches your exact Sa
 
 ## Step 3: Check Saleor Source for Behavior
 
-Types tell you *what* fields exist. For *how* they behave (permission checks, filtering logic, side effects), check the Saleor core source.
+Types tell you _what_ fields exist. For _how_ they behave (permission checks, filtering logic, side effects), check the Saleor core source.
 
 If the Saleor core repo is available locally (e.g. `../saleor/`), or clone it:
 
@@ -507,10 +508,10 @@ The `checkoutLinesAdd` mutation requires a specific `variantId`. Without selecti
 
 Saleor distinguishes between two types via the ProductType configuration:
 
-| Type              | GraphQL Filter              | Purpose                              | UI Pattern          |
-| ----------------- | --------------------------- | ------------------------------------ | ------------------- |
-| **Selection**     | `VARIANT_SELECTION`         | Identify which variant (color, size) | Interactive picker  |
-| **Non-Selection** | `NOT_VARIANT_SELECTION`     | Describe the variant (material)      | Display-only badges |
+| Type              | GraphQL Filter          | Purpose                              | UI Pattern          |
+| ----------------- | ----------------------- | ------------------------------------ | ------------------- |
+| **Selection**     | `VARIANT_SELECTION`     | Identify which variant (color, size) | Interactive picker  |
+| **Non-Selection** | `NOT_VARIANT_SELECTION` | Describe the variant (material)      | Display-only badges |
 
 ```graphql
 product {
@@ -614,6 +615,7 @@ Understanding how Saleor checkout sessions work — creation, persistence, compl
 ## Core Concept
 
 A Saleor Checkout is a mutable object that tracks:
+
 - Line items (variants + quantities)
 - Shipping/billing addresses
 - Shipping method
@@ -632,6 +634,7 @@ atob("Q2hlY2tvdXQ6YThjN2Y4YjgtZmU0NS00ZTRkLThhZmItZDdjYWI2YTM5MTdm");
 ```
 
 Common storage strategies:
+
 - **Cookie**: `checkoutId-{channel}` (survives page refreshes)
 - **URL query param**: `/checkout?checkout=Q2hlY2...` (shareable)
 - **localStorage**: Alternative to cookies
@@ -653,6 +656,7 @@ Common storage strategies:
 ### Creation
 
 A new checkout is created when:
+
 - User adds first item to an empty cart
 - No valid checkout ID exists in storage
 - Existing checkout is not found in Saleor (expired/deleted)
@@ -660,6 +664,7 @@ A new checkout is created when:
 ### Completion
 
 When `checkoutComplete` succeeds:
+
 - Checkout is converted to an Order
 - The checkout ID becomes invalid
 - A new checkout must be created for future purchases
@@ -673,11 +678,13 @@ The authorized amount doesn't cover the checkout's total amount.
 ```
 
 **Causes**:
+
 1. Payment app is down — transaction created but authorization failed
 2. Stale checkout — previous partial transactions accumulated
 3. Amount mismatch — checkout total changed after transaction init (e.g., shipping added)
 
 **Debug steps**:
+
 1. Query the checkout's `transactions` to see their status
 2. Check if `transactionEvent.type` is `AUTHORIZATION_FAILURE`
 3. If so, check if the payment app is healthy
@@ -700,6 +707,7 @@ The authorized amount doesn't cover the checkout's total amount.
 ### Stale Checkout with Failed Transactions
 
 If payment fails multiple times, the checkout accumulates partial transactions. Fresh checkout is needed:
+
 - Clear the checkout cookie
 - Navigate to checkout without the `?checkout=` URL param
 - Test in incognito mode
@@ -777,7 +785,7 @@ query ($slug: String!, $channel: String!) {
 }
 ```
 
-How the storefront *picks* which slug to send is a routing concern, not a Saleor concern. Common patterns:
+How the storefront _picks_ which slug to send is a routing concern, not a Saleor concern. Common patterns:
 
 - Path segment: `/us/products/...` → `us-store`
 - Subdomain: `uk.example.com` → `uk-store`
@@ -793,10 +801,10 @@ Saleor 3.23 introduced a per-shop boolean **`Shop.useLegacyShippingZoneStockAvai
 
 The single most important insight is that 3.23 splits one entangled concept into two orthogonal ones:
 
-| Concern | Meaning | Driven by |
-|---|---|---|
-| **Purchasability** | Can a customer add this variant to cart? | Channel publication, channel listing, variant pricing, warehouse-channel link, stock quantity |
-| **Shippability** | Can a customer complete checkout for a shippable order? | Shipping zones, shipping methods, destination |
+| Concern            | Meaning                                                 | Driven by                                                                                     |
+| ------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Purchasability** | Can a customer add this variant to cart?                | Channel publication, channel listing, variant pricing, warehouse-channel link, stock quantity |
+| **Shippability**   | Can a customer complete checkout for a shippable order? | Shipping zones, shipping methods, destination                                                 |
 
 In **legacy mode** (pre-3.23 behavior, still the default for upgraded shops) the two are entangled: a missing shipping zone hides the product entirely, so shippability problems cause purchasability problems.
 

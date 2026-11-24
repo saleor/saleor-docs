@@ -7,13 +7,16 @@ export const agentPrompts = {
   stripe: { title: "Stripe integration prompt", prompt: stripe },
 };
 
-export const agentPromptFor = app => {
+export const agentPromptFor = (app) => {
   const entry = agentPrompts[app];
-  if (!entry) throw new Error(`Unknown agent prompt "${app}". Use one of: ${Object.keys(agentPrompts).join(", ")}`);
+  if (!entry)
+    throw new Error(
+      `Unknown agent prompt "${app}". Use one of: ${Object.keys(agentPrompts).join(", ")}`,
+    );
   return entry;
 };
 
-export const agentPromptMarkdown = app => `Copy this prompt into your coding agent:
+export const agentPromptMarkdown = (app) => `Copy this prompt into your coding agent:
 
 \`\`\`text
 ${agentPromptFor(app).prompt}

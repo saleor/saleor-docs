@@ -42,20 +42,20 @@ You will build a dummy payment app that covers the main integration paths for a 
 
 The table below is the tutorial scope. It lists the app responsibilities first, then shows the Saleor mutation or query and app webhook at the end for reference.
 
-| Stage | Operation | Dummy behavior | Real gateway behavior | Saleor mutation or query | App webhook or endpoint |
-| --- | --- | --- | --- | --- | --- |
-| [Basic Payment](#stage-1-basic-payment) | Prepare checkout payment UI | Return browser-safe config and enabled methods. | Return a client secret, publishable key, SDK config, available methods, or provider account data. | `paymentGatewayInitialize` | `PAYMENT_GATEWAY_INITIALIZE_SESSION` |
-| [Basic Payment](#stage-1-basic-payment) | Start a one-time payment | Return `CHARGE_SUCCESS` or `CHARGE_FAILURE`. | Create a payment intent, authorization, charge, or session. | `transactionInitialize` | `TRANSACTION_INITIALIZE_SESSION` |
-| [Follow-Up Actions](#stage-2-follow-up-actions) | Request a follow-up action | Return `CHARGE_ACTION_REQUIRED` or `AUTHORIZATION_ACTION_REQUIRED`. | Ask the customer to complete 3D Secure, a redirect, mobile approval, or another provider step. | `transactionInitialize` | `TRANSACTION_INITIALIZE_SESSION` |
-| [Follow-Up Actions](#stage-2-follow-up-actions) | Complete a follow-up action | Accept confirmation data and return the final event. | Confirm 3D Secure, redirect, mobile approval, or another provider step. | `transactionProcess` | `TRANSACTION_PROCESS_SESSION` |
-| [Post-Purchase Actions](#stage-3-post-purchase-actions) | Request charge, cancel, or refund | Return a dummy action PSP reference. | Capture, cancel, or refund through the provider. | `transactionRequestAction` | `TRANSACTION_CHARGE_REQUESTED`, `TRANSACTION_CANCELATION_REQUESTED`, or `TRANSACTION_REFUND_REQUESTED` |
-| [Post-Purchase Actions](#stage-3-post-purchase-actions) | Refund a granted refund | Return a dummy refund result. | Refund with line-level context from Saleor. | `transactionRequestRefundForGrantedRefund` | `TRANSACTION_REFUND_REQUESTED` |
-| [Post-Purchase Actions](#stage-3-post-purchase-actions) | Report provider status later | Accept a signed dummy event and report it to Saleor. | Verify provider webhook signature, map provider status, and call Saleor. | `transactionEventReport` | App-owned provider webhook endpoint |
-| [Stored Payment Methods](#stage-4-stored-payment-methods) | Initialize stored-method tokenization UI | Return browser-safe tokenization config. | Return setup intent, customer session, or SDK config. | `paymentGatewayInitializeTokenization` | `PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION` |
-| [Stored Payment Methods](#stage-4-stored-payment-methods) | Create a stored payment method | Return `SUCCESSFULLY_TOKENIZED` or `ADDITIONAL_ACTION_REQUIRED`. | Create a provider customer, setup intent, mandate, card, or payment method. | `paymentMethodInitializeTokenization` | `PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION` |
-| [Stored Payment Methods](#stage-4-stored-payment-methods) | Complete stored-method action | Finalize the dummy method. | Confirm setup intent, mandate, redirect, or 3D Secure. | `paymentMethodProcessTokenization` | `PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION` |
-| [Stored Payment Methods](#stage-4-stored-payment-methods) | List saved methods | Return stored dummy cards. | List provider vault entries for the Saleor user. | `checkout.storedPaymentMethods` or `User.storedPaymentMethods` | `LIST_STORED_PAYMENT_METHODS` |
-| [Stored Payment Methods](#stage-4-stored-payment-methods) | Delete saved method | Return `SUCCESSFULLY_DELETED`. | Disable or detach the provider payment method. | `storedPaymentMethodRequestDelete` | `STORED_PAYMENT_METHOD_DELETE_REQUESTED` |
+| Stage                                                     | Operation                                | Dummy behavior                                                      | Real gateway behavior                                                                             | Saleor mutation or query                                       | App webhook or endpoint                                                                                |
+| --------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| [Basic Payment](#stage-1-basic-payment)                   | Prepare checkout payment UI              | Return browser-safe config and enabled methods.                     | Return a client secret, publishable key, SDK config, available methods, or provider account data. | `paymentGatewayInitialize`                                     | `PAYMENT_GATEWAY_INITIALIZE_SESSION`                                                                   |
+| [Basic Payment](#stage-1-basic-payment)                   | Start a one-time payment                 | Return `CHARGE_SUCCESS` or `CHARGE_FAILURE`.                        | Create a payment intent, authorization, charge, or session.                                       | `transactionInitialize`                                        | `TRANSACTION_INITIALIZE_SESSION`                                                                       |
+| [Follow-Up Actions](#stage-2-follow-up-actions)           | Request a follow-up action               | Return `CHARGE_ACTION_REQUIRED` or `AUTHORIZATION_ACTION_REQUIRED`. | Ask the customer to complete 3D Secure, a redirect, mobile approval, or another provider step.    | `transactionInitialize`                                        | `TRANSACTION_INITIALIZE_SESSION`                                                                       |
+| [Follow-Up Actions](#stage-2-follow-up-actions)           | Complete a follow-up action              | Accept confirmation data and return the final event.                | Confirm 3D Secure, redirect, mobile approval, or another provider step.                           | `transactionProcess`                                           | `TRANSACTION_PROCESS_SESSION`                                                                          |
+| [Post-Purchase Actions](#stage-3-post-purchase-actions)   | Request charge, cancel, or refund        | Return a dummy action PSP reference.                                | Capture, cancel, or refund through the provider.                                                  | `transactionRequestAction`                                     | `TRANSACTION_CHARGE_REQUESTED`, `TRANSACTION_CANCELATION_REQUESTED`, or `TRANSACTION_REFUND_REQUESTED` |
+| [Post-Purchase Actions](#stage-3-post-purchase-actions)   | Refund a granted refund                  | Return a dummy refund result.                                       | Refund with line-level context from Saleor.                                                       | `transactionRequestRefundForGrantedRefund`                     | `TRANSACTION_REFUND_REQUESTED`                                                                         |
+| [Post-Purchase Actions](#stage-3-post-purchase-actions)   | Report provider status later             | Accept a signed dummy event and report it to Saleor.                | Verify provider webhook signature, map provider status, and call Saleor.                          | `transactionEventReport`                                       | App-owned provider webhook endpoint                                                                    |
+| [Stored Payment Methods](#stage-4-stored-payment-methods) | Initialize stored-method tokenization UI | Return browser-safe tokenization config.                            | Return setup intent, customer session, or SDK config.                                             | `paymentGatewayInitializeTokenization`                         | `PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION`                                                      |
+| [Stored Payment Methods](#stage-4-stored-payment-methods) | Create a stored payment method           | Return `SUCCESSFULLY_TOKENIZED` or `ADDITIONAL_ACTION_REQUIRED`.    | Create a provider customer, setup intent, mandate, card, or payment method.                       | `paymentMethodInitializeTokenization`                          | `PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION`                                                       |
+| [Stored Payment Methods](#stage-4-stored-payment-methods) | Complete stored-method action            | Finalize the dummy method.                                          | Confirm setup intent, mandate, redirect, or 3D Secure.                                            | `paymentMethodProcessTokenization`                             | `PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION`                                                          |
+| [Stored Payment Methods](#stage-4-stored-payment-methods) | List saved methods                       | Return stored dummy cards.                                          | List provider vault entries for the Saleor user.                                                  | `checkout.storedPaymentMethods` or `User.storedPaymentMethods` | `LIST_STORED_PAYMENT_METHODS`                                                                          |
+| [Stored Payment Methods](#stage-4-stored-payment-methods) | Delete saved method                      | Return `SUCCESSFULLY_DELETED`.                                      | Disable or detach the provider payment method.                                                    | `storedPaymentMethodRequestDelete`                             | `STORED_PAYMENT_METHOD_DELETE_REQUESTED`                                                               |
 
 This tutorial focuses on Payment Apps and the Transaction API. Legacy payment plugin mutations such as `paymentInitialize`, `paymentCapture`, `paymentRefund`, and `paymentVoid` are outside this guide.
 
@@ -139,7 +139,6 @@ The empty `webhooks` array is intentional at this point. Add each webhook to the
 
 :::info
 The [App SDK](/developer/extending/apps/developing-apps/app-sdk/overview) uses the [APL](/developer/extending/apps/developing-apps/app-sdk/apl) to store app installation auth data. A single-tenant app can usually read one installation record and one set of provider credentials. A multi-tenant app must resolve provider configuration by Saleor installation, channel, or merchant account before it calls the provider.
-
 
 :::
 
@@ -304,7 +303,6 @@ webhooks: [
 
 :::caution
 When you add a new webhook or modify a subscription query for a registered webhook, Saleor does not update the installed webhook automatically. The easiest way to apply the change during development is to reinstall the app. For production update flows, see [How to Update App Webhooks](/developer/extending/apps/updating-app-webhooks).
-
 
 :::
 
@@ -843,10 +841,10 @@ Saving a method usually has two parts:
 
 Saleor uses longer API names for these two parts:
 
-| What the customer is doing | Storefront mutation | Webhook handled by the app |
-| --- | --- | --- |
+| What the customer is doing              | Storefront mutation                    | Webhook handled by the app                        |
+| --------------------------------------- | -------------------------------------- | ------------------------------------------------- |
 | Starting the "save payment method" form | `paymentGatewayInitializeTokenization` | `PAYMENT_GATEWAY_INITIALIZE_TOKENIZATION_SESSION` |
-| Saving the collected payment method | `paymentMethodInitializeTokenization` | `PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION` |
+| Saving the collected payment method     | `paymentMethodInitializeTokenization`  | `PAYMENT_METHOD_INITIALIZE_TOKENIZATION_SESSION`  |
 
 ```mermaid
 sequenceDiagram
@@ -970,12 +968,12 @@ The ID is the handle used for later operations. It must not contain sensitive pa
 
 The same pattern covers the rest of the stored-method lifecycle. The storefront calls Saleor, Saleor calls the app, and the app performs the operation with the provider.
 
-| Customer action | Saleor API | What the app does |
-| --- | --- | --- |
-| Complete an extra verification step | `paymentMethodProcessTokenization` / `PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION` | Confirm a setup flow that returned `ADDITIONAL_ACTION_REQUIRED`, such as 3D Secure or a redirect. |
-| View saved methods | `checkout.storedPaymentMethods` or `User.storedPaymentMethods` / `LIST_STORED_PAYMENT_METHODS` | List the user's provider methods and return only their IDs and safe display details. |
-| Delete a saved method | `storedPaymentMethodRequestDelete` / `STORED_PAYMENT_METHOD_DELETE_REQUESTED` | Detach or disable the method at the provider and return `SUCCESSFULLY_DELETED`. |
-| Pay with a saved method | `transactionInitialize` / `TRANSACTION_INITIALIZE_SESSION` | Resolve the supplied method ID, verify ownership, and create a payment with the provider. |
+| Customer action                     | Saleor API                                                                                     | What the app does                                                                                 |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Complete an extra verification step | `paymentMethodProcessTokenization` / `PAYMENT_METHOD_PROCESS_TOKENIZATION_SESSION`             | Confirm a setup flow that returned `ADDITIONAL_ACTION_REQUIRED`, such as 3D Secure or a redirect. |
+| View saved methods                  | `checkout.storedPaymentMethods` or `User.storedPaymentMethods` / `LIST_STORED_PAYMENT_METHODS` | List the user's provider methods and return only their IDs and safe display details.              |
+| Delete a saved method               | `storedPaymentMethodRequestDelete` / `STORED_PAYMENT_METHOD_DELETE_REQUESTED`                  | Detach or disable the method at the provider and return `SUCCESSFULLY_DELETED`.                   |
+| Pay with a saved method             | `transactionInitialize` / `TRANSACTION_INITIALIZE_SESSION`                                     | Resolve the supplied method ID, verify ownership, and create a payment with the provider.         |
 
 These operations do not need separate implementations in this tutorial. They use the same webhook structure and provider boundary as the two methods above. See [Stored Payment Methods](/developer/payments/stored-payments) for every request and response shape.
 

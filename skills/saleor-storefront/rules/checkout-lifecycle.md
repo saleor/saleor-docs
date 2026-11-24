@@ -7,6 +7,7 @@ Understanding how Saleor checkout sessions work — creation, persistence, compl
 ## Core Concept
 
 A Saleor Checkout is a mutable object that tracks:
+
 - Line items (variants + quantities)
 - Shipping/billing addresses
 - Shipping method
@@ -25,6 +26,7 @@ atob("Q2hlY2tvdXQ6YThjN2Y4YjgtZmU0NS00ZTRkLThhZmItZDdjYWI2YTM5MTdm");
 ```
 
 Common storage strategies:
+
 - **Cookie**: `checkoutId-{channel}` (survives page refreshes)
 - **URL query param**: `/checkout?checkout=Q2hlY2...` (shareable)
 - **localStorage**: Alternative to cookies
@@ -46,6 +48,7 @@ Common storage strategies:
 ### Creation
 
 A new checkout is created when:
+
 - User adds first item to an empty cart
 - No valid checkout ID exists in storage
 - Existing checkout is not found in Saleor (expired/deleted)
@@ -53,6 +56,7 @@ A new checkout is created when:
 ### Completion
 
 When `checkoutComplete` succeeds:
+
 - Checkout is converted to an Order
 - The checkout ID becomes invalid
 - A new checkout must be created for future purchases
@@ -66,11 +70,13 @@ The authorized amount doesn't cover the checkout's total amount.
 ```
 
 **Causes**:
+
 1. Payment app is down — transaction created but authorization failed
 2. Stale checkout — previous partial transactions accumulated
 3. Amount mismatch — checkout total changed after transaction init (e.g., shipping added)
 
 **Debug steps**:
+
 1. Query the checkout's `transactions` to see their status
 2. Check if `transactionEvent.type` is `AUTHORIZATION_FAILURE`
 3. If so, check if the payment app is healthy
@@ -93,6 +99,7 @@ The authorized amount doesn't cover the checkout's total amount.
 ### Stale Checkout with Failed Transactions
 
 If payment fails multiple times, the checkout accumulates partial transactions. Fresh checkout is needed:
+
 - Clear the checkout cookie
 - Navigate to checkout without the `?checkout=` URL param
 - Test in incognito mode
