@@ -19,7 +19,7 @@ changelog:
 
 [View this release on GitHub](https://github.com/saleor/saleor/releases/tag/3.21.71) · [Upgrade guides](/upgrade-guides)
 
-> [!CAUTION]
+> **Caution:**
 > This is the **last release** for Saleor 3.21. Upgrade as soon as possible to **3.23** to continue receiving security and bug fixes.
 
 * Upgraded pyjwt to 2.15.0 to fix GHSA-x33g-cr3x-6449, GHSA-42vr-xj54-vc7v by @NyanKiyoshi in https://github.com/saleor/saleor/pull/19826
