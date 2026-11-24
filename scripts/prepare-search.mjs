@@ -10,10 +10,11 @@ const blumeRequire = createRequire(require.resolve('blume'));
 const { createJiti } = blumeRequire('jiti');
 const { extractHeadings } = await createJiti(import.meta.url).import('blume/core/sources/normalize.ts');
 const blumeRoot = path.resolve('node_modules/blume');
+const { version: blumeVersion } = require('blume/package.json');
 // Preserve the pinned native dialog. Only its loader and import locations change.
 const original = await readFile(path.join(blumeRoot, 'src/components/layout/Search.astro'), 'utf8');
 if (!original.includes('await import("blume:search-client")')) throw Error('Blume search loader changed; review the override.');
-const ui = original.replace('---', '---\n// Generated from Blume 2.0.3 by scripts/prepare-search.mjs; preserves its native UI.').replace(/from "(\.[^"]+)"/g, (_, specifier) => {
+const ui = original.replace('---', `---\n// Generated from Blume ${blumeVersion} by scripts/prepare-search.mjs; preserves its native UI.`).replace(/from "(\.[^"]+)"/g, (_, specifier) => {
   const target = path.resolve(blumeRoot, 'src/components/layout', specifier);
   return `from "../${path.relative(process.cwd(), target)}"`;
 }).replace('import { escape as escapeHtml } from "html-escaper";', 'import { escapeHtml } from "../search/engine.mjs";')

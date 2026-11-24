@@ -23,6 +23,11 @@ test("contributors remain within release notes as a label, preserving credits", 
   assert.equal(transformReleaseNotes(body), body.replace(/^## New Contributors/, "**New Contributors**"));
 });
 
+test("GitHub alerts become labelled quotes, which Markdown pages render", () => {
+  const body = "> [!CAUTION]\r\n> Upgrade to **3.23**.\n\n```md\n> [!NOTE]\n```";
+  assert.equal(transformReleaseNotes(body), "> **Caution:**\n> Upgrade to **3.23**.\n\n```md\n> [!NOTE]\n```");
+});
+
 test("release pages preserve published facts, dates, source links and changelog metadata", () => {
   const release = { tag_name: "3.23.36", published_at: "2026-09-24T09:06:43Z", html_url: "https://github.com/saleor/saleor/releases/tag/3.23.36", body: "## Changes\n\nFix checkout.\n\n<script>alert(1)</script>" };
   const result = releasePage(release);
