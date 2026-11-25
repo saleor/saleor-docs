@@ -5,12 +5,12 @@ sidebar: {}
 seo:
   title: Stock Reservation
   description: While stock availability is checked at every step of the checkout process, no guarantee is made to the client that stock will not be sold out before checkout completion. In case an item with limited stock was added to multiple checkouts, it will be allocated to the first completed checkout. As a result, it will cause remaining checkouts to fail to advance to the next step even if they had been created before the completed one. The API will return the INSUFFICIENT_STOCK error.
-lastModified: '2026-10-06'
+lastModified: '2026-10-26'
 ---
 
 While stock availability is checked at every step of the checkout process, no guarantee is made to the client that stock will not be sold out before checkout completion. In case an item with limited stock was added to multiple checkouts, it will be allocated to the first completed checkout. As a result, it will cause remaining checkouts to fail to advance to the next step even if they had been created before the completed one. The API will return the `INSUFFICIENT_STOCK` error.
 
-Saleor implements optional stock reservations feature where stock will be eagerly allocated to the checkout for configured time.
+Saleor supports optional stock reservations that hold stock for a checkout for a configured time. Each reservation identifies a warehouse stock and quantity; it reduces availability without decreasing physical stock. Reservations are created when checkout lines are created, added, or updated, if enabled for the applicable customer type.
 
 ## Enabling reservations
 
@@ -44,7 +44,7 @@ If user A adds the last two items to their checkout, those two items will become
 
 Those two items will also be subtracted from the available quantity displayed to other users in the store, giving them immediate feedback that the item they are interested in is currently unavailable, preventing them from adding this item to their checkouts.
 
-If user A completes their checkout within the given time, the temporary allocation will be converted into a permanent one. But if they don't complete their stock within the time limit, their stock reservation will expire, and the two items in their checkout will become available for other users to add to their checkouts.
+If user A completes their checkout within the given time, Saleor creates order allocations. Warehouse selection runs again, so the allocated warehouses can differ from the reserved warehouses. See the [allocation-to-fulfillment flow](/developer/stock/stock-allocation#from-checkout-to-fulfillment). If they do not complete checkout before the reservation expires, the held quantity becomes available for other users to add to their checkouts.
 
 If no other user adds this item to their checkout, user A will still be able to complete their checkout. But suppose another user adds one or two items to their checkout. In that case, a new reservation will be created for them, reducing the quantity available to other users and preventing user A from completing their checkout.
 
