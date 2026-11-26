@@ -1,4 +1,7 @@
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { walk } from "./common.mjs";
+import { calloutTitleProblems } from "./callout-titles.mjs";
 
 const ignoredAssets = ["/llms.txt", "/.well-known/mcp.json", "/.well-known/mcp/server-card.json"];
 const ignoredMessages = ignoredAssets.map(
@@ -20,6 +23,17 @@ const remaining = diagnostics.filter(
     !(diagnostic.code === "BLUME_BROKEN_ASSET" && ignoredMessages.includes(diagnostic.message)),
 );
 for (const diagnostic of remaining) console.error(`${diagnostic.code}: ${diagnostic.message}`);
-process.exitCode = remaining.some((diagnostic) => diagnostic.severity !== "info") ? 1 : 0;
+const calloutProblems = (await walk("docs"))
+  .filter((file) => /\.mdx?$/.test(file))
+  .flatMap((file) =>
+    calloutTitleProblems(readFileSync(file, "utf8")).map((problem) => ({ file, ...problem })),
+  );
+for (const { file, line, title, reason } of calloutProblems) {
+  console.error(
+    `CALLOUT_TITLE_IS_BODY: ${file}:${line} title "${title}" ${reason}. Move it onto the next line as the callout's text.`,
+  );
+}
+process.exitCode =
+  remaining.some((diagnostic) => diagnostic.severity !== "info") || calloutProblems.length ? 1 : 0;
 if (!process.exitCode)
   console.log("Source links validated (generated discovery files and section fragments excluded).");
