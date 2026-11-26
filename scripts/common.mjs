@@ -9,11 +9,7 @@ export async function walk(root) {
     await Promise.all(
       entries
         .sort((a, b) => a.name.localeCompare(b.name))
-        .map((e) =>
-          e.isDirectory()
-            ? walk(path.join(root, e.name))
-            : path.join(root, e.name),
-        ),
+        .map((e) => (e.isDirectory() ? walk(path.join(root, e.name)) : path.join(root, e.name))),
     )
   ).flat();
 }
@@ -21,10 +17,8 @@ export async function write(file, data) {
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, data);
 }
-export const readJson = async (file) =>
-  JSON.parse(await readFile(file, "utf8"));
-export const writeJson = (file, value) =>
-  write(file, JSON.stringify(value, null, 2) + "\n");
+export const readJson = async (file) => JSON.parse(await readFile(file, "utf8"));
+export const writeJson = (file, value) => write(file, JSON.stringify(value, null, 2) + "\n");
 export const frontmatter = (data, body) =>
   `---\n${dump(data, { lineWidth: -1, noRefs: true })}---\n\n${body.trim()}\n`;
 export const slug = (text) =>

@@ -7,7 +7,7 @@ sidebar:
 seo:
   title: Square App Storefront Integration
   description: Integrate the Square Web Payments SDK with Saleor checkout to accept card, wallet, gift card, and saved card payments through the Square App.
-lastModified: '2026-11-09'
+lastModified: "2026-11-09"
 ---
 
 This page shows how to accept Square payments in a Saleor storefront with the Square App: card payments, wallets, gift cards, and saved cards.
@@ -98,7 +98,14 @@ If the app is configured, you receive a response like this:
               "countryCode": "US"
             },
             "captureMode": "CHARGE",
-            "methods": ["card", "gift-card", "apple-pay", "cash-app-pay", "afterpay-clearpay", "saved-card"]
+            "methods": [
+              "card",
+              "gift-card",
+              "apple-pay",
+              "cash-app-pay",
+              "afterpay-clearpay",
+              "saved-card"
+            ]
           },
           "errors": []
         }
@@ -275,13 +282,13 @@ Unlike some other payment providers, Square charges the payment during `transact
 
 Check `transactionEvent.type`:
 
-| Type                     | What to do                                                                                                                                           |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `CHARGE_SUCCESS`         | Payment is complete. Complete the checkout.                                                                                                          |
-| `CHARGE_REQUEST`         | Square accepted the payment but hasn't completed it yet. Wait and re-read the checkout before completing it.                                         |
+| Type                     | What to do                                                                                                                                              |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CHARGE_SUCCESS`         | Payment is complete. Complete the checkout.                                                                                                             |
+| `CHARGE_REQUEST`         | Square accepted the payment but hasn't completed it yet. Wait and re-read the checkout before completing it.                                            |
 | `CHARGE_ACTION_REQUIRED` | The outcome is unknown (`data.square.pending` is `true`). Retry with the **same** idempotency key, or wait. Don't let the customer start a new payment. |
-| `CHARGE_FAILURE`         | Show the error from `data.square.errors` and let the customer try again with a new idempotency key.                                                  |
-| `AUTHORIZATION_SUCCESS`  | A gift card covered part of the total. Collect the remaining amount, see [gift cards](#paying-with-a-square-gift-card).                               |
+| `CHARGE_FAILURE`         | Show the error from `data.square.errors` and let the customer try again with a new idempotency key.                                                     |
+| `AUTHORIZATION_SUCCESS`  | A gift card covered part of the total. Collect the remaining amount, see [gift cards](#paying-with-a-square-gift-card).                                 |
 
 :::warning[Keep the idempotency key while the outcome is unknown]
 If you generate a new key after `CHARGE_ACTION_REQUIRED` or a network error, the app treats it as a new payment. It rejects new payments while the earlier attempt is unresolved. Retrying with the original key lets the app find the original payment instead.

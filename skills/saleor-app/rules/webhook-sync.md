@@ -19,12 +19,12 @@ Expected response: HTTP 200 with JSON body matching event-specific schema
 
 ### Difference from Async
 
-| | Async | Sync |
-|---|---|---|
-| Timing | After processing | During processing |
-| Response | 200 OK (body ignored) | 200 OK + JSON response body |
-| Impact | None on caller | Directly affects API result |
-| Timeout | 20s | 20s (but compounds with other sync webhooks) |
+|          | Async                 | Sync                                         |
+| -------- | --------------------- | -------------------------------------------- |
+| Timing   | After processing      | During processing                            |
+| Response | 200 OK (body ignored) | 200 OK + JSON response body                  |
+| Impact   | None on caller        | Directly affects API result                  |
+| Timeout  | 20s                   | 20s (but compounds with other sync webhooks) |
 
 ---
 
@@ -33,6 +33,7 @@ Expected response: HTTP 200 with JSON body matching event-specific schema
 Sync webhooks compound — if Saleor sends the same request to multiple sync webhook apps, their times add up. The entire HTTP round trip must complete within 20 seconds (2s connection + 18s response).
 
 **Optimize**:
+
 - Minimize cold starts (keep warm, use Edge runtimes)
 - Cache expensive lookups
 - Keep handler logic fast — no external API calls if possible
@@ -42,12 +43,12 @@ Sync webhooks compound — if Saleor sends the same request to multiple sync web
 
 ## Categories
 
-| Category | Events | Response Contains |
-|----------|--------|-------------------|
-| Tax | `CHECKOUT_CALCULATE_TAXES`, `ORDER_CALCULATE_TAXES` | Tax line items |
-| Shipping | `CHECKOUT_FILTER_SHIPPING_METHODS`, `ORDER_FILTER_SHIPPING_METHODS` | Excluded method IDs |
-| Payment | `PAYMENT_GATEWAY_INITIALIZE_SESSION`, etc. | Payment session data |
-| Transaction | `TRANSACTION_CHARGE_REQUESTED`, etc. | Transaction result |
+| Category    | Events                                                              | Response Contains    |
+| ----------- | ------------------------------------------------------------------- | -------------------- |
+| Tax         | `CHECKOUT_CALCULATE_TAXES`, `ORDER_CALCULATE_TAXES`                 | Tax line items       |
+| Shipping    | `CHECKOUT_FILTER_SHIPPING_METHODS`, `ORDER_FILTER_SHIPPING_METHODS` | Excluded method IDs  |
+| Payment     | `PAYMENT_GATEWAY_INITIALIZE_SESSION`, etc.                          | Payment session data |
+| Transaction | `TRANSACTION_CHARGE_REQUESTED`, etc.                                | Transaction result   |
 
 See [Saleor Docs](https://docs.saleor.io/developer/extending/webhooks/synchronous-events/overview) for full event list and response schemas.
 
@@ -101,10 +102,10 @@ export async function handleSyncWebhook(request: Request) {
   const payload = JSON.parse(rawBody);
 
   // Return event-specific response
-  return new Response(
-    JSON.stringify({ excluded_methods: [] }),
-    { status: 200, headers: { "content-type": "application/json" } }
-  );
+  return new Response(JSON.stringify({ excluded_methods: [] }), {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
 }
 ```
 

@@ -8,11 +8,11 @@
 
 Saleor gives every installed app two different credential types. Manifest `permissions` and extension `permissions` are **not** enough on their own. Any route the iframe can call (tRPC, REST, Server Actions) must verify `verifyJWT` (or `createProtectedHandler`) with the correct `requiredPermissions` for that operation.
 
-| Layer | What it controls | Authoritative for API access? |
-|-------|------------------|-------------------------------|
-| Manifest `permissions` | App service token (APL) — sync, webhooks, server GraphQL | No (server-side only) |
-| Extension `permissions` | Whether Saleor **shows** a Dashboard tab/button | **No** — visibility only |
-| **JWT `user_permissions` + your route gates** | What the **logged-in staff user** may read/do | **Yes** |
+| Layer                                         | What it controls                                         | Authoritative for API access? |
+| --------------------------------------------- | -------------------------------------------------------- | ----------------------------- |
+| Manifest `permissions`                        | App service token (APL) — sync, webhooks, server GraphQL | No (server-side only)         |
+| Extension `permissions`                       | Whether Saleor **shows** a Dashboard tab/button          | **No** — visibility only      |
+| **JWT `user_permissions` + your route gates** | What the **logged-in staff user** may read/do            | **Yes**                       |
 
 Client-side checks (`useAppBridge`, `appBridgeState.user.permissions`) improve UX but **must mirror** server gates. Never rely on hiding UI alone.
 
@@ -30,10 +30,10 @@ Client-side checks (`useAppBridge`, `appBridgeState.user.permissions`) improve U
 
 ## Access scopes (two tokens)
 
-| Scope | Token | Where | Permissions |
-|-------|-------|-------|-------------|
-| **User scope** | Short-lived JWT from App Bridge | Client calls + your API routes invoked from the iframe | The staff user's `user_permissions` |
-| **App scope** | Service token from APL | Server-only (webhooks, sync, background jobs) | Manifest `permissions`, independent of any user |
+| Scope          | Token                           | Where                                                  | Permissions                                     |
+| -------------- | ------------------------------- | ------------------------------------------------------ | ----------------------------------------------- |
+| **User scope** | Short-lived JWT from App Bridge | Client calls + your API routes invoked from the iframe | The staff user's `user_permissions`             |
+| **App scope**  | Service token from APL          | Server-only (webhooks, sync, background jobs)          | Manifest `permissions`, independent of any user |
 
 **Never expose the app token to the client.** The iframe JWT is user-scoped.
 
@@ -45,12 +45,12 @@ The Dashboard JWT's effective permissions are the **intersection** of the staff 
 
 Before building UI, map features to Saleor permission codes:
 
-| Feature type | Typical permission | Notes |
-|--------------|-------------------|--------|
-| Orders, revenue, fulfillment analytics | `MANAGE_ORDERS` | Baseline for commerce data |
-| Product catalog / variant insights | `MANAGE_PRODUCTS` | Product-detail widgets |
-| Customer PII (email, name, rankings) | `MANAGE_USERS` | Stricter than orders |
-| App admin (sync, webhooks, dangerous config) | `MANAGE_APPS` | Not required to *open* the app |
+| Feature type                                 | Typical permission | Notes                          |
+| -------------------------------------------- | ------------------ | ------------------------------ |
+| Orders, revenue, fulfillment analytics       | `MANAGE_ORDERS`    | Baseline for commerce data     |
+| Product catalog / variant insights           | `MANAGE_PRODUCTS`  | Product-detail widgets         |
+| Customer PII (email, name, rankings)         | `MANAGE_USERS`     | Stricter than orders           |
+| App admin (sync, webhooks, dangerous config) | `MANAGE_APPS`      | Not required to _open_ the app |
 
 Declare **related** requirements in three places (different purposes — not the same list copied three times):
 
@@ -207,15 +207,15 @@ Even when data is read from your own database, **user scope JWT gates still appl
 
 ## When to use each scope
 
-| Operation | Scope | JWT / permission gate |
-|-----------|-------|------------------------|
-| Sync / cron | App | N/A (use `SYNC_SECRET` or similar) |
-| Webhooks | App | JWKS signature |
-| Dashboard analytics read (local DB) | User | **Yes** — e.g. `MANAGE_ORDERS` |
-| Customer PII | User | **`MANAGE_USERS`** on route + UI |
-| Product sidebar widget | User | **`MANAGE_PRODUCTS`** |
-| Manual sync / webhook admin | User | **`MANAGE_APPS`** |
-| Enrich response from Saleor API | App token **after** user JWT passed | User gate first, then app token server-side |
+| Operation                           | Scope                               | JWT / permission gate                       |
+| ----------------------------------- | ----------------------------------- | ------------------------------------------- |
+| Sync / cron                         | App                                 | N/A (use `SYNC_SECRET` or similar)          |
+| Webhooks                            | App                                 | JWKS signature                              |
+| Dashboard analytics read (local DB) | User                                | **Yes** — e.g. `MANAGE_ORDERS`              |
+| Customer PII                        | User                                | **`MANAGE_USERS`** on route + UI            |
+| Product sidebar widget              | User                                | **`MANAGE_PRODUCTS`**                       |
+| Manual sync / webhook admin         | User                                | **`MANAGE_APPS`**                           |
+| Enrich response from Saleor API     | App token **after** user JWT passed | User gate first, then app token server-side |
 
 ---
 

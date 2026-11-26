@@ -6,12 +6,12 @@ Understanding how Saleor's permission model works prevents "Permission denied" e
 
 ## Token Types
 
-| Token Type            | How to Get                    | Typical Use              |
-| --------------------- | ----------------------------- | ------------------------ |
-| **Anonymous**         | No token                      | Product browsing         |
-| **Customer JWT**      | `tokenCreate` mutation        | User account, checkout   |
-| **App token**         | Saleor Dashboard → Extensions | Server-side operations   |
-| **Staff JWT**         | Dashboard login               | Admin operations (never use in storefront) |
+| Token Type       | How to Get                    | Typical Use                                |
+| ---------------- | ----------------------------- | ------------------------------------------ |
+| **Anonymous**    | No token                      | Product browsing                           |
+| **Customer JWT** | `tokenCreate` mutation        | User account, checkout                     |
+| **App token**    | Saleor Dashboard → Extensions | Server-side operations                     |
+| **Staff JWT**    | Dashboard login               | Admin operations (never use in storefront) |
 
 ## Permission Error
 
@@ -72,6 +72,7 @@ const checkout = await authenticatedQuery(CheckoutDocument, { variables });
 ```
 
 This separation ensures:
+
 - Only publicly visible products are fetched on display pages
 - No user cookies leak into cached responses
 - No "Signature has expired" errors on public pages

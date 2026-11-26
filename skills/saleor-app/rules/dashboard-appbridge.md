@@ -131,12 +131,9 @@ App UI only renders inside the Dashboard iframe after auth handshake. SSR is unn
 
 ```typescript
 import dynamic from "next/dynamic";
-const NoSSRWrapper = dynamic(
-  () => Promise.resolve(({ children }) => children),
-  {
-    ssr: false,
-  },
-);
+const NoSSRWrapper = dynamic(() => Promise.resolve(({ children }) => children), {
+  ssr: false,
+});
 ```
 
 ---

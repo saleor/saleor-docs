@@ -16,10 +16,10 @@ This applies to both app tokens and user JWT tokens.
 
 ## Two Token Contexts
 
-| Context | Token Source | Use For |
-|---------|-------------|---------|
+| Context                            | Token Source              | Use For                                                |
+| ---------------------------------- | ------------------------- | ------------------------------------------------------ |
 | Server-side (webhooks, API routes) | `authData.token` from APL | Full app permissions. Mutations, reading private data. |
-| Client-side (Dashboard iframe) | `appBridgeState.token` | User's permissions. UI data fetching. |
+| Client-side (Dashboard iframe)     | `appBridgeState.token`    | User's permissions. UI data fetching.                  |
 
 **Never send the app token to the client.**
 

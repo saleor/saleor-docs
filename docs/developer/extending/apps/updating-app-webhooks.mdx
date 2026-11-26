@@ -5,7 +5,7 @@ sidebar: {}
 seo:
   title: How to Update App Webhooks
   description: Problem
-lastModified: '2026-08-26'
+lastModified: "2026-08-26"
 ---
 
 ## Problem
@@ -132,19 +132,15 @@ Here is what webhook handler may look like for an `ORDER_CREATED` webhook:
 
 import { saleorApp } from "@/saleor-app";
 import { SaleorAsyncWebhook } from "@saleor/app-sdk/handlers/next";
-import {
-  OrderCreatedDocument,
-  OrderCreatedSubscriptionPayloadFragment,
-} from "@/generated/graphql";
+import { OrderCreatedDocument, OrderCreatedSubscriptionPayloadFragment } from "@/generated/graphql";
 
-export const orderCreatedWebhook =
-  new SaleorAsyncWebhook<OrderCreatedSubscriptionPayloadFragment>({
-    name: "Order Created",
-    webhookPath: "api/webhooks/order-created",
-    event: "ORDER_CREATED",
-    apl: saleorApp.apl,
-    query: OrderCreatedDocument, // OrderCreatedDocument will be converted into a string query
-  });
+export const orderCreatedWebhook = new SaleorAsyncWebhook<OrderCreatedSubscriptionPayloadFragment>({
+  name: "Order Created",
+  webhookPath: "api/webhooks/order-created",
+  event: "ORDER_CREATED",
+  apl: saleorApp.apl,
+  query: OrderCreatedDocument, // OrderCreatedDocument will be converted into a string query
+});
 
 // Stable, app-defined identifier used to reference this webhook in the migration script
 export const ORDER_CREATED_WEBHOOK_IDENTIFIER = "order-created";
@@ -154,14 +150,11 @@ You can see `getWebhookManifest` being used in the `webhooks` field of your `man
 
 Add an [`identifier`](/developer/extending/webhooks/creating#webhook-identifier) to the manifest entry so Saleor stores it when the app is installed. `getWebhookManifest` does not set one, so spread its result and add the field:
 
-```ts {12}
+```ts {13}
 // pages/api/manifest.ts
 import { createManifestHandler } from "@saleor/app-sdk/handlers/next";
 import { AppManifest } from "@saleor/app-sdk/types";
-import {
-  orderCreatedWebhook,
-  ORDER_CREATED_WEBHOOK_IDENTIFIER,
-} from "./webhooks/order-created";
+import { orderCreatedWebhook, ORDER_CREATED_WEBHOOK_IDENTIFIER } from "./webhooks/order-created";
 
 export default createManifestHandler({
   async manifestFactory({ appBaseUrl }) {
@@ -193,9 +186,7 @@ const runMigration = async () => {
   const authData = await getAppAuthData();
 
   // Regenerate orderCreated webhook manifest with updated state
-  const webhookManifest = orderCreatedWebhook.getWebhookManifest(
-    authData.saleorApiUrl
-  );
+  const webhookManifest = orderCreatedWebhook.getWebhookManifest(authData.saleorApiUrl);
 };
 ```
 
@@ -303,9 +294,7 @@ Using the same `appWebhookManager` as in [step 3](#3-update-the-webhook):
 const backfillIdentifier = async () => {
   const webhooks = await appWebhookManager.getOwnWebhooks();
 
-  const webhook = webhooks.find(
-    (w) => !w.identifier && w.name === webhookManifest.name
-  );
+  const webhook = webhooks.find((w) => !w.identifier && w.name === webhookManifest.name);
 
   if (webhook) {
     await appWebhookManager.setWebhookIdentifier({

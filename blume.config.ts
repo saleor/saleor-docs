@@ -16,8 +16,7 @@ const { canonical: site } = resolveSiteUrls();
 export default defineConfig({
   integrations: [sentrySourceMaps(), mcpOrigin(), mcpSearch()],
   title: "Saleor Commerce Documentation",
-  description:
-    "Build commerce your way with Saleor’s GraphQL API, developer guides, and recipes.",
+  description: "Build commerce your way with Saleor’s GraphQL API, developer guides, and recipes.",
   logo: {
     image: {
       light: "/img/logo.svg",
@@ -36,21 +35,15 @@ export default defineConfig({
     fonts: {
       body: {
         name: "Geist",
-        variants: [
-          { src: "./public/assets/fonts/Geist-Latin.woff2", weight: "100..900" },
-        ],
+        variants: [{ src: "./public/assets/fonts/Geist-Latin.woff2", weight: "100..900" }],
       },
       display: {
         name: "Geist",
-        variants: [
-          { src: "./public/assets/fonts/Geist-Latin.woff2", weight: "100..900" },
-        ],
+        variants: [{ src: "./public/assets/fonts/Geist-Latin.woff2", weight: "100..900" }],
       },
       mono: {
         name: "Geist Mono",
-        variants: [
-          { src: "./public/assets/fonts/GeistMono-Latin.woff2", weight: "100..900" },
-        ],
+        variants: [{ src: "./public/assets/fonts/GeistMono-Latin.woff2", weight: "100..900" }],
       },
     },
   },
@@ -93,9 +86,7 @@ export default defineConfig({
   },
   // Server output enables MCP and Markdown content negotiation by default.
   deployment:
-    process.env.BLUME_SERVER !== "0"
-      ? vercel({ site })
-      : vercel({ site, output: "static" }),
+    process.env.BLUME_SERVER !== "0" ? vercel({ site }) : vercel({ site, output: "static" }),
   analytics: process.env.GTM_CONTAINER_ID
     ? [googleTagManager({ id: process.env.GTM_CONTAINER_ID })]
     : [],

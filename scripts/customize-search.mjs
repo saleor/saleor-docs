@@ -1,14 +1,35 @@
 /** Apply local UI behavior whenever the pinned Blume dialog is regenerated. */
 export function customizeSearch(source) {
   return source
-    .replace('class="flex-1 border-0 bg-transparent', 'class="min-w-0 flex-1 border-0 bg-transparent px-2 py-1.5')
-    .replace('    import { navigate }', '    import { createSearchPreview } from "./search-preview";\n    import { navigate }')
-    .replace('      previewOn = true;', '      previewOn = true;\n      previewRequest: AbortController | null = null;\n      previewPages = new Map<string, string>();')
-    .replace('      disconnectedCallback() {', '      disconnectedCallback() {\n        this.previewRequest?.abort();')
-    .replace('      clearPreview() {', '      clearPreview() {\n        this.previewRequest?.abort();')
-    .replace('      updatePreview() {', '      async updatePreview() {\n        this.previewRequest?.abort();')
-    .replace('      togglePreview() {', `${loadFormattedPreview}\n      togglePreview() {`)
-    .replace('      }\n\n      async loadFormattedPreview', '        void this.loadFormattedPreview(hit);\n      }\n\n      async loadFormattedPreview');
+    .replace(
+      'class="flex-1 border-0 bg-transparent',
+      'class="min-w-0 flex-1 border-0 bg-transparent px-2 py-1.5',
+    )
+    .replace(
+      "    import { navigate }",
+      '    import { createSearchPreview } from "./search-preview";\n    import { navigate }',
+    )
+    .replace(
+      "      previewOn = true;",
+      "      previewOn = true;\n      previewRequest: AbortController | null = null;\n      previewPages = new Map<string, string>();",
+    )
+    .replace(
+      "      disconnectedCallback() {",
+      "      disconnectedCallback() {\n        this.previewRequest?.abort();",
+    )
+    .replace(
+      "      clearPreview() {",
+      "      clearPreview() {\n        this.previewRequest?.abort();",
+    )
+    .replace(
+      "      updatePreview() {",
+      "      async updatePreview() {\n        this.previewRequest?.abort();",
+    )
+    .replace("      togglePreview() {", `${loadFormattedPreview}\n      togglePreview() {`)
+    .replace(
+      "      }\n\n      async loadFormattedPreview",
+      "        void this.loadFormattedPreview(hit);\n      }\n\n      async loadFormattedPreview",
+    );
 }
 
 const loadFormattedPreview = `      async loadFormattedPreview(hit: SearchHit) {

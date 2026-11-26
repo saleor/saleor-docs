@@ -46,8 +46,7 @@ const anchorSlug = (name) => slug(name.replace(/([a-zA-Z])(\d+)/g, "$1-$2"));
 const category = (item) =>
   item.astNode?.directives
     ?.find((d) => d.name.value === "doc")
-    ?.arguments?.find((a) => a.name.value === "category")?.value.value ??
-  "Miscellaneous";
+    ?.arguments?.find((a) => a.name.value === "category")?.value.value ?? "Miscellaneous";
 const safe = (text) =>
   outsideFences(text ?? "", (prose) =>
     prose
@@ -113,21 +112,16 @@ export function generateReference(sdl, legacy = {}, provenance = {}) {
   const routes = new Map();
   for (const e of entities) {
     e.route =
-      legacy[`${e.kind}:${e.name}`] ??
-      `/api-reference/${slug(e.domain)}/${e.kind}/${slug(e.name)}`;
+      legacy[`${e.kind}:${e.name}`] ?? `/api-reference/${slug(e.domain)}/${e.kind}/${slug(e.name)}`;
     if (routes.has(e.route)) throw new Error(`Duplicate API route ${e.route}`);
     routes.set(e.route, e);
   }
   const types = new Map(
-    entities
-      .filter((e) => !e.root && e.kind !== "directives")
-      .map((e) => [e.name, e.route]),
+    entities.filter((e) => !e.root && e.kind !== "directives").map((e) => [e.name, e.route]),
   );
   const typeLink = (type) => {
     const named = getNamedType(type);
-    return types.has(named.name)
-      ? `[\`${type}\`](${types.get(named.name)})`
-      : `\`${type}\``;
+    return types.has(named.name) ? `[\`${type}\`](${types.get(named.name)})` : `\`${type}\``;
   };
   const deprecated = (item) =>
     item.deprecationReason != null
@@ -201,8 +195,7 @@ export function generateReference(sdl, legacy = {}, provenance = {}) {
       const ret = getNamedType(t.type);
       body += `\n<details>\n<summary>Show return type</summary>\n${fence(typeSDL(ret))}\n</details>\n`;
       if (t.args.length)
-        body +=
-          "\n## Arguments\n\n" + t.args.map((a) => renderInput(a)).join("\n");
+        body += "\n## Arguments\n\n" + t.args.map((a) => renderInput(a)).join("\n");
     } else if (e.kind === "directives") {
       body += fence(
         t.astNode
@@ -211,15 +204,11 @@ export function generateReference(sdl, legacy = {}, provenance = {}) {
       );
       body += `\n## Locations\n\n${t.locations.map((x) => "`" + x + "`").join(", ")}\n`;
       if (t.args.length)
-        body +=
-          "\n## Arguments\n\n" + t.args.map((a) => renderInput(a)).join("\n");
+        body += "\n## Arguments\n\n" + t.args.map((a) => renderInput(a)).join("\n");
     } else {
       body += fence(typeSDL(t));
       if (t.getInterfaces?.().length)
-        body +=
-          "\n## Interfaces\n\n" +
-          t.getInterfaces().map(typeLink).join(", ") +
-          "\n";
+        body += "\n## Interfaces\n\n" + t.getInterfaces().map(typeLink).join(", ") + "\n";
       if (isInterfaceType(t))
         body +=
           '\n<span id="implemented-by" />\n\n## Implementations\n\n' +
@@ -232,11 +221,7 @@ export function generateReference(sdl, legacy = {}, provenance = {}) {
           if (f.args?.length)
             body +=
               "\n" +
-              f.args
-                .map((a) =>
-                  renderInput(a, 4, `${slug(e.name)}-${slug(f.name)}-`),
-                )
-                .join("\n");
+              f.args.map((a) => renderInput(a, 4, `${slug(e.name)}-${slug(f.name)}-`)).join("\n");
         }
       }
       if (t.getValues)
@@ -269,8 +254,12 @@ export function generateReference(sdl, legacy = {}, provenance = {}) {
             .join("\n") +
           "\n";
     }
-    const exampleId = e.kind === "queries" && e.name === "products" ? "products"
-      : e.kind === "mutations" && e.name === "checkoutCreate" ? "checkout-create" : null;
+    const exampleId =
+      e.kind === "queries" && e.name === "products"
+        ? "products"
+        : e.kind === "mutations" && e.name === "checkoutCreate"
+          ? "checkout-create"
+          : null;
     if (exampleId) body += `\n## Try it\n\n<GraphQLExample exampleId="${exampleId}" />\n`;
     body += `\n---\n\nSchema: **${provenance.label ?? "Local snapshot"}**. [Download SDL](/schema/saleor.graphql).\n`;
     pages.push({
@@ -303,7 +292,7 @@ export async function main() {
   const sdl = await readFile("schema/saleor.graphql", "utf8");
   const { pages } = generateReference(sdl, legacy, provenance);
   const metadata = new Map();
-  for (const file of (await walk("docs/api-reference")).filter(file => /\.mdx?$/.test(file))) {
+  for (const file of (await walk("docs/api-reference")).filter((file) => /\.mdx?$/.test(file))) {
     const { data } = matter(await readFile(file, "utf8"));
     metadata.set(file, data);
   }
@@ -313,14 +302,18 @@ export async function main() {
   const domains = [...new Set(pages.map((p) => p.domain))].sort();
   for (const domain of domains) {
     const base = `docs/api-reference/${slug(domain)}`;
-    await write(`${base}/index.mdx`, frontmatter({ title: `${domain} API`, sidebar: { label: "Overview", order: 0 } }, domainOverview(domain, pages, provenance.label)));
+    await write(
+      `${base}/index.mdx`,
+      frontmatter(
+        { title: `${domain} API`, sidebar: { label: "Overview", order: 0 } },
+        domainOverview(domain, pages, provenance.label),
+      ),
+    );
     await write(
       `${base}/meta.ts`,
       `export default ${JSON.stringify({ title: domain, display: "group", collapsed: true })};\n`,
     );
-    for (const kind of [
-      ...new Set(pages.filter((p) => p.domain === domain).map((p) => p.kind)),
-    ])
+    for (const kind of [...new Set(pages.filter((p) => p.domain === domain).map((p) => p.kind))])
       await write(
         `${base}/${kind}/meta.ts`,
         `export default ${JSON.stringify({ title: kind[0].toUpperCase() + kind.slice(1), display: "group", collapsed: true })};\n`,
@@ -333,17 +326,17 @@ export async function main() {
     route.slice(0, route.lastIndexOf("/")),
   );
   for (const group of siblings.values()) {
-    group.sort(([, a], [, b]) =>
-      (a.order ?? Infinity) - (b.order ?? Infinity) || a.title.localeCompare(b.title),
+    group.sort(
+      ([, a], [, b]) =>
+        (a.order ?? Infinity) - (b.order ?? Infinity) || a.title.localeCompare(b.title),
     );
-    group.forEach(([, meta], index) => { meta.order = index + 1; });
+    group.forEach(([, meta], index) => {
+      meta.order = index + 1;
+    });
   }
   for (const [route, meta] of Object.entries(categories)) {
     if (pages.some((page) => page.route.startsWith(route + "/"))) {
-      await write(
-        `docs${route}/meta.ts`,
-        `export default ${JSON.stringify(meta)};\n`,
-      );
+      await write(`docs${route}/meta.ts`, `export default ${JSON.stringify(meta)};\n`);
     }
   }
   await write(
@@ -351,28 +344,31 @@ export async function main() {
     frontmatter(
       {
         title: "GraphQL API reference",
-        description:
-          "Explore Saleor queries, mutations, subscriptions, and schema types.",
+        description: "Explore Saleor queries, mutations, subscriptions, and schema types.",
       },
       `This reference is generated from **${provenance.label}**. ${provenance.development ? "This development snapshot includes unreleased changes. Match the schema to your deployed Saleor version." : ""}\n\n[Download the complete schema](/schema/saleor.graphql).\n\n## Explore by domain\n\n${domains.map((d) => `- [${d}](/api-reference/${domainSlug(d)})`).join("\n")}\n\n## Using the API\n\nSend GraphQL requests to your Saleor instance's /graphql/ endpoint. See [API quickstart](/quickstart/api) and [authentication](/api-usage/authentication).`,
     ),
   );
   for (const [file, previous] of metadata) {
     let source;
-    try { source = await readFile(file, "utf8"); }
-    catch (error) { if (error.code === "ENOENT") continue; throw error; }
+    try {
+      source = await readFile(file, "utf8");
+    } catch (error) {
+      if (error.code === "ENOENT") continue;
+      throw error;
+    }
     const parsed = matter(source);
     for (const key of ["title", "seo", "lastModified"]) {
       if (previous[key] !== undefined) parsed.data[key] = previous[key];
     }
     if (previous.description === undefined && previous.seo) delete parsed.data.description;
     const heading = parsed.data.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const body = parsed.content.replace(new RegExp(`^(\\s*(?:import[^\\n]+\\n\\s*)*)## ${heading}\\s*\\n`, "m"), "$1");
+    const body = parsed.content.replace(
+      new RegExp(`^(\\s*(?:import[^\\n]+\\n\\s*)*)## ${heading}\\s*\\n`, "m"),
+      "$1",
+    );
     await write(file, frontmatter(parsed.data, body));
   }
-  console.log(
-    `Generated ${pages.length} API entities from SDL across ${domains.length} domains.`,
-  );
+  console.log(`Generated ${pages.length} API entities from SDL across ${domains.length} domains.`);
 }
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
-  await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();

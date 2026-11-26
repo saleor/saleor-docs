@@ -64,8 +64,12 @@ For sensitive data (API keys, secrets). Same interface, adds AES-256-CBC encrypt
 import { EncryptedMetadataManager } from "@saleor/app-sdk/settings-manager";
 
 const settingsManager = new EncryptedMetadataManager({
-  fetchMetadata: async () => { /* same as above */ },
-  mutateMetadata: async (metadata) => { /* same as above */ },
+  fetchMetadata: async () => {
+    /* same as above */
+  },
+  mutateMetadata: async (metadata) => {
+    /* same as above */
+  },
   encryptionKey: process.env.SECRET_KEY, // required
 });
 ```

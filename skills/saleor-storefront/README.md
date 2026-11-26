@@ -12,12 +12,12 @@ npx skills add . --skill saleor-storefront
 
 7 rules across 4 categories covering Saleor's storefront API:
 
-| Category | Rules | Topics |
-| --- | --- | --- |
-| API | `api-data-model`, `api-permissions`, `api-graphql-patterns`, `api-investigation` | Nullable fields, pricing, permissions, codegen, source investigation |
-| Products | `products-variants` | Variant model, selection attributes, pricing, UX patterns |
-| Checkout | `checkout-lifecycle` | Session lifecycle, payment errors, debugging |
-| Channels | `channels-purchasability` | Fulfillment triangle, multi-currency, purchasability checklist |
+| Category | Rules                                                                            | Topics                                                               |
+| -------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| API      | `api-data-model`, `api-permissions`, `api-graphql-patterns`, `api-investigation` | Nullable fields, pricing, permissions, codegen, source investigation |
+| Products | `products-variants`                                                              | Variant model, selection attributes, pricing, UX patterns            |
+| Checkout | `checkout-lifecycle`                                                             | Session lifecycle, payment errors, debugging                         |
+| Channels | `channels-purchasability`                                                        | Fulfillment triangle, multi-currency, purchasability checklist       |
 
 ## Structure
 

@@ -22,10 +22,10 @@ Both modes are supported in 3.23 and the flag is the only way to switch between 
 
 In direct mode, two concerns that were entangled before 3.23 become **orthogonal**:
 
-| Concern | Meaning | Driven by |
-|---|---|---|
-| **Purchasability** | Can a customer add this variant to cart? | Channel publication, channel listing, variant pricing, warehouse-channel link, stock quantity |
-| **Shippability** | Can a customer complete checkout for a shippable order? | Shipping zones, shipping methods, destination |
+| Concern            | Meaning                                                 | Driven by                                                                                     |
+| ------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Purchasability** | Can a customer add this variant to cart?                | Channel publication, channel listing, variant pricing, warehouse-channel link, stock quantity |
+| **Shippability**   | Can a customer complete checkout for a shippable order? | Shipping zones, shipping methods, destination                                                 |
 
 In legacy mode the two are entangled: a missing shipping zone hides the product entirely, so "shippability problems" cause "purchasability problems". In direct mode they are independent: a product can be purchasable but unshippable, or have stock but no covering shipping zone. **Any feature that diagnoses, displays, or computes availability must respect this distinction.**
 
@@ -87,7 +87,7 @@ A `Stock` row counts toward customer-visible availability for `(channel, address
 3. That shipping zone covers the destination address's country, AND
 4. The shipping zone is associated with the channel.
 
-Without a destination address, conservative behavior: only stocks in warehouses with at least *some* shipping-zone coverage in that channel count. Practically: no shipping zones in the channel → product is invisible to customers.
+Without a destination address, conservative behavior: only stocks in warehouses with at least _some_ shipping-zone coverage in that channel count. Practically: no shipping zones in the channel → product is invisible to customers.
 
 ### Direct mode (`useLegacyShippingZoneStockAvailability=false`)
 
@@ -159,11 +159,11 @@ Always render a visible **mode indicator** (banner/chip) in the diagnostic UI so
 
 ### Public-API verification badges
 
-Where the dashboard verifies "is this purchasable?" against the live API and shows a result, the *reassurance text* below the result should be **mode-aware**: explain what "Purchasable" means under the active mode (e.g. "Customers in this channel can buy this — direct mode visibility comes from the warehouse-channel link") so the admin understands the precondition that produced the answer.
+Where the dashboard verifies "is this purchasable?" against the live API and shows a result, the _reassurance text_ below the result should be **mode-aware**: explain what "Purchasable" means under the active mode (e.g. "Customers in this channel can buy this — direct mode visibility comes from the warehouse-channel link") so the admin understands the precondition that produced the answer.
 
 ### Copy rules (these are bug magnets)
 
-1. **Don't say "available" when you mean "listed".** Counting channel listings is not the same as counting "channels where customers can buy this". The dashboard had a "Available in N out of M" subtitle on the variant channel availability card that was actually counting *listings* — silently misleading post-3.23. Replace with "Listed in N of M channels" or similar non-stock-flavored phrasing.
+1. **Don't say "available" when you mean "listed".** Counting channel listings is not the same as counting "channels where customers can buy this". The dashboard had a "Available in N out of M" subtitle on the variant channel availability card that was actually counting _listings_ — silently misleading post-3.23. Replace with "Listed in N of M channels" or similar non-stock-flavored phrasing.
 
 2. **"Available", "in stock", "purchasable", "visible to customers"** are now **mode-conditional** terms. If a string uses one of them, it should either be (a) accurate in both modes, or (b) explicitly conditional on the mode.
 
@@ -200,12 +200,14 @@ Pre-3.23 tests assumed legacy semantics implicitly. When touching such tests, au
 ## Reference points
 
 ### Saleor backend
+
 - Migration: `saleor/site/migrations/0048_sitesettings_include_shipping_zones_in_stock_availability.py`
 - Schema: `saleor/graphql/schema.graphql`, search for `useLegacyShippingZoneStockAvailability`
 - Stock querysets: `saleor/warehouse/managers.py` (mode dispatch lives at call sites)
 - Webhook events: `saleor/webhook/event_types.py`, search for `Note: Only triggered when`
 
 ### saleor-dashboard
+
 - Mode flag fetch: `src/products/queries.ts` → `channelDiagnosticsQuery`, `stockVisibilityModeQuery`
 - Diagnostic categorization: `src/products/components/ProductDoctor/utils/availabilityChecks.ts`, `src/products/components/ProductDoctor/utils/types.ts` (`AvailabilityIssueCategory`)
 - Mode indicator banner: `src/products/components/ProductDoctor/AvailabilityCard.tsx` → `StockAvailabilityModeIndicator`
@@ -220,4 +222,4 @@ Pre-3.23 tests assumed legacy semantics implicitly. When touching such tests, au
 ❌ **Don't let an admin subscribe to a channel-scoped stock webhook without warning** — Legacy mode silently disables the four new events  
 ❌ **Don't skip the warehouse-not-in-shipping-zone check in legacy mode** — It's still a real visibility blocker there  
 ❌ **Don't show the warehouse-not-in-shipping-zone check as `warning` in direct mode** — It's only a shipping concern, drop to `info`  
-❌ **Don't hardcode test fixtures to legacy mode** — Audit and exercise both modes when behavior diverges 
+❌ **Don't hardcode test fixtures to legacy mode** — Audit and exercise both modes when behavior diverges

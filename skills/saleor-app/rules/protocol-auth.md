@@ -31,11 +31,11 @@ Dashboard → Install App
 
 ```typescript
 interface AuthData {
-  token: string;        // App token for GraphQL API
+  token: string; // App token for GraphQL API
   saleorApiUrl: string; // GraphQL endpoint (used as tenant key)
-  appId: string;        // App ID (changes on reinstall)
-  domain: string;       // Saleor domain
-  jwks?: string;        // Cached JWKS for signature verification
+  appId: string; // App ID (changes on reinstall)
+  domain: string; // Saleor domain
+  jwks?: string; // Cached JWKS for signature verification
 }
 ```
 
@@ -58,14 +58,14 @@ interface APL {
 
 ### Implementations
 
-| APL | Use Case | Storage |
-|-----|----------|---------|
-| `FileAPL` | Dev only | `.saleor-app-auth.json` file |
-| `EnvAPL` | Single-tenant | Environment variables |
-| `UpstashAPL` | Serverless production | Upstash Redis |
-| `RedisAPL` | Self-hosted production | Redis |
-| `VercelKvApl` | Vercel deployments | Vercel KV |
-| `SaleorCloudAPL` | Saleor Cloud apps | Saleor Cloud API |
+| APL              | Use Case               | Storage                      |
+| ---------------- | ---------------------- | ---------------------------- |
+| `FileAPL`        | Dev only               | `.saleor-app-auth.json` file |
+| `EnvAPL`         | Single-tenant          | Environment variables        |
+| `UpstashAPL`     | Serverless production  | Upstash Redis                |
+| `RedisAPL`       | Self-hosted production | Redis                        |
+| `VercelKvApl`    | Vercel deployments     | Vercel KV                    |
+| `SaleorCloudAPL` | Saleor Cloud apps      | Saleor Cloud API             |
 
 See `references/apl-implementations.md` for setup details.
 
@@ -74,9 +74,10 @@ See `references/apl-implementations.md` for setup details.
 ```typescript
 import { FileAPL, UpstashAPL } from "@saleor/app-sdk/APL";
 
-const apl = process.env.NODE_ENV === "production"
-  ? new UpstashAPL()   // reads UPSTASH_URL, UPSTASH_TOKEN from env
-  : new FileAPL();
+const apl =
+  process.env.NODE_ENV === "production"
+    ? new UpstashAPL() // reads UPSTASH_URL, UPSTASH_TOKEN from env
+    : new FileAPL();
 ```
 
 ---
@@ -151,7 +152,7 @@ export default createProtectedHandler(
     res.json({ ok: true });
   },
   saleorApp.apl,
-  ["MANAGE_ORDERS"]  // required permissions (optional)
+  ["MANAGE_ORDERS"], // required permissions (optional)
 );
 ```
 
@@ -162,6 +163,7 @@ export default createProtectedHandler(
 Webhook payloads are signed with JWS. The `saleor-signature` header contains a compact JWS: `header.payload.signature`.
 
 Verification:
+
 1. Parse JWS from `saleor-signature` header
 2. Use JWKS (cached in APL or fetched from `{origin}/.well-known/jwks.json`)
 3. Verify with `jose.flattenedVerify()` — payload must match raw request body

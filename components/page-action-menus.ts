@@ -1,10 +1,9 @@
-const dropdownSelector =
-  '[data-blume-page-actions] details[data-blume-dropdown]';
+const dropdownSelector = "[data-blume-page-actions] details[data-blume-dropdown]";
 const viewportMargin = 8;
 
 function placeMenu(dropdown: HTMLDetailsElement) {
-  const trigger = dropdown.querySelector('summary');
-  const menu = dropdown.querySelector<HTMLElement>('[data-blume-menu]');
+  const trigger = dropdown.querySelector("summary");
+  const menu = dropdown.querySelector<HTMLElement>("[data-blume-menu]");
   if (!trigger || !menu) return;
 
   const bounds = trigger.getBoundingClientRect();
@@ -16,13 +15,13 @@ function placeMenu(dropdown: HTMLDetailsElement) {
   const spaceBelow = window.innerHeight - bounds.bottom - viewportMargin * 2;
   const spaceAbove = bounds.top - viewportMargin * 2;
   Object.assign(menu.style, {
-    position: 'fixed',
-    inset: 'auto',
-    margin: '0',
-    minWidth: 'min(14rem, calc(100vw - 16px))',
-    maxWidth: 'min(22rem, calc(100vw - 16px))',
+    position: "fixed",
+    inset: "auto",
+    margin: "0",
+    minWidth: "min(14rem, calc(100vw - 16px))",
+    maxWidth: "min(22rem, calc(100vw - 16px))",
     maxHeight: `${Math.max(spaceAbove, spaceBelow, 0)}px`,
-    overflowY: 'auto',
+    overflowY: "auto",
   });
 
   const { width, height } = menu.getBoundingClientRect();
@@ -31,9 +30,7 @@ function placeMenu(dropdown: HTMLDetailsElement) {
     viewportMargin,
     Math.min(bounds.right - width, window.innerWidth - width - viewportMargin),
   );
-  const top = openAbove
-    ? bounds.top - height - viewportMargin
-    : bounds.bottom + viewportMargin;
+  const top = openAbove ? bounds.top - height - viewportMargin : bounds.bottom + viewportMargin;
 
   menu.style.left = `${left}px`;
   menu.style.top = `${top}px`;
@@ -45,14 +42,12 @@ export function installPageActionMenus() {
     if (pendingFrame) return;
     pendingFrame = requestAnimationFrame(() => {
       pendingFrame = 0;
-      document
-        .querySelectorAll<HTMLDetailsElement>(`${dropdownSelector}[open]`)
-        .forEach(placeMenu);
+      document.querySelectorAll<HTMLDetailsElement>(`${dropdownSelector}[open]`).forEach(placeMenu);
     });
   };
 
   document.addEventListener(
-    'toggle',
+    "toggle",
     (event) => {
       const dropdown = event.target;
       if (
@@ -65,6 +60,6 @@ export function installPageActionMenus() {
     },
     true,
   );
-  document.addEventListener('scroll', schedulePlacement, true);
-  window.addEventListener('resize', schedulePlacement);
+  document.addEventListener("scroll", schedulePlacement, true);
+  window.addEventListener("resize", schedulePlacement);
 }
