@@ -52,42 +52,27 @@ test("generation covers every GraphQL family, defaults, directives, permissions 
   assert.match(product.content, /Default: `"en"`/);
   assert.match(product.content, /Use name/);
   const operation = pages.find((p) => p.kind === "queries");
-  assert.match(
-    operation.content,
-    /@webhookEventsInfo\(asyncEvents: \["PRODUCT_UPDATED"\]\)/,
-  );
-  assert.match(
-    operation.content,
-    /\/api-reference\/products\/objects\/product/,
-  );
+  assert.match(operation.content, /@webhookEventsInfo\(asyncEvents: \["PRODUCT_UPDATED"\]\)/);
+  assert.match(operation.content, /\/api-reference\/products\/objects\/product/);
   assert.equal(operation.route, "/api-reference/products/queries/product");
   const mutation = pages.find((p) => p.kind === "mutations");
   assert.match(mutation.content, /Create new order from existing checkout\./);
-  assert.match(mutation.content, /<Permissions label="Requires the following permissions" values="AUTHENTICATED_APP,HANDLE_CHECKOUTS" \/>/);
-  assert(!mutation.content.includes("checkout. Requires"));
-  assert.deepEqual(
-    generateReference(fixture).pages,
-    generateReference(fixture).pages,
+  assert.match(
+    mutation.content,
+    /<Permissions label="Requires the following permissions" values="AUTHENTICATED_APP,HANDLE_CHECKOUTS" \/>/,
   );
+  assert(!mutation.content.includes("checkout. Requires"));
+  assert.deepEqual(generateReference(fixture).pages, generateReference(fixture).pages);
 });
 test("the pinned real schema retains every legacy API entity route", async () => {
   const sdl = await readFile("schema/saleor.graphql", "utf8");
-  const provenance = JSON.parse(
-    await readFile("schema/provenance.json", "utf8"),
-  );
-  assert.equal(
-    createHash("sha256").update(sdl).digest("hex"),
-    provenance.sha256,
-  );
-  const legacy = JSON.parse(
-    await readFile("schema/api-routes.json", "utf8"),
-  );
+  const provenance = JSON.parse(await readFile("schema/provenance.json", "utf8"));
+  assert.equal(createHash("sha256").update(sdl).digest("hex"), provenance.sha256);
+  const legacy = JSON.parse(await readFile("schema/api-routes.json", "utf8"));
   const { pages } = generateReference(sdl, legacy, provenance);
   const routes = new Set(pages.map((p) => p.route));
   for (const route of Object.values(legacy)) assert(routes.has(route), route);
-  const anchors = JSON.parse(
-    await readFile("tests/fixtures/api-anchors.json", "utf8"),
-  );
+  const anchors = JSON.parse(await readFile("tests/fixtures/api-anchors.json", "utf8"));
   for (const page of pages)
     for (const anchor of anchors[page.route] ?? [])
       assert(page.content.includes(`[#${anchor}]`), `${page.route}#${anchor}`);
@@ -103,17 +88,42 @@ test("Used by includes directives consuming scalar and enum argument types", () 
   `);
   for (const name of ["String", "Event"]) {
     const page = pages.find((p) => p.name === name);
-    assert.match(page.content, /\[event \(directives\)\]\(\/api-reference\/miscellaneous\/directives\/event\)/);
+    assert.match(
+      page.content,
+      /\[event \(directives\)\]\(\/api-reference\/miscellaneous\/directives\/event\)/,
+    );
   }
 });
 
-test('domain overviews exclude deprecated operations and link to implementation guides', async () => {
-  const { domainOverview } = await import('../scripts/api-domains.mjs');
-  const body = domainOverview('Payments', [
-    {domain:'Payments',name:'old',kind:'queries',route:'/api-reference/deprecated/payments/queries/old',content:''},
-    {domain:'Payments',name:'new',kind:'queries',route:'/api-reference/payments/queries/new',content:''},
-    {domain:'Payments',name:'retired',kind:'queries',route:'/retired',content:'deprecated: true'},
-  ], 'Saleor test');
+test("domain overviews exclude deprecated operations and link to implementation guides", async () => {
+  const { domainOverview } = await import("../scripts/api-domains.mjs");
+  const body = domainOverview(
+    "Payments",
+    [
+      {
+        domain: "Payments",
+        name: "old",
+        kind: "queries",
+        route: "/api-reference/deprecated/payments/queries/old",
+        content: "",
+      },
+      {
+        domain: "Payments",
+        name: "new",
+        kind: "queries",
+        route: "/api-reference/payments/queries/new",
+        content: "",
+      },
+      {
+        domain: "Payments",
+        name: "retired",
+        kind: "queries",
+        route: "/retired",
+        content: "deprecated: true",
+      },
+    ],
+    "Saleor test",
+  );
   assert.match(body, /\[new\]/);
   assert.doesNotMatch(body, /\[old\]|\[retired\]/);
   assert.match(body, /\/developer\/payments\/overview/);

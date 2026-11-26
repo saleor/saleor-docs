@@ -4,13 +4,10 @@ import { write, writeJson } from "./common.mjs";
 
 const ref = process.argv[2];
 if (!ref || !/^(?:\d+\.\d+\.\d+(?:[-.][\w.-]+)?|[a-f0-9]{40})$/.test(ref))
-  throw new Error(
-    "Usage: node scripts/update-schema.mjs <release-tag-or-commit>",
-  );
+  throw new Error("Usage: node scripts/update-schema.mjs <release-tag-or-commit>");
 const source = `https://raw.githubusercontent.com/saleor/saleor/${ref}/saleor/graphql/schema.graphql`;
 const response = await fetch(source);
-if (!response.ok)
-  throw new Error(`Schema download failed: HTTP ${response.status}`);
+if (!response.ok) throw new Error(`Schema download failed: HTTP ${response.status}`);
 const text = await response.text();
 const schema = buildSchema(text);
 const errors = validateSchema(schema);

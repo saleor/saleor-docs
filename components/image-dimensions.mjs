@@ -15,9 +15,13 @@ export async function localImageDimensions(src, publicRoot = path.resolve("publi
   }
   if (!file.startsWith(root + path.sep)) return {};
   if (!dimensions.has(file)) {
-    dimensions.set(file, sharp(file).metadata().then(({ width, height }) =>
-      width && height ? { width, height } : {},
-    ).catch(() => ({})));
+    dimensions.set(
+      file,
+      sharp(file)
+        .metadata()
+        .then(({ width, height }) => (width && height ? { width, height } : {}))
+        .catch(() => ({})),
+    );
   }
   return dimensions.get(file);
 }

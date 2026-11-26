@@ -79,10 +79,10 @@ const customApl: APL = {
 
 ## Selection Guide
 
-| Scenario | APL |
-|----------|-----|
-| Local development | FileAPL |
-| Single-tenant, env-only deploy | EnvAPL |
-| Vercel + serverless | UpstashAPL or VercelKvApl |
-| Self-hosted, multi-tenant | RedisAPL |
-| Saleor Cloud marketplace | SaleorCloudAPL |
+| Scenario                       | APL                       |
+| ------------------------------ | ------------------------- |
+| Local development              | FileAPL                   |
+| Single-tenant, env-only deploy | EnvAPL                    |
+| Vercel + serverless            | UpstashAPL or VercelKvApl |
+| Self-hosted, multi-tenant      | RedisAPL                  |
+| Saleor Cloud marketplace       | SaleorCloudAPL            |

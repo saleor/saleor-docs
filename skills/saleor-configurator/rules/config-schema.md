@@ -5,20 +5,20 @@
 ## Top-Level Structure
 
 ```yaml
-shop:               # Global store settings (singleton)
-channels:           # Sales channels
-taxClasses:         # Tax classifications
-productTypes:       # Product templates
-pageTypes:          # CMS page templates
-productAttributes:  # Attributes for products and variants
-contentAttributes:  # Attributes for CMS pages
-categories:         # Product category hierarchy
-collections:        # Product groupings
-warehouses:         # Fulfillment locations
-shippingZones:      # Geographic shipping rules
-products:           # Product catalog
-menus:              # Navigation menus
-models:             # Custom data models
+shop: # Global store settings (singleton)
+channels: # Sales channels
+taxClasses: # Tax classifications
+productTypes: # Product templates
+pageTypes: # CMS page templates
+productAttributes: # Attributes for products and variants
+contentAttributes: # Attributes for CMS pages
+categories: # Product category hierarchy
+collections: # Product groupings
+warehouses: # Fulfillment locations
+shippingZones: # Geographic shipping rules
+products: # Product catalog
+menus: # Navigation menus
+models: # Custom data models
 ```
 
 ## Key Rules

@@ -20,10 +20,10 @@ The `checkoutLinesAdd` mutation requires a specific `variantId`. Without selecti
 
 Saleor distinguishes between two types via the ProductType configuration:
 
-| Type              | GraphQL Filter              | Purpose                              | UI Pattern          |
-| ----------------- | --------------------------- | ------------------------------------ | ------------------- |
-| **Selection**     | `VARIANT_SELECTION`         | Identify which variant (color, size) | Interactive picker  |
-| **Non-Selection** | `NOT_VARIANT_SELECTION`     | Describe the variant (material)      | Display-only badges |
+| Type              | GraphQL Filter          | Purpose                              | UI Pattern          |
+| ----------------- | ----------------------- | ------------------------------------ | ------------------- |
+| **Selection**     | `VARIANT_SELECTION`     | Identify which variant (color, size) | Interactive picker  |
+| **Non-Selection** | `NOT_VARIANT_SELECTION` | Describe the variant (material)      | Display-only badges |
 
 ```graphql
 product {

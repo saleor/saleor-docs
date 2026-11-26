@@ -1,6 +1,6 @@
 # Order-Level Discount Allocation & Line-Discount Shape
 
-How Saleor allocates order-level discounts across lines and what the GraphQL API does (and doesn't) expose. Companion to `discount-precedence.md` — that rule covers *which* discount wins; this rule covers *how* the winners are calculated, distributed, and surfaced via the API.
+How Saleor allocates order-level discounts across lines and what the GraphQL API does (and doesn't) expose. Companion to `discount-precedence.md` — that rule covers _which_ discount wins; this rule covers _how_ the winners are calculated, distributed, and surfaced via the API.
 
 > **Source**: `saleor/order/base_calculations.py`, `saleor/discount/utils/promotion.py`, `saleor/graphql/order/types.py`, `saleor/graphql/discount/types/discounts.py`
 
@@ -100,11 +100,11 @@ Key facts:
 
 `saleor/graphql/order/types.py` and `saleor/graphql/discount/types/discounts.py`:
 
-| Field | Granularity | What it represents |
-|------|-------------|-------------------|
-| `OrderLine.totalPrice` | Per line | Final post-everything total (single number, taxes included) |
+| Field                                               | Granularity                     | What it represents                                                                          |
+| --------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------- |
+| `OrderLine.totalPrice`                              | Per line                        | Final post-everything total (single number, taxes included)                                 |
 | `OrderLine.discounts[]` (`OrderLineDiscount.total`) | Per line, per line-level record | Catalogue, line voucher, manual line — and **`ORDER_PROMOTION` for gift lines** (see below) |
-| `Order.discounts[]` (`OrderDiscount.total`) | Per order, per record | The amounts mutated in Pass A (per-record at the order level) |
+| `Order.discounts[]` (`OrderDiscount.total`)         | Per order, per record           | The amounts mutated in Pass A (per-record at the order level)                               |
 
 **There is no field exposing per-record-per-line attribution.** That decomposition isn't even computed — Pass A produces a single combined number, Pass B distributes that combined number, and only the line total is persisted.
 
@@ -117,6 +117,7 @@ propagated = start - sum(line.discounts[].total) - end
 ```
 
 Where:
+
 - `start = line.undiscountedUnitPrice.gross.amount * line.quantity`
 - `end = line.totalPrice.gross.amount`
 

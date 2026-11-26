@@ -3,9 +3,7 @@
 // in schema/releases.json so new rules can be applied without another fetch.
 const proseRules = [
   function removeWhatsChangedHeading(line) {
-    return /^ {0,3}#{1,6}[ \t]+what['’]s changed(?:[ \t]+#+)?[ \t]*$/i.test(line)
-      ? null
-      : line;
+    return /^ {0,3}#{1,6}[ \t]+what['’]s changed(?:[ \t]+#+)?[ \t]*$/i.test(line) ? null : line;
   },
   function inlineContributorLabel(line) {
     return /^ {0,3}#{1,6}[ \t]+new contributors(?:[ \t]+#+)?[ \t]*$/i.test(line)

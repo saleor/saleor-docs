@@ -15,12 +15,21 @@ export function sentrySourceMaps(): AstroIntegration {
         updateConfig({
           vite: {
             build: { sourcemap: "hidden" },
-            plugins: [sentryVitePlugin({
-              authToken, org, project,
-              telemetry: false,
-              release: { name: process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA },
-              sourcemaps: { filesToDeleteAfterUpload: [`${fileURLToPath(config.outDir)}**/*.map`, ".vercel/output/**/*.map"] },
-            })],
+            plugins: [
+              sentryVitePlugin({
+                authToken,
+                org,
+                project,
+                telemetry: false,
+                release: { name: process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA },
+                sourcemaps: {
+                  filesToDeleteAfterUpload: [
+                    `${fileURLToPath(config.outDir)}**/*.map`,
+                    ".vercel/output/**/*.map",
+                  ],
+                },
+              }),
+            ],
           },
         });
       },

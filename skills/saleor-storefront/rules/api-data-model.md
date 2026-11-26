@@ -14,7 +14,7 @@ const name = product.category?.name ?? "Uncategorized";
 
 // Guard when null means something is wrong
 if (!product.defaultVariant) {
-	throw new Error(`Product ${product.slug} has no default variant`);
+  throw new Error(`Product ${product.slug} has no default variant`);
 }
 ```
 
@@ -35,10 +35,10 @@ Every priced entity in Saleor uses the `TaxedMoney` pattern:
 
 ```graphql
 type TaxedMoney {
-	gross: Money!   # Price including tax
-	net: Money!     # Price excluding tax
-	tax: Money!     # Tax amount
-	currency: String!
+  gross: Money! # Price including tax
+  net: Money! # Price excluding tax
+  tax: Money! # Tax amount
+  currency: String!
 }
 ```
 
@@ -60,9 +60,7 @@ A variant has a discount when `priceUndiscounted.gross.amount > price.gross.amou
 ### Discount Percentage
 
 ```typescript
-const discount = Math.round(
-	((undiscounted - price) / undiscounted) * 100
-);
+const discount = Math.round(((undiscounted - price) / undiscounted) * 100);
 ```
 
 ## Automatic Storefront Filtering

@@ -2,32 +2,52 @@ import { examples } from "./examples.mjs";
 
 const steps = {
   "products-filtered": {
-    output: (data, variables) => data?.products?.edges?.[0]?.node?.id && { productId: data.products.edges[0].node.id, channel: variables.channel },
-    missing: "No products were returned. Check your channel and price filter, then run Fetch products again.",
+    output: (data, variables) =>
+      data?.products?.edges?.[0]?.node?.id && {
+        productId: data.products.edges[0].node.id,
+        channel: variables.channel,
+      },
+    missing:
+      "No products were returned. Check your channel and price filter, then run Fetch products again.",
   },
   "walkthrough-product": {
     requires: "products-filtered",
-    variables: output => ({ id: output.productId, channel: output.channel }),
-    output: (data, variables) => data?.product?.variants?.[0]?.id && { variantId: data.product.variants[0].id, channel: variables.channel },
-    missing: "This product has no returned variants. Choose a product with variants and run Get specific product again.",
+    variables: (output) => ({ id: output.productId, channel: output.channel }),
+    output: (data, variables) =>
+      data?.product?.variants?.[0]?.id && {
+        variantId: data.product.variants[0].id,
+        channel: variables.channel,
+      },
+    missing:
+      "This product has no returned variants. Choose a product with variants and run Get specific product again.",
   },
   "walkthrough-checkout": {
     requires: "walkthrough-product",
-    variables: output => ({ input: { channel: output.channel, lines: [{ variantId: output.variantId, quantity: 1 }] } }),
-    output: data => data?.checkoutCreate?.checkout?.id && { checkoutId: data.checkoutCreate.checkout.id },
-    missing: "No checkout ID was returned. Resolve the checkout errors and run Create a checkout again.",
+    variables: (output) => ({
+      input: { channel: output.channel, lines: [{ variantId: output.variantId, quantity: 1 }] },
+    }),
+    output: (data) =>
+      data?.checkoutCreate?.checkout?.id && { checkoutId: data.checkoutCreate.checkout.id },
+    missing:
+      "No checkout ID was returned. Resolve the checkout errors and run Create a checkout again.",
   },
   "walkthrough-update": {
     requires: "walkthrough-checkout",
-    variables: output => ({ checkoutId: output.checkoutId }),
-    output: (data, variables) => data?.checkoutEmailUpdate?.checkout?.shippingMethods?.[0]?.id && {
-      checkoutId: variables.checkoutId, deliveryMethodId: data.checkoutEmailUpdate.checkout.shippingMethods[0].id,
-    },
-    missing: "No shipping methods were returned. Check the address, channel shipping configuration, and whether the product needs shipping, then run Update checkout again.",
+    variables: (output) => ({ checkoutId: output.checkoutId }),
+    output: (data, variables) =>
+      data?.checkoutEmailUpdate?.checkout?.shippingMethods?.[0]?.id && {
+        checkoutId: variables.checkoutId,
+        deliveryMethodId: data.checkoutEmailUpdate.checkout.shippingMethods[0].id,
+      },
+    missing:
+      "No shipping methods were returned. Check the address, channel shipping configuration, and whether the product needs shipping, then run Update checkout again.",
   },
   "walkthrough-delivery": {
     requires: "walkthrough-update",
-    variables: output => ({ checkoutId: output.checkoutId, deliveryMethodId: output.deliveryMethodId }),
+    variables: (output) => ({
+      checkoutId: output.checkoutId,
+      deliveryMethodId: output.deliveryMethodId,
+    }),
     output: () => ({}),
   },
 };
@@ -42,9 +62,14 @@ export function createWalkthroughStore() {
   let endpoint = "";
   let mounted = 0;
   const listeners = new Set();
-  const notify = () => listeners.forEach(listener => listener());
+  const notify = () => listeners.forEach((listener) => listener());
   function reset() {
-    progress = Object.fromEntries(Object.keys(steps).map(id => [id, { ...emptyStep, version: (progress[id]?.version || 0) + 1 }]));
+    progress = Object.fromEntries(
+      Object.keys(steps).map((id) => [
+        id,
+        { ...emptyStep, version: (progress[id]?.version || 0) + 1 },
+      ]),
+    );
     notify();
   }
   function invalidate(id) {
@@ -64,9 +89,22 @@ export function createWalkthroughStore() {
   }
   return {
     getSnapshot: () => progress,
-    subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); },
-    attach() { mounted++; return () => { if (--mounted === 0) reset(); }; },
-    setEndpoint(value) { if (endpoint !== value) { endpoint = value; reset(); } },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+    attach() {
+      mounted++;
+      return () => {
+        if (--mounted === 0) reset();
+      };
+    },
+    setEndpoint(value) {
+      if (endpoint !== value) {
+        endpoint = value;
+        reset();
+      }
+    },
     reset,
     invalidate,
     begin: invalidate,
@@ -74,7 +112,11 @@ export function createWalkthroughStore() {
       if (progress[id] !== ticket) return ""; // Ignore a response invalidated by an earlier step or navigation.
       const step = steps[id];
       const output = !response.hasErrors && step.output(response.data, variables);
-      const issue = response.hasErrors ? `Resolve the errors in ${examples[id].title} and run it again.` : output ? "" : step.missing;
+      const issue = response.hasErrors
+        ? `Resolve the errors in ${examples[id].title} and run it again.`
+        : output
+          ? ""
+          : step.missing;
       progress = { ...progress, [id]: { ...ticket, output: output || null, issue } };
       notify();
       return issue;
@@ -87,9 +129,14 @@ export function walkthroughInputs(id, progress) {
   if (!step) throw new Error(`Unknown walkthrough step: ${id}`);
   const parent = step.requires && progress[step.requires];
   return {
-    variables: { ...examples[id].variables, ...(parent?.output ? step.variables(parent.output) : {}) },
-    blocked: step.requires && !parent?.output
-      ? parent?.issue || `Run “${examples[step.requires].title}” successfully first.` : "",
+    variables: {
+      ...examples[id].variables,
+      ...(parent?.output ? step.variables(parent.output) : {}),
+    },
+    blocked:
+      step.requires && !parent?.output
+        ? parent?.issue || `Run “${examples[step.requires].title}” successfully first.`
+        : "",
   };
 }
 
@@ -102,7 +149,7 @@ export function getWalkthroughStore(id) {
 }
 
 if (typeof window !== "undefined") {
-  const reset = () => stores.forEach(store => store.reset());
+  const reset = () => stores.forEach((store) => store.reset());
   window.addEventListener("pagehide", reset);
   document.addEventListener("astro:before-swap", reset);
 }

@@ -6,7 +6,7 @@ sidebar:
 seo:
   title: Customers and Staff as One User
   description: How customers and staff relate to the shared User type in the Saleor GraphQL API.
-lastModified: '2026-09-08'
+lastModified: "2026-09-08"
 ---
 
 Customers and staff are not separate entities in Saleor. Both are represented by the same [`User`](/api-reference/users/objects/user) GraphQL type. The role of a given user is determined by the `isStaff` field and by which mutations and permissions apply to them.
@@ -25,13 +25,13 @@ Every account — whether a shopper or an administrator — is a `User`. The sam
 
 The following fields exist on every `User` but are only populated for staff. For customers they return empty lists or `false`:
 
-| Field | Meaning |
-| --- | --- |
-| `permissionGroups` | Permission groups the user belongs to. Customers cannot belong to permission groups via the public API. |
-| `userPermissions` | Effective permissions granted directly or via groups. |
-| `editableGroups` | Groups the user is allowed to manage (used by the Dashboard). |
-| `accessibleChannels` | Channels the staff user has access to via their permission groups. |
-| `restrictedAccessToChannels` | Whether the staff user's access is limited to a subset of channels. |
+| Field                        | Meaning                                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `permissionGroups`           | Permission groups the user belongs to. Customers cannot belong to permission groups via the public API. |
+| `userPermissions`            | Effective permissions granted directly or via groups.                                                   |
+| `editableGroups`             | Groups the user is allowed to manage (used by the Dashboard).                                           |
+| `accessibleChannels`         | Channels the staff user has access to via their permission groups.                                      |
+| `restrictedAccessToChannels` | Whether the staff user's access is limited to a subset of channels.                                     |
 
 See [Permissions](/developer/permissions) for how permission groups and channel restrictions work.
 
@@ -39,11 +39,11 @@ See [Permissions](/developer/permissions) for how permission groups and channel 
 
 There are three mutations that produce a `User`. Pick the one that matches the caller and the resulting role:
 
-| Mutation | Caller | Required permission | Resulting role |
-| --- | --- | --- | --- |
-| [`accountRegister`](/api-reference/users/mutations/account-register) | The user themselves (storefront) | None | Customer |
-| [`customerCreate`](/api-reference/users/mutations/customer-create) | Staff or app | `MANAGE_USERS` | Customer |
-| [`staffCreate`](/api-reference/users/mutations/staff-create) | Staff or app | `MANAGE_STAFF` | Staff (`isStaff: true`) |
+| Mutation                                                             | Caller                           | Required permission | Resulting role          |
+| -------------------------------------------------------------------- | -------------------------------- | ------------------- | ----------------------- |
+| [`accountRegister`](/api-reference/users/mutations/account-register) | The user themselves (storefront) | None                | Customer                |
+| [`customerCreate`](/api-reference/users/mutations/customer-create)   | Staff or app                     | `MANAGE_USERS`      | Customer                |
+| [`staffCreate`](/api-reference/users/mutations/staff-create)         | Staff or app                     | `MANAGE_STAFF`      | Staff (`isStaff: true`) |
 
 `accountRegister` and `customerCreate` both produce a customer; the difference is who initiates the action and whether a password is set up-front or via an emailed link. See [Manage Account as a Customer](/developer/users/customer-account) and [Customer Management](/developer/users/customer-management).
 
@@ -62,17 +62,17 @@ The table below lists, for each mutation in this flow, the asynchronous events e
 - **Staff emails** (invite / set password / password reset for staff) are sent by the **core admin email plugin** when it is configured. No external app is required.
 - **Customer emails** (account confirmation, set password, password reset for customers) are **not** sent by Saleor core. An external app must subscribe to the corresponding webhook and deliver the email itself — typically [Customer Emails](/developer/app-store/apps/customer-emails/overview) on Saleor Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview) if you are self-hosting.
 
-| # | Mutation | Async events emitted | Email |
-| --- | --- | --- | --- |
-| 1 | [`accountRegister`](/api-reference/users/mutations/account-register) | `CUSTOMER_CREATED`; additionally `ACCOUNT_CONFIRMATION_REQUESTED` if [`enableAccountConfirmationByEmail`](/api-reference/miscellaneous/objects/shop#enable-account-confirmation-by-email) is `true` | Customer confirmation email. **Not sent by core** — requires an external app (e.g. [Customer Emails](/developer/app-store/apps/customer-emails/overview) on Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview) when self-hosting) subscribed to `ACCOUNT_CONFIRMATION_REQUESTED`. |
-| 2 | [`confirmAccount`](/api-reference/users/mutations/confirm-account) | `ACCOUNT_CONFIRMED` | No email required for the confirmation step itself. If you want a "welcome" email, subscribe an external app to `ACCOUNT_CONFIRMED`. |
-| 3 | [`accountUpdate`](/api-reference/users/mutations/account-update) (customer edits own profile) | `CUSTOMER_UPDATED`; `CUSTOMER_METADATA_UPDATED` if metadata changed | None by default. |
-| 4 | [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset) (while still a customer) | `ACCOUNT_SET_PASSWORD_REQUESTED` | Customer password reset email. **Not sent by core** — requires an external app subscribed to `ACCOUNT_SET_PASSWORD_REQUESTED`. |
-| 5 | [`setPassword`](/api-reference/users/mutations/set-password) | No webhook event is emitted by this mutation itself. | No email. |
-| 6 | [`staffCreate`](/api-reference/users/mutations/staff-create) called with the existing customer's email | `STAFF_CREATED` (the same `User.id` is reused; `isStaff` becomes `true`). Additionally `STAFF_SET_PASSWORD_REQUESTED` if `redirectUrl` is provided. | Staff invite / set password email. **Sent by the core admin email plugin** when configured. The customer-facing `ACCOUNT_SET_PASSWORD_REQUESTED` event is **not** emitted in this case, so an external customer-email app does not receive a duplicate. |
-| 7 | [`staffUpdate`](/api-reference/users/mutations/staff-update) | `STAFF_UPDATED` | None by default. |
-| 8 | [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset) (now as a staff user) | `STAFF_SET_PASSWORD_REQUESTED` | Staff password reset email. **Sent by the core admin email plugin** when configured. |
-| 9 | [`setPassword`](/api-reference/users/mutations/set-password) | No webhook event is emitted by this mutation itself. | No email. |
+| #   | Mutation                                                                                                 | Async events emitted                                                                                                                                                                                | Email                                                                                                                                                                                                                                                                                            |
+| --- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | [`accountRegister`](/api-reference/users/mutations/account-register)                                     | `CUSTOMER_CREATED`; additionally `ACCOUNT_CONFIRMATION_REQUESTED` if [`enableAccountConfirmationByEmail`](/api-reference/miscellaneous/objects/shop#enable-account-confirmation-by-email) is `true` | Customer confirmation email. **Not sent by core** — requires an external app (e.g. [Customer Emails](/developer/app-store/apps/customer-emails/overview) on Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview) when self-hosting) subscribed to `ACCOUNT_CONFIRMATION_REQUESTED`. |
+| 2   | [`confirmAccount`](/api-reference/users/mutations/confirm-account)                                       | `ACCOUNT_CONFIRMED`                                                                                                                                                                                 | No email required for the confirmation step itself. If you want a "welcome" email, subscribe an external app to `ACCOUNT_CONFIRMED`.                                                                                                                                                             |
+| 3   | [`accountUpdate`](/api-reference/users/mutations/account-update) (customer edits own profile)            | `CUSTOMER_UPDATED`; `CUSTOMER_METADATA_UPDATED` if metadata changed                                                                                                                                 | None by default.                                                                                                                                                                                                                                                                                 |
+| 4   | [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset) (while still a customer) | `ACCOUNT_SET_PASSWORD_REQUESTED`                                                                                                                                                                    | Customer password reset email. **Not sent by core** — requires an external app subscribed to `ACCOUNT_SET_PASSWORD_REQUESTED`.                                                                                                                                                                   |
+| 5   | [`setPassword`](/api-reference/users/mutations/set-password)                                             | No webhook event is emitted by this mutation itself.                                                                                                                                                | No email.                                                                                                                                                                                                                                                                                        |
+| 6   | [`staffCreate`](/api-reference/users/mutations/staff-create) called with the existing customer's email   | `STAFF_CREATED` (the same `User.id` is reused; `isStaff` becomes `true`). Additionally `STAFF_SET_PASSWORD_REQUESTED` if `redirectUrl` is provided.                                                 | Staff invite / set password email. **Sent by the core admin email plugin** when configured. The customer-facing `ACCOUNT_SET_PASSWORD_REQUESTED` event is **not** emitted in this case, so an external customer-email app does not receive a duplicate.                                          |
+| 7   | [`staffUpdate`](/api-reference/users/mutations/staff-update)                                             | `STAFF_UPDATED`                                                                                                                                                                                     | None by default.                                                                                                                                                                                                                                                                                 |
+| 8   | [`requestPasswordReset`](/api-reference/users/mutations/request-password-reset) (now as a staff user)    | `STAFF_SET_PASSWORD_REQUESTED`                                                                                                                                                                      | Staff password reset email. **Sent by the core admin email plugin** when configured.                                                                                                                                                                                                             |
+| 9   | [`setPassword`](/api-reference/users/mutations/set-password)                                             | No webhook event is emitted by this mutation itself.                                                                                                                                                | No email.                                                                                                                                                                                                                                                                                        |
 
 :::info[Customer emails require an external app]
 Saleor core ships an "admin email" plugin that covers **staff** notifications (staff invite, staff password reset, etc.) out of the box. It does **not** send emails to customers. To deliver account confirmation, customer password reset, order confirmation, and other customer-facing emails, install [Customer Emails](/developer/app-store/apps/customer-emails/overview) on Saleor Cloud, or the [SMTP app](/developer/app-store/apps/smtp/overview) if you are self-hosting, and subscribe it to the relevant `ACCOUNT_*` and `CUSTOMER_*` webhook events.
@@ -86,9 +86,9 @@ Saleor core ships an "admin email" plugin that covers **staff** notifications (s
 
 Update and delete mutations are split along the same lines as creation:
 
-| Action | Self-service | Customer (by staff) | Staff (by staff) |
-| --- | --- | --- | --- |
-| Update | [`accountUpdate`](/api-reference/users/mutations/account-update) | [`customerUpdate`](/api-reference/users/mutations/customer-update) | [`staffUpdate`](/api-reference/users/mutations/staff-update) |
+| Action | Self-service                                                                                                                                          | Customer (by staff)                                                | Staff (by staff)                                             |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------ |
+| Update | [`accountUpdate`](/api-reference/users/mutations/account-update)                                                                                      | [`customerUpdate`](/api-reference/users/mutations/customer-update) | [`staffUpdate`](/api-reference/users/mutations/staff-update) |
 | Delete | [`accountDelete`](/api-reference/users/mutations/account-delete), [`accountRequestDeletion`](/api-reference/users/mutations/account-request-deletion) | [`customerDelete`](/api-reference/users/mutations/customer-delete) | [`staffDelete`](/api-reference/users/mutations/staff-delete) |
 
 The `account*` mutations always operate on the currently authenticated user and never change the user's role. The `customer*` and `staff*` mutations require the matching permission and only operate on users of the corresponding role.

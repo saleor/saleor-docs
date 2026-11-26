@@ -36,13 +36,16 @@ test("obsolete SITE_URL does not override Vercel configuration", () => {
 });
 
 test("migration builds can supply a local HTTP origin through the URL inputs", () => {
-  assert.deepEqual(resolveSiteUrls({
-    VERCEL_URL: "http://localhost:4399",
-    VERCEL_PROJECT_PRODUCTION_URL: "http://localhost:4399",
-  }), {
-    canonical: "http://localhost:4399",
-    deployment: "http://localhost:4399",
-  });
+  assert.deepEqual(
+    resolveSiteUrls({
+      VERCEL_URL: "http://localhost:4399",
+      VERCEL_PROJECT_PRODUCTION_URL: "http://localhost:4399",
+    }),
+    {
+      canonical: "http://localhost:4399",
+      deployment: "http://localhost:4399",
+    },
+  );
 });
 
 test("falls back to deployment URL if production domain is unavailable", () => {
