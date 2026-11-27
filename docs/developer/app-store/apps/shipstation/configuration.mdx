@@ -1,0 +1,131 @@
+---
+title: ShipStation App Configuration
+slug: developer/app-store/apps/shipstation/configuration
+sidebar:
+  label: Configuration
+  order: 3
+seo:
+  title: ShipStation App Configuration
+  description: Connect a ShipStation API key, choose carriers, set the ship-from address and packaging, and assign configurations to Saleor channels.
+lastModified: "2026-11-27"
+---
+
+This guide explains how to connect your ShipStation account to the app, set up packaging, and assign configurations to Saleor channels.
+
+App configuration is based on two entities:
+
+- **Configurations**: a ShipStation API key with its carriers, ship-from address, label format and packaging settings
+- **Channel assignments**: the mapping between a Saleor channel and a configuration
+
+You can add multiple configurations. A configuration isn't used until it's assigned to a channel. One configuration can serve many channels, and each channel can have one configuration or none. Checkouts in a channel without a configuration get no ShipStation rates.
+
+To configure the app, open **Extensions** in the Saleor Dashboard and select the installed ShipStation app. The setup checklist at the top of the page shows the next step.
+
+:::note
+To configure the app, the logged-in staff user must have the `MANAGE_SHIPPING` and `MANAGE_APPS` permissions.
+:::
+
+## Before you start
+
+You need:
+
+- **A ShipStation API v2 key.**
+  - In the ShipStation web app, go to **Settings → Account → API Settings**. These keys are always live, even on a trial: labels bought with them cost real postage.
+  - On a [ShipStation API account](https://api-portal.shipstation.com/) (formerly ShipEngine), you can also get a sandbox key that starts with `TEST_`. See [Testing](./testing).
+- **Carriers connected in ShipStation.** The app lists the carriers of your account. Connect and fund them in ShipStation first.
+- **A ship-from address with a phone number.** ShipStation requires a phone number on both ends of a label.
+- **Product weights** in Saleor, or a weight attribute. See [How the app weighs a shipment](./architecture#how-the-app-weighs-a-shipment).
+- **Optional: numeric dimension attributes** for length, width and height, visible in the storefront and filled on products or variants. See [Packaging](#packaging).
+
+## Create a Configuration
+
+Select **Add configuration** and fill in the sections below. When you save, the app checks your input with ShipStation before storing anything.
+
+### Connection
+
+| Field   | Description                                                                                               |
+| ------- | --------------------------------------------------------------------------------------------------------- |
+| Name    | A label for the configuration, shown in the Dashboard and in app problems.                                |
+| API key | Your ShipStation API v2 key. When you edit a configuration, leave the field empty to keep the stored key. |
+
+Configurations with a key that starts with `TEST_` show a **Sandbox** badge.
+
+:::warning
+Test or live is decided by the API key alone. Saving a configuration with a key that doesn't start with `TEST_` is all it takes for the app to start buying real postage.
+:::
+
+### Carriers
+
+After you enter the API key, the app loads the carriers of that ShipStation account. Select at least one. Every service of every selected carrier is quoted at checkout.
+
+On save, the app checks that every selected carrier still belongs to the account of the API key. If you change the key to another account, reload the carriers and select them again.
+
+### Ship From
+
+The address every label of this configuration ships from.
+
+| Field        | Rules                                                                              |
+| ------------ | ---------------------------------------------------------------------------------- |
+| Name         | Required.                                                                          |
+| Company name | Optional.                                                                          |
+| Street 1     | Required.                                                                          |
+| Street 2     | Optional.                                                                          |
+| City         | Required.                                                                          |
+| State        | Required as a two-letter code (for example `NY`) when the country is `US` or `CA`. |
+| Postal code  | Required.                                                                          |
+| Country      | Required, as a two-letter ISO code.                                                |
+| Phone        | Required. ShipStation refuses to create a label without one.                       |
+
+The two-letter state is enforced because ShipStation accepts a spelled-out US or Canadian state, but then drops carriers from the rate estimate and refuses to sell the label.
+
+On save, the app asks ShipStation to validate the address:
+
+- **ShipStation can't find the address:** the save is blocked and ShipStation's messages are shown.
+- **ShipStation suggests a correction:** you can accept the suggested address or keep the one you typed. Upper-casing and ZIP+4 postal codes don't count as corrections.
+- **Validation is not available:** the configuration is saved with a note that the address was not validated. This happens on ShipStation plans without address validation, and for addresses without a state (most countries outside the US and Canada).
+
+### Label
+
+Choose the label format: **PDF** (default), **PNG** or **ZPL**. The label layout is ShipStation's default, 4×6 inch.
+
+### Packaging
+
+| Field                               | Description                                                                                                                                                                                          |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit system                         | Metric (cm, g) or imperial (inch, oz). Boxes, default item dimensions and the default item weight are entered in these units.                                                                        |
+| Length, width and height attributes | Required. Numeric Saleor attributes with a length unit of the unit system (metric: `MM`, `CM`, `DM`, `M`, `KM`; imperial: `INCH`, `FT`, `YD`). The sides may use different units of the same system. |
+| Weight attribute                    | Optional. A numeric attribute with a weight unit of the unit system (metric: `G`, `KG`, `TONNE`; imperial: `LB`, `OZ`). Select **None** to start the weight steps at Saleor's weight.                |
+| Default item dimensions             | Length, width and height used for any item that is missing one of its three attribute values.                                                                                                        |
+| Default item weight                 | Optional. The last weight step, used for a line that needs shipping and has no other weight. Leave empty to have no fallback.                                                                        |
+| Boxes                               | At least one box, each with a name, length, width and height. A new configuration starts with an envelope (30×20×1 cm), a small box (30×30×30 cm) and a large box (50×50×50 cm).                     |
+
+The attribute selects list only numeric product attributes that are **visible in the storefront** and have a unit of the selected system. The app can't read attributes that are hidden from the storefront.
+
+Switching the unit system clears the attribute selections, because no attribute has a unit of both systems. It does not convert the default item weight you already entered.
+
+See [How the app picks a box](./architecture#how-the-app-picks-a-box) for how these settings are used.
+
+## Assign Configurations to Channels
+
+On a configuration card, open **Assign channels** and select the Saleor channels that should use it. You can set a channel back to **None** to stop ShipStation rates in that channel.
+
+The app asks for confirmation before moving a channel to another configuration, and warns when the move switches the channel between a sandbox key and a live key.
+
+A new assignment applies to new checkouts only. Orders already placed keep the configuration that quoted their rate.
+
+## Edit or Delete a Configuration
+
+Editing a configuration changes the labels of orders that are not fulfilled yet, because labels are built from the configuration's current settings.
+
+Deleting a configuration first removes it from all its channels. Before you delete one, consider that:
+
+- Orders it quoted can no longer get labels from Saleor. The app adds an order note and reports a problem when they are fulfilled.
+- Labels it bought can no longer be voided from Saleor. Void them in ShipStation directly.
+
+## Storefront Requirements
+
+- **Collect a phone number** on the shipping address. Without one, the label purchase fails at fulfillment.
+- **Set the shipping address before asking for shipping methods.** The app needs the country, postal code, city and, where it applies, the state.
+- **Use the channel's currency.** ShipStation quotes in the carrier account's currency. Saleor drops methods whose currency differs from the checkout currency.
+
+The app's methods are returned by [`deliveryOptionsCalculate`](/api-reference/shipping/mutations/delivery-options-calculate), next to built-in shipping methods and methods from other apps. Select one by passing its Delivery `id` to `checkoutDeliveryMethodUpdate`, as with any other shipping method. See the [checkout API guide](/developer/checkout/api-guide#shipping-methods).

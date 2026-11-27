@@ -1,0 +1,50 @@
+---
+title: ShipStation App Problems and Troubleshooting
+slug: developer/app-store/apps/shipstation/problems
+sidebar:
+  label: Problems
+  order: 5
+seo:
+  title: ShipStation App Problems and Troubleshooting
+  description: The problems the ShipStation App reports to the Saleor Dashboard, and how to fix common issues.
+lastModified: "2026-11-27"
+---
+
+The ShipStation App tells you about problems in two places:
+
+- **App problems** on the app's page in the Dashboard, through the [App Problems API](/developer/extending/apps/developing-apps/apps-patterns/reporting-problems). Each problem names the affected configuration and says what to do. The app clears a problem once it sees the fix.
+- **Order notes** on the affected order. They explain what happened to that order's label, and what to do next.
+
+## Troubleshooting
+
+### The checkout shows no ShipStation methods
+
+Check, in this order:
+
+1. **The channel has a configuration assigned.** Channels set to **None** get no ShipStation methods.
+2. **The checkout has a shipping address.** The app needs it to quote rates.
+3. **At least one line has a weight.** Look for the missing-weight problem. Use the [Playground](./testing#the-playground) to see the weight the app reads for each product.
+4. **The API key is valid.** Look for the rejected-key problem.
+5. **The currency matches.** Saleor drops methods whose currency differs from the checkout currency. ShipStation quotes in the carrier account's currency.
+6. **The carriers can serve the route.** A carrier that can't serve the address is left out of the quote. The app logs the carrier's error messages.
+7. **The ship-from state is a two-letter code** for US and Canadian addresses.
+
+### The rate at checkout differs from the label price
+
+ShipStation's rate estimates can leave out fuel surcharges, customs charges and other carrier fees. The residential indicator is also unknown at checkout. Carriers that use dimensional weight adjust the charge after shipping when the declared box is wrong, so check the no-box-fits problem and your product dimensions.
+
+### Every item uses the default dimensions
+
+- The dimension attributes must be **numeric** and **visible in the storefront**.
+- All three sides must have a value on the variant or the product. If one side is missing, the whole item uses the defaults.
+- The attribute unit must belong to the configuration's unit system. Look for the dimension unit problem.
+
+### The fulfillment has no tracking number
+
+Read the order notes. Each reason the app didn't buy a label is explained there. After you fix the cause, cancel the fulfillment and fulfill again: the app does not retry a refused label by itself.
+
+If there is no note at all, the order's shipping method was not one of this app's methods, for example because it was changed after checkout or the order was a draft order.
+
+### Where to find the label
+
+Open the fulfillment's private metadata and read `shipstation.labelUrl`. The label also stays in your ShipStation account. See [What the app writes to Saleor](./architecture#what-the-app-writes-to-saleor).
