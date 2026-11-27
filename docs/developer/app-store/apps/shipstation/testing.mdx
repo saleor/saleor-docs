@@ -1,0 +1,57 @@
+---
+title: Testing the ShipStation App
+slug: developer/app-store/apps/shipstation/testing
+sidebar:
+  label: Testing
+  order: 5
+seo:
+  title: Testing the ShipStation App
+  description: Test ShipStation rates and labels for free with a sandbox key, and place test orders with the Playground in the Saleor Dashboard.
+lastModified: "2026-11-27"
+---
+
+You can test the whole flow, from rates to labels, without buying real postage. This page explains how to get a sandbox key and how to place test orders with the Playground.
+
+## Sandbox Keys
+
+A configuration whose API key starts with `TEST_` uses the ShipStation sandbox. Rates and labels are then free. The app talks to the same `https://api.shipstation.com/v2` endpoint either way. The `TEST_` prefix is the only thing that makes a key free.
+
+Sandbox keys exist only on a **ShipStation API account** (formerly ShipEngine). A regular ShipStation web-app account has no sandbox. Its keys are always live, even on a trial.
+
+To get a sandbox key:
+
+1. Sign up for, or log in to, the [ShipStation API dashboard](https://api-portal.shipstation.com/). It is a separate account from the ShipStation web app.
+2. Open the **API keys** section. If only a live key is listed, switch the dashboard to its **Sandbox** environment.
+3. Copy the key that starts with `TEST_`.
+
+The sandbox comes with test carrier accounts already connected (for example USPS, UPS, FedEx and DHL). It gives real-looking quotes and labels with tracking numbers, but test labels can't be used to ship anything. ShipStation clears sandbox data from time to time.
+
+You can also void sandbox labels, so you can test cancelling a fulfillment or an order end to end.
+
+## The Playground
+
+Draft orders can't use app shipping methods: Saleor asks apps for shipping methods only for checkouts. To test the app without a storefront, use the **Playground**. It is a small storefront inside the Dashboard, linked from the header of the app's configuration page.
+
+The Playground calls Saleor as the app, not as the logged-in staff user. It needs no extra app permissions.
+
+1. **Pick a channel** that has a ShipStation configuration assigned. Only those channels are listed.
+2. **Add products.** Search by product name or SKU. Each line shows:
+   - the weight the app reads, in grams, and the step it came from (weight attribute, Saleor weight or default item weight),
+   - the length, width and height read from the configuration's dimension attributes,
+   - what is missing. Digital goods are shown as not shipped.
+3. **Enter a shipping address.** A sample US address with a phone number is pre-filled.
+4. **Create the checkout and pick a rate.** Methods that come from this app are marked as ShipStation methods.
+5. **Check the packing preview:** the box the app picked, the total weight, and the lines that used the default dimensions or the default weight. The preview buys nothing.
+6. **Place the order.**
+   - With the Dummy Payment app installed, **Pay with Dummy Payment app** charges the full total and completes the checkout.
+   - Without it, the order is placed unpaid. This works only when the channel has **Allow unpaid orders** turned on. Otherwise, the Playground explains how to enable it.
+
+The order gets the note "Created in the ShipStation Playground". Open it in the Dashboard and fulfill it to buy the label, as you would with any order.
+
+The Playground does not report app problems, so testing with incomplete product data does not raise problems in the Dashboard.
+
+The Playground does not support vouchers, gift cards, click and collect, or multiple shipments.
+
+## Testing With a Live Key
+
+The sandbox makes this unnecessary in most cases. If you test with a live key, every label you buy is charged. Void it right after by cancelling the fulfillment, while the carrier still allows it.

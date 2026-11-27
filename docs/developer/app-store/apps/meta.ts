@@ -19,6 +19,7 @@ export default defineMeta({
     "smtp",
     "stripe",
     "square",
+    "shipstation",
     "google-merchant-center",
   ],
 });

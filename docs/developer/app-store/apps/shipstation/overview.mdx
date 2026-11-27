@@ -1,0 +1,104 @@
+---
+title: ShipStation App Overview
+slug: developer/app-store/apps/shipstation/overview
+sidebar:
+  label: Overview
+  order: 1
+seo:
+  title: ShipStation App Overview
+  description: The Saleor ShipStation App quotes live carrier rates at checkout and buys, tracks and voids shipping labels through ShipStation API v2.
+lastModified: "2026-11-27"
+---
+
+<Callout type="info">
+
+Saleor version required: **3.23**.
+
+</Callout>
+
+The Saleor ShipStation App connects Saleor to [ShipStation](https://www.shipstation.com/), a multi-carrier shipping platform. It shows live carrier rates to customers at checkout, and buys a shipping label when you fulfill an order.
+
+The app uses [ShipStation API v2](https://docs.shipstation.com/) (`https://api.shipstation.com/v2`), the API formerly known as ShipEngine. The older ShipStation API (`ssapi.shipstation.com`, key and secret) is not supported.
+
+## Features
+
+The app:
+
+- Is configured through the Saleor Dashboard UI
+- Lets you create multiple ShipStation configurations (for example, a sandbox and a live one) and assign each one to Saleor channels
+- Quotes rates from every carrier you select in the configuration, in one request, and returns them as [app shipping methods](/developer/shipping/shipping-method) for the checkout
+- Picks the smallest configured box that fits the items, based on numeric dimension attributes on your products
+- Weighs each line from a weight attribute, Saleor's built-in weight, or a default item weight
+- Buys a label when a fulfillment is created, with the carrier and service the customer chose at checkout
+- Writes the carrier's tracking number back to the Saleor fulfillment
+- Stores the label ID, label download URL and carrier tracking page URL in the fulfillment's private metadata
+- Prints the Saleor order number on every label, so you can find the order from ShipStation
+- Shows the order's labels on the order page, with tracking, cost, download and void
+- Lets staff buy another label for a fulfillment from the order page (a lost parcel, a wrong box, a second box), with the price shown before buying
+- Voids every label of a fulfillment when the fulfillment or the order is cancelled, including labels bought by hand
+- Adds order notes that explain each label purchase or void that didn't succeed
+- Reports configuration and data problems to the Saleor Dashboard
+- Includes a Playground: a test checkout inside the Dashboard, because draft orders can't use app shipping methods
+
+## Assumptions
+
+The app is built on these assumptions. Check them against your setup before you install it.
+
+- **You already have a ShipStation API v2 key.** Keys come from the ShipStation web app (**Settings → Account → API Settings**) or from a ShipStation API account. The app does not create or manage ShipStation accounts or carrier connections.
+- **Carriers are connected in ShipStation first.** The app lists the carriers of the API key's account. It cannot connect a new carrier.
+- **One configuration has one ship-from address.** Every label of a configuration ships from the address in that configuration. The app does not read Saleor warehouse addresses.
+- **Products have weights.** Rates and labels depend on the weight of each line. See [How the app weighs a shipment](./architecture#how-the-app-weighs-a-shipment).
+- **Item sizes are stored as numeric product attributes.** Saleor has no built-in dimensions, so the app reads length, width and height from three numeric attributes that you pick. Without them, every item uses the default item dimensions of the configuration.
+- **The storefront collects a phone number.** ShipStation refuses to create a label without a phone number on the shipping address. Saleor treats the phone as optional.
+- **The ShipStation currency matches the channel currency.** Saleor drops any shipping method whose currency differs from the checkout currency.
+- **The order comes from a checkout.** The app's shipping methods exist only on checkouts. Draft orders and orders whose shipping method was changed afterwards don't get a label.
+
+## Limitations
+
+Before installing this app, review these limitations to ensure they don't conflict with your requirements.
+
+### Rates
+
+- **Rates are estimates.** The app uses ShipStation's rate estimate endpoint. Estimates may leave out fuel surcharges, customs charges and other carrier fees, so the final label price can differ from the price the customer paid.
+- **The destination is not known to be residential or commercial.** Rates are requested with the residential indicator set to `unknown`, and with no delivery confirmation.
+- **No caching.** The app asks ShipStation for rates every time Saleor asks the app for shipping methods. High-traffic storefronts can reach ShipStation's rate limits. Ask ShipStation about the limits that apply to your account.
+- **No price adjustments.** The app returns ShipStation's price as is (shipping amount plus insurance, confirmation and other amounts). You can't add a margin, a handling fee or free shipping thresholds in the app.
+- **No filtering of services.** Every service of every selected carrier that ShipStation quotes is shown to the customer. You can only choose which carriers to include.
+- **Method names come from ShipStation.** A method is named after the carrier's service, for example `USPS Priority Mail`. You can't rename methods in the app.
+- **Only the generic `package` packaging is quoted.** ShipStation quotes some services once per packaging (flat-rate envelopes, padded envelopes, and so on). The app keeps only the generic `package` quote, because the label is always bought as `package`.
+- **Ship date is the moment of the request.** The app has no handling time setting.
+- **A checkout without a shipping address gets no methods.** The app needs the destination country, postal code, city and state.
+
+### Packing
+
+- **One parcel per shipment at checkout and on fulfillment.** Every checkout rate and every label the app buys automatically is for a single package. An order that doesn't fit the largest box is still quoted and labelled in the largest box. Staff can buy a multi-package label by hand from the [order page](./order-labels), for services that support it.
+- **No 3D bin packing.** The app adds up item volumes and checks only the longest side. It can pick a box that can't physically hold the items in any arrangement.
+- **Boxes are typed into the configuration.** The app does not use ShipStation custom package types.
+- **Dimension attributes must be visible in the storefront.** The app does not have the `MANAGE_PRODUCTS` permission, so Saleor leaves attributes that are hidden from the storefront out of its webhook payloads.
+
+### Labels
+
+- **Automatic labels only for fulfillments of checkout orders.** The app buys a label on `FULFILLMENT_CREATED`, and only for orders placed with one of its shipping methods. A label refused at that point is not retried. Staff can buy one by hand from the [order page](./order-labels).
+- **No customs information.** The app sends no customs declarations, so international shipments that need customs data can fail at label purchase.
+- **No insurance or signature options.** Labels are bought with no delivery confirmation and no insurance.
+- **The destination address is not validated or corrected automatically.** Labels are bought with address validation turned off. ShipStation and the carrier receive the address exactly as it is stored on the order. When buying a label by hand, staff can edit and check the address first, but the edit is not saved to the order.
+- **Fixed label layout.** You choose the label format (PDF, PNG or ZPL) per configuration. The layout is ShipStation's default (4×6 inch).
+- **The label file is not stored in Saleor.** The app stores a link to the label in ShipStation, in the fulfillment's private metadata. The label itself stays in ShipStation.
+- **The customer is not notified by the app.** The tracking number is written with `notifyCustomer: false`.
+- **No tracking sync to Saleor.** The app does not subscribe to ShipStation tracking events, so delivery status is not written back to Saleor. The order page reads tracking status and events live from ShipStation instead.
+- **No return or replacement labels.** Returns and replacements are not covered.
+
+### Voiding
+
+- **Voiding is best effort.** Saleor has already cancelled the fulfillment or order when the app hears about it. If ShipStation or the carrier refuses the void (the label was scanned, or the void window has passed), the app can't undo the cancellation. It adds an order note and reports a problem, and you have to void the label in ShipStation directly.
+- **Voiding one label from the order page changes nothing else.** The fulfillment keeps its tracking number, and no replacement label is bought.
+
+### Configuration
+
+- **Test or live is decided by the API key alone.** A key that starts with `TEST_` uses the free ShipStation sandbox. Any other key buys real postage. There is no separate "test mode" switch.
+- **Orders stay tied to the configuration that quoted them.** A label is bought and voided with the configuration whose ID was stored on the shipping method at checkout, not with the configuration the channel uses today. Deleting a configuration means its open orders can't get labels, and its labels can't be voided from Saleor.
+- **Ship-from validation depends on your ShipStation plan.** ShipStation address validation is not available on every plan. When it isn't, the configuration is saved with an "address not validated" note.
+
+## Next steps
+
+Explore the app's [architecture](./architecture) or proceed to the [configuration](./configuration) guide.

@@ -1,0 +1,94 @@
+---
+title: ShipStation Labels on the Order Page
+slug: developer/app-store/apps/shipstation/order-labels
+sidebar:
+  label: Order Page Labels
+  order: 4
+seo:
+  title: ShipStation Labels on the Order Page
+  description: See, download, track and void ShipStation labels from the Saleor order page, and buy another label for a fulfillment.
+lastModified: "2026-11-27"
+---
+
+The ShipStation App adds a labels view to the order page in the Saleor Dashboard. From there, staff can see every ShipStation label of an order, download it, follow its tracking, void it, and buy another label for a fulfillment, for example when a parcel was lost, the box was wrong, or a second box is needed.
+
+:::note
+To see and manage labels, the logged-in staff user must have the `MANAGE_ORDERS` permission.
+:::
+
+## Where to Find It
+
+- **Widget:** the **ShipStation labels** widget on the order page lists the order's labels with their tracking status and cost. **Open shipping labels** opens the full view. This button needs Saleor and Dashboard 3.23.19 or newer.
+- **Order menu:** the full view is also available as **ShipStation labels** in the order's more actions menu. Use it on older Saleor 3.23 versions.
+
+## How Labels Are Found
+
+The app stores nothing new for this view. Each time it opens, the app asks ShipStation for the labels of every fulfillment, using the fulfillment ID that each label carries as `external_shipment_id`. What you see is what ShipStation has, including labels that were voided or delivered in ShipStation.
+
+Labels are read with the API key of the configuration that bought the fulfillment label (`shipstation.configId` on the fulfillment). When the fulfillment names no configuration, the app uses the configuration assigned to the order's channel. A fulfillment with neither shows "No ShipStation configuration for this fulfillment."
+
+Every open costs ShipStation requests: one per fulfillment, plus carriers and services when you open the form to buy a label. Tracking events are loaded only when you expand a label.
+
+## The Labels View
+
+The view lists every fulfillment of the order with all its labels. For each label, it shows:
+
+- the tracking status or the void status,
+- the tracking number and the cost,
+- a **Download** link, in the format the label was bought in,
+- **Tracking**, which loads the carrier's tracking events,
+- **Void label**, for labels that are not voided or delivered.
+
+The label that the fulfillment's tracking number belongs to is marked as the **Fulfillment label**.
+
+### Voiding a Label
+
+**Void label** asks ShipStation to void that one label and adds an order note with the outcome. Nothing else changes: the fulfillment keeps its tracking number and label metadata, and no replacement label is bought. A delivered label can't be voided, because the carrier always refuses it.
+
+## Buying Another Label
+
+Select **Issue new label** on a fulfillment. It is available for fulfillments that are fulfilled or waiting for approval, when the fulfillment has a configuration.
+
+The form is pre-filled from the order and the configuration:
+
+| Field               | Pre-filled with                                                                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Carrier and service | The carrier and service chosen at checkout, when the configuration still offers them. Otherwise, the first carrier of the configuration.          |
+| Packages            | One package with the box and weight the app's packing picks for the fulfillment's lines. If a line has no weight, enter the weight by hand.       |
+| Ship date           | Today.                                                                                                                                            |
+| Label format        | The configuration's label format.                                                                                                                 |
+| Ship to             | The order's shipping address. You can edit it and select **Check the address** to validate it with ShipStation. Edits are not saved to the order. |
+| Ship from           | The configuration's ship-from address. It can't be changed here.                                                                                  |
+
+Packages are entered in the configuration's units: cm and g (metric), or inch and oz (imperial). You can add up to 20 packages, but only for services that support multi-package labels.
+
+To buy:
+
+1. Select **Get rate**. The app asks ShipStation for a real rate for this exact shipment, not an estimate.
+2. Check the price, then select **Buy label for** the shown amount. Any change to the form drops the rate, so you always buy the price you saw.
+
+Only carriers enabled in the configuration can be used, because carrier IDs belong to the configuration's ShipStation account.
+
+### Use as Fulfillment Label
+
+**Use as fulfillment label** is turned on by default. When it is on, the new label replaces the fulfillment's tracking number and label metadata. The customer is not notified. When it is off, the label is bought and listed, but the fulfillment keeps its current tracking number.
+
+If the label was bought but writing it to the fulfillment failed, the form says so. The label is still bought and listed.
+
+### Duplicate Protection
+
+ShipStation has no idempotency key, so the app checks the fulfillment's labels before buying. If a label was bought for the same fulfillment in the last 60 seconds, the app asks you to confirm before buying another one. This prevents a double click, or two staff members on the same order, from buying twice.
+
+### What a Manual Label Contains
+
+A label bought from the order page carries the same references as a label bought by the webhook: the fulfillment ID as `external_shipment_id`, the order number as `shipment_number`, the order ID as `external_order_id`, and `Order #<number>` printed on the label. Because of this, it is listed on the order page and voided when the fulfillment or the order is cancelled.
+
+Every purchase adds an order note with the label ID, carrier, service and cost.
+
+## Limitations
+
+- **No customs information.** International labels that need customs data can still fail. ShipStation's error is shown in the form.
+- **No insurance or signature options.**
+- **No return labels.**
+- **The ship-from address is fixed** to the configuration's address.
+- **Labels from another ShipStation account are not shown.** If the configuration's API key was changed to another account, labels bought with the old key are no longer listed.
