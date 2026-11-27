@@ -32,7 +32,10 @@ The app:
 - Buys a label when a fulfillment is created, with the carrier and service the customer chose at checkout
 - Writes the carrier's tracking number back to the Saleor fulfillment
 - Stores the label ID, label download URL and carrier tracking page URL in the fulfillment's private metadata
-- Voids the label when the fulfillment or the order is cancelled
+- Prints the Saleor order number on every label, so you can find the order from ShipStation
+- Shows the order's labels on the order page, with tracking, cost, download and void
+- Lets staff buy another label for a fulfillment from the order page (a lost parcel, a wrong box, a second box), with the price shown before buying
+- Voids every label of a fulfillment when the fulfillment or the order is cancelled, including labels bought by hand
 - Adds order notes that explain each label purchase or void that didn't succeed
 - Reports configuration and data problems to the Saleor Dashboard
 - Includes a Playground: a test checkout inside the Dashboard, because draft orders can't use app shipping methods
@@ -68,27 +71,27 @@ Before installing this app, review these limitations to ensure they don't confli
 
 ### Packing
 
-- **One parcel per shipment.** Every rate and label is for a single package. An order that doesn't fit the largest box is still quoted and labelled in the largest box. Multi-package shipments are not supported.
+- **One parcel per shipment at checkout and on fulfillment.** Every checkout rate and every label the app buys automatically is for a single package. An order that doesn't fit the largest box is still quoted and labelled in the largest box. Staff can buy a multi-package label by hand from the [order page](./order-labels), for services that support it.
 - **No 3D bin packing.** The app adds up item volumes and checks only the longest side. It can pick a box that can't physically hold the items in any arrangement.
 - **Boxes are typed into the configuration.** The app does not use ShipStation custom package types.
 - **Dimension attributes must be visible in the storefront.** The app does not have the `MANAGE_PRODUCTS` permission, so Saleor leaves attributes that are hidden from the storefront out of its webhook payloads.
 
 ### Labels
 
-- **Labels are bought only for fulfillments created after checkout.** The app buys a label on `FULFILLMENT_CREATED`. You can't buy a label again for an existing fulfillment from the Dashboard. To retry, cancel the fulfillment and fulfill again.
+- **Automatic labels only for fulfillments of checkout orders.** The app buys a label on `FULFILLMENT_CREATED`, and only for orders placed with one of its shipping methods. A label refused at that point is not retried. Staff can buy one by hand from the [order page](./order-labels).
 - **No customs information.** The app sends no customs declarations, so international shipments that need customs data can fail at label purchase.
 - **No insurance or signature options.** Labels are bought with no delivery confirmation and no insurance.
-- **The destination address is not validated or corrected.** Labels are bought with address validation turned off. ShipStation and the carrier receive the address exactly as it is stored on the order.
+- **The destination address is not validated or corrected automatically.** Labels are bought with address validation turned off. ShipStation and the carrier receive the address exactly as it is stored on the order. When buying a label by hand, staff can edit and check the address first, but the edit is not saved to the order.
 - **Fixed label layout.** You choose the label format (PDF, PNG or ZPL) per configuration. The layout is ShipStation's default (4×6 inch).
 - **The label file is not stored in Saleor.** The app stores a link to the label in ShipStation, in the fulfillment's private metadata. The label itself stays in ShipStation.
 - **The customer is not notified by the app.** The tracking number is written with `notifyCustomer: false`.
-- **No tracking updates.** The app does not subscribe to ShipStation tracking events, so delivery status is not synced back to Saleor.
+- **No tracking sync to Saleor.** The app does not subscribe to ShipStation tracking events, so delivery status is not written back to Saleor. The order page reads tracking status and events live from ShipStation instead.
 - **No return or replacement labels.** Returns and replacements are not covered.
 
 ### Voiding
 
 - **Voiding is best effort.** Saleor has already cancelled the fulfillment or order when the app hears about it. If ShipStation or the carrier refuses the void (the label was scanned, or the void window has passed), the app can't undo the cancellation. It adds an order note and reports a problem, and you have to void the label in ShipStation directly.
-- **The sandbox never approves a void.** With a `TEST_` key, voids always come back refused. See [Testing](./testing).
+- **Voiding one label from the order page changes nothing else.** The fulfillment keeps its tracking number, and no replacement label is bought.
 
 ### Configuration
 

@@ -23,7 +23,16 @@ The app requests these permissions at installation:
 
 The app does not request `MANAGE_PRODUCTS`. As a result, it sees only product attributes that are visible in the storefront.
 
-To open the app's configuration page and the Playground, a staff user needs the `MANAGE_SHIPPING` and `MANAGE_APPS` permissions.
+To open the app's configuration page and the Playground, a staff user needs the `MANAGE_SHIPPING` and `MANAGE_APPS` permissions. To see and manage labels on the order page, a staff user needs the `MANAGE_ORDERS` permission. See [Order page labels](./order-labels).
+
+## Dashboard Extensions
+
+| Mount                        | Target   | What it shows                                                                                        |
+| ---------------------------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| `ORDER_DETAILS_WIDGETS`      | `WIDGET` | The order's live ShipStation labels, with tracking and cost, and an **Open shipping labels** button. |
+| `ORDER_DETAILS_MORE_ACTIONS` | `POPUP`  | **ShipStation labels**: the full labels view, opened from the order's menu or from the widget.       |
+
+Both require `MANAGE_ORDERS`.
 
 ## Webhooks
 
@@ -200,18 +209,21 @@ This means:
 
 ### What the label request contains
 
-| Field                  | Value                                                                                                 |
-| ---------------------- | ----------------------------------------------------------------------------------------------------- |
-| Carrier and service    | From the shipping method's private metadata.                                                          |
-| `external_shipment_id` | The Saleor fulfillment ID.                                                                            |
-| Ship date              | The time the webhook is handled.                                                                      |
-| Ship from              | The configuration's ship-from address, marked as not residential.                                     |
-| Ship to                | The order's shipping address with its phone number. Residential indicator `unknown`.                  |
-| Package                | One `package` with the total weight of this fulfillment's lines and the dimensions of the chosen box. |
-| Address validation     | Off (`no_validation`).                                                                                |
-| Label format           | The configuration's format: PDF, PNG or ZPL. Download type `url`.                                     |
+| Field                  | Value                                                                                                                                   |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Carrier and service    | From the shipping method's private metadata.                                                                                            |
+| `external_shipment_id` | The Saleor fulfillment ID.                                                                                                              |
+| Order reference        | The order number as `shipment_number`, the order ID as `external_order_id`, and `Order #<number>` printed on the label as `reference1`. |
+| Ship date              | The time the webhook is handled.                                                                                                        |
+| Ship from              | The configuration's ship-from address, marked as not residential.                                                                       |
+| Ship to                | The order's shipping address with its phone number. Residential indicator `unknown`.                                                    |
+| Package                | One `package` with the total weight of this fulfillment's lines and the dimensions of the chosen box.                                   |
+| Address validation     | Off (`no_validation`).                                                                                                                  |
+| Label format           | The configuration's format: PDF, PNG or ZPL. Download type `url`.                                                                       |
 
 With partial fulfillments, each fulfillment gets its own label, weighed and packed from its own lines only.
+
+The order reference lets you find the Saleor order from a label in ShipStation. Carriers cut the printed reference at 25 to 60 characters, depending on the carrier.
 
 ### Preventing duplicate labels
 
@@ -219,6 +231,8 @@ Buying a label costs money and ShipStation API v2 has no idempotency key. To sto
 
 - If ShipStation has a label for that ID, the app reuses it and buys nothing.
 - If not, the app buys a new label.
+
+The webhook buys at most one label per fulfillment. A fulfillment can still hold more labels, bought by staff from the [order page](./order-labels). They carry the same `external_shipment_id`, so the webhook's lookup finds them too, and the cancel webhooks void all of them.
 
 Because of this lookup, the app can safely answer with an error when writing back to Saleor fails, and let Saleor retry the webhook.
 
@@ -233,12 +247,12 @@ After the label is bought, the app:
 1. Sets the fulfillment's tracking number with `orderFulfillmentUpdateTracking` and `notifyCustomer: false`.
 2. Writes these keys to the fulfillment's **private** metadata:
 
-| Key                       | Value                                                                                  |
-| ------------------------- | -------------------------------------------------------------------------------------- |
-| `shipstation.labelId`     | The ShipStation label ID. Used to void the label.                                      |
-| `shipstation.configId`    | The configuration that bought the label. Only its API key can void the label.          |
-| `shipstation.labelUrl`    | The label download URL in the configured format. Left out if ShipStation returns none. |
-| `shipstation.trackingUrl` | The carrier's public tracking page. Left out for carriers that don't provide one.      |
+| Key                       | Value                                                                                                   |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `shipstation.labelId`     | The ID of the fulfillment label: the label its tracking number belongs to.                              |
+| `shipstation.configId`    | The configuration that bought the label. Its API key is used to find and void the fulfillment's labels. |
+| `shipstation.labelUrl`    | The label download URL in the configured format. Left out if ShipStation returns none.                  |
+| `shipstation.trackingUrl` | The carrier's public tracking page. Left out for carriers that don't provide one.                       |
 
 The label is stored in private metadata, not public metadata, because it shows the customer's full address. Public metadata can be read from the storefront. If you want to show the tracking page to customers, copy the URL to a place your storefront can read.
 
@@ -246,18 +260,18 @@ If either write fails, the webhook answers with an error and Saleor retries it. 
 
 ### Failed purchases are not retried
 
-When ShipStation refuses a label, the webhook still answers successfully, so Saleor does not retry it. A refused label stays refused until something changes, for example carrier funds, the carrier setup in ShipStation, or the order's address. To retry after fixing the cause, cancel the fulfillment and fulfill again.
+When ShipStation refuses a label, the webhook still answers successfully, so Saleor does not retry it. A refused label stays refused until something changes, for example carrier funds, the carrier setup in ShipStation, or the order's address. After fixing the cause, buy the label from the [order page](./order-labels), or cancel the fulfillment and fulfill again.
 
 ## Voiding labels
 
-`FULFILLMENT_CANCELED` voids the label of the cancelled fulfillment. Cancelling an order in Saleor does not cancel its fulfillments, so `ORDER_CANCELLED` voids the label of every fulfillment of the order that is not already cancelled.
+`FULFILLMENT_CANCELED` voids the labels of the cancelled fulfillment. Cancelling an order in Saleor does not cancel its fulfillments, so `ORDER_CANCELLED` voids the labels of every fulfillment of the order that is not already cancelled.
 
-For each label, the app:
+The app voids every label of the fulfillment that is not voided yet: the one bought by the webhook and any bought by staff from the order page. For each fulfillment, the app:
 
-1. Reads `shipstation.labelId` and `shipstation.configId` from the fulfillment's private metadata. A fulfillment without a label ID was not shipped through the app and is ignored.
-2. Loads the configuration that bought the label. If it was deleted, or the fulfillment has no stored configuration ID, the app adds an order note to void the label in ShipStation manually, and reports the void problem.
-3. Asks ShipStation to void the label.
-4. Adds an order note with the outcome.
+1. Finds the configuration that holds the fulfillment's labels: the one named in `shipstation.configId` on the fulfillment, or, when the fulfillment names none, the configuration assigned to the order's channel. If neither exists, the app bought nothing for the fulfillment and it is ignored.
+2. If the named configuration was deleted or can't be loaded, adds an order note to void the labels in ShipStation manually, and reports the void problem.
+3. Lists the fulfillment's labels in ShipStation by `external_shipment_id`. If ShipStation can't be reached, adds an order note and reports the void problem.
+4. Asks ShipStation to void each label that is not voided yet, and adds an order note with each outcome.
 
 | ShipStation answer                  | Outcome                                                                                |
 | ----------------------------------- | -------------------------------------------------------------------------------------- |
@@ -273,7 +287,7 @@ Both cancellation webhooks always answer successfully. Saleor has already cancel
 ## Data storage
 
 - **Configurations** are stored in DynamoDB, separately for each Saleor installation of the app. The ShipStation API key is encrypted at rest. The Dashboard only ever sees its last 4 characters.
-- **Label references** are stored in Saleor, in the fulfillment's private metadata. The app keeps no copy of orders, addresses or labels.
+- **Label references** for the fulfillment label are stored in Saleor, in the fulfillment's private metadata. The app keeps no copy of orders, addresses or labels. The order page reads all labels live from ShipStation.
 - **Rate routing data** (carrier ID, service code and configuration ID) is stored in Saleor, in the shipping method's private metadata on the order.
 
 The app does not log request or response bodies sent to or received from ShipStation, because they contain the customer's address and phone number. App problems quote only ShipStation's error codes. The full ShipStation error message goes to the order note, which only staff can read.
